@@ -1,10 +1,11 @@
 # jtree
 A javascript toolbox for running economics experiments.
 
-#### Features
-- easy to program: uses Javascript, a widely-known programming language
-- easy to access: participants only need a browser (so works on laptops, desktops, mobile phones, tablets, etc.); server runs on Windows/MacOS/Linux.
-- easy to start: just download the executable file and run.
+#### Planned features
+Same look and functionality as zTree, plus:
+- option to write treatments in javascript + html.
+- participants only need a browser to connect (so works on laptops, desktops, mobile phones, tablets, etc.); 
+- server also runs on MacOS/Linux.
 
 ### UNDER DEVELOPMENT
 Parts of the documentation are accurate, others are out of date, while still others refer to functionality that will be implemented soon (but for the moment still does not exist). Proceed with caution.
