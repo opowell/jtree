@@ -1,9 +1,9 @@
 RUNNING FROM SOURCE
-cd '.\Google Drive\active\2017.01.11 nodejs\jtree\'
-node --inspect '..\jtreeDev\source\jtree.js'
-node --inspect-brk '..\jtreeDev\source\jtree.js'
-nodemon -w ..\jtreeDev\source --inspect '..\jtreeDev\source\jtree.js'
+cd '.\Documents\Github\jtree\'
+node --inspect '..\server\source\jtree.js'
+node --inspect-brk '..\server\source\jtree.js'
+nodemon -w ..\server\source --inspect '..\server\source\jtree.js'
 
 COMPILING A RELEASE
-cd '.\Google Drive\active\2017.01.11 nodejs\jtreeDev\'
+cd '.\Docuemtns\Github\jtree\'
 .\build-tools\buildJTree.bat

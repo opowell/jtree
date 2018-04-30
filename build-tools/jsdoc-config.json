@@ -4,7 +4,7 @@
     "hardwrap": true
   },
   "opts": {
-    "destination": "../jtree/internal/docs",
+    "destination": "./client/internal/docs",
     "readme": "doc-pages/README.md",
     "recurse": true,
     "tutorials": "doc-pages"

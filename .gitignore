@@ -1,0 +1,7 @@
+build-tools/7z.dll
+build-tools/7z.exe
+client/internal/logs
+client/internal/settings.js
+client/queues
+client/sessions
+client/users

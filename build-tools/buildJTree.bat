@@ -14,32 +14,32 @@ call rmdir ".\releases\%vers%" /Q /S
 mkdir ".\releases\%vers%"
 
 REM ------- Compile program.
-call pkg --targets win-x64,win-x86,linux,macos --out-path ".\releases\%vers%" .\source\jtree.js
+call pkg --targets win-x64,win-x86,linux,macos --out-path ".\releases\%vers%" .\server\source\jtree.js
 
 REM ------- Compile docs.
 call ./build-tools/buildDocs.bat
 
 REM ------- Copy all files to release folder.
-call xcopy "..\jtree\apps\beauty-contest" ".\releases\%vers%\apps\beauty-contest\" /E
-call xcopy "..\jtree\apps\centipede" ".\releases\%vers%\apps\centipede\" /E
-call xcopy "..\jtree\apps\dictator-game" ".\releases\%vers%\apps\dictator-game\" /E
-call xcopy "..\jtree\apps\display-profit" ".\releases\%vers%\apps\display-profit\" /E
-call xcopy "..\jtree\apps\double-auction" ".\releases\%vers%\apps\double-auction\" /E
-call xcopy "..\jtree\apps\enter-id" ".\releases\%vers%\apps\enter-id\" /E
-call xcopy "..\jtree\apps\market-entry-game" ".\releases\%vers%\apps\market-entry-game\" /E
-call xcopy "..\jtree\apps\public-good" ".\releases\%vers%\apps\public-good-w-punish\" /E
-call xcopy "..\jtree\apps\questionnaire" ".\releases\%vers%\apps\questionnaire\" /E
-call xcopy "..\jtree\apps\questionnaire-bootstrap" ".\releases\%vers%\apps\questionnaire-bootstrap\" /E
-call xcopy "..\jtree\apps\real-effort-sums" ".\releases\%vers%\apps\real-effort-sums\" /E
-call xcopy "..\jtree\apps\stag-hunt-game" ".\releases\%vers%\apps\stag-hunt-game\" /E
-call xcopy "..\jtree\apps\travellers-dilemma" ".\releases\%vers%\apps\travellers-dilemma\" /E
-call xcopy "..\jtree\apps\trust-game" ".\releases\%vers%\apps\trust-game\" /E
-call xcopy "..\jtree\apps\ultimatum-game" ".\releases\%vers%\apps\ultimatum-game\" /E
+call xcopy ".\client\apps\beauty-contest" ".\releases\%vers%\apps\beauty-contest\" /E
+call xcopy ".\client\apps\centipede" ".\releases\%vers%\apps\centipede\" /E
+call xcopy ".\client\apps\dictator-game" ".\releases\%vers%\apps\dictator-game\" /E
+call xcopy ".\client\apps\display-profit" ".\releases\%vers%\apps\display-profit\" /E
+call xcopy ".\client\apps\double-auction" ".\releases\%vers%\apps\double-auction\" /E
+call xcopy ".\client\apps\enter-id" ".\releases\%vers%\apps\enter-id\" /E
+call xcopy ".\client\apps\market-entry-game" ".\releases\%vers%\apps\market-entry-game\" /E
+call xcopy ".\client\apps\public-good" ".\releases\%vers%\apps\public-good-w-punish\" /E
+call xcopy ".\client\apps\questionnaire" ".\releases\%vers%\apps\questionnaire\" /E
+call xcopy ".\client\apps\questionnaire-bootstrap" ".\releases\%vers%\apps\questionnaire-bootstrap\" /E
+call xcopy ".\client\apps\real-effort-sums" ".\releases\%vers%\apps\real-effort-sums\" /E
+call xcopy ".\client\apps\stag-hunt-game" ".\releases\%vers%\apps\stag-hunt-game\" /E
+call xcopy ".\client\apps\travellers-dilemma" ".\releases\%vers%\apps\travellers-dilemma\" /E
+call xcopy ".\client\apps\trust-game" ".\releases\%vers%\apps\trust-game\" /E
+call xcopy ".\client\apps\ultimatum-game" ".\releases\%vers%\apps\ultimatum-game\" /E
 
-call xcopy "..\jtree\queues" ".\releases\%vers%\queues\" /E
-call xcopy "..\jtree\internal" ".\releases\%vers%\internal\" /E
-call xcopy "..\jtree\help.html" ".\releases\%vers%\"
-call xcopy ".\source" ".\releases\%vers%\internal\source\" /E
+call xcopy ".\client\queues" ".\releases\%vers%\queues\" /E
+call xcopy ".\client\internal" ".\releases\%vers%\internal\" /E
+call xcopy ".\client\help.html" ".\releases\%vers%\"
+call xcopy ".\server\source" ".\releases\%vers%\internal\source\" /E
 
 call del ".\releases\%vers%\internal\logs" /Q /F
 call rmdir ".\releases\%vers%\internal\logs" /Q /S
