@@ -1,0 +1,41 @@
+{
+  "name": "jtreedev",
+  "version": "1.0.0",
+  "description": "",
+  "main": "jtree.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "dependencies": {
+    "async": "^2.6.0",
+    "body-parser": "^1.18.2",
+    "cheerio": "^1.0.0-rc.2",
+    "express": "^4.16.2",
+    "express-session": "^1.15.6",
+    "fs-extra": "^5.0.0",
+    "http": "^0.0.0",
+    "ip": "^1.1.5",
+    "jsonfile": "^4.0.0",
+    "object-hash": "^1.2.0",
+    "openport": "^0.0.4",
+    "openurl": "^1.1.1",
+    "path": "^0.12.7",
+    "replace": "^0.3.0",
+    "socket.io": "^2.0.4"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-flow": "^6.23.0",
+    "flow-bin": "^0.64.0",
+    "jsdoc-baseline": "https://github.com/hegemonic/baseline/tarball/master",
+    "jsdoc-rtd": "^1.0.15"
+  },
+  "scripts": {
+    "build": "babel flowSource/ -d source/",
+    "prepublish": "npm run build",
+    "flow": "flow",
+    "flow:check": "flow check ./source/"
+  },
+  "author": "Owen Powell",
+  "license": "ISC"
+}

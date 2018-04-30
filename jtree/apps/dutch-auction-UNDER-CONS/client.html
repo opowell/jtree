@@ -1,0 +1,109 @@
+<!doctype html>
+<html>
+<head>
+    <script type="text/javascript" src='/participant/jtree.js'></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.js"></script>
+    <script type="text/javascript" src="dutch-auction/client.js"></script>
+    <link rel="stylesheet" type="text/css" href="defaultGame.css">
+    <!-- BOOTSTRAP -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- End BOOTSTRAP -->
+</head>
+<body>
+    <h1>UNDER CONSTRUCTION</h1>
+    <div role="main" class="container-fluid" id='main-div'>
+        <div class="card-header">
+            <div class="row">
+                <h4 class='row col-md-8'>
+                    <div class='spaced-text'>Period: </div>
+                    <div class='spaced-text period-id'>-</div>
+                    <div class='spaced-text'>/</div>
+                    <div class='spaced-text app-numPeriods'>-</div>
+                </h4>
+                <h4 id='time-remaining-div' class="row col-md-4 justify-content-end">
+                    <div style='margin-right: 2em;'>Time remaining:</div>
+                    <div class='row' id='clock-div'>
+                        <div id='clock-minutes'>-</div>
+                        <div id='clock-divider'>:</div>
+                        <div id='clock-seconds'>-</div>
+                    </div>
+                </h4>
+            </div>
+        </div>
+        <div id='player-status-waiting' class='jt-player-status'>
+            <div class="card">
+                <div class="card-header">
+                    <h3>Waiting for experiment to continue</h3>
+                    <div>
+                        <p>Please wait, the experiment will continue soon.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id='player-status-active' class='jt-player-status'>
+            <div id='jt-stage-decide' hidden class='jt-stage'>
+                <div class="card">
+                    <div class="card-block">
+                        <h4 class="card-title">Decision</h4>
+                        <div class='card-text'>
+                            <div style='display: flex'>
+                                <div>You are Bidder&nbsp;</div>
+                                <div id='player-id'></div>
+                                <div>.</div>
+                            </div>
+                            <div style='display: flex'>
+                                <div>Your value for the certificate is E$</div>
+                                <div id='my-value'></div>
+                                <div>.</div>
+                            </div>
+                            <div style='display: flex'>
+                                <div>Current price E$:&nbsp;</div>
+                                <div id='current-price'></div>
+                                <div>.</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick='optIn();'>Accept price</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id='jt-stage-results' hidden class='jt-stage'>
+                <div class="card">
+                    <div class="card-block">
+                        <h4 class="card-title">Results</h4>
+                        <div class='card-text'>
+                            <div style='display: flex'>
+                                <div>You are Bidder&nbsp;</div>
+                                <div class='player-id'>-</div>
+                                <div>.</div>
+                            </div>
+                            <div style='display: flex'>
+                                <div>Your value for the certificate was E$</div>
+                                <div class='player-value'>-</div>
+                                <div>.</div>
+                            </div>
+                            <div id='winner-info'></div>
+                            <div style='display: flex'>
+                                <div>Thus, your payoff in this period is&nbsp;</div>
+                                <div id='payoff-desc'></div>
+                                <div class='player-points'>-</div>
+                                <div>.</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick='gotoNextStage();'>OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- BOOTSTRAP -->
+    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+    <!-- End BOOTSTRAP -->
+
+</body>
+</html>

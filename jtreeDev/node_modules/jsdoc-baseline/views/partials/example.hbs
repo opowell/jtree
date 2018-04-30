@@ -1,0 +1,8 @@
+{{!-- TODO: improve appearance --}}
+<div {{~cssClass 'example'}}>
+    {{#if caption}}
+        {{!-- TODO: better markup for this --}}
+        <p {{~cssClass 'example-caption'}}>{{caption}}</p>
+    {{/if}}
+    <pre {{~cssClass '!prettyprint'}}><code>{{code}}</code></pre>
+</div>

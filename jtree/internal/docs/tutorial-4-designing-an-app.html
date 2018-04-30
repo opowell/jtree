@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Tutorial: Designing an App</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Tutorial: Designing an App</h1>
+
+    <section>
+
+<header>
+    
+
+    <h2>Designing an App</h2>
+</header>
+
+<article>
+    <p>An app consists of a folder <code>myApp</code> containing the following:</p>
+<ol>
+<li>app.js</li>
+<li>client.html</li>
+</ol>
+<p>The <code>app.js</code> file contains the logic of your app, and runs on the server. The <code>client.html</code> file contains the screens of your app that the participants see. The <code>&lt;myApp&gt;</code> folder contains all files relevant to your app (including, for example, images), and its name is used as an identifier for the app. By default, app folders are stored in <code>&lt;jtree&gt;/apps/</code>.</p>
+<p>This tutorial will show you how to program the simple public goods game used in the previous section. Create a folder called <code>my-public-goods</code> and add two empty files called <code>app.js</code> and <code>client.html</code> now.</p>
+<h3>app.js</h3><p>In general, the <code>app.js</code> file defines the parameters and stages of the app. It begins with a pre-defined App object called app. Fields are modified and/or added to this object using Javascript. Add the following code to the <code>app.js</code> file now:</p>
+<pre class="prettyprint source lang-javascript"><code>app.numPeriods  = 10
+app.groupSize   = 4
+app.endowment   = 20
+app.prodFactor  = 2</code></pre><p>The code above sets the number of periods for this App to 10, and the number of players per group to 4. The complete set of pre-defined fields and methods for the App object (and all other jtree objects) is available in the Reference documentation. The last two lines create new fields specific to this app, the endowment that each player will begin with (20), and the production factor (2).</p>
+<p>The next step is determining the stages of your app. Stages of an app are repeated a given number of times. The repeated public goods game has the following stages:</p>
+<ol>
+<li>Decision stage: players choose how much to contribute.</li>
+<li>Results stage: players are shown their profit for this period.</li>
+</ol>
+<p>Stages are created and added to the app using the <code>app.newStage(stageId)</code> function. Add the following code to the <code>app.js</code> file:</p>
+<pre class="prettyprint source lang-javascript"><code>var decideStage  = app.newStage('decide')
+var resultsStage = app.newStage('results')</code></pre><p>Once a stage has been created, fields and functions of that stage can be set and/or overwritten. For example, to set the duration of the results stage to 30 seconds, we use:</p>
+<pre class="prettyprint source lang-javascript"><code>resultsStage.duration = 30</code></pre><p>In jtree, players go through an app as part of a group. Therefore it is usually important to define what happens when a group and/or individual player starts each stage of the app.</p>
+<p>In the decision stage, the server simply waits for and saves input from the client. jtree handles this sort of behavior automatically for you, therefore there is no server-side logic to write for this stage (the user interface for this stage is defined later in <code>client.html</code>). On the other hand, when a group starts playing the results stage, production of the public good and payoffs need to be calculated.</p>
+<p>Add the following to the end of the <code>app.js</code> file:</p>
+<pre class="prettyprint source lang-javascript"><code>// app.js
+resultsStage.groupStart = function(group) {
+    group.contributions = Utils.sum(group.players, 'contribution')
+    group.production = group.contributions * app.prodFactor
+    group.prodPerPlayer = group.production / group.players.length
+}</code></pre><p>The <code>Stage.groupPlay(group)</code> function is called whenever a group begins playing the stage in question. It is passed the Group object as an argument. In our example, whenever a group starts playing this stage, the group contributions, production and production per player are calculated and stored as fields of the group object.</p>
+<p>When a player begins the Results stage, we want to calculate their points for the current period. Add the following to the end of the <code>app.js</code> file:</p>
+<pre class="prettyprint source lang-javascript"><code>// app.js
+resultsStage.playerStart = function(player) {
+    player.points =   app.endowment
+                    - player.contribution
+                    + group.prodPerPlayer
+    }
+}</code></pre><p>The <code>Stage.playerPlay</code> function is called whenever a player begins playing the stage, and is executed after the <code>stage.groupPlay</code> function. It is passed a Player object.</p>
+<p>In summary, the content of the <code>app.js</code> file is the following:</p>
+<pre class="prettyprint source lang-javascript"><code>app.numPeriods  = 10
+app.groupSize   = 4
+app.endowment   = 20
+app.factor      = 2
+
+var decideStage  = app.newStage('decide')
+var resultsStage = app.newStage('results')
+
+resultsStage.duration = 30
+resultsStage.groupStart = function(group) {
+    group.contributions = Utils.sum(group.players, 'contribution')
+    group.production = group.contributions * app.prodFactor
+    group.prodPerPlayer = group.production / group.players.length
+}
+resultsStage.playerStart = function(player) {
+    player.points =   app.endowment
+                    - player.contribution
+                    + group.prodPerPlayer
+    }
+}</code></pre><h3>client.html</h3><p>The <code>client.html</code> file contains all of the display information for the app. When a participant begins playing our app, this is the page it sees in the browser. The user interface is written in HTML, which consists of sets of tags. Tags are written in between greater than <code>&lt;</code> and less than <code>&gt;</code> characters, such as <code>&lt;p&gt;</code>. Tags can contain content, in which case they should also have an ending tag: <code>&lt;p&gt;This is a paragraph tag.&lt;/p&gt;</code>.</p>
+<p>For this app, we will split our interface into a header and various screens. Only one screen at a time will be shown to the player. We will use one screen for each stage of the app, plus a generic waiting screen for when a participant is waiting to proceed to the next stage. This gives us the following content:</p>
+<ol>
+<li>Header</li>
+<li>Decide screen</li>
+<li>Results screen</li>
+<li>Waiting screen</li>
+</ol>
+<p>Now we create the elements that make up each of these parts.</p>
+<p>We start with the header. The header will contain the current period the participant is in. Create a file called <code>client.html</code> in the app folder. Add the following text to the file:</p>
+<pre class="prettyprint source lang-html"><code>&lt;p>Period: 1/10&lt;/p></code></pre><p>For now, the elements we are creating are static (they will not update as the player progress through the app); later on in this tutorial we will make them dynamic.</p>
+<p>One of the advantages of building HTML webpages is that it is easy to check your progress. Open the <code>client.html</code> page in your browser now and you should see something similar to:</p>
+<p>Figure 1: A single screen element.</p>
+<p>For the 'Decide' screen, we want to show the following information to the player:</p>
+<ul>
+<li>A title (“DECISION”).</li>
+<li>The player's endowment.</li>
+<li>An input field for the player's contribution.</li>
+<li>A button to confirm the contribution.</li>
+</ul>
+<p>We will use the following tags: <code>&lt;p&gt;</code> (paragraph) to display regular text, <code>&lt;input&gt;</code> to create an input field, and <code>&lt;button&gt;</code> to create a button field.</p>
+<p>Add the following text to the bottom of the <code>client.html</code> file:</p>
+<pre class="prettyprint source lang-html"><code>&lt;p>DECISION&lt;/p>
+&lt;p>Your endowment is E$20.&lt;/p>
+&lt;p>Your contribution (E$): &lt;input>&lt;/p>
+&lt;button>Make contribution&lt;/button></code></pre><p>Now when you view the <code>client.html</code> file in the browser, you should see something like:</p>
+<p>Figure 2: The elements for the decision screen</p>
+<p>The content we wish to show for each of the other two screens is:</p>
+<p><em>Results screen</em>.</p>
+<ul>
+<li>A title (“RESULTS”).</li>
+<li>The text “Your endowment was E$20.”.</li>
+<li>The text “In total, players in your group contributed E$X, thus the total amount produced was E$Y.”</li>
+<li>The text “Thus, your payoff in this period is E$Z.”.</li>
+<li>An OK button.</li>
+</ul>
+<p><em>Waiting screen</em></p>
+<ul>
+<li>A title (“WAITING”).</li>
+<li>The text “The experiment will continue soon.”.</li>
+</ul>
+<p>These elements can be shown with the following code:</p>
+<pre class="prettyprint source lang-html"><code>&lt;p>RESULTS&lt;/p>
+&lt;p>Your endowment was E$20.&lt;/p>
+&lt;p>In total, players in your group contributed E$X, thus the total amount produced was E$Y.&lt;/p>
+&lt;p>Your payoff in this period is E$Z.&lt;/p>
+&lt;button>OK&lt;/button>
+&lt;p>WAITING&lt;/p>
+&lt;p>The experiment will continue soon.&lt;/p></code></pre><p>Add this code to the end of the <code>client.html</code> file. For the moment, all of these elements will show up on the screen at once. Later we will add code to indicate which parts are to be shown at different times to the player.</p>
+<p>Refresh the page in your browser and you should see something like this:</p>
+<p>Figure 3: The elements for all screens</p>
+<p>We have now created all of the elements of the interface. Before we can actually use our app, we need to add a bit of functionality behind the scenes. First, we need to replace fixed values with dynamic ones. Second, we need to only show certain parts of the screen, depending on the particular stage the player is in. Third, we need to make sure decisions are sent to the server. None of these changes affect the preview of our interface, which should continue to look like Figure 3.</p>
+<h4>Dynamic values</h4><p>At the start of each stage, jtree sends a Player object to each client. The Player object consists of all Player fields, including information about all parent objects (Group, Period, App, Session - see Reference for complete details). When a client receives this data, it automatically updates the parts of the page that have a <code>jt-text</code> attribute.</p>
+<p>For example, suppose we want to show the current period number. This is stored in the <code>player.group.period.id</code> field. So if we replace:</p>
+<pre class="prettyprint source lang-html"><code>&lt;p>Period: 1/10&lt;/p></code></pre><p>with:</p>
+<pre class="prettyprint source lang-html"><code>&lt;p>Period: &lt;span jt-text='period.id'>1&lt;/span>/&lt;span jt-text='app.numPeriods'>&lt;/span>&lt;/p></code></pre><p>then at the beginning of each stage, the content of the <code>&lt;span&gt;</code> tag will update with the current value of the <code>player.group.period.id</code> and <code>app.numPeriods</code> fields.</p>
+<p>In practical terms, <code>&lt;p&gt;</code> and <code>&lt;span&gt;</code> are very similar. The only difference is in their default layout: <code>&lt;p&gt;</code> creates a new paragraph, whereas <code>&lt;span&gt;</code> does not (which is why it is used in this case).</p>
+<p>The HTML element will take the javascript value of the expression in the <code>jt.value</code> attribute, so this can be a single variable (i.e. <code>'period.id'</code>), or a longer expression that includes several variables (i.e. <code>'period.id + 5'</code>). It has access to <code>player</code>, <code>group</code>, <code>period</code>, <code>app</code>, <code>session</code> and <code>stage</code> objects.</p>
+<p>The other dynamic fields we wish to show are the group contributions (<code>group.contributions</code>), total amount produced (<code>group.production</code>), and the player's payoff (<code>player.points</code>). Because these values will often be floating point numbers, we use the <code>jt-decimals</code> attribute to specify the number of decimal places to be displayed. The final code ends up looking like this:</p>
+<pre class="prettyprint source lang-html"><code>&lt;p>Period: &lt;span jt-text='period.id'>1&lt;/span>/&lt;span jt-text='app.numPeriods'>&lt;/span>&lt;/p>
+&lt;p>DECISION&lt;/p>
+&lt;p>Your endowment is E$&lt;span jt-text='app.endowment'>&lt;/span>.&lt;/p>
+&lt;p>Your contribution (E$): &lt;input>&lt;/p>
+&lt;button>Make contribution&lt;/button>
+&lt;p>RESULTS&lt;/p>
+&lt;p>Your endowment was E$&lt;span jt-text='app.endowment'>&lt;/span>.&lt;/p>
+&lt;p>In total, players in your group contributed E$&lt;span jt-text='group.contributions'>X&lt;/span>, thus the total amount produced was E$&lt;span jt-text='group.production' jt-decimals=2>Y&lt;/span>.&lt;/p>
+&lt;p>Thus, your payoff in this period is E$&lt;span jt-text='player.points' jt-decimals=2>Z&lt;/span>.&lt;/p>
+&lt;button>OK&lt;/button>
+&lt;p>WAITING&lt;/p>
+&lt;p>The experiment will continue soon.&lt;/p></code></pre><h1>Screens</h1><p>We implements screens by separating and wrapping the screen content in <p> tags, and then setting the data attributes of these tags to tell jtree when to show and hide each element. In particular, modify the interface to have the following structure:</p>
+<pre class="prettyprint source lang-html"><code>&lt;p>Period: &lt;span jt-text='period.id'>1&lt;/span>/&lt;span jt-text='app.numPeriods'>&lt;/span>&lt;/p>
+&lt;p jt-status='playing'>
+&lt;p jt-stage='decide'>
+        &lt;p>DECISION&lt;/p>
+&lt;p>Your endowment is E$&lt;span jt-text='app.endowment'>&lt;/span>.&lt;/p>
+&lt;p>Your contribution (E$): &lt;input>&lt;/p>
+&lt;button>Make contribution&lt;/button>
+&lt;/p>
+&lt;p jt-stage='results'>
+&lt;p>RESULTS&lt;/p>
+&lt;p>Your endowment was E$&lt;span jt-text='app.endowment'>&lt;/span>.&lt;/p>
+&lt;p>In total, players in your group contributed E$&lt;span jt-text='group.contributions'>X&lt;/span>, thus the total amount produced was E$&lt;span jt-text='group.production' jt-decimals=2>Y&lt;/span>.&lt;/p>
+&lt;p>Thus, your payoff in this period is E$&lt;span jt-text='player.points' jt-decimals=2>Z&lt;/span>.&lt;/p>
+&lt;button>OK&lt;/button>
+&lt;/p>
+&lt;/p>
+&lt;p jt-status='waiting'>
+    &lt;p>WAITING&lt;/p>
+    &lt;p>The experiment will continue soon.&lt;/p>
+&lt;/p></code></pre><p>Don't forget to include closing tags. Indentation is not required in HTML, but is useful to keep the code organized.</p>
+<p>At the beginning of a stage, elements with a <code>jt-stage</code> attribute that match the name of the current stage are shown. Elements with a <code>jt-stage</code> attribute that do not match are hidden. The same applies to the status of the player and the <code>jt-status</code> attribute.</p>
+<h1>Sending input to the server</h1><p>jtree provides default behavior for sending input to the server via HTML <code>&lt;form&gt;</code> tags. <code>&lt;form&gt;</code> tags consist of a set of <code>&lt;input&gt;</code> tags, and a <code>&lt;button&gt;</code> at the end that submits the form. HTML provides several attributes for <code>&lt;input&gt;</code> elements, such as type, required, min, max, and step, that allow you to restrict the set of values that can be entered. The <code>&lt;button&gt;</code> submits the form to the server. The server will set the appropriate fields on the <code>player</code> object based on the name attribute of the <code>&lt;input&gt;</code> tags. For example, when a form with the tag <code>&lt;input name='player.contribution'&gt;</code> is submitted, the <code>player.contribution</code> variable will be set to the value of the <code>&lt;input&gt;</code> field. After a form is submitted in this manner, players automatically advance to the next stage.</p>
+<p>Modifying the code to incorporate this functionality gives the following:</p>
+<pre class="prettyprint source lang-html"><code>&lt;p>Period: &lt;span jt-text='period.id'>1&lt;/span>/&lt;span jt-text='app.numPeriods'>&lt;/span>&lt;/p>
+&lt;span jt-status='playing'>
+    &lt;span jt-stage='decide'>
+        &lt;p>DECISION&lt;/p>
+        &lt;p>Your endowment is E$&lt;span jt-text='app.endowment'>&lt;/span>.&lt;/p>
+        &lt;form>
+            &lt;p>Your contribution (E$): &lt;input name='player.contribution' required type='number' min=0 jt-max='app.endowment' step=1>&lt;/p>
+            &lt;button>Make contribution&lt;/button>
+        &lt;/form>
+    &lt;/span>
+    &lt;span jt-stage='results'>
+        &lt;p>RESULTS&lt;/p>
+        &lt;p>Your endowment was E$&lt;span jt-text='app.endowment'>&lt;/span>.&lt;/p>
+        &lt;p>In total, players in your group contributed E$&lt;span jt-text='group.contributions'>X&lt;/span>, thus the total amount produced was E$&lt;span jt-text='group.production' jt-decimals=2>Y&lt;/span>.&lt;/p>
+        &lt;p>Thus, your payoff in this period is E$&lt;span jt-text='player.points' jt-decimals=2>Z&lt;/span>.&lt;/p>
+        &lt;form>
+            &lt;button>OK&lt;/button>
+        &lt;/form>
+    &lt;/span>
+&lt;/span>
+&lt;span jt-status='waiting'>
+    &lt;p>WAITING&lt;/p>
+    &lt;p>The experiment will continue soon.&lt;/p>
+&lt;/span></code></pre><p>If a form only contains a single button, this button submits the form when clicked. Otherwise, the attribute type='submit' must be explicitly added to one of the buttons in the form.</p>
+<h1>Finishing touches</h1><p>The functionality we just added requires the jtree client script to operate. Scripts can be imported into a page using a <code>&lt;script&gt;</code> tag. In the case of a jtree app, the contents of the <code>client.html</code> file should include:</p>
+<pre class="prettyprint source lang-html"><code>&lt;script type=&quot;text/javascript&quot; src='/participant/jtree.js'>&lt;/script></code></pre><p>This script loads files that are used to connect the client to the server and implement certain default behavior (see Reference for more details).</p>
+<p>And now the app is complete. To test it, simply follow the previous tutorial on running a session.</p>
+</article>
+
+</section>
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Apr 27 2018 08:58:03 GMT+0200 (Mitteleuropäische Sommerzeit)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

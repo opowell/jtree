@@ -1,0 +1,126 @@
+<!doctype html>
+<html>
+<head>
+    <title>jtree - admin</title>
+    <link rel="stylesheet" type="text/css" href="/shared/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/shared/jquery-ui.css">
+    <link rel="stylesheet" type='text/css' href='/shared/font-awesome-5.0.8/css/fontawesome-all.min.css'>
+    <link rel="stylesheet" type="text/css" href="/admin/multiuser/admin.css">
+    <script src="/admin/multiuser/imports.js"></script>
+</head>
+<body>
+
+    <main-menu></main-menu>
+    <view-home></view-home>
+    <view-app></view-app>
+        <viewappeditor-modal></viewappeditor-modal>
+        <appsetvariable-modal></appsetvariable-modal>
+    <view-apps></view-apps>
+    <view-queue></view-queue>
+        <addapptoqueue-modal></addapptoqueue-modal>
+    <view-queues></view-queues>
+    <view-room></view-room>
+        <addapptoroom-modal></addapptoroom-modal>
+    <view-rooms></view-rooms>
+        <createroom-modal></createroom-modal>
+    <view-session></view-session>
+        <addapptosession-modal></addapptosession-modal>
+        <addqueuetosession-modal></addqueuetosession-modal>
+        <addusertosession-modal></addusertosession-modal>
+        <setviewsize-modal></setviewsize-modal>
+        <setautoplayfreq-modal></setautoplayfreq-modal>
+    <view-sessions></view-sessions>
+    <view-settings></view-settings>
+    <view-users></view-users>
+        <createuser-modal></createuser-modal>
+    <view-login></view-login>
+
+    <!-- EDIT ROOM -->
+    <div id='view-edit-room' class='view hidden'>
+        <h2 id='edit-room-displayName'></h2>
+
+          <div class="form-group row">
+            <label for="edit-room-displayName" class="col-sm-2 col-form-label">Display name</label>
+            <div class="col-sm-10">
+              <input type="text" style='max-width: 20rem;' class="form-control" id="edit-room-displayName-input" placeholder="Display name">
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="edit-room-id" class="col-sm-2 col-form-label">Id</label>
+            <div class="col-sm-10">
+              <input type="text" style='max-width: 20rem;' class="form-control" id="edit-room-id" placeholder="Id">
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label id='edit-room-labels-title' for="view-room-id" class="col-sm-2 col-form-label">Labels</label>
+            <div class="col-sm-10 ">
+                <textarea id='edit-room-labels' class="form-control" rows="10"></textarea>
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <div class="col-sm-2">Use secure URLs</div>
+            <div class="col-sm-10">
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="radio" name="edit-room-useSecureURLs" id="edit-room-useSecureURLs-false" value=false>
+                  <label class="form-check-label" for="edit-room-useSecureURLs-false">
+                      Simple
+                  </label>
+                  <small class="form-text text-muted">http://server/roomId/label</small>
+                  <small class="form-text text-muted">Easier to remember.</small>
+                </div>
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="radio" name="edit-room-useSecureURLs" id="edit-room-useSecureURLs-true" value=true>
+                  <label class="form-check-label" for="edit-room-useSecureURLs-true">
+                      Secure
+                  </label>
+                  <small class="form-text text-muted">http://server/roomId/label/aj3fknke8fkenfk9</small>
+                  <small class="form-text text-muted">More difficult to guess and/or access by mistake.</small>
+                </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-sm-10">
+              <button type="submit" class="btn btn-sm btn-primary" onclick='jt.saveRoomAndView();'>
+                  <i class="fa fa-save"></i>&nbsp;Save and view
+              </button>
+              <button type="submit" class="btn btn-sm" onclick='jt.saveRoom();'>
+                  <i class="fa fa-save"></i>&nbsp;Save
+              </button>
+              <button type="submit" class="btn btn-sm" onclick='setView("room")'>
+                  <i class="fa fa-times"></i>&nbsp;Cancel
+              </button>
+            </div>
+          </div>
+
+    </div>
+
+    <!-- CONFIRM MODAL -->
+    <div class="modal" id="confirmModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document" style='max-width: 30rem;'>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Are you sure?</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id='confirmQuestion'>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-success" data-dismiss="modal" id='confirmYesBtn'>
+                        <i class="fa fa-check"></i>&nbsp;&nbsp;Yes
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
+                        <i class="fa fa-times"></i>&nbsp;&nbsp;No
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <editappoptions-modal></editappoptions-modal>
+
+</body>
+</html>

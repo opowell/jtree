@@ -1,0 +1,564 @@
+Fri Apr 20 2018 23:55:35 GMT+0200 (Mitteleuropäische Sommerzeit): last time on: 1524261335245
+Fri Apr 20 2018 23:55:35 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-165803-158
+Fri Apr 20 2018 23:55:35 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-224620-282
+Fri Apr 20 2018 23:55:35 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-230555-985
+Fri Apr 20 2018 23:55:35 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-232233-262
+Fri Apr 20 2018 23:55:35 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-233853-465
+Fri Apr 20 2018 23:55:35 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-235527-391
+Fri Apr 20 2018 23:55:35 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180413-001451-639
+Fri Apr 20 2018 23:55:35 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180413-003158-364
+Fri Apr 20 2018 23:55:35 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180413-004813-781
+Fri Apr 20 2018 23:55:35 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180413-004849-488
+Fri Apr 20 2018 23:55:39 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180413-103733-439
+Fri Apr 20 2018 23:55:39 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180413-131632-439
+Fri Apr 20 2018 23:55:39 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180417-121227-991
+Fri Apr 20 2018 23:55:39 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180420-145105-169
+Fri Apr 20 2018 23:55:39 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180420-145249-354
+Fri Apr 20 2018 23:55:39 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180420-235502-456
+Fri Apr 20 2018 23:55:41 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 9vx8MbaKwTVZbbhKAAAA, id=null, pwd=null, session=null
+Fri Apr 20 2018 23:55:41 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Fri Apr 20 2018 23:55:41 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_9vx8MbaKwTVZbbhKAAAA
+Fri Apr 20 2018 23:55:41 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_9vx8MbaKwTVZbbhKAAAA, userId = owen
+Fri Apr 20 2018 23:55:41 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180420-235502-456"}]
+Fri Apr 20 2018 23:55:41 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180420-235502-456"
+Fri Apr 20 2018 23:57:28 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 42_D8MJSAKgsRdZhAAAB, id=P1, pwd=null, session=null
+Fri Apr 20 2018 23:57:28 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 42_D8MJSAKgsRdZhAAAB, pId=P1, sId=null, roomId=null
+Fri Apr 20 2018 23:57:41 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: vCOMVOtVWGHKA3l-AAAC, id=null, pwd=null, session=null
+Fri Apr 20 2018 23:57:41 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Fri Apr 20 2018 23:57:41 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_vCOMVOtVWGHKA3l-AAAC
+Fri Apr 20 2018 23:57:41 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_vCOMVOtVWGHKA3l-AAAC, userId = owen
+Fri Apr 20 2018 23:57:41 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180420-235502-456"}]
+Fri Apr 20 2018 23:57:41 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180420-235502-456"
+Fri Apr 20 2018 23:57:56 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: y7TZg7C-mNJ9vzXhAAAD, id=P1, pwd=null, session=null
+Fri Apr 20 2018 23:57:56 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: y7TZg7C-mNJ9vzXhAAAD, pId=P1, sId=null, roomId=null
+Fri Apr 20 2018 23:58:10 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: YrmwN66YoU3UQcddAAAE, id=P1, pwd=null, session=null
+Fri Apr 20 2018 23:58:10 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: YrmwN66YoU3UQcddAAAE, pId=P1, sId=null, roomId=null
+Fri Apr 20 2018 23:58:51 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: jrhfhHXS9RJ78PxAAAAF, id=null, pwd=null, session=null
+Fri Apr 20 2018 23:58:51 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Fri Apr 20 2018 23:58:51 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_jrhfhHXS9RJ78PxAAAAF
+Fri Apr 20 2018 23:58:51 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_jrhfhHXS9RJ78PxAAAAF, userId = owen
+Fri Apr 20 2018 23:58:51 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180420-235502-456"}]
+Fri Apr 20 2018 23:58:51 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180420-235502-456"
+Fri Apr 20 2018 23:58:53 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 42_D8MJSAKgsRdZhAAAB
+Fri Apr 20 2018 23:58:57 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: v2DEzMNzHk3KDVHgAAAG, id=P2, pwd=null, session=null
+Fri Apr 20 2018 23:58:57 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: v2DEzMNzHk3KDVHgAAAG, pId=P2, sId=null, roomId=null
+Fri Apr 20 2018 23:59:21 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: y7TZg7C-mNJ9vzXhAAAD
+Fri Apr 20 2018 23:59:32 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: JWFA8nwlkGAj4Ed-AAAH, id=null, pwd=null, session=null
+Fri Apr 20 2018 23:59:32 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Fri Apr 20 2018 23:59:32 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_JWFA8nwlkGAj4Ed-AAAH
+Fri Apr 20 2018 23:59:32 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_JWFA8nwlkGAj4Ed-AAAH, userId = owen
+Fri Apr 20 2018 23:59:32 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180420-235502-456"}]
+Fri Apr 20 2018 23:59:32 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180420-235502-456"
+Fri Apr 20 2018 23:59:35 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: YrmwN66YoU3UQcddAAAE
+Fri Apr 20 2018 23:59:38 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: fqPEQ4c6a9e2e5HmAAAI, id=P1, pwd=null, session=null
+Fri Apr 20 2018 23:59:38 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: fqPEQ4c6a9e2e5HmAAAI, pId=P1, sId=null, roomId=null
+Sat Apr 21 2018 00:00:06 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: fqPEQ4c6a9e2e5HmAAAI
+Sat Apr 21 2018 00:00:06 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: or0dflvD80HlVjnoAAAJ, id=P1, pwd=null, session=null
+Sat Apr 21 2018 00:00:06 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: or0dflvD80HlVjnoAAAJ, pId=P1, sId=null, roomId=null
+Sat Apr 21 2018 00:00:22 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: v2DEzMNzHk3KDVHgAAAG
+Sat Apr 21 2018 00:01:31 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: or0dflvD80HlVjnoAAAJ
+Sat Apr 21 2018 00:09:55 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: dyFFywvqX_n-2rLhAAAK, id=P1, pwd=null, session=null
+Sat Apr 21 2018 00:09:55 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: dyFFywvqX_n-2rLhAAAK, pId=P1, sId=null, roomId=null
+Sat Apr 21 2018 00:11:20 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: dyFFywvqX_n-2rLhAAAK
+Sat Apr 21 2018 00:13:06 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: Jr661QIoCMMLn5MgAAAL, id=P1, pwd=null, session=null
+Sat Apr 21 2018 00:13:06 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: Jr661QIoCMMLn5MgAAAL, pId=P1, sId=null, roomId=null
+Sat Apr 21 2018 00:13:23 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: ksKpGDv_IpRMBTaJAAAM, id=null, pwd=null, session=null
+Sat Apr 21 2018 00:13:23 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Sat Apr 21 2018 00:13:23 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_ksKpGDv_IpRMBTaJAAAM
+Sat Apr 21 2018 00:13:23 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_ksKpGDv_IpRMBTaJAAAM, userId = owen
+Sat Apr 21 2018 00:13:23 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180420-235502-456"}]
+Sat Apr 21 2018 00:13:23 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180420-235502-456"
+Sat Apr 21 2018 00:13:28 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: LJ0gMjrqIJ49JW8aAAAN, id=P3, pwd=null, session=null
+Sat Apr 21 2018 00:13:28 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: LJ0gMjrqIJ49JW8aAAAN, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 00:14:31 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: Jr661QIoCMMLn5MgAAAL
+Sat Apr 21 2018 00:14:42 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: LJ0gMjrqIJ49JW8aAAAN
+Sat Apr 21 2018 00:14:42 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: FONCb-KGuczG944oAAAO, id=P3, pwd=null, session=null
+Sat Apr 21 2018 00:14:42 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: FONCb-KGuczG944oAAAO, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 00:16:07 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: FONCb-KGuczG944oAAAO
+Sat Apr 21 2018 00:22:40 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: iIs9ex7M2vTHjmVEAAAP, id=P3, pwd=null, session=null
+Sat Apr 21 2018 00:22:40 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: iIs9ex7M2vTHjmVEAAAP, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 00:22:43 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 54AN1V0Bn4J4EEuxAAAQ, id=null, pwd=null, session=null
+Sat Apr 21 2018 00:22:43 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Sat Apr 21 2018 00:22:43 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_54AN1V0Bn4J4EEuxAAAQ
+Sat Apr 21 2018 00:22:43 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_54AN1V0Bn4J4EEuxAAAQ, userId = owen
+Sat Apr 21 2018 00:24:48 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: iIs9ex7M2vTHjmVEAAAP
+Sat Apr 21 2018 00:24:49 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: X2pOASkJ7IqaweSDAAAR, id=P3, pwd=null, session=null
+Sat Apr 21 2018 00:24:49 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: X2pOASkJ7IqaweSDAAAR, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 00:25:04 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: Fjg14Dht4dWNzmsmAAAS, id=P3, pwd=null, session=null
+Sat Apr 21 2018 00:25:04 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: Fjg14Dht4dWNzmsmAAAS, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 00:26:14 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: X2pOASkJ7IqaweSDAAAR
+Sat Apr 21 2018 00:26:29 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: Fjg14Dht4dWNzmsmAAAS
+Sat Apr 21 2018 00:27:27 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 04-8RhSXCsTzJISpAAAT, id=P3, pwd=null, session=null
+Sat Apr 21 2018 00:27:27 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 04-8RhSXCsTzJISpAAAT, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 00:28:21 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 5q9jojN38mmtUvvYAAAU, id=P3, pwd=null, session=null
+Sat Apr 21 2018 00:28:21 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 5q9jojN38mmtUvvYAAAU, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 00:28:40 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: iyZli8C0sjET5ZssAAAV, id=null, pwd=null, session=null
+Sat Apr 21 2018 00:28:40 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Sat Apr 21 2018 00:28:40 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_iyZli8C0sjET5ZssAAAV
+Sat Apr 21 2018 00:28:40 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_iyZli8C0sjET5ZssAAAV, userId = owen
+Sat Apr 21 2018 00:28:52 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 04-8RhSXCsTzJISpAAAT
+Sat Apr 21 2018 00:29:46 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 5q9jojN38mmtUvvYAAAU
+Sat Apr 21 2018 00:29:57 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: PUrLWZ4HqisB47iRAAAW, id=P3, pwd=null, session=null
+Sat Apr 21 2018 00:29:57 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: PUrLWZ4HqisB47iRAAAW, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 00:30:06 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 9kInStX9y3iCh-8KAAAX, id=null, pwd=null, session=null
+Sat Apr 21 2018 00:30:06 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Sat Apr 21 2018 00:30:06 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_9kInStX9y3iCh-8KAAAX
+Sat Apr 21 2018 00:30:06 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_9kInStX9y3iCh-8KAAAX, userId = owen
+Sat Apr 21 2018 00:32:52 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: PUrLWZ4HqisB47iRAAAW
+Sat Apr 21 2018 00:32:53 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: J6BvQiK-py7qsUawAAAY, id=P3, pwd=null, session=null
+Sat Apr 21 2018 00:32:53 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: J6BvQiK-py7qsUawAAAY, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 00:51:02 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: J6BvQiK-py7qsUawAAAY
+Sat Apr 21 2018 00:51:02 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: DjoyXdJGPi-HAmE0AAAZ, id=P3, pwd=null, session=null
+Sat Apr 21 2018 00:51:02 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: DjoyXdJGPi-HAmE0AAAZ, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 00:52:27 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: DjoyXdJGPi-HAmE0AAAZ
+Sat Apr 21 2018 00:52:27 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 0sQtPisovy1iRBFYAAAa, id=P3, pwd=null, session=null
+Sat Apr 21 2018 00:52:27 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 0sQtPisovy1iRBFYAAAa, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 00:53:52 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 0sQtPisovy1iRBFYAAAa
+Sat Apr 21 2018 01:02:00 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: GdYNKB9B1gnoys_YAAAb, id=P3, pwd=null, session=null
+Sat Apr 21 2018 01:02:00 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: GdYNKB9B1gnoys_YAAAb, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 01:02:06 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: iRez-31kKrtviMRCAAAc, id=null, pwd=null, session=null
+Sat Apr 21 2018 01:02:06 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Sat Apr 21 2018 01:02:06 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_iRez-31kKrtviMRCAAAc
+Sat Apr 21 2018 01:02:06 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_iRez-31kKrtviMRCAAAc, userId = owen
+Sat Apr 21 2018 01:02:16 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: boGxRnMHnAXbu2hLAAAd, id=P3, pwd=null, session=null
+Sat Apr 21 2018 01:02:16 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: boGxRnMHnAXbu2hLAAAd, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 01:03:25 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: GdYNKB9B1gnoys_YAAAb
+Sat Apr 21 2018 01:05:08 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: boGxRnMHnAXbu2hLAAAd
+Sat Apr 21 2018 01:05:08 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: fEbPlDM7jMI-ABQtAAAe, id=P3, pwd=null, session=null
+Sat Apr 21 2018 01:05:08 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: fEbPlDM7jMI-ABQtAAAe, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 01:05:32 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: fEbPlDM7jMI-ABQtAAAe
+Sat Apr 21 2018 01:05:32 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: SZ-s4wLMI3nVmdpwAAAf, id=P3, pwd=null, session=null
+Sat Apr 21 2018 01:05:32 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: SZ-s4wLMI3nVmdpwAAAf, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 01:06:57 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: SZ-s4wLMI3nVmdpwAAAf
+Sat Apr 21 2018 01:08:22 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: aqgDbQCFpXL3658vAAAg, id=P3, pwd=null, session=null
+Sat Apr 21 2018 01:08:22 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: aqgDbQCFpXL3658vAAAg, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 01:08:25 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: xJfTiu__P8qEE-jFAAAh, id=null, pwd=null, session=null
+Sat Apr 21 2018 01:08:25 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Sat Apr 21 2018 01:08:25 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_xJfTiu__P8qEE-jFAAAh
+Sat Apr 21 2018 01:08:25 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_xJfTiu__P8qEE-jFAAAh, userId = owen
+Sat Apr 21 2018 01:08:27 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: aqgDbQCFpXL3658vAAAg
+Sat Apr 21 2018 01:08:27 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 2Iu0USNOoyPm0P9wAAAi, id=P3, pwd=null, session=null
+Sat Apr 21 2018 01:08:27 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 2Iu0USNOoyPm0P9wAAAi, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 01:08:53 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 2Iu0USNOoyPm0P9wAAAi
+Sat Apr 21 2018 01:08:54 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: H46rJZ5jFy2SAy13AAAj, id=P3, pwd=null, session=null
+Sat Apr 21 2018 01:08:54 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: H46rJZ5jFy2SAy13AAAj, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 01:10:19 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: H46rJZ5jFy2SAy13AAAj
+Sat Apr 21 2018 01:10:57 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: gus62ElM-iklQGPgAAAk, id=P3, pwd=null, session=null
+Sat Apr 21 2018 01:10:57 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: gus62ElM-iklQGPgAAAk, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 01:11:00 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: QabDcIM7xmljNtX3AAAl, id=null, pwd=null, session=null
+Sat Apr 21 2018 01:11:00 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Sat Apr 21 2018 01:11:00 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_QabDcIM7xmljNtX3AAAl
+Sat Apr 21 2018 01:11:00 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_QabDcIM7xmljNtX3AAAl, userId = owen
+Sat Apr 21 2018 01:11:32 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: ZVnKslZ4OLwVlCcIAAAm, id=P3, pwd=null, session=null
+Sat Apr 21 2018 01:11:32 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: ZVnKslZ4OLwVlCcIAAAm, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 01:12:22 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: gus62ElM-iklQGPgAAAk
+Sat Apr 21 2018 01:12:29 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: hC45QcO6CWrPVlvcAAAn, id=P3, pwd=null, session=null
+Sat Apr 21 2018 01:12:29 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: hC45QcO6CWrPVlvcAAAn, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 01:12:52 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: EyTMuxGDKjW0PVhXAAAo, id=null, pwd=null, session=null
+Sat Apr 21 2018 01:12:52 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Sat Apr 21 2018 01:12:52 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_EyTMuxGDKjW0PVhXAAAo
+Sat Apr 21 2018 01:12:52 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_EyTMuxGDKjW0PVhXAAAo, userId = owen
+Sat Apr 21 2018 01:12:57 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: ZVnKslZ4OLwVlCcIAAAm
+Sat Apr 21 2018 01:16:04 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: hC45QcO6CWrPVlvcAAAn
+Sat Apr 21 2018 01:16:05 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 2Wno_r5RLK8ywG2zAAAp, id=P3, pwd=null, session=null
+Sat Apr 21 2018 01:16:05 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 2Wno_r5RLK8ywG2zAAAp, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 01:16:22 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 2Wno_r5RLK8ywG2zAAAp
+Sat Apr 21 2018 01:16:22 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: gMwjwlWkldaXd1BlAAAq, id=P3, pwd=null, session=null
+Sat Apr 21 2018 01:16:22 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: gMwjwlWkldaXd1BlAAAq, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 01:16:28 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: UMotA3IC8j-IasW_AAAr, id=null, pwd=null, session=null
+Sat Apr 21 2018 01:16:28 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Sat Apr 21 2018 01:16:28 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_UMotA3IC8j-IasW_AAAr
+Sat Apr 21 2018 01:16:28 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_UMotA3IC8j-IasW_AAAr, userId = owen
+Sat Apr 21 2018 01:16:28 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180420-235502-456"}]
+Sat Apr 21 2018 01:16:28 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180420-235502-456"
+Sat Apr 21 2018 01:16:34 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 79huyzfcHYbh_bLtAAAs, id=P1, pwd=null, session=null
+Sat Apr 21 2018 01:16:34 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 79huyzfcHYbh_bLtAAAs, pId=P1, sId=null, roomId=null
+Sat Apr 21 2018 01:16:34 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: MPxKIiEjDtO2ouvcAAAt, id=P2, pwd=null, session=null
+Sat Apr 21 2018 01:16:34 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: MPxKIiEjDtO2ouvcAAAt, pId=P2, sId=null, roomId=null
+Sat Apr 21 2018 01:16:34 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: Lh4rCNDnAJP9al-RAAAu, id=P3, pwd=null, session=null
+Sat Apr 21 2018 01:16:34 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: Lh4rCNDnAJP9al-RAAAu, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 01:16:34 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 0Q4f0Muz6MnzgTmUAAAv, id=P4, pwd=null, session=null
+Sat Apr 21 2018 01:16:34 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 0Q4f0Muz6MnzgTmUAAAv, pId=P4, sId=null, roomId=null
+Sat Apr 21 2018 01:16:36 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: gMwjwlWkldaXd1BlAAAq
+Sat Apr 21 2018 01:16:39 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.x":"Action 1"}
+Sat Apr 21 2018 01:16:41 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.x":"Action 2"}
+Sat Apr 21 2018 01:16:43 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.x":"Action 1"}
+Sat Apr 21 2018 01:16:43 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180420-235502-456_app_1-stag-hunt-game_period_1_group_1
+Sat Apr 21 2018 01:16:43 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180420-235502-456_app_1-stag-hunt-game_period_1_group_1_player_P3
+Sat Apr 21 2018 01:16:43 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180420-235502-456_app_1-stag-hunt-game_period_1_group_1_player_P1
+Sat Apr 21 2018 01:16:52 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: Lh4rCNDnAJP9al-RAAAu
+Sat Apr 21 2018 01:16:52 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: aI1oIxGWpkoDXHEqAAAw, id=P3, pwd=null, session=null
+Sat Apr 21 2018 01:16:52 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: aI1oIxGWpkoDXHEqAAAw, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): received message createSessionAndAddApp: {"appId":"stag-hunt-game","options":{},"userId":"owen"}
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180421-011716-613
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180421-011716-613
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180421-011716-613
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: stag-hunt-game
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): received message setNumParticipants: {"sId":"20180421-011716-613","number":4}
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: P1
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180421-011716-613
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: stag-hunt-game
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: P2
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180421-011716-613
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: stag-hunt-game
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: P3
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180421-011716-613
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: stag-hunt-game
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: P4
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180421-011716-613
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: stag-hunt-game
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): received message reloadClients: undefined
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): received message setAutoplay: {"sId":"20180421-011716-613","pId":"P1","val":false}
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): received message setAutoplay: {"sId":"20180421-011716-613","pId":"P2","val":false}
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): received message setAutoplay: {"sId":"20180421-011716-613","pId":"P3","val":false}
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): received message setAutoplay: {"sId":"20180421-011716-613","pId":"P4","val":false}
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 0Q4f0Muz6MnzgTmUAAAv
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 79huyzfcHYbh_bLtAAAs
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: MPxKIiEjDtO2ouvcAAAt
+Sat Apr 21 2018 01:17:16 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: aI1oIxGWpkoDXHEqAAAw
+Sat Apr 21 2018 01:17:17 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: JmnSiygnJwrQlkRnAAAx, id=P4, pwd=null, session=null
+Sat Apr 21 2018 01:17:17 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: JmnSiygnJwrQlkRnAAAx, pId=P4, sId=null, roomId=null
+Sat Apr 21 2018 01:17:17 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: bcAZud94_FxQxfecAAAy, id=P2, pwd=null, session=null
+Sat Apr 21 2018 01:17:17 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: bcAZud94_FxQxfecAAAy, pId=P2, sId=null, roomId=null
+Sat Apr 21 2018 01:17:17 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 36dQIspO7VFfrX_fAAAz, id=P3, pwd=null, session=null
+Sat Apr 21 2018 01:17:17 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 36dQIspO7VFfrX_fAAAz, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 01:17:17 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: CurgR1pTzD9CXhIQAAA0, id=P1, pwd=null, session=null
+Sat Apr 21 2018 01:17:17 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: CurgR1pTzD9CXhIQAAA0, pId=P1, sId=null, roomId=null
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): received message sessionAdvanceSlowest: "20180421-011716-613"
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Period.save: 1
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180421-011716-613_app_1-stag-hunt-game_period_1_group_1
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-011716-613_app_1-stag-hunt-game_period_1_group_1_player_P3
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-011716-613_app_1-stag-hunt-game_period_1_group_1_player_P1
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180421-011716-613_app_1-stag-hunt-game_period_1_group_1
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180421-011716-613_app_1-stag-hunt-game_period_1_group_2
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-011716-613_app_1-stag-hunt-game_period_1_group_2_player_P4
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-011716-613_app_1-stag-hunt-game_period_1_group_2_player_P2
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180421-011716-613_app_1-stag-hunt-game_period_1_group_2
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180421-011716-613_app_1-stag-hunt-game_period_1_group_1
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-011716-613_app_1-stag-hunt-game_period_1_group_1_player_P3
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-011716-613_app_1-stag-hunt-game_period_1_group_1_player_P1
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180421-011716-613_app_1-stag-hunt-game_period_1_group_2
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-011716-613_app_1-stag-hunt-game_period_1_group_2_player_P4
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-011716-613_app_1-stag-hunt-game_period_1_group_2_player_P2
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: CurgR1pTzD9CXhIQAAA0
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: JmnSiygnJwrQlkRnAAAx
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: bcAZud94_FxQxfecAAAy
+Sat Apr 21 2018 01:17:20 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 36dQIspO7VFfrX_fAAAz
+Sat Apr 21 2018 01:17:21 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: PJ_ByS_w0M5R-9eOAAA1, id=P1, pwd=null, session=null
+Sat Apr 21 2018 01:17:21 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: PJ_ByS_w0M5R-9eOAAA1, pId=P1, sId=null, roomId=null
+Sat Apr 21 2018 01:17:21 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: gFo0ImwUjCpCsHE3AAA2, id=P4, pwd=null, session=null
+Sat Apr 21 2018 01:17:21 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: gFo0ImwUjCpCsHE3AAA2, pId=P4, sId=null, roomId=null
+Sat Apr 21 2018 01:17:21 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: ErkGOygXtFl088x-AAA3, id=P2, pwd=null, session=null
+Sat Apr 21 2018 01:17:21 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: ErkGOygXtFl088x-AAA3, pId=P2, sId=null, roomId=null
+Sat Apr 21 2018 01:17:21 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: uYwRElvfvBf1K8ScAAA4, id=P3, pwd=null, session=null
+Sat Apr 21 2018 01:17:21 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: uYwRElvfvBf1K8ScAAA4, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 01:17:23 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.x":"Action 1"}
+Sat Apr 21 2018 01:17:25 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.x":"Action 1"}
+Sat Apr 21 2018 01:17:27 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.x":"Action 1"}
+Sat Apr 21 2018 01:17:27 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180421-011716-613_app_1-stag-hunt-game_period_1_group_1
+Sat Apr 21 2018 01:17:27 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-011716-613_app_1-stag-hunt-game_period_1_group_1_player_P3
+Sat Apr 21 2018 01:17:27 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-011716-613_app_1-stag-hunt-game_period_1_group_1_player_P1
+Sat Apr 21 2018 01:18:11 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: PJ_ByS_w0M5R-9eOAAA1
+Sat Apr 21 2018 01:18:11 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: ErkGOygXtFl088x-AAA3
+Sat Apr 21 2018 01:18:11 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: uYwRElvfvBf1K8ScAAA4
+Sat Apr 21 2018 01:18:11 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: gFo0ImwUjCpCsHE3AAA2
+Sat Apr 21 2018 01:18:12 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: z90w7ZoL8XtVo6xsAAA5, id=P1, pwd=null, session=null
+Sat Apr 21 2018 01:18:12 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: z90w7ZoL8XtVo6xsAAA5, pId=P1, sId=null, roomId=null
+Sat Apr 21 2018 01:18:13 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: r_1ixtjwx_jt0DazAAA6, id=P2, pwd=null, session=null
+Sat Apr 21 2018 01:18:13 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: r_1ixtjwx_jt0DazAAA6, pId=P2, sId=null, roomId=null
+Sat Apr 21 2018 01:18:13 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: W5_W0OSt_G94jyWzAAA7, id=P4, pwd=null, session=null
+Sat Apr 21 2018 01:18:13 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: W5_W0OSt_G94jyWzAAA7, pId=P4, sId=null, roomId=null
+Sat Apr 21 2018 01:18:13 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: PYDui_82jpp3Jv_BAAA8, id=P3, pwd=null, session=null
+Sat Apr 21 2018 01:18:13 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: PYDui_82jpp3Jv_BAAA8, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 01:18:23 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: z90w7ZoL8XtVo6xsAAA5
+Sat Apr 21 2018 01:18:23 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: r_1ixtjwx_jt0DazAAA6
+Sat Apr 21 2018 01:18:23 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: PYDui_82jpp3Jv_BAAA8
+Sat Apr 21 2018 01:18:23 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: W5_W0OSt_G94jyWzAAA7
+Sat Apr 21 2018 01:18:23 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: SSaGErV6gvKNJrCnAAA9, id=null, pwd=null, session=null
+Sat Apr 21 2018 01:18:23 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Sat Apr 21 2018 01:18:23 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_SSaGErV6gvKNJrCnAAA9
+Sat Apr 21 2018 01:18:23 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_SSaGErV6gvKNJrCnAAA9, userId = owen
+Sat Apr 21 2018 01:18:23 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180421-011716-613"}]
+Sat Apr 21 2018 01:18:23 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180421-011716-613"
+Sat Apr 21 2018 01:18:28 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 5jlBDmgkz3BN9Wf3AAA-, id=P1, pwd=null, session=null
+Sat Apr 21 2018 01:18:28 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 5jlBDmgkz3BN9Wf3AAA-, pId=P1, sId=null, roomId=null
+Sat Apr 21 2018 01:18:28 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: bjVl6Ym-Nqseb3wXAAA_, id=P2, pwd=null, session=null
+Sat Apr 21 2018 01:18:28 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: bjVl6Ym-Nqseb3wXAAA_, pId=P2, sId=null, roomId=null
+Sat Apr 21 2018 01:18:28 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: a7otjnErhMA8alhoAABA, id=P4, pwd=null, session=null
+Sat Apr 21 2018 01:18:28 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: a7otjnErhMA8alhoAABA, pId=P4, sId=null, roomId=null
+Sat Apr 21 2018 01:18:28 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: RH4MxvkFXuOSNdniAABB, id=P3, pwd=null, session=null
+Sat Apr 21 2018 01:18:28 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: RH4MxvkFXuOSNdniAABB, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 01:18:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.x":"Action 2"}
+Sat Apr 21 2018 01:18:35 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180421-011716-613_app_1-stag-hunt-game_period_1_group_2
+Sat Apr 21 2018 01:18:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-011716-613_app_1-stag-hunt-game_period_1_group_2_player_P4
+Sat Apr 21 2018 01:18:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-011716-613_app_1-stag-hunt-game_period_1_group_2_player_P2
+Sat Apr 21 2018 01:18:52 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Sat Apr 21 2018 01:18:54 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Sat Apr 21 2018 01:18:56 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Sat Apr 21 2018 01:18:57 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Sat Apr 21 2018 01:19:54 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 5jlBDmgkz3BN9Wf3AAA-
+Sat Apr 21 2018 01:19:54 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: bjVl6Ym-Nqseb3wXAAA_
+Sat Apr 21 2018 01:19:54 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: RH4MxvkFXuOSNdniAABB
+Sat Apr 21 2018 01:19:54 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: a7otjnErhMA8alhoAABA
+Sat Apr 21 2018 01:19:56 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: av0irW7gYZWCLNpuAABC, id=P1, pwd=null, session=null
+Sat Apr 21 2018 01:19:56 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: av0irW7gYZWCLNpuAABC, pId=P1, sId=null, roomId=null
+Sat Apr 21 2018 01:19:56 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: kL9SK-n8shYTO44NAABD, id=P2, pwd=null, session=null
+Sat Apr 21 2018 01:19:56 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: kL9SK-n8shYTO44NAABD, pId=P2, sId=null, roomId=null
+Sat Apr 21 2018 01:19:56 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: KUNTppa-kn7mR7sTAABE, id=P3, pwd=null, session=null
+Sat Apr 21 2018 01:19:56 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: KUNTppa-kn7mR7sTAABE, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 01:19:56 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: UD0dDf7Lz3iAP6mKAABF, id=P4, pwd=null, session=null
+Sat Apr 21 2018 01:19:56 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: UD0dDf7Lz3iAP6mKAABF, pId=P4, sId=null, roomId=null
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): received message createSessionAndAddApp: {"appId":"stag-hunt-game","options":{},"userId":"owen"}
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180421-012002-943
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180421-012002-943
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180421-012002-943
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: stag-hunt-game
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): received message setNumParticipants: {"sId":"20180421-012002-943","number":4}
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: P1
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180421-012002-943
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: stag-hunt-game
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: P2
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180421-012002-943
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: stag-hunt-game
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: P3
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180421-012002-943
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: stag-hunt-game
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: P4
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180421-012002-943
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: stag-hunt-game
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Sat Apr 21 2018 01:20:02 GMT+0200 (Mitteleuropäische Sommerzeit): received message reloadClients: undefined
+Sat Apr 21 2018 01:20:03 GMT+0200 (Mitteleuropäische Sommerzeit): received message setAutoplay: {"sId":"20180421-012002-943","pId":"P1","val":false}
+Sat Apr 21 2018 01:20:03 GMT+0200 (Mitteleuropäische Sommerzeit): received message setAutoplay: {"sId":"20180421-012002-943","pId":"P2","val":false}
+Sat Apr 21 2018 01:20:03 GMT+0200 (Mitteleuropäische Sommerzeit): received message setAutoplay: {"sId":"20180421-012002-943","pId":"P3","val":false}
+Sat Apr 21 2018 01:20:03 GMT+0200 (Mitteleuropäische Sommerzeit): received message setAutoplay: {"sId":"20180421-012002-943","pId":"P4","val":false}
+Sat Apr 21 2018 01:20:03 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: kL9SK-n8shYTO44NAABD
+Sat Apr 21 2018 01:20:03 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: av0irW7gYZWCLNpuAABC
+Sat Apr 21 2018 01:20:03 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: KUNTppa-kn7mR7sTAABE
+Sat Apr 21 2018 01:20:03 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: UD0dDf7Lz3iAP6mKAABF
+Sat Apr 21 2018 01:20:03 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: t5nkX2hBq-KZYnPDAABG, id=P2, pwd=null, session=null
+Sat Apr 21 2018 01:20:03 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: t5nkX2hBq-KZYnPDAABG, pId=P2, sId=null, roomId=null
+Sat Apr 21 2018 01:20:03 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 3CDCWQi6ckN4YVKDAABH, id=P1, pwd=null, session=null
+Sat Apr 21 2018 01:20:03 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 3CDCWQi6ckN4YVKDAABH, pId=P1, sId=null, roomId=null
+Sat Apr 21 2018 01:20:03 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: a8szP-0MyniyVxBAAABI, id=P3, pwd=null, session=null
+Sat Apr 21 2018 01:20:03 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: a8szP-0MyniyVxBAAABI, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 01:20:03 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 6h1uZ5fnjFy7ra3aAABJ, id=P4, pwd=null, session=null
+Sat Apr 21 2018 01:20:03 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 6h1uZ5fnjFy7ra3aAABJ, pId=P4, sId=null, roomId=null
+Sat Apr 21 2018 01:20:06 GMT+0200 (Mitteleuropäische Sommerzeit): received message sessionAdvanceSlowest: "20180421-012002-943"
+Sat Apr 21 2018 01:20:06 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Sat Apr 21 2018 01:20:06 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Sat Apr 21 2018 01:20:06 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Sat Apr 21 2018 01:20:06 GMT+0200 (Mitteleuropäische Sommerzeit): Period.save: 1
+Sat Apr 21 2018 01:20:06 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180421-012002-943_app_1-stag-hunt-game_period_1_group_1
+Sat Apr 21 2018 01:20:06 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-012002-943_app_1-stag-hunt-game_period_1_group_1_player_P2
+Sat Apr 21 2018 01:20:06 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Sat Apr 21 2018 01:20:06 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-012002-943_app_1-stag-hunt-game_period_1_group_1_player_P3
+Sat Apr 21 2018 01:20:06 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Sat Apr 21 2018 01:20:06 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180421-012002-943_app_1-stag-hunt-game_period_1_group_1
+Sat Apr 21 2018 01:20:06 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180421-012002-943_app_1-stag-hunt-game_period_1_group_2
+Sat Apr 21 2018 01:20:06 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-012002-943_app_1-stag-hunt-game_period_1_group_2_player_P1
+Sat Apr 21 2018 01:20:06 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Sat Apr 21 2018 01:20:06 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-012002-943_app_1-stag-hunt-game_period_1_group_2_player_P4
+Sat Apr 21 2018 01:20:06 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Sat Apr 21 2018 01:20:06 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180421-012002-943_app_1-stag-hunt-game_period_1_group_2
+Sat Apr 21 2018 01:20:06 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Sat Apr 21 2018 01:20:06 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Sat Apr 21 2018 01:20:06 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Sat Apr 21 2018 01:20:06 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Sat Apr 21 2018 01:20:06 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Sat Apr 21 2018 01:20:06 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Sat Apr 21 2018 01:20:06 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Sat Apr 21 2018 01:20:06 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Sat Apr 21 2018 01:20:06 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Sat Apr 21 2018 01:20:06 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180421-012002-943_app_1-stag-hunt-game_period_1_group_1
+Sat Apr 21 2018 01:20:06 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-012002-943_app_1-stag-hunt-game_period_1_group_1_player_P2
+Sat Apr 21 2018 01:20:07 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-012002-943_app_1-stag-hunt-game_period_1_group_1_player_P3
+Sat Apr 21 2018 01:20:07 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Sat Apr 21 2018 01:20:07 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Sat Apr 21 2018 01:20:07 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Sat Apr 21 2018 01:20:07 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Sat Apr 21 2018 01:20:07 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180421-012002-943_app_1-stag-hunt-game_period_1_group_2
+Sat Apr 21 2018 01:20:07 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-012002-943_app_1-stag-hunt-game_period_1_group_2_player_P1
+Sat Apr 21 2018 01:20:07 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-012002-943_app_1-stag-hunt-game_period_1_group_2_player_P4
+Sat Apr 21 2018 01:20:07 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: t5nkX2hBq-KZYnPDAABG
+Sat Apr 21 2018 01:20:07 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 3CDCWQi6ckN4YVKDAABH
+Sat Apr 21 2018 01:20:07 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: a8szP-0MyniyVxBAAABI
+Sat Apr 21 2018 01:20:07 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 6h1uZ5fnjFy7ra3aAABJ
+Sat Apr 21 2018 01:20:07 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: LYjAM9s9LF24-wXKAABK, id=P2, pwd=null, session=null
+Sat Apr 21 2018 01:20:07 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: LYjAM9s9LF24-wXKAABK, pId=P2, sId=null, roomId=null
+Sat Apr 21 2018 01:20:07 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: bn4USAqEMEUGaMQcAABL, id=P1, pwd=null, session=null
+Sat Apr 21 2018 01:20:07 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: bn4USAqEMEUGaMQcAABL, pId=P1, sId=null, roomId=null
+Sat Apr 21 2018 01:20:07 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: VUBhsAdNreQKkGVrAABM, id=P3, pwd=null, session=null
+Sat Apr 21 2018 01:20:07 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: VUBhsAdNreQKkGVrAABM, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 01:20:07 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 9OuS1cNv1Y8tzN1LAABN, id=P4, pwd=null, session=null
+Sat Apr 21 2018 01:20:07 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 9OuS1cNv1Y8tzN1LAABN, pId=P4, sId=null, roomId=null
+Sat Apr 21 2018 01:20:10 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.x":"Action 1"}
+Sat Apr 21 2018 01:20:12 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.x":"Action 2"}
+Sat Apr 21 2018 01:20:12 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.x":"Action 1"}
+Sat Apr 21 2018 01:20:12 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180421-012002-943_app_1-stag-hunt-game_period_1_group_1
+Sat Apr 21 2018 01:20:12 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-012002-943_app_1-stag-hunt-game_period_1_group_1_player_P2
+Sat Apr 21 2018 01:20:12 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-012002-943_app_1-stag-hunt-game_period_1_group_1_player_P3
+Sat Apr 21 2018 01:20:19 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.x":"Action 1"}
+Sat Apr 21 2018 01:20:19 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180421-012002-943_app_1-stag-hunt-game_period_1_group_2
+Sat Apr 21 2018 01:20:19 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-012002-943_app_1-stag-hunt-game_period_1_group_2_player_P1
+Sat Apr 21 2018 01:20:19 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-012002-943_app_1-stag-hunt-game_period_1_group_2_player_P4
+Sat Apr 21 2018 01:20:25 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Sat Apr 21 2018 01:20:26 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Sat Apr 21 2018 01:20:28 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Sat Apr 21 2018 01:20:29 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): received message createSessionAndAddApp: {"appId":"stag-hunt-game","options":{},"userId":"owen"}
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180421-014259-352
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180421-014259-352
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180421-014259-352
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: stag-hunt-game
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): received message setNumParticipants: {"sId":"20180421-014259-352","number":4}
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: P1
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180421-014259-352
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: stag-hunt-game
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: P2
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180421-014259-352
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: stag-hunt-game
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: P3
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180421-014259-352
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: stag-hunt-game
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: P4
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180421-014259-352
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: stag-hunt-game
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): received message reloadClients: undefined
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): received message setAutoplay: {"sId":"20180421-014259-352","pId":"P1","val":false}
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): received message setAutoplay: {"sId":"20180421-014259-352","pId":"P2","val":false}
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): received message setAutoplay: {"sId":"20180421-014259-352","pId":"P3","val":false}
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): received message setAutoplay: {"sId":"20180421-014259-352","pId":"P4","val":false}
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: LYjAM9s9LF24-wXKAABK
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: bn4USAqEMEUGaMQcAABL
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 9OuS1cNv1Y8tzN1LAABN
+Sat Apr 21 2018 01:42:59 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: VUBhsAdNreQKkGVrAABM
+Sat Apr 21 2018 01:43:00 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: DuMWXVbBtpj-L-u5AABO, id=P2, pwd=null, session=null
+Sat Apr 21 2018 01:43:00 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: DuMWXVbBtpj-L-u5AABO, pId=P2, sId=null, roomId=null
+Sat Apr 21 2018 01:43:00 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 5NYe_UFWFSCnBHF9AABP, id=P1, pwd=null, session=null
+Sat Apr 21 2018 01:43:00 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 5NYe_UFWFSCnBHF9AABP, pId=P1, sId=null, roomId=null
+Sat Apr 21 2018 01:43:00 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 2oDTW2MdaqlzpJ6EAABQ, id=P4, pwd=null, session=null
+Sat Apr 21 2018 01:43:00 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 2oDTW2MdaqlzpJ6EAABQ, pId=P4, sId=null, roomId=null
+Sat Apr 21 2018 01:43:00 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: H52CdQZ0IJs0N_ytAABR, id=P3, pwd=null, session=null
+Sat Apr 21 2018 01:43:00 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: H52CdQZ0IJs0N_ytAABR, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): received message sessionAdvanceSlowest: "20180421-014259-352"
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Period.save: 1
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180421-014259-352_app_1-stag-hunt-game_period_1_group_1
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-014259-352_app_1-stag-hunt-game_period_1_group_1_player_P1
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-014259-352_app_1-stag-hunt-game_period_1_group_1_player_P2
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180421-014259-352_app_1-stag-hunt-game_period_1_group_1
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180421-014259-352_app_1-stag-hunt-game_period_1_group_2
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-014259-352_app_1-stag-hunt-game_period_1_group_2_player_P3
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-014259-352_app_1-stag-hunt-game_period_1_group_2_player_P4
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180421-014259-352_app_1-stag-hunt-game_period_1_group_2
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180421-014259-352_app_1-stag-hunt-game_period_1_group_1
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-014259-352_app_1-stag-hunt-game_period_1_group_1_player_P1
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-014259-352_app_1-stag-hunt-game_period_1_group_1_player_P2
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180421-014259-352_app_1-stag-hunt-game_period_1_group_2
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-014259-352_app_1-stag-hunt-game_period_1_group_2_player_P3
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-014259-352_app_1-stag-hunt-game_period_1_group_2_player_P4
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: H52CdQZ0IJs0N_ytAABR
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 5NYe_UFWFSCnBHF9AABP
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: DuMWXVbBtpj-L-u5AABO
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 2oDTW2MdaqlzpJ6EAABQ
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: QO88qgZ473j8ZeyGAABS, id=P3, pwd=null, session=null
+Sat Apr 21 2018 01:43:05 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: QO88qgZ473j8ZeyGAABS, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 01:43:06 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: RHht8xGDfkZcaiqHAABT, id=P2, pwd=null, session=null
+Sat Apr 21 2018 01:43:06 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: RHht8xGDfkZcaiqHAABT, pId=P2, sId=null, roomId=null
+Sat Apr 21 2018 01:43:06 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: N726plsPLp6PTXgWAABU, id=P1, pwd=null, session=null
+Sat Apr 21 2018 01:43:06 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: N726plsPLp6PTXgWAABU, pId=P1, sId=null, roomId=null
+Sat Apr 21 2018 01:43:06 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: jgVjbE_U92ZQ2gBRAABV, id=P4, pwd=null, session=null
+Sat Apr 21 2018 01:43:06 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: jgVjbE_U92ZQ2gBRAABV, pId=P4, sId=null, roomId=null
+Sat Apr 21 2018 01:43:47 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: N726plsPLp6PTXgWAABU
+Sat Apr 21 2018 01:43:47 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: RHht8xGDfkZcaiqHAABT
+Sat Apr 21 2018 01:43:47 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: QO88qgZ473j8ZeyGAABS
+Sat Apr 21 2018 01:43:47 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: jgVjbE_U92ZQ2gBRAABV
+Sat Apr 21 2018 01:43:49 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: RHNzgjpGxK5GeiA6AABW, id=P1, pwd=null, session=null
+Sat Apr 21 2018 01:43:49 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: RHNzgjpGxK5GeiA6AABW, pId=P1, sId=null, roomId=null
+Sat Apr 21 2018 01:43:50 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: J9iZno-WN4FZeI84AABX, id=P4, pwd=null, session=null
+Sat Apr 21 2018 01:43:50 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: J9iZno-WN4FZeI84AABX, pId=P4, sId=null, roomId=null
+Sat Apr 21 2018 01:43:50 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: BYUVuocJfRU70bgYAABY, id=P3, pwd=null, session=null
+Sat Apr 21 2018 01:43:50 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: BYUVuocJfRU70bgYAABY, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 01:43:50 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 3GJcouL7kDoitz_EAABZ, id=P2, pwd=null, session=null
+Sat Apr 21 2018 01:43:50 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 3GJcouL7kDoitz_EAABZ, pId=P2, sId=null, roomId=null

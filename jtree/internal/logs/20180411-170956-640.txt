@@ -1,0 +1,82 @@
+Wed Apr 11 2018 17:09:56 GMT+0200 (Mitteleuropäische Sommerzeit): last time on: 1523459396641
+Wed Apr 11 2018 17:09:56 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180410-002718-378
+Wed Apr 11 2018 17:09:56 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180410-002846-812
+Wed Apr 11 2018 17:09:56 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180410-003216-521
+Wed Apr 11 2018 17:09:56 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180410-003802-837
+Wed Apr 11 2018 17:09:56 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180410-003854-947
+Wed Apr 11 2018 17:09:56 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180410-003922-766
+Wed Apr 11 2018 17:09:56 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180410-004910-138
+Wed Apr 11 2018 17:09:56 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180410-004958-526
+Wed Apr 11 2018 17:09:56 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180410-011329-561
+Wed Apr 11 2018 17:09:56 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180410-011416-723
+Wed Apr 11 2018 17:09:56 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180410-012044-105
+Wed Apr 11 2018 17:09:56 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180410-012105-689
+Wed Apr 11 2018 17:09:56 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180410-015258-928
+Wed Apr 11 2018 17:09:56 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180410-015305-477
+Wed Apr 11 2018 17:09:56 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180410-074417-803
+Wed Apr 11 2018 17:09:56 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180410-074904-993
+Wed Apr 11 2018 17:09:56 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180410-222519-622
+Wed Apr 11 2018 17:09:56 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180411-154011-856
+Wed Apr 11 2018 17:09:57 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: bopE2xQUr2iUyhG6AAAA, id=null, pwd=null, session=null
+Wed Apr 11 2018 17:09:57 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 11 2018 17:09:57 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_bopE2xQUr2iUyhG6AAAA
+Wed Apr 11 2018 17:09:57 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_bopE2xQUr2iUyhG6AAAA, userId = owen
+Wed Apr 11 2018 17:09:58 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: Qx9_gkTiqu83HJUIAAAB, id=null, pwd=null, session=null
+Wed Apr 11 2018 17:09:58 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 11 2018 17:09:58 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_Qx9_gkTiqu83HJUIAAAB
+Wed Apr 11 2018 17:09:58 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_Qx9_gkTiqu83HJUIAAAB, userId = undefined
+Wed Apr 11 2018 17:10:23 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: kBu4dp0yJibc24EyAAAC, id=null, pwd=null, session=null
+Wed Apr 11 2018 17:10:23 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 11 2018 17:10:24 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_kBu4dp0yJibc24EyAAAC
+Wed Apr 11 2018 17:10:24 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_kBu4dp0yJibc24EyAAAC, userId = owen
+Wed Apr 11 2018 17:10:24 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180314-171733-013"}]
+Wed Apr 11 2018 17:10:24 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180314-171733-013"
+Wed Apr 11 2018 17:10:37 GMT+0200 (Mitteleuropäische Sommerzeit): received message createSessionAndAddApp: {"appId":"double-auction","options":{},"userId":"owen"}
+Wed Apr 11 2018 17:10:37 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180411-171037-091
+Wed Apr 11 2018 17:10:37 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180411-171037-091
+Wed Apr 11 2018 17:10:37 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180411-171037-091
+Wed Apr 11 2018 17:10:37 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: double-auction
+Wed Apr 11 2018 17:10:37 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: trading
+Wed Apr 11 2018 17:10:37 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Apr 11 2018 17:10:44 GMT+0200 (Mitteleuropäische Sommerzeit): received message setNumParticipants: {"sId":"20180411-171037-091","number":"4"}
+Wed Apr 11 2018 17:10:44 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: P1
+Wed Apr 11 2018 17:10:44 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Wed Apr 11 2018 17:10:44 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180411-171037-091
+Wed Apr 11 2018 17:10:44 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: double-auction
+Wed Apr 11 2018 17:10:44 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: trading
+Wed Apr 11 2018 17:10:44 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Apr 11 2018 17:10:44 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: P2
+Wed Apr 11 2018 17:10:44 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Wed Apr 11 2018 17:10:44 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180411-171037-091
+Wed Apr 11 2018 17:10:44 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: double-auction
+Wed Apr 11 2018 17:10:44 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: trading
+Wed Apr 11 2018 17:10:44 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Apr 11 2018 17:10:44 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: P3
+Wed Apr 11 2018 17:10:44 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Wed Apr 11 2018 17:10:44 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180411-171037-091
+Wed Apr 11 2018 17:10:44 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: double-auction
+Wed Apr 11 2018 17:10:44 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: trading
+Wed Apr 11 2018 17:10:44 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Apr 11 2018 17:10:44 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: P4
+Wed Apr 11 2018 17:10:44 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Wed Apr 11 2018 17:10:44 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180411-171037-091
+Wed Apr 11 2018 17:10:44 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: double-auction
+Wed Apr 11 2018 17:10:44 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: trading
+Wed Apr 11 2018 17:10:44 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Apr 11 2018 17:10:47 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: rFWyfJ1zayPNLBdXAAAD, id=P1, pwd=null, session=null
+Wed Apr 11 2018 17:10:47 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: rFWyfJ1zayPNLBdXAAAD, pId=P1, sId=null, roomId=null
+Wed Apr 11 2018 17:10:50 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: rFWyfJ1zayPNLBdXAAAD
+Wed Apr 11 2018 17:12:21 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180411-171037-091"}]
+Wed Apr 11 2018 17:12:21 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180411-171037-091"
+Wed Apr 11 2018 17:22:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: mhRli39Zj1GuwIRsAAAE, id=null, pwd=null, session=null
+Wed Apr 11 2018 17:22:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 11 2018 17:22:18 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_mhRli39Zj1GuwIRsAAAE
+Wed Apr 11 2018 17:22:18 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_mhRli39Zj1GuwIRsAAAE, userId = owen
+Wed Apr 11 2018 17:22:19 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: XBh16xgWYo5cT2axAAAF, id=null, pwd=null, session=null
+Wed Apr 11 2018 17:22:19 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 11 2018 17:22:19 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_XBh16xgWYo5cT2axAAAF
+Wed Apr 11 2018 17:22:19 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_XBh16xgWYo5cT2axAAAF, userId = owen
+Wed Apr 11 2018 20:46:56 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: OK7uxuoZWaOpIuT4AAAG, id=null, pwd=null, session=null
+Wed Apr 11 2018 20:46:56 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 11 2018 20:46:56 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_OK7uxuoZWaOpIuT4AAAG
+Wed Apr 11 2018 20:46:56 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_OK7uxuoZWaOpIuT4AAAG, userId = owen

@@ -1,0 +1,40 @@
+<script type="text/javascript" src='/participant/jtree.js'></script>
+<span jt-status='active'>
+    <span jt-stage='s1'>
+        <p>CHOOSE</p>
+        <p>You are Player 1. The pie is currently <span jt-text='player.pieSize1'></span> points. Choose your action.</p>
+        <form>
+            <button name='player.choice1' value='TAKE' type='submit'>Take</button>
+            <button name='player.choice1' value='PASS' type='submit'>Pass</button>
+        </form>
+    </span>
+    <span jt-stage='s2'>
+        <p>CHOOSE</p>
+        <p>You are Player 2. The pie is currently <span jt-text='player.pieSize2'></span> points. Choose your action.</p>
+        <form>
+            <button name='player.choice2' value='TAKE' type='submit'>Take</button>
+            <button name='player.choice2' value='PASS' type='submit'>Pass</button>
+        </form>
+    </span>
+    <span jt-stage='results'>
+        <p>RESULTS</p>
+
+        <p>As Player 2, your game stopped after <span jt-text='player.passes2'></span> passes with a pie of <span jt-text='player.pieSize2'></span>. Because <span jt-text='player.whyEnd2'></span>, you received <span jt-text='player.share2' jt-decimals=2></span> of the pie, or <span jt-text='player.points2' jt-decimals=2></span> points.
+        </p>
+
+        <p>As Player 1, your game stopped after <span jt-text='player.passes1'></span> passes with a pie of <span jt-text='player.pieSize1'></span>. Because <span jt-text='player.whyEnd1'></span>, you received <span jt-text='player.share1' jt-decimals=2></span> of the pie, or <span jt-text='player.points1' jt-decimals=2></span> points.
+        </p>
+
+        <p>Your total points from this game: <span jt-text='player.points' jt-decimals=2></span>.</p>
+
+        <form>
+            <button>OK</button>
+        </form>
+    </span>
+</span>
+<span jt-status='waiting'>
+    <p>WAITING</p>
+    <p>Please wait for the experiment to continue.</p>
+    <p jt-displayIf='period.id < app.numPeriods && player.finished1'>As Player 1, someone in your group has chosen TAKE and ended the game.</p>
+    <p jt-displayIf='period.id < app.numPeriods && player.finished2'>As Player 2, someone in your group has chosen TAKE and ended the game.</p>
+</span>

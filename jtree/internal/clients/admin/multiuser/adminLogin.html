@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<head>
+    <title>jtree - admin login</title>
+    <link rel="stylesheet" type="text/css" href="/shared/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/shared/jquery-ui.css">
+    <link rel="stylesheet" type='text/css' href='/shared/font-awesome-5.0.8/css/fontawesome-all.min.css'>
+    <link rel="stylesheet" type="text/css" href="/admin/multiuser/admin.css">
+    <link rel="stylesheet" type="text/css" href="/shared/highlightjs/default.min.css">
+    <script src="/shared/highlightjs/highlight.min.js"></script>
+    <script src="/admin/multiuser/imports.js"></script>
+</head>
+<body style='height: 100vh; margin: 0px; display: flex; align-items: center; flex-direction: column; justify-content: center; background-color: #737373; color: #ffffff; font-size: 2rem;'>
+    <div>
+        <h1>jtree - admin login</h1>
+        <form action='/admin' method='post'>
+        <input name='uId' type='text' placeholder='User ID'></input>
+        <input name='pwd' type='password' placeholder='Password'></input>
+        <br>
+        <br>
+        <button type='submit'>Login</button>
+        <br>
+        <br>
+        <div>
+            User information is stored in jtree/users.
+        </div>
+    </form>
+    </div>
+</body>
+</html>

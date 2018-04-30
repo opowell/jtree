@@ -1,0 +1,27 @@
+<script type="text/javascript" src='/participant/jtree.js'></script>
+<p>Period: <span jt-text='period.id'>1</span>/<span jt-text='app.numPeriods'></span></p>
+<span jt-status='active'>
+    <span jt-stage='decide'>
+        <p>DECISION</p>
+        <form>
+            <p>Guess an integer between <span jt-text='app.lowerBound'></span> and <span jt-text='app.upperBound'></span>: <input name='player.guess' required type='number' jt-min='app.lowerBound' jt-max='app.upperBound' step='1'></p>
+            <button>Make guess</button>
+        </form>
+    </span>
+    <span jt-stage='results'>
+        <p>Time left: <span jt-text='clock.minutes'>mm</span>:<span jt-text='clock.seconds'></span></p>
+        <p>RESULTS</p>
+        <p>Your guess was <span jt-text='player.guess'></span>.</p>
+        <p>The sum of guesses in your group was <span jt-text='group.totalGuesses'></span>. The multiplier was <span jt-text='app.multiplier' jt-decimals=2></span>, therefore the target was <span jt-text='group.target' jt-decimals=2></span>.</p>
+        <p jt-displayIf='player.points===1'>Your guess was one of the closest to this amount.</p>
+        <p jt-displayIf='player.points===0'>Your guess was not one of the closest to this amount.</p>
+        <p>Thus, your payoff in this period is E$<span jt-text='player.points' jt-decimals=2>Z</span>.</p>
+        <form>
+            <button>OK</button>
+        </form>
+    </span>
+</span>
+<span jt-status='waiting'>
+    <p>WAITING</p>
+    <p>The experiment will continue soon.</p>
+</span>

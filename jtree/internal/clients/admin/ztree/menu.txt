@@ -1,0 +1,85 @@
+Page title
+    Icon
+    Selected window name
+File
+    New Treatment
+    Open...
+    Close
+    Save
+    Save As...
+    Import from zTree...
+    ---------
+    Treatment 1
+    Treatment 2
+    ...
+Edit
+    Undo
+    ---------
+    Cut
+    Copy
+    Paste
+    ---------
+    Find...
+    Find next
+Treatment / App
+    Run
+    Edit code
+    Set preview options
+    Matching
+    Language
+    ---------
+    Add stage
+    Add variable
+    Add function
+Run / Session
+    New
+    Open
+    ---------
+    Start treatment
+    Start / advance slowest
+    Settings
+        Participants
+        Queue
+        Users
+        Room
+    ---------
+    Monitor
+    Data
+    Start / stop clock
+    Reload clients
+    Start / stop autoplay
+    Set autoplay delay
+    ---------
+    Clients
+    Apps
+    Stages
+    Periods
+    Groups
+    Players
+    Participants
+    ---------
+    Duplicate
+    Delete
+Room
+    New
+    Open
+User
+    New
+    Open
+Queue
+    New
+    Open
+Window / View (when in full-page mode)
+    Minimize
+    Maximize
+    Restore (cancel max)
+    ---------
+    Previous
+    Next
+    ---------
+    <Open windows>
+    ---------
+    Status bar
+    Toolbar
+Settings
+Help

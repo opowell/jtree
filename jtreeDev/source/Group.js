@@ -1,0 +1,543 @@
+const Player    = require('./Player.js');
+const Timer     = require('./Timer.js');
+const Utils     = require('./Utils.js');
+const Table     = require('./Table.js');
+const fs        = require('fs-extra');
+const path      = require('path');
+
+/** A group of players playing in a {@link Period}. */
+class Group {
+    /*
+    * Create a new Group.
+    *
+    * @param  {type} id     description
+    * @param  {type} period description
+    * @return {type}        description
+    */
+    constructor(id, period) {
+        // this group's id
+        this.id = id;
+
+        // Each Group belongs to a single Period.
+        this.period = period;
+
+        // a list of the players in this group.
+        this.players = [];
+
+        // whether or not all players in this group have been created yet.
+        this.allPlayersCreated = false;
+
+        // 'outputHide' fields are not included in output
+        this.outputHide = [];
+        // 'outputHideAuto' fields are not included in output.
+        this.outputHideAuto = ['stage', 'status', 'outputHide', 'outputHideAuto', 'players', 'stageTimer', 'period', 'tables', 'type', 'stageIndex', 'stageFinishedIndex'];
+
+        this.tables = [];
+
+        this.stageIndex = 0;
+
+        this.stageFinishedIndex = -1;
+    }
+
+    stage() {
+        return this.app().stages[this.stageIndex];
+    }
+
+    /*
+     * @static load - description
+     *
+     * CALLED FROM:
+     * - {@link Session#load}
+     *
+     * @param  {type} json    description
+     * @param  {type} session description
+     * @return {type}         description
+     */
+    static load(json, session, data) {
+        var app = session.apps[json.appIndex-1];
+        var period = app.periods[json.periodId-1];
+        var id = json.id;
+        var newGroup = new Group(id, period);
+        if (period.groups.length > id-1) {
+            var curGroup = period.groups[id-1];
+            newGroup.players = curGroup.players;
+        }
+        for (var j in json) {
+            newGroup[j] = json[j];
+        }
+        if (json !== null && json.stageTimerStart !== undefined) {
+            var lastTimeOn = data.lastTimeOn;
+            var timeLeft = json.stageTimerTimeLeft;
+            if (session.isRunning) {
+                timeLeft = timeLeft - (lastTimeOn - new Date(json.stageTimerStart).getTime());
+                if (timeLeft >= 0) {
+                    var stage = app.stages[json.stageTimerStageIndex];
+                    var group = newGroup;
+                    var callback = eval('(' + json.stageTimerCallback + ')');
+                    newGroup.stageTimer = Timer.load(json.stageTimerDuration, timeLeft, json.stageTimerStageIndex, callback);
+                    newGroup.stageTimer.resume();
+                    newGroup.save();
+                }
+            }
+        }
+        period.groups[id-1] = newGroup;
+    }
+
+    /**
+     * Find the player with the given participant ID.
+     * @param  {string} id the given id.
+     * @return {type}    the player where player.participant.id == id.
+     */
+    playerByParticipantId(id) {
+        for (var i=0; i<this.players.length; i++) {
+            if (this.players[i].participant.id === id) {
+                return this.players[i];
+            }
+        }
+        return null;
+    }
+
+    /**
+     * playerWithParticipant - description
+     *
+     * @param  {type} participant description
+     * @return {type}             description
+     */
+    playerWithParticipant(participant) {
+        return this.playerByParticipantId(participant.id);
+    }
+
+    slowestPlayers() {
+        var out = [];
+        var minStageIndex = null;
+        for (var i in this.players) {
+            var part = this.players[i];
+            if (minStageIndex === null || part.stageIndex <= minStageIndex) {
+                if (minStageIndex === null || part.stageIndex < minStageIndex) {
+                    minStageIndex = part.stageIndex;
+                    out = [];
+                }
+                out.push(part);
+            }
+        }
+        return out;
+    }
+
+    addTable(name) {
+        this[name] = new Table.new(name, 'this.context.emit', this, this.roomId(), this.session());
+        this.tables.push(name);
+    }
+
+    playerWithId(id) {
+        for (var i=0; i<this.players.length; i++) {
+            if (this.players[i].idInGroup === id) {
+                return this.players[i];
+            }
+        }
+        return null;
+    }
+
+    attemptToStartStage(stage) {
+        if (stage != null && stage.canGroupStart(this)) {
+            this.startStage(stage);
+        }
+    }
+
+    startStage(stage) {
+        let group = this;
+
+        if (!stage.canGroupParticipate(this)) {
+
+            return;
+        }
+
+        if (stage.duration > 0) {
+            group.stageTimer = new Timer.new(
+                function() {
+                    group.session().addMessageToStartOfQueue(group, stage, 'endStage');
+                },
+                stage.duration*1000,
+                stage.indexInApp());
+        }
+
+        try {
+            console.log('//// START - GROUP : ' + stage.id + ', ' + group.roomId());
+            stage.groupStart(group);
+        } catch (err) {
+            console.log(err.stack);
+        }
+        try {
+            group.save();
+        } catch (err) {}
+        for (var p in group.players) {
+            try {
+                var player = group.players[p];
+                if (player.stage !== null && player.stage.id === stage.id) {
+                    player.startStage();
+                }
+            } catch (err) {}
+        }
+    }
+
+    canProcessMessage() {
+        return true;
+    }
+
+    attemptToEndStage(stage) {
+        let group = this;
+        if (stage.canGroupEnd(group)) {
+            group.endStage(stage);
+        } else {
+            this.checkIfWaitingToEnd(stage, false);
+        }
+    }
+
+    /**
+     * old - description
+     *
+     * @return {type}  description
+     */
+    old() {
+        return this.app().previousGroup(this);
+    }
+
+    checkIfWaitingToEnd(stage, endPlayers, canParticipate) {
+        if (canParticipate == null) {
+            canParticipate = true;
+        }
+
+        let group = this;
+        // Wait for players to submit their forms.
+        var waitingForPlayers = false;
+
+        if (!canParticipate) {
+            this.attemptToStartNextStage();
+            return;
+        }
+
+        if (stage.waitOnTimerEnd) {
+            for (var p in group.players) {
+                var player = group.players[p];
+                // Check if any clients are connected. If yes, let player finish via call to "endStage".
+                // If not, end player immediately.
+                    if (player.stage.id === stage.id && !player.isFinished()) {
+                        if (player.participant.clients.length > 0) {
+                            waitingForPlayers = true;
+                            if (endPlayers) {
+                                player.emit('endStage', player.shellWithParent());
+                            }
+                        } else {
+                            if (endPlayers) {
+                                console.log('No connected clients for ' + player.id + ', ending immediately.');
+                                player.attemptToEndStage(false);
+                            }
+                        }
+                }
+            }
+        }
+        // Proceed without waiting for players to submit their forms.
+
+        if (!waitingForPlayers) {
+            for (var p in group.players) {
+                var player = group.players[p];
+                if (player.stage.id === stage.id && player.status !== 'done') {
+                    player.justEndStage();
+                    player.justGoToNextStage(false);
+                }
+            }
+            console.log('//// END   - GROUP : ' + stage.id + ', ' + group.roomId());
+            stage.groupEnd(group);
+            this.attemptToStartNextStage();
+//             for (var p in group.players) {
+//                 var player = group.players[p];
+//                 if (
+//                     player.stage.id === stage.id &&
+//                     player.participant.player.period().id === player.period().id &&
+//                     player.participant.appIndex === player.stage.app.indexInSession()
+//                 ) {
+// //                if (!player.isFinished()) {
+//                     player.justGoToNextStage();
+//                 }
+//             }
+        }
+
+    }
+
+    endStage(stage) {
+        let group = this;
+        group.stageFinishedIndex = stage.indexInApp();
+        group.clearStageTimer();
+        this.checkIfWaitingToEnd(stage, true);
+    }
+
+    attemptToStartNextStage() {
+        if (this.stageIndex < this.app().stages.length - 1) {
+            this.stageIndex++;
+            this.attemptToStartStage(this.stage());
+        }
+    }
+
+    /**
+     * playersExcept - description
+     *
+     * @param  {type} player description
+     * @return {type}        description
+     */
+    playersExcept(player) {
+        var out = [];
+        for (var i=0; i<this.players.length; i++) {
+            if (this.players[i].participant.id != player.participant.id) {
+                out.push(this.players[i]);
+            }
+        }
+        return out;
+    }
+
+    clearStageTimer() {
+        //console.log('clearing stage timer');
+        if (this.stageTimer !== undefined) {
+            this.stageTimer.clear();
+            this.stageTimer = undefined;
+        }
+    }
+
+    /**
+     * isFinished - description
+     *
+     * @return {type}  description
+     */
+    isFinished() {
+        for (var i=0; i<this.players.length; i++) {
+            if (!this.players[i].isFinished()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /*
+     * outputFields - description
+     *
+     * @return {type}  description
+     */
+    outputFields() {
+        var fields = [];
+        for (var prop in this) {
+            if (
+                !Utils.isFunction(this[prop]) &&
+                !this.outputHide.includes(prop) &&
+                !this.outputHideAuto.includes(prop) &&
+                !this.tables.includes(prop)
+            )
+            fields.push(prop);
+        }
+        return fields;
+    }
+
+    player(id) {
+        return Utils.findByIdWOJQ(this.players, id);
+    }
+
+    /**
+     * shell - description
+     *
+     * @return {type}  description
+     */
+    shellWithParent() {
+        var out = {};
+        var fields = this.outputFields();
+        for (var f in fields) {
+            var field = fields[f];
+            out[field] = this[field];
+        }
+        out.period = this.period.shellWithParent();
+        out.numPlayers = this.players.length;
+        if (this.stageTimer !== undefined) {
+            out.stageTimerStart = this.stageTimer.timeStarted;
+            out.stageTimerDuration = this.stageTimer.duration;
+        } else {
+            out.timer = 'none';
+        }
+        out.tables = this.tables;
+        for (var i in this.tables) {
+            var name = this.tables[i];
+            if (this[name] != null) {
+                out[name] = this[name].shell();
+            }
+        }
+
+        return out;
+    }
+
+    shellForPlayerUpdate() {
+        var out = this.shellWithChildren();
+        out.period = this.period.shellWithParent();
+        return out;
+    }
+
+    timeInStage() {
+        if (this.stageTimer == null) {
+            return 0;
+        }
+        return this.stageTimer.state().timeElapsed;
+    }
+
+    /**
+     * emitUpdate - description
+     *
+     * @return {type}  description
+     */
+    emitUpdate() {
+        this.emit('groupUpdate', this.shellWithChildren());
+    }
+
+    /**
+     * Emit the given message to subscriber's of this group.
+     *
+     * @param  {type} msgTitle The title of the message.
+     * @param  {type} msgData  The data of the message.
+     */
+    emit(msgTitle, msgData) {
+        this.session().io().to(this.roomId()).emit(msgTitle, msgData);
+    }
+
+    /**
+     * session - description
+     *
+     * @return {@link Session}  The session that this group belongs to.
+     */
+    session() {
+        return this.period.session();
+    }
+
+    /**
+     * roomId - description
+     *
+     * @return {type}  description
+     */
+    roomId() {
+        return this.period.roomId() + '_group_' + this.id;
+    }
+
+    /*
+     * moveToNextStage - description
+     *
+     * @return {type}  description
+     */
+    moveToNextStage() {
+        for (var i=0; i<this.players.length; i++) {
+            this.app().playerMoveToNextStage(this.players[i]);
+        }
+    }
+
+    /**
+     * Returns the app this group is in.
+     *
+     * @return {App}  The app.
+     */
+    app() {
+        return this.period.app;
+    }
+
+    /*
+     * Add client to this group.<br>
+     * 1. The client joins this group's channel.
+     *
+     * @param  {type} client description
+     */
+    addClient(client) {
+        client.socket.join(this.roomId());
+    }
+
+    /**
+     * shellAll - description
+     *
+     * @return {type}  description
+     */
+    shellWithChildren() {
+        var out = {};
+        var fields = this.outputFields();
+        for (var f in fields) {
+            var field = fields[f];
+            out[field] = this[field];
+        }
+        out.period = this.period.id;
+        out.players = [];
+        for (var i in this.players) {
+            out.players[i] = this.players[i].shellWithChildren();
+        }
+        if (this.stageTimer !== undefined) {
+            out.stageTimerStart = this.stageTimer.timeStarted;
+            out.stageTimerDuration = this.stageTimer.duration;
+            out.stageTimerTimeLeft = this.stageTimer.timeLeft;
+        }
+        out.tables = this.tables;
+        for (var i in this.tables) {
+            var name = this.tables[i];
+            if (this[name] !== undefined) {
+                out[name] = this[name].shell();
+            }
+        }
+        return out;
+    }
+
+    /*
+     * getOutputDir - description
+     *
+     * @return {type}  description
+     */
+    getOutputDir() {
+        return this.period.getOutputDir() + '/groups/' + this.id;
+    }
+
+    /**
+     * shellLocal - description
+     *
+     * @return {type}  description
+     */
+    shell() {
+        var out = {};
+        var fields = this.outputFields();
+        for (var f in fields) {
+            var field = fields[f];
+            out[field] = this[field];
+        }
+        out.tables = this.tables;
+        if (this.stageTimer !== undefined) {
+            out.stageTimerStart = this.stageTimer.timeStarted;
+            out.stageTimerDuration = this.stageTimer.duration;
+            out.stageTimerTimeLeft = this.stageTimer.timeLeft;
+            out.stageTimerStageIndex = this.stageTimer.stageIndex;
+            out.stageTimerCallback = this.stageTimer.callback.toString();
+        }
+        out.periodId = this.period.id;
+        out.appIndex = this.app().indexInSession();
+        return out;
+    }
+
+    /**
+     * save - description
+     */
+    save() {
+        try {
+            this.session().jt.log('Group.save: ' + this.roomId());
+            var toSave = this.shell();
+            this.session().saveDataFS(toSave, 'GROUP');
+            for (var i=0; i<this.tables.length; i++) {
+                var table = this[this.tables[i]];
+                if (table !== undefined) {
+                    this[this.tables[i]].save();
+                }
+            }
+
+        } catch (err) {
+            console.log('Error saving group ' + this.id + ': ' + err);
+            console.log(err.stack);
+        }
+    }
+
+}
+
+var exports = module.exports = {};
+exports.new = Group;
+exports.load = Group.load;

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Tutorial: Session flow</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Tutorial: Session flow</h1>
+
+    <section>
+
+<header>
+    
+
+    <h2>Session flow</h2>
+</header>
+
+<article>
+    <p>This tutorial describes the sequence of events that happen during a session. In particular, it points out the various functions that can be used to design an app. For more details about this procedure, see the <a href="tutorial-session-flow-details.html">advanced tutorial</a>.</p>
+<p>In jtree, participants progress through a session which consists of apps, periods and stages. In doing so, they take the form of players and groups. Broadly speaking, each object calls <code>playerStart</code> (or <code>groupStart</code>) and <code>playerEnd</code> (or <code>groupEnd</code>) whenever a player (or group) begins or finishes that part of the experiment. Designing the logic of the app is simply a matter of overwriting these methods.</p>
+<p>This is done in the app's <code>app.js</code> file. This file has access to the <code>App</code> object, from which Stages can be created and customized via the <code>App.newStage(id)</code> function. Periods can be customized by overwriting the <code>App.createPeriod(id)</code> method.</p>
+<p>The rest of this tutorial describes approximately the order in which events take place within a session. Due to the option of letting participants progress through different stages without waiting for each other, the actual order of these events may differ in actual sessions.</p>
+<p>At the beginning of an app, the following functions are called:</p>
+<pre class="prettyprint source lang-javascript"><code>eval(app.js) // evaluates the contents of app.js
+App.participantStart(participant)
+// Clients are updated via a &quot;startNewApp&quot; message.
+// Participants go through the Periods of the App.
+App.participantEnd(participant)</code></pre><p>Within the app, participants go through a series of periods. At the beginning of the period, participants are assigned to a player, and the players are assigned to groups, according to the output of <code>App.getGroupIdsForPeriod(period)</code>. Thus, each period calls the following functions:</p>
+<pre class="prettyprint source lang-javascript"><code>App.getGroupIdsForPeriod(period)
+Period.groupStart(group)
+Period.playerStart(player)
+// Players go through the stages of the app.
+Period.playerEnd(player)
+Period.groupEnd(group)</code></pre><p>Customizing periods...</p>
+<p>Within the period, players and groups progress through the stages of the app. Within each stage, the following functions are called for the groups and players:</p>
+<pre class="prettyprint source lang-javascript"><code>player.status = 'ready'
+// If Stage.waitToStart == true, pause here until all players are ready.
+Stage.groupStart(group) // Called before any player starts the stage.
+player.status = 'playing'
+Stage.playerStart(player)
+// Players play the stage.
+player.status = 'finished'
+// If Stage.waitToEnd == true, pause here until all players are finished.
+Stage.playerEnd(player)
+player.status = 'done'
+// Player begins procedure for next stage in session, if any.
+Stage.groupEnd(group) // Only called once all players have ended the stage.
+// Group begins procedure for next stage in session, if any.</code></pre><p>If <code>Stage.waitToStart</code> is <code>true</code>, no player can start the stage until all players in the group are ready.<br>If <code>Stage.waitToEnd</code> is <code>true</code>, no player can end the stage until all players in the group are finished.<br>As soon as a player ends the stage, they move to the next stage in the session (if there is one) and begin again at the first step of this procedure.</p>
+<p>Groups belong to Periods. This means that whenever a stage has <code>waitToStart</code> as false, groups can &quot;start&quot; that stage before finishing one or more of the group's previous stages.</p>
+</article>
+
+</section>
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Apr 27 2018 08:58:03 GMT+0200 (Mitteleuropäische Sommerzeit)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
