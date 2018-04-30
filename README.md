@@ -10,6 +10,8 @@ A javascript toolbox for running economics experiments.
 - autoplay for testing.
 - users: share one server among many experimenters.
 - rooms: persistent links for subjects.
+- treatment options: facilitate switching between important parameter configurations of a treatment.
+- session queues: save sequences of treatments (including their options) for re-use.
 
 
 ### UNDER DEVELOPMENT
