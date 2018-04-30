@@ -1,0 +1,806 @@
+Thu Apr 12 2018 22:39:58 GMT+0200 (Mitteleuropäische Sommerzeit): last time on: 1523565598964
+Thu Apr 12 2018 22:39:59 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-165803-158
+Thu Apr 12 2018 22:40:01 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: IlIbZAYlbnqe7UDtAAAA, id=null, pwd=null, session=null
+Thu Apr 12 2018 22:40:01 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Thu Apr 12 2018 22:40:01 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_IlIbZAYlbnqe7UDtAAAA
+Thu Apr 12 2018 22:40:01 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_IlIbZAYlbnqe7UDtAAAA, userId = owen
+Thu Apr 12 2018 22:40:01 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180412-001932-196"}]
+Thu Apr 12 2018 22:40:01 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180412-001932-196"
+Thu Apr 12 2018 22:46:16 GMT+0200 (Mitteleuropäische Sommerzeit): received message updateAppPreview: {"appId":"double-auction","options":{}}
+Thu Apr 12 2018 22:46:20 GMT+0200 (Mitteleuropäische Sommerzeit): received message createSessionAndAddApp: {"appId":"double-auction","options":{},"userId":"owen"}
+Thu Apr 12 2018 22:46:20 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180412-224620-282
+Thu Apr 12 2018 22:46:20 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180412-224620-282
+Thu Apr 12 2018 22:46:20 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180412-224620-282
+Thu Apr 12 2018 22:46:20 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: double-auction
+Thu Apr 12 2018 22:46:20 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: trading
+Thu Apr 12 2018 22:46:20 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Thu Apr 12 2018 22:46:33 GMT+0200 (Mitteleuropäische Sommerzeit): received message setNumParticipants: {"sId":"20180412-224620-282","number":"4"}
+Thu Apr 12 2018 22:46:33 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: P1
+Thu Apr 12 2018 22:46:33 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Thu Apr 12 2018 22:46:33 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180412-224620-282
+Thu Apr 12 2018 22:46:33 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: double-auction
+Thu Apr 12 2018 22:46:33 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: trading
+Thu Apr 12 2018 22:46:33 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Thu Apr 12 2018 22:46:33 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: P2
+Thu Apr 12 2018 22:46:33 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Thu Apr 12 2018 22:46:33 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180412-224620-282
+Thu Apr 12 2018 22:46:33 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: double-auction
+Thu Apr 12 2018 22:46:33 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: trading
+Thu Apr 12 2018 22:46:33 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Thu Apr 12 2018 22:46:33 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: P3
+Thu Apr 12 2018 22:46:33 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Thu Apr 12 2018 22:46:33 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180412-224620-282
+Thu Apr 12 2018 22:46:33 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: double-auction
+Thu Apr 12 2018 22:46:33 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: trading
+Thu Apr 12 2018 22:46:33 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Thu Apr 12 2018 22:46:33 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: P4
+Thu Apr 12 2018 22:46:33 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Thu Apr 12 2018 22:46:33 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180412-224620-282
+Thu Apr 12 2018 22:46:33 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: double-auction
+Thu Apr 12 2018 22:46:33 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: trading
+Thu Apr 12 2018 22:46:33 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Thu Apr 12 2018 22:46:37 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: odgW6zv_2nt3yYxVAAAB, id=P1, pwd=null, session=null
+Thu Apr 12 2018 22:46:37 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: odgW6zv_2nt3yYxVAAAB, pId=P1, sId=null, roomId=null
+Thu Apr 12 2018 22:46:37 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: QyR1fvR_RqBI3GbYAAAC, id=P2, pwd=null, session=null
+Thu Apr 12 2018 22:46:37 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: QyR1fvR_RqBI3GbYAAAC, pId=P2, sId=null, roomId=null
+Thu Apr 12 2018 22:46:37 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: zQ6KMttMfE0QZDMEAAAD, id=P3, pwd=null, session=null
+Thu Apr 12 2018 22:46:37 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: zQ6KMttMfE0QZDMEAAAD, pId=P3, sId=null, roomId=null
+Thu Apr 12 2018 22:46:37 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: z3JWmgWFZdW0aY3LAAAE, id=P4, pwd=null, session=null
+Thu Apr 12 2018 22:46:37 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: z3JWmgWFZdW0aY3LAAAE, pId=P4, sId=null, roomId=null
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): received message sessionAdvanceSlowest: "20180412-224620-282"
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Period.save: 1
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P3
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P2
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P1
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P4
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P3
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P2
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P1
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P4
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: odgW6zv_2nt3yYxVAAAB
+Thu Apr 12 2018 22:46:45 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: QyR1fvR_RqBI3GbYAAAC
+Thu Apr 12 2018 22:46:46 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: zQ6KMttMfE0QZDMEAAAD
+Thu Apr 12 2018 22:46:46 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: z3JWmgWFZdW0aY3LAAAE
+Thu Apr 12 2018 22:46:46 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: cqe7dpVlAtN5a_H9AAAF, id=P1, pwd=null, session=null
+Thu Apr 12 2018 22:46:46 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: cqe7dpVlAtN5a_H9AAAF, pId=P1, sId=null, roomId=null
+Thu Apr 12 2018 22:46:46 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: Zqld8jTSMbRcRml8AAAG, id=P2, pwd=null, session=null
+Thu Apr 12 2018 22:46:46 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: Zqld8jTSMbRcRml8AAAG, pId=P2, sId=null, roomId=null
+Thu Apr 12 2018 22:46:46 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: nOyEGTubh3sq_5MhAAAH, id=P3, pwd=null, session=null
+Thu Apr 12 2018 22:46:46 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: nOyEGTubh3sq_5MhAAAH, pId=P3, sId=null, roomId=null
+Thu Apr 12 2018 22:46:46 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: V3SSuWJ3wo59Rhx9AAAI, id=P4, pwd=null, session=null
+Thu Apr 12 2018 22:46:46 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: V3SSuWJ3wo59Rhx9AAAI, pId=P4, sId=null, roomId=null
+Thu Apr 12 2018 22:47:10 GMT+0200 (Mitteleuropäische Sommerzeit): received message setAutoplayDelay: {"sId":"20180412-224620-282","val":"randomInt(4,8)*1000"}
+Thu Apr 12 2018 22:47:13 GMT+0200 (Mitteleuropäische Sommerzeit): received message setAutoplayForAll: {"sId":"20180412-224620-282","val":true}
+Thu Apr 12 2018 22:47:17 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:17 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:19 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:19 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:19 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P3
+Thu Apr 12 2018 22:47:19 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P2
+Thu Apr 12 2018 22:47:22 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:22 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P4
+Thu Apr 12 2018 22:47:22 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P2
+Thu Apr 12 2018 22:47:23 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:24 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:24 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P1
+Thu Apr 12 2018 22:47:24 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P2
+Thu Apr 12 2018 22:47:24 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:24 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P2
+Thu Apr 12 2018 22:47:24 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P2
+Thu Apr 12 2018 22:47:27 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:28 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:29 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:31 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P2
+Thu Apr 12 2018 22:47:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P3
+Thu Apr 12 2018 22:47:32 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:32 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:32 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P3
+Thu Apr 12 2018 22:47:32 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P3
+Thu Apr 12 2018 22:47:33 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:36 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P2
+Thu Apr 12 2018 22:47:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P3
+Thu Apr 12 2018 22:47:36 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:37 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:37 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P4
+Thu Apr 12 2018 22:47:37 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P2
+Thu Apr 12 2018 22:47:40 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:43 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:43 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:43 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P3
+Thu Apr 12 2018 22:47:43 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P1
+Thu Apr 12 2018 22:47:44 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:46 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:48 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:48 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P3
+Thu Apr 12 2018 22:47:48 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P1
+Thu Apr 12 2018 22:47:48 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:50 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:52 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:52 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:52 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:52 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:52 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P4
+Thu Apr 12 2018 22:47:52 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P2
+Thu Apr 12 2018 22:47:54 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:54 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P2
+Thu Apr 12 2018 22:47:54 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P2
+Thu Apr 12 2018 22:47:55 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:56 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:56 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P1
+Thu Apr 12 2018 22:47:56 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P3
+Thu Apr 12 2018 22:47:59 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:59 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P2
+Thu Apr 12 2018 22:47:59 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P3
+Thu Apr 12 2018 22:47:59 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:47:59 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:00 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:04 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:04 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:05 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:07 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:09 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:09 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P4
+Thu Apr 12 2018 22:48:09 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P1
+Thu Apr 12 2018 22:48:10 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:10 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:12 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:12 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P1
+Thu Apr 12 2018 22:48:12 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P2
+Thu Apr 12 2018 22:48:14 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:15 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:15 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:15 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P4
+Thu Apr 12 2018 22:48:15 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P2
+Thu Apr 12 2018 22:48:16 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:16 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:20 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:21 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:22 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:23 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:26 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:27 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:28 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:29 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:30 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:32 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:33 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:34 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:34 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:34 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P4
+Thu Apr 12 2018 22:48:34 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P3
+Thu Apr 12 2018 22:48:35 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:37 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:39 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:44 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:44 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:45 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:49 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:50 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:50 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:50 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P3
+Thu Apr 12 2018 22:48:50 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P2
+Thu Apr 12 2018 22:48:51 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:51 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P2
+Thu Apr 12 2018 22:48:51 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P1
+Thu Apr 12 2018 22:48:53 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:54 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:56 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:56 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P2
+Thu Apr 12 2018 22:48:56 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P1
+Thu Apr 12 2018 22:48:57 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:59 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:59 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P3
+Thu Apr 12 2018 22:48:59 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P4
+Thu Apr 12 2018 22:48:59 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:48:59 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P1
+Thu Apr 12 2018 22:48:59 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P4
+Thu Apr 12 2018 22:49:03 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:49:03 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:49:04 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:49:04 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: cqe7dpVlAtN5a_H9AAAF
+Thu Apr 12 2018 22:49:05 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 1z6JUDx5abTJUCSmAAAJ, id=P1, pwd=null, session=null
+Thu Apr 12 2018 22:49:05 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 1z6JUDx5abTJUCSmAAAJ, pId=P1, sId=null, roomId=null
+Thu Apr 12 2018 22:49:08 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:49:09 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:49:10 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:49:14 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:49:16 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:49:18 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:49:20 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:49:20 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P3
+Thu Apr 12 2018 22:49:20 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P2
+Thu Apr 12 2018 22:49:23 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:49:25 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:49:27 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:49:27 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P3
+Thu Apr 12 2018 22:49:27 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P2
+Thu Apr 12 2018 22:49:28 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:49:28 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P2
+Thu Apr 12 2018 22:49:28 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P2
+Thu Apr 12 2018 22:49:31 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:49:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P4
+Thu Apr 12 2018 22:49:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P2
+Thu Apr 12 2018 22:49:31 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:49:35 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:49:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P2
+Thu Apr 12 2018 22:49:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P2
+Thu Apr 12 2018 22:49:37 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:49:42 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:49:43 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:49:45 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"trading"}
+Thu Apr 12 2018 22:49:45 GMT+0200 (Mitteleuropäische Sommerzeit): Period.save: 2
+Thu Apr 12 2018 22:49:45 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"trading"}
+Thu Apr 12 2018 22:49:45 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"trading"}
+Thu Apr 12 2018 22:49:45 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"trading"}
+Thu Apr 12 2018 22:49:45 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1
+Thu Apr 12 2018 22:49:45 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:49:45 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P3
+Thu Apr 12 2018 22:49:45 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P2
+Thu Apr 12 2018 22:49:45 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P1
+Thu Apr 12 2018 22:49:45 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P4
+Thu Apr 12 2018 22:49:46 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"trading"}
+Thu Apr 12 2018 22:49:46 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"trading"}
+Thu Apr 12 2018 22:49:46 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"trading"}
+Thu Apr 12 2018 22:49:46 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"trading"}
+Thu Apr 12 2018 22:49:49 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:49:50 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:49:55 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:49:55 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:49:55 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P2
+Thu Apr 12 2018 22:49:55 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_1_group_1_player_P3
+Thu Apr 12 2018 22:49:55 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Thu Apr 12 2018 22:49:55 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1
+Thu Apr 12 2018 22:49:55 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P4
+Thu Apr 12 2018 22:49:55 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Thu Apr 12 2018 22:49:55 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P2
+Thu Apr 12 2018 22:49:55 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Thu Apr 12 2018 22:49:55 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P1
+Thu Apr 12 2018 22:49:55 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Thu Apr 12 2018 22:49:55 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P3
+Thu Apr 12 2018 22:49:55 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Thu Apr 12 2018 22:49:55 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1
+Thu Apr 12 2018 22:49:55 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Thu Apr 12 2018 22:49:55 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Thu Apr 12 2018 22:49:55 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Thu Apr 12 2018 22:49:55 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Thu Apr 12 2018 22:49:55 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Thu Apr 12 2018 22:49:56 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Thu Apr 12 2018 22:49:56 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Thu Apr 12 2018 22:49:56 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1
+Thu Apr 12 2018 22:49:56 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:49:56 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P4
+Thu Apr 12 2018 22:49:56 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P2
+Thu Apr 12 2018 22:49:56 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P1
+Thu Apr 12 2018 22:49:56 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P3
+Thu Apr 12 2018 22:49:56 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Thu Apr 12 2018 22:49:56 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Thu Apr 12 2018 22:49:56 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Thu Apr 12 2018 22:49:56 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Thu Apr 12 2018 22:49:59 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:00 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:03 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:04 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:05 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:07 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:08 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:08 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P2
+Thu Apr 12 2018 22:50:08 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P2
+Thu Apr 12 2018 22:50:09 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:09 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P3
+Thu Apr 12 2018 22:50:09 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P2
+Thu Apr 12 2018 22:50:12 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:14 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:15 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:15 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P3
+Thu Apr 12 2018 22:50:15 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P2
+Thu Apr 12 2018 22:50:18 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:21 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:23 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:25 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:26 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:26 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P3
+Thu Apr 12 2018 22:50:26 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P2
+Thu Apr 12 2018 22:50:28 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:28 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P2
+Thu Apr 12 2018 22:50:28 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P2
+Thu Apr 12 2018 22:50:33 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:33 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:38 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:39 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:39 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P3
+Thu Apr 12 2018 22:50:39 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P2
+Thu Apr 12 2018 22:50:43 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:45 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:45 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P3
+Thu Apr 12 2018 22:50:45 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P3
+Thu Apr 12 2018 22:50:46 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:48 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:48 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P2
+Thu Apr 12 2018 22:50:48 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P3
+Thu Apr 12 2018 22:50:50 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:52 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:53 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:58 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:50:59 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:51:04 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:51:05 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:51:05 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P2
+Thu Apr 12 2018 22:51:05 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P2
+Thu Apr 12 2018 22:51:09 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:51:12 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:51:16 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:51:17 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:51:18 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:51:22 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:51:24 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:51:25 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:51:25 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P2
+Thu Apr 12 2018 22:51:25 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P3
+Thu Apr 12 2018 22:51:27 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:51:31 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:51:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P2
+Thu Apr 12 2018 22:51:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P3
+Thu Apr 12 2018 22:51:31 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:51:35 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:51:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P3
+Thu Apr 12 2018 22:51:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P4
+Thu Apr 12 2018 22:51:37 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:51:37 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:51:41 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:51:41 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:51:46 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:51:52 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:51:53 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:51:55 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:51:57 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:51:59 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:52:02 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:52:04 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:52:07 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:52:11 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:52:12 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:52:17 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:52:17 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:52:17 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:52:17 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:52:17 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:52:17 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:52:17 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:52:17 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P2
+Thu Apr 12 2018 22:52:17 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P3
+Thu Apr 12 2018 22:52:24 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:52:24 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:52:30 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:52:31 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:52:37 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:52:41 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:52:42 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:52:55 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:52:56 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"trading"}
+Thu Apr 12 2018 22:52:56 GMT+0200 (Mitteleuropäische Sommerzeit): Period.save: 3
+Thu Apr 12 2018 22:52:56 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"trading"}
+Thu Apr 12 2018 22:52:56 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"trading"}
+Thu Apr 12 2018 22:52:56 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"trading"}
+Thu Apr 12 2018 22:52:56 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1
+Thu Apr 12 2018 22:52:56 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:52:56 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P4
+Thu Apr 12 2018 22:52:56 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P2
+Thu Apr 12 2018 22:52:56 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P1
+Thu Apr 12 2018 22:52:56 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_2_group_1_player_P3
+Thu Apr 12 2018 22:52:56 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"trading"}
+Thu Apr 12 2018 22:52:56 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"trading"}
+Thu Apr 12 2018 22:52:56 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"trading"}
+Thu Apr 12 2018 22:52:57 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"trading"}
+Thu Apr 12 2018 22:52:57 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:53:02 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:53:04 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:53:06 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Thu Apr 12 2018 22:53:06 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1
+Thu Apr 12 2018 22:53:06 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P4
+Thu Apr 12 2018 22:53:06 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Thu Apr 12 2018 22:53:06 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P1
+Thu Apr 12 2018 22:53:06 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Thu Apr 12 2018 22:53:06 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P3
+Thu Apr 12 2018 22:53:06 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Thu Apr 12 2018 22:53:06 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P2
+Thu Apr 12 2018 22:53:06 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Thu Apr 12 2018 22:53:06 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1
+Thu Apr 12 2018 22:53:06 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Thu Apr 12 2018 22:53:06 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Thu Apr 12 2018 22:53:06 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Thu Apr 12 2018 22:53:06 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Thu Apr 12 2018 22:53:06 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Thu Apr 12 2018 22:53:06 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Thu Apr 12 2018 22:53:06 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Thu Apr 12 2018 22:53:06 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1
+Thu Apr 12 2018 22:53:06 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:53:06 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P4
+Thu Apr 12 2018 22:53:06 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P1
+Thu Apr 12 2018 22:53:06 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P3
+Thu Apr 12 2018 22:53:06 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P2
+Thu Apr 12 2018 22:53:06 GMT+0200 (Mitteleuropäische Sommerzeit): TypeError: Cannot read property 'makerPId' of null
+    at App.app.acceptOffer (eval at loadApp (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\source\core\Data.js:142:17), <anonymous>:74:38)
+    at Client.app.messages.acceptOTB (eval at loadApp (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\source\core\Data.js:142:17), <anonymous>:61:9)
+    at processMessage (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\source\Session.js:359:24)
+    at C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\node_modules\async\dist\async.js:4082:9
+    at Object.process (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\node_modules\async\dist\async.js:2330:17)
+    at C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\node_modules\async\dist\async.js:2238:19
+    at Immediate.<anonymous> (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\node_modules\async\dist\async.js:119:16)
+    at runCallback (timers.js:789:20)
+    at tryOnImmediate (timers.js:751:5)
+    at processImmediate [as _immediateCallback] (timers.js:722:5)
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): error processing message: 44
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: V3SSuWJ3wo59Rhx9AAAI
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: Zqld8jTSMbRcRml8AAAG
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: nOyEGTubh3sq_5MhAAAH
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 1z6JUDx5abTJUCSmAAAJ
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: y2nStAH_udyI5HmsAAAK, id=null, pwd=null, session=null
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: tEsZg7lLlpQnK6E7AAAL, id=P1, pwd=null, session=null
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: tEsZg7lLlpQnK6E7AAAL, pId=P1, sId=null, roomId=null
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: Qom1iI5TsbhS4Pu-AAAM, id=P2, pwd=null, session=null
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: Qom1iI5TsbhS4Pu-AAAM, pId=P2, sId=null, roomId=null
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: QJwWcuD_Yw-Zb2duAAAN, id=P3, pwd=null, session=null
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: QJwWcuD_Yw-Zb2duAAAN, pId=P3, sId=null, roomId=null
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: etZbPudcdcNrS23rAAAO, id=P4, pwd=null, session=null
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: etZbPudcdcNrS23rAAAO, pId=P4, sId=null, roomId=null
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: J5J7VR5kg059Td8SAAAP, id=P1, pwd=null, session=null
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: J5J7VR5kg059Td8SAAAP, pId=P1, sId=null, roomId=null
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: OhNGbV_FmKzVoZYjAAAQ, id=P4, pwd=null, session=null
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: OhNGbV_FmKzVoZYjAAAQ, pId=P4, sId=null, roomId=null
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: zjtnlz7Mc7wbh29zAAAR, id=P3, pwd=null, session=null
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: zjtnlz7Mc7wbh29zAAAR, pId=P3, sId=null, roomId=null
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: Lkb5goVAz2h_kf-4AAAS, id=null, pwd=null, session=null
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: cqBNQdOASUDeCUKBAAAT, id=P2, pwd=null, session=null
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: cqBNQdOASUDeCUKBAAAT, pId=P2, sId=null, roomId=null
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: ziFzJZA2t4QXw6dSAAAU, id=null, pwd=null, session=null
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: cyhwgmo-vk2h6WNAAAAV, id=P1, pwd=null, session=null
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: cyhwgmo-vk2h6WNAAAAV, pId=P1, sId=null, roomId=null
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_ziFzJZA2t4QXw6dSAAAU
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_ziFzJZA2t4QXw6dSAAAU, userId = owen
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:08 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: cyhwgmo-vk2h6WNAAAAV
+Thu Apr 12 2018 22:55:08 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:08 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P3
+Thu Apr 12 2018 22:55:08 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P2
+Thu Apr 12 2018 22:55:10 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: lh_lXU094NZ_RHyQAAAW, id=P1, pwd=null, session=null
+Thu Apr 12 2018 22:55:10 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: lh_lXU094NZ_RHyQAAAW, pId=P1, sId=null, roomId=null
+Thu Apr 12 2018 22:55:10 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:10 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P4
+Thu Apr 12 2018 22:55:10 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P2
+Thu Apr 12 2018 22:55:10 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:10 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P2
+Thu Apr 12 2018 22:55:10 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P2
+Thu Apr 12 2018 22:55:13 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:13 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P3
+Thu Apr 12 2018 22:55:13 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P2
+Thu Apr 12 2018 22:55:14 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:17 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:17 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P4
+Thu Apr 12 2018 22:55:17 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P2
+Thu Apr 12 2018 22:55:18 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P3
+Thu Apr 12 2018 22:55:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P2
+Thu Apr 12 2018 22:55:18 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:22 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:24 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:24 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P4
+Thu Apr 12 2018 22:55:24 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P2
+Thu Apr 12 2018 22:55:27 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:27 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P2
+Thu Apr 12 2018 22:55:27 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P2
+Thu Apr 12 2018 22:55:28 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:28 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P4
+Thu Apr 12 2018 22:55:28 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P2
+Thu Apr 12 2018 22:55:29 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:32 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:32 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P4
+Thu Apr 12 2018 22:55:32 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P3
+Thu Apr 12 2018 22:55:32 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:36 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:37 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:41 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:44 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:44 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P4
+Thu Apr 12 2018 22:55:44 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P2
+Thu Apr 12 2018 22:55:47 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:48 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:53 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:53 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P2
+Thu Apr 12 2018 22:55:53 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P2
+Thu Apr 12 2018 22:55:53 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:57 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:55:59 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:05 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:06 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"trading"}
+Thu Apr 12 2018 22:56:06 GMT+0200 (Mitteleuropäische Sommerzeit): Period.save: 4
+Thu Apr 12 2018 22:56:06 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"trading"}
+Thu Apr 12 2018 22:56:06 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"trading"}
+Thu Apr 12 2018 22:56:06 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"trading"}
+Thu Apr 12 2018 22:56:06 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1
+Thu Apr 12 2018 22:56:06 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:06 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P4
+Thu Apr 12 2018 22:56:06 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P1
+Thu Apr 12 2018 22:56:06 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P3
+Thu Apr 12 2018 22:56:06 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P2
+Thu Apr 12 2018 22:56:07 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"trading"}
+Thu Apr 12 2018 22:56:07 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"trading"}
+Thu Apr 12 2018 22:56:07 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"trading"}
+Thu Apr 12 2018 22:56:07 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"trading"}
+Thu Apr 12 2018 22:56:07 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:10 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:11 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:11 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P3
+Thu Apr 12 2018 22:56:11 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_3_group_1_player_P4
+Thu Apr 12 2018 22:56:11 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:15 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:16 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Thu Apr 12 2018 22:56:16 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1
+Thu Apr 12 2018 22:56:16 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P1
+Thu Apr 12 2018 22:56:16 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Thu Apr 12 2018 22:56:16 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P3
+Thu Apr 12 2018 22:56:16 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Thu Apr 12 2018 22:56:16 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P4
+Thu Apr 12 2018 22:56:16 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Thu Apr 12 2018 22:56:16 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P2
+Thu Apr 12 2018 22:56:16 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Thu Apr 12 2018 22:56:16 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1
+Thu Apr 12 2018 22:56:16 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Thu Apr 12 2018 22:56:16 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Thu Apr 12 2018 22:56:16 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Thu Apr 12 2018 22:56:16 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Thu Apr 12 2018 22:56:17 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Thu Apr 12 2018 22:56:17 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Thu Apr 12 2018 22:56:17 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Thu Apr 12 2018 22:56:17 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1
+Thu Apr 12 2018 22:56:17 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:17 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P1
+Thu Apr 12 2018 22:56:17 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P3
+Thu Apr 12 2018 22:56:17 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P4
+Thu Apr 12 2018 22:56:17 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P2
+Thu Apr 12 2018 22:56:17 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Thu Apr 12 2018 22:56:17 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Thu Apr 12 2018 22:56:17 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Thu Apr 12 2018 22:56:17 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Thu Apr 12 2018 22:56:17 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:19 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:19 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P4
+Thu Apr 12 2018 22:56:19 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P2
+Thu Apr 12 2018 22:56:21 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:23 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:23 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P4
+Thu Apr 12 2018 22:56:23 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P3
+Thu Apr 12 2018 22:56:24 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:28 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:28 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P3
+Thu Apr 12 2018 22:56:28 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P2
+Thu Apr 12 2018 22:56:29 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:31 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:32 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: tEsZg7lLlpQnK6E7AAAL
+Thu Apr 12 2018 22:56:32 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: Qom1iI5TsbhS4Pu-AAAM
+Thu Apr 12 2018 22:56:32 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: QJwWcuD_Yw-Zb2duAAAN
+Thu Apr 12 2018 22:56:32 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: etZbPudcdcNrS23rAAAO
+Thu Apr 12 2018 22:56:32 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: J5J7VR5kg059Td8SAAAP
+Thu Apr 12 2018 22:56:33 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:33 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P3
+Thu Apr 12 2018 22:56:33 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P4
+Thu Apr 12 2018 22:56:35 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P2
+Thu Apr 12 2018 22:56:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P4
+Thu Apr 12 2018 22:56:36 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:37 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:41 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:42 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:42 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P4
+Thu Apr 12 2018 22:56:42 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P3
+Thu Apr 12 2018 22:56:43 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:47 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:47 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:47 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P3
+Thu Apr 12 2018 22:56:47 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P4
+Thu Apr 12 2018 22:56:49 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:52 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:55 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:56 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:57 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:56:57 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P2
+Thu Apr 12 2018 22:56:57 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P4
+Thu Apr 12 2018 22:57:01 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:03 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:03 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:03 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P4
+Thu Apr 12 2018 22:57:03 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P3
+Thu Apr 12 2018 22:57:07 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:07 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P2
+Thu Apr 12 2018 22:57:07 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P4
+Thu Apr 12 2018 22:57:07 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:07 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P4
+Thu Apr 12 2018 22:57:07 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P4
+Thu Apr 12 2018 22:57:08 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:08 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P3
+Thu Apr 12 2018 22:57:08 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P4
+Thu Apr 12 2018 22:57:13 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:14 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:14 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P4
+Thu Apr 12 2018 22:57:14 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P2
+Thu Apr 12 2018 22:57:15 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:18 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:20 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:21 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:22 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:24 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:24 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P4
+Thu Apr 12 2018 22:57:24 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P2
+Thu Apr 12 2018 22:57:26 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:27 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:27 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P3
+Thu Apr 12 2018 22:57:27 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P2
+Thu Apr 12 2018 22:57:29 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:31 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P3
+Thu Apr 12 2018 22:57:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P2
+Thu Apr 12 2018 22:57:32 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: lh_lXU094NZ_RHyQAAAW
+Thu Apr 12 2018 22:57:34 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:34 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P2
+Thu Apr 12 2018 22:57:34 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P2
+Thu Apr 12 2018 22:57:34 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: a5w7mpDnlfyrkQKVAAAX, id=P1, pwd=null, session=null
+Thu Apr 12 2018 22:57:34 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: a5w7mpDnlfyrkQKVAAAX, pId=P1, sId=null, roomId=null
+Thu Apr 12 2018 22:57:36 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:38 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:41 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:42 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:42 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P4
+Thu Apr 12 2018 22:57:42 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P3
+Thu Apr 12 2018 22:57:42 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:42 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P3
+Thu Apr 12 2018 22:57:42 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P3
+Thu Apr 12 2018 22:57:46 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:46 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P2
+Thu Apr 12 2018 22:57:46 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P3
+Thu Apr 12 2018 22:57:47 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:48 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:50 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:54 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:54 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P4
+Thu Apr 12 2018 22:57:54 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P3
+Thu Apr 12 2018 22:57:54 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:55 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:57:59 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:01 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:01 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P2
+Thu Apr 12 2018 22:58:01 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P3
+Thu Apr 12 2018 22:58:01 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:06 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:06 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P4
+Thu Apr 12 2018 22:58:06 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P3
+Thu Apr 12 2018 22:58:07 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:07 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:11 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:11 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:13 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:17 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:18 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:19 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:22 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:23 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:24 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:27 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:27 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P4
+Thu Apr 12 2018 22:58:27 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P2
+Thu Apr 12 2018 22:58:29 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:30 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: a5w7mpDnlfyrkQKVAAAX
+Thu Apr 12 2018 22:58:31 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:32 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: XfW7AkBLnPmlSK-1AAAY, id=P1, pwd=null, session=null
+Thu Apr 12 2018 22:58:32 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: XfW7AkBLnPmlSK-1AAAY, pId=P1, sId=null, roomId=null
+Thu Apr 12 2018 22:58:33 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:33 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P4
+Thu Apr 12 2018 22:58:33 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P3
+Thu Apr 12 2018 22:58:35 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:35 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:39 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:39 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:39 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P4
+Thu Apr 12 2018 22:58:39 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P2
+Thu Apr 12 2018 22:58:41 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:41 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:41 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P3
+Thu Apr 12 2018 22:58:41 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P2
+Thu Apr 12 2018 22:58:41 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:41 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P2
+Thu Apr 12 2018 22:58:41 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P4
+Thu Apr 12 2018 22:58:45 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:46 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:48 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:51 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:51 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P2
+Thu Apr 12 2018 22:58:51 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P3
+Thu Apr 12 2018 22:58:53 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:58:53 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P4
+Thu Apr 12 2018 22:58:53 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180412-224620-282_app_1-double-auction_period_4_group_1_player_P2
+Thu Apr 12 2018 22:58:55 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:59:00 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:59:00 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:59:04 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:59:07 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:59:09 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:59:12 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 22:59:13 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: XfW7AkBLnPmlSK-1AAAY
+Thu Apr 12 2018 22:59:15 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: IdPUZjpkfbqXwWMmAAAZ, id=P1, pwd=null, session=null
+Thu Apr 12 2018 22:59:15 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: IdPUZjpkfbqXwWMmAAAZ, pId=P1, sId=null, roomId=null
+Thu Apr 12 2018 22:59:17 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"trading"}
+Thu Apr 12 2018 22:59:17 GMT+0200 (Mitteleuropäische Sommerzeit): Period.save: 5
+Thu Apr 12 2018 23:00:37 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: zjtnlz7Mc7wbh29zAAAR
+Thu Apr 12 2018 23:00:37 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: cqBNQdOASUDeCUKBAAAT
+Thu Apr 12 2018 23:00:41 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: OhNGbV_FmKzVoZYjAAAQ
+Thu Apr 12 2018 23:00:41 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"trading"}
+Thu Apr 12 2018 23:00:43 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: MoOchTjbLPDyoQv2AAAa, id=null, pwd=null, session=null
+Thu Apr 12 2018 23:00:43 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Thu Apr 12 2018 23:00:43 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_MoOchTjbLPDyoQv2AAAa
+Thu Apr 12 2018 23:00:43 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_MoOchTjbLPDyoQv2AAAa, userId = owen
+Thu Apr 12 2018 23:00:44 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: ObDe2_TUuG81pG_OAAAb, id=P3, pwd=null, session=null
+Thu Apr 12 2018 23:00:44 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: ObDe2_TUuG81pG_OAAAb, pId=P3, sId=null, roomId=null
+Thu Apr 12 2018 23:00:44 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 7PsyPPlRCcqxzdbOAAAc, id=P2, pwd=null, session=null
+Thu Apr 12 2018 23:00:44 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 7PsyPPlRCcqxzdbOAAAc, pId=P2, sId=null, roomId=null
+Thu Apr 12 2018 23:00:44 GMT+0200 (Mitteleuropäische Sommerzeit): Table.save: offers
+Thu Apr 12 2018 23:00:44 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: kCfjHvvD1JDbWuVxAAAd, id=P4, pwd=null, session=null
+Thu Apr 12 2018 23:00:44 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: kCfjHvvD1JDbWuVxAAAd, pId=P4, sId=null, roomId=null
+Thu Apr 12 2018 23:00:44 GMT+0200 (Mitteleuropäische Sommerzeit): TypeError: Cannot read property 'state' of undefined
+    at Player.timeInStage (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\source\Player.js:63:38)
+    at App.app.acceptOffer (eval at loadApp (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\source\core\Data.js:142:17), <anonymous>:97:60)
+    at Client.app.messages.acceptOTS (eval at loadApp (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\source\core\Data.js:142:17), <anonymous>:58:9)
+    at processMessage (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\source\Session.js:359:24)
+    at C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\node_modules\async\dist\async.js:4082:9
+    at Object.process (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\node_modules\async\dist\async.js:2330:17)
+    at C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\node_modules\async\dist\async.js:2238:19
+    at Immediate.<anonymous> (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\node_modules\async\dist\async.js:119:16)
+    at runCallback (timers.js:789:20)
+    at tryOnImmediate (timers.js:751:5)

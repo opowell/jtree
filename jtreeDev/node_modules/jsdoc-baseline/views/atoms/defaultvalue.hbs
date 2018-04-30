@@ -1,0 +1,10 @@
+{{#if (defined defaultvalue)}}
+    <dt>{{translateHeading 'defaultValue'}}</dt>
+    <dd>
+        {{~#if (shouldHighlight defaultvaluetype)~}}
+            <pre {{~cssClass "!prettyprint"}}><code>{{defaultvalue}}</code></pre>
+        {{~else~}}
+            {{~defaultvalue~}}
+        {{~/if~}}
+    </dd>
+{{/if}}

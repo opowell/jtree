@@ -1,0 +1,576 @@
+Wed Apr 18 2018 13:09:15 GMT+0200 (Mitteleuropäische Sommerzeit): last time on: 1524049755450
+Wed Apr 18 2018 13:09:15 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-165803-158
+Wed Apr 18 2018 13:09:15 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-224620-282
+Wed Apr 18 2018 13:09:15 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-230555-985
+Wed Apr 18 2018 13:09:15 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-232233-262
+Wed Apr 18 2018 13:09:15 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-233853-465
+Wed Apr 18 2018 13:09:15 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-235527-391
+Wed Apr 18 2018 13:09:15 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180413-001451-639
+Wed Apr 18 2018 13:09:15 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180413-003158-364
+Wed Apr 18 2018 13:09:15 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180413-004813-781
+Wed Apr 18 2018 13:09:15 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180413-004849-488
+Wed Apr 18 2018 13:09:20 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180413-103733-439
+Wed Apr 18 2018 13:09:20 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180413-131632-439
+Wed Apr 18 2018 13:09:20 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180417-121227-991
+Wed Apr 18 2018 13:09:22 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: iyAJLOPbhawWnbFZAAAA, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:09:22 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:09:22 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_iyAJLOPbhawWnbFZAAAA
+Wed Apr 18 2018 13:09:22 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_iyAJLOPbhawWnbFZAAAA, userId = owen
+Wed Apr 18 2018 13:10:50 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: awcKq8qUm9--JSfIAAAB, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:10:50 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:10:51 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_awcKq8qUm9--JSfIAAAB
+Wed Apr 18 2018 13:10:51 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_awcKq8qUm9--JSfIAAAB, userId = owen
+Wed Apr 18 2018 13:12:17 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: XpabvitOakeJF16fAAAC, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:12:17 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:12:17 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_XpabvitOakeJF16fAAAC
+Wed Apr 18 2018 13:12:17 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_XpabvitOakeJF16fAAAC, userId = owen
+Wed Apr 18 2018 13:13:44 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: iTcdaTx_rs8ZsqEkAAAD, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:13:44 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:13:44 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_iTcdaTx_rs8ZsqEkAAAD
+Wed Apr 18 2018 13:13:44 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_iTcdaTx_rs8ZsqEkAAAD, userId = owen
+Wed Apr 18 2018 13:15:13 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: rtGzEo7whjdIw9ZMAAAE, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:15:13 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:15:13 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_rtGzEo7whjdIw9ZMAAAE
+Wed Apr 18 2018 13:15:13 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_rtGzEo7whjdIw9ZMAAAE, userId = owen
+Wed Apr 18 2018 13:16:42 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: kZ8-RmXJFB3KtJ1mAAAF, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:16:42 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:16:42 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_kZ8-RmXJFB3KtJ1mAAAF
+Wed Apr 18 2018 13:16:42 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_kZ8-RmXJFB3KtJ1mAAAF, userId = owen
+Wed Apr 18 2018 13:18:09 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: D-yHagsH90xDoclfAAAG, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:18:09 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:18:09 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_D-yHagsH90xDoclfAAAG
+Wed Apr 18 2018 13:18:09 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_D-yHagsH90xDoclfAAAG, userId = owen
+Wed Apr 18 2018 13:19:37 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: coBj6AyYk4kWVlOYAAAH, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:19:37 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:19:37 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_coBj6AyYk4kWVlOYAAAH
+Wed Apr 18 2018 13:19:37 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_coBj6AyYk4kWVlOYAAAH, userId = owen
+Wed Apr 18 2018 13:21:06 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: XV22aOvxmMyJT7-zAAAI, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:21:06 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:21:06 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_XV22aOvxmMyJT7-zAAAI
+Wed Apr 18 2018 13:21:06 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_XV22aOvxmMyJT7-zAAAI, userId = owen
+Wed Apr 18 2018 13:22:35 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: ytCRzUQn7o6DhgrAAAAJ, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:22:35 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:22:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_ytCRzUQn7o6DhgrAAAAJ
+Wed Apr 18 2018 13:22:35 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_ytCRzUQn7o6DhgrAAAAJ, userId = owen
+Wed Apr 18 2018 13:24:03 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: iwO0hqZz3snpiisdAAAK, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:24:03 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:24:03 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_iwO0hqZz3snpiisdAAAK
+Wed Apr 18 2018 13:24:03 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_iwO0hqZz3snpiisdAAAK, userId = owen
+Wed Apr 18 2018 13:25:30 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: luANRNWIQhrVu5E0AAAL, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:25:30 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:25:30 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_luANRNWIQhrVu5E0AAAL
+Wed Apr 18 2018 13:25:30 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_luANRNWIQhrVu5E0AAAL, userId = owen
+Wed Apr 18 2018 13:26:58 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 2JXFYiH1eqtEgBtSAAAM, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:26:58 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:26:58 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_2JXFYiH1eqtEgBtSAAAM
+Wed Apr 18 2018 13:26:58 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_2JXFYiH1eqtEgBtSAAAM, userId = owen
+Wed Apr 18 2018 13:28:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: t0TOrqt6ZOnY61zkAAAN, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:28:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:28:26 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_t0TOrqt6ZOnY61zkAAAN
+Wed Apr 18 2018 13:28:26 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_t0TOrqt6ZOnY61zkAAAN, userId = owen
+Wed Apr 18 2018 13:29:54 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: xZhGNMzkiDOs6tG3AAAO, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:29:54 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:29:54 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_xZhGNMzkiDOs6tG3AAAO
+Wed Apr 18 2018 13:29:54 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_xZhGNMzkiDOs6tG3AAAO, userId = owen
+Wed Apr 18 2018 13:31:22 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 6ErJtWP0qUwTg3X7AAAP, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:31:22 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:31:22 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_6ErJtWP0qUwTg3X7AAAP
+Wed Apr 18 2018 13:31:22 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_6ErJtWP0qUwTg3X7AAAP, userId = owen
+Wed Apr 18 2018 13:32:49 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 9u820K3TklYgtMC7AAAQ, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:32:49 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:32:49 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_9u820K3TklYgtMC7AAAQ
+Wed Apr 18 2018 13:32:49 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_9u820K3TklYgtMC7AAAQ, userId = owen
+Wed Apr 18 2018 13:34:17 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: Ro-0VBnAuPeCto7NAAAR, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:34:17 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:34:17 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_Ro-0VBnAuPeCto7NAAAR
+Wed Apr 18 2018 13:34:17 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_Ro-0VBnAuPeCto7NAAAR, userId = owen
+Wed Apr 18 2018 13:35:44 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: ztBilQGzAcHanuHtAAAS, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:35:44 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:35:44 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_ztBilQGzAcHanuHtAAAS
+Wed Apr 18 2018 13:35:44 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_ztBilQGzAcHanuHtAAAS, userId = owen
+Wed Apr 18 2018 13:37:13 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: aKrzmmgEX96u6SC0AAAT, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:37:13 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:37:13 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_aKrzmmgEX96u6SC0AAAT
+Wed Apr 18 2018 13:37:13 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_aKrzmmgEX96u6SC0AAAT, userId = owen
+Wed Apr 18 2018 13:38:40 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: q4ky5knjpgy-8biUAAAU, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:38:40 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:38:40 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_q4ky5knjpgy-8biUAAAU
+Wed Apr 18 2018 13:38:40 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_q4ky5knjpgy-8biUAAAU, userId = owen
+Wed Apr 18 2018 13:40:08 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: KTaHZ-l_m1Qyi0GKAAAV, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:40:08 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:40:08 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_KTaHZ-l_m1Qyi0GKAAAV
+Wed Apr 18 2018 13:40:08 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_KTaHZ-l_m1Qyi0GKAAAV, userId = owen
+Wed Apr 18 2018 13:41:36 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: xNBR3f2L_ufW8VU0AAAW, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:41:36 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:41:36 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_xNBR3f2L_ufW8VU0AAAW
+Wed Apr 18 2018 13:41:36 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_xNBR3f2L_ufW8VU0AAAW, userId = owen
+Wed Apr 18 2018 13:43:03 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: tgvOmiLAeWmodx40AAAX, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:43:03 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:43:03 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_tgvOmiLAeWmodx40AAAX
+Wed Apr 18 2018 13:43:03 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_tgvOmiLAeWmodx40AAAX, userId = owen
+Wed Apr 18 2018 13:44:32 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: -E20VJGrlbHsmyvpAAAY, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:44:32 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:44:32 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_-E20VJGrlbHsmyvpAAAY
+Wed Apr 18 2018 13:44:32 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_-E20VJGrlbHsmyvpAAAY, userId = owen
+Wed Apr 18 2018 13:46:01 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: xTqfLHTvO5nT2MLIAAAZ, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:46:01 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:46:01 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_xTqfLHTvO5nT2MLIAAAZ
+Wed Apr 18 2018 13:46:01 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_xTqfLHTvO5nT2MLIAAAZ, userId = owen
+Wed Apr 18 2018 13:47:29 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 8Yzo84a2xRiedIamAAAa, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:47:29 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:47:29 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_8Yzo84a2xRiedIamAAAa
+Wed Apr 18 2018 13:47:29 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_8Yzo84a2xRiedIamAAAa, userId = owen
+Wed Apr 18 2018 13:48:55 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: GhKYhPXmRKttCtfxAAAb, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:48:55 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:48:55 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_GhKYhPXmRKttCtfxAAAb
+Wed Apr 18 2018 13:48:55 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_GhKYhPXmRKttCtfxAAAb, userId = owen
+Wed Apr 18 2018 13:52:32 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: rgyEwBoK9L4wFwr3AAAc, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:52:32 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:52:32 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_rgyEwBoK9L4wFwr3AAAc
+Wed Apr 18 2018 13:52:32 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_rgyEwBoK9L4wFwr3AAAc, userId = owen
+Wed Apr 18 2018 13:53:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 81GbtWfganNc-h9uAAAd, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:53:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:53:26 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_81GbtWfganNc-h9uAAAd
+Wed Apr 18 2018 13:53:26 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_81GbtWfganNc-h9uAAAd, userId = owen
+Wed Apr 18 2018 13:54:24 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: qYE10jF1CM8O_QqXAAAe, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:54:24 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:54:24 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_qYE10jF1CM8O_QqXAAAe
+Wed Apr 18 2018 13:54:24 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_qYE10jF1CM8O_QqXAAAe, userId = owen
+Wed Apr 18 2018 13:55:04 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 0TA107EripnppxSOAAAf, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:55:04 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:55:04 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_0TA107EripnppxSOAAAf
+Wed Apr 18 2018 13:55:04 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_0TA107EripnppxSOAAAf, userId = owen
+Wed Apr 18 2018 13:55:04 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 13:55:04 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 13:56:04 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: cNIiaacvr6aGTrb-AAAg, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:56:04 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:56:04 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_cNIiaacvr6aGTrb-AAAg
+Wed Apr 18 2018 13:56:04 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_cNIiaacvr6aGTrb-AAAg, userId = owen
+Wed Apr 18 2018 13:56:04 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 13:56:04 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 13:57:04 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: VpwBQtJNgSqGRjzDAAAh, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:57:04 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:57:04 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_VpwBQtJNgSqGRjzDAAAh
+Wed Apr 18 2018 13:57:04 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_VpwBQtJNgSqGRjzDAAAh, userId = owen
+Wed Apr 18 2018 13:57:04 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 13:57:04 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 13:57:57 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: ut9m1O062xXXQGESAAAi, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:57:57 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:57:57 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_ut9m1O062xXXQGESAAAi
+Wed Apr 18 2018 13:57:57 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_ut9m1O062xXXQGESAAAi, userId = owen
+Wed Apr 18 2018 13:57:57 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 13:57:57 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 13:58:38 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: eoc8-1RoXp0qMzJ5AAAj, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:58:38 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:58:38 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_eoc8-1RoXp0qMzJ5AAAj
+Wed Apr 18 2018 13:58:38 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_eoc8-1RoXp0qMzJ5AAAj, userId = owen
+Wed Apr 18 2018 13:58:38 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 13:58:38 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 13:59:29 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: vtjBNA4Q4yKOAYn2AAAk, id=null, pwd=null, session=null
+Wed Apr 18 2018 13:59:29 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 13:59:29 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_vtjBNA4Q4yKOAYn2AAAk
+Wed Apr 18 2018 13:59:29 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_vtjBNA4Q4yKOAYn2AAAk, userId = owen
+Wed Apr 18 2018 13:59:29 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 13:59:29 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 14:05:06 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 5dWy_EBS2qeC5-69AAAl, id=null, pwd=null, session=null
+Wed Apr 18 2018 14:05:06 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 14:05:06 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_5dWy_EBS2qeC5-69AAAl
+Wed Apr 18 2018 14:05:06 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_5dWy_EBS2qeC5-69AAAl, userId = owen
+Wed Apr 18 2018 14:05:06 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 14:05:06 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 14:06:02 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: EbF4nO3E8fA4YW0lAAAm, id=null, pwd=null, session=null
+Wed Apr 18 2018 14:06:02 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 14:06:02 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_EbF4nO3E8fA4YW0lAAAm
+Wed Apr 18 2018 14:06:02 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_EbF4nO3E8fA4YW0lAAAm, userId = owen
+Wed Apr 18 2018 14:06:02 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 14:06:02 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 14:09:46 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: Hpp_LCqxXahgI9VjAAAn, id=null, pwd=null, session=null
+Wed Apr 18 2018 14:09:46 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 14:09:46 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_Hpp_LCqxXahgI9VjAAAn
+Wed Apr 18 2018 14:09:46 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_Hpp_LCqxXahgI9VjAAAn, userId = owen
+Wed Apr 18 2018 14:09:46 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 14:09:46 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 14:11:50 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: wpOypOTwT7nd1YSIAAAo, id=null, pwd=null, session=null
+Wed Apr 18 2018 14:11:50 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 14:11:50 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_wpOypOTwT7nd1YSIAAAo
+Wed Apr 18 2018 14:11:50 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_wpOypOTwT7nd1YSIAAAo, userId = owen
+Wed Apr 18 2018 14:11:50 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 14:11:50 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 14:15:34 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: XvOuq5i7W0G-rDRGAAAp, id=null, pwd=null, session=null
+Wed Apr 18 2018 14:15:34 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 14:15:34 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_XvOuq5i7W0G-rDRGAAAp
+Wed Apr 18 2018 14:15:34 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_XvOuq5i7W0G-rDRGAAAp, userId = owen
+Wed Apr 18 2018 14:15:34 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 14:15:34 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 14:16:52 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: biavQXFcQrCaQ2B2AAAq, id=null, pwd=null, session=null
+Wed Apr 18 2018 14:16:52 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 14:16:52 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_biavQXFcQrCaQ2B2AAAq
+Wed Apr 18 2018 14:16:52 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_biavQXFcQrCaQ2B2AAAq, userId = owen
+Wed Apr 18 2018 14:16:52 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 14:16:52 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 14:18:47 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: qQARiHcYLKyN95L5AAAr, id=null, pwd=null, session=null
+Wed Apr 18 2018 14:18:47 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 14:18:47 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_qQARiHcYLKyN95L5AAAr
+Wed Apr 18 2018 14:18:47 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_qQARiHcYLKyN95L5AAAr, userId = owen
+Wed Apr 18 2018 14:18:47 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 14:18:47 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 14:18:59 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: Us3npNlv0uLSHhHdAAAs, id=null, pwd=null, session=null
+Wed Apr 18 2018 14:18:59 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 14:18:59 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_Us3npNlv0uLSHhHdAAAs
+Wed Apr 18 2018 14:18:59 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_Us3npNlv0uLSHhHdAAAs, userId = owen
+Wed Apr 18 2018 14:18:59 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 14:18:59 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 14:19:48 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 6EfLyJGN9fIi8vJ8AAAt, id=null, pwd=null, session=null
+Wed Apr 18 2018 14:19:48 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 14:19:48 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_6EfLyJGN9fIi8vJ8AAAt
+Wed Apr 18 2018 14:19:48 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_6EfLyJGN9fIi8vJ8AAAt, userId = owen
+Wed Apr 18 2018 14:19:48 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 14:19:48 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 14:20:27 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: C91Ltm5KknZixEReAAAu, id=null, pwd=null, session=null
+Wed Apr 18 2018 14:20:27 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 14:20:27 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_C91Ltm5KknZixEReAAAu
+Wed Apr 18 2018 14:20:27 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_C91Ltm5KknZixEReAAAu, userId = owen
+Wed Apr 18 2018 14:20:27 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 14:20:27 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 14:22:28 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 8HVSJddn8o3b6nfSAAAv, id=null, pwd=null, session=null
+Wed Apr 18 2018 14:22:28 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 14:22:28 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_8HVSJddn8o3b6nfSAAAv
+Wed Apr 18 2018 14:22:28 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_8HVSJddn8o3b6nfSAAAv, userId = owen
+Wed Apr 18 2018 14:22:28 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 14:22:28 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 14:22:57 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: saLDnKUYgn0Dg6bKAAAw, id=null, pwd=null, session=null
+Wed Apr 18 2018 14:22:57 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 14:22:57 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_saLDnKUYgn0Dg6bKAAAw
+Wed Apr 18 2018 14:22:57 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_saLDnKUYgn0Dg6bKAAAw, userId = owen
+Wed Apr 18 2018 14:22:57 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 14:22:57 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 14:26:07 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: jtB5P9voG3373EhjAAAx, id=null, pwd=null, session=null
+Wed Apr 18 2018 14:26:07 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 14:26:07 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_jtB5P9voG3373EhjAAAx
+Wed Apr 18 2018 14:26:07 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_jtB5P9voG3373EhjAAAx, userId = owen
+Wed Apr 18 2018 14:26:07 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 14:26:07 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 14:30:24 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: tSdq-E_M2Ml8nRJNAAAy, id=null, pwd=null, session=null
+Wed Apr 18 2018 14:30:24 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 14:30:24 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_tSdq-E_M2Ml8nRJNAAAy
+Wed Apr 18 2018 14:30:24 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_tSdq-E_M2Ml8nRJNAAAy, userId = owen
+Wed Apr 18 2018 14:30:24 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 14:30:24 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 14:30:45 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: it0oVLNug5oc-_XCAAAz, id=null, pwd=null, session=null
+Wed Apr 18 2018 14:30:45 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 14:30:45 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_it0oVLNug5oc-_XCAAAz
+Wed Apr 18 2018 14:30:45 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_it0oVLNug5oc-_XCAAAz, userId = owen
+Wed Apr 18 2018 14:30:45 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 14:30:45 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 14:31:14 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 32z2YgQxf5FhK_WFAAA0, id=null, pwd=null, session=null
+Wed Apr 18 2018 14:31:14 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 14:31:14 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_32z2YgQxf5FhK_WFAAA0
+Wed Apr 18 2018 14:31:14 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_32z2YgQxf5FhK_WFAAA0, userId = owen
+Wed Apr 18 2018 14:31:14 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 14:31:14 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 14:41:57 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 9d9mDm2Cnaq8xO46AAA1, id=null, pwd=null, session=null
+Wed Apr 18 2018 14:41:57 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 14:41:57 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_9d9mDm2Cnaq8xO46AAA1
+Wed Apr 18 2018 14:41:57 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_9d9mDm2Cnaq8xO46AAA1, userId = owen
+Wed Apr 18 2018 14:41:57 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 14:41:57 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 14:43:48 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: u5jqCjmJk0WLQUojAAA2, id=null, pwd=null, session=null
+Wed Apr 18 2018 14:43:48 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 14:43:48 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_u5jqCjmJk0WLQUojAAA2
+Wed Apr 18 2018 14:43:48 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_u5jqCjmJk0WLQUojAAA2, userId = owen
+Wed Apr 18 2018 14:43:48 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 14:43:48 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 14:44:22 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: ybeHsTd_FUBDz7E4AAA3, id=null, pwd=null, session=null
+Wed Apr 18 2018 14:44:22 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 14:44:22 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_ybeHsTd_FUBDz7E4AAA3
+Wed Apr 18 2018 14:44:22 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_ybeHsTd_FUBDz7E4AAA3, userId = owen
+Wed Apr 18 2018 14:44:22 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 14:44:22 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 14:45:29 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: liTCfXaqZoeKFnwKAAA4, id=null, pwd=null, session=null
+Wed Apr 18 2018 14:45:29 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 14:45:29 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_liTCfXaqZoeKFnwKAAA4
+Wed Apr 18 2018 14:45:29 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_liTCfXaqZoeKFnwKAAA4, userId = owen
+Wed Apr 18 2018 14:45:29 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 14:45:29 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 14:45:59 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: R8jab-OTwzALLrMaAAA5, id=null, pwd=null, session=null
+Wed Apr 18 2018 14:45:59 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 14:45:59 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_R8jab-OTwzALLrMaAAA5
+Wed Apr 18 2018 14:45:59 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_R8jab-OTwzALLrMaAAA5, userId = owen
+Wed Apr 18 2018 14:45:59 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 14:45:59 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 14:50:19 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: MH-M835jllNaTEivAAA6, id=null, pwd=null, session=null
+Wed Apr 18 2018 14:50:19 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 14:50:19 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_MH-M835jllNaTEivAAA6
+Wed Apr 18 2018 14:50:19 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_MH-M835jllNaTEivAAA6, userId = owen
+Wed Apr 18 2018 14:50:19 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 14:50:19 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 14:51:29 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: G3hP8wxBA2CIpWqiAAA7, id=null, pwd=null, session=null
+Wed Apr 18 2018 14:51:29 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 14:51:29 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_G3hP8wxBA2CIpWqiAAA7
+Wed Apr 18 2018 14:51:29 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_G3hP8wxBA2CIpWqiAAA7, userId = owen
+Wed Apr 18 2018 14:51:29 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 14:51:29 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 14:52:09 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: LqotL__YOMtrEiFfAAA8, id=null, pwd=null, session=null
+Wed Apr 18 2018 14:52:09 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 14:52:09 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_LqotL__YOMtrEiFfAAA8
+Wed Apr 18 2018 14:52:09 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_LqotL__YOMtrEiFfAAA8, userId = owen
+Wed Apr 18 2018 14:52:09 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 14:52:09 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 14:56:44 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: mCsdiG776Qy_xruIAAA9, id=null, pwd=null, session=null
+Wed Apr 18 2018 14:56:44 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 14:56:44 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_mCsdiG776Qy_xruIAAA9
+Wed Apr 18 2018 14:56:44 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_mCsdiG776Qy_xruIAAA9, userId = owen
+Wed Apr 18 2018 14:56:44 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 14:56:44 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 15:12:36 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: HyMmN7wd8m8PfTcQAAA-, id=null, pwd=null, session=null
+Wed Apr 18 2018 15:12:36 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 15:12:36 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_HyMmN7wd8m8PfTcQAAA-
+Wed Apr 18 2018 15:12:36 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_HyMmN7wd8m8PfTcQAAA-, userId = owen
+Wed Apr 18 2018 15:12:36 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 15:12:36 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 15:13:00 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: uhZNlwQcU3RRztbEAAA_, id=null, pwd=null, session=null
+Wed Apr 18 2018 15:13:00 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 15:13:00 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_uhZNlwQcU3RRztbEAAA_
+Wed Apr 18 2018 15:13:00 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_uhZNlwQcU3RRztbEAAA_, userId = owen
+Wed Apr 18 2018 15:13:00 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 15:13:00 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 15:17:41 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: g1cCuhONxO6qohO-AABA, id=null, pwd=null, session=null
+Wed Apr 18 2018 15:17:41 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 15:17:41 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_g1cCuhONxO6qohO-AABA
+Wed Apr 18 2018 15:17:41 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_g1cCuhONxO6qohO-AABA, userId = owen
+Wed Apr 18 2018 15:17:41 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 15:17:41 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 15:18:12 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: vPNzpebKoh6BfO_UAABB, id=null, pwd=null, session=null
+Wed Apr 18 2018 15:18:12 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 15:18:12 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_vPNzpebKoh6BfO_UAABB
+Wed Apr 18 2018 15:18:12 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_vPNzpebKoh6BfO_UAABB, userId = owen
+Wed Apr 18 2018 15:18:12 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 15:18:12 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 15:32:06 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: P__2R-qz6NNAPv8_AABC, id=null, pwd=null, session=null
+Wed Apr 18 2018 15:32:06 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 15:32:06 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_P__2R-qz6NNAPv8_AABC
+Wed Apr 18 2018 15:32:06 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_P__2R-qz6NNAPv8_AABC, userId = owen
+Wed Apr 18 2018 15:32:06 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 15:32:06 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 15:32:38 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: GDhlvpwKiYABHWXqAABD, id=null, pwd=null, session=null
+Wed Apr 18 2018 15:32:38 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 15:32:38 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_GDhlvpwKiYABHWXqAABD
+Wed Apr 18 2018 15:32:38 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_GDhlvpwKiYABHWXqAABD, userId = owen
+Wed Apr 18 2018 15:32:38 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 15:32:38 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 15:33:54 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: QBQM-L16Hnj3vEoYAABE, id=null, pwd=null, session=null
+Wed Apr 18 2018 15:33:54 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 15:33:54 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_QBQM-L16Hnj3vEoYAABE
+Wed Apr 18 2018 15:33:54 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_QBQM-L16Hnj3vEoYAABE, userId = owen
+Wed Apr 18 2018 15:33:54 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 15:33:54 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 15:37:08 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: H_BqOVbvowTsSrXLAABF, id=null, pwd=null, session=null
+Wed Apr 18 2018 15:37:08 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 15:37:08 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_H_BqOVbvowTsSrXLAABF
+Wed Apr 18 2018 15:37:08 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_H_BqOVbvowTsSrXLAABF, userId = owen
+Wed Apr 18 2018 15:37:08 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 15:37:08 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 15:37:56 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: BW6desAdH2ZChor_AABG, id=null, pwd=null, session=null
+Wed Apr 18 2018 15:37:56 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 15:37:56 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_BW6desAdH2ZChor_AABG
+Wed Apr 18 2018 15:37:56 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_BW6desAdH2ZChor_AABG, userId = owen
+Wed Apr 18 2018 15:37:56 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 15:37:56 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 15:39:25 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: c1tbeptuleuEDA31AABH, id=null, pwd=null, session=null
+Wed Apr 18 2018 15:39:25 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 15:39:25 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_c1tbeptuleuEDA31AABH
+Wed Apr 18 2018 15:39:25 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_c1tbeptuleuEDA31AABH, userId = owen
+Wed Apr 18 2018 15:39:25 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 15:39:25 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 15:51:17 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: W3sFM6RYbDUzuhxFAABI, id=null, pwd=null, session=null
+Wed Apr 18 2018 15:51:17 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 15:51:17 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_W3sFM6RYbDUzuhxFAABI
+Wed Apr 18 2018 15:51:17 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_W3sFM6RYbDUzuhxFAABI, userId = owen
+Wed Apr 18 2018 15:51:17 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 15:51:17 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 15:55:06 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: Gc8AezjCYUucbjoHAABJ, id=null, pwd=null, session=null
+Wed Apr 18 2018 15:55:06 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 15:55:06 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_Gc8AezjCYUucbjoHAABJ
+Wed Apr 18 2018 15:55:06 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_Gc8AezjCYUucbjoHAABJ, userId = owen
+Wed Apr 18 2018 15:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 15:55:07 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 15:59:12 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: lmPSf8g69xnYgSZaAABK, id=null, pwd=null, session=null
+Wed Apr 18 2018 15:59:12 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 15:59:12 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_lmPSf8g69xnYgSZaAABK
+Wed Apr 18 2018 15:59:12 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_lmPSf8g69xnYgSZaAABK, userId = owen
+Wed Apr 18 2018 15:59:12 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 15:59:12 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:00:44 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: w1JT30mVMg--dVW7AABL, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:00:44 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:00:44 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_w1JT30mVMg--dVW7AABL
+Wed Apr 18 2018 16:00:44 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_w1JT30mVMg--dVW7AABL, userId = owen
+Wed Apr 18 2018 16:00:44 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:00:44 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:04:25 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: r6LpsmFLdTCAgv58AABM, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:04:25 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:04:25 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_r6LpsmFLdTCAgv58AABM
+Wed Apr 18 2018 16:04:25 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_r6LpsmFLdTCAgv58AABM, userId = owen
+Wed Apr 18 2018 16:04:25 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:04:25 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:06:00 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: cbAKkl-roBuVUTB3AABN, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:06:00 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:06:00 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_cbAKkl-roBuVUTB3AABN
+Wed Apr 18 2018 16:06:00 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_cbAKkl-roBuVUTB3AABN, userId = owen
+Wed Apr 18 2018 16:06:01 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:06:01 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:10:14 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: In9IgIt2r_7Dr83nAABO, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:10:14 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:10:14 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_In9IgIt2r_7Dr83nAABO
+Wed Apr 18 2018 16:10:14 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_In9IgIt2r_7Dr83nAABO, userId = owen
+Wed Apr 18 2018 16:10:15 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:10:15 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:12:57 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: P8UaQ1u9QWAF4fahAABP, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:12:57 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:12:57 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_P8UaQ1u9QWAF4fahAABP
+Wed Apr 18 2018 16:12:57 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_P8UaQ1u9QWAF4fahAABP, userId = owen
+Wed Apr 18 2018 16:12:57 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:12:57 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:18:38 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: VRcIFYq3yT0f76ZZAABQ, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:18:38 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:18:38 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_VRcIFYq3yT0f76ZZAABQ
+Wed Apr 18 2018 16:18:38 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_VRcIFYq3yT0f76ZZAABQ, userId = owen
+Wed Apr 18 2018 16:18:38 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:18:38 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:20:07 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: M3kv5vk7uECgiQG5AABR, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:20:07 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:20:07 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_M3kv5vk7uECgiQG5AABR
+Wed Apr 18 2018 16:20:07 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_M3kv5vk7uECgiQG5AABR, userId = owen
+Wed Apr 18 2018 16:20:07 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:20:07 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:28:45 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 5BOVTZeLwRS9Ulg0AABS, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:28:45 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:28:45 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_5BOVTZeLwRS9Ulg0AABS
+Wed Apr 18 2018 16:28:45 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_5BOVTZeLwRS9Ulg0AABS, userId = owen
+Wed Apr 18 2018 16:28:45 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:28:45 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:29:30 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: y5RTLSe0Scbpj_-6AABT, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:29:30 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:29:30 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_y5RTLSe0Scbpj_-6AABT
+Wed Apr 18 2018 16:29:30 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_y5RTLSe0Scbpj_-6AABT, userId = owen
+Wed Apr 18 2018 16:29:30 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:29:30 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:30:01 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 8RXesNLO_9iqVsYkAABU, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:30:01 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:30:01 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_8RXesNLO_9iqVsYkAABU
+Wed Apr 18 2018 16:30:01 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_8RXesNLO_9iqVsYkAABU, userId = owen
+Wed Apr 18 2018 16:30:01 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:30:01 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:30:14 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: MsGZedgZ-i0cYxLmAABV, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:30:14 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:30:14 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_MsGZedgZ-i0cYxLmAABV
+Wed Apr 18 2018 16:30:14 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_MsGZedgZ-i0cYxLmAABV, userId = owen
+Wed Apr 18 2018 16:30:14 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:30:14 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:30:57 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: aEa1x3aqkMvpiJM9AABW, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:30:57 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:30:57 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_aEa1x3aqkMvpiJM9AABW
+Wed Apr 18 2018 16:30:57 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_aEa1x3aqkMvpiJM9AABW, userId = owen
+Wed Apr 18 2018 16:30:57 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:30:57 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:32:51 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 86xKvCC2kpINcXC1AABX, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:32:51 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:32:51 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_86xKvCC2kpINcXC1AABX
+Wed Apr 18 2018 16:32:51 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_86xKvCC2kpINcXC1AABX, userId = owen
+Wed Apr 18 2018 16:32:51 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:32:51 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:33:09 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: Rw-Ci3di1PZKwR4wAABY, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:33:09 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:33:09 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_Rw-Ci3di1PZKwR4wAABY
+Wed Apr 18 2018 16:33:09 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_Rw-Ci3di1PZKwR4wAABY, userId = owen
+Wed Apr 18 2018 16:33:09 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:33:09 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:36:40 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: tVxBOYsi6dWWDCo2AABZ, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:36:40 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:36:40 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_tVxBOYsi6dWWDCo2AABZ
+Wed Apr 18 2018 16:36:40 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_tVxBOYsi6dWWDCo2AABZ, userId = owen
+Wed Apr 18 2018 16:36:40 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:36:40 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:40:54 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: PVk63CrfbsD4qvm-AABa, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:40:54 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:40:54 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_PVk63CrfbsD4qvm-AABa
+Wed Apr 18 2018 16:40:54 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_PVk63CrfbsD4qvm-AABa, userId = owen
+Wed Apr 18 2018 16:40:54 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:40:54 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:41:55 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: fe40sxYMtDXkONHNAABb, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:41:55 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:41:55 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_fe40sxYMtDXkONHNAABb
+Wed Apr 18 2018 16:41:55 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_fe40sxYMtDXkONHNAABb, userId = owen
+Wed Apr 18 2018 16:41:55 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:41:55 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:43:24 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: FFysChDkTzhq1hxeAABc, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:43:24 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:43:24 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_FFysChDkTzhq1hxeAABc
+Wed Apr 18 2018 16:43:24 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_FFysChDkTzhq1hxeAABc, userId = owen
+Wed Apr 18 2018 16:43:24 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:43:24 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:43:46 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: gdDSnDU1z0qjLxr1AABd, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:43:46 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:43:46 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_gdDSnDU1z0qjLxr1AABd
+Wed Apr 18 2018 16:43:46 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_gdDSnDU1z0qjLxr1AABd, userId = owen
+Wed Apr 18 2018 16:43:46 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:43:46 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:44:30 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 3zbo7a89bwt-DWQmAABe, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:44:30 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:44:30 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_3zbo7a89bwt-DWQmAABe
+Wed Apr 18 2018 16:44:30 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_3zbo7a89bwt-DWQmAABe, userId = owen
+Wed Apr 18 2018 16:44:30 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:44:30 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:45:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: DSOsBzggXYZXCsBTAABf, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:45:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:45:18 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_DSOsBzggXYZXCsBTAABf
+Wed Apr 18 2018 16:45:18 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_DSOsBzggXYZXCsBTAABf, userId = owen
+Wed Apr 18 2018 16:45:18 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:45:18 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:46:34 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: _BEPHkuoURC6_Y12AABg, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:46:34 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:46:34 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket__BEPHkuoURC6_Y12AABg
+Wed Apr 18 2018 16:46:34 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket__BEPHkuoURC6_Y12AABg, userId = owen
+Wed Apr 18 2018 16:46:34 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:46:34 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:47:06 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 8Wa32nrW1bP4mgHlAABh, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:47:06 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:47:06 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_8Wa32nrW1bP4mgHlAABh
+Wed Apr 18 2018 16:47:06 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_8Wa32nrW1bP4mgHlAABh, userId = owen
+Wed Apr 18 2018 16:47:06 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:47:06 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:47:30 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: R-IEJcD8nGz_j8OrAABi, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:47:30 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:47:30 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_R-IEJcD8nGz_j8OrAABi
+Wed Apr 18 2018 16:47:30 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_R-IEJcD8nGz_j8OrAABi, userId = owen
+Wed Apr 18 2018 16:47:30 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:47:30 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:50:19 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: GRYFM3zY9Ba0iuxuAABj, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:50:19 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:50:20 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_GRYFM3zY9Ba0iuxuAABj
+Wed Apr 18 2018 16:50:20 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_GRYFM3zY9Ba0iuxuAABj, userId = owen
+Wed Apr 18 2018 16:50:20 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:50:20 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:50:54 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 6FsQgZJp8AaB-IFDAABk, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:50:54 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:50:54 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_6FsQgZJp8AaB-IFDAABk
+Wed Apr 18 2018 16:50:54 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_6FsQgZJp8AaB-IFDAABk, userId = owen
+Wed Apr 18 2018 16:50:54 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:50:54 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:52:36 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: h2Y6mz4hlJAtNfbrAABl, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:52:36 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:52:36 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_h2Y6mz4hlJAtNfbrAABl
+Wed Apr 18 2018 16:52:36 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_h2Y6mz4hlJAtNfbrAABl, userId = owen
+Wed Apr 18 2018 16:52:36 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:52:36 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:52:54 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: zsuwXgYvUtYUKI-jAABm, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:52:54 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:52:54 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_zsuwXgYvUtYUKI-jAABm
+Wed Apr 18 2018 16:52:54 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_zsuwXgYvUtYUKI-jAABm, userId = owen
+Wed Apr 18 2018 16:52:54 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:52:54 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"
+Wed Apr 18 2018 16:54:50 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: Zp7QRFQXjSWyryXCAABn, id=null, pwd=null, session=null
+Wed Apr 18 2018 16:54:50 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Apr 18 2018 16:54:50 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_Zp7QRFQXjSWyryXCAABn
+Wed Apr 18 2018 16:54:50 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_Zp7QRFQXjSWyryXCAABn, userId = owen
+Wed Apr 18 2018 16:54:50 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-131632-439"}]
+Wed Apr 18 2018 16:54:50 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-131632-439"

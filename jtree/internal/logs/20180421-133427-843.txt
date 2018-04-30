@@ -1,0 +1,179 @@
+Sat Apr 21 2018 13:34:27 GMT+0200 (Mitteleuropäische Sommerzeit): last time on: 1524310467844
+Sat Apr 21 2018 13:34:27 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-165803-158
+Sat Apr 21 2018 13:34:27 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-224620-282
+Sat Apr 21 2018 13:34:27 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-230555-985
+Sat Apr 21 2018 13:34:28 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-232233-262
+Sat Apr 21 2018 13:34:28 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-233853-465
+Sat Apr 21 2018 13:34:28 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-235527-391
+Sat Apr 21 2018 13:34:28 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180413-001451-639
+Sat Apr 21 2018 13:34:28 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180413-003158-364
+Sat Apr 21 2018 13:34:28 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180413-004813-781
+Sat Apr 21 2018 13:34:28 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180413-004849-488
+Sat Apr 21 2018 13:34:32 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180413-103733-439
+Sat Apr 21 2018 13:34:32 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180413-131632-439
+Sat Apr 21 2018 13:34:32 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180417-121227-991
+Sat Apr 21 2018 13:34:32 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180420-145105-169
+Sat Apr 21 2018 13:34:32 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180420-145249-354
+Sat Apr 21 2018 13:34:32 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180420-235502-456
+Sat Apr 21 2018 13:34:32 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180421-011716-613
+Sat Apr 21 2018 13:34:32 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180421-012002-943
+Sat Apr 21 2018 13:34:32 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180421-014259-352
+Sat Apr 21 2018 13:34:32 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180421-014509-055
+Sat Apr 21 2018 13:34:32 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 1He8L-0BNhYVJVXcAAAA, id=P4, pwd=null, session=null
+Sat Apr 21 2018 13:34:32 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 1He8L-0BNhYVJVXcAAAA, pId=P4, sId=null, roomId=null
+Sat Apr 21 2018 13:34:32 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient error:TypeError: Cannot read property 'addClient' of null
+TypeError: Cannot read property 'addClient' of null
+    at SocketServer.addParticipantClient (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\source\core\SocketServer.js:127:36)
+    at SocketServer.onConnection (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\source\core\SocketServer.js:51:18)
+    at emitOne (events.js:116:13)
+    at Namespace.emit (events.js:211:7)
+    at Namespace.emit (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\node_modules\socket.io\lib\namespace.js:212:10)
+    at C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\node_modules\socket.io\lib\namespace.js:180:14
+    at _combinedTickCallback (internal/process/next_tick.js:131:7)
+    at process._tickCallback (internal/process/next_tick.js:180:9)
+Sat Apr 21 2018 13:34:32 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: lqVJQ3IayIO2F8EmAAAB, id=null, pwd=null, session=null
+Sat Apr 21 2018 13:34:32 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Sat Apr 21 2018 13:34:32 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 6Ic_kxm1D8WiOoavAAAC, id=P1, pwd=null, session=null
+Sat Apr 21 2018 13:34:32 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 6Ic_kxm1D8WiOoavAAAC, pId=P1, sId=null, roomId=null
+Sat Apr 21 2018 13:34:32 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient error:TypeError: Cannot read property 'addClient' of null
+TypeError: Cannot read property 'addClient' of null
+    at SocketServer.addParticipantClient (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\source\core\SocketServer.js:127:36)
+    at SocketServer.onConnection (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\source\core\SocketServer.js:51:18)
+    at emitOne (events.js:116:13)
+    at Namespace.emit (events.js:211:7)
+    at Namespace.emit (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\node_modules\socket.io\lib\namespace.js:212:10)
+    at C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\node_modules\socket.io\lib\namespace.js:180:14
+    at _combinedTickCallback (internal/process/next_tick.js:131:7)
+    at process._tickCallback (internal/process/next_tick.js:180:9)
+Sat Apr 21 2018 13:34:32 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: UIr212UjObxpTOQ8AAAD, id=P2, pwd=null, session=null
+Sat Apr 21 2018 13:34:32 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: UIr212UjObxpTOQ8AAAD, pId=P2, sId=null, roomId=null
+Sat Apr 21 2018 13:34:32 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient error:TypeError: Cannot read property 'addClient' of null
+TypeError: Cannot read property 'addClient' of null
+    at SocketServer.addParticipantClient (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\source\core\SocketServer.js:127:36)
+    at SocketServer.onConnection (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\source\core\SocketServer.js:51:18)
+    at emitOne (events.js:116:13)
+    at Namespace.emit (events.js:211:7)
+    at Namespace.emit (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\node_modules\socket.io\lib\namespace.js:212:10)
+    at C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\node_modules\socket.io\lib\namespace.js:180:14
+    at _combinedTickCallback (internal/process/next_tick.js:131:7)
+    at process._tickCallback (internal/process/next_tick.js:180:9)
+Sat Apr 21 2018 13:34:32 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: rX1ZC6QvEpt2mC9BAAAE, id=P3, pwd=null, session=null
+Sat Apr 21 2018 13:34:32 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: rX1ZC6QvEpt2mC9BAAAE, pId=P3, sId=null, roomId=null
+Sat Apr 21 2018 13:34:32 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient error:TypeError: Cannot read property 'addClient' of null
+TypeError: Cannot read property 'addClient' of null
+    at SocketServer.addParticipantClient (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\source\core\SocketServer.js:127:36)
+    at SocketServer.onConnection (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\source\core\SocketServer.js:51:18)
+    at emitOne (events.js:116:13)
+    at Namespace.emit (events.js:211:7)
+    at Namespace.emit (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\node_modules\socket.io\lib\namespace.js:212:10)
+    at C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\node_modules\socket.io\lib\namespace.js:180:14
+    at _combinedTickCallback (internal/process/next_tick.js:131:7)
+    at process._tickCallback (internal/process/next_tick.js:180:9)
+Sat Apr 21 2018 13:34:32 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_lqVJQ3IayIO2F8EmAAAB
+Sat Apr 21 2018 13:34:32 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_lqVJQ3IayIO2F8EmAAAB, userId = owen
+Sat Apr 21 2018 13:34:33 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: L3t_WTh7GaXPrLgRAAAF, id=null, pwd=null, session=null
+Sat Apr 21 2018 13:34:33 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Sat Apr 21 2018 13:34:33 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_L3t_WTh7GaXPrLgRAAAF
+Sat Apr 21 2018 13:34:33 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_L3t_WTh7GaXPrLgRAAAF, userId = owen
+Sat Apr 21 2018 13:34:33 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180421-014509-055"}]
+Sat Apr 21 2018 13:34:33 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180421-014509-055"
+Sat Apr 21 2018 13:39:33 GMT+0200 (Mitteleuropäische Sommerzeit): received message updateAppPreview: {"appId":"3james","options":{}}
+Sat Apr 21 2018 13:40:36 GMT+0200 (Mitteleuropäische Sommerzeit): received message updateAppPreview: {"appId":"stag-hunt-game","options":{}}
+Sat Apr 21 2018 13:41:41 GMT+0200 (Mitteleuropäische Sommerzeit): received message createApp: "likert-scale"
+Sat Apr 21 2018 13:41:41 GMT+0200 (Mitteleuropäische Sommerzeit): received message updateAppPreview: {"appId":"likert-scale","options":{}}
+Sat Apr 21 2018 13:42:44 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: AEGbd6mGslC-8ryyAAAG, id=null, pwd=null, session=null
+Sat Apr 21 2018 13:42:44 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Sat Apr 21 2018 13:42:44 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_AEGbd6mGslC-8ryyAAAG
+Sat Apr 21 2018 13:42:44 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_AEGbd6mGslC-8ryyAAAG, userId = owen
+Sat Apr 21 2018 13:42:44 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180421-014509-055"}]
+Sat Apr 21 2018 13:42:44 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180421-014509-055"
+Sat Apr 21 2018 13:42:49 GMT+0200 (Mitteleuropäische Sommerzeit): received message updateAppPreview: {"appId":"likert-scale","options":{}}
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): received message createSessionAndAddApp: {"appId":"1natalia","options":{},"userId":"owen"}
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180421-134926-024
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180421-134926-024
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180421-134926-024
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: 1natalia
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): received message setNumParticipants: {"sId":"20180421-134926-024","number":4}
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: P1
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180421-134926-024
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: 1natalia
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: P2
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180421-134926-024
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: 1natalia
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: P3
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180421-134926-024
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: 1natalia
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: P4
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180421-134926-024
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: 1natalia
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Sat Apr 21 2018 13:49:26 GMT+0200 (Mitteleuropäische Sommerzeit): received message reloadClients: undefined
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): received message sessionAdvanceSlowest: "20180421-134926-024"
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Period.save: 1
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180421-134926-024_app_1-1natalia_period_1_group_1
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-134926-024_app_1-1natalia_period_1_group_1_player_P3
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-134926-024_app_1-1natalia_period_1_group_1_player_P4
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-134926-024_app_1-1natalia_period_1_group_1_player_P2
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-134926-024_app_1-1natalia_period_1_group_1_player_P1
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180421-134926-024_app_1-1natalia_period_1_group_1
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180421-134926-024_app_1-1natalia_period_1_group_1
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-134926-024_app_1-1natalia_period_1_group_1_player_P3
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-134926-024_app_1-1natalia_period_1_group_1_player_P4
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-134926-024_app_1-1natalia_period_1_group_1_player_P2
+Sat Apr 21 2018 13:49:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180421-134926-024_app_1-1natalia_period_1_group_1_player_P1
+Sat Apr 21 2018 13:49:35 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: Rai2pZAPWI_yYK2LAAAH, id=P1, pwd=null, session=null
+Sat Apr 21 2018 13:49:35 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: Rai2pZAPWI_yYK2LAAAH, pId=P1, sId=null, roomId=null
+Sat Apr 21 2018 16:35:37 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: Rai2pZAPWI_yYK2LAAAH
+Sat Apr 21 2018 16:35:40 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: wz_NyFZzA7Qf9qS_AAAI, id=null, pwd=null, session=null
+Sat Apr 21 2018 16:35:40 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Sat Apr 21 2018 16:35:40 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 8KLBTcWfPmwxA9CiAAAJ, id=P1, pwd=null, session=null
+Sat Apr 21 2018 16:35:40 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 8KLBTcWfPmwxA9CiAAAJ, pId=P1, sId=null, roomId=null
+Sat Apr 21 2018 16:35:57 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_wz_NyFZzA7Qf9qS_AAAI
+Sat Apr 21 2018 16:35:57 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_wz_NyFZzA7Qf9qS_AAAI, userId = owen
+Sat Apr 21 2018 17:19:00 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 8KLBTcWfPmwxA9CiAAAJ
+Sat Apr 21 2018 17:19:06 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: -Qy9JAhm6AaxAP9YAAAK, id=P1, pwd=null, session=null
+Sat Apr 21 2018 17:19:06 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: -Qy9JAhm6AaxAP9YAAAK, pId=P1, sId=null, roomId=null
+Sat Apr 21 2018 17:19:11 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: ukKPzReWnjigAFA8AAAL, id=null, pwd=null, session=null
+Sat Apr 21 2018 17:19:11 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Sat Apr 21 2018 17:19:11 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_ukKPzReWnjigAFA8AAAL
+Sat Apr 21 2018 17:19:11 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_ukKPzReWnjigAFA8AAAL, userId = owen
+Sat Apr 21 2018 22:19:04 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: -Qy9JAhm6AaxAP9YAAAK
+Sat Apr 21 2018 22:19:16 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 5su7UcSJQlRfE-JbAAAM, id=P1, pwd=null, session=null
+Sat Apr 21 2018 22:19:16 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 5su7UcSJQlRfE-JbAAAM, pId=P1, sId=null, roomId=null
+Sat Apr 21 2018 22:19:16 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: VZ71enMplfyEr1WNAAAN, id=null, pwd=null, session=null
+Sat Apr 21 2018 22:19:16 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Sat Apr 21 2018 22:19:18 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_VZ71enMplfyEr1WNAAAN
+Sat Apr 21 2018 22:19:18 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_VZ71enMplfyEr1WNAAAN, userId = owen

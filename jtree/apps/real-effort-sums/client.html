@@ -1,0 +1,42 @@
+<script type="text/javascript" src='/participant/jtree.js'></script>
+<script>
+// Run once the client page is loaded.
+jt.connected = function() {
+    // Listen to messages from server
+    jt.socket.on('playerUpdate', function(player) {
+        var numbers = player.group.period.app.numbers;
+        $('#tasksDiv').empty(); // This message can be received multiple times at beginning of stage, will be fixed in future release.
+        for (let i=0; i<numbers.length; i++) {
+            var el = $('<div>').text(numbers[i]);
+            var input = $('<input name="player.A' + (i+1) + '" type="number">');
+            var parEl = $('<p>');
+            parEl.append(el);
+            parEl.append(input);
+            $('#tasksDiv').append(parEl);
+        }
+    });
+}
+</script>
+<p>You are player <span jt-text='player.idInGroup'></span> in your group.</p>
+<span jt-status='active'>
+    <span jt-stage='work'>
+        <p>TASKS</p>
+        <p>Calculate as many of the following sums as you can before time runs out.
+        <p>Time left: <span jt-text='clock.minutes'>mm</span>:<span jt-text='clock.seconds'></span></p>
+        <form>
+            <div id='tasksDiv'></div>
+            <button>OK</button>
+        </form>
+    </span>
+    <span jt-stage='results'>
+        <p>RESULTS</p>
+        <p>You calculated <span jt-text='player.points'></span> sums correctly.</p>
+        <form>
+            <button>OK</button>
+        </form>
+    </span>
+</span>
+<span jt-status='waiting'>
+    <p>WAITING</p>
+    <p>Please wait for the experiment to continue.</p>
+</span>

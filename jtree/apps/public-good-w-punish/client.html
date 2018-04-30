@@ -1,0 +1,122 @@
+<script type="text/javascript" src='/participant/jtree.js'></script>
+<p>Period: <span jt-text='period.id'>1</span>/<span jt-text='app.numPeriods'></span></p>
+<p>You are player <span jt-text='player.idInGroup'></span> in your group.</p>
+<span jt-status='playing'>
+    <span jt-stage='decide'>
+        <p>CONTRIBUTION</p>
+        <p>Your endowment is <span jt-text='app.endowment'></span> points.</p>
+        <form>
+            <p>Points to contribute: <input name='player.contribution' required type='number' min='0' jt-max='app.endowment' step='1'></p>
+            <button>Make contribution</button>
+        </form>
+    </span>
+    <span jt-stage='punish'>
+        <p>PUNISHMENT</p>
+        <p>Your endowment was <span jt-text='app.endowment'></span> points. Your contribution was <span jt-text='player.contribution'></span> points.</p>
+        <p>The contributions from other players in your group were:
+            <div id='groupConts'></div>
+        </p>
+        <p>If you like, you may punish the other members of your group.
+            For every point you pay (up to 3 per target player), you may reduce another target player's points by two.</p>
+        <form>
+            <div id='punishmentInputs'></div>
+            <button>Make punishments</button>
+        </form>
+    </span>
+    <span jt-stage='results'>
+        <!-- <p>Time left: <span jt-text='clock.minutes'>mm</span>:<span jt-text='clock.seconds'></span></p> -->
+        <p>RESULTS</p>
+        <p>Your endowment was <span jt-text='app.endowment'></span> points. You contributed <span jt-text='player.contribution'></span> points.</p>
+        <p>The contributions from other players in your group were:
+            <div id='resultsConts'></div>
+        </p>
+        <p>In total, players in your group contributed <span jt-text='group.contributions'>X</span> points,
+            thus the total amount produced was <span jt-text='group.production' jt-decimals=2>Y</span> points,
+            and the production per player was <span jt-text='group.prodPerPlayer' jt-decimals=2></span> points.</p>
+        <p jt-displayIf='app.punishment === "YES"'>The punishments you assigned to other players in your group were:
+            <div id='resultsMyPuns'></div>
+        </p>
+        <p jt-displayIf='app.punishment === "YES"'>In total, you received <span jt-text='player.receivedPuns'></span> punishment points from other players.
+        <p>Thus, your payoff in this period is:
+<table>
+    <tr>
+        <td>Endowment</td>
+        <td><span jt-text='app.endowment'></span> points</td>
+    </tr>
+    <tr>
+        <td>Your contribution</td>
+        <td>- <span jt-text='player.contribution'></span> points</td>
+    </tr>
+    <tr>
+        <td>Group production per player</td>
+        <td>+ <span jt-text='group.prodPerPlayer' jt-decimals=2></span> points</td>
+    </tr>
+    <tr jt-displayIf="app.punishment === 'YES'">
+        <td>Punishments you gave out</td>
+        <td>- <span jt-text='player.sentPuns'></span> points</td>
+    </tr>
+    <tr jt-displayIf="app.punishment === 'YES'">
+        <td>Punishments you received</td>
+        <td>- <span jt-text='app.punMult'></span> x <span jt-text='player.receivedPuns'></span> points</td>
+    </tr>
+    <tr>
+        <td><b>Payoff</b></td>
+        <td>= <b><span jt-text='player.points' jt-decimals=2>Z</span> points</b>.</td>
+    </tr>
+</table>
+        </p>
+        <form>
+            <button>OK</button>
+        </form>
+    </span>
+</span>
+<span jt-status='waiting'>
+    <p>WAITING</p>
+    <p>The experiment will continue soon.</p>
+</span>
+<script>
+<!-- Run once the client page is loaded. -->
+jt.connected = function() {
+    // Listen to messages from server
+    jt.socket.on('playerUpdate', function(player) {
+        if (jt.data.player !== undefined && player.participant.id !== jt.data.player.participant.id) {
+            return;
+        }
+
+        if (player.stage !== undefined && player.stage.name === 'punish') {
+            var players = player.group.players;
+            $('#groupConts').empty(); // This message can be received multiple times at beginning of stage, will be fixed in future release.
+            $('#punishmentInputs').empty(); // This message can be received multiple times at beginning of stage, will be fixed in future release.
+            for (let i=0; i<players.length; i++) {
+                var loopPlyr = players[i];
+                if (loopPlyr.idInGroup !== player.idInGroup) {
+                    var el = $('<div>').text('Player ' + loopPlyr.idInGroup + ': ' + loopPlyr.contribution + ' points');
+                    $('#groupConts').append(el);
+                    var punEl = $('<div>').text('Punishment for Player ' + loopPlyr.idInGroup + ':');
+                    var input = $('<input name="player.pun' + (i+1) + '" type="number" max=3 min=0 step=1 required>');
+                    var parentEl = $('<p>');
+                    parentEl.append(punEl);
+                    parentEl.append(input);
+                    $('#punishmentInputs').append(parentEl);
+                }
+            }
+        }
+
+        if (player.stage !== undefined && player.stage.name === 'results') {
+            var players = player.group.players;
+            $('#resultsConts').empty(); // This message can be received multiple times at beginning of stage, will be fixed in future release.
+            $('#resultsMyPuns').empty(); // This message can be received multiple times at beginning of stage, will be fixed in future release.
+            for (let i=0; i<players.length; i++) {
+                var loopPlyr = players[i];
+                if (loopPlyr.idInGroup !== player.idInGroup) {
+                    var el = $('<div>').text('Player ' + loopPlyr.idInGroup + ': ' + loopPlyr.contribution + ' points');
+                    $('#resultsConts').append(el);
+                    var punEl = $('<div>').text('Punishment for Player ' + loopPlyr.idInGroup + ': ' + player['pun' + (i+1)] + ' points');
+                    $('#resultsMyPuns').append(punEl);
+                }
+            }
+        }
+
+    });
+}
+</script>

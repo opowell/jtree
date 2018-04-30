@@ -1,0 +1,108 @@
+Sun Apr 22 2018 22:41:57 GMT+0200 (Mitteleuropäische Sommerzeit): last time on: 1524429717861
+Sun Apr 22 2018 22:41:57 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-165803-158
+Sun Apr 22 2018 22:41:57 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-224620-282
+Sun Apr 22 2018 22:41:57 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-230555-985
+Sun Apr 22 2018 22:41:58 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-232233-262
+Sun Apr 22 2018 22:41:58 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-233853-465
+Sun Apr 22 2018 22:41:58 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-235527-391
+Sun Apr 22 2018 22:41:58 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180413-001451-639
+Sun Apr 22 2018 22:41:58 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180413-003158-364
+Sun Apr 22 2018 22:41:58 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180413-004813-781
+Sun Apr 22 2018 22:41:58 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180413-004849-488
+Sun Apr 22 2018 22:42:03 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180413-103733-439
+Sun Apr 22 2018 22:42:03 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180413-131632-439
+Sun Apr 22 2018 22:42:03 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180417-121227-991
+Sun Apr 22 2018 22:42:03 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180420-145105-169
+Sun Apr 22 2018 22:42:03 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180420-145249-354
+Sun Apr 22 2018 22:42:03 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180420-235502-456
+Sun Apr 22 2018 22:42:03 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180421-011716-613
+Sun Apr 22 2018 22:42:03 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180421-012002-943
+Sun Apr 22 2018 22:42:03 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180421-014259-352
+Sun Apr 22 2018 22:42:03 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180421-014509-055
+Sun Apr 22 2018 22:42:03 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180421-134926-024
+Sun Apr 22 2018 22:42:03 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180421-233641-658
+Sun Apr 22 2018 22:42:03 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180421-234026-254
+Sun Apr 22 2018 22:42:03 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180422-222407-000
+Sun Apr 22 2018 22:42:04 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180422-222454-498
+Sun Apr 22 2018 22:42:04 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180422-222902-378
+Sun Apr 22 2018 22:42:04 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180422-223332-006
+Sun Apr 22 2018 22:42:04 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180422-223433-755
+Sun Apr 22 2018 22:42:04 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180422-223710-180
+Sun Apr 22 2018 22:42:04 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180422-223727-754
+Sun Apr 22 2018 22:42:05 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: BYyc2LWcMWz8Xx44AAAA, id=null, pwd=null, session=null
+Sun Apr 22 2018 22:42:05 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Sun Apr 22 2018 22:42:05 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_BYyc2LWcMWz8Xx44AAAA
+Sun Apr 22 2018 22:42:05 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_BYyc2LWcMWz8Xx44AAAA, userId = owen
+Sun Apr 22 2018 22:42:05 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: VG9jO8eX5fbfBc6FAAAB, id=null, pwd=null, session=null
+Sun Apr 22 2018 22:42:05 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Sun Apr 22 2018 22:42:05 GMT+0200 (Mitteleuropäische Sommerzeit): received message createSessionAndAddApp: {"appId":"3james","options":{},"userId":"owen"}
+Sun Apr 22 2018 22:42:05 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180422-224205-887
+Sun Apr 22 2018 22:42:05 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180422-224205-887
+Sun Apr 22 2018 22:42:05 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180422-224205-887
+Sun Apr 22 2018 22:42:05 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: 3james
+Sun Apr 22 2018 22:42:05 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part1
+Sun Apr 22 2018 22:42:05 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part2
+Sun Apr 22 2018 22:42:05 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part3
+Sun Apr 22 2018 22:42:05 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part4
+Sun Apr 22 2018 22:42:05 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part5
+Sun Apr 22 2018 22:42:05 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part6
+Sun Apr 22 2018 22:42:05 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part7
+Sun Apr 22 2018 22:42:05 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): received message setNumParticipants: {"sId":"20180422-224205-887","number":4}
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: P1
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P1
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180422-224205-887
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: 3james
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part1
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part2
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part3
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part4
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part5
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part6
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part7
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: P2
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P2
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180422-224205-887
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: 3james
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part1
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part2
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part3
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part4
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part5
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part6
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part7
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: P3
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P3
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180422-224205-887
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: 3james
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part1
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part2
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part3
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part4
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part5
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part6
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part7
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: P4
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: P4
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180422-224205-887
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: 3james
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part1
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part2
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part3
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part4
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part5
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part6
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: part7
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): received message reloadClients: undefined
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): received message setAutoplay: {"sId":"20180422-224205-887","pId":"P1","val":false}
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): received message setAutoplay: {"sId":"20180422-224205-887","pId":"P2","val":false}
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): received message setAutoplay: {"sId":"20180422-224205-887","pId":"P3","val":false}
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): received message setAutoplay: {"sId":"20180422-224205-887","pId":"P4","val":false}
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_VG9jO8eX5fbfBc6FAAAB
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_VG9jO8eX5fbfBc6FAAAB, userId = owen
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180422-223727-754"}]
+Sun Apr 22 2018 22:42:06 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180422-223727-754"

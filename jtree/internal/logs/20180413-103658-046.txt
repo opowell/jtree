@@ -1,0 +1,57 @@
+Fri Apr 13 2018 10:36:58 GMT+0200 (Mitteleuropäische Sommerzeit): last time on: 1523608618048
+Fri Apr 13 2018 10:36:58 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-165803-158
+Fri Apr 13 2018 10:36:58 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-224620-282
+Fri Apr 13 2018 10:36:58 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-230555-985
+Fri Apr 13 2018 10:36:58 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-232233-262
+Fri Apr 13 2018 10:36:58 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-233853-465
+Fri Apr 13 2018 10:36:58 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180412-235527-391
+Fri Apr 13 2018 10:36:58 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180413-001451-639
+Fri Apr 13 2018 10:36:58 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180413-003158-364
+Fri Apr 13 2018 10:36:58 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180413-004813-781
+Fri Apr 13 2018 10:36:58 GMT+0200 (Mitteleuropäische Sommerzeit): loading session: 20180413-004849-488
+Fri Apr 13 2018 10:37:04 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: U0Qf_jetNBDtezSCAAAA, id=null, pwd=null, session=null
+Fri Apr 13 2018 10:37:04 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Fri Apr 13 2018 10:37:04 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_U0Qf_jetNBDtezSCAAAA
+Fri Apr 13 2018 10:37:04 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_U0Qf_jetNBDtezSCAAAA, userId = owen
+Fri Apr 13 2018 10:37:04 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180413-103628-311"}]
+Fri Apr 13 2018 10:37:04 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180413-103628-311"
+Fri Apr 13 2018 10:37:05 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: TdoOFn-4q6WdO6TVAAAB, id=P1, pwd=null, session=null
+Fri Apr 13 2018 10:37:05 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: TdoOFn-4q6WdO6TVAAAB, pId=P1, sId=null, roomId=null
+Fri Apr 13 2018 10:37:05 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient error:TypeError: Cannot read property 'addClient' of null
+TypeError: Cannot read property 'addClient' of null
+    at SocketServer.addParticipantClient (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\source\core\SocketServer.js:127:36)
+    at SocketServer.onConnection (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\source\core\SocketServer.js:51:18)
+    at emitOne (events.js:116:13)
+    at Namespace.emit (events.js:211:7)
+    at Namespace.emit (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\node_modules\socket.io\lib\namespace.js:212:10)
+    at C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\node_modules\socket.io\lib\namespace.js:180:14
+    at _combinedTickCallback (internal/process/next_tick.js:131:7)
+    at process._tickCallback (internal/process/next_tick.js:180:9)
+Fri Apr 13 2018 10:37:05 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: _chBTfppzmissgRZAAAC, id=null, pwd=null, session=null
+Fri Apr 13 2018 10:37:05 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Fri Apr 13 2018 10:37:05 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket__chBTfppzmissgRZAAAC
+Fri Apr 13 2018 10:37:05 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket__chBTfppzmissgRZAAAC, userId = owen
+Fri Apr 13 2018 10:37:07 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: UYXDtFpxZ70dc-fzAAAD, id=P2, pwd=null, session=null
+Fri Apr 13 2018 10:37:07 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: UYXDtFpxZ70dc-fzAAAD, pId=P2, sId=null, roomId=null
+Fri Apr 13 2018 10:37:07 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient error:TypeError: Cannot read property 'addClient' of null
+TypeError: Cannot read property 'addClient' of null
+    at SocketServer.addParticipantClient (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\source\core\SocketServer.js:127:36)
+    at SocketServer.onConnection (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\source\core\SocketServer.js:51:18)
+    at emitOne (events.js:116:13)
+    at Namespace.emit (events.js:211:7)
+    at Namespace.emit (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\node_modules\socket.io\lib\namespace.js:212:10)
+    at C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\node_modules\socket.io\lib\namespace.js:180:14
+    at _combinedTickCallback (internal/process/next_tick.js:131:7)
+    at process._tickCallback (internal/process/next_tick.js:180:9)
+Fri Apr 13 2018 10:37:07 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: S43kRVN1HHHB_i1lAAAE, id=P3, pwd=null, session=null
+Fri Apr 13 2018 10:37:07 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: S43kRVN1HHHB_i1lAAAE, pId=P3, sId=null, roomId=null
+Fri Apr 13 2018 10:37:07 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient error:TypeError: Cannot read property 'addClient' of null
+TypeError: Cannot read property 'addClient' of null
+    at SocketServer.addParticipantClient (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\source\core\SocketServer.js:127:36)
+    at SocketServer.onConnection (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\source\core\SocketServer.js:51:18)
+    at emitOne (events.js:116:13)
+    at Namespace.emit (events.js:211:7)
+    at Namespace.emit (C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\node_modules\socket.io\lib\namespace.js:212:10)
+    at C:\Users\opowelladmin\Google Drive\active\2017.01.11 nodejs\jtreeDev\node_modules\socket.io\lib\namespace.js:180:14
+    at _combinedTickCallback (internal/process/next_tick.js:131:7)
+    at process._tickCallback (internal/process/next_tick.js:180:9)

@@ -1,0 +1,1338 @@
+Wed Mar 28 2018 16:40:03 GMT+0200 (Mitteleuropäische Sommerzeit): last time on: 1522248003355
+Wed Mar 28 2018 16:40:04 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: HmWXMS-QQWIHtcIDAAAA, id=null, pwd=null, session=null
+Wed Mar 28 2018 16:40:04 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Mar 28 2018 16:40:04 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_HmWXMS-QQWIHtcIDAAAA
+Wed Mar 28 2018 16:40:04 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_HmWXMS-QQWIHtcIDAAAA
+Wed Mar 28 2018 16:40:04 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180326-163104-751"}]
+Wed Mar 28 2018 16:40:04 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180326-163104-751"
+Wed Mar 28 2018 16:40:10 GMT+0200 (Mitteleuropäische Sommerzeit): received message sessionCreate: ""
+Wed Mar 28 2018 16:40:10 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:40:13 GMT+0200 (Mitteleuropäische Sommerzeit): received message setAllowNewParts: {"sId":"20180328-164010-431","value":true}
+Wed Mar 28 2018 16:40:24 GMT+0200 (Mitteleuropäische Sommerzeit): received message sessionAddApp: {"appId":"public-good","sId":"20180328-164010-431","options":{}}
+Wed Mar 28 2018 16:40:24 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:40:24 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:40:24 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:40:24 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: BG7xSP8UH9saixQtAAAB, id=192.168.1.128, pwd=null, session=null
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: BG7xSP8UH9saixQtAAAB, pId=192.168.1.128, sId=null, roomId=null
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.128
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.128
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: BG7xSP8UH9saixQtAAAB
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: cpFf_VafmqEPCAEFAAAC, id=192.168.1.128, pwd=null, session=null
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: cpFf_VafmqEPCAEFAAAC, pId=192.168.1.128, sId=null, roomId=null
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 8drBDDuTGjQrkjJEAAAD, id=192.168.1.102, pwd=null, session=null
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 8drBDDuTGjQrkjJEAAAD, pId=192.168.1.102, sId=null, roomId=null
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.102
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.102
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 8drBDDuTGjQrkjJEAAAD
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: LmXqrTPox6_zF2kaAAAE, id=192.168.1.102, pwd=null, session=null
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: LmXqrTPox6_zF2kaAAAE, pId=192.168.1.102, sId=null, roomId=null
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: ml5hsaeEe20ualH8AAAF, id=192.168.1.121, pwd=null, session=null
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: ml5hsaeEe20ualH8AAAF, pId=192.168.1.121, sId=null, roomId=null
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.121
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.121
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: ml5hsaeEe20ualH8AAAF
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: AVW3sZQAtyLmJfCWAAAG, id=192.168.1.117, pwd=null, session=null
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: AVW3sZQAtyLmJfCWAAAG, pId=192.168.1.117, sId=null, roomId=null
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.117
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.117
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: UtO22gQ32cqiY3JAAAAH, id=192.168.1.115, pwd=null, session=null
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: UtO22gQ32cqiY3JAAAAH, pId=192.168.1.115, sId=null, roomId=null
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.115
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.115
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 8gN4Bv94z3X0tWEbAAAI, id=192.168.1.121, pwd=null, session=null
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 8gN4Bv94z3X0tWEbAAAI, pId=192.168.1.121, sId=null, roomId=null
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: UtO22gQ32cqiY3JAAAAH
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: ejNYhLClB9Sry85sAAAJ, id=192.168.1.112, pwd=null, session=null
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: ejNYhLClB9Sry85sAAAJ, pId=192.168.1.112, sId=null, roomId=null
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.112
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.112
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: LPFsA8FBFkJepmNOAAAK, id=192.168.1.106, pwd=null, session=null
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: LPFsA8FBFkJepmNOAAAK, pId=192.168.1.106, sId=null, roomId=null
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.106
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.106
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: xvOHXaR26qWSkEv0AAAL, id=192.168.1.115, pwd=null, session=null
+Wed Mar 28 2018 16:41:25 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: xvOHXaR26qWSkEv0AAAL, pId=192.168.1.115, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: ejNYhLClB9Sry85sAAAJ
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: X93TT0le8Ep-ggaHAAAM, id=192.168.1.108, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: X93TT0le8Ep-ggaHAAAM, pId=192.168.1.108, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.108
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.108
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 6yEqx5nM74U9SVoqAAAN, id=192.168.1.126, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 6yEqx5nM74U9SVoqAAAN, pId=192.168.1.126, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.126
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.126
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: NjjW2BU5GaVH0Uq6AAAO, id=192.168.1.119, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: NjjW2BU5GaVH0Uq6AAAO, pId=192.168.1.119, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.119
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.119
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 0PN94Ls6nwte5-L2AAAP, id=192.168.1.112, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 0PN94Ls6nwte5-L2AAAP, pId=192.168.1.112, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: FAr-p87HfA1KTXtJAAAQ, id=192.168.1.130, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: FAr-p87HfA1KTXtJAAAQ, pId=192.168.1.130, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.130
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.130
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: VO5cBvOdSvDRpqj3AAAR, id=192.168.1.105, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: VO5cBvOdSvDRpqj3AAAR, pId=192.168.1.105, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.105
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.105
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 4cm3DiiERxoFFD8YAAAS, id=192.168.1.110, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 4cm3DiiERxoFFD8YAAAS, pId=192.168.1.110, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.110
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.110
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: n4hOmW4dnTvJswYAAAAT, id=192.168.1.116, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: n4hOmW4dnTvJswYAAAAT, pId=192.168.1.116, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.116
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.116
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: X93TT0le8Ep-ggaHAAAM
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 6yEqx5nM74U9SVoqAAAN
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: up_PH2-cw_RerUKhAAAU, id=192.168.1.117, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: up_PH2-cw_RerUKhAAAU, pId=192.168.1.117, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: NjjW2BU5GaVH0Uq6AAAO
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 4cm3DiiERxoFFD8YAAAS
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: FAr-p87HfA1KTXtJAAAQ
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: n4hOmW4dnTvJswYAAAAT
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: _OGsCO77wRBIsQGtAAAV, id=192.168.1.122, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: _OGsCO77wRBIsQGtAAAV, pId=192.168.1.122, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.122
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.122
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 9Kkej5aOB_hTqv2kAAAW, id=192.168.1.126, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 9Kkej5aOB_hTqv2kAAAW, pId=192.168.1.126, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: oM6uv5hVVBmF3u9OAAAX, id=192.168.1.108, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: oM6uv5hVVBmF3u9OAAAX, pId=192.168.1.108, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: LzJyh80tr4CWK3l9AAAY, id=192.168.1.119, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: LzJyh80tr4CWK3l9AAAY, pId=192.168.1.119, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: K8hS9Id2bzNDZmZoAAAZ, id=192.168.1.110, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: K8hS9Id2bzNDZmZoAAAZ, pId=192.168.1.110, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: _OGsCO77wRBIsQGtAAAV
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: XIfrmIEVJNQCmz8uAAAa, id=192.168.1.116, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: XIfrmIEVJNQCmz8uAAAa, pId=192.168.1.116, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 89R4q4PjgLNNDyA3AAAb, id=192.168.1.118, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 89R4q4PjgLNNDyA3AAAb, pId=192.168.1.118, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.118
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.118
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: cJpWYk-FEio9XkNxAAAc, id=192.168.1.130, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: cJpWYk-FEio9XkNxAAAc, pId=192.168.1.130, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 25BjQHyc_UQZvlbrAAAd, id=192.168.1.120, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 25BjQHyc_UQZvlbrAAAd, pId=192.168.1.120, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.120
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.120
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 3dwecJ1Bj6ZIgIaoAAAe, id=192.168.1.131, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 3dwecJ1Bj6ZIgIaoAAAe, pId=192.168.1.131, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.131
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.131
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: pjZYeaXiTS7mAhixAAAf, id=192.168.1.122, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: pjZYeaXiTS7mAhixAAAf, pId=192.168.1.122, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 89R4q4PjgLNNDyA3AAAb
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: avtVTPnRCZoRS-_jAAAg, id=192.168.1.111, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: avtVTPnRCZoRS-_jAAAg, pId=192.168.1.111, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.111
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.111
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: e85HTrNK1c_lTUJFAAAh, id=192.168.1.125, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: e85HTrNK1c_lTUJFAAAh, pId=192.168.1.125, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.125
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.125
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: LPFsA8FBFkJepmNOAAAK
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 8AZVnPccUOs9PzXSAAAi, id=192.168.1.114, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 8AZVnPccUOs9PzXSAAAi, pId=192.168.1.114, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.114
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.114
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 3dwecJ1Bj6ZIgIaoAAAe
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: ynanTU0-nPnkVyBUAAAj, id=192.168.1.101, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: ynanTU0-nPnkVyBUAAAj, pId=192.168.1.101, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.101
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.101
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: e85HTrNK1c_lTUJFAAAh
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: avtVTPnRCZoRS-_jAAAg
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: HQRo3rZNm8o0z5dEAAAk, id=192.168.1.118, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: HQRo3rZNm8o0z5dEAAAk, pId=192.168.1.118, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: enbz8QjwuScIWjyhAAAl, id=192.168.1.127, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: enbz8QjwuScIWjyhAAAl, pId=192.168.1.127, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.127
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.127
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: svg9PSGyYE86W8bKAAAm, id=192.168.1.132, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: svg9PSGyYE86W8bKAAAm, pId=192.168.1.132, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.132
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.132
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 9V240Oj3ZxTxXG8aAAAn, id=192.168.1.124, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 9V240Oj3ZxTxXG8aAAAn, pId=192.168.1.124, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.124
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.124
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: qkPiI21Ry4FUY-uzAAAo, id=192.168.1.107, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: qkPiI21Ry4FUY-uzAAAo, pId=192.168.1.107, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.107
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.107
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: pG1Q2wf5rXBC5G2EAAAp, id=192.168.1.104, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: pG1Q2wf5rXBC5G2EAAAp, pId=192.168.1.104, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.104
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.104
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: jUsid2wyn_u6AjLhAAAq, id=192.168.1.125, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: jUsid2wyn_u6AjLhAAAq, pId=192.168.1.125, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 8AZVnPccUOs9PzXSAAAi
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: svg9PSGyYE86W8bKAAAm
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: VO5cBvOdSvDRpqj3AAAR
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: f28hYdvtjjZCo8MDAAAr, id=192.168.1.109, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: f28hYdvtjjZCo8MDAAAr, pId=192.168.1.109, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.109
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.109
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: nusn_3B3Z2z1RnXbAAAs, id=192.168.1.131, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: nusn_3B3Z2z1RnXbAAAs, pId=192.168.1.131, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: qkPiI21Ry4FUY-uzAAAo
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: pG1Q2wf5rXBC5G2EAAAp
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: ynanTU0-nPnkVyBUAAAj
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: WYwFJyW8ItKceiY5AAAt, id=192.168.1.111, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: WYwFJyW8ItKceiY5AAAt, pId=192.168.1.111, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: f28hYdvtjjZCo8MDAAAr
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: dPbx_NzR_WUzMwgTAAAu, id=192.168.1.114, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: dPbx_NzR_WUzMwgTAAAu, pId=192.168.1.114, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: enbz8QjwuScIWjyhAAAl
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: atJBbMTH4dfXACyOAAAv, id=192.168.1.105, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: atJBbMTH4dfXACyOAAAv, pId=192.168.1.105, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 4xpvu8z49pAcdmonAAAw, id=192.168.1.132, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 4xpvu8z49pAcdmonAAAw, pId=192.168.1.132, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: QqpOjTxkJHiPpAtxAAAx, id=192.168.1.113, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: QqpOjTxkJHiPpAtxAAAx, pId=192.168.1.113, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.113
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.113
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: agG9JV1fwXpeXm6bAAAy, id=192.168.1.107, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: agG9JV1fwXpeXm6bAAAy, pId=192.168.1.107, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: pEX2rLiMScPushduAAAz, id=192.168.1.104, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: pEX2rLiMScPushduAAAz, pId=192.168.1.104, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 3Fq9CQl4mWdHf2zMAAA0, id=192.168.1.101, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 3Fq9CQl4mWdHf2zMAAA0, pId=192.168.1.101, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 48sf462wl5aU-50PAAA1, id=192.168.1.109, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 48sf462wl5aU-50PAAA1, pId=192.168.1.109, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: t5VpJZC3gCPMzA9wAAA2, id=192.168.1.127, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: t5VpJZC3gCPMzA9wAAA2, pId=192.168.1.127, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: QqpOjTxkJHiPpAtxAAAx
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: H0KvLZbjG5JTgJ8lAAA3, id=192.168.1.106, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: H0KvLZbjG5JTgJ8lAAA3, pId=192.168.1.106, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: cZh9Oi_GfQopRnIaAAA4, id=192.168.1.113, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: cZh9Oi_GfQopRnIaAAA4, pId=192.168.1.113, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 25BjQHyc_UQZvlbrAAAd
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: Ht1Dogv-cB8kfichAAA5, id=192.168.1.129, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: Ht1Dogv-cB8kfichAAA5, pId=192.168.1.129, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.129
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.129
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 9V240Oj3ZxTxXG8aAAAn
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: Ht1Dogv-cB8kfichAAA5
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: mxs-Lf7CMj-qYabPAAA6, id=192.168.1.120, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: mxs-Lf7CMj-qYabPAAA6, pId=192.168.1.120, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: UuRO_ZVfOgBm0sOFAAA7, id=192.168.1.129, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: UuRO_ZVfOgBm0sOFAAA7, pId=192.168.1.129, sId=null, roomId=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 3QEYlcLlC3fa8W-fAAA8, id=192.168.1.124, pwd=null, session=null
+Wed Mar 28 2018 16:41:26 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 3QEYlcLlC3fa8W-fAAA8, pId=192.168.1.124, sId=null, roomId=null
+Wed Mar 28 2018 16:41:27 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: GEsQ9-ZBdFHxrslAAAA9, id=192.168.1.103, pwd=null, session=null
+Wed Mar 28 2018 16:41:27 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: GEsQ9-ZBdFHxrslAAAA9, pId=192.168.1.103, sId=null, roomId=null
+Wed Mar 28 2018 16:41:27 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.103
+Wed Mar 28 2018 16:41:27 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.103
+Wed Mar 28 2018 16:41:27 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:27 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:27 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:27 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:27 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: GEsQ9-ZBdFHxrslAAAA9
+Wed Mar 28 2018 16:41:27 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: hOI1PswQTdSFsQwRAAA-, id=192.168.1.103, pwd=null, session=null
+Wed Mar 28 2018 16:41:27 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: hOI1PswQTdSFsQwRAAA-, pId=192.168.1.103, sId=null, roomId=null
+Wed Mar 28 2018 16:41:27 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: b7EW4HSAqejQgmcGAAA_, id=192.168.1.123, pwd=null, session=null
+Wed Mar 28 2018 16:41:27 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: b7EW4HSAqejQgmcGAAA_, pId=192.168.1.123, sId=null, roomId=null
+Wed Mar 28 2018 16:41:27 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantCreate: 192.168.1.123
+Wed Mar 28 2018 16:41:27 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.123
+Wed Mar 28 2018 16:41:27 GMT+0200 (Mitteleuropäische Sommerzeit): Session.save: 20180328-164010-431
+Wed Mar 28 2018 16:41:27 GMT+0200 (Mitteleuropäische Sommerzeit): App.save: public-good
+Wed Mar 28 2018 16:41:27 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: decide
+Wed Mar 28 2018 16:41:27 GMT+0200 (Mitteleuropäische Sommerzeit): Stage.save: results
+Wed Mar 28 2018 16:41:27 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: b7EW4HSAqejQgmcGAAA_
+Wed Mar 28 2018 16:41:27 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 8BaJE7SvVtVgVqq0AABA, id=192.168.1.123, pwd=null, session=null
+Wed Mar 28 2018 16:41:27 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 8BaJE7SvVtVgVqq0AABA, pId=192.168.1.123, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): received message sessionAdvanceSlowest: "20180328-164010-431"
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.128
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.128
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Period.save: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_1_player_192.168.1.125
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.125
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_1_player_192.168.1.108
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.108
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_1_player_192.168.1.127
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.127
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_1_player_192.168.1.117
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.117
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_2
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_2_player_192.168.1.130
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.130
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_2_player_192.168.1.132
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.132
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_2_player_192.168.1.124
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.124
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_2_player_192.168.1.106
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.106
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_2
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_3
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_3_player_192.168.1.102
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.102
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_3_player_192.168.1.131
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.131
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_3_player_192.168.1.126
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.126
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_3_player_192.168.1.113
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.113
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_3
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_4
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_4_player_192.168.1.120
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.120
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_4_player_192.168.1.101
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.101
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_4_player_192.168.1.109
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.109
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_4_player_192.168.1.122
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.122
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_4
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_5
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_5_player_192.168.1.121
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.121
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_5_player_192.168.1.104
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.104
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_5_player_192.168.1.107
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.107
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_5_player_192.168.1.110
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.110
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_5
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_6
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_6_player_192.168.1.112
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.112
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_6_player_192.168.1.114
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.114
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_6_player_192.168.1.123
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.123
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_6_player_192.168.1.128
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.128
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_6
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_7
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_7_player_192.168.1.116
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.116
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_7_player_192.168.1.105
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.105
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_7_player_192.168.1.115
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.115
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_7_player_192.168.1.111
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.111
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_7
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_8
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_8_player_192.168.1.119
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.119
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_8_player_192.168.1.103
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.103
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_8_player_192.168.1.129
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.129
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_8_player_192.168.1.118
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.118
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_8
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.128
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_6
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_6_player_192.168.1.128
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.102
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.102
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.102
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_3
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_3_player_192.168.1.102
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.121
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.121
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.121
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_5
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_5_player_192.168.1.121
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.117
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.117
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.117
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_1_player_192.168.1.117
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.115
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.115
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.115
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_7
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_7_player_192.168.1.115
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.112
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.112
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.112
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_6_player_192.168.1.112
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.106
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.106
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.106
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_2
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_2_player_192.168.1.106
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.108
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.108
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.108
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_1_player_192.168.1.108
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.126
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.126
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.126
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_3_player_192.168.1.126
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.119
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.119
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.119
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_8
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_8_player_192.168.1.119
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.130
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.130
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.130
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_2_player_192.168.1.130
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.105
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.105
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.105
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_7_player_192.168.1.105
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.110
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.110
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.110
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_5_player_192.168.1.110
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.116
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.116
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.116
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_7_player_192.168.1.116
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.122
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.122
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.122
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_4
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_4_player_192.168.1.122
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.118
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.118
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.118
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_8_player_192.168.1.118
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.120
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.120
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.120
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_4_player_192.168.1.120
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.131
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.131
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.131
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_3_player_192.168.1.131
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.111
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.111
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.111
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_7_player_192.168.1.111
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.125
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.125
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.125
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_1_player_192.168.1.125
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.114
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.114
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.114
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_6_player_192.168.1.114
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.101
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.101
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.101
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_4_player_192.168.1.101
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.127
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.127
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.127
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_1_player_192.168.1.127
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.132
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.132
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.132
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_2_player_192.168.1.132
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.124
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.124
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.124
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_2_player_192.168.1.124
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.107
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.107
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.107
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_5_player_192.168.1.107
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.104
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.104
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.104
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_5_player_192.168.1.104
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.109
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.109
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.109
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_4_player_192.168.1.109
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.113
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.113
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.113
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_3_player_192.168.1.113
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.129
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.129
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.129
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_8_player_192.168.1.129
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.103
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.103
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.103
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_8_player_192.168.1.103
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.123
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Session.participantBeginApp: 1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.123
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.123
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_6_player_192.168.1.123
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: LmXqrTPox6_zF2kaAAAE
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: up_PH2-cw_RerUKhAAAU
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: H0KvLZbjG5JTgJ8lAAA3
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: oM6uv5hVVBmF3u9OAAAX
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 0PN94Ls6nwte5-L2AAAP
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: cpFf_VafmqEPCAEFAAAC
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: LzJyh80tr4CWK3l9AAAY
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: cJpWYk-FEio9XkNxAAAc
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 8gN4Bv94z3X0tWEbAAAI
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: K8hS9Id2bzNDZmZoAAAZ
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: xvOHXaR26qWSkEv0AAAL
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: pjZYeaXiTS7mAhixAAAf
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 9Kkej5aOB_hTqv2kAAAW
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: mxs-Lf7CMj-qYabPAAA6
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: nusn_3B3Z2z1RnXbAAAs
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: HQRo3rZNm8o0z5dEAAAk
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: XIfrmIEVJNQCmz8uAAAa
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 3Fq9CQl4mWdHf2zMAAA0
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: jUsid2wyn_u6AjLhAAAq
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: atJBbMTH4dfXACyOAAAv
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 4xpvu8z49pAcdmonAAAw
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: pEX2rLiMScPushduAAAz
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: dPbx_NzR_WUzMwgTAAAu
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: agG9JV1fwXpeXm6bAAAy
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 3QEYlcLlC3fa8W-fAAA8
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: WYwFJyW8ItKceiY5AAAt
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: t5VpJZC3gCPMzA9wAAA2
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 48sf462wl5aU-50PAAA1
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: cZh9Oi_GfQopRnIaAAA4
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: hOI1PswQTdSFsQwRAAA-
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: bbJ21EZsWyOdwGLCAABB, id=192.168.1.120, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: bbJ21EZsWyOdwGLCAABB, pId=192.168.1.120, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: gOyDhf_ByDYkuz97AABC, id=192.168.1.108, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: gOyDhf_ByDYkuz97AABC, pId=192.168.1.108, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: b1bVwSxI6ReGKRnLAABD, id=192.168.1.112, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: b1bVwSxI6ReGKRnLAABD, pId=192.168.1.112, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: A5BU2qp-YK7rlNLiAABE, id=192.168.1.130, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: A5BU2qp-YK7rlNLiAABE, pId=192.168.1.130, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: QFZutDofsNQ3vWjdAABF, id=192.168.1.122, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: QFZutDofsNQ3vWjdAABF, pId=192.168.1.122, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: NLnP2wY6iSvb0FMSAABG, id=192.168.1.121, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: NLnP2wY6iSvb0FMSAABG, pId=192.168.1.121, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: XTzfes8hgMi7bIFUAABH, id=192.168.1.117, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: XTzfes8hgMi7bIFUAABH, pId=192.168.1.117, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: UuRO_ZVfOgBm0sOFAAA7
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 14kP8DCDkfJpLOUVAABI, id=192.168.1.115, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 14kP8DCDkfJpLOUVAABI, pId=192.168.1.115, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: 8BaJE7SvVtVgVqq0AABA
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: -vbPsyZU3Q90y3hVAABJ, id=192.168.1.110, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: -vbPsyZU3Q90y3hVAABJ, pId=192.168.1.110, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: H8Hq8W__SgkafocoAABK, id=192.168.1.116, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: H8Hq8W__SgkafocoAABK, pId=192.168.1.116, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: tASypM74RlXemrZQAABL, id=192.168.1.101, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: tASypM74RlXemrZQAABL, pId=192.168.1.101, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: ckP4ARef9QY09p0xAABM, id=192.168.1.118, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: ckP4ARef9QY09p0xAABM, pId=192.168.1.118, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: EKTu1J2C4l8v0gmzAABN, id=192.168.1.106, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: EKTu1J2C4l8v0gmzAABN, pId=192.168.1.106, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: W_Z5Q9eE5FQXOnTRAABO, id=192.168.1.104, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: W_Z5Q9eE5FQXOnTRAABO, pId=192.168.1.104, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: AVpUeGuEXwv9nxvCAABP, id=192.168.1.125, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: AVpUeGuEXwv9nxvCAABP, pId=192.168.1.125, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: gqZXmkVImFKjFdubAABQ, id=192.168.1.124, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: gqZXmkVImFKjFdubAABQ, pId=192.168.1.124, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: JMaIteoxbdBV7ZXTAABR, id=192.168.1.107, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: JMaIteoxbdBV7ZXTAABR, pId=192.168.1.107, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: gTVxWqU76LQ6L8aSAABS, id=192.168.1.109, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: gTVxWqU76LQ6L8aSAABS, pId=192.168.1.109, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: aOibyL3OClEKgOHUAABT, id=192.168.1.103, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: aOibyL3OClEKgOHUAABT, pId=192.168.1.103, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: b9jNAHc5GkY3VxrsAABU, id=192.168.1.111, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: b9jNAHc5GkY3VxrsAABU, pId=192.168.1.111, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: UWFkET-Jj2wlf1G4AABV, id=192.168.1.105, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: UWFkET-Jj2wlf1G4AABV, pId=192.168.1.105, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: -7H8CpYPA_6-pDocAABW, id=192.168.1.123, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: -7H8CpYPA_6-pDocAABW, pId=192.168.1.123, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: -18hC3DS2ZiKYhGdAABX, id=192.168.1.119, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: -18hC3DS2ZiKYhGdAABX, pId=192.168.1.119, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: B-NzF-Y6sbkhzk2xAABY, id=192.168.1.126, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: B-NzF-Y6sbkhzk2xAABY, pId=192.168.1.126, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: Gr1TB1S-ZYr4X3n2AABZ, id=192.168.1.129, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: Gr1TB1S-ZYr4X3n2AABZ, pId=192.168.1.129, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: se6hue6UOCQ3_ezpAABa, id=192.168.1.113, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: se6hue6UOCQ3_ezpAABa, pId=192.168.1.113, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: prGte7w4rIqg_TVJAABb, id=192.168.1.114, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: prGte7w4rIqg_TVJAABb, pId=192.168.1.114, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: dwqgYMJ7wGiuSP_aAABc, id=192.168.1.128, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: dwqgYMJ7wGiuSP_aAABc, pId=192.168.1.128, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: yJMTT49Ogn71yjoCAABd, id=192.168.1.132, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: yJMTT49Ogn71yjoCAABd, pId=192.168.1.132, sId=null, roomId=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: X1tbB5MviVMHixZSAABe, id=192.168.1.131, pwd=null, session=null
+Wed Mar 28 2018 16:42:18 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: X1tbB5MviVMHixZSAABe, pId=192.168.1.131, sId=null, roomId=null
+Wed Mar 28 2018 16:42:19 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: zkrZzd52asVzzAFlAABf, id=192.168.1.127, pwd=null, session=null
+Wed Mar 28 2018 16:42:19 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: zkrZzd52asVzzAFlAABf, pId=192.168.1.127, sId=null, roomId=null
+Wed Mar 28 2018 16:42:19 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 8vnMsebfLU1efysNAABg, id=192.168.1.102, pwd=null, session=null
+Wed Mar 28 2018 16:42:19 GMT+0200 (Mitteleuropäische Sommerzeit): server.addClient: 8vnMsebfLU1efysNAABg, pId=192.168.1.102, sId=null, roomId=null
+Wed Mar 28 2018 16:42:50 GMT+0200 (Mitteleuropäische Sommerzeit): removing client: AVW3sZQAtyLmJfCWAAAG
+Wed Mar 28 2018 16:43:15 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection: 2f55Jht_0m2JxG53AABh, id=null, pwd=null, session=null
+Wed Mar 28 2018 16:43:15 GMT+0200 (Mitteleuropäische Sommerzeit): socket connection to ADMIN
+Wed Mar 28 2018 16:43:16 GMT+0200 (Mitteleuropäische Sommerzeit): Server.refreshAdmin: socket_2f55Jht_0m2JxG53AABh
+Wed Mar 28 2018 16:43:16 GMT+0200 (Mitteleuropäische Sommerzeit): refreshAdmin: socket_2f55Jht_0m2JxG53AABh
+Wed Mar 28 2018 16:43:16 GMT+0200 (Mitteleuropäische Sommerzeit): received message messages: [{"msgName":"openSession","msgData":"20180328-164010-431"}]
+Wed Mar 28 2018 16:43:16 GMT+0200 (Mitteleuropäische Sommerzeit): received message openSession: "20180328-164010-431"
+Wed Mar 28 2018 16:43:24 GMT+0200 (Mitteleuropäische Sommerzeit): received message setAutoplayForAll: {"sId":"20180328-164010-431","val":true}
+Wed Mar 28 2018 16:43:28 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":13}
+Wed Mar 28 2018 16:43:28 GMT+0200 (Mitteleuropäische Sommerzeit): Period.save: 2
+Wed Mar 28 2018 16:43:28 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":8}
+Wed Mar 28 2018 16:43:28 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":12}
+Wed Mar 28 2018 16:43:28 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":1}
+Wed Mar 28 2018 16:43:28 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":18}
+Wed Mar 28 2018 16:43:28 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":10}
+Wed Mar 28 2018 16:43:28 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":6}
+Wed Mar 28 2018 16:43:28 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":12}
+Wed Mar 28 2018 16:43:28 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":19}
+Wed Mar 28 2018 16:43:28 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":13}
+Wed Mar 28 2018 16:43:28 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":2}
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":13}
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":0}
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":10}
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":18}
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":4}
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":2}
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":17}
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":18}
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":4}
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":8}
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":8}
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_5
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_5_player_192.168.1.121
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_5_player_192.168.1.104
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_5_player_192.168.1.107
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_5_player_192.168.1.110
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":10}
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_3
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_3_player_192.168.1.102
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_3_player_192.168.1.131
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_3_player_192.168.1.126
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_3_player_192.168.1.113
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":10}
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":15}
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":4}
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":15}
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_8
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_8_player_192.168.1.119
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_8_player_192.168.1.103
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_8_player_192.168.1.129
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_8_player_192.168.1.118
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":1}
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_7
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_7_player_192.168.1.116
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_7_player_192.168.1.105
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_7_player_192.168.1.115
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_7_player_192.168.1.111
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":8}
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_4
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_4_player_192.168.1.120
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_4_player_192.168.1.101
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_4_player_192.168.1.109
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_4_player_192.168.1.122
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":8}
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_1
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_1_player_192.168.1.125
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_1_player_192.168.1.108
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_1_player_192.168.1.127
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_1_player_192.168.1.117
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":13}
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_2
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_2_player_192.168.1.130
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_2_player_192.168.1.132
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_2_player_192.168.1.124
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_2_player_192.168.1.106
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":5}
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_1_group_6
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_6_player_192.168.1.112
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_6_player_192.168.1.114
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_6_player_192.168.1.123
+Wed Mar 28 2018 16:43:29 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_1_group_6_player_192.168.1.128
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_1
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_1_player_192.168.1.107
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.107
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_1_player_192.168.1.132
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.132
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_1_player_192.168.1.115
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.115
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_1_player_192.168.1.117
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.117
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_1
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_2
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_2_player_192.168.1.129
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.129
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_2_player_192.168.1.130
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.130
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_2_player_192.168.1.127
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.127
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_2_player_192.168.1.126
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.126
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_2
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_3
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_3_player_192.168.1.108
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.108
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_3_player_192.168.1.124
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.124
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_3_player_192.168.1.116
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.116
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_3_player_192.168.1.110
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.110
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_3
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_4
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_4_player_192.168.1.122
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.122
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_4_player_192.168.1.128
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.128
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_4_player_192.168.1.131
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.131
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_4_player_192.168.1.120
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.120
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_4
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_5
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_5_player_192.168.1.119
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.119
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_5_player_192.168.1.112
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.112
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_5_player_192.168.1.103
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.103
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_5_player_192.168.1.109
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.109
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_5
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_6
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_6_player_192.168.1.102
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.102
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_6_player_192.168.1.123
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.123
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_6_player_192.168.1.105
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.105
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_6_player_192.168.1.101
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.101
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_6
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_7
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_7_player_192.168.1.113
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.113
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_7_player_192.168.1.121
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.121
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_7_player_192.168.1.118
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.118
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_7_player_192.168.1.114
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.114
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_7
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_8
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_8_player_192.168.1.104
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.104
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_8_player_192.168.1.106
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.106
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_8_player_192.168.1.125
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.125
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_8_player_192.168.1.111
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.111
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_8
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.116
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_3
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_3_player_192.168.1.116
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.127
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_2
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_2_player_192.168.1.127
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.130
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_2_player_192.168.1.130
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.121
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_7
+Wed Mar 28 2018 16:43:30 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_7_player_192.168.1.121
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.113
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_7_player_192.168.1.113
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.128
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_4
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_4_player_192.168.1.128
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.131
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_4_player_192.168.1.131
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.114
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_7_player_192.168.1.114
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.105
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_6
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_6_player_192.168.1.105
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.107
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_1
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_1_player_192.168.1.107
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.124
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_3_player_192.168.1.124
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.115
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_1_player_192.168.1.115
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.102
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_6_player_192.168.1.102
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.120
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_4_player_192.168.1.120
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.103
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_5
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_5_player_192.168.1.103
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.122
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_4_player_192.168.1.122
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.109
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_5_player_192.168.1.109
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.112
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_5_player_192.168.1.112
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.118
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_7_player_192.168.1.118
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.110
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_3_player_192.168.1.110
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.104
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_8
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_8_player_192.168.1.104
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.108
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_3_player_192.168.1.108
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.129
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_2_player_192.168.1.129
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.111
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_8_player_192.168.1.111
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.119
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_5_player_192.168.1.119
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.106
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_8_player_192.168.1.106
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.101
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_6_player_192.168.1.101
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.117
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_1_player_192.168.1.117
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.126
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_2_player_192.168.1.126
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.132
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_1_player_192.168.1.132
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.123
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_6_player_192.168.1.123
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.125
+Wed Mar 28 2018 16:43:31 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_8_player_192.168.1.125
+Wed Mar 28 2018 16:43:34 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":8}
+Wed Mar 28 2018 16:43:34 GMT+0200 (Mitteleuropäische Sommerzeit): Period.save: 3
+Wed Mar 28 2018 16:43:34 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":19}
+Wed Mar 28 2018 16:43:34 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":9}
+Wed Mar 28 2018 16:43:34 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":7}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":15}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":14}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":14}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":11}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":12}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":1}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":10}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":11}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":19}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":17}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":17}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":20}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":4}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":7}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":20}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":14}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_7
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_7_player_192.168.1.113
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_7_player_192.168.1.121
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_7_player_192.168.1.118
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_7_player_192.168.1.114
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":3}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":15}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":19}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":12}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":6}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":18}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_1
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_1_player_192.168.1.107
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_1_player_192.168.1.132
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_1_player_192.168.1.115
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_1_player_192.168.1.117
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":0}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_8
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_8_player_192.168.1.104
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_8_player_192.168.1.106
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_8_player_192.168.1.125
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_8_player_192.168.1.111
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":1}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_6
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_6_player_192.168.1.102
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_6_player_192.168.1.123
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_6_player_192.168.1.105
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_6_player_192.168.1.101
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":2}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_4
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_4_player_192.168.1.122
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_4_player_192.168.1.128
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_4_player_192.168.1.131
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_4_player_192.168.1.120
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":13}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_5
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_5_player_192.168.1.119
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_5_player_192.168.1.112
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_5_player_192.168.1.103
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_5_player_192.168.1.109
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":11}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_2
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_2_player_192.168.1.129
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_2_player_192.168.1.130
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_2_player_192.168.1.127
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_2_player_192.168.1.126
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":5}
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_2_group_3
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_3_player_192.168.1.108
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_3_player_192.168.1.124
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_3_player_192.168.1.116
+Wed Mar 28 2018 16:43:35 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_2_group_3_player_192.168.1.110
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_1
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_1_player_192.168.1.104
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.104
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_1_player_192.168.1.110
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.110
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_1_player_192.168.1.128
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.128
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_1_player_192.168.1.101
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.101
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_1
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_2
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_2_player_192.168.1.102
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.102
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_2_player_192.168.1.113
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.113
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_2_player_192.168.1.112
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.112
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_2_player_192.168.1.121
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.121
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_2
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_3
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_3_player_192.168.1.125
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.125
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_3_player_192.168.1.107
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.107
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_3_player_192.168.1.108
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.108
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_3_player_192.168.1.117
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.117
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_3
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_4
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_4_player_192.168.1.115
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.115
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_4_player_192.168.1.103
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.103
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_4_player_192.168.1.109
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.109
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_4_player_192.168.1.130
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.130
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_4
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_5
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_5_player_192.168.1.105
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.105
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_5_player_192.168.1.131
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.131
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_5_player_192.168.1.123
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.123
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_5_player_192.168.1.132
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.132
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_5
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_6
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_6_player_192.168.1.111
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.111
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_6_player_192.168.1.124
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.124
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_6_player_192.168.1.120
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.120
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_6_player_192.168.1.118
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.118
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_6
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_7
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_7_player_192.168.1.114
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.114
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_7_player_192.168.1.122
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.122
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_7_player_192.168.1.127
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.127
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_7_player_192.168.1.106
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.106
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_7
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_8
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_8_player_192.168.1.129
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.129
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_8_player_192.168.1.116
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.116
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_8_player_192.168.1.119
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.119
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_8_player_192.168.1.126
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.126
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_8
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.131
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_5
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_5_player_192.168.1.131
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.105
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_5_player_192.168.1.105
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.107
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_3
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_3_player_192.168.1.107
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.110
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_1
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_1_player_192.168.1.110
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.115
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_4
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_4_player_192.168.1.115
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.103
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_4_player_192.168.1.103
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.102
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_2
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_2_player_192.168.1.102
+Wed Mar 28 2018 16:43:36 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.120
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_6
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_6_player_192.168.1.120
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.124
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_6_player_192.168.1.124
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.122
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_7
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_7_player_192.168.1.122
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.112
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_2_player_192.168.1.112
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.118
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_6_player_192.168.1.118
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.109
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_4_player_192.168.1.109
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.101
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_1_player_192.168.1.101
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.108
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_3_player_192.168.1.108
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.111
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_6_player_192.168.1.111
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.117
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_3_player_192.168.1.117
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.132
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_5_player_192.168.1.132
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.104
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_1_player_192.168.1.104
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.126
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_8
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_8_player_192.168.1.126
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.106
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_7_player_192.168.1.106
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.123
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_5_player_192.168.1.123
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.129
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_8_player_192.168.1.129
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.119
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_8_player_192.168.1.119
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.116
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_8_player_192.168.1.116
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.128
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_1_player_192.168.1.128
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.114
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_7_player_192.168.1.114
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.121
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_2_player_192.168.1.121
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.113
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_2_player_192.168.1.113
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.125
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_3_player_192.168.1.125
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.130
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_4_player_192.168.1.130
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Participant.save: 192.168.1.127
+Wed Mar 28 2018 16:43:37 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_7_player_192.168.1.127
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":1}
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":7}
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":11}
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":9}
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":3}
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":17}
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":14}
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":13}
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":9}
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":6}
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":15}
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":6}
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":14}
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":4}
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":6}
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":18}
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":17}
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":6}
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_2
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_2_player_192.168.1.102
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_2_player_192.168.1.113
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_2_player_192.168.1.112
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_2_player_192.168.1.121
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":15}
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_7
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_7_player_192.168.1.114
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_7_player_192.168.1.122
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_7_player_192.168.1.127
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_7_player_192.168.1.106
+Wed Mar 28 2018 16:43:40 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":18}
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":14}
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":14}
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_5
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_5_player_192.168.1.105
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_5_player_192.168.1.131
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_5_player_192.168.1.123
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_5_player_192.168.1.132
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":12}
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":19}
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":7}
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":5}
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_8
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_8_player_192.168.1.129
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_8_player_192.168.1.116
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_8_player_192.168.1.119
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_8_player_192.168.1.126
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":7}
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_1
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_1_player_192.168.1.104
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_1_player_192.168.1.110
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_1_player_192.168.1.128
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_1_player_192.168.1.101
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":9}
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":5}
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":17}
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_3
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_3_player_192.168.1.125
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_3_player_192.168.1.107
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_3_player_192.168.1.108
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_3_player_192.168.1.117
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":9}
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_6
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_6_player_192.168.1.111
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_6_player_192.168.1.124
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_6_player_192.168.1.120
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_6_player_192.168.1.118
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"decide","player.contribution":14}
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Group.save: session_20180328-164010-431_app_1-public-good_period_3_group_4
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_4_player_192.168.1.115
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_4_player_192.168.1.103
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_4_player_192.168.1.109
+Wed Mar 28 2018 16:43:41 GMT+0200 (Mitteleuropäische Sommerzeit): Player.save: session_20180328-164010-431_app_1-public-good_period_3_group_4_player_192.168.1.130
+Wed Mar 28 2018 16:43:42 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:42 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:42 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:42 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:42 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:42 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:42 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:42 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:42 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:42 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:42 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:42 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:42 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:42 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:42 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:42 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:42 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:42 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:42 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:43 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:43 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:43 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:43 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:43 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:43 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:43 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:43 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:43 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:43 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:43 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:43 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}
+Wed Mar 28 2018 16:43:43 GMT+0200 (Mitteleuropäische Sommerzeit): Server received auto-stage submission: {"fnName":"results"}

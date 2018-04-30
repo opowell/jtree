@@ -1,0 +1,26 @@
+<script type="text/javascript" src='/participant/jtree.js'></script>
+<p>You are player <span jt-text='player.idInGroup'></span> in your group.</p>
+<span jt-status='active'>
+    <span jt-stage='decide'>
+        <p>DECISION</p>
+        <p>You have E$<span jt-text='app.pieSize'></span>. Choose the amount you would like to keep. The rest will be given to the other player.</p>
+        <form>
+            <p>The amount you would like to keep (E$): <input id='player.keep' name='player.keep' required type='number' min='0' jt-max='app.pieSize' step='1'></p>
+            <button>OK</button>
+        </form>
+    </span>
+    <span jt-stage='results'>
+        <p>Time left: <span jt-text='clock.minutes'>mm</span>:<span jt-text='clock.seconds'></span></p>
+        <p>RESULTS</p>
+        <p>The pie size was E$<span jt-text='app.pieSize'></span>.</p>
+        <p>Player 1 chose to keep E$<span jt-text='group.p1keep'></span>, thus the payoff to player 2 was E$<span jt-text='group.p2points'></span>.</p>
+        <p>Thus, your payoff in this period is E$<span jt-text='player.points'></span>.</p>
+        <form>
+            <button>OK</button>
+        </form>
+    </span>
+</span>
+<span jt-status='waiting'>
+    <p>WAITING</p>
+    <p>Please wait for the experiment to continue.</p>
+</span>

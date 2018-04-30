@@ -1,0 +1,25 @@
+{
+  "markdown": {
+    "parser": "gfm",
+    "hardwrap": true
+  },
+  "opts": {
+    "destination": "../jtree/internal/docs",
+    "readme": "doc-pages/README.md",
+    "recurse": true,
+    "tutorials": "doc-pages"
+  },
+  "plugins": ["plugins/markdown"],
+  "source": {
+    "include": ["./doc-pages"],
+    "includePattern": ".+\\.js(doc|x)?$",
+    "excludePattern": "(^|\\/|\\\\)_"
+  },
+  "tags": {
+    "allowUnknownTags": true
+  },
+  "templates": {
+      "name": "jtree",
+      "footerText": "owen powell - opowell@gmail.com"
+  }
+}

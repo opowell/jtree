@@ -1,0 +1,244 @@
+<script type="text/javascript" src='/participant/jtree.js'></script>
+<style>
+.likertScale {
+    display: flex;
+    background-color: #eee;
+}
+
+.likertScaleOption {
+    padding: 1rem;
+    margin: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #eee;
+}
+
+.likertMinText {
+    margin: 0rem;
+    padding: 0rem;
+    padding-top: 2rem;
+    padding-left: 1rem;
+}
+
+.likertMaxText {
+    margin: 0rem;
+    padding: 0rem;
+    padding-top: 2rem;
+    padding-right: 1rem;
+}
+
+* {
+    font-size: 1.2rem !important;
+}
+
+body {
+    max-width: 1100px;
+}
+
+</style>
+<script>
+jt.likertScale = function(id, field, minText, maxText) {
+    var minTextEl = $('<div class="likertMinText likertScaleOption">').text(minText);
+    var maxTextEl = $('<div class="likertMaxText likertScaleOption">').text(maxText);
+
+    $('#' + id).append(minTextEl);
+    for (var i=1; i<=7; i++) {
+        var option = $('<label for="' + field + i + '" class="likertScaleOption">');
+        var input = $("<input name='" + field + "' type='radio' required value='" + i + "' id='" + field + i + "'>");
+        var label = $("<div>").text(i);
+        option.append(label);
+        option.append(input);
+        $('#' + id).append(option);
+    }
+    $('#' + id).append(maxTextEl);
+}
+
+// Record amount of time spend on parts 2 and 6.
+jt.connected = function() {
+    jt.socket.on('playerUpdate', function(player) {
+
+        var stage = player.stage;
+        if (stage.id === 'part2' || stage.id === 'part6') {
+            jt.startTime = new Date();
+        }
+    });
+}
+
+jt.setPart2Time = function() {
+    jt.endTime = new Date();
+    $('#part2Time').val(jt.endTime - jt.startTime);
+    $('#part2Form:visible').submit();
+}
+
+jt.setPart6Time = function() {
+    jt.endTime = new Date();
+    $('#part6Time').val(jt.endTime - jt.startTime);
+    $('#part6Form:visible').submit();
+}
+
+</script>
+
+
+
+
+<p jt-displayif='player.stageIndex < 7'>Part: {player.stageIndex+1}/{app.numStages-1}</p>
+<p jt-displayif='player.stageIndex == 7'>RESULTS</p>
+<span jt-status='playing'>
+
+    <span jt-stage='part1'>
+        <p>CHOOSE</p>
+        <p>Choose your action.</p>
+        <form>
+            <button name='player.part1Ans' jt-value='app.STAG' type='submit'>Stag</button>
+            <button name='player.part1Ans' jt-value='app.HARE' type='submit'>Hare</button>
+        </form>
+    </span>
+
+    <span jt-stage='part2'>
+        <span jt-displayif='app.treatment==="T1 Our method"'>
+            <form id='part6Form'>
+                <p>How many of 20 others do you think chose Stag?</p>
+                <input name='player.part2Ans' type='number' required min='0' max='20' step='1'>
+                <input id='part2Time' name='player.part2Time' hidden>
+                <button onclick='jt.setPart2Time();'>OK</button>
+            </form>
+        </span>
+        <span jt-stage='part2' jt-displayif='app.treatment==="T2 Karni method"'>
+            <form id='part6Form'>
+                <p>What is your belief about the probability that another participant in Part 1 would choose Stag?</p>
+                <p>Please state your belief in terms of a number between 0 and 100 (for example, 0 corresponds to no chance of a participant choosing Stag, 50 corresponds to equal chances of a participant choosing Stag vs hare, and 100 corresponds to full certainty that a computerized counterpart would choose Stag.</p>
+                <p>In order to incentivize accurate reports of beliefs, you will be compensated according to the following scheme. This scheme makes it in your best interest to report your true belief about the likely choice. After you report a number between 0 and 100, the computer will randomly choose a number between 0 and 100. If this number (call it n) is lower than the number you report, then you will be paid €2 if a randomly selected participant chose Stag in Part 1, and you will be paid 0 if that participant chose Hare. If the random number n is greater than the number you reported, then you will earn €2 with a chance of 2% and €0 with a chance of (1-n)%</p>
+                <input name='player.part2Ans' type='number' required min='0' max='100' step='1'>
+                <input id='part2Time' name='player.part2Time' hidden>
+                <button onclick='jt.setPart2Time();'>OK</button>
+            </form>
+        </span>
+    </span>
+
+    <span jt-stage='part3'>
+        <form>
+            <p>How well did you understand Part 2? (1 = not at all, 7 = completely)</p>
+            <div id='part3' class='likertScale'></div>
+            <script>
+            jt.likertScale('part3', 'player.part3Ans', 'not at all', 'completely');
+            </script>
+            <button>OK</button>
+        </form>
+    </span>
+
+    <span jt-stage='part4'>
+        <p>Suppose you knew that of 20 others, 5 had played Stag and 5 had played Hare.</p>
+        <span jt-displayif='app.treatment==="T1 Our method"'>
+            <!-- Forms cannot have hidden, required inputs, so the form for each treatment must be seperate. -->
+            <form>
+                <p>How many of the 20 others do you think chose Stag?</p>
+                <input name='player.part4Ans' type='number' required min='0' max='20' step='1'>
+                <button>OK</button>
+            </form>
+        </span>
+        <span jt-displayif='app.treatment==="T2 Karni method"'>
+            <form>
+                <p>What is your belief about the probability that another participant in Part 1 would choose Stag?</p>
+                <p>Please state your belief in terms of a number between 0 and 100 (for example, 0 corresponds to no chance of a participant choosing Stag, 50 corresponds to equal chances of a participant choosing Stag vs Hare, and 100 corresponds to full certainty that a computerized counterpart would choose Stag.</p>
+                <p>In order to incentivize accurate reports of beliefs, you will be compensated according to the following scheme. This scheme makes it in your best interest to report your true belief about the likely choice. After you report a number between 0 and 100, the computer will randomly choose a number between 0 and 100. If this number (call it n) is lower than the number you report, then you will be paid €2 if a randomly selected participant chose Stag in Part 1, and you will be paid 0 if that participant chose Hare. If the random number n is greater than the number you reported, then you will earn €2 with a chance of 2% and €0 with a chance of (1-n)%</p>
+                <input name='player.part4Ans' type='number' required min='0' max='100' step='1'>
+                <button>OK</button>
+            </form>
+        </span>
+    </span>
+
+    <span jt-stage='part5'>
+        <p>DECISION</p>
+        <p>Your endowment is E$<span jt-text='app.part5End'></span>.</p>
+        <form>
+            <p>Your contribution (E$): <input name='player.part5Cont' required type='number' min='0' jt-max='app.part5End' step='1'></p>
+            <button>Make contribution</button>
+        </form>
+    </span>
+
+    <span jt-stage='part6'>
+        <form id='part6Form'>
+            <p>
+                <b>Task 1:</b>
+                The contributions of two participants will be selected at random.
+                Choose a number such that you think one of the contributions will be greater than that number, and one will be less than or equal to that number.
+                If you are correct, you will earn an extra 5 EUR.
+            </p>
+            <p>
+                (JAMES: Check)
+                Suppose one of the participants you are matched with chooses 6 and one chooses 4.
+                If you choose 4 or 5 you win the prize.
+                If you choose any other number you will not win the prize.
+            </p>
+            <input name='player.part6Med' type='number' required min='0' jt-max='app.part5End' step='1'>
+            <br><br>
+            <p><b>Task 2:</b> The contributions of four participants (different from the two from the previous task) will be selected at random. Choose a number such that you think one of the contributions will be greater than that number, and three will be less than or equal to that number. If you are correct, you will earn an extra 5 EUR.</p>
+            <input name='player.part6UpQ' type='number' required min='0' jt-max='app.part5End' step='1'>
+            <br><br>
+            <p><b>Task 3:</b> The contributions of four participants (different from the six from the previous two tasks) will be selected at random. Choose a number such that you think three of the contributions will be greater than that number, and one will be less than or equal to that number. If you are correct, you will earn an extra 5 EUR.</p>
+            <input name='player.part6LowQ' type='number' required min='0' jt-max='app.part5End' step='1'>
+            <br><br>
+            <input id='part6Time' name='player.part6Time' hidden>
+            <button onclick='jt.setPart6Time();'>OK</button>
+        </form>
+    </span>
+
+    <span jt-stage='part7'>
+        <form>
+            <p>How well did you understand Part 6? (1 = not at all, 7 = completely)</p>
+            <div id='part7' class='likertScale'></div>
+            <script>
+            jt.likertScale('part7', 'player.part7Ans', 'not at all', 'completely');
+            </script>
+            <button>OK</button>
+        </form>
+    </span>
+
+    <span jt-stage='results'>
+        <p>PART 1</p>
+        <p>You played {player.part1Ans}. Your opponent played {player.partnerPart1Ans}. You earned {player.part1Points} EUR.</p>
+
+        <p>PART 2</p>
+        <p jt-displayif='app.treatment==="T1 Our method"'>
+            You chose {player.part2Ans}.
+            Of the 20 randomly chosen players, {player.countStag} played {app.STAG}.
+            You earned {player.part2Points} EUR.
+        </p>
+        <p jt-displayif='app.treatment==="T2 Karni method"'>
+            You chose {player.part2Ans}.
+            Your randomly chosen partner played {player.partnerPart2Ans}.
+            Your random draw (n) was {player.part2n}.
+            You earned {player.part2Points} EUR.
+        </p>
+
+        <p>PART 4</p>
+        <p>You earned {player.part4Points} EUR.</p>
+
+        <p>PART 5</p>
+        <p>
+            You contributed {player.part5Cont} of your endowment of {app.part5End}.
+            In total, your group contributed {player.groupContributions} and produced {player.groupProd}.
+            You earned {player.part5Points} EUR.
+        </p>
+
+        <p>PART 6</p>
+        <p>
+            Task 1: You chose {player.part6Med}.
+            Of the two randomly chosen players, {player.countMed} contributed more than your choice. You earned {player.part6MedPoints} EUR.
+        </p>
+        <p>
+            Task 2: You chose {player.part6UpQ}.
+            Of the four randomly chosen players, {player.countUpQ} contributed more than your choice. You earned {player.part6UpQPoints} EUR.
+        </p>
+        <p>
+            Task 3: You chose {player.part6LowQ}.
+            Of the four randomly chosen players, {player.countLowQ} contributed more than your choice. You earned {player.part6LowQPoints} EUR.
+        </p>
+    </span>
+
+</span>
+<span jt-status='waiting'>
+    <p>WAITING</p>
+    <p>The experiment will continue soon.</p>
+</span>
