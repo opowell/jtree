@@ -45,8 +45,8 @@ class App {
         this.optionValues = {};
 
         // Used by the participant client to find and create dynamic text elements.
-        this.textMarkerBegin = '{';
-        this.textMarkerEnd = '}';
+        this.textMarkerBegin = '{{';
+        this.textMarkerEnd = '}}';
 
         /**
          * The number of periods in this App.
@@ -61,6 +61,8 @@ class App {
          * 'auto': if a client.html file exists, it is sent. otherwise, try to send a <stageName>.html file.
          */
         this.stageSwitchType = 'auto';
+
+        this.insertJtreeRefAtStartOfClientHTML = true;
 
         /**
          * The periods of this app.
@@ -190,12 +192,18 @@ class App {
         var app = this;
         for (var s in this.stages) {
             var stageName = this.stages[s].name;
+
+            // Listen to message from clients.
+            client.on(stageName, function(data) { // stage messages are sent by default when submit button is clicked.
+                app.session.pushMessage(client, data.data, data.data.fnName);
+            });
+
+            // Queue message.
             client[stageName] = function(data) {
-
-                app.session.pushMessage(client, data, stageName + 'Process');
-
+                app.session.pushMessage(client, data, data.fnName + 'Process');
             }
 
+            // Process the message.
             client[stageName + 'Process'] = function(data) {
 
                 app.jt.log('Server received auto-stage submission: ' + JSON.stringify(data));
@@ -204,8 +212,8 @@ class App {
                     return false;
                 }
 
-                console.log('comparing ' + client.player().stage.id + ' vs. ' + stageName + ', data=' + JSON.stringify(data));
                 if (client.player().stage.id !== data.fnName) {
+                    console.log('App.js, STAGE NAME DOES NOT MATCH: ' + client.player().stage.id + ' vs. ' + data.fnName + ', data=' + JSON.stringify(data));
                     return false;
                 }
 
@@ -241,11 +249,9 @@ class App {
                     }
                 }
                 console.log('msg: ' + JSON.stringify(data) + ', ' + client.player().roomId());
-                client.player().attemptToEndStage();
+                var attemptToEndForGroup = true;
+                client.player().attemptToEndStage(attemptToEndForGroup);
             };
-            client.on(stageName, function(data) { // stage messages are sent by default when submit button is clicked.
-                app.session.pushMessage(client, data.data, data.data.fnName);
-            });
         }
 
         // Load custom code, overwrite default stage submission behavior.

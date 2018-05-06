@@ -233,6 +233,8 @@ jt.connected = function() {
   $('#menu-closePanel').removeClass('menu-active');
   $('#menu-\\?').css('flex-grow', '1');
 
+  jt.TableModal();
+
   jt.TreatmentPanel();
 
   $('body').append(jt.selectAppModal());

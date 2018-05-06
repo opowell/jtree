@@ -5,3 +5,4 @@ client/internal/settings.js
 client/queues
 client/sessions
 client/users
+client/internal/serverState.json

@@ -27,6 +27,8 @@ document.write('<script src="/admin/ztree/msgsToServer.js"></script>');
 document.write('<script src="/admin/ztree/components/MainMenu2.js"></script>');
 document.write('<script src="/admin/ztree/components/TreatmentPanel.js"></script>');
 document.write('<script src="/admin/ztree/components/KeyBindings.js"></script>');
+document.write('<script src="/admin/ztree/components/JTModal.js"></script>');
+document.write('<script src="/admin/ztree/components/JTTableModal.js"></script>');
 document.write('<script src="/admin/ztree/webcomponents/SelectAppModal.js"></script>');
 
 document.write('<script src="/admin/ztree/webcomponents/ViewAppEditModal.js"></script>');

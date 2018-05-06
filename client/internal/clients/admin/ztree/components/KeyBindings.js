@@ -12,7 +12,8 @@ jt.keyBindings = [
     ['Ctrl+F',      'jt.find();'                ],
     ['Ctrl+G',      'jt.findNext();'            ],
     ['Ctrl+F6',     'jt.focusNextPanel(event);' ],
-    ['F5',          'jt.startTreatment();'      ]
+    ['F5',          'jt.startTreatment();'      ],
+    ['esc',         'jt.closeModal();'          ]
 ]
 
 jt.bindKey = function(item) {

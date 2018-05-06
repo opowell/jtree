@@ -35,7 +35,7 @@ class Utils {
     static sum(elements, field) {
         var sum = 0;
         for (var i in elements) {
-            var element = elements[i];
+            var element = this.parseFloat(elements[i]);
             sum = sum + element[field];
         }
         return sum;
@@ -71,6 +71,11 @@ class Utils {
     }
 
     static readJS(file) {
+        // Empty white space to force conversion to UTF-8.
+        return fs.readFileSync(file) + '';
+    }
+
+    static readTextFile(file) {
         // Empty white space to force conversion to UTF-8.
         return fs.readFileSync(file) + '';
     }

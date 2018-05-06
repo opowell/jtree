@@ -1,0 +1,100 @@
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    cursor: default;
+}
+
+.modal-dialog {
+    box-shadow: 0px 0px 5px 3px #00000024;
+}
+
+/* Modal Content/Box */
+.modal-content {
+    border-radius: 0px;
+    border: 1px solid #007bff;
+    color: #000;
+}
+
+.modal-close-button {
+    font-size: 18pt;
+    line-height: 1;
+    padding: 2px 8px;
+}
+
+.modal-close-button:hover {
+    background-color: red;
+    color: white;
+}
+
+.modal-header {
+    padding: 0px;
+    border: none;
+    align-items: stretch;
+}
+
+.modal-title {
+    padding: 8px;
+}
+
+.modal-body {
+    background-color: #f1eeeee8;
+    display: flex;
+}
+
+.zt-gridbox {
+    display: grid;
+    padding: 5px;
+}
+
+.zt-standardbox {
+    display: flex;
+    flex-direction: column;
+    padding: 5px;
+}
+
+.modal-show {
+    display: flex;
+    z-index: 20000; /* Sit on top */
+    align-items: center;
+    justify-items: center;
+}
+
+/* The Close Button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.zt-button {
+    border: 2px outset #88888891;
+    text-align: center;
+    padding: 2px 10px;
+    margin: 2px;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-shine {
+    box-shadow:  0px 0px 5px 0px #00000024;
+}
+
+.modal-shine .modal-content {
+    border-color: #AEAEAE;
+}
+
+.modal-shine .modal-header {
+    color: #888;
+}
