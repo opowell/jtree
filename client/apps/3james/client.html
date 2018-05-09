@@ -1,4 +1,25 @@
+<!-- .stage-active {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+}
+ -->
+
 <style>
+
+    form {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    button {
+        align-self: flex-start;
+    }
+
+    p {
+        max-width: 1100px;
+    }
 
     .question {
         background-color: #eee;
@@ -19,17 +40,19 @@
         display: flex;
         background-color: #eee;
         width: auto;
+        flex-wrap: nowrap;
+        align-items: baseline;
     }
 
     .likertScaleOption {
         min-width: unset;
-        padding: 1rem;
-        margin-left: 1rem;
-        margin-right: 1rem;
+        padding: unset;
         display: flex;
         flex-direction: column;
         align-items: center;
         flex: 1 1 auto;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
     }
 
     .answer:hover {
@@ -44,9 +67,12 @@
     }
 
     .likertMinText {
+        text-align: right;
+        padding-right: 0.5rem;
     }
 
     .likertMaxText {
+        padding-left: 0.5rem;
     }
 
     * {
@@ -54,7 +80,7 @@
     }
 
     body {
-        max-width: 1100px;
+        max-width: unset;
     }
 </style>
 <script>
@@ -66,13 +92,13 @@
         var taskDesc = el.attr('task-desc');
         var idPrefix = el.attr('id-prefix');
         el.html(`
-        <p>In ${taskName}, you were asked ${taskDesc}.</p>
-        <p>How well do you feel you understood ${taskNameUnd}?</p>
-        <div id='${idPrefix}Ans1' class='likertScale' likert-low='I did not understand at all' likert-high='I understood very well'></div>
-        <p>How easy was it for you to come up with your answer to ${taskNameUnd}?</p>
-        <div id='${idPrefix}Ans2' class='likertScale' likert-low='Very difficult' likert-high='Very easy'></div>
-        <p>How unsure or how confident are you that you gave the best answer?</p>
-        <div id='${idPrefix}Ans3' class='likertScale' likert-low='Very unsure' likert-high='Very confident'></div>
+            <p>In ${taskName}, you were asked ${taskDesc}.</p>
+            <p>How well do you feel you understood ${taskNameUnd}?</p>
+            <div id='${idPrefix}Ans1' class='likertScale' likert-low='I did not understand at all' likert-high='I understood very well'></div>
+            <p>How easy was it for you to come up with your answer to ${taskNameUnd}?</p>
+            <div id='${idPrefix}Ans2' class='likertScale' likert-low='Very difficult' likert-high='Very easy'></div>
+            <p>How unsure or how confident are you that you gave the best answer?</p>
+            <div id='${idPrefix}Ans3' class='likertScale' likert-low='Very unsure' likert-high='Very confident'></div>
         `);
     }
 
@@ -81,8 +107,8 @@
         var minText = el.attr('likert-low');
         var maxText = el.attr('likert-high');
 
-        var minTextEl = $('<div class="likertMinText likertText">').text(minText);
-        var maxTextEl = $('<div class="likertMaxText likertText">').text(maxText);
+        var minTextEl = $('<div class="likertMinText likertText">').html(minText);
+        var maxTextEl = $('<div class="likertMaxText likertText">').html(maxText);
 
         el.append(minTextEl);
         for (var i=1; i<=7; i++) {
@@ -96,23 +122,28 @@
         el.append(maxTextEl);
     }
 
+    jt.setup = false;
+
     // Record amount of time spent on each stage.
     jt.connected = function() {
         jt.socket.on('playerUpdate', function(player) {
+            console.log('resetting start time');
             jt.startTime = new Date();
-        });
+            if (!jt.setup) {
+                jt.setup = true;
+                // Set up comprehension sections
+                var els = $('.comprehension');
+                els.each(function(i) {
+                    jt.comprehension($(this).attr('id'));
+                });
 
-        // Set up comprehension sections
-        var els = $('.comprehension');
-        els.each(function(i) {
-            jt.comprehension($(this).attr('id'));
-        });
-
-        // Set up Likert scales.
-        var els = $('.likertScale');
-        els.each(function(i) {
-            jt.likertScale($(this).attr('id'));
-            $(this).addClass('question');
+                // Set up Likert scales.
+                var els = $('.likertScale');
+                els.each(function(i) {
+                    jt.likertScale($(this).attr('id'));
+                    $(this).addClass('question');
+                });
+            }
         });
 
         // Set up time records.
@@ -122,395 +153,46 @@
             var stage = form.closest('[jt-stage]').attr('jt-stage');
             var input = $('<input id="time" name="player.' + stage + 'Time" hidden>');
             form.append(input);
+
+            // Remove standard submit functionality
             form.find('button').attr('type', 'button');
+
             form.find('button').click({stage: stage}, function(ev) {
-                jt.setTime(ev.data.stage);
+                jt.setTimeAndSubmit(ev.data.stage);
             })
         });
 
     }
 
-    jt.setTime = function(stage) {
-        jt.endTime = new Date();
+    jt.setTimeAndSubmit = function(stage) {
         var form = $('[jt-stage="' + stage + '"] form:visible');
-        form.find('#time').val(jt.endTime - jt.startTime);
-        form.submit();
+        if (form[0].checkValidity()) {
+            jt.endTime = new Date();
+            form.find('#time').val(jt.endTime - jt.startTime);
+            form.submit();
+        } else {
+            // display validation errors
+            const tmpSubmit = document.createElement('button');
+            form[0].appendChild(tmpSubmit);
+            tmpSubmit.click();
+            form[0].removeChild(tmpSubmit);
+        }
     }
 </script>
 
-<span jt-status='playing'>
+<span jt-status='playing' style='display: flex; flex-direction: column; align-items: center;'>
 
     <h4 jt-displayif='player.stageIndex == 0'>Introduction</h4>
     <h4 jt-displayif='player.stageIndex > 0 && player.stageIndex < 8'>Instructions for Part {{player.stageIndex}}</h4>
-    <h4 jt-displayif='player.stageIndex == 8'>Results</h4>
+    <h4 jt-displayif='player.stageIndex == 8'>Questionnaire</h4>
+    <h4 jt-displayif='player.stageIndex == 9'>Results</h4>
 
-    <span jt-stage='intro'>
-        <p>This an experiment about decision making. The amount of money you earn will depend on your decisions and the decisions of the other participants.</p>
-        <p>This experiment has several Parts. Please click OK to proceed to Part 1.</p>
-        <form>
-            <button>OK</button>
-        </form>
-    </span>
-
-    <span jt-stage='part1'>
-        <p>In this part of the experiment you are matched with another participant. Both you and the other participant are reading the same instructions.</p>
-        <p>Both you and the other participant will have to choose between two options, "A" and "B" without communicating.</p>
-        <p>If you choose option A, you will receive 10 Points no matter what the other participant chooses.</p>
-        <p>If you choose option B, you will receive 15 Points if the other participant also chooses option B, and nothing if he/she chooses option A.</p>
-        <p>Which of the two options do you prefer?</p>
-        <form>
-            <div class='question' style='display: flex'>
-                <span>
-                    <input name='player.part1Ans' type='radio' required jt-value='app.STAG' id='part1A'>
-                    <label for='part1A'>
-                        <b>Option A:</b><br>
-                        You receive 10 Points
-                    </label>
-                </span>
-                <span>
-                    <input name='player.part1Ans' type='radio' required jt-value='app.HARE' id='part1B'>
-                    <label for='part1B'>
-                        <b>Option B:</b><br>
-                        You receive 0 Points if the other participant chooses A<br>
-                        You receive 15 Points if the other participant chooses B
-                    </label>
-                </span>
-            </div>
-            <br><br>
-            <button>OK</button>
-        </form>
-    </span>
-
-    <span jt-stage='part2'>
-        <span jt-displayif='player.treatment==1'>
-            <p>In this part of the experiment we will randomly select 20 participants from Part 1, excluding the participant you were matched with in that Part. How many of these participants do you think chose Option B? You will earn 1 Point if your guess is correct.</p>
-            <p>Remember:<br>
-            If a participant chose Option A, he/she would receive 10 Points no matter what the participant with whom they were matched chose.<br>
-            If a participant chose Option B, he/she would receive 15 Points if the participant with whom they were matched also chose Option B, and nothing if the participant with whom they were matched also chose Option A.</p>
-            <p>How many of the 20 randomly selected participants do you think chose Option B?</p>
-            <form>
-                <span class='question'>
-                    <input name='player.part2Ans' type='number' required min='0' max='20' step='1'>
-                </span>
-                <br><br>
-                <button>OK</button>
-            </form>
-        </span>
-        <span jt-stage='part2' jt-displayif='player.treatment==2'>
-            <p>In this part of the experiment we will randomly select a participant from Part 1, excluding the participant you were matched with in that Part. What is your belief about the chances that this participant chose Option B in Part 1 of this experiment?</p>
-            <p>Please state your belief in terms of a number between 0 and 100 (for example, 0 corresponds to no chance this participant choose Option B, 50 corresponds to equal chances this participant chose Option B vs Option A, and 100 corresponds to full certainty that this participant chose Option B).</p>
-            <p>In order to incentivize accurate reports of beliefs, you will be compensated according to the following scheme, which will be followed for each of the two reports you make. This scheme makes it in your best interest to report your true belief about the likely choice. After you report a number between 0 and 100, the computer will randomly choose a number between 0 and 100. If this number (call it n) is lower than the number you report, then you will be paid 1 experimental point if the randomly selected participant chose Option B, and you will be paid 0 if that participant chose Option A. If the random number n is greater than the number you reported, then you will earn 1 experimental point with a chance of n% and 0 experimental points with a chance of (1-n)%.</p>
-            <p>Remember:<br>
-            If a participant chose Option A, he/she would receive 10 Points no matter what the participant with whom they were matched chose.<br>
-            If a participant chose Option B, he/she would receive 15 Points if the participant with whom they were matched also chose Option B, and nothing if the participant with whom they were matched also chose Option A.
-            </p>
-            <p>What is your belief about the chances that the randomly selected participant chose Option B in Part 1 of this experiment?</p>
-            <form>
-                <span class='question'>
-                    <input name='player.part2Ans' type='number' required min='0' max='100' step='1'>
-                </span>
-                <br><br>
-                <button>OK</button>
-            </form>
-        </span>
-    </span>
-
-    <span jt-stage='part3'>
-        <form>
-            <p jt-displayIf='player.treatment==1'
-                class='comprehension'
-                taskName='Part 2'
-                taskNameUnd='the task in Part 2'
-                taskDesc='about the chances that a randomly selected participant would choose Option B'
-                idPrefix='part3'>
-            </p>
-            <p jt-displayIf='player.treatment==2'
-                class='comprehension'
-                taskName='Part 2'
-                taskNameUnd='the task in Part 2'
-                taskDesc='how many participants out of 20 chose Option B'
-                idPrefix='part3'>
-            </p>
-
-            <p jt-displayIf='player.treatment==1'>In Part 2 you were asked about the chances that a randomly selected participant chose Option B. When you chose between Options A and B in Part 1, how important was it for you to think about the chances that a randomly selected participant would choose Option B?</p>
-            <p jt-displayIf='player.treatment==2'>In Part 2 you were asked about how many participants out of 20 chose Option B. When you chose between Options A and B in Part 1, how important was it for you to think about how many participants would choose Option B?</p>
-            <div id='part3Ans4' class='likertScale' likert-low='Not important at all' likert-high='Very important'></div>
-
-            <p>Would it have been helpful for you to ask the experimenter a question when making your decision in Part 2?</p>
-
-            <span class='question'>
-                <label class='answer' for='part3Ans5Yes'>
-                    <input name='player.part3Ans5' type='radio' required value='Yes' id='part3Ans5Yes'>
-                    Yes
-                </label>
-                <label class='answer' for='part3Ans5No'>
-                    <input name='player.part3Ans5' type='radio' required value='No' id='part3Ans5No'>
-                    No
-                </label>
-            </span>
-            <br><br>
-            <button>OK</button>
-        </form>
-    </span>
-
-    <span jt-stage='part4'>
-        <img src='./3james/urns.png' width='500px'>
-        <p>In the two Urns shown above there are different numbers of Green and Purple balls.</p>
-        <p>One of the two Urns has been randomly selected by the computer. Urn 1 and Urn 2 have an equal chance (50%) of being selected.</p>
-        <p>You do not know which Urn was selected.</p>
-        <p>The computer has randomly drawn a ball from the selected Urn and shown you its colour. The ball was then returned to the selected Urn.</p>
-        <p>This ball was <b>{{player.part4BallColor}}</b>.</p>
-        <span jt-displayif='player.treatment==1'>
-            <p>After the ball was returned to the selected Urn, the computer randomly drew an additional ball, from the same selected Urn.</p>
-            <p>What is your belief about the chances that this additional ball is {{player.part4BallColor}}?</p>
-            <p>Please state your belief in terms of a number between 0 and 100 (for example, 0 corresponds to no chance the additional ball is {{player.part4BallColor}}, 50 corresponds to equal chances the additional ball is {{player.part4BallColor}} or the additional ball is {{player.part4OtherColor}}, and 100 corresponds to full certainty that the additional ball is {{player.part4BallColor}}).</p>
-            <p>In order to incentivize accurate reports of beliefs, you will be compensated according to the following scheme, which will be followed for each of the two reports you make. This scheme makes it in your best interest to report your true belief about the likely choice. After you report a number between 0 and 100, the computer will randomly choose a number between 0 and 100. If this number (call it n) is lower than the number you report, then you will be paid 1 experimental point if the additional ball is {{player.part4BallColor}}, and you will be paid 0 if the additional ball is {{player.part4OtherColor}}. If the random number n is greater than the number you reported, then you will earn 1 experimental point with a chance of n% and 0 experimental points with a chance of (1-n)%.
-            <p>What is your belief about the chances that additional ball is {{player.part4BallColor}}?</p>
-            <!-- Forms cannot have hidden, required inputs, so the form for each treatment must be seperate. -->
-            <form>
-                <span class='question'>
-                    <input name='player.part4Ans' type='number' required min='0' max='100' step='1'>
-                </span>
-                <br><br>
-                <button>OK</button>
-            </form>
-        </span>
-        <span jt-displayif='player.treatment==2'>
-            After the ball was returned to the selected Urn, the computer randomly drew 20 additional balls, from the same selected Urn. Each drawn ball was returned to the selected Urn after each draw.
-            How many of these 20 additional balls do you think were {{player.part4BallColor}}? You will earn 1 Point if your guess is correct.
-            How many of the 20 additional balls do you think were {{player.part4BallColor}}?
-            <form class='question'>
-                <span class='question'>
-                    <input name='player.part4Ans' type='number' required min='0' max='20' step='1'>
-                </span>
-                <br><br>
-                <button>OK</button>
-            </form>
-        </span>
-    </span>
-
-    <span jt-stage='part5'>
-        You will be a matched with another participant. Each of you has to decide on the allocation of {{app.part5End}} points. You can put these {{app.part5End}} points into your <b>private account</b> or you can contribute them <b>fully or partially</b> into a project. Each point you do not contribute to the project, will automatically remain in your private account.</p>
-
-        <p><b>Your income from the private account:</b><br>
-        You will earn one point for each point you put into your private account. No one except you earns something from your private account.</p>
-
-        <p><b>Your income from the project:</b><br>
-        Your contribution to the project will be added to the other participants contribution, multiplied by {{player.part5Mult}}, then divided equally between you and the other participant. The income for both you and the other participant will be determined as follows:<br>
-        Income from the project = (sum of both contributions × {{player.part5Mult}})/2</p>
-
-        <p><b>Total income:</b><br>
-        Your total income is the sum of your income from your private account and that from the project.</p>
-
-        <p>To help you make your decision you may use the Income Calculator below to see how much you and the other participant would earn for different combinations of contributions:
-        <ol>
-            <li>Enter a number as your contribution.</li>
-            <li>Enter a number as the other participant's contribution.</li>
-            <li>Click "Check Incomes" to see how much you and the other participant would earn for these combinations.</li>
-        </ol>
-        <i>Numbers you enter into the Income Calculator will not affect your final payment in this experiment.</i></p>
-
-        <p>When you have decided how much to contribute to the project, enter this into the box below the Income Calculator and click "Confirm Contribution".</p>
-
-        <div style='
-        border: 1px solid #888;
-        padding: 1rem;
-        margin: 1rem;
-        display: grid;
-        grid-template-columns: auto auto;
-        grid-row-gap: 0.5rem;
-        grid-column-gap: 0.5rem;
-        width: fit-content;
-        '>
-            <b style='grid-column: span 2;'>Income Calculator</b>
-            Your contribution:
-            <input type='number' size=3 min=0 jt-max='app.part5End' step=1 style='width: fit-content' id='myCont'>
-            Other's contribution:
-            <input type='number' size=3 min=0 jt-max='app.part5End' step=1 style='width: fit-content' id='otherCont'>
-            <button style='grid-column: span 2;' onclick='jt.updateCalculator();'>Check Incomes</button>
-            Your contribution:
-            <span id='myContDisp'></span>
-            Other's contribution:
-            <span id='otherContDisp'></span>
-            Your earnings:
-            <span id='myEarnings'></span>
-            Other's earnings:
-            <span id='otherEarnings'></span>
-        </div>
-        <script>
-            jt.updateCalculator = function() {
-                var myCont = parseInt($('#myCont').val());
-                var otherCont = parseInt($('#otherCont').val());
-                if (!isNaN(myCont) && !isNaN(otherCont)) {
-                    var end = jt.data.player.stage.app.part5End;
-                    var mult = jt.data.player.part5Mult;
-                    $('#myContDisp').text(myCont);
-                    $('#otherContDisp').text(otherCont);
-                    var p5c = $('#part5Calcs');
-                    if (p5c.val().length > 0) {
-                        p5c.val(p5c.val() + ',');
-                    }
-                    p5c.val(p5c.val() + '(' + myCont + ',' + otherCont + ')');
-                    var myEarnings = round(end - myCont + (myCont + otherCont) * mult / 2, 2);
-                    var otherEarnings = round(end - otherCont + (myCont + otherCont) * mult / 2, 2);
-                    $('#myEarnings').text(end + ' - ' + myCont + ' + (' + myCont + ' + ' + otherCont + ') x ' + mult + '/2 = ' + myEarnings);
-                    $('#otherEarnings').text(end + ' - ' + otherCont + ' + (' + otherCont + ' + ' + myCont + ') x ' + mult + '/2 = ' + otherEarnings);
-                }
-            }
-        </script>
-
-        <p>How much do you want to contribute to the project?</p>
-
-        <form>
-            <input hidden name='player.part5Calculations' id='part5Calcs'>
-            <span class='question'>
-                <input name='player.part5Cont' required type='number' min='0' jt-max='app.part5End' step='1'>
-            </span>
-            <p><button>Confirm Contribution</button></p>
-        </form>
-    </span>
-
-    <span jt-stage='part6'>
-        <p>
-            In this Part of the experiment you will be asked to guess three numbers.
-            After you have made your guesses, they will be compared to the contributions of some randomly selected participants from Part 5, <i>excluding the participant you were matched with in that Part</i>.
-            Different participants will be chosen for each guess.
-            How you will be paid for your guesses will be explained separately for each guess.
-        </p>
-
-        <form id='part6Form'>
-            <p>
-                Task 1:<br>
-                Two participants will be randomly selected. Guess a number such that you think one of the contributions will be greater than that number, and one will be less than or equal to that number. If you are correct you will earn €2.
-            </p>
-            <p>
-                Example:<br>
-                If the randomly selected contributions were 2 and 6, you would earn €2 if you guessed 2, 3, 4, or 5, and nothing otherwise.
-            </p>
-            <p>What is your guess?</p>
-            <p class='question'>
-                <input name='player.part6Med' type='number' required min='0' jt-max='app.part5End' step='1'>
-            </p>
-
-            <p>
-                Task 2:<br>
-                Four participants will be randomly selected (different from the two participants from the previous task).
-                Guess a number such that you think one of the contributions will be greater than that number, and three will be less than or equal to that number.
-                If you are correct you will earn €2.
-            </p>
-            <p>
-                Example:<br>
-                If the randomly selected contributions were 3, 8, 15 and 18, you would earn €2 if you guessed 15, 16, or 17, and nothing otherwise.
-            </p>
-            <p>What is your guess?</p>
-            <p class='question'>
-                <input name='player.part6UpQ' type='number' required min='0' jt-max='app.part5End' step='1'>
-            </p>
-
-            <p>
-                Task 3:<br>
-                Four participants will be randomly selected.
-                Guess a number such that you think three of the contributions will be greater than that number, and one will be less than or equal to that number.
-                If you are correct you will earn €2.
-            </p>
-            <p>
-                Example:<br>
-                If the randomly selected contributions were 3, 9, 12 and 19, you would earn €2 if you guessed 3, 4, 5, 6, 7, or 8, and nothing otherwise.
-            </p>
-            <p>What is your guess?</p>
-            <p class='question'>
-                <input name='player.part6LowQ' type='number' required min='0' jt-max='app.part5End' step='1'>
-            </p>
-
-            <button>OK</button>
-        </form>
-    </span>
-
-    <span jt-stage='part7'>
-        <form>
-            <p
-                id='part7Task1'
-                class='comprehension'
-                task-name='the first task in Part 6'
-                task-name-und='the first task in Part 6'
-                task-desc='to guess a number such that you thought one of two randomly selected contributions from Part 5 was greater than that number, and one was less than or equal to that number. Please answer the following questions about this Task'
-                id-prefix='part7Task1'>
-            </p>
-            <p
-                id='part7Task2'
-                class='comprehension'
-                task-name='the second task in Part 6'
-                task-name-und='the second task in Part 6'
-                task-desc='to guess a number such that you thought one of four randomly selected contributions from Part 5 was greater than that number, and the other three were less than or equal to that number. Please answer the following questions about this Task'
-                id-prefix='part7Task2'>
-            </p>
-            <p
-                id='part7Task3'
-                class='comprehension'
-                task-name='the third task in Part 6'
-                task-name-und='the third task in Part 6'
-                task-desc='to guess a number such that you thought three of four randomly selected contributions from Part 5 was greater than that number, and the other one was less than or equal to that number. Please answer the following questions about this Task'
-                id-prefix='part7Task3'>
-            </p>
-            <button>OK</button>
-        </form>
-    </span>
-
-    <span jt-stage='results'>
-        <p>PART 1</p>
-        <p>You played {{player.part1Ans}}. Your opponent played {{player.partnerPart1Ans}}. You earned {{player.part1Points}} EUR.</p>
-
-        <p>PART 2</p>
-        You chose {{player.part2Ans}}.
-        <p jt-displayif='player.treatment==1'>
-            Of the 20 randomly chosen players, {{player.countStag}} played {{app.STAG}}.
-            You earned {{player.part2Points}} EUR.
-        </p>
-        <p jt-displayif='player.treatment==2'>
-            The randomly chosen participant played {{player.partnerPart2Ans}}.
-            Your random draw (n) was <span jt-text='player.part2n' jt-decimals=2></span>.
-            You earned {{player.part2Points}} EUR.
-        </p>
-
-        <p>PART 4</p>
-        <p>
-            The first ball you drew was {{player.part4BallColor}}.
-            The selected urn was Urn
-            <span jt-displayIf='player.part4Urn == app.part4Urn1'>1.</span>
-            <span jt-displayIf='player.part4Urn == app.part4Urn2'>2.</span>
-            <span jt-displayIf='player.treatment == 1'>
-                Of the 20 additional balls, {{player.matchingBalls}} were also {{player.part4BallColor}}.
-            </span>
-            <span jt-displayIf='player.treatment == 2'>
-                The additional ball was {{player.randomBall}}, and n was <span jt-text='player.part4n' jt-decimals='2'></span>.
-            </span>
-            Your guess was {{player.part4Ans}}, therefore you earned {{player.part4Points}} EUR.
-        </p>
-
-        <p>PART 5</p>
-        <p>
-            You contributed {{player.part5Cont}} of your endowment of {{app.part5End}}.
-            In total, your group contributed <span jt-text='player.groupContributions' jt-decimals=2></span> and produced <span jt-text='player.groupProd' jt-decimals=2></span>.
-            You earned <span jt-text='player.part5Points' jt-decimals=2></span> EUR.
-        </p>
-
-        <p>PART 6</p>
-        <p>
-            Task 1: You chose {{player.part6Med}}.
-            Of the two randomly chosen players, {{player.countMed}} contributed more than your choice. You earned {{player.part6MedPoints}} EUR.
-        </p>
-        <p>
-            Task 2: You chose {{player.part6UpQ}}.
-            Of the four randomly chosen players, {{player.countUpQ}} contributed more than your choice. You earned {{player.part6UpQPoints}} EUR.
-        </p>
-        <p>
-            Task 3: You chose {{player.part6LowQ}}.
-            Of the four randomly chosen players, {{player.countLowQ}} contributed more than your choice. You earned {{player.part6LowQPoints}} EUR.
-        </p>
-    </span>
+    <div>
+        {{stages}}
+    </div>
 
 </span>
-<span jt-status='waiting'>
+<span jt-status='waiting' style='display: flex; flex-direction: column; align-items: center;'>
     <h4>Waiting</h4>
     <p>The experiment will continue soon.</p>
 </span>

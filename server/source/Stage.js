@@ -70,9 +70,13 @@ class Stage {
         // 'outputHide' fields are not included in output
         this.outputHide = [];
         // 'outputHideAuto' fields are not included in output.
-        this.outputHideAuto = ['app', 'outputHide', 'outputHideAuto', 'content'];
+        this.outputHideAuto = ['app', 'outputHide', 'outputHideAuto', 'content', 'html', 'htmlFile', 'useIdAsHTMLFileName'];
 
         this.content = null;
+
+        this.html = null;
+        this.htmlFile = null;
+        this.useIdAsHTMLFileName = true;
 
     }
 

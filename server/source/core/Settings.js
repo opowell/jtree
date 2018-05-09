@@ -87,6 +87,10 @@ class Settings {
          return Utils.getDate(new Date()) + '.txt';
      }
 
+     getConsoleTimeStamp() {
+         return Utils.getDate(new Date());
+     }
+
      /**
       * Return the i-th participant ID.
       *

@@ -39,10 +39,12 @@ class Participant {
          */
         this.appIndex = 0;
 
+        this.autoplay = false;
+
         // 'outputHide' fields are not included in output
         this.outputHide = [];
         // 'outputHideAuto' fields are not included in output.
-        this.outputHideAuto = ['this', 'session', 'players', 'clients', 'outputHide', 'outputHideAuto', 'player', 'period'];
+        this.outputHideAuto = ['this', 'session', 'players', 'clients', 'outputHide', 'outputHideAuto', 'player', 'period', 'autoplay'];
     }
 
     /**
@@ -75,7 +77,7 @@ class Participant {
         if (this.player === null) {
             this.session.participantMoveToNextApp(this);
         } else {
-            this.player.attemptToEndStage();
+            this.player.attemptToEndStage(true);
         }
     }
 
@@ -84,15 +86,23 @@ class Participant {
             return false;
         }
 
-        if (this.player.stageIndex !== stage.indexInApp()) {
-            return false;
+        // Done previous stage.
+        if (
+            this.player.stageIndex === stage.indexInApp()-1 &&
+            this.player.status === 'done'
+        ) {
+            return true;
         }
 
-        if (this.player.status !== 'ready') {
-            return false;
+        // Ready in this stage.
+        if (
+            this.player.stageIndex === stage.indexInApp() &&
+            this.player.status === 'ready'
+        ) {
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     endCurrentApp() {
@@ -281,7 +291,7 @@ class Participant {
 
     emitUpdate() {
         try {
-            console.log(this.id + ', ' + this.player.app().indexInSession() + ', ' + this.player.period().id + ', ' + this.player.stage.id + ', ' + this.player.status);
+//            console.log(this.id + ', ' + this.player.app().indexInSession() + ', ' + this.player.period().id + ', ' + this.player.stage.id + ', ' + this.player.status);
             this.player.emit('playerUpdate', new clPlayer.new(this.player));
         } catch (err) {
             debugger;

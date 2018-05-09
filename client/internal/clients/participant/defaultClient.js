@@ -79,31 +79,6 @@ jt.specialAttrNames = [
     'jt-action'
 ]
 
-// jt.parseText = function() {
-//
-//     // if (jt.textParsed) {
-//     //     return;
-//     // }
-//     //
-//     // jt.textParsed = true;
-//     //
-//     // var markerStart = jt.data.player.group.period.app.textMarkerBegin;
-//     // var markerEnd = jt.data.player.group.period.app.textMarkerEnd;
-//     //
-//     // var html = $('body')[0].outerHTML
-//     // while (html.indexOf(markerStart) > -1) {
-//     //     var ind1 = html.indexOf(markerStart);
-//     //     var ind2 = html.indexOf(markerEnd);
-//     //     var text = html.substring(ind1+markerStart.length, ind2);
-//     //     var span = $('<i jt-text="' + text + '" style="font-style: normal">');
-//     //     html = html.replace(markerStart + text + markerEnd, span[0].outerHTML);
-//     // }
-//     // $('body')[0].outerHTML = html;
-//
-//     jt.setFormDefaults();
-//
-// }
-
 jt.setFormDefaults = function() {
     // Set up automated form submission for stages.
     $('form').each(function() {
@@ -133,10 +108,9 @@ jt.setFormDefaults = function() {
 
         if ($(this).attr('action')===undefined) {
             try {
-//                var stageEl = $(this).closest('[jt-stage]')[0];
-                // var stageName = $(stageEl).attr('jt-stage');
                 $(this).submit(function(event) {
-
+                    event.preventDefault();
+                    event.stopPropagation();
                     var values = {};
                     var stageName = jt.data.player.stage.id;
                     values.fnName = stageName;
@@ -166,7 +140,6 @@ jt.setFormDefaults = function() {
                     });
 
                     jt.sendMessage(stageName, values);
-                    event.preventDefault();
                 });
             } catch (err) {
 
@@ -228,8 +201,6 @@ jt.setValues = function(player) {
 
 }
 
-jt.textParsed = false;
-
 // Default client functionality to be included in all (most?) apps.
 jt.defaultConnected = function() {
 
@@ -248,7 +219,7 @@ jt.defaultConnected = function() {
     });
 
     jt.socket.on('playerUpdate', function(player) {
-        console.log('player update: ' + JSON.stringify(player));
+        // console.log('player update: ' + JSON.stringify(player));
         if (jt.data.player !== undefined && player.participant.id !== jt.data.player.participant.id) {
             return;
         }
@@ -260,6 +231,8 @@ jt.defaultConnected = function() {
         if (player.stage !== undefined) {
             player.stage.app = player.group.period.app;
         }
+
+        window.scrollTo(0, 0);
 
         jt.setValues(player);
         jt.evaluateDisplayConditions(player);

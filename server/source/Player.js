@@ -104,7 +104,7 @@ class Player {
         if (stage.canPlayerParticipate(player)) {
             player.status = 'playing';
             try {
-                console.log('//// START - PLAYER: ' + stage.id + ', ' + player.roomId());
+                console.log(this.jt().settings.getConsoleTimeStamp() + ' START - PLAYER: ' + stage.id + ', ' + player.roomId());
                 stage.playerStart(player);
             } catch(err) {
                 console.log(err + '\n' + err.stack);
@@ -187,10 +187,14 @@ class Player {
             return;
         }
 
-        console.log('//// END   - PLAYER: ' + stage.id + ', ' + player.roomId());
+        console.log(this.jt().settings.getConsoleTimeStamp() + ' END   - PLAYER: ' + stage.id + ', ' + player.roomId());
         stage.playerEnd(this);
         this.status = 'done';
 //        this.group.attemptToEndStage(stage);
+    }
+
+    jt() {
+        return this.session().jt;
     }
 
     justGoToNextStage(nextForGroup) {
@@ -413,7 +417,7 @@ class Player {
         dta.participantId = this.participant.id;
         dta.sessionId = this.session().id;
         this.io().to(this.roomId()).emit(name, dta);
-        this.session().emit(name, dta);
+        this.session().emitToAdmins(name, dta);
     }
 
     io() {

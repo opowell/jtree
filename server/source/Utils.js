@@ -41,6 +41,14 @@ class Utils {
         return sum;
     }
 
+    static values(els, field) {
+        var out = [];
+        for (var i=0; i<els.length; i++) {
+            out.push(els[i][field]);
+        }
+        return out;
+    }
+
     static writeJSON(filename, contents) {
         fs.writeJSONSync(filename, contents, {spaces: 4});
     }
@@ -140,6 +148,14 @@ class Utils {
         return Math.floor(Math.random() * (high - low) + low);
     }
 
+    static values(els, field) {
+        var out = [];
+        for (var i=0; i<els.length; i++) {
+            out.push(els[field]);
+        }
+        return out;
+    }
+
     /**
      * randomEl - description
      *
@@ -147,9 +163,12 @@ class Utils {
      * @return {type}       description
      */
     static randomEl(array) {
-        return Utils.randomEls(array, 1);
+        return Utils.randomEls(array, 1)[0];
     }
 
+    /**
+    * Random draws without replacement
+    */
     static randomEls(array, num) {
         var out = [];
         var indices = [];
@@ -158,8 +177,11 @@ class Utils {
         }
         for (var i=0; i<num; i++) {
             var ind = Utils.randomInt(0, indices.length);
-            out.push(array[ind]);
+            out.push(array[indices[ind]]);
             indices.splice(ind, 1);
+            if (indices.length === 0) {
+                break;
+            }
         }
         return out;
     }

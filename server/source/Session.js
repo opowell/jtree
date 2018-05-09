@@ -305,7 +305,6 @@ class Session {
             participant = this.participantCreate(participantId);
         }
 
-        // TODO: Check that client does not already exist.
         var client = new Client.new(socket, this);
         client.participant = participant;
         socket.join(this.roomId());
@@ -318,6 +317,10 @@ class Session {
         }
 
         return client;
+    }
+
+    emitToAdmins(name, data) {
+        this.jt.socketServer.sendOrQueueAdminMsg(null, name, data);
     }
 
     getOutputDir() {
@@ -490,49 +493,7 @@ class Session {
         // participant in an app.
         else {
             const app = participant.app();
-            if (app.stageSwitchType === 'name') {
-                var filename = path.join(this.jt.path, '/' + this.getOutputDir() + '/apps/' + participant.appIndex + '_' + app.id + '/client.html');
-                var html = Utils.readTextFile(filename);
-                var markerStart = app.textMarkerBegin;
-                var markerEnd = app.textMarkerEnd;
-                while (html.indexOf(markerStart) > -1) {
-                    var ind1 = html.indexOf(markerStart);
-                    var ind2 = html.indexOf(markerEnd);
-                    var text = html.substring(ind1+markerStart.length, ind2);
-                    var span = '<i jt-text="' + text + '" style="font-style: normal"></i>';
-                    html = html.replace(markerStart + text + markerEnd, span);
-                }
-                if (app.insertJtreeRefAtStartOfClientHTML) {
-                    html = '<script type="text/javascript" src="/participant/jtree.js"></script>\n' + html;
-                }
-                res.send(html);
-            } else if (app.stageSwitchType === 'contents') {
-                const filename = path.join(this.jt.path, '/apps/' + participant.app().id + '/' + participant.player.stage.id + '.html');
-                res.sendFile(filename);
-            } else if (app.stageSwitchType === 'auto') {
-                const filename = path.join(this.jt.path, '/apps/' + participant.app().id + '/client.html');
-                if (fs.existsSync(filename)) {
-                    var html = Utils.readTextFile(filename);
-                    var markerStart = app.textMarkerBegin;
-                    var markerEnd = app.textMarkerEnd;
-                    while (html.indexOf(markerStart) > -1) {
-                        var ind1 = html.indexOf(markerStart);
-                        var ind2 = html.indexOf(markerEnd);
-                        var text = html.substring(ind1+markerStart.length, ind2);
-                        var span = '<i jt-text="' + text + '" style="font-style: normal"></i>';
-                        html = html.replace(markerStart + text + markerEnd, span);
-                    }
-                    if (app.insertJtreeRefAtStartOfClientHTML) {
-                        html = '<script type="text/javascript" src="/participant/jtree.js"></script>\n' + html;
-                    }
-                    res.send(html);
-                } else {
-                    const filename = path.join(this.jt.path, '/apps/' + participant.app().id + '/' + participant.player.stage.id + '.html');
-                    if (fs.existsSync(filename)) {
-                        res.sendFile(filename);
-                    }
-                }
-            }
+            app.sendParticipantPage(req, res, participant);
         }
     }
 

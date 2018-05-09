@@ -64,6 +64,9 @@ class App {
 
         this.insertJtreeRefAtStartOfClientHTML = true;
 
+        this.headerHTML = '';
+        this.headerHTMLFile = null;
+
         /**
          * The periods of this app.
          */
@@ -115,7 +118,35 @@ class App {
          */
         this.numGroups = undefined;
 
-        this.outputHideAuto = ['this', 'session', 'stages', 'stageSwitchType', 'outputHideAuto', 'outputHide', 'periods', 'messages', 'type', 'folder', 'options', 'jt', 'appPath'];
+        this.stageContentStart = '<span jt-stage="{{stage.id}}">';
+        this.stageContentEnd = '</span>';
+
+        this.outputHideAuto = [
+            'stageContentStart',
+            'stageContentEnd',
+            'optionValues',
+            'insertJtreeRefAtStartOfClientHTML',
+            'textMarkerBegin',
+            'textMarkerEnd',
+            'headerHTML',
+            'description',
+            'keyComparisons',
+            'waitForAll',
+            'finished',
+            'headerHTMLFile',
+            'this',
+            'session',
+            'stages',
+            'stageSwitchType',
+            'outputHideAuto',
+            'outputHide',
+            'periods',
+            'messages',
+            'type',
+            'folder',
+            'options',
+            'jt',
+            'appPath'];
 
         this.outputHide = [];
 
@@ -248,7 +279,7 @@ class App {
                         }
                     }
                 }
-                console.log('msg: ' + JSON.stringify(data) + ', ' + client.player().roomId());
+                // console.log('msg: ' + JSON.stringify(data) + ', ' + client.player().roomId());
                 var attemptToEndForGroup = true;
                 client.player().attemptToEndStage(attemptToEndForGroup);
             };
@@ -261,6 +292,23 @@ class App {
             console.log(err);
         }
 
+    }
+
+    addStages(array) {
+        for (var i=0; i<array.length; i++) {
+            this.addStage(array[i]);
+        }
+    }
+
+    addStage(name) {
+        var stage = this.newStage(name);
+        var fn = 'apps/' + this.id + '/' + name + '.js';
+        try {
+            eval(Utils.readJS(fn));
+        } catch (err) {
+            console.log('Error evaluating ' + fn);
+            console.log(err);
+        }
     }
 
     setContents(contents) {
@@ -337,6 +385,89 @@ class App {
             period.getStrangerMatching(numGroups, pIds, gIds, m);
         }
         return gIds;
+    }
+
+    sendParticipantPage(req, res, participant) {
+
+        // Load dynamic version of app to allow for live editing of stage html.
+        // var app = this;
+        var app = this.reload();
+
+        if (app.stageSwitchType === 'name') {
+            const filename = path.join(this.jt.path, '/apps/' + app.id + '/client.html');
+            var html = Utils.readTextFile(filename);
+            var markerStart = app.textMarkerBegin;
+            var markerEnd = app.textMarkerEnd;
+            while (html.indexOf(markerStart) > -1) {
+                var ind1 = html.indexOf(markerStart);
+                var ind2 = html.indexOf(markerEnd);
+                var text = html.substring(ind1+markerStart.length, ind2);
+                var span = '<i jt-text="' + text + '" style="font-style: normal"></i>';
+                html = html.replace(markerStart + text + markerEnd, span);
+            }
+            if (app.insertJtreeRefAtStartOfClientHTML) {
+                html = '<script type="text/javascript" src="/participant/jtree.js"></script>\n' + html;
+            }
+            res.send(html);
+        } else if (app.stageSwitchType === 'contents') {
+            const filename = path.join(this.jt.path, '/apps/' + app.id + '/' + participant.player.stage.id + '.html');
+            res.sendFile(filename);
+        } else if (app.stageSwitchType === 'auto') {
+            const filename = path.join(this.jt.path, '/apps/' + app.id + '/client.html');
+            if (fs.existsSync(filename)) {
+                var html = app.getHTML();
+                var markerStart = app.textMarkerBegin;
+                var markerEnd = app.textMarkerEnd;
+                while (html.indexOf(markerStart) > -1) {
+                    var ind1 = html.indexOf(markerStart);
+                    var ind2 = html.indexOf(markerEnd);
+                    var text = html.substring(ind1+markerStart.length, ind2);
+                    var span = '<i jt-text="' + text + '" style="font-style: normal"></i>';
+                    html = html.replace(markerStart + text + markerEnd, span);
+                }
+                if (app.insertJtreeRefAtStartOfClientHTML) {
+                    html = '<script type="text/javascript" src="/participant/jtree.js"></script>\n' + html;
+                }
+                res.send(html);
+            } else {
+                const filename = path.join(this.jt.path, '/apps/' + app.id + '/' + participant.player.stage.id + '.html');
+                if (fs.existsSync(filename)) {
+                    res.sendFile(filename);
+                }
+            }
+        }
+    }
+
+    getHTML() {
+        var filename = path.join(this.jt.path, '/apps/' + this.id + '/client.html');
+        var html = Utils.readTextFile(filename);
+        var stagesHTML = '';
+        for (var i=0; i<this.stages.length; i++) {
+            var stage = this.stages[i];
+            if (stage.content != null) {
+                if (stagesHTML.length > 0) {
+                    stagesHTML = stagesHTML + '\n';
+                }
+                var contentStart = this.parseStageTag(stage, this.stageContentStart);
+                var contentEnd = this.parseStageTag(stage, this.stageContentEnd);
+                stagesHTML = stagesHTML + contentStart + '\n' + stage.content + '\n' + contentEnd;
+            }
+        }
+        if (html.includes('{{stages}}')) {
+            html = html.replace('{{stages}}', stagesHTML);
+        }
+        return html;
+    }
+
+    parseStageTag(stage, text) {
+        while (text.includes('{{')) {
+            var start = text.indexOf('{{');
+            var end = text.indexOf('}}');
+            var curTag = text.substring(start + '{{'.length, end);
+            var value = eval(curTag);
+            text = text.replace('{{' + curTag + '}}', value);
+        }
+        return text;
     }
 
     /*
