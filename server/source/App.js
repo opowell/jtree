@@ -61,10 +61,10 @@ class App {
         this.screen = '';
 
         // Shown on all client playing screens if stage.useAppActiveScreen = true.
-        this.playingScreen = '';
+        this.activeScreen = null;
 
         // Shown on all client waiting screens if stage.useAppWaitingScreen = true.
-        this.waitingScreen = '';
+        this.waitingScreen = null;
 
         // If 'htmlFile' is not null, content of 'htmlFile' is added to client content.
         // Otherwise, if 'htmlFile' is null, content of this.id + ".html" is added to client content, if it exists.
@@ -137,7 +137,7 @@ class App {
             'description',
             'keyComparisons',
             'screen',
-            'playingScreen',
+            'activeScreen',
             'waitingScreen',
             'stageWrapPlayingScreenInFormTag',
             'waitForAll',
@@ -422,6 +422,33 @@ class App {
             if (fs.existsSync(filename)) {
                 html = html + Utils.readTextFile(filename);
             }
+        }
+
+        if (app.activeScreen != null) {
+            html += `
+            <span jt-status='playing' class='playing-screen'>
+                ${app.activeScreen}
+                <div>
+                {{stages}}
+                </div>
+            </span>
+            `;
+        }
+
+        if (!html.includes('{{stages}}')) {
+            html += `
+            <span jt-status='playing' class='playing-screen'>
+                {{stages}}
+            </span>
+            `;
+        }
+
+        if (app.waitingScreen != null) {
+            html += `
+            <span jt-status='waiting' class='waiting-screen'>
+                ${app.waitingScreen}
+            </span>
+            `;
         }
 
         // Load stage contents, if any.

@@ -27,6 +27,7 @@ decideStage.activeScreen = `
 var resultsStage = app.newStage('results');
 
 // when a group starts this stage
+resultsStage.waitToStart = true;
 resultsStage.groupStart = function(group) {
     group.contributions = Utils.sum(group.players, 'contribution');
     group.production = (group.contributions * app.factor).toFixed(2); // trim to two decimal places.
@@ -39,7 +40,7 @@ resultsStage.groupStart = function(group) {
 
 resultsStage.activeScreen = `
     <p>RESULTS</p>
-    <p>Your endowment was E$ {app.endowment}}. You contributed E$ {{player.contribution}}.</p>
+    <p>Your endowment was E$ {{app.endowment}}. You contributed E$ {{player.contribution}}.</p>
     <p>In total, players in your group contributed E$ {{group.contributions}}, thus the total amount produced was E$ {{group.production}}.</p>
     <p>Thus, your payoff in this period is E$ {{player.points}}.</p>
     <button>OK</button>

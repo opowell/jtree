@@ -196,7 +196,9 @@ class Group {
         if (stage.canGroupEnd(group)) {
             group.endStage(stage);
         } else {
-            this.checkIfWaitingToEnd(stage, false);
+            var canParticipate = true; // ???
+            var endPlayers = false;
+            this.checkIfWaitingToEnd(stage, endPlayers, canParticipate);
         }
     }
 
@@ -244,6 +246,8 @@ class Group {
                                 if (endPlayers) {
                                     console.log('No connected clients for ' + player.id + ', ending immediately.');
                                     player.attemptToEndStage(false);
+                                } else {
+                                    waitingForPlayers = true;
                                 }
                             }
                         }
@@ -270,7 +274,9 @@ class Group {
         let group = this;
         group.stageFinishedIndex = stage.indexInApp();
         group.clearStageTimer();
-        this.checkIfWaitingToEnd(stage, true);
+        var endPlayers = true;
+        var canParticipate = true;
+        this.checkIfWaitingToEnd(stage, endPlayers, canParticipate);
     }
 
     attemptToStartNextStage() {
