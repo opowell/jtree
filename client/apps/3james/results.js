@@ -65,7 +65,7 @@ stage.content = `
     </p>
     <p>
         Task 3: You chose {{player.part6LowQ}}.
-        Of the four randomly chosen players, {{player.part6CountLowQ}} contributed more than your choice. You earned {{player.part6LowQPoints}} Euros.
+        Of the four randomly chosen players, {{player.part6CountLowQ}} contributed less than your choice. You earned {{player.part6LowQPoints}} Euros.
     </p>
     <p><b>TOTAL PAYOFF</b></p>
     Including show-up fee and all parts: <b>{{player.points}} Euros</b>.

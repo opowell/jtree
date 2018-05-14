@@ -66,6 +66,7 @@ class Stage {
 
         this.useAppActiveScreen = true;
         this.useAppWaitingScreen = true;
+        this.wrapPlayingScreenInFormTag = app.stageWrapPlayingScreenInFormTag;
 
         // 'outputHide' fields are not included in output
         this.outputHide = [];

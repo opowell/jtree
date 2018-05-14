@@ -54,18 +54,21 @@ class App {
          */
         this.numPeriods = 1;
 
-        /**
-         * How to load stage contents. One of:
-         * 'name': single client.html page with stages denoted by jt-stage attributes.
-         * 'contents': each stage has a corresponding <stageName>.html file.
-         * 'auto': if a client.html file exists, it is sent. otherwise, try to send a <stageName>.html file.
-         */
-        this.stageSwitchType = 'auto';
-
         this.insertJtreeRefAtStartOfClientHTML = true;
 
-        this.headerHTML = '';
-        this.headerHTMLFile = null;
+        // Shown on all client screens.
+        this.html = '';
+        this.screen = '';
+
+        // Shown on all client playing screens if stage.useAppActiveScreen = true.
+        this.playingScreen = '';
+
+        // Shown on all client waiting screens if stage.useAppWaitingScreen = true.
+        this.waitingScreen = '';
+
+        // If 'htmlFile' is not null, content of 'htmlFile' is added to client content.
+        // Otherwise, if 'htmlFile' is null, content of this.id + ".html" is added to client content, if it exists.
+        this.htmlFile = null;
 
         /**
          * The periods of this app.
@@ -105,6 +108,8 @@ class App {
          */
         this.messages = {};
 
+        this.stageWrapPlayingScreenInFormTag = true;
+
         /**
          * If defined, subjects are assigned randomly to groups of this size takes precedence over numGroups.
          */
@@ -128,16 +133,19 @@ class App {
             'insertJtreeRefAtStartOfClientHTML',
             'textMarkerBegin',
             'textMarkerEnd',
-            'headerHTML',
+            'html',
             'description',
             'keyComparisons',
+            'screen',
+            'playingScreen',
+            'waitingScreen',
+            'stageWrapPlayingScreenInFormTag',
             'waitForAll',
             'finished',
-            'headerHTMLFile',
+            'htmlFile',
             'this',
             'session',
             'stages',
-            'stageSwitchType',
             'outputHideAuto',
             'outputHide',
             'periods',
@@ -393,54 +401,30 @@ class App {
         // var app = this;
         var app = this.reload();
 
-        if (app.stageSwitchType === 'name') {
-            const filename = path.join(this.jt.path, '/apps/' + app.id + '/client.html');
-            var html = Utils.readTextFile(filename);
-            var markerStart = app.textMarkerBegin;
-            var markerEnd = app.textMarkerEnd;
-            while (html.indexOf(markerStart) > -1) {
-                var ind1 = html.indexOf(markerStart);
-                var ind2 = html.indexOf(markerEnd);
-                var text = html.substring(ind1+markerStart.length, ind2);
-                var span = '<i jt-text="' + text + '" style="font-style: normal"></i>';
-                html = html.replace(markerStart + text + markerEnd, span);
-            }
-            if (app.insertJtreeRefAtStartOfClientHTML) {
-                html = '<script type="text/javascript" src="/participant/jtree.js"></script>\n' + html;
-            }
-            res.send(html);
-        } else if (app.stageSwitchType === 'contents') {
-            const filename = path.join(this.jt.path, '/apps/' + app.id + '/' + participant.player.stage.id + '.html');
-            res.sendFile(filename);
-        } else if (app.stageSwitchType === 'auto') {
-            const filename = path.join(this.jt.path, '/apps/' + app.id + '/client.html');
+        // Start with hard-coded html, if any.
+        var html = '';
+        if (app.html != null) {
+            html = html + app.html;
+        }
+        if (app.screen != null) {
+            html = html + app.screen;
+        }
+
+        // Load content of html file, if any.
+        // Try app.htmlFile, id.html, and client.html.
+        var htmlFile = app.htmlFile == null ? this.id + '.html' : app.htmlFile;
+        var filename = path.join(this.jt.path, '/apps/' + app.id + '/' + htmlFile);
+        if (fs.existsSync(filename)) {
+            html = html + Utils.readTextFile(filename);
+        } else {
+            htmlFile = 'client.html';
+            filename = path.join(this.jt.path, '/apps/' + app.id + '/' + htmlFile);
             if (fs.existsSync(filename)) {
-                var html = app.getHTML();
-                var markerStart = app.textMarkerBegin;
-                var markerEnd = app.textMarkerEnd;
-                while (html.indexOf(markerStart) > -1) {
-                    var ind1 = html.indexOf(markerStart);
-                    var ind2 = html.indexOf(markerEnd);
-                    var text = html.substring(ind1+markerStart.length, ind2);
-                    var span = '<i jt-text="' + text + '" style="font-style: normal"></i>';
-                    html = html.replace(markerStart + text + markerEnd, span);
-                }
-                if (app.insertJtreeRefAtStartOfClientHTML) {
-                    html = '<script type="text/javascript" src="/participant/jtree.js"></script>\n' + html;
-                }
-                res.send(html);
-            } else {
-                const filename = path.join(this.jt.path, '/apps/' + app.id + '/' + participant.player.stage.id + '.html');
-                if (fs.existsSync(filename)) {
-                    res.sendFile(filename);
-                }
+                html = html + Utils.readTextFile(filename);
             }
         }
-    }
 
-    getHTML() {
-        var filename = path.join(this.jt.path, '/apps/' + this.id + '/client.html');
-        var html = Utils.readTextFile(filename);
+        // Load stage contents, if any.
         var stagesHTML = '';
         for (var i=0; i<this.stages.length; i++) {
             var stage = this.stages[i];
@@ -452,11 +436,44 @@ class App {
                 var contentEnd = this.parseStageTag(stage, this.stageContentEnd);
                 stagesHTML = stagesHTML + contentStart + '\n' + stage.content + '\n' + contentEnd;
             }
+            if (stage.activeScreen != null) {
+                if (stagesHTML.length > 0) {
+                    stagesHTML = stagesHTML + '\n';
+                }
+                stagesHTML += this.parseStageTag(stage, this.stageContentStart)  + '\n';
+                var wrapInForm = stage.wrapPlayingScreenInFormTag;
+                if (wrapInForm) {
+                    stagesHTML += '<form>\n';
+                }
+                stagesHTML += stage.activeScreen + '\n';
+                if (wrapInForm) {
+                    stagesHTML += '</form>\n';
+                }
+                stagesHTML += this.parseStageTag(stage, this.stageContentEnd);
+            }
         }
         if (html.includes('{{stages}}')) {
             html = html.replace('{{stages}}', stagesHTML);
         }
-        return html;
+
+        // Replace {{ }} markers.
+        var markerStart = app.textMarkerBegin;
+        var markerEnd = app.textMarkerEnd;
+        while (html.indexOf(markerStart) > -1) {
+            var ind1 = html.indexOf(markerStart);
+            var ind2 = html.indexOf(markerEnd);
+            var text = html.substring(ind1+markerStart.length, ind2);
+            var span = '<i jt-text="' + text + '" style="font-style: normal"></i>';
+            html = html.replace(markerStart + text + markerEnd, span);
+        }
+
+        // Insert jtree functionality.
+        if (app.insertJtreeRefAtStartOfClientHTML) {
+            html = '<script type="text/javascript" src="/participant/jtree.js"></script>\n' + html;
+        }
+
+        // Return to client.
+        res.send(html);
     }
 
     parseStageTag(stage, text) {
@@ -819,7 +836,7 @@ class App {
         for (var opt in app.optionValues) {
             app[opt] = app.optionValues[opt];
         }
-        var appCode = Utils.readJS(folder + '/app.jtt');
+        var appCode = Utils.readJS(this.appPath);
         eval(appCode);
         return app;
     }
@@ -1064,14 +1081,7 @@ class App {
             player.stageIndex++;
             player.stage = this.stages[player.stageIndex];
             player.stage.playerPlayDefault(player);
-//            player.emit('playerSetStageIndex', {stageIndex: player.stageIndex});
-            if (this.stageSwitchType === 'name') {
-                player.emitUpdate2();
-            } else if (this.stageSwitchType === 'contents') {
-                player.emit('reload', {});
-            } else if (this.stageSwitchType === 'auto') {
-                player.emitUpdate2();
-            }
+            player.emitUpdate2();
         } else {
             this.participantMoveToNextPeriod(player.participant);
         }

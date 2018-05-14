@@ -44,7 +44,7 @@ class StaticServer {
 
         for (var i in jt.data.appsMetaData) {
             let metaData = jt.data.appsMetaData[i];
-            expApp.use('/' + metaData.id, express.static(metaData.appPath));
+            expApp.use('/' + metaData.id, express.static(path.parse(metaData.appPath).dir));
         }
 
         // REQUESTS

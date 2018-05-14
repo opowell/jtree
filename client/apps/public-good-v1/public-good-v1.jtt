@@ -4,45 +4,43 @@ app.numPeriods  = 30;
 app.groupSize   = 4;
 app.endowment   = 20;
 app.factor      = 2;
-app.textMarkerStart = '[';
-app.textMarkerEnd = ']';
 
+// Shown on all screens.
 app.screen = `
-<p>Period: {period.id}/{app.numPeriods}</p>
-`
+    <p>Period: {{period.id}}/{{app.numPeriods}}</p>
+`;
+
+// Shown on all waiting screens.
 app.waitingScreen = `
-<p>WAITING</p>
-<p>The experiment will continue soon.</p>
-`
+    <p>WAITING</p>
+    <p>The experiment will continue soon.</p>
+`;
 
 var decideStage = app.newStage('decide');
 decideStage.activeScreen = `
-<p>DECISION</p>
-<p>Your endowment is E$[app.endowment].</p>
-<form>
+    <p>DECISION</p>
+    <p>Your endowment is E$ {{app.endowment}}.</p>
     <p>Your contribution (E$): <input name='player.contribution' required type='number' min='0' jt-max='app.endowment' step='1'></p>
     <button>Make contribution</button>
-</form>
 `;
 
 var resultsStage = app.newStage('results');
-resultsStage.activeScreen = `
-<p>RESULTS</p>
-<p>Your endowment was E$[app.endowment]. You contributed E$[player.contribution].</p>
-<p>In total, players in your group contributed E$[group.contributions], thus the total amount produced was E$<span jt-text='group.production' jt-decimals=2>Y</span>.</p>
-<p>Thus, your payoff in this period is E$<span jt-text='player.points' jt-decimals=2>Z</span>.</p>
-<form>
-    <button>OK</button>
-</form>
-`;
 
 // when a group starts this stage
 resultsStage.groupStart = function(group) {
     group.contributions = Utils.sum(group.players, 'contribution');
-    group.production = group.contributions * app.factor;
+    group.production = (group.contributions * app.factor).toFixed(2); // trim to two decimal places.
     var prodPerPlayer = group.production / group.players.length;
     for (var i in group.players) { // i = 0, 1, 2, 3
         var player = group.players[i];
-        player.points = app.endowment - player.contribution + prodPerPlayer;
+        player.points = app.endowment - player.contribution + prodPerPlayer.toFixed(2);
     }
 }
+
+resultsStage.activeScreen = `
+    <p>RESULTS</p>
+    <p>Your endowment was E$ {app.endowment}}. You contributed E$ {{player.contribution}}.</p>
+    <p>In total, players in your group contributed E$ {{group.contributions}}, thus the total amount produced was E$ {{group.production}}.</p>
+    <p>Thus, your payoff in this period is E$ {{player.points}}.</p>
+    <button>OK</button>
+`;
