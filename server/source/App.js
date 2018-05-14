@@ -169,7 +169,7 @@ class App {
 
         // Run app code.
         var folder = path.join(session.jt.path, session.getOutputDir() + '/' + index + '_' + json.id);
-        var appCode = Utils.readJS(folder + '/app.js');
+        var appCode = Utils.readJS(folder + '/app.jtt');
         eval(appCode);
 
         // If there is already an app in place, save its stages and periods??
@@ -715,7 +715,7 @@ class App {
         // var folder = path.join(this.jt.path, this.jt.settings.appFolders[0] + '/' + this.id);
 
         try {
-            metaData.appjs = Utils.readJS(this.appPath + '/app.js');
+            metaData.appjs = Utils.readJS(this.appPath + '/app.jtt');
         } catch (err) {
             metaData.appjs = '';
         }
@@ -819,7 +819,7 @@ class App {
         for (var opt in app.optionValues) {
             app[opt] = app.optionValues[opt];
         }
-        var appCode = Utils.readJS(folder + '/app.js');
+        var appCode = Utils.readJS(folder + '/app.jtt');
         eval(appCode);
         return app;
     }
@@ -1263,7 +1263,7 @@ class App {
 
 
     /**
-     * Overwrite in app.js.
+     * Overwrite in app.jtt.
      *
      * @param  {type} participant description
      * @return {type}             description

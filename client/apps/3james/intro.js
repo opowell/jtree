@@ -12,8 +12,6 @@ stage.groupStart = function(group) {
     }
 }
 
-
-
 stage.content = `
     <p>Welcome to this economic experiment! The experiment in which you are about to participate is part of a research project on decision-making.</p>
     <p>You will be asked to make various decisions and you can earn money for your decisions. Your payment will depend on both your and the other participants' decisions. How much you can earn will be announced before you have to make your decisions.</p>

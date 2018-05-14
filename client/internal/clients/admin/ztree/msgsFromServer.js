@@ -5,7 +5,7 @@ msgs.addSession = function(session) {
   if (index === null) {
       jt.data.sessions.push(session);
       showSessionRow(session);
-      jt.showUsersMode(jt.settings.multipleUsers);
+      jt.showUsersMode(jt.settings.multipleUsers); 
   }
 }
 msgs.deleteSession = function(id) {
@@ -113,13 +113,12 @@ msgs.openSession = function(session) {
             .attr('href', 'file:///' + filelink);
         showPanel("#panel-session-info");
         showParticipants(jt.data.session.participants);
+        // viewAllParticipants();
         updateSessionApps();
         jt.updateSessionUsers();
-        try {
-            updateAllowNewParts();
-            jt.updateChartPage();
-            jt.chartVar('test');
-        } catch (err) {}
+        updateAllowNewParts();
+        jt.updateChartPage();
+        jt.chartVar('test');
     }
 
     // $('#session-participants').removeAttr('hidden');

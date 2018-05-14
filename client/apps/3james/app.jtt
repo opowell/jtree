@@ -1,5 +1,6 @@
 app.numGroups   = 1;
 app.showUpFee   = 2; // Euros
+app.id = '3james';
 
 // Part 1
 app.STAG = 'B';

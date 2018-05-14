@@ -53,18 +53,6 @@ stage.waitToEnd = false;
 stage.playerEnd = function(player) {
     var app = player.app();
     if (player.treatment == 1) {
-        player.part4MatchingBalls = 0;
-        for (var i=0; i<20; i++) {
-            if (app.drawFromUrn(player.part4Urn) == player.part4BallColor) {
-                player.part4MatchingBalls++;
-            }
-        }
-        if (player.part4Ans === player.part4MatchingBalls) {
-            player.part4Points = 2;
-        } else {
-            player.part4Points = 0;
-        }
-    } else {
         var n = Math.random()*100;
         player.part4n = n;
         player.part4RandomBall = app.drawFromUrn(player.part4Urn);
@@ -81,6 +69,18 @@ stage.playerEnd = function(player) {
             } else {
                 player.part4Points = 0;
             }
+        }
+    } else {
+        player.part4MatchingBalls = 0;
+        for (var i=0; i<20; i++) {
+            if (app.drawFromUrn(player.part4Urn) == player.part4BallColor) {
+                player.part4MatchingBalls++;
+            }
+        }
+        if (player.part4Ans === player.part4MatchingBalls) {
+            player.part4Points = 2;
+        } else {
+            player.part4Points = 0;
         }
     }
 }

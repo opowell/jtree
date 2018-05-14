@@ -128,7 +128,7 @@ class Data {
     loadApp(id, session, appPath, options) {
         var app = null;
         var isFolder = Utils.isDirectory(appPath);
-        var pathToCheck = path.join(appPath, 'app.js');
+        var pathToCheck = path.join(appPath, 'app.jtt');
         var app = new App.new(session, id, this.jt, appPath);
 
         // Set options before running code.
@@ -224,7 +224,7 @@ class Data {
             var origFolder = this.appPath(appToSave.origId);
             var newFolder = this.appPath(appToSave.id);
             fs.renameSync(origFolder, newFolder);
-            var appjsPath = path.join(newFolder, 'app.js')
+            var appjsPath = path.join(newFolder, 'app.jtt')
             fs.writeFileSync(appjsPath, appToSave.appjs);
             var appjsPath = path.join(newFolder, 'client.html')
             fs.writeFileSync(appjsPath, appToSave.clientHTML);
@@ -433,7 +433,7 @@ class Data {
         var app = new App.new(session, id, this.jt, appPath);
 
         fs.mkdirSync(this.appPath(id));
-        fs.writeFileSync(this.appPath(id) + '/app.js', '');
+        fs.writeFileSync(this.appPath(id) + '/app.jtt', '');
         fs.writeFileSync(this.appPath(id) + '/client.html', '');
 
         this.apps[app.id] = app;

@@ -148,14 +148,6 @@ class Utils {
         return Math.floor(Math.random() * (high - low) + low);
     }
 
-    static values(els, field) {
-        var out = [];
-        for (var i=0; i<els.length; i++) {
-            out.push(els[field]);
-        }
-        return out;
-    }
-
     /**
      * randomEl - description
      *

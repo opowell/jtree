@@ -189,7 +189,7 @@ class Stage {
     }
 
     /**
-     * Overwrite in app.js.
+     * Overwrite in app.jtt.
      *
      * @param  {type} group description
      * @return {type}       description
@@ -198,7 +198,7 @@ class Stage {
 
     /**
     *  Called before the first player plays this stage.
-    * Overwrite in app.js
+    * Overwrite in app.jtt
     */
     groupStart(group) {}
 
@@ -225,7 +225,7 @@ class Stage {
 
     /**
      * End this stage for the given player.
-     * Overwrite in app.js.
+     * Overwrite in app.jtt.
      *
      * @param  {type} player description
      */
@@ -233,7 +233,7 @@ class Stage {
 
     /**
      * Called when this player plays this stage.
-     * Overwrite in app.js.
+     * Overwrite in app.jtt.
      **/
     playerStart(player) {}
 

@@ -20,7 +20,7 @@ stage.content = `
 </style>
 
     <p style='margin-left: auto; margin-right: auto;'>
-        In this Part of the experiment you will be asked to guess three numbers that are related to the contributions made by other participants in Part 5.
+        In this Part of the experiment you will be asked to guess three numbers that are related to the contributions made by other participants who faced the same decision as you in Part 5.
     </p>
 
     <form id='part6Form' class='cols3'>
@@ -84,50 +84,72 @@ stage.waitToEnd = false;
 stage.playerEnd = function(player) {
     var app = player.app();
     var group = player.group;
-    // var otherPlayers = Utils.randomEls(player.group.playersExcept(player.part5GroupPlayerIds), 10);
-    var otherPlayers = group.players.filter(function(el) {
-        return
-            // Not a member of this player's group.
+    var filterPlayer = function(el) {
+        // Not a member of this player's group, AND
+        // Same multiplier.
+        var a =
             !player.part5GroupPlayerIds.includes(el.id) &&
-            // Same multiplier.
-            el.part5Mult === app.part5MultT1;
-    });
+            el.part5Mult === player.part5Mult;
+        return a;
+    };
+    var otherPlayers = group.players.filter(filterPlayer);
+    // Sort randomly.
+    otherPlayers.sort(function() { return 0.5 - Math.random() });
     player.part6OtherPlayersIds = [];
     for (var i=0; i<otherPlayers.length; i++) {
         player.part6OtherPlayersIds.push(otherPlayers[i].id);
     }
 
-    var draw1 = 2, draw2 = 3;
-    if (draw1 === draw2 && draw2 === player.part6Med) {
-        player.part6MedPoints = app.part6Payoff;
-    } else {
-        player.part6CountMed = Utils.count(otherPlayers.slice(0, 2), 'element.part5Cont > ' + player.part6Med);
-        if (player.part6CountMed == 1) {
-            player.part6MedPoints = app.part6Payoff;
-        } else {
-            player.part6MedPoints = 0;
+    stage.part6Payoff(
+        player,                                     // the player
+        otherPlayers.slice(0, 2),                   // the other players
+        player.part6Med,                            // field to check for exact match
+        'element.part5Cont > ' + player.part6Med,   // condition for general matching
+        'part6CountMed',                            // field in which to store count
+        'part6MedPoints',                           // field in which to store points
+        1                                           // number that must coincide
+    );
+
+    stage.part6Payoff(
+        player,                                     // the player
+        otherPlayers.slice(2, 6),                   // the other players
+        player.part6UpQ,                            // field to check for exact match
+        'element.part5Cont > ' + player.part6UpQ,   // condition for general matching
+        'part6CountUpQ',                            // field in which to store count
+        'part6UpQPoints',                           // field in which to store points
+        1                                           // number that must coincide
+    );
+
+    stage.part6Payoff(
+        player,                                     // the player
+        otherPlayers.slice(6),                   // the other players
+        player.part6LowQ,                            // field to check for exact match
+        'element.part5Cont < ' + player.part6LowQ,   // condition for general matching
+        'part6CountLowQ',                            // field in which to store count
+        'part6LowQPoints',                           // field in which to store points
+        1                                           // number that must coincide
+    );
+
+}
+
+stage.part6Payoff = function(player, otherPlayers, exactField, condition, countField, pointsField, count) {
+    var app = player.app();
+    var exactMatch = true;
+    for (var i=0; i<otherPlayers.length; i++) {
+        if (otherPlayers[i].part5Cont != exactField) {
+            exactMatch = false;
         }
     }
 
-    if (draw1 === draw2 && draw2 === player.part6Med) { // TODO... draw3 and draw4
-        player.part6UpQPoints = app.part6Payoff;
+    if (exactMatch) {
+        player[pointsField] = app.part6Payoff;
+        player[countField] = 'match';
     } else {
-        player.part6CountUpQ = Utils.count(otherPlayers.slice(2, 6), 'element.part5Cont > ' + player.part6UpQ);
-        if (player.part6CountUpQ == 1) {
-            player.part6UpQPoints = app.part6Payoff;
+        player[countField] = Utils.count(otherPlayers, condition);
+        if (player[countField] == count) {
+            player[pointsField] = app.part6Payoff;
         } else {
-            player.part6UpQPoints = 0;
-        }
-    }
-
-    if (draw1 === draw2 && draw2 === player.part6Med) { // TODO... draw3 and draw4
-        player.part6LowQPoints = app.part6Payoff;
-    } else {
-        player.part6CountLowQ = Utils.count(otherPlayers.slice(6), 'element.part5Cont < ' + player.part6LowQ);
-        if (player.part6CountLowQ == 1) {
-            player.part6LowQPoints = app.part6Payoff;
-        } else {
-            player.part6LowQPoints = 0;
+            player[pointsField] = 0;
         }
     }
 }

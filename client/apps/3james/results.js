@@ -21,12 +21,12 @@ stage.content = `
     <p>PART 2</p>
     You chose {{player.part2Ans}}.
     <p jt-displayIf='player.treatment==1'>
-        Of the 20 randomly chosen players, {{player.part2CountStag}} played {{app.STAG}}.
-    </p>
-    <p jt-displayIf='player.treatment==2'>
         The randomly chosen participant played {{player.part2PartnerAns}}.
         Your random draw (n) was <span jt-text='player.part2n' jt-decimals=2></span>.
         <span jt-displayIf='player.part2n > player.part2Ans'>Your second N was <span jt-text='player.part2SecondN' jt-decimals=2></span>.</span>
+    </p>
+    <p jt-displayIf='player.treatment==2'>
+        Of the 20 randomly chosen players, {{player.part2CountStag}} played {{app.STAG}}.
     </p>
     You earned {{player.part2Points}} Euros.
 
@@ -38,11 +38,11 @@ stage.content = `
         <span jt-displayIf='player.part4Urn == app.part4Urn1'>1.</span>
         <span jt-displayIf='player.part4Urn == app.part4Urn2'>2.</span>
         <span jt-displayIf='player.treatment == 1'>
-            Of the 20 additional balls, {{player.part4MatchingBalls}} were also {{player.part4BallColor}}.
-        </span>
-        <span jt-displayIf='player.treatment == 2'>
             The additional ball was {{player.part4RandomBall}}, and n was <span jt-text='player.part4n' jt-decimals='2'></span>.
             <span jt-displayIf='player.part4n > player.part4Ans'>Your second N was <span jt-text='player.part4SecondN' jt-decimals=2></span>.</span>
+        </span>
+        <span jt-displayIf='player.treatment == 2'>
+            Of the 20 additional balls, {{player.part4MatchingBalls}} were also {{player.part4BallColor}}.
         </span>
         You earned {{player.part4Points}} Euros.
     </p>
@@ -67,7 +67,8 @@ stage.content = `
         Task 3: You chose {{player.part6LowQ}}.
         Of the four randomly chosen players, {{player.part6CountLowQ}} contributed more than your choice. You earned {{player.part6LowQPoints}} Euros.
     </p>
-    <p><b>Total payoff</b>, including show-up fee and all parts, is <b>{{player.points}}</b>.
+    <p><b>TOTAL PAYOFF</b></p>
+    Including show-up fee and all parts: <b>{{player.points}} Euros</b>.
 `
 
 stage.waitToEnd = false;
