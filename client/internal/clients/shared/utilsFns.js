@@ -18,7 +18,7 @@ function isNumeric(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
-function sum(items, prop){
+function sum(items, prop) {
     return items.reduce(function(a, b){
         if (isNumeric(b[prop])) {
             return a + b[prop];

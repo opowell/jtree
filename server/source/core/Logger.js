@@ -28,6 +28,8 @@ class Logger {
         }
     }
 
+    
+
 }
 
 var exports = module.exports = {};

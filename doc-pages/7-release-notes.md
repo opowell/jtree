@@ -1,3 +1,6 @@
+##### 0.4.5
+- load apps from .js and .jtt files.
+
 ##### 0.4.4
 - fixes
 

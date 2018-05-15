@@ -235,7 +235,7 @@ class Session {
         var app = this.jt.data.loadApp(appId, this, appPath, options);
         if (app !== null) {
             this.apps.push(app);
-            Utils.copyFiles(app.appPath, app.getOutputFN(), this.jt);
+            Utils.copyFiles(path.parse(app.appPath).dir, app.getOutputFN(), this.jt);
             // app.saveSelfAndChildren();
             this.save();
             this.emit('sessionAddApp', {sId: this.id, app: app.shellWithChildren()});
@@ -305,7 +305,6 @@ class Session {
             participant = this.participantCreate(participantId);
         }
 
-        // TODO: Check that client does not already exist.
         var client = new Client.new(socket, this);
         client.participant = participant;
         socket.join(this.roomId());
@@ -318,6 +317,10 @@ class Session {
         }
 
         return client;
+    }
+
+    emitToAdmins(name, data) {
+        this.jt.socketServer.sendOrQueueAdminMsg(null, name, data);
     }
 
     getOutputDir() {
@@ -490,22 +493,7 @@ class Session {
         // participant in an app.
         else {
             const app = participant.app();
-            if (app.stageSwitchType === 'name') {
-                res.sendFile(path.join(this.jt.path, '/' + this.getOutputDir() + '/apps/' + participant.appIndex + '_' + app.id + '/client.html'));
-            } else if (app.stageSwitchType === 'contents') {
-                const filename = path.join(this.jt.path, '/apps/' + participant.app().id + '/' + participant.player.stage.id + '.html');
-                res.sendFile(filename);
-            } else if (app.stageSwitchType === 'auto') {
-                const filename = path.join(this.jt.path, '/apps/' + participant.app().id + '/client.html');
-                if (fs.existsSync(filename)) {
-                    res.sendFile(filename);
-                } else {
-                    const filename = path.join(this.jt.path, '/apps/' + participant.app().id + '/' + participant.player.stage.id + '.html');
-                    if (fs.existsSync(filename)) {
-                        res.sendFile(filename);
-                    }
-                }
-            }
+            app.sendParticipantPage(req, res, participant);
         }
     }
 
@@ -836,13 +824,7 @@ class Session {
     * @return {type}   description
     */
     playerRefresh(p) {
-        if (this.stageSwitchType == 'contents') {
-            this.io().to(p).emit('set-stage', this.stageContents);
-        } else if (this.stageSwitchType === 'name') {
-            this.io().to(p).emit('set-stage-name', this.curStage().name);
-        } else if (this.stageSwitchType === 'auto') {
-
-        }
+        this.io().to(p).emit('set-stage-name', this.curStage().name);
         this.curStage().onPlayerConnect(this.players[p]);
     }
 

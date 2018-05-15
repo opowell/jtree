@@ -1,0 +1,16 @@
+.tackyBox-title {
+    position: relative;
+    background-color: #f2f0f0;
+    top: 9px;
+    left: 7px;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.tackyBox-content {
+    border: 1px inset #5d5d5d4d;
+    padding-top: 12px;
+    padding-left: 9px;
+    padding-right: 4px;
+    padding-bottom: 1px;
+}

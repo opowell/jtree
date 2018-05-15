@@ -1,5 +1,7 @@
 // EXTERNAL LIBRARIES
 document.write('<script src="/socket.io/socket.io.js"></script>');
+document.write('<script src="/shared/HackTimer.min.js"></script>');
+document.write('<script src="/shared/HackTimerWorker.min.js"></script>');
 document.write('<script src="/shared/jquery-1.11.1.js"></script>');
 document.write('<script src="/shared/tether.min.js"></script>');
 document.write('<script src="/shared/popper.min.js"></script>'); // For dropdowns, must be before bootstrap.js
@@ -27,6 +29,8 @@ document.write('<script src="/admin/ztree/msgsToServer.js"></script>');
 document.write('<script src="/admin/ztree/components/MainMenu2.js"></script>');
 document.write('<script src="/admin/ztree/components/TreatmentPanel.js"></script>');
 document.write('<script src="/admin/ztree/components/KeyBindings.js"></script>');
+document.write('<script src="/admin/ztree/components/JTModal.js"></script>');
+document.write('<script src="/admin/ztree/components/JTTableModal.js"></script>');
 document.write('<script src="/admin/ztree/webcomponents/SelectAppModal.js"></script>');
 
 document.write('<script src="/admin/ztree/webcomponents/ViewAppEditModal.js"></script>');

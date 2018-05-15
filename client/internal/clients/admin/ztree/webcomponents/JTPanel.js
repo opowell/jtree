@@ -42,11 +42,11 @@ jt.focusPanel = function(el) {
         jt.zIndex++;
     }
     document.title = 'jtree - ' + $(el).find('.panel-title-text').text();
-    if (panel.attr('panel-type') === 'treatment-panel') {
-        panel.find('panel-content').jstree("deselect_all");
-        panel.find('panel-content').jstree('select_node', 'abc');
-        panel.find('#abc-anchor').focus();
-    }
+    // if (panel.attr('panel-type') === 'treatment-panel') {
+    //     panel.find('panel-content').jstree("deselect_all");
+    //     panel.find('panel-content').jstree('select_node', 'abc');
+    //     panel.find('#abc-anchor').focus();
+    // }
 }
 
 window.customElements.define('jt-panel', JTPanel);

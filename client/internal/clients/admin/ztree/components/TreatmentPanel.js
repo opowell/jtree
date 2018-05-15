@@ -106,18 +106,33 @@ jt.TreatmentPanel = function() {
     // .on('hover_node.jstree', function (e, data) {
     //     console.log('hover node');
     // })
-    // .bind('keydown', 'down', function(e) {
-    //     e.stopPropagation();
-    //     console.log('key down');
-    //     var activeNodeId = $('.jstree-hovered').attr('id');
-    //     $(e.target).closest('jt-panel').jstree('select_node', activeNodeId);
-    //     return false;
-    // })
+    .bind('keydown', 'down', function(e) {
+        e.stopPropagation();
+        var activeNodeId = $('.jstree-hovered').attr('id');
+        console.log('key down, selecting ' + activeNodeId);
+        $(e.target).closest('jt-panel').jstree('select_node', activeNodeId);
+        return false;
+    })
+    .on("dblclick.jstree", function (event, data) {
+        var tree = $(this).jstree();
+        var node = tree.get_node(event.target);
+        tree.edit(node);
+    })
+    .on('ready.jstree', function(e, data) {
+        trmtDiv.find('a').dblclick(function (ev) {
+            var node = $(ev.target).closest("li");
+            var type = node.attr('rel');
+            var item = node[0].id;
+            console.log('dblclick' + item);
+            jt.showModal('table');
+        })
+    })
     .jstree({
         "core" : {
             "multiple" : false,
             "animation" : 0,
-            'data': treeData
+            'data': treeData,
+            'dblclick_toggle': false
         },
         "types" : {
             "background" : {
@@ -143,7 +158,6 @@ jt.TreatmentPanel = function() {
             "types"
         ]
     });
-
 
     trmtDiv.find('panel-content').on('changed.jstree', function (e, data) {
         var i, j, r = [];

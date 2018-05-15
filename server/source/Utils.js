@@ -35,10 +35,18 @@ class Utils {
     static sum(elements, field) {
         var sum = 0;
         for (var i in elements) {
-            var element = elements[i];
+            var element = this.parseFloat(elements[i]);
             sum = sum + element[field];
         }
         return sum;
+    }
+
+    static values(els, field) {
+        var out = [];
+        for (var i=0; i<els.length; i++) {
+            out.push(els[i][field]);
+        }
+        return out;
     }
 
     static writeJSON(filename, contents) {
@@ -71,6 +79,11 @@ class Utils {
     }
 
     static readJS(file) {
+        // Empty white space to force conversion to UTF-8.
+        return fs.readFileSync(file) + '';
+    }
+
+    static readTextFile(file) {
         // Empty white space to force conversion to UTF-8.
         return fs.readFileSync(file) + '';
     }
@@ -142,9 +155,12 @@ class Utils {
      * @return {type}       description
      */
     static randomEl(array) {
-        return Utils.randomEls(array, 1);
+        return Utils.randomEls(array, 1)[0];
     }
 
+    /**
+    * Random draws without replacement
+    */
     static randomEls(array, num) {
         var out = [];
         var indices = [];
@@ -153,8 +169,11 @@ class Utils {
         }
         for (var i=0; i<num; i++) {
             var ind = Utils.randomInt(0, indices.length);
-            out.push(array[ind]);
+            out.push(array[indices[ind]]);
             indices.splice(ind, 1);
+            if (indices.length === 0) {
+                break;
+            }
         }
         return out;
     }

@@ -45,8 +45,8 @@ class App {
         this.optionValues = {};
 
         // Used by the participant client to find and create dynamic text elements.
-        this.textMarkerBegin = '{';
-        this.textMarkerEnd = '}';
+        this.textMarkerBegin = '{{';
+        this.textMarkerEnd = '}}';
 
         /**
          * The number of periods in this App.
@@ -54,13 +54,21 @@ class App {
          */
         this.numPeriods = 1;
 
-        /**
-         * How to load stage contents. One of:
-         * 'name': single client.html page with stages denoted by jt-stage attributes.
-         * 'contents': each stage has a corresponding <stageName>.html file.
-         * 'auto': if a client.html file exists, it is sent. otherwise, try to send a <stageName>.html file.
-         */
-        this.stageSwitchType = 'auto';
+        this.insertJtreeRefAtStartOfClientHTML = true;
+
+        // Shown on all client screens.
+        this.html = '';
+        this.screen = '';
+
+        // Shown on all client playing screens if stage.useAppActiveScreen = true.
+        this.activeScreen = null;
+
+        // Shown on all client waiting screens if stage.useAppWaitingScreen = true.
+        this.waitingScreen = null;
+
+        // If 'htmlFile' is not null, content of 'htmlFile' is added to client content.
+        // Otherwise, if 'htmlFile' is null, content of this.id + ".html" is added to client content, if it exists.
+        this.htmlFile = null;
 
         /**
          * The periods of this app.
@@ -100,6 +108,8 @@ class App {
          */
         this.messages = {};
 
+        this.stageWrapPlayingScreenInFormTag = true;
+
         /**
          * If defined, subjects are assigned randomly to groups of this size takes precedence over numGroups.
          */
@@ -113,7 +123,38 @@ class App {
          */
         this.numGroups = undefined;
 
-        this.outputHideAuto = ['this', 'session', 'stages', 'stageSwitchType', 'outputHideAuto', 'outputHide', 'periods', 'messages', 'type', 'folder', 'options', 'jt', 'appPath'];
+        this.stageContentStart = '<span jt-stage="{{stage.id}}">';
+        this.stageContentEnd = '</span>';
+
+        this.outputHideAuto = [
+            'stageContentStart',
+            'stageContentEnd',
+            'optionValues',
+            'insertJtreeRefAtStartOfClientHTML',
+            'textMarkerBegin',
+            'textMarkerEnd',
+            'html',
+            'description',
+            'keyComparisons',
+            'screen',
+            'activeScreen',
+            'waitingScreen',
+            'stageWrapPlayingScreenInFormTag',
+            'waitForAll',
+            'finished',
+            'htmlFile',
+            'this',
+            'session',
+            'stages',
+            'outputHideAuto',
+            'outputHide',
+            'periods',
+            'messages',
+            'type',
+            'folder',
+            'options',
+            'jt',
+            'appPath'];
 
         this.outputHide = [];
 
@@ -136,7 +177,7 @@ class App {
 
         // Run app code.
         var folder = path.join(session.jt.path, session.getOutputDir() + '/' + index + '_' + json.id);
-        var appCode = Utils.readJS(folder + '/app.js');
+        var appCode = Utils.readJS(folder + '/app.jtt');
         eval(appCode);
 
         // If there is already an app in place, save its stages and periods??
@@ -190,12 +231,18 @@ class App {
         var app = this;
         for (var s in this.stages) {
             var stageName = this.stages[s].name;
+
+            // Listen to message from clients.
+            client.on(stageName, function(data) { // stage messages are sent by default when submit button is clicked.
+                app.session.pushMessage(client, data.data, data.data.fnName);
+            });
+
+            // Queue message.
             client[stageName] = function(data) {
-
-                app.session.pushMessage(client, data, stageName + 'Process');
-
+                app.session.pushMessage(client, data, data.fnName + 'Process');
             }
 
+            // Process the message.
             client[stageName + 'Process'] = function(data) {
 
                 app.jt.log('Server received auto-stage submission: ' + JSON.stringify(data));
@@ -204,8 +251,8 @@ class App {
                     return false;
                 }
 
-                console.log('comparing ' + client.player().stage.id + ' vs. ' + stageName + ', data=' + JSON.stringify(data));
                 if (client.player().stage.id !== data.fnName) {
+                    console.log('App.js, STAGE NAME DOES NOT MATCH: ' + client.player().stage.id + ' vs. ' + data.fnName + ', data=' + JSON.stringify(data));
                     return false;
                 }
 
@@ -240,12 +287,10 @@ class App {
                         }
                     }
                 }
-                console.log('msg: ' + JSON.stringify(data) + ', ' + client.player().roomId());
-                client.player().attemptToEndStage();
+                // console.log('msg: ' + JSON.stringify(data) + ', ' + client.player().roomId());
+                var attemptToEndForGroup = true;
+                client.player().attemptToEndStage(attemptToEndForGroup);
             };
-            client.on(stageName, function(data) { // stage messages are sent by default when submit button is clicked.
-                app.session.pushMessage(client, data.data, data.data.fnName);
-            });
         }
 
         // Load custom code, overwrite default stage submission behavior.
@@ -255,6 +300,23 @@ class App {
             console.log(err);
         }
 
+    }
+
+    addStages(array) {
+        for (var i=0; i<array.length; i++) {
+            this.addStage(array[i]);
+        }
+    }
+
+    addStage(name) {
+        var stage = this.newStage(name);
+        var fn = 'apps/' + this.id + '/' + name + '.js';
+        try {
+            eval(Utils.readJS(fn));
+        } catch (err) {
+            console.log('Error evaluating ' + fn);
+            console.log(err);
+        }
     }
 
     setContents(contents) {
@@ -331,6 +393,125 @@ class App {
             period.getStrangerMatching(numGroups, pIds, gIds, m);
         }
         return gIds;
+    }
+
+    sendParticipantPage(req, res, participant) {
+
+        // Load dynamic version of app to allow for live editing of stage html.
+        // var app = this;
+        var app = this.reload();
+
+        // Start with hard-coded html, if any.
+        var html = '';
+        if (app.html != null) {
+            html = html + app.html;
+        }
+        if (app.screen != null) {
+            html = html + app.screen;
+        }
+
+        // Load content of html file, if any.
+        // Try app.htmlFile, id.html, and client.html.
+        var htmlFile = app.htmlFile == null ? this.id + '.html' : app.htmlFile;
+        var filename = path.join(this.jt.path, '/apps/' + app.id + '/' + htmlFile);
+        if (fs.existsSync(filename)) {
+            html = html + Utils.readTextFile(filename);
+        } else {
+            htmlFile = 'client.html';
+            filename = path.join(this.jt.path, '/apps/' + app.id + '/' + htmlFile);
+            if (fs.existsSync(filename)) {
+                html = html + Utils.readTextFile(filename);
+            }
+        }
+
+        if (app.activeScreen != null) {
+            html += `
+            <span jt-status='playing' class='playing-screen'>
+                ${app.activeScreen}
+                <div>
+                {{stages}}
+                </div>
+            </span>
+            `;
+        }
+
+        if (!html.includes('{{stages}}')) {
+            html += `
+            <span jt-status='playing' class='playing-screen'>
+                {{stages}}
+            </span>
+            `;
+        }
+
+        if (app.waitingScreen != null) {
+            html += `
+            <span jt-status='waiting' class='waiting-screen'>
+                ${app.waitingScreen}
+            </span>
+            `;
+        }
+
+        // Load stage contents, if any.
+        var stagesHTML = '';
+        for (var i=0; i<this.stages.length; i++) {
+            var stage = this.stages[i];
+            if (stage.content != null) {
+                if (stagesHTML.length > 0) {
+                    stagesHTML = stagesHTML + '\n';
+                }
+                var contentStart = this.parseStageTag(stage, this.stageContentStart);
+                var contentEnd = this.parseStageTag(stage, this.stageContentEnd);
+                stagesHTML = stagesHTML + contentStart + '\n' + stage.content + '\n' + contentEnd;
+            }
+            if (stage.activeScreen != null) {
+                if (stagesHTML.length > 0) {
+                    stagesHTML = stagesHTML + '\n';
+                }
+                stagesHTML += this.parseStageTag(stage, this.stageContentStart)  + '\n';
+                var wrapInForm = stage.wrapPlayingScreenInFormTag;
+                if (wrapInForm) {
+                    stagesHTML += '<form>\n';
+                }
+                stagesHTML += stage.activeScreen + '\n';
+                if (wrapInForm) {
+                    stagesHTML += '</form>\n';
+                }
+                stagesHTML += this.parseStageTag(stage, this.stageContentEnd);
+            }
+        }
+        if (html.includes('{{stages}}')) {
+            html = html.replace('{{stages}}', stagesHTML);
+        }
+
+        // Replace {{ }} markers.
+        var markerStart = app.textMarkerBegin;
+        var markerEnd = app.textMarkerEnd;
+        while (html.indexOf(markerStart) > -1) {
+            var ind1 = html.indexOf(markerStart);
+            var ind2 = html.indexOf(markerEnd);
+            var text = html.substring(ind1+markerStart.length, ind2);
+            var span = '<i jt-text="' + text + '" style="font-style: normal"></i>';
+            html = html.replace(markerStart + text + markerEnd, span);
+        }
+
+        // Insert jtree functionality.
+        if (app.insertJtreeRefAtStartOfClientHTML) {
+            html = '<script type="text/javascript" src="/participant/jtree.js"></script>\n' + html;
+        }
+
+        // Return to client.
+        res.send(html);
+    }
+
+    parseStageTag(stage, text) {
+        while (text.includes('{{')) {
+            var start = text.indexOf('{{');
+            var end = text.indexOf('}}');
+            var curTag = text.substring(start + '{{'.length, end);
+            var value = eval(curTag);
+            text = text.replace('{{' + curTag + '}}', value);
+        }
+        return text;
     }
 
     /*
@@ -578,7 +759,7 @@ class App {
         // var folder = path.join(this.jt.path, this.jt.settings.appFolders[0] + '/' + this.id);
 
         try {
-            metaData.appjs = Utils.readJS(this.appPath + '/app.js');
+            metaData.appjs = Utils.readJS(this.appPath + '/app.jtt');
         } catch (err) {
             metaData.appjs = '';
         }
@@ -682,7 +863,7 @@ class App {
         for (var opt in app.optionValues) {
             app[opt] = app.optionValues[opt];
         }
-        var appCode = Utils.readJS(folder + '/app.js');
+        var appCode = Utils.readJS(this.appPath);
         eval(appCode);
         return app;
     }
@@ -927,14 +1108,7 @@ class App {
             player.stageIndex++;
             player.stage = this.stages[player.stageIndex];
             player.stage.playerPlayDefault(player);
-//            player.emit('playerSetStageIndex', {stageIndex: player.stageIndex});
-            if (this.stageSwitchType === 'name') {
-                player.emitUpdate2();
-            } else if (this.stageSwitchType === 'contents') {
-                player.emit('reload', {});
-            } else if (this.stageSwitchType === 'auto') {
-                player.emitUpdate2();
-            }
+            player.emitUpdate2();
         } else {
             this.participantMoveToNextPeriod(player.participant);
         }
@@ -1126,7 +1300,7 @@ class App {
 
 
     /**
-     * Overwrite in app.js.
+     * Overwrite in app.jtt.
      *
      * @param  {type} participant description
      * @return {type}             description

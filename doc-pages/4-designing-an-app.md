@@ -1,15 +1,6 @@
-An app consists of a folder `myApp` containing the following:
+This tutorial will show you how to program the simple public goods game used in the previous section. Create a file called `my-public-goods.jtt` in the `<jtree>/apps/` folder. The `.jtt` file extension tells jtree this file is an app file.
 
-1. app.js
-2. client.html
-
-The `app.js` file contains the logic of your app, and runs on the server. The `client.html` file contains the screens of your app that the participants see. The `<myApp>` folder contains all files relevant to your app (including, for example, images), and its name is used as an identifier for the app. By default, app folders are stored in `<jtree>/apps/`.
-
-This tutorial will show you how to program the simple public goods game used in the previous section. Create a folder called `my-public-goods` and add two empty files called `app.js` and `client.html` now.
-
-### app.js
-
-In general, the `app.js` file defines the parameters and stages of the app. It begins with a pre-defined App object called app. Fields are modified and/or added to this object using Javascript. Add the following code to the `app.js` file now:
+First, we will define the parameters and stages of the app. Each app file begins with a pre-defined App object called `app`, and fields are modified and/or added to this object using regular Javascript. Add the following code to your file now:
 
 ```javascript
 app.numPeriods  = 10
@@ -25,7 +16,7 @@ The next step is determining the stages of your app. Stages of an app are repeat
 1. Decision stage: players choose how much to contribute.
 2. Results stage: players are shown their profit for this period.
 
-Stages are created and added to the app using the `app.newStage(stageId)` function. Add the following code to the `app.js` file:
+Stages are created and added to the app using the `app.newStage(stageId)` function. Add the following code to the your file:
 
 ```javascript
 var decideStage  = app.newStage('decide')
@@ -40,9 +31,9 @@ resultsStage.duration = 30
 
 In jtree, players go through an app as part of a group. Therefore it is usually important to define what happens when a group and/or individual player starts each stage of the app.
 
-In the decision stage, the server simply waits for and saves input from the client. jtree handles this sort of behavior automatically for you, therefore there is no server-side logic to write for this stage (the user interface for this stage is defined later in `client.html`). On the other hand, when a group starts playing the results stage, production of the public good and payoffs need to be calculated.
+In the decision stage, the server simply waits for and saves input from the client. jtree handles this sort of behavior automatically for you, therefore there is no server-side logic to write for this stage (the user interface for this stage is defined later). On the other hand, when a group starts playing the results stage, production of the public good and payoffs need to be calculated.
 
-Add the following to the end of the `app.js` file:
+Add the following to the end of your file:
 
 ```javascript
 // app.js
@@ -69,7 +60,7 @@ resultsStage.playerStart = function(player) {
 
 The `Stage.playerPlay` function is called whenever a player begins playing the stage, and is executed after the `stage.groupPlay` function. It is passed a Player object.
 
-In summary, the content of the `app.js` file is the following:
+In summary, the content of the app file is the following:
 
 ```javascript
 app.numPeriods  = 10

@@ -152,7 +152,7 @@ jt.connected = function() {
 
     jt.socket.on('add-client', function(client) {
         if (client.session.id === jt.data.session.id) {
-            console.log('add client: ' + client);
+            // console.log('add client: ' + client);
             jt.data.session.clients.push(client);
             var participant = findByIdWOJQ(jt.data.session.participants, client.pId);
             if (participant !== null) {

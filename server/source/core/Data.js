@@ -127,8 +127,6 @@ class Data {
 
     loadApp(id, session, appPath, options) {
         var app = null;
-        var isFolder = Utils.isDirectory(appPath);
-        var pathToCheck = path.join(appPath, 'app.js');
         var app = new App.new(session, id, this.jt, appPath);
 
         // Set options before running code.
@@ -136,30 +134,48 @@ class Data {
             app.setOptionValue(i, options[i]);
         }
 
-        // Evaluate code.
-        if (isFolder && fs.existsSync(pathToCheck)) {
-            try {
-                eval(fs.readFileSync(pathToCheck) + '');
-            } catch (err) {
-                debugger;
-                console.log(err);
-            }
+        try {
+            eval(fs.readFileSync(appPath) + '');
+        } catch (err) {
+            console.log('Data.loadApp: ' + appPath);
+            console.log(err);
+            // console.log(fs.readFileSync(appPath) + '');
+            app = null;
         }
         return app;
     }
 
+    // Search for *.js and *.jtt files. Load as apps.
+    // Search folders.
     loadAppDir(dir) {
         if (Utils.isDirectory(dir)) {
             var appDirContents = fs.readdirSync(dir);
             for (var i in appDirContents) {
-                var id = appDirContents[i];
-                var appPath = path.join(dir, id)
-                let app = this.loadApp(id, null, appPath, {});
-                let metaData;
-                if (app !== null) {
-                    metaData = app.metaData();
-                    this.apps[id] = app;
-                    this.appsMetaData[id] = metaData;
+                var curPath = path.join(dir, appDirContents[i]);
+                var curPathIsFile = fs.lstatSync(curPath).isFile();
+                var curPathIsFolder = fs.lstatSync(curPath).isDirectory();
+                if ((curPath.endsWith('.js') || curPath.endsWith('.jtt')) && curPathIsFile) {
+                    var id = appDirContents[i];
+                    if (id == 'app.js' || id == 'app.jtt') {
+                        // Take id from path name.
+                        if (dir.lastIndexOf('/') > -1) {
+                            id = dir.substring(dir.lastIndexOf('/')+1);
+                        } else if (dir.lastIndexOf('\\') > -1) {
+                            id = dir.substring(dir.lastIndexOf('\\')+1);
+                        }
+                    }
+                    if (id.endsWith('.js')) {
+                        id = id.substring(0, id.length-'.js'.length);
+                    } else if (id.endsWith('.jtt')) {
+                        id = id.substring(0, id.length-'.jtt'.length);
+                    }
+                    let app = this.loadApp(id, null, curPath, {});
+                    if (app != null) {
+                        this.apps[id] = app;
+                        this.appsMetaData[id] = app.metaData();
+                    }
+                } else if (curPathIsFolder) {
+                    this.loadAppDir(curPath);
                 }
             }
         }
@@ -224,7 +240,7 @@ class Data {
             var origFolder = this.appPath(appToSave.origId);
             var newFolder = this.appPath(appToSave.id);
             fs.renameSync(origFolder, newFolder);
-            var appjsPath = path.join(newFolder, 'app.js')
+            var appjsPath = path.join(newFolder, 'app.jtt')
             fs.writeFileSync(appjsPath, appToSave.appjs);
             var appjsPath = path.join(newFolder, 'client.html')
             fs.writeFileSync(appjsPath, appToSave.clientHTML);
@@ -433,7 +449,7 @@ class Data {
         var app = new App.new(session, id, this.jt, appPath);
 
         fs.mkdirSync(this.appPath(id));
-        fs.writeFileSync(this.appPath(id) + '/app.js', '');
+        fs.writeFileSync(this.appPath(id) + '/app.jtt', '');
         fs.writeFileSync(this.appPath(id) + '/client.html', '');
 
         this.apps[app.id] = app;

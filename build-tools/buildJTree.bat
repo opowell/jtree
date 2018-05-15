@@ -5,8 +5,8 @@ REM - pkg
 
 REM Assumes main folder is one level up from this file.
 
-REM Should match what is in the main jtree.js file.
-set "vers=0.4.4"
+REM Should match what is in server/jtree.js and doc-pages/release-notes.md.
+set "vers=0.4.5"
 
 REM ------- Prepare output folder.
 call del ".\releases\%vers%" /Q /F
