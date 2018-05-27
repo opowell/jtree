@@ -1,0 +1,23 @@
+// question indices to use for each block
+var qIndices = [
+    [],
+    [],
+    [],
+    []
+];
+var allQuestions = []; // 500
+
+
+app.schemes = ['flatrate', 'piecerate', 'tournament', 'choice'];
+
+// 24 participants, each one gets a different ordering
+var orders = [
+
+]
+
+playerStart = function(player) {
+    player.order = [];
+    player.order.push(app.schemes[player.idInGroup % 4]);
+    player.order.push(app.schemes[player.idInGroup / 4]);
+    player.idInGroup
+}

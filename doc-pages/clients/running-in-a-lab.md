@@ -6,7 +6,7 @@ Most browsers can be setup to run in full-screen ("Kiosk") mode. This will only 
 
 1. Create a shortcut to Google Chrome on your Desktop.
 2. Right click this shortcut and select `Properties`.
-3. Add `--kiosk http://<jtree-link>` to the end of the `Shortcut` field, where `<jtree-link>` is the participant link provided by jtree.
+3. Add `--kiosk http://<jtree-link> --lang=en` to the end of the `Shortcut` field, where `<jtree-link>` is a participant link provided by jtree. This is usually of the format `server.ip/PX` for a specific participant, or just `server.ip` for a participant based on the IP address of the machine running the command. The `--lang=en` option specifies the language of the browser (important for error messages). 
 
 Make sure the browser is not already running when you are ready to start Kiosk mode. Then simply double-click the shortcut. Press `Alt-F4` or `Ctrl-W` to exit the browser. Use `Alt-Tab` to switch to another program, and the `Windows` key to open the Start Menu.
 

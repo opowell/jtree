@@ -12,6 +12,9 @@ class ViewSessionControls extends HTMLElement {
             <button class="btn btn-outline-secondary btn-sm" onclick='jt.deleteSession()'>
                 <i class="fa fa-trash"></i>&nbsp;&nbsp;Delete
             </button>
+            <button class="btn btn-outline-secondary btn-sm" onclick='server.saveOutput()'>
+                <i class="fa fa-save"></i>&nbsp;&nbsp;Save output
+            </button>
         </div>
         `;
     }

@@ -17,7 +17,7 @@ server.createQueue   = function(id)  { jt.socket.emit('createQueue'      , id); 
 server.saveRoom     = function(room) { jt.socket.emit('saveRoom', room); }
 server.startSessionFromQueue = function(id) { jt.socket.emit('startSessionFromQueue', {qId: id, userId: Cookies.get('userId')}); }
 server.createAppFromFile    = function(fn, contents) { jt.socket.emit('createAppFromFile', {fn: fn, contents: contents})}
-
+server.saveOutput = function() { jt.socket.emit('saveOutput', jt.data.session.id); }
 server.deleteQueue = function(id) { jt.socket.emit('deleteQueue', id); }
 
 server.sendMessages = function(data) {

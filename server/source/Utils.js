@@ -110,13 +110,17 @@ class Utils {
         }
     }
 
+    // Returns groups of size 'groupSize'. Last group may not be full.
     static getRandomGroups(objects, groupSize) {
         var groups = [];
-        var numGroups = objects.length / groupSize;
+        var numGroups = Math.ceil(objects.length / groupSize);
         var keys = Object.keys(objects);
         for (var i=0; i<numGroups; i++) {
             var group = [];
             for (var j=0; j<groupSize; j++) {
+                if (keys.length < 1) {
+                    break;
+                }
                 var ind = Utils.randomInt(0, keys.length);
                 var obj = objects[keys[ind]];
                 keys.splice(ind, 1);

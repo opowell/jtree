@@ -5,35 +5,38 @@ stage.waitToStart = false;
 stage.content = `
 
 <form class='cols3'>
-    <span>
-        <div>
+    <span style='margin-bottom: 0.2rem;'>
+        <div style='margin-top: 0rem; margin-bottom: 0rem;'>
             <p
                 id='part7Task1'
                 class='comprehension'
                 task-name='the <b>first task</b> in Part 6'
                 task-name-und='the first task in Part 6'
-                task-desc='to guess a number such that you thought one of two randomly selected contributions from Part 5 was greater than that number, and one was less than or equal to that number. <br><br><br>Please answer the following questions about this Task'
-                id-prefix='part7Task1'>
+                task-desc='to guess a number such that you thought three of four randomly selected contributions from Part 5 was greater than or equal to that number, and the other one was less than that number. <br><br>Please answer the following questions about this Task'
+                id-prefix='part7Task1'
+                style='margin-bottom: 0.2rem;'>
             </p>
         </div>
-        <div>
+        <div style='margin-top: 0rem; margin-bottom: 0rem;'>
             <p
                 id='part7Task2'
                 class='comprehension'
                 task-name='the <b>second task</b> in Part 6'
                 task-name-und='the second task in Part 6'
-                task-desc='to guess a number such that you thought one of four randomly selected contributions from Part 5 was greater than that number, and the other three were less than or equal to that number. <br><br>Please answer the following questions about this Task'
-                id-prefix='part7Task2'>
+                task-desc='to guess a number such that you thought two of four randomly selected contributions from Part 5 were greater than that number, and the other two were less than or equal to that number. <br><br>Please answer the following questions about this Task'
+                id-prefix='part7Task2'
+                style='margin-bottom: 0.2rem;'>
             </p>
         </div>
-        <div>
+        <div style='margin-top: 0rem; margin-bottom: 0rem;'>
             <p
                 id='part7Task3'
                 class='comprehension'
                 task-name='the <b>third task</b> in Part 6'
                 task-name-und='the third task in Part 6'
-                task-desc='to guess a number such that you thought three of four randomly selected contributions from Part 5 was greater than that number, and the other one was less than or equal to that number. <br><br>Please answer the following questions about this Task'
-                id-prefix='part7Task3'>
+                task-desc='to guess a number such that you thought one of four randomly selected contributions from Part 5 was greater than that number, and the other three were less than or equal to that number. <br><br>Please answer the following questions about this Task'
+                id-prefix='part7Task3'
+                style='margin-bottom: 0.2rem;'>
             </p>
         </div>
     </span>
@@ -43,4 +46,4 @@ stage.content = `
 
 `
 
-stage.waitToEnd = false;
+//stage.waitToEnd = true;

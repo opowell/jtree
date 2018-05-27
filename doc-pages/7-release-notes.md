@@ -1,3 +1,17 @@
+##### 0.4.9
+- save session data
+
+##### 0.4.8
+- catch errors when parsing client values.
+- save session data on demand.
+- fix to display participant points properly.
+
+##### 0.4.7
+- fix to reload apps on participant connect.
+
+##### 0.4.6
+- participant IDs can include '.' character.
+
 ##### 0.4.5
 - load apps from .js and .jtt files.
 
