@@ -6,6 +6,7 @@ app.addPositiveIntegerOption('numPeriods', 5, null, 'The number of periods.');
 app.multiplier  = 2/3;
 app.lowerBound  = 0;
 app.upperBound  = 100;
+app.numPeriods = 5;
 
 var decideStage = app.newStage('decide');
 

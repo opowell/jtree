@@ -78,6 +78,7 @@ class Player {
         }
     }
 
+    // nextForGroup - whether or not to also start the stage for this player's group.
     attemptToStartStage(nextForGroup) {
         if (nextForGroup == null || nextForGroup) {
             this.group.attemptToStartStage(this.stage);
@@ -197,6 +198,7 @@ class Player {
         return this.session().jt;
     }
 
+    // nextForGroup - whether or not to also start the next stage for this player's group.
     justGoToNextStage(nextForGroup) {
         let stage = this.stage;
         let player = this;

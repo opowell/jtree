@@ -628,8 +628,8 @@ class App {
         participantText.push(participantHeadersText);
         var pIds = Object.keys(this.session.participants).sort();
         for (var i in pIds) {
-            var participant = this.session.participants[i];
-            var newLine = participant.id + ',' + participant.points()
+            var participant = this.session.participants[pIds[i]];
+            var newLine = participant.id + ',' + participant.points();
             if (participantHeaders.length > 0) {
                 newLine += ',';
             }
