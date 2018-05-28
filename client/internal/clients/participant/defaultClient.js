@@ -150,12 +150,6 @@ jt.setFormDefaults = function() {
 }
 
 jt.setValues = function(player) {
-    let group = player.group;
-    let period = group.period;
-    let app = period.app;
-    let session = app.session;
-    let stage = player.stage;
-    let participant = player.participant;
     let clock = jt.getClock(jt.data.timeLeft);
 
     $('*').each(function(index) {
@@ -164,11 +158,11 @@ jt.setValues = function(player) {
             var att = atts[i];
             if (att.name.startsWith('jt-')) {
                 if (att.name === 'jt-html') {
-                    let val = eval(att.value);
+                    let val = jt.eval(att.value, player, clock);
                     val = jt.formatValue(this, val);
                     this.innerHTML = val;
                 } else if (att.name === 'jt-text') {
-                    let val = eval(att.value);
+                    let val = jt.eval(att.value, player, clock);
                     val = jt.formatValue(this, val);
                     $(this).text(val);
                 } else if (
@@ -177,7 +171,7 @@ jt.setValues = function(player) {
                     // DO NOTHING
                 } else {
                     try {
-                        let val = eval(att.value);
+                        let val = jt.eval(att.value, player, clock);
                         var attrName = att.name.substring('jt-'.length);
                         var stepSize = $(this).attr('step');
                         if (stepSize != null) {

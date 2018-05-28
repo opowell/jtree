@@ -137,9 +137,8 @@ class Data {
         try {
             eval(fs.readFileSync(appPath) + '');
         } catch (err) {
-            console.log('Data.loadApp: ' + appPath);
-            console.log(err);
-            // console.log(fs.readFileSync(appPath) + '');
+            // jt.log('Data.loadApp: ' + appPath);
+            // jt.log(err);
             app = null;
         }
         return app;

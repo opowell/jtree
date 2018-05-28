@@ -5,7 +5,7 @@ msgs.addSession = function(session) {
   if (index === null) {
       jt.data.sessions.push(session);
       showSessionRow(session);
-      jt.showUsersMode(jt.settings.multipleUsers); 
+      jt.showUsersMode(jt.settings.multipleUsers);
   }
 }
 msgs.deleteSession = function(id) {
@@ -134,13 +134,13 @@ msgs.participantSetAppIndex = function(md) {
 }
 
 msgs.participantSetGroupId = function(md) {
-    $('.participant-' + md.participantId + '-groupId').text(md.groupId);
+    $('.participant-' + safePId(md.participantId) + '-groupId').text(md.groupId);
 }
 
 msgs.participantSetPeriodIndex = function(md) {
     var participant = jt.data.session.participants[md.participantId];
     participant.periodIndex = md.periodIndex;
-    $('.participant-' + md.participantId + '-periodIndex').text(participant.periodIndex+1);
+    $('.participant-' + safePId(md.participantId) + '-periodIndex').text(participant.periodIndex+1);
 }
 
 msgs.playerSetStageIndex = function(md) {
@@ -152,18 +152,18 @@ msgs.playerSetStageIndex = function(md) {
     if (stage !== undefined) {
         stageText = stage.id;
     }
-    $('.participant-' + participant.id + '-stageId').text(stageText);
+    $('.participant-' + safePId(md.participantId) + '-stageId').text(stageText);
 }
 msgs.participantSetPlayer = function(md) {
     var participant = jt.data.session.participants[md.participantId];
     participant.player = md.player;
-    $('.participant-' + md.participantId + '-groupId').text(participant.player.group.id);
+    $('.participant-' + safePId(md.participantId) + '-groupId').text(participant.player.group.id);
 }
 msgs.playerUpdate = function(player) {
 //    var decompId = decomposeId(player.roomId);
 //    if (decompId.sessionId === jt.data.session.id) {
     if (player.group.period.app.session.id === jt.data.session.id) {
-                var div = $('tr.participant-' + player.id);
+                var div = $('tr.participant-' + safePId(player.id));
 
         // Re-establish object links.
         player.participant.session = player.group.period.app.session;
@@ -176,7 +176,7 @@ msgs.playerUpdate = function(player) {
 
         setParticipantPlayer(player.id, player, div);
 //        $('.participant-' + player.id + '-periodIndex').text(decompId.periodId);
-        $('.participant-' + player.id + '-periodIndex').text(player.group.period.id);
+        $('.participant-' + safePId(player.id) + '-periodIndex').text(player.group.period.id);
     }
 }
 

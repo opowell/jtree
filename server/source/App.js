@@ -412,13 +412,13 @@ class App {
 
         // Load content of html file, if any.
         // Try app.htmlFile, id.html, and client.html.
-        var htmlFile = app.htmlFile == null ? this.id + '.html' : app.htmlFile;
-        var filename = path.join(this.jt.path, '/apps/' + app.id + '/' + htmlFile);
+        var htmlFile = app.htmlFile == null ? app.id + '.html' : app.htmlFile;
+        var filename = path.join(app.jt.path, '/apps/' + app.id + '/' + htmlFile);
         if (fs.existsSync(filename)) {
             html = html + Utils.readTextFile(filename);
         } else {
             htmlFile = 'client.html';
-            filename = path.join(this.jt.path, '/apps/' + app.id + '/' + htmlFile);
+            filename = path.join(app.jt.path, '/apps/' + app.id + '/' + htmlFile);
             if (fs.existsSync(filename)) {
                 html = html + Utils.readTextFile(filename);
             }
@@ -453,21 +453,21 @@ class App {
 
         // Load stage contents, if any.
         var stagesHTML = '';
-        for (var i=0; i<this.stages.length; i++) {
-            var stage = this.stages[i];
+        for (var i=0; i<app.stages.length; i++) {
+            var stage = app.stages[i];
             if (stage.content != null) {
                 if (stagesHTML.length > 0) {
                     stagesHTML = stagesHTML + '\n';
                 }
-                var contentStart = this.parseStageTag(stage, this.stageContentStart);
-                var contentEnd = this.parseStageTag(stage, this.stageContentEnd);
+                var contentStart = app.parseStageTag(stage, app.stageContentStart);
+                var contentEnd = app.parseStageTag(stage, app.stageContentEnd);
                 stagesHTML = stagesHTML + contentStart + '\n' + stage.content + '\n' + contentEnd;
             }
             if (stage.activeScreen != null) {
                 if (stagesHTML.length > 0) {
                     stagesHTML = stagesHTML + '\n';
                 }
-                stagesHTML += this.parseStageTag(stage, this.stageContentStart)  + '\n';
+                stagesHTML += app.parseStageTag(stage, app.stageContentStart)  + '\n';
                 var wrapInForm = stage.wrapPlayingScreenInFormTag;
                 if (wrapInForm) {
                     stagesHTML += '<form>\n';
@@ -476,7 +476,7 @@ class App {
                 if (wrapInForm) {
                     stagesHTML += '</form>\n';
                 }
-                stagesHTML += this.parseStageTag(stage, this.stageContentEnd);
+                stagesHTML += app.parseStageTag(stage, app.stageContentEnd);
             }
         }
         if (html.includes('{{stages}}')) {
@@ -527,6 +527,12 @@ class App {
     end() {
 
         this.finished = true;
+
+        this.saveOutput(this.session.csvFN());
+
+    }
+
+    saveOutput(fn) {
 
         // Create headers
         var appsHeaders = [];
@@ -620,9 +626,10 @@ class App {
             participantHeadersText += ',' + participantHeaders.join(',');
         }
         participantText.push(participantHeadersText);
-        for (var i in this.session.participants) {
-            var participant = this.session.participants[i];
-            var newLine = participant.id + ',' + participant.points()
+        var pIds = Object.keys(this.session.participants).sort();
+        for (var i in pIds) {
+            var participant = this.session.participants[pIds[i]];
+            var newLine = participant.id + ',' + participant.points();
             if (participantHeaders.length > 0) {
                 newLine += ',';
             }
@@ -639,15 +646,15 @@ class App {
         }
 
         // WRITE OUTPUT
-        fs.appendFileSync(this.session.csvFN(), 'APP ' + this.indexInSession() + '_' + this.id + '\n');
-        fs.appendFileSync(this.session.csvFN(), appsText.join('\n') + '\n');
+        fs.appendFileSync(fn, 'APP ' + this.indexInSession() + '_' + this.id + '\n');
+        fs.appendFileSync(fn, appsText.join('\n') + '\n');
         if (periodHeaders.length > 0) {
-            fs.appendFileSync(this.session.csvFN(), 'PERIODS\n');
-            fs.appendFileSync(this.session.csvFN(), periodText.join('\n') + '\n');
+            fs.appendFileSync(fn, 'PERIODS\n');
+            fs.appendFileSync(fn, periodText.join('\n') + '\n');
         }
         if (groupHeaders.length > 0) {
-            fs.appendFileSync(this.session.csvFN(), 'GROUPS\n');
-            fs.appendFileSync(this.session.csvFN(), groupText.join('\n') + '\n');
+            fs.appendFileSync(fn, 'GROUPS\n');
+            fs.appendFileSync(fn, groupText.join('\n') + '\n');
         }
 
         for (var t=0; t<groupTables.length; t++) {
@@ -668,17 +675,17 @@ class App {
                     }
                 }
             }
-            fs.appendFileSync(this.session.csvFN(), groupTables[t].toUpperCase() + '\n');
-            fs.appendFileSync(this.session.csvFN(), groupTableText.join('\n') + '\n');
+            fs.appendFileSync(fn, groupTables[t].toUpperCase() + '\n');
+            fs.appendFileSync(fn, groupTableText.join('\n') + '\n');
         }
 
         if (playerHeaders.length > 0) {
-            fs.appendFileSync(this.session.csvFN(), 'PLAYERS\n');
-            fs.appendFileSync(this.session.csvFN(), playerText.join('\n') + '\n');
+            fs.appendFileSync(fn, 'PLAYERS\n');
+            fs.appendFileSync(fn, playerText.join('\n') + '\n');
         }
 
-        fs.appendFileSync(this.session.csvFN(), 'PARTICIPANTS\n');
-        fs.appendFileSync(this.session.csvFN(), participantText.join('\n') + '\n');
+        fs.appendFileSync(fn, 'PARTICIPANTS\n');
+        fs.appendFileSync(fn, participantText.join('\n') + '\n');
 
     }
 
@@ -858,7 +865,6 @@ class App {
 
     reload() {
         var app = new App(this.session, this.id, this.jt);
-        var folder = path.join(this.jt.path, this.session.getOutputDir() + '/' + this.indexInSession() + '_' + this.id);
         app.optionValues = this.optionValues;
         for (var opt in app.optionValues) {
             app[opt] = app.optionValues[opt];

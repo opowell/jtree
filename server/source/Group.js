@@ -281,8 +281,15 @@ class Group {
 
     attemptToStartNextStage() {
         if (this.stageIndex < this.app().stages.length - 1) {
+            // move group (and all its players) to next stage.
             this.stageIndex++;
             this.attemptToStartStage(this.stage());
+        } else {
+            // move all players to next period.
+            for (var p in this.players) {
+                var nextForGroup = false;
+                this.players[p].justGoToNextStage(nextForGroup);
+            }
         }
     }
 

@@ -272,7 +272,7 @@ function addPanel(id, title, contentEl) {
 }
 
 function showPanel(t, tt, ll, hh, ww, bb, rr, override) {
-    var el = $(t);
+    var el = $(t.replace(/\./g, '\\.'));
     el.removeAttr('hidden');
 }
 
@@ -386,7 +386,7 @@ function showPlayerCurApp(participant) {
         var app = jt.data.session.apps[participant.appIndex-1];
         appText = appText + app.id;
     }
-    $('#app-' + participant.id).text(appText);
+    $('#app-' + safePId(participant.id)).text(appText);
 //    $('.participant-' + participant.id + '-appIndex').text(participant.appIndex);
 }
 

@@ -36,7 +36,6 @@ class Session {
         this.jt = jt;
         this.id = id;
         if (this.id === null || this.id === undefined) {
-            var date = Utils.getDateObject();
             this.id = Utils.getDate();
         }
         this.name = this.id;
@@ -520,6 +519,34 @@ class Session {
                     return;
                 }
             }
+        }
+    }
+
+    saveOutput() {
+
+        var headers = ['id'];
+        var skip = [];
+        var fields = this.outputFields();
+        Utils.getHeaders(fields, skip, headers);
+        var text = [];
+        text.push(headers.join(','));
+        var newLine = '';
+        for (var h=0; h<headers.length; h++) {
+            var header = headers[h];
+            if (this[header] !== undefined) {
+                newLine += JSON.stringify(this[header]);
+            }
+            if (h<headers.length-1) {
+                newLine += ',';
+            }
+        }
+        text.push(newLine);
+
+        var fn = this.csvFN() + ' - manual save at ' + Utils.getDate() + '.csv';
+        fs.appendFileSync(fn, 'SESSION\n');
+        fs.appendFileSync(fn, text.join('\n') + '\n');
+        for (var i=0; i<this.apps.length; i++) {
+            this.apps[i].saveOutput(fn);
         }
     }
 

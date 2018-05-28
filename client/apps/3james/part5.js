@@ -24,7 +24,7 @@ stage.content = `
 
     <p>When you have decided how much to contribute to the project, enter this into the box below the Income Calculator and click "Confirm Contribution".</p>
 
-    <div style='
+    <div id='part5IncCalc' style='
     border: 1px solid #888;
     padding: 1rem;
     margin: 1rem;
@@ -36,28 +36,42 @@ stage.content = `
     '>
         <b style='grid-column: span 2;'>Income Calculator</b>
         Your contribution:
-        <input type='number' size=3 min=0 jt-max='app.part5End' step=1 style='width: fit-content' id='myCont'>
+        <span>
+          <input type='number' size=3 min=0 jt-max='app.part5End' step=1 style='width: fit-content' id='myCont'>
+          points
+        </span>
         Other's contribution:
-        <input type='number' size=3 min=0 jt-max='app.part5End' step=1 style='width: fit-content' id='otherCont'>
+        <span>
+          <input type='number' size=3 min=0 jt-max='app.part5End' step=1 style='width: fit-content' id='otherCont'>
+          points
+        </span>
         <button style='grid-column: span 2;' onclick='jt.updateCalculator();'>Check Incomes</button>
+        <span style='grid-column: span 2; color: red; white-space: pre-wrap' id='part5Msg'></span>
         Your contribution:
         <span id='myContDisp'></span>
         Other's contribution:
         <span id='otherContDisp'></span>
         Your earnings:
-        <span id='myEarnings' style='width: 17rem;'></span>
+        <span id='myEarnings' style='min-width: 20rem;'></span>
         Other's earnings:
         <span id='otherEarnings'></span>
     </div>
     <script>
+        isValidContribution = function(x) {
+          var check1 = (!isNaN(x));
+          var check2 = (x >= 0);
+          var check3 = (x <= jt.data.player.group.period.app.part5End);
+          var check4 = (parseInt(x) == x);
+          return check1 && check2 && check3 && check4;
+        }
         jt.updateCalculator = function() {
             var myCont = parseInt($('#myCont').val());
             var otherCont = parseInt($('#otherCont').val());
-            if (!isNaN(myCont) && !isNaN(otherCont)) {
+            if (isValidContribution(myCont) && isValidContribution(otherCont)) {
                 var end = jt.data.player.stage.app.part5End;
                 var mult = jt.data.player.part5Mult;
-                $('#myContDisp').text(myCont);
-                $('#otherContDisp').text(otherCont);
+                $('#myContDisp').text(myCont + ' points');
+                $('#otherContDisp').text(otherCont + ' points');
                 var p5c = $('#part5Calcs');
                 if (p5c.val().length > 0) {
                     p5c.val(p5c.val() + ',');
@@ -65,13 +79,16 @@ stage.content = `
                 p5c.val(p5c.val() + '(' + myCont + ',' + otherCont + ')');
                 var myEarnings = round(end - myCont + (myCont + otherCont) * mult / 2, 2);
                 var otherEarnings = round(end - otherCont + (myCont + otherCont) * mult / 2, 2);
-                $('#myEarnings').text(end + ' - ' + myCont + ' + (' + myCont + ' + ' + otherCont + ') x ' + mult + '/2 = ' + myEarnings);
-                $('#otherEarnings').text(end + ' - ' + otherCont + ' + (' + otherCont + ' + ' + myCont + ') x ' + mult + '/2 = ' + otherEarnings);
+                $('#myEarnings').text(end + ' - ' + myCont + ' + (' + myCont + ' + ' + otherCont + ') x ' + mult + '/2 = ' + myEarnings + ' points');
+                $('#otherEarnings').text(end + ' - ' + otherCont + ' + (' + otherCont + ' + ' + myCont + ') x ' + mult + '/2 = ' + otherEarnings + ' points');
+                $('#part5Msg').text('');
+            } else {
+              $('#part5Msg').text('Please enter a number for both yourself and the other player.\\nThe numbers must be integers between 0 and 20.');
             }
         }
     </script>
 
-    <p>How much do you want to contribute to the project?</p>
+    <p>How many points do you want to contribute to the project?</p>
 
     <form>
         <input hidden name='player.part5Calculations' id='part5Calcs'>
@@ -82,44 +99,4 @@ stage.content = `
     </form>
 `
 
-stage.groupEnd = function(group) {
-    var app = group.app();
-    var t1players = group.players.filter(function(el) {
-        return el.part5Mult === app.part5MultT1;
-    });
-    var t2players = group.players.filter(function(el) {
-        return el.part5Mult === app.part5MultT2;
-    });
-
-    var part5GroupsT1 = Utils.getRandomGroups(t1players, 2);
-    for (var i=0; i<part5GroupsT1.length; i++) {
-        var players = part5GroupsT1[i];
-        var groupContributions = Utils.sum(players, 'part5Cont');
-        var groupProd = groupContributions * app.part5MultT1;
-        for (var j=0; j<players.length; j++) {
-            var player = players[j];
-            player.part5GroupPlayerIds = Utils.values(players, 'id');
-            player.part5GroupContributions = groupContributions;
-            player.part5GroupProd = groupProd;
-            player.part5GroupId = i;
-            player.part5Points = app.part5End - player.part5Cont + groupProd / players.length;
-            player.part5Eur = (player.part5Points*app.part5ExchRate).toFixed(2)-0;
-        }
-    }
-
-    var part5GroupsT2 = Utils.getRandomGroups(t2players, 2);
-    for (var i=0; i<part5GroupsT2.length; i++) {
-        var players = part5GroupsT2[i];
-        var groupContributions = Utils.sum(players, 'part5Cont');
-        var groupProd = groupContributions * app.part5MultT2;
-        for (var j=0; j<players.length; j++) {
-            var player = players[j];
-            player.part5GroupPlayerIds = Utils.values(players, 'id');
-            player.part5GroupContributions = groupContributions;
-            player.part5GroupProd = groupProd;
-            player.part5GroupId = i;
-            player.part5Points = app.part5End - player.part5Cont + groupProd / players.length;
-            player.part5Eur = (player.part5Points*app.part5ExchRate).toFixed(2)-0;
-        }
-    }
-}
+stage.waitToEnd = false;

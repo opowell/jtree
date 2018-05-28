@@ -56,7 +56,7 @@ function viewParticipant(pId) {
     const elId = 'session-participant-' + pId;
     const existsAlready = $('#panel-' + elId).length > 0;
     const panel = addPanel(elId, 'Participant ' + pId, view);
-    $('#panel-' + elId).addClass('participant-view');
+    $('#panel-' + elId.replace(/\./g, '\\\\.')).addClass('participant-view');
     if (!existsAlready) {
 
         var closeBtn = $('<button type="button" class="headerBtn close float-right"><i title="close" class="fa fa-times"></i></button>');
@@ -89,9 +89,9 @@ function viewParticipant(pId) {
 }
 
 function toggleParticipantAutoplay(pId) {
-    const elId = 'panel-session-participant-' + pId;
+    const elId = 'panel-session-participant-' + safePId(pId);
     const el = $('#' + elId);
-    const apEl = $('#' + pId + '-autoplay');
+    const apEl = $('#' + safePId(pId) + '-autoplay');
     setParticipantAutoplay(pId, !apEl.hasClass('headerBtn-on'));
 }
 

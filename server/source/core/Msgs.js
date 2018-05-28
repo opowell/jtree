@@ -57,6 +57,11 @@ class Msgs {
         session.deleteParticipant(d.pId);
     }
 
+    saveOutput(sId, socket) {
+        var session = this.jt.data.getSession(sId);
+        session.saveOutput();
+    }
+
     setDefaultAdminPwd(d, sock) {
         this.jt.settings.setDefaultAdminPwd(d.curPwd, d.newPwd);
     }

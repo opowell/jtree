@@ -271,7 +271,7 @@ class Participant {
         for (var p in this.players) {
             var points = this.players[p].points;
             if (points !== undefined && points !== null && !isNaN(points)) {
-                out += this.players[p].points;
+                out += parseFloat(this.players[p].points);
             }
         }
         return out;

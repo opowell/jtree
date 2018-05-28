@@ -18,6 +18,20 @@ function isNumeric(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
+jt.eval = function(x, player, clock) {
+    let group = player.group;
+    let period = group.period;
+    let app = period.app;
+    let session = app.session;
+    let stage = player.stage;
+    let participant = player.participant;
+    try {
+        return eval(x);
+    } catch (err) {
+        return 'error';
+    }
+}
+
 function sum(items, prop) {
     return items.reduce(function(a, b){
         if (isNumeric(b[prop])) {

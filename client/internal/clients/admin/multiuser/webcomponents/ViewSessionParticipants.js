@@ -41,14 +41,20 @@ var playerFieldsToSkip = [
 ];
 
 function setPlayerTimeLeft(participant, tl) {
-    $('#timeleft-' + participant.id).text(tl);
+    $('#timeleft-' + safePId(participant.id)).text(tl);
 }
 
 function showPlayerCurPeriod(participant, p) {
-    $('#period-' + participant.id).text(p);
+    $('#period-' + safePId(participant.id)).text(p);
+}
+
+function safePId(pId) {
+  return pId.replace(/\./g, '\\.');
 }
 
 function setParticipantPlayer(pId, player, pDiv) {
+
+  var sPId = safePId(pId);
 
     // Get the set of current headers
     var headers = $('#session-participants-headers > th');
@@ -58,7 +64,7 @@ function setParticipantPlayer(pId, player, pDiv) {
     for (var j=0; j<headers.length; j++) {
         var field = headers[j].innerHTML;
         if (!playerFieldsToSkip.includes(field)) {
-            var foundEl = pDiv.find('.player-' + pId + '-' + field).length > 0;
+            var foundEl = pDiv.find('.player-' + sPId + '-' + field).length > 0;
             var value = '';
             if (player !== null) {
                 if (player[field] !== undefined) {
@@ -71,7 +77,7 @@ function setParticipantPlayer(pId, player, pDiv) {
                 pDiv.append($('<td class="player-' + pId + '-' + field +'">'));
             }
             headersText.push(field);
-            pDiv.find('.player-' + pId + '-' + field).text(roundValue(value, 2));
+            pDiv.find('.player-' + sPId + '-' + field).text(roundValue(value, 2));
         }
     }
 
@@ -82,11 +88,11 @@ function setParticipantPlayer(pId, player, pDiv) {
                 addParticipantPlayerHeader(i);
                 headersText.push(i);
             }
-            pDiv.find('.player-' + pId + '-' + i).text(roundValue(player[i], 2));
+            pDiv.find('.player-' + sPId + '-' + i).text(roundValue(player[i], 2));
         }
     }
     if (player !== null) {
-        $('.participant-' + pId + '-status').text(player.status);
+        $('.participant-' + sPId + '-status').text(player.status);
         if (player.status === 'active') {
             pDiv.addClass('player-active');
         } else {
@@ -100,7 +106,7 @@ function setParticipantPlayer(pId, player, pDiv) {
         msgs.participantSetGroupId({participantId: player.id, groupId: gId});
         clearInterval(participantTimers[pId]);
         if (player.stageTimerDuration === undefined) {
-            var div = $('.participant-' + pId + '-timeleft');
+            var div = $('.participant-' + sPId + '-timeleft');
             div.find('.minutes').text('');
             div.find('.seconds').text('');
         } else {
@@ -116,7 +122,7 @@ function setParticipantPlayer(pId, player, pDiv) {
                     if (player.timeLeft <= 0) {
                         clearTimeout(player.stageTimer);
                     }
-                    var div = $('.participant-' + pId + '-timeleft');
+                    var div = $('.participant-' + sPId + '-timeleft');
                     var minutes = div.find('.minutes');
                     var seconds = div.find('.seconds');
                     jt.displayTimeLeft(minutes, seconds, player.timeLeft);
@@ -125,7 +131,7 @@ function setParticipantPlayer(pId, player, pDiv) {
             } else {
                 player.timeLeft = player.stageTimerTimeLeft;
             }
-            var div = $('.participant-' + pId + '-timeleft');
+            var div = $('.participant-' + sPId + '-timeleft');
             var minutes = div.find('.minutes');
             var seconds = div.find('.seconds');
             jt.displayTimeLeft(minutes, seconds, player.timeLeft);
@@ -134,7 +140,7 @@ function setParticipantPlayer(pId, player, pDiv) {
 
     let participant = player.participant;
     showPlayerCurApp(participant);
-    $('.participant-' + participant.id + '-periodIndex').text(participant.periodIndex+1);
+    $('.participant-' + safePId(participant.id) + '-periodIndex').text(participant.periodIndex+1);
 
 }
 
