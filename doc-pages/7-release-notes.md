@@ -1,3 +1,6 @@
+#### 0.5.0
+- fix for multiple periods.
+
 ##### 0.4.9
 - save session data
 

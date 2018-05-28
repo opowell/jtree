@@ -1,0 +1,25 @@
+<script type="text/javascript" src='/participant/jtree.js'></script>
+<p>Period: {period.id}/{app.numPeriods}</p>
+<span jt-status='playing'>
+    <span jt-stage='decide'>
+        <p>CHOOSE</p>
+        <p>Choose your action.</p>
+        <form>
+            <button name='player.x' jt-value='app.STAG' type='submit'>Action 1</button>
+            <button name='player.x' jt-value='app.HARE' type='submit'>Action 2</button>
+        </form>
+    </span>
+    <span jt-stage='results'>
+        <p>RESULTS</p>
+        <p>You chose {player.x}.</p>
+        <p>The other player chose {player.partnerX}.</p>
+        <p>Thus, your payoff is E$<span jt-text='player.points' jt-decimals=2></span>.</p>
+        <form>
+            <button>OK</button>
+        </form>
+    </span>
+</span>
+<span jt-status='waiting'>
+    <p>WAITING</p>
+    <p>The experiment will continue soon.</p>
+</span>

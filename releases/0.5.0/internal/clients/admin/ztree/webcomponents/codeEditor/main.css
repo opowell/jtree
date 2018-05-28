@@ -1,0 +1,97 @@
+#editor-container {
+  width: 100%;
+  height: 100%;
+}
+
+#sidebar {
+  display: flex;
+  height: -moz-calc(100% - 20px);
+  height: -webkit-calc(100% - 20px);
+  height: calc(100% - 20px);
+  background-color: #e8e8e8;
+  border-bottom: 1px solid #888;
+}
+
+#editor {
+  display: inline-block;
+  width: -moz-calc(100% - 200px);
+  width: -webkit-calc(100% - 200px);
+  width: calc(100% - 200px);
+  height: 100%;
+}
+
+#app-editor {
+    font-size: 18pt;
+}
+
+#create-file-input {
+    width: 154px;
+}
+
+#create-file-button {
+    text-decoration: none;
+  font-weight: bold;
+  padding: 2px 5px;
+}
+
+#create-file-button:hover {
+    background-color: #fff;
+}
+
+#file-list {
+  max-height: -moz-calc(100% - 26px);
+  max-height: -webkit-calc(100% - 26px);
+  max-height: calc(100% - 26px);
+  padding: 0;
+  overflow: auto;
+  display: flex;
+  background-color: #e8e8e8;
+  color: #888;
+}
+
+.file {
+    display: flex;
+    padding: 6px 14px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    margin-left: 2px;
+    margin-top: 2px;
+    cursor: pointer;
+}
+
+.file:hover {
+    color: #000;
+    background-color: #fff;
+}
+
+.file a {
+  text-decoration: none;
+}
+
+.file input {
+    width: 154px;
+}
+
+.filename {
+  display: inline-block;
+  min-width: -moz-calc(100% - 32px);
+  min-width: -webkit-calc(100% - 32px);
+  min-width: calc(100% - 32px);
+  height: 20px;
+  word-wrap: break-word;
+}
+
+.rename-file {
+  margin-left: 10px;
+  padding-top: 2px;
+  font-size: 0.8em;
+}
+
+.remove-file {
+  padding-top: 2px;
+}
+
+.file-selected {
+    background-color: #fff;
+    color: #000;
+}

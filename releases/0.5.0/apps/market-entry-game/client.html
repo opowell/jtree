@@ -1,0 +1,27 @@
+<script type="text/javascript" src='/participant/jtree.js'></script>
+<p>Period: <span jt-value='period.id'>1</span>/<span jt-value='app.numPeriods'></span></p>
+<span jt-status='active'>
+    <span jt-stage='decide'>
+        <p>DECISION</p>
+        <p>Choose whether or not to enter the market.</p>
+        <form>
+            <button name='player.enter' value='true'  type='submit'>enter</button>
+            <button name='player.enter' value='false' type='submit'>not enter</button>
+        </form>
+    </span>
+    <span jt-stage='results'>
+        <p>Time left: <span jt-value='clock.minutes'>mm</span>:<span jt-value='clock.seconds'></span></p>
+        <p>RESULTS</p>
+        <p jt-displayIf='player.enter'>You chose to <b>enter</b> the market.</p>
+        <p jt-displayIf='!player.enter'>You chose to <b>not enter</b> the market.</p>
+        <p>The number of players in your group who chose to enter was <span jt-value='group.numEnter'></span>.</p>
+        <p>Thus, your payoff in this period is <span jt-value='player.points' jt-decimals=2>Z</span> points.</p>
+        <form>
+            <button>OK</button>
+        </form>
+    </span>
+</span>
+<span jt-status='waiting'>
+    <p>WAITING</p>
+    <p>The experiment will continue soon.</p>
+</span>

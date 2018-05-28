@@ -1,0 +1,11 @@
+{
+    "id": "james",
+    "displayName": "james",
+    "apps": [
+        {
+            "appId": "stag-hunt-game",
+            "options": {},
+            "indexInQueue": 1
+        }
+    ]
+}
