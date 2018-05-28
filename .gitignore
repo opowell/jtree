@@ -1,6 +1,6 @@
 build-tools/7z.dll
 build-tools/7z.exe
-client/internal/serverStage.json
+client/internal/serverState.json
 client/internal/logs
 client/internal/settings.js
 client/queues
