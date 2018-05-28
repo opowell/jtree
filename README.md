@@ -17,8 +17,7 @@ A javascript toolbox for running economics experiments.
 ### UNDER DEVELOPMENT
 Parts of the documentation are accurate, others are out of date, while still others refer to functionality that will be implemented soon (but for the moment still does not exist). Proceed with caution.
 
-https://github.com/opowell/jtree/blob/master/doc-pages/1-quick-start.md
-#### <a href='blob/master/doc-pages/1-quick-start.html'>Quick start</a>
+#### <a href='doc-pages/1-quick-start.html'>Quick start</a>
 
 #### <a href='tutorial-2-setup.html'>Setup</a>
 
