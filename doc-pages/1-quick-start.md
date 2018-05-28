@@ -1,4 +1,4 @@
-1. Download the zip file for your system.
+1. Download the latest release for your system.
 
 2. Extract the contents of the zip file.
 
