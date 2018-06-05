@@ -1,0 +1,43 @@
+app.numPeriods  = 3;
+app.html = `
+<span jt-status='playing' style='display: flex; flex-direction: column; align-items: center;'>
+    <div>
+        <span style='padding-right: 5rem;'>
+            Period: {{period.id}}/{{app.numPeriods}}
+        </span>
+        <span>
+            Time: {{clock.minutes}}:{{clock.seconds}}
+        </span>
+    </div>
+    <div>
+        {{stages}}
+    </div>
+</span>
+<span jt-status='waiting' style='display: flex; flex-direction: column; align-items: center;'>
+    <h4>Waiting</h4>
+    <p>The experiment will continue soon.</p>
+</span>
+`;
+
+var entryStage = app.newStage('entry');
+entryStage.duration = 10;
+entryStage.content = `
+    <h4>ENTER TEXT</h4>
+    <form>
+        <textarea rows=50 cols=80 name='player.textinput'></textarea><br><br>
+        <button>OK</button>
+    </form>
+`;
+entryStage.playerEnd = function(player) {
+    player.numWords = player.textinput.split(' ').length;
+    player.points = player.numWords;
+}
+
+var resultsStage = app.newStage('results');
+resultsStage.content = `
+    <h4>RESULTS</h4>
+    <p>You typed {{player.numWords}} words.</p>
+    <form>
+        <button>OK</button>
+    </form>
+`

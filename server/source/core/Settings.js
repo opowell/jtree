@@ -12,7 +12,7 @@ class Settings {
 
          this.admins                 = {};
          this.adminLoginReq          = false; // whether or not admins need to login.
-         this.allowClientsToCreateParticipants = false; // default for new sessions
+         this.allowClientsToCreateParticipants = true; // default for new sessions
          this.autoSaveFreq           = 1000; // how often to save active sessions, in ms.
          this.logToConsole           = false;
          this.openAdminOnStart       = true; // whether or not the admin page should be opened when the server starts.

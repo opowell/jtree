@@ -54,6 +54,7 @@ class Player {
             'periodId',
             'stage',
             'stageTimer',
+            'stageClientDuration',
             'this',
             'type'
         ];
@@ -455,6 +456,9 @@ class Player {
             out.stageTimerTimeLeft = group.stageTimer.timeLeft;
             out.stageTimerRunning = group.stageTimer.running;
         }
+        if (this.stage.clientDuration > 0) {
+            out.stageClientDuration = this.stage.clientDuration;
+        }
         return out;
     }
 
@@ -499,6 +503,11 @@ class Player {
             out.stageTimerTimeLeft = this.group.stageTimer.timeLeft;
             out.stageTimerRunning = this.group.stageTimer.running;
         }
+
+        if (this.stage.clientDuration > 0) {
+            out.stageClientDuration = this.stage.clientDuration;
+        }
+
         return out;
     }
 

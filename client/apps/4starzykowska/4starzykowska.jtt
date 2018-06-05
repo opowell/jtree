@@ -1,23 +1,151 @@
-// question indices to use for each block
-var qIndices = [
-    [],
-    [],
-    [],
-    []
-];
-var allQuestions = []; // 500
+app.allQuestions = [
+    ['How old is Morgan Freeman?',          23],
+    ['What is your favorite color?',        'red'],
+    ['What is a cat?',                      'An animal'],
+    ['Who was born in 1954?',               'Barack Obama'],
+    ['What is r/afew/fdsjkl?',              'A regular expression'],
+    ['What day is it today?',               'Monday'],
+    ['Which direction is north?',           'North'],
+    ['Where are you now?',                  'Here']
+]; // 500
 
+// question indices to use for each block
+app.qIndices = [
+    [1, 2], // Test questions
+    [1, 3],
+    [2, 4],
+    [7, 6],
+    [8, 5]
+];
 
 app.schemes = ['flatrate', 'piecerate', 'tournament', 'choice'];
 
-// 24 participants, each one gets a different ordering
-var orders = [
-
-]
-
-playerStart = function(player) {
-    player.order = [];
-    player.order.push(app.schemes[player.idInGroup % 4]);
-    player.order.push(app.schemes[player.idInGroup / 4]);
-    player.idInGroup
+app.startPeriods = [1];
+var curPrd = 1;
+for (var i=0; i<app.qIndices.length-1; i++) {
+    curPrd = curPrd + app.qIndices[i].length;
+    if (i < app.qIndices.length - 1) {
+        app.startPeriods.push(curPrd);
+    }
+    app.endPeriods.push(curPrd-1);
 }
+app.numPeriods = curPrd;
+
+// https://stackoverflow.com/questions/9960908/permutations-in-javascript
+const permutator = function(inputArr) {
+  let result = [];
+  const permute = function(arr, m, result) {
+    if (arr.length === 0) {
+      result.push(m);
+    } else {
+      for (let i = 0; i < arr.length; i++) {
+        let curr = arr.slice();
+        let next = curr.splice(i, 1);
+        permute(curr.slice(), m.concat(next), result);
+     }
+   }
+ }
+ permute(inputArr, [], result);
+ return result;
+}
+
+// 24 participants, each one gets a different ordering
+app.schemeOrders    = permutator([1, 2, 3, 4]);
+app.questionOrders  = permutator([1, 2, 3, 4]);
+
+var invitationStage     = app.newStage('invitation');
+var informationStage    = app.newStage('information');
+var attentionStage      = app.newStage('attention');
+var questionStage       = app.newStage('question');
+var showAnsStage        = app.newStage('answer');
+var askdiffStage        = app.newStage('difficulty');
+var endInfoStage        = app.newStage('end-info');
+var paymentInfoStage    = app.newStage('payment-info');
+var perfStage           = app.newStage('subj-perf');
+
+// INVITATION STAGE
+invitationStage.canPlayerParticipate = function(player) {
+    return player.period().id == 1;
+}
+invitationStage.playerStart = function(player) {
+    // Determine orders for player.
+    player.schemeOrder      = app.schemeOrders[player.idInGroup - 1];
+    player.questionOrder    = app.questionOrders[player.idInGroup - 1];
+}
+invitationStage.content = `
+    <h4>INVITATION</h4>
+    <p>Witamy w eksperymencie!<br>
+    PO PRZECZYTANIU INSTRUKCJI kliknij OK.</p>
+    <form><button>OK</button></form>
+`;
+
+// INFORMATION STAGE
+informationStage.canPlayerParticipate = function(player) {
+    return player.app().startPeriods.includes(player.period().id);
+}
+informationStage.playerStart = function(player) {
+    player.curQIndex = 0;
+}
+informationStage.content = `
+<h4>INFORMATION</h4>
+<p>Current scheme is {{player.scheme}}. Current question order is {{player.questionOrder}}.</p>
+<p>Na kolejnych ekranach zobaczysz kilka pytañ próbnych.<br>
+Ich celem jest zaznajomienie Ciê z charakterem pytañ, z którymi bêdziesz mia³ do czynienia w etapach, za które mo¿esz otrzymaæ wynagrodzenie.</p>
+
+<p>WeŸ pod uwagê, ¿e w pytaniach próbnych bêdziesz mia³ trochê wiêcej czasu na udzielenie odpowiedzi, ni¿ w tych sk³adaj¹cych siê na w³aœciw¹ czêœæ eksperymentu.</p>
+<form><button>OK</button></form>
+`;
+
+attentionStage.content = `
+    <h4>ATTENTION</h4>
+    <p>Time: {{clock.seconds}}</p>
+`;
+attentionStage.duration = 3;
+
+// SHOW QUESTION
+questionStage.playerStart = function(player) {
+    player.qIndex = player.app().qIndices[player.curQIndex];
+    player.question = player.app().allQuestions[player.qIndex][0];
+    player.correctAnswer = player.app().allQuestions[player.qIndex][1];
+}
+questionStage.content = `
+    <h4>QUESTION</h4>
+    <p>Time: {{clock.seconds}}</p>
+    <p>{{player.question}}</p>
+    <form>
+    <input name='player.answer'></input>
+    <button>OK</button>
+    </form>
+`;
+question.duration = 6;
+
+// SHOW ANSWER STAGE
+showAnsStage.canPlayerParticipate = function(player) {
+    return player.period().id <= app.numTestQs;
+}
+showAnsStage.content = `
+    <h4>ANSWER</h4>
+    <p>{{player.correctAnswer}}</p>
+    <form><button>OK</button></form>
+`;
+
+askdiffStage.canPlayerParticipate = function(player) {
+    return player.period().id > app.numTestQs;
+}
+askdiffStage.content = `
+    <h4>HOW DIFFICULT</h4>
+    <p>How difficult was the question?</p>
+    <form>
+    <input name='player.difficulty'></input>
+    <button>OK</button>
+    </form>
+`;
+
+endInfoStage.canPlayerParticipate = function(player) {
+    return player.app().endPeriods.includes(player.period().id);
+}
+endInfoStage.content = `
+<h4>END INFO</h4>
+<p>You have finished block {{player.block}} of 4.</p>
+<form><button>OK</button></form>
+`;

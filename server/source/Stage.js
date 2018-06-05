@@ -40,6 +40,12 @@ class Stage {
         this.duration 	= 0;
 
         /**
+         * How long clients have before stage is auto-submitted (from client, not from server).
+         * if <= 0, then no client timeout for this stage.
+         */
+        this.clientDuration = 0;
+
+        /**
          * Wait for all players in group before players and group can start this stage.
          */
         this.waitToStart = true;
@@ -78,6 +84,12 @@ class Stage {
         this.html = null;
         this.htmlFile = null;
         this.useIdAsHTMLFileName = true;
+
+        // Child stages. If length > 0, then ...
+        this.stages = [];
+
+        // The number of times to repeat child stages.
+        this.repetitions = 1;
 
     }
 
@@ -147,6 +159,12 @@ class Stage {
         }
 
         return true;
+    }
+
+    newStage(id) {
+        var stage = new Stage.new(id, this.app, this.stages.length);
+        this.stages.push(stage);
+        return stage;
     }
 
     canGroupEnd(group) {

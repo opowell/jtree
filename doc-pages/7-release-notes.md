@@ -1,3 +1,6 @@
+##### 0.5.1
+- added Stage.clientDuration property.
+
 #### 0.5.0
 - fix for multiple periods.
 

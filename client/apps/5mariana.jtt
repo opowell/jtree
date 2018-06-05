@@ -1,0 +1,83 @@
+app.numPeriods = 3;
+app.html = `
+<span jt-status='playing' style='display: flex; flex-direction: column; align-items: center;'>
+    <div>
+        <span style='padding-right: 5rem;'>
+            Period: {{period.id}}/{{app.numPeriods}}
+        </span>
+        <span id="time-remaining-div">
+            Time: {{clock.minutes}}:{{clock.seconds}}
+        </span>
+    </div>
+    <div>
+        {{stages}}
+    </div>
+</span>
+<span jt-status='waiting' style='display: flex; flex-direction: column; align-items: center;'>
+    <h4>Waiting</h4>
+    <p>The experiment will continue soon.</p>
+</span>
+`;
+
+var introStage = app.newStage('intro');
+introStage.duration = 5;
+introStage.content = `
+    <h4>INFORMATION</h4>
+    {{player.message}}
+`;
+introStage.playerStart = function(player) {
+
+var messageNr1 = "Text 1m";
+var messageNr2 = "Text 2m";
+var messageNr3 = "Text 3m";
+
+  var myMessage = "";
+
+  var messageIndex = Math.floor((Math.random() * 3) + 1);
+
+  if (messageIndex == 1) {
+    myMessage = messageNr1;
+  }
+
+  if (messageIndex == 2) {
+    myMessage = messageNr2;
+  }
+
+  if (messageIndex == 3) {
+     myMessage = messageNr3;
+  }
+
+  player.message = myMessage;
+}
+
+var entryStage = app.newStage('entry');
+entryStage.clientDuration = 10;
+entryStage.content = `
+    <h4>ENTER TEXT</h4>
+    <form>
+        <textarea rows=50 cols=80 name='player.textinput'></textarea><br><br>
+        <button>OK</button>
+    </form>
+`;
+entryStage.playerEnd = function(player) {
+    if (player.textinput.length === undefined) {
+        player.numWords = 0;
+    } else {
+        player.numWords = player.textinput.split(' ').length;
+    }
+
+    player.points = player.numWords;
+}
+
+var resultsStage = app.newStage('results');
+resultsStage.content = `
+    <h4>RESULTS</h4>
+    <p>You typed {{player.numWords}} words.</p>
+    <p>Your payout: {{player.numWords * 0.0275}}.</p>
+    <p jt-displayif='period.id==app.numPeriods'>
+        Your total payout: {{participant.numPoints * 0.0275}}.
+    </p>
+    <form>
+        <button>OK</button>
+    </form>
+`

@@ -39,6 +39,26 @@ jt.round = function(value, exp) {
   return +(value[0] + 'e' + (value[1] ? (+value[1] - exp) : -exp));
 }
 
+jt.likertScale = function(field) {
+    var el = $('#' + field);
+    var minText = el.attr('likert-low');
+    var maxText = el.attr('likert-high');
+
+    var minTextEl = $('<div class="likertMinText likertText">').html(minText);
+    var maxTextEl = $('<div class="likertMaxText likertText">').html(maxText);
+
+    el.append(minTextEl);
+    for (var i=1; i<=7; i++) {
+        var option = $('<label for="' + field + i + '" class="likertScaleOption answer">');
+        var input = $("<input name='player." + field + "' type='radio' required value='" + i + "' id='" + field + i + "'>");
+        var label = $("<div>").text(i);
+        option.append(label);
+        option.append(input);
+        el.append(option);
+    }
+    el.append(maxTextEl);
+}
+
 jt.evaluateDisplayConditions = function(player) {
     let group = player.group;
     let period = group.period;
@@ -217,6 +237,7 @@ jt.defaultConnected = function() {
         if (jt.data.player !== undefined && player.participant.id !== jt.data.player.participant.id) {
             return;
         }
+
         jt.data.player = player; // TODO: Remove.
 //        window.player = player;
 
@@ -239,6 +260,11 @@ jt.defaultConnected = function() {
             jt.startClock(endTime);
         } else {
             jt.setStageHasTimeout(false);
+        }
+
+        if (player.stageClientDuration > 0 && player.status == 'playing') {
+            var endTime = new Date().getTime() + player.stageClientDuration*1000;
+            jt.startClock(endTime);
         }
 
         // Group tables
@@ -437,22 +463,7 @@ jt.defaultConnected = function() {
     });
 
     jt.socket.on('endStage', function(player) {
-        if (
-            jt.data.player.id === player.id &&
-            jt.data.player.group.period.id === player.group.period.id &&
-            jt.data.player.stage.id === player.stage.id
-        )
-        var forms2 = $('form').filter(':visible');
-        if (forms2 != null && forms2.length > 0) {
-            forms2.each(function() {
-                $(this).submit();
-            });
-        } else {
-            var values = {};
-            var stageName = jt.data.player.stage.id;
-            values.fnName = stageName;
-            jt.sendMessage(stageName, values);
-        }
+        jt.endStage(player);
     });
 
     jt.socket.on('clock-stop', function(timeLeft) {
@@ -480,6 +491,25 @@ jt.defaultConnected = function() {
         }
     });
 
+}
+
+jt.endStage = function(player) {
+    if (
+        jt.data.player.id === player.id &&
+        jt.data.player.group.period.id === player.group.period.id &&
+        jt.data.player.stage.id === player.stage.id
+    )
+    var forms2 = $('form').filter(':visible');
+    if (forms2 != null && forms2.length > 0) {
+        forms2.each(function() {
+            $(this).submit();
+        });
+    } else {
+        var values = {};
+        var stageName = jt.data.player.stage.id;
+        values.fnName = stageName;
+        jt.sendMessage(stageName, values);
+    }
 }
 
 jt.refreshButtons = function(elName) {
@@ -590,22 +620,44 @@ jt.clockStop = function(timeLeft) {
 }
 
 jt.startClock = function(endTime) {
-    console.log('clock-start');
+    console.log('clock-start until ' + endTime);
     jt.setStageHasTimeout(true);
     jt.data.endTime = endTime;
     jt.data.clockRunning = false;
+
+    // If using server-side duration
     if (jt.data.player.stageTimerRunning) {
         jt.data.timeLeft = jt.data.endTime - Date.now();
     } else {
         jt.data.timeLeft = jt.data.player.stageTimerTimeLeft;
     }
+
+    // If using client-side duration
+    if (jt.data.player.stageClientDuration > 0) {
+        jt.data.timeLeft = jt.data.endTime - Date.now();
+    }
+
     jt.updateClock(); // update once without starting
+
     jt.data.clockRunning = jt.data.player.stageTimerRunning;
+    // If using client-side duration
+    if (jt.data.player.stageClientDuration > 0) {
+        jt.data.clockRunning = true;
+    }
+
     var now = Date.now();
     var diff = jt.data.endTime - now;
     console.log('Time left: ' + diff);
+    // If there is time left on the clock, set refresh interval.
     if (jt.data.endTime > now && jt.data.clockRunning) {
         jt.timer = setInterval(jt.updateClock, jt.data.CLOCK_FREQUENCY);
+    }
+    // Otherwise, do not set refresh interval.
+    else {
+        // If there was a client duration, end stage.
+        if (jt.data.player.stageClientDuration > 0) {
+            jt.endStage(jt.data.player);
+        }
     }
 }
 
@@ -614,15 +666,23 @@ jt.updateClock = function() {
         var now = Date.now();
         jt.data.timeLeft = jt.data.endTime - now;
         if (jt.data.timeLeft <= 0) {
-            // TODO: request update from server
-            //server.refresh();
+            if (jt.data.player.stageClientDuration > 0) {
+                jt.endStage(jt.data.player);
+            }
         } else {
             if (jt.timer === null) {
                 jt.startClock();
             }
         }
-    } else {
+    }
+    // Stage timer finished.
+    else {
+        // Cancel update of UI.
         clearInterval(jt.timer);
+        // If client duration, end stage.
+        if (jt.data.player.stageClientDuration > 0 && jt.data.player.timeLeft < 0) {
+            jt.endStage(jt.data.player);
+        }
     }
     jt.displayTime();
 }
