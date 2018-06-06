@@ -3,8 +3,10 @@ A javascript toolbox for running economics experiments.
 
 ## Installing
 Download for your system, unzip and run.
-<a href='https://github.com/opowell/jtree/raw/master/releases/jtree-0.5.2-win.zip'>Windows</a>
-<a href='https://github.com/opowell/jtree/raw/master/releases/jtree-0.5.2-mac.zip'>Mac</a>
+
+<a href='https://github.com/opowell/jtree/raw/master/releases/jtree-0.5.2-win.zip'>jtree 0.5.2 for Windows</a>
+
+<a href='https://github.com/opowell/jtree/raw/master/releases/jtree-0.5.2-mac.zip'>jtree 0.5.2 for Mac</a>
 
 #### Planned features
 - same look and functionality as zTree, plus:
