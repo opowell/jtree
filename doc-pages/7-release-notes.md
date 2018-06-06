@@ -1,3 +1,6 @@
+##### 0.5.2
+- Fix: Participant fields not being saved on App end.
+
 ##### 0.5.1
 - added Stage.clientDuration property.
 

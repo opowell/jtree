@@ -29,7 +29,7 @@ var jt = {};
 * v.x.y.z
 * x / y / z indicates major / moderate / minor changes in stability and features.
 */
-jt.version      = 'v0.5.1';
+jt.version      = 'v0.5.2';
 
 /** Location of the server executable. All files should be relative to this. */
 if (process.argv[0].indexOf('node') > -1) {

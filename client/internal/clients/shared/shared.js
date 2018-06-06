@@ -12,7 +12,7 @@ jt.data.timeLeft = 0;
 jt.data.clockRunning = false;
 jt.data.CLOCK_FREQUENCY = 100; // in ms
 
-jt.serverIP = '137.208.238.6';
+jt.serverIP = '137.208.209.203';
 jt.serverPort = '80';
 jt.server = {};
 
@@ -174,24 +174,25 @@ jt.getURLParameter = function(name) {
 
 jt.getClock = function(timeLeft) {
     const clock = {};
-    var duration = timeLeft + 999;
+    var duration = timeLeft;
     if (duration < 0) {
         duration = 0;
     }
-    clock.milliseconds    = parseInt((duration%1000)/100)
+    clock.milliseconds    = duration%1000
     clock.seconds         = parseInt((duration/1000)%60)
+    clock.secondsNoMS     = clock.milliseconds > 0 ? clock.seconds + 1 : clock.seconds;
     clock.minutes         = parseInt((duration/(1000*60))%60)
     clock.hours           = parseInt((duration/(1000*60*60))%24);
     //    hours = (hours < 10) ? "0" + hours : hours;
     //    minutes = (minutes < 10) ? "0" + minutes : minutes;
-    clock.seconds = (clock.seconds < 10) ? "0" + clock.seconds : clock.seconds;
+    clock.secondsNoMSPadded = (clock.secondsNoMS < 10) ? "0" + clock.secondsNoMS : clock.secondsNoMS;
     return clock;
 }
 
 jt.displayTimeLeft = function(min, secs, timeLeft) {
     let clock = jt.getClock(timeLeft);
     min.text(clock.minutes);
-    secs.text(clock.seconds);
+    secs.text(clock.secondsNoMSPadded);
 }
 
 // Should be overwritten.

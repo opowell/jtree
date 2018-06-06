@@ -67,6 +67,7 @@ entryStage.playerEnd = function(player) {
     }
 
     player.points = player.numWords;
+    player.participant.newVar = 5;
 }
 
 var resultsStage = app.newStage('results');

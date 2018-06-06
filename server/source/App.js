@@ -575,8 +575,8 @@ class App {
         }
         var participantHeaders = [];
         var participantSkip = ['id', 'points', 'periodIndex', 'appIndex'];
-        for (var i in this.participants) {
-            var participant = this.participants[i];
+        for (var i in this.session.participants) {
+            var participant = this.session.participants[i];
             var participantFields = participant.outputFields();
             Utils.getHeaders(participantFields, participantSkip, participantHeaders);
         }

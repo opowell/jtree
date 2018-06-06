@@ -685,7 +685,10 @@ jt.updateClock = function() {
         }
     }
     jt.displayTime();
+    jt.onClockUpdate();
 }
+
+jt.onClockUpdate = function() {}
 
 jt.displayTime = function() {
     jt.displayTimeLeft($('[jt-text="clock.minutes"]'), $('[jt-text="clock.seconds"]'), jt.data.timeLeft);

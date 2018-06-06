@@ -1,0 +1,7018 @@
+treatment "znikanie pytan 1z10 - 4 etapy.ztt"{
+	background{
+		table globals{
+		}
+		table subjects{
+		}
+		table summary{
+		}
+		table contracts{
+		}
+		table earning{
+			lifetime = TREATMENT;
+			execute = WITHEACH;
+		}
+		table session{
+			uses = "Se_Success, Se_FinalTax, Se_Group, Se_Lambda, Se_MaxTax, Se_Prob, Se_x1, Se_x2, Se_p, Se_q, Se_r, Se_s, Se_t";
+		}
+		numsubjects = 1;
+		numgroups = 1;
+		numpracticeperiods = 0;
+		numactualperiods = 84;
+		exchangerate = 1;
+		startendowment = 0;
+		showupfee = 0;
+		noAutoscope = FALSE;
+		firstBoxesOnTop = FALSE;
+		showupfeeawaytext = "Sie haben Verlust gemacht. Wollen Sie das Startgeld einsetzen, um diesen Verlust zu decken?";
+		showupfeeawayyestext = "Ja";
+		showupfeeawaynotext = "Nein";
+		moneyawaytext = "Sie haben Verlust gemacht. Wollen Sie weiterfahren?";
+		moneyawayyestext = "Ja";
+		moneyawaynotext = "Nein";
+		bancruptwaittext = "Bitte warten Sie bis Ihr Computer wieder freigegeben wird.";
+		program{
+			table = subjects;
+			do{
+				pytanie="...";
+				testowa=0;
+				time=999;
+				time_left=888;
+				Group=Subject;
+				PlayerID=Subject;
+				id_pytania=12345;
+				time_left_t1=999;
+				time_left_t2=999;
+				time_left_t3=999;
+				time_left_t4=999;
+				time_left_t5=999;
+				time_lottery=999;
+				time_player=999;
+				time_left_h=999;
+				
+				
+				odpowiedz_p1="...";
+				odpowiedz_p2="...";
+				odpowiedz_p3="...";
+				odpowiedz_p4="...";
+				odpowiedz_p5="...";
+				
+				
+				np=2;
+				
+				
+				help=24*(Subject/24-rounddown(Subject/24,1));
+				//help_reszta=24*(Subject/24-rounddown(Subject/24,1));
+				//help_reszta_random=help_reszta+24*random();
+				//help=24*(help_reszta_random/24-rounddown(help_reszta_random/24,1));
+				
+				
+				if (help==0){
+				period_nonmonetary=1;
+				period_choice=22;
+				period_tour=43;
+				period_piece=64;
+				};
+				
+				
+				if (help==1){
+				period_choice=1;
+				period_nonmonetary=22;
+				period_tour=43;
+				period_piece=64;
+				};
+				
+				if (help==2){
+				period_choice=1;
+				period_tour=22;
+				period_nonmonetary=43;
+				period_piece=64;
+				};
+				
+				if (help==3){
+				period_choice=1;
+				period_tour=22;
+				period_piece=43;
+				period_nonmonetary=64;
+				};
+				
+				if (help==4){
+				period_nonmonetary=1;
+				period_tour=22;
+				period_choice=43;
+				period_piece=64;
+				};
+				
+				if (help==5){
+				period_tour=1;
+				period_nonmonetary=22;
+				period_choice=43;
+				period_piece=64;
+				};
+				
+				if (help==6){
+				period_tour=1;
+				period_choice=22;
+				period_nonmonetary=43;
+				period_piece=64;
+				};
+				
+				if (help==7){
+				period_tour=1;
+				period_choice=22;
+				period_piece=43;
+				period_nonmonetary=64;
+				};
+				
+				if (help==8){
+				period_nonmonetary=1;
+				period_choice=22;
+				period_piece=43;
+				period_tour=64;
+				};
+				
+				if (help==9){
+				period_choice=1;
+				period_nonmonetary=22;
+				period_piece=43;
+				period_tour=64;
+				};
+				
+				if (help==10){
+				period_choice=1;
+				period_piece=22;
+				period_nonmonetary=43;
+				period_tour=64;
+				};
+				
+				if (help==11){
+				period_choice=1;
+				period_piece=22;
+				period_tour=43;
+				period_nonmonetary=64;
+				};
+				
+				if (help==12){
+				period_nonmonetary=1;
+				period_tour=22;
+				period_piece=43;
+				period_choice=64;
+				};
+				
+				if (help==13){
+				period_tour=1;
+				period_nonmonetary=22;
+				period_piece=43;
+				period_choice=64;
+				};
+				
+				if (help==14){
+				period_tour=1;
+				period_piece=22;
+				period_nonmonetary=43;
+				period_choice=64;
+				};
+				
+				if (help==15){
+				period_tour=1;
+				period_piece=22;
+				period_choice=43;
+				period_nonmonetary=64;
+				};
+				
+				if (help==16){
+				period_nonmonetary=1;
+				period_piece=22;
+				period_choice=43;
+				period_tour=64;
+				};
+				
+				if (help==17){
+				period_piece=1;
+				period_nonmonetary=22;
+				period_choice=43;
+				period_tour=64;
+				};
+				
+				if (help==18){
+				period_piece=1;
+				period_choice=22;
+				period_nonmonetary=43;
+				period_tour=64;
+				};
+				
+				if (help==19){
+				period_piece=1;
+				period_choice=22;
+				period_tour=43;
+				period_nonmonetary=64;
+				};
+				
+				if (help==20){
+				period_nonmonetary=1;
+				period_piece=22;
+				period_tour=43;
+				period_choice=64;
+				};
+				
+				if (help==21){
+				period_piece=1;
+				period_nonmonetary=22;
+				period_tour=43;
+				period_choice=64;
+				};
+				
+				if (help==22){
+				period_piece=1;
+				period_tour=22;
+				period_nonmonetary=43;
+				period_choice=64;
+				};
+				
+				if (help==23){
+				period_piece=1;
+				period_tour=22;
+				period_choice=43;
+				period_nonmonetary=64;
+				};
+				
+				
+				
+				
+				
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				//Introduce variables & parameters
+				Running = 0;  //needed for an on/off switch
+				Time = 0;
+				ProgressBarPositionX = -18;
+				ProgressBarSize = 0;
+				
+				
+			}
+		}
+		program{
+			table = contracts;
+			do{
+				Owner=0;
+				ID=0;
+				Groupie=0;
+			}
+		}
+		program{
+			table = globals;
+			do{
+				time_left_t1_stagecounter=8;
+				time_left_t2_stagecounter=7;
+				time_left_t3_stagecounter=7;
+				time_left_t4_stagecounter=7;
+				time_left_t5_stagecounter=10;
+				time_left_stagecountert=20;
+				time_left_h_stagecounter=19;
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			headerbox "Header"{
+				hasframe = TRUE;
+				height = 10%;
+				top = 0p;
+				cuttop = TRUE;
+				showPeriods = FALSE;
+				showNumPeriods = FALSE;
+				periodtext = "Runda";
+				periodoftext = "z";
+				practiceperiodprefix = "Próbna";
+				showtime = FALSE;
+				timestr = "Pozostaly czas [sek.]:";
+				pleasedecidetext = "Prosze sie teraz zdecydowac!";
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Text"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Proszê czekaæ";
+				}
+			}
+		}
+	}
+	stage "number"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = 30;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==1,1,0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Standard"{
+				hasframe = TRUE;
+				left = 5%;
+				right = 5%;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Proszê, podaj numer swojego stanowiska. \r\nZnajduje siê on na górnej krawêdzi Twojego ekranu.";
+					variable = number;
+					format = "!string";
+					input = TRUE;
+					showdefault = FALSE;
+					emptyallowed = FALSE;
+					min = 1;
+					max = 999999;
+				}
+				button "                                  OK                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Invitation"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = 30;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==1,1,0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Standard"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMMIDDLE;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Witamy w eksperymencie!";
+				}
+				item{
+					label = "PO PRZECZYTANIU INSTRUKCJI kliknij OK.";
+				}
+				button "                                  OK                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "probne_info"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = 20;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==1,1,0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Standard"{
+				hasframe = TRUE;
+				height = 50%;
+				left = 3%;
+				right = 3%;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Na kolejnych ekranach zobaczysz kilka pytañ próbnych.\r\nIch celem jest zaznajomienie Ciê z charakterem pytañ, z którymi bêdziesz mia³ do czynienia w etapach, za które mo¿esz otrzymaæ wynagrodzenie.\r\n\r\nWeŸ pod uwagê, ¿e w pytaniach próbnych bêdziesz mia³ trochê wiêcej czasu na udzielenie odpowiedzi, ni¿ w tych sk³adaj¹cych siê na w³aœciw¹ czêœæ eksperymentu.";
+				}
+				button "                                  OK                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Uwaga nastêpne pytanie_t1"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = 2;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==1,1,0);
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				next_in_t1=3;
+				later ( 1 ) repeat {
+				next_in_t1 = next_in_t1 - 1;
+				};
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			gridbox "Grid"{
+				hasframe = TRUE;
+				width = 50%;
+				height = 50%;
+				left = 30%;
+				right = 30%;
+				buttonposition = MIDDLEMIDDLE;
+				buttonsequence = HORIZONTAL;
+				numrows = 2;
+				numcolumns = 1;
+				firstcolumnwidth = 50;
+				firstrowheight = 50;
+				fieldsinrows = TRUE;
+				infieldlabeisallowed = FALSE;
+				firstrowislabel = FALSE;
+				firstcolumnislabel = FALSE;
+				labelseparators = FALSE;
+				rowseparators = FALSE;
+				columnseparators = FALSE;
+				item{
+					label = "Uwaga, pierwsze pytanie za";
+				}
+				item{
+					variable = next_in_t1;
+					format = "1";
+					input = FALSE;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "pytanie_probne1"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = never;
+		timeout = time_left_t1_stagecounter;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==1,1,0);
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				time_left_t1=9;
+				//later (time_left_t1) do  {
+				//LeaveStage=1;
+				//};
+				later ( 1 ) repeat {
+				time_left_t1 = time_left_t1 - 1;
+				};
+				
+				
+				
+				
+				//later (1) repeat {
+				//time_left_t1 = time_left_t1 - 1;
+				//if(time_left_t1<0) {
+				//LeaveStage = 1;
+				//time_left_t1= 20;
+				//}
+				//else {
+				//LeaveStage=0;
+				//}
+				//}
+				
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				ProgressBarPositionX = -18;
+				ProgressBarSize = 0;
+				Time=0;
+				//this constantly runs in the background
+				later (0.01) repeat {
+				  if(time_left_t1>=0) {
+				    Time = Time + 0.1;
+				    ProgressBarPositionX = -18 + Time / 2;
+				    ProgressBarSize = Time;
+				  }
+				}
+				
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				pytanie="Pytanie próbne 1: Ten XIX-wieczny francuski pisarz uchodzi za klasyka literatury sci-fi";
+				
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			containerbox "Container"{
+				hasframe = TRUE;
+				plotbox ""{
+					hasframe = FALSE;
+					height = 10%;
+					bottom = 90%;
+					cuttop = TRUE;
+					maintainaspectratio = FALSE;
+					xaxistype = LINEAR;
+					yaxistype = LINEAR;
+					xleft = -100;
+					xright = 100;
+					ybottom = 0;
+					ytop = 100;
+					plottext ""{
+						text = "Time";
+						x = 0;
+						y = 80;
+						horizontalalignment = CENTER;
+						verticalalignment = FIRSTLINE;
+						textcolor = rgb(0,0,0);
+						fontsize = 24;
+					}
+					plotrect "Progress Bar Background"{
+						x = -9;
+						y = 70;
+						width = 18.25;
+						height = 5;
+						linecolor = rgb(0.00,0.00,0.00);
+						linewidth = 3;
+						fillcolor = rgb(0.50,0.50,0.50);
+					}
+					plotrect "Progress Bar"{
+						x = ProgressBarPositionX;
+						y = 70;
+						width = min(ProgressBarSize, 40);
+						height = 4.5;
+						fillcolor = rgb(1.00,0.00,0.00);
+					}
+					plotrect "Reset"{
+						x = 90;
+						y = -90;
+						width = 16;
+						height = 8;
+						linecolor = rgb(0.25,0.00,0.00);
+						linewidth = 3;
+						fillcolor = rgb(1.00,0.50,0.50);
+					}
+				}
+				gridbox "Grid"{
+					hasframe = TRUE;
+					height = 50%;
+					left = 3%;
+					right = 3%;
+					cutbottom = TRUE;
+					buttonposition = BOTTOMMIDDLE;
+					buttonsequence = HORIZONTAL;
+					numrows = 3;
+					numcolumns = 1;
+					firstcolumnwidth = 50;
+					firstrowheight = 50;
+					fieldsinrows = TRUE;
+					infieldlabeisallowed = FALSE;
+					firstrowislabel = FALSE;
+					firstcolumnislabel = TRUE;
+					labelseparators = FALSE;
+					rowseparators = FALSE;
+					columnseparators = FALSE;
+					item{
+						variable = pytanie;
+						format = "1";
+						input = FALSE;
+					}
+					item{
+						label = "Twoja odpowiedŸ:";
+						variable = odpowiedz_p1;
+						format = "!string";
+						input = TRUE;
+						showdefault = FALSE;
+						emptyallowed = TRUE;
+						min = 0;
+						max = 9999;
+						program{
+							table = subjects;
+							do{
+								y=odpowiedz_p1;
+							}
+						}
+					}
+					item{
+						label = "pozosta³y czas ";
+						variable = time_left_t1;
+						format = "1";
+						input = FALSE;
+					}
+				}
+			}
+			gridbox "Grid"{
+				hasframe = TRUE;
+				height = 100%;
+				left = 3%;
+				right = 3%;
+				displaycondition = time_left_t1<0;
+				buttonposition = MIDDLEMIDDLE;
+				buttonsequence = HORIZONTAL;
+				numrows = 2;
+				numcolumns = 1;
+				firstcolumnwidth = 100;
+				firstrowheight = 100;
+				fieldsinrows = TRUE;
+				infieldlabeisallowed = FALSE;
+				firstrowislabel = FALSE;
+				firstcolumnislabel = FALSE;
+				labelseparators = FALSE;
+				rowseparators = FALSE;
+				columnseparators = FALSE;
+				item{
+					label = "Czas min¹³";
+				}
+				button "                                  Dalej                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "odp probne 1"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = ifnoinput;
+		timeout = 30;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==1,1,0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			gridbox "Grid"{
+				hasframe = TRUE;
+				width = 50%;
+				height = 50%;
+				left = 30%;
+				right = 30%;
+				buttonposition = MIDDLEMIDDLE;
+				buttonsequence = HORIZONTAL;
+				numrows = 3;
+				numcolumns = 1;
+				firstcolumnwidth = 50;
+				firstrowheight = 50;
+				fieldsinrows = TRUE;
+				infieldlabeisallowed = FALSE;
+				firstrowislabel = FALSE;
+				firstcolumnislabel = FALSE;
+				labelseparators = FALSE;
+				rowseparators = FALSE;
+				columnseparators = FALSE;
+				item{
+					label = "Poprawna odpowiedŸ na to pytanie to";
+				}
+				item{
+					label = "Julisz Verne";
+				}
+				button "                                  Dalej                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Uwaga nastêpne pytanie_t2"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = 2;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==1,1,0);
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				next_in_t2=3;
+				later ( 1 ) repeat {
+				next_in_t2 = next_in_t2 - 1;
+				};
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			gridbox "Grid"{
+				hasframe = TRUE;
+				width = 50%;
+				height = 50%;
+				left = 30%;
+				right = 30%;
+				buttonposition = MIDDLEMIDDLE;
+				buttonsequence = HORIZONTAL;
+				numrows = 2;
+				numcolumns = 1;
+				firstcolumnwidth = 50;
+				firstrowheight = 50;
+				fieldsinrows = TRUE;
+				infieldlabeisallowed = FALSE;
+				firstrowislabel = FALSE;
+				firstcolumnislabel = FALSE;
+				labelseparators = FALSE;
+				rowseparators = FALSE;
+				columnseparators = FALSE;
+				item{
+					label = "Uwaga, nastêpne pytanie za";
+				}
+				item{
+					variable = next_in_t2;
+					format = "1";
+					input = FALSE;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "pytanie_probne2"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = time_left_t2_stagecounter;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==1,1,0);
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				ProgressBarPositionX = -16;
+				ProgressBarSize = 0;
+				Time=0;
+				//this constantly runs in the background
+				later (0.01) repeat {
+				  if(time_left_t2>=0) {
+				    Time = Time + 0.1;
+				    ProgressBarPositionX = -16 + Time / 2;
+				    ProgressBarSize = Time;
+				  }
+				}
+				
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				pytanie="Pytanie próbne 2: W którym wieku ¿y³ król Jan III Sobieski?";
+				
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				time_left_t2=8;
+				//later (time_left_t2) do  {
+				//LeaveStage=1;
+				//};
+				later ( 1 ) repeat {
+				time_left_t2 = time_left_t2 - 1;
+				};
+				
+				
+				
+				
+				//later (1) repeat {
+				//time_left_t2 = time_left_t2 - 1;
+				//if(time_left_t2<0) {
+				//LeaveStage = 1;
+				//time_left_t2= 20;
+				//}
+				//else {
+				//LeaveStage=0;
+				//}
+				//}
+				
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			plotbox ""{
+				hasframe = FALSE;
+				height = 10%;
+				bottom = 90%;
+				maintainaspectratio = FALSE;
+				xaxistype = LINEAR;
+				yaxistype = LINEAR;
+				xleft = -100;
+				xright = 100;
+				ybottom = 0;
+				ytop = 100;
+				plottext ""{
+					text = "Time";
+					x = 0;
+					y = 80;
+					horizontalalignment = CENTER;
+					verticalalignment = FIRSTLINE;
+					textcolor = rgb(0,0,0);
+					fontsize = 24;
+				}
+				plotrect "Progress Bar Background"{
+					x = -8;
+					y = 70;
+					width = 16.25;
+					height = 5;
+					linecolor = rgb(0.00,0.00,0.00);
+					linewidth = 3;
+					fillcolor = rgb(0.50,0.50,0.50);
+				}
+				plotrect "Progress Bar"{
+					x = ProgressBarPositionX;
+					y = 70;
+					width = min(ProgressBarSize, 40);
+					height = 4.5;
+					fillcolor = rgb(1.00,0.00,0.00);
+				}
+				plotrect "Reset"{
+					x = 90;
+					y = -90;
+					width = 16;
+					height = 8;
+					linecolor = rgb(0.25,0.00,0.00);
+					linewidth = 3;
+					fillcolor = rgb(1.00,0.50,0.50);
+				}
+			}
+			gridbox "Grid"{
+				hasframe = TRUE;
+				height = 50%;
+				left = 3%;
+				right = 3%;
+				buttonposition = BOTTOMMIDDLE;
+				buttonsequence = HORIZONTAL;
+				numrows = 3;
+				numcolumns = 1;
+				firstcolumnwidth = 100;
+				firstrowheight = 100;
+				fieldsinrows = FALSE;
+				infieldlabeisallowed = FALSE;
+				firstrowislabel = FALSE;
+				firstcolumnislabel = FALSE;
+				labelseparators = FALSE;
+				rowseparators = FALSE;
+				columnseparators = FALSE;
+				item{
+					variable = pytanie;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "Twoja odpowiedŸ:";
+					variable = odpowiedz_p2;
+					format = "!string";
+					input = TRUE;
+					showdefault = FALSE;
+					emptyallowed = TRUE;
+					min = 0;
+					max = 9999;
+					program{
+						table = subjects;
+						do{
+							y=odpowiedz_p2;
+						}
+					}
+				}
+				item{
+					label = "pozosta³y czas";
+					variable = time_left_t2;
+					format = "1";
+					input = FALSE;
+				}
+			}
+			gridbox "Grid"{
+				hasframe = TRUE;
+				height = 50%;
+				left = 3%;
+				right = 3%;
+				displaycondition = time_left_t2<0;
+				buttonposition = MIDDLEMIDDLE;
+				buttonsequence = HORIZONTAL;
+				numrows = 2;
+				numcolumns = 1;
+				firstcolumnwidth = 100;
+				firstrowheight = 100;
+				fieldsinrows = TRUE;
+				infieldlabeisallowed = FALSE;
+				firstrowislabel = FALSE;
+				firstcolumnislabel = FALSE;
+				labelseparators = FALSE;
+				rowseparators = FALSE;
+				columnseparators = FALSE;
+				item{
+					label = "Czas min¹³";
+				}
+				button "                                  Dalej                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "odp probne 2"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = ifnoinput;
+		timeout = 30;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==1,1,0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			gridbox "Grid"{
+				hasframe = TRUE;
+				width = 50%;
+				height = 50%;
+				left = 30%;
+				right = 30%;
+				buttonposition = MIDDLEMIDDLE;
+				buttonsequence = HORIZONTAL;
+				numrows = 3;
+				numcolumns = 1;
+				firstcolumnwidth = 50;
+				firstrowheight = 50;
+				fieldsinrows = TRUE;
+				infieldlabeisallowed = FALSE;
+				firstrowislabel = FALSE;
+				firstcolumnislabel = FALSE;
+				labelseparators = FALSE;
+				rowseparators = FALSE;
+				columnseparators = FALSE;
+				item{
+					label = "Poprawna odpowiedŸ na to pytanie to";
+				}
+				item{
+					label = "w XVII wieku";
+				}
+				button "                                  Dalej                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Uwaga nastêpne pytanie_t3"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = 2;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==1,1,0);
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				next_in_t3=3;
+				later ( 1 ) repeat {
+				next_in_t3 = next_in_t3 - 1;
+				};
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			gridbox "Grid"{
+				hasframe = TRUE;
+				width = 50%;
+				height = 50%;
+				left = 30%;
+				right = 30%;
+				buttonposition = MIDDLEMIDDLE;
+				buttonsequence = HORIZONTAL;
+				numrows = 2;
+				numcolumns = 1;
+				firstcolumnwidth = 50;
+				firstrowheight = 50;
+				fieldsinrows = TRUE;
+				infieldlabeisallowed = FALSE;
+				firstrowislabel = FALSE;
+				firstcolumnislabel = FALSE;
+				labelseparators = FALSE;
+				rowseparators = FALSE;
+				columnseparators = FALSE;
+				item{
+					label = "Uwaga, nastêpne pytanie za";
+				}
+				item{
+					label = "Nastêpne pytanie za";
+					variable = next_in_t3;
+					format = "1";
+					input = FALSE;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "pytanie_probne3"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = time_left_t3_stagecounter;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==1,1,0);
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				pytanie="Pytanie próbne 3: Czym wg legendy by³ Œwiêty Graal, poszukiwany przez rycerzy okr¹g³ego sto³u?";
+				
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				ProgressBarPositionX = -16;
+				ProgressBarSize = 0;
+				Time=0;
+				//this constantly runs in the background
+				later (0.01) repeat {
+				  if(time_left_t3>=0) {
+				    Time = Time + 0.1;
+				    ProgressBarPositionX = -16 + Time / 2;
+				    ProgressBarSize = Time;
+				  }
+				}
+				
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				time_left_t3=8;
+				//later (time_left_t3) do  {
+				//LeaveStage=1;
+				//};
+				later ( 1 ) repeat {
+				time_left_t3 = time_left_t3 - 1;
+				ProgressBarPositionX = -18;
+				ProgressBarSize = 0;
+				};
+				
+				
+				
+				
+				//later ( 1 ) repeat {
+				//time_left_t3 = time_left_t3 - 1;
+				//if(time_left_t3<0) {
+				//LeaveStage = 1;
+				//time_left_t3=20;
+				//}
+				//else {
+				//LeaveStage=0;
+				//}
+				//}
+				
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			plotbox ""{
+				hasframe = FALSE;
+				height = 10%;
+				bottom = 90%;
+				maintainaspectratio = FALSE;
+				xaxistype = LINEAR;
+				yaxistype = LINEAR;
+				xleft = -100;
+				xright = 100;
+				ybottom = 0;
+				ytop = 100;
+				plottext ""{
+					text = "Time";
+					x = 0;
+					y = 80;
+					horizontalalignment = CENTER;
+					verticalalignment = FIRSTLINE;
+					textcolor = rgb(0,0,0);
+					fontsize = 24;
+				}
+				plotrect "Progress Bar Background"{
+					x = -8;
+					y = 70;
+					width = 16.25;
+					height = 5;
+					linecolor = rgb(0.00,0.00,0.00);
+					linewidth = 3;
+					fillcolor = rgb(0.50,0.50,0.50);
+				}
+				plotrect "Progress Bar"{
+					x = ProgressBarPositionX;
+					y = 70;
+					width = min(ProgressBarSize, 40);
+					height = 4.5;
+					fillcolor = rgb(1.00,0.00,0.00);
+				}
+				plotrect "Reset"{
+					x = 90;
+					y = -90;
+					width = 16;
+					height = 8;
+					linecolor = rgb(0.25,0.00,0.00);
+					linewidth = 3;
+					fillcolor = rgb(1.00,0.50,0.50);
+				}
+			}
+			gridbox "Grid"{
+				hasframe = TRUE;
+				height = 50%;
+				left = 3%;
+				right = 3%;
+				buttonposition = BOTTOMMIDDLE;
+				buttonsequence = HORIZONTAL;
+				numrows = 3;
+				numcolumns = 1;
+				firstcolumnwidth = 100;
+				firstrowheight = 100;
+				fieldsinrows = FALSE;
+				infieldlabeisallowed = FALSE;
+				firstrowislabel = FALSE;
+				firstcolumnislabel = FALSE;
+				labelseparators = FALSE;
+				rowseparators = FALSE;
+				columnseparators = FALSE;
+				item{
+					variable = pytanie;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "Twoja odpowiedŸ:";
+					variable = odpowiedz_p3;
+					format = "!string";
+					input = TRUE;
+					showdefault = FALSE;
+					emptyallowed = TRUE;
+					min = 0;
+					max = 9999;
+					program{
+						table = subjects;
+						do{
+							y=odpowiedz_p3;
+						}
+					}
+				}
+				item{
+					label = "pozosta³y czas";
+					variable = time_left_t3;
+					format = "1";
+					input = FALSE;
+				}
+			}
+			gridbox "Grid"{
+				hasframe = TRUE;
+				height = 50%;
+				left = 3%;
+				right = 3%;
+				displaycondition = time_left_t3<0;
+				buttonposition = MIDDLEMIDDLE;
+				buttonsequence = HORIZONTAL;
+				numrows = 2;
+				numcolumns = 1;
+				firstcolumnwidth = 100;
+				firstrowheight = 100;
+				fieldsinrows = TRUE;
+				infieldlabeisallowed = FALSE;
+				firstrowislabel = FALSE;
+				firstcolumnislabel = FALSE;
+				labelseparators = FALSE;
+				rowseparators = FALSE;
+				columnseparators = FALSE;
+				item{
+					label = "Czas min¹³";
+				}
+				button "                                  Dalej                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "odp probne 3"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = ifnoinput;
+		timeout = 30;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==1,1,0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			gridbox "Grid"{
+				hasframe = TRUE;
+				width = 50%;
+				height = 50%;
+				left = 30%;
+				right = 30%;
+				buttonposition = MIDDLEMIDDLE;
+				buttonsequence = HORIZONTAL;
+				numrows = 3;
+				numcolumns = 1;
+				firstcolumnwidth = 50;
+				firstrowheight = 50;
+				fieldsinrows = TRUE;
+				infieldlabeisallowed = FALSE;
+				firstrowislabel = FALSE;
+				firstcolumnislabel = FALSE;
+				labelseparators = FALSE;
+				rowseparators = FALSE;
+				columnseparators = FALSE;
+				item{
+					label = "Poprawna odpowiedŸ na to pytanie to";
+				}
+				item{
+					label = "kielichem";
+				}
+				button "                                  Dalej                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Uwaga nastêpne pytanie_t4"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = 2;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==1,1,0);
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				next_in_t4=3;
+				later ( 1 ) repeat {
+				next_in_t4 = next_in_t4 - 1;
+				};
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			gridbox "Grid"{
+				hasframe = TRUE;
+				width = 50%;
+				height = 50%;
+				left = 30%;
+				right = 30%;
+				buttonposition = MIDDLEMIDDLE;
+				buttonsequence = HORIZONTAL;
+				numrows = 2;
+				numcolumns = 1;
+				firstcolumnwidth = 50;
+				firstrowheight = 50;
+				fieldsinrows = TRUE;
+				infieldlabeisallowed = FALSE;
+				firstrowislabel = FALSE;
+				firstcolumnislabel = FALSE;
+				labelseparators = FALSE;
+				rowseparators = FALSE;
+				columnseparators = FALSE;
+				item{
+					label = "Uwaga, nastêpne pytanie za";
+				}
+				item{
+					label = "Nastêpne pytanie za";
+					variable = next_in_t4;
+					format = "1";
+					input = FALSE;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "pytanie_probne4"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = time_left_t4_stagecounter;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==1,1,0);
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				pytanie="Pytanie próbne 4: Kto odtwarza³ tytu³ow¹ rolê w trylogii pod tytu³em ''Mad Max''";
+				
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				ProgressBarPositionX = -16;
+				ProgressBarSize = 0;
+				Time=0;
+				//this constantly runs in the background
+				later (0.01) repeat {
+				  if(time_left_t4>=0) {
+				    Time = Time + 0.1;
+				    ProgressBarPositionX = -16 + Time / 2;
+				    ProgressBarSize = Time;
+				  }
+				}
+				
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				time_left_t4=8;
+				//later (time_left_t4) do  {
+				//LeaveStage=1;
+				//};
+				later ( 1 ) repeat {
+				time_left_t4 = time_left_t4 - 1;
+				ProgressBarPositionX = -18;
+				ProgressBarSize = 0;
+				};
+				
+				
+				
+				
+				//later ( 1) repeat {
+				//time_left_t4 = time_left_t4 - 1;
+				//if(time_left_t4<0) {
+				//LeaveStage = 1;
+				//time_left_t4=20;
+				//}
+				//else {
+				//LeaveStage=0;
+				//}
+				//}
+				
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			plotbox ""{
+				hasframe = FALSE;
+				height = 10%;
+				bottom = 90%;
+				maintainaspectratio = FALSE;
+				xaxistype = LINEAR;
+				yaxistype = LINEAR;
+				xleft = -100;
+				xright = 100;
+				ybottom = 0;
+				ytop = 100;
+				plottext ""{
+					text = "Time";
+					x = 0;
+					y = 80;
+					horizontalalignment = CENTER;
+					verticalalignment = FIRSTLINE;
+					textcolor = rgb(0,0,0);
+					fontsize = 24;
+				}
+				plotrect "Progress Bar Background"{
+					x = -8;
+					y = 70;
+					width = 16.25;
+					height = 5;
+					linecolor = rgb(0.00,0.00,0.00);
+					linewidth = 3;
+					fillcolor = rgb(0.50,0.50,0.50);
+				}
+				plotrect "Progress Bar"{
+					x = ProgressBarPositionX;
+					y = 70;
+					width = min(ProgressBarSize, 40);
+					height = 4.5;
+					fillcolor = rgb(1.00,0.00,0.00);
+				}
+				plotrect "Reset"{
+					x = 90;
+					y = -90;
+					width = 16;
+					height = 8;
+					linecolor = rgb(0.25,0.00,0.00);
+					linewidth = 3;
+					fillcolor = rgb(1.00,0.50,0.50);
+				}
+			}
+			gridbox "Grid"{
+				hasframe = TRUE;
+				height = 50%;
+				left = 3%;
+				right = 3%;
+				buttonposition = BOTTOMMIDDLE;
+				buttonsequence = HORIZONTAL;
+				numrows = 3;
+				numcolumns = 1;
+				firstcolumnwidth = 100;
+				firstrowheight = 100;
+				fieldsinrows = FALSE;
+				infieldlabeisallowed = FALSE;
+				firstrowislabel = FALSE;
+				firstcolumnislabel = FALSE;
+				labelseparators = FALSE;
+				rowseparators = FALSE;
+				columnseparators = FALSE;
+				item{
+					variable = pytanie;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "Twoja odpowiedŸ:";
+					variable = odpowiedz_p4;
+					format = "!string";
+					input = TRUE;
+					showdefault = FALSE;
+					emptyallowed = TRUE;
+					min = 0;
+					max = 9999;
+					program{
+						table = subjects;
+						do{
+							y=odpowiedz_p4;
+						}
+					}
+				}
+				item{
+					label = "pozosta³y czas";
+					variable = time_left_t4;
+					format = "1";
+					input = FALSE;
+				}
+			}
+			gridbox "Grid"{
+				hasframe = TRUE;
+				height = 50%;
+				left = 3%;
+				right = 3%;
+				displaycondition = time_left_t4<0;
+				buttonposition = MIDDLEMIDDLE;
+				buttonsequence = HORIZONTAL;
+				numrows = 2;
+				numcolumns = 1;
+				firstcolumnwidth = 100;
+				firstrowheight = 100;
+				fieldsinrows = TRUE;
+				infieldlabeisallowed = FALSE;
+				firstrowislabel = FALSE;
+				firstcolumnislabel = FALSE;
+				labelseparators = FALSE;
+				rowseparators = FALSE;
+				columnseparators = FALSE;
+				item{
+					label = "Czas min¹³";
+				}
+				button "                                  Dalej                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "odp probne 4"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = ifnoinput;
+		timeout = 30;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==1,1,0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			gridbox "Grid"{
+				hasframe = TRUE;
+				width = 50%;
+				height = 50%;
+				left = 30%;
+				right = 30%;
+				buttonposition = MIDDLEMIDDLE;
+				buttonsequence = HORIZONTAL;
+				numrows = 3;
+				numcolumns = 1;
+				firstcolumnwidth = 50;
+				firstrowheight = 50;
+				fieldsinrows = TRUE;
+				infieldlabeisallowed = FALSE;
+				firstrowislabel = FALSE;
+				firstcolumnislabel = FALSE;
+				labelseparators = FALSE;
+				rowseparators = FALSE;
+				columnseparators = FALSE;
+				item{
+					label = "Poprawna odpowiedŸ na to pytanie to";
+				}
+				item{
+					label = "Mel Gibson";
+				}
+				button "                                  Dalej                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Uwaga nastêpne pytanie_t5"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = 2;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==1,1,0);
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				next_in_t5=3;
+				later ( 1 ) repeat {
+				next_in_t5 = next_in_t5 - 1;
+				};
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			gridbox "Grid"{
+				hasframe = TRUE;
+				width = 50%;
+				height = 50%;
+				left = 30%;
+				right = 30%;
+				buttonposition = MIDDLEMIDDLE;
+				buttonsequence = HORIZONTAL;
+				numrows = 2;
+				numcolumns = 1;
+				firstcolumnwidth = 50;
+				firstrowheight = 50;
+				fieldsinrows = TRUE;
+				infieldlabeisallowed = FALSE;
+				firstrowislabel = FALSE;
+				firstcolumnislabel = FALSE;
+				labelseparators = FALSE;
+				rowseparators = FALSE;
+				columnseparators = FALSE;
+				item{
+					label = "Uwaga, nastêpne pytanie za";
+				}
+				item{
+					label = "Nastêpne pytanie za";
+					variable = next_in_t5;
+					format = "1";
+					input = FALSE;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "pytanie_probne5"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = time_left_t5_stagecounter;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==1,1,0);
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				pytanie="Pytanie próbne 5: Jak nazywamy masê najmniejszej iloœci materia³u rozszczepialnego w której mo¿e nast¹piæ rozwój reakcji ³añcuchowej";
+				
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				ProgressBarPositionX = -22;
+				ProgressBarSize = 0;
+				Time=0;
+				//this constantly runs in the background
+				later (0.01) repeat {
+				  if(time_left_t5>=0) {
+				    Time = Time + 0.1;
+				    ProgressBarPositionX = -22 + Time / 2;
+				    ProgressBarSize = Time;
+				  }
+				}
+				
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				time_left_t5=11;
+				//later (time_left_t5) do  {
+				//LeaveStage=1;
+				//};
+				later ( 1 ) repeat {
+				time_left_t5 = time_left_t5 - 1;
+				ProgressBarPositionX = -18;
+				ProgressBarSize = 0;
+				};
+				
+				
+				
+				
+				//later (1) repeat {
+				//time_left_t5 = time_left_t5 - 1;
+				//if(time_left_t5<0) {
+				//LeaveStage = 1;
+				//time_left_t5=20;
+				//}
+				//else {
+				//LeaveStage=0;
+				//}
+				//}
+				
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			plotbox ""{
+				hasframe = FALSE;
+				height = 10%;
+				bottom = 90%;
+				maintainaspectratio = FALSE;
+				xaxistype = LINEAR;
+				yaxistype = LINEAR;
+				xleft = -100;
+				xright = 100;
+				ybottom = 0;
+				ytop = 100;
+				plottext ""{
+					text = "Time";
+					x = 0;
+					y = 80;
+					horizontalalignment = CENTER;
+					verticalalignment = FIRSTLINE;
+					textcolor = rgb(0,0,0);
+					fontsize = 24;
+				}
+				plotrect "Progress Bar Background"{
+					x = -11;
+					y = 70;
+					width = 22.25;
+					height = 5;
+					linecolor = rgb(0.00,0.00,0.00);
+					linewidth = 3;
+					fillcolor = rgb(0.50,0.50,0.50);
+				}
+				plotrect "Progress Bar"{
+					x = ProgressBarPositionX;
+					y = 70;
+					width = min(ProgressBarSize, 40);
+					height = 4.5;
+					fillcolor = rgb(1.00,0.00,0.00);
+				}
+				plotrect "Reset"{
+					x = 90;
+					y = -90;
+					width = 16;
+					height = 8;
+					linecolor = rgb(0.25,0.00,0.00);
+					linewidth = 3;
+					fillcolor = rgb(1.00,0.50,0.50);
+				}
+			}
+			gridbox "Grid"{
+				hasframe = TRUE;
+				height = 50%;
+				left = 3%;
+				right = 3%;
+				buttonposition = BOTTOMMIDDLE;
+				buttonsequence = HORIZONTAL;
+				numrows = 3;
+				numcolumns = 1;
+				firstcolumnwidth = 100;
+				firstrowheight = 100;
+				fieldsinrows = FALSE;
+				infieldlabeisallowed = FALSE;
+				firstrowislabel = FALSE;
+				firstcolumnislabel = FALSE;
+				labelseparators = FALSE;
+				rowseparators = FALSE;
+				columnseparators = FALSE;
+				item{
+					variable = pytanie;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "Twoja odpowiedŸ:";
+					variable = odpowiedz_p5;
+					format = "!string";
+					input = TRUE;
+					showdefault = FALSE;
+					emptyallowed = TRUE;
+					min = 0;
+					max = 9999;
+					program{
+						table = subjects;
+						do{
+							y=odpowiedz_p5;
+						}
+					}
+				}
+				item{
+					label = "pozosta³y czas";
+					variable = time_left_t5;
+					format = "1";
+					input = FALSE;
+				}
+			}
+			gridbox "Grid"{
+				hasframe = TRUE;
+				height = 50%;
+				left = 3%;
+				right = 3%;
+				displaycondition = time_left_t5<0;
+				buttonposition = MIDDLEMIDDLE;
+				buttonsequence = HORIZONTAL;
+				numrows = 2;
+				numcolumns = 1;
+				firstcolumnwidth = 100;
+				firstrowheight = 100;
+				fieldsinrows = TRUE;
+				infieldlabeisallowed = FALSE;
+				firstrowislabel = FALSE;
+				firstcolumnislabel = FALSE;
+				labelseparators = FALSE;
+				rowseparators = FALSE;
+				columnseparators = FALSE;
+				item{
+					label = "Czas min¹³";
+				}
+				button "                                  Dalej                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "odp probne 5"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = ifnoinput;
+		timeout = 30;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==1,1,0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			gridbox "Grid"{
+				hasframe = TRUE;
+				width = 50%;
+				height = 50%;
+				left = 30%;
+				right = 30%;
+				buttonposition = MIDDLEMIDDLE;
+				buttonsequence = HORIZONTAL;
+				numrows = 3;
+				numcolumns = 1;
+				firstcolumnwidth = 50;
+				firstrowheight = 50;
+				fieldsinrows = TRUE;
+				infieldlabeisallowed = FALSE;
+				firstrowislabel = FALSE;
+				firstcolumnislabel = FALSE;
+				labelseparators = FALSE;
+				rowseparators = FALSE;
+				columnseparators = FALSE;
+				item{
+					label = "Poprawna odpowiedŸ na to pytanie to";
+				}
+				item{
+					label = "masa krytyczna";
+				}
+				button "                                  Dalej                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Koniec testowych"{
+		startwaitforall = FALSE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = 30;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==1,1,0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			gridbox "Grid"{
+				hasframe = TRUE;
+				height = 50%;
+				left = 3%;
+				right = 3%;
+				buttonposition = MIDDLEMIDDLE;
+				buttonsequence = HORIZONTAL;
+				numrows = 2;
+				numcolumns = 1;
+				firstcolumnwidth = 100;
+				firstrowheight = 100;
+				fieldsinrows = TRUE;
+				infieldlabeisallowed = FALSE;
+				firstrowislabel = FALSE;
+				firstcolumnislabel = FALSE;
+				labelseparators = FALSE;
+				rowseparators = FALSE;
+				columnseparators = FALSE;
+				item{
+					label = "Odpowiedzia³eœ ju¿ na wszystkie pytania testowe.\r\nWszystkie pytania jakie zobaczysz od tej pory bêd¹ stanowiæ w³aœciw¹ czêœæ eksperymentu. Ich wp³yw na Twoje finalne wynagrodzenie okreœlony bêdzie na pocz¹tku ka¿dego z czterech bloków pytañ.";
+				}
+				button "                                  Dalej                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Rozpoczecie pierwszego bloku"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = ifnoinput;
+		timeout = 30;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==1,1,0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Standard"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Zaraz rozpoczniesz pierwszy z czterech bloków pytañ.\r\nNa kolejnym ekranie zobaczysz informacjê dotycz¹c¹ schematu wynagrodzenia jaki bêdzie obowi¹zywa³ w tym bloku.";
+				}
+				button "                                  Dalej                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Rozpoczecie drugiego bloku"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = ifnoinput;
+		timeout = 30;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==22,1,0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Standard"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Zaraz rozpoczniesz drugi z czterech bloków pytañ.\r\nNa kolejnym ekranie zobaczysz informacjê dotycz¹c¹ schematu wynagrodzenia jaki bêdzie obowi¹zywa³ w tym bloku.";
+				}
+				button "                                  Dalej                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Rozpoczecie trzeciego bloku"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = ifnoinput;
+		timeout = 30;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==43,1,0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Standard"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Zaraz rozpoczniesz trzeci z czterech bloków pytañ.\r\nNa kolejnym ekranie zobaczysz informacjê dotycz¹c¹ schematu wynagrodzenia jaki bêdzie obowi¹zywa³ w tym bloku.";
+				}
+				button "                                  Dalej                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Rozpoczecie czwartego bloku"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = ifnoinput;
+		timeout = 30;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==64,1,0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Standard"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Zaraz rozpoczniesz ostatni blok pytañ.\r\nNa kolejnym ekranie zobaczysz informacjê dotycz¹c¹ schematu wynagrodzenia jaki bêdzie obowi¹zywa³ w tym bloku.";
+				}
+				button "                                  Dalej                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "info_choice"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = 30;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==period_choice,1,0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Standard"{
+				hasframe = TRUE;
+				height = 90%;
+				left = 3%;
+				right = 3%;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Uczestnicy zostali losowo przydzieleni do czteroosobowych grup. Wybierz preferowany schemat wynagrodzenia:\r\n\r\nOpcja A:  Za ka¿d¹ poprawn¹ odpowiedŸ otrzymasz 2 z³.\r\n\r\nOpcja B: Za ka¿d¹ poprawn¹ odpowiedŸ otrzymasz 16 z³. pod warunkiem, ¿e bêdziesz najlepszy/a w swojej grupie. W przeciwnym razie otrzymasz zero. \r\nPrzyk³adowo, jeœli:\r\n- uczestnik 1 udzieli³ 9 poprawnych odpowiedzi\r\n- uczestnik 2 udzieli³ 6 poprawnych odpowiedzi\r\n- uczestnik 3 udzieli³ 7 poprawnych odpowiedzi\r\n- Ty udzieli³eœ 10 poprawnych odpowiedzi\r\nTwój wynik w tym etapie jest najwy¿szy w grupie, wiêc za ka¿¹ odpowiedŸ otrzymasz 16 z³. Jeœli ten blok zostanie wylosowany do finalnej wyp³aty, to otrzymasz 160 z³. Uczestnicy 1, 2 oraz 3 otrzyma³¹ za ten blok 0 z³.\r\n\r\nGdyby wiêcej ni¿ jedna osoba mia³a najwiêksz¹ liczbê poprawnych odpowiedzi w danej grupie, zwyciêzca zostanie wylosowany spoœród tych osób. Przyk³adowo, jeœli:\r\n- uczestnik 1 udzieli³ 9 poprawnych odpowiedzi\r\n- uczestnik 2 udzieli³ 6 poprawnych odpowiedzi\r\n- uczestnik 3 udzieli³ 10 poprawnych odpowiedzi\r\n- Ty udzieli³eœ 10 poprawnych odpowiedzi\r\nUczestnicy 1 oraz 2 otrzymaj¹ po 0 z³. Ty oraz uczestnik 3 macie równe szanse na zostanie wylosowanym, jako osoba, która otrzyma wyp³atê za ten etap. Masz zatem 50% szans na zdobycie za ten etap 160 z³. Jeœli zostaniesz wylosowany, otrzymasz za ten etap 160 z³, a uczestnik 3 otrzyma 0 z³. Jednak jeœli wylosowany zostanie uczestnik 3, to on otrzyma 160 z³ za swoje porawne odpowiedzi, a Ty otrzymasz 0 z³.\r\n\r\n\r\nUwaga: Grupy zosta³y ju¿ wylosowane. Oznacza to, ze jeœli wybierzesz opcjê B, to Twój wynik niekoniecznie bêdzie porównywany akurat z wynikami osób, które tak¿e wola³y opcjê B.  \r\n";
+					variable = choice;
+					format = "!radio: 1 = \"Opcja A\"; 2 = \"Opcja B\";";
+					input = TRUE;
+					showdefault = FALSE;
+					emptyallowed = FALSE;
+					min = 1;
+					max = 2;
+				}
+				button "                                  OK                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "info_piece"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = 30;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==period_piece,1,0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Standard"{
+				hasframe = TRUE;
+				height = 90%;
+				left = 3%;
+				right = 3%;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Za ka¿d¹ poprawn¹ odpowiedŸ otrzymasz 4 z³. ";
+				}
+				button "                                  OK                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "info_nonmonetary"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = 30;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==period_piece,1,0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Standard"{
+				hasframe = TRUE;
+				height = 90%;
+				left = 3%;
+				right = 3%;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "W tym etapie Twoje wynagrodzenie NIE jest uzale¿nione od liczby Twoich poprawnych odpowiedzi. Niezale¿nie od udzielonych odpowiedzi za ten etap otrzymasz 40 z³.";
+				}
+				button "                                  OK                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "info_tour"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = 30;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==period_tour,1,0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Standard"{
+				hasframe = TRUE;
+				height = 90%;
+				left = 3%;
+				right = 3%;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "W tym bloku bêdziesz rywalizowaæ z innymi uczestnikami eksperymentu.\r\n\r\nWynik jaki osi¹gniesz w tym bloku zostanie porównany z wynikami 3 losowo wybranych osób. Dotyczy to ka¿dego uczestnika eksperymentu. Za ka¿d¹ poprawn¹ odpowiedŸ otrzymasz 16 z³ pod warunkiem, ¿e Twój wynik bêdzie lepszy od wyniku ka¿dej z tych 3 osób. W przeciwnym razie otrzymasz zero.\r\nPrzyk³adowo, jeœli:\r\n- uczestnik 1 udzieli³ 9 poprawnych odpowiedzi\r\n- uczestnik 2 udzieli³ 6 poprawnych odpowiedzi\r\n- uczestnik 3 udzieli³ 7 poprawnych odpowiedzi\r\n- Ty udzieli³eœ 10 poprawnych odpowiedzi\r\nTwój wynik w tym etapie jest najwy¿szy w grupie, wiêc za ka¿¹ odpowiedŸ otrzymasz 16 z³. Jeœli ten blok zostanie wylosowany do finalnej wyp³aty, to otrzymasz 160 z³. Uczestnicy 1, 2 oraz 3 otrzyma³¹ za ten blok 0 z³.\r\n\r\nGdyby wiêcej ni¿ jedna osoba mia³a najwiêksz¹ liczbê poprawnych odpowiedzi w danej grupie, zwyciêzca zostanie wylosowany spoœród tych osób. Przyk³adowo, jeœli:\r\n- uczestnik 1 udzieli³ 9 poprawnych odpowiedzi\r\n- uczestnik 2 udzieli³ 6 poprawnych odpowiedzi\r\n- uczestnik 3 udzieli³ 10 poprawnych odpowiedzi\r\n- Ty udzieli³eœ 10 poprawnych odpowiedzi\r\nUczestnicy 1 oraz 2 otrzymaj¹ po 0 z³. Ty oraz uczestnik 3 macie równe szanse na zostanie wylosowanym, jako osoba, która otrzyma wyp³atê za ten etap. Masz zatem 50% szans na zdobycie za ten etap 160 z³. Jeœli zostaniesz wylosowany, otrzymasz za ten etap 160 z³, a uczestnik 3 otrzyma 0 z³. Jednak jeœli wylosowany zostanie uczestnik 3, to on otrzyma 160 z³ za swoje porawne odpowiedzi, a Ty otrzymasz 0 z³.\r\n\r\nUwaga: Pozosta³e osoby w Twojej grupie bêd¹ udzielaæ odpowiedzi na te same pytania i tak¿e bêd¹ mia³y motywacjê do udzielenia mo¿liwie wielu poprawnych odpowiedzi.";
+				}
+				button "                                  OK                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Uwaga nastêpne pytanie"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = 2;
+		program{
+			table = subjects;
+			do{
+				next_in=3;
+				later ( 1 ) repeat {
+				next_in = next_in - 1;
+				};
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			gridbox "Grid"{
+				hasframe = TRUE;
+				width = 50%;
+				height = 50%;
+				left = 30%;
+				right = 30%;
+				buttonposition = MIDDLEMIDDLE;
+				buttonsequence = HORIZONTAL;
+				numrows = 2;
+				numcolumns = 1;
+				firstcolumnwidth = 50;
+				firstrowheight = 50;
+				fieldsinrows = TRUE;
+				infieldlabeisallowed = FALSE;
+				firstrowislabel = FALSE;
+				firstcolumnislabel = FALSE;
+				labelseparators = FALSE;
+				rowseparators = FALSE;
+				columnseparators = FALSE;
+				item{
+					label = "Uwaga, nastêpne pytanie za";
+				}
+				item{
+					variable = next_in;
+					format = "1";
+					input = FALSE;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "pytanie"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = 30;
+		program{
+			table = subjects;
+			do{
+				if(id_pytania==	3122035) {
+				pytanie="Jak nazywa siê w wojsku sygna³ apelu wieczornego, odgrywany na tr¹bce, czasem na bêbnie?";
+				};
+				if(id_pytania==	6909079) {
+				pytanie="Jak nazywaj¹ siê sanie u¿ywane w ratownictwie górskim, do transportu rannych?";
+				};
+				if(id_pytania==	7017073) {
+				pytanie="Który polski pisarz podró¿owa³ po Mazurach tropami Smêtka?";
+				};
+				if(id_pytania==	111104)	{
+				pytanie="Jak nazywa siê w³oski re¿yser filmowy i aktor, jeden z g³ównych przedstawicieli neorealizmu. Jego najbardziej znane filmy to ''Z³odzieje rowerów'', ''Cud w Mediolanie'', ''Umberto de - ma³¿eñstwo po w³osku''?";
+				};
+				if(id_pytania==	111087)	{
+				pytanie="W fotografii czarno-bia³ej wykorzystuje siê zwi¹zki jednego z metali. Jakiego?";
+				};
+				if(id_pytania==	6909013) {
+				pytanie="Jaki ptak widnieje w herbie Austrii?";
+				};
+				if(id_pytania==	2908040) {
+				pytanie="Jak nazywa siê lud z rodziny Bantu, stanowi¹cy najwiêksz¹ grupê etniczn¹ mieszkañców RPA?";
+				};
+				if(id_pytania==	1725087) {
+				pytanie="Jak nazywa siê podstawowa jednostka temperatury w uk³adzie SI?";
+				};
+				if(id_pytania==	7017036) {
+				pytanie="Który amerykañski artysta uwa¿any jest za g³ównego przedstawiciela pop-artu? Jest autorem obrazu ''Puszka zupy Campbell's''.";
+				};
+				if(id_pytania==	1725060) {
+				pytanie="Jak nazywa siê najwiêkszy szosowy, wieloetapowy wyœcig kolarski zawodowców organizowany od 1903 roku we Francji?";
+				};
+				if(id_pytania==	1725055) {
+				pytanie="Kto jest autorem obrazu ''Olszynka Grochowska''?";
+				};
+				if(id_pytania==	7223082) {
+				pytanie="Co gra³o królowi w wierszu Marii Konopnickiej '' A jak poszed³ król na wojnê''?";
+				};
+				if(id_pytania==	1725091) {
+				pytanie="Gdzie w 1588 odby³a siê bitwa w której Jan Zamoyski odniós³ œwietne zwyciêstwo nad armi¹ arcyksiêcia Maksymiliana Habsburga?";
+				};
+				if(id_pytania==	2908005) {
+				pytanie="Kto gra³ g³ówn¹ rolê ¿eñsk¹, w filmie Leonarda Buczkowskiego ''Skarb''?";
+				};
+				if(id_pytania==	3122032) {
+				pytanie="Jak nazywa siê w partii szachów poœwiêcenie pionka albo figury dla uzyskania lepszej pozycji do ataku?";
+				};
+				if(id_pytania==	1725098) {
+				pytanie="Ten 19 wieczny francuski pisarz uchodzi za klasyka literatury sci-fi?";
+				};
+				if(id_pytania==	6818025) {
+				pytanie="O kimœ kto pisze brzydko, niewyraŸnie mówimy, ¿e bazgrze jak?";
+				};
+				if(id_pytania==	1725040) {
+				pytanie="Mikron to która czêœæ milimetra?";
+				};
+				if(id_pytania==	6818040) {
+				pytanie="Ptak pluszcz potrafi w sposób nietypowy dla ptaków œpiewaj¹cych zdobywaæ po¿ywienie. Jak pluszcz to robi?";
+				};
+				if(id_pytania==	3122029) {
+				pytanie="Jak w staro¿ytnym Rzymie nazywa³ siê pose³ do obcego pañstwa?";
+				};
+				if(id_pytania==	7017057) {
+				pytanie="W którym pañstwie Tadeusz Koœciuszko spêdzi³ ostatnie lata ¿ycia?";
+				};
+				if(id_pytania==	7223007) {
+				pytanie="Czy Koran zezwala na poligamie?";
+				};
+				if(id_pytania==	1725074) {
+				pytanie="Które miasto jest stolic¹ stanu Parana w Brazylii, oœrodkiem emigracji polskiej?";
+				};
+				if(id_pytania==	111100)	{
+				pytanie="Przemyt przez granicê zakazanych towarów okreœlany jest jako?";
+				};
+				if(id_pytania==	2908055) {
+				pytanie="W którym pañstwie le¿y Marengo, miejsce zwyciêskiej bitwy Napoleona I z Austri¹ w 1800 roku?";
+				};
+				if(id_pytania==	111029)	{
+				pytanie="Znakomity amerykañski gitarzysta i wokalista, stworzy³ w³asne brzmienie, rewolucjonizuj¹ce sposób gry na gitarze elektrycznej.  ''Hey Joe'' to jeden z jego s³ynnych utworów. O kim mowa?";
+				};
+				if(id_pytania==	6909030) {
+				pytanie="Czy rzymski gladiator Spartakus pochodzi³ z Tracji czy z Beocji?";
+				};
+				if(id_pytania==	7223021) {
+				pytanie="Czy Francja obecnie jest republik¹?";
+				};
+				if(id_pytania==	1725011) {
+				pytanie="W którym wieku Alan Alexander Milne napisa³ powieœæ dla dzieci ''Kubuœ Puchatek''?";
+				};
+				if(id_pytania==	7017008) {
+				pytanie="W którym mieœcie s¹ pochowani: Jacek Malczewski, Stanis³aw Wyspiañski, Czes³aw Mi³osz?";
+				};
+				if(id_pytania==	6818072) {
+				pytanie="Sombrero to kapelusz, miasto czy taniec na Kubie?";
+				};
+				if(id_pytania==	6818060) {
+				pytanie="Czy udzia³ w zagranicznych imprezach targowo-wystawienniczych w charakterze wystawcy mo¿e zostaæ dofinansowany z unijnych œrodków?";
+				};
+				if(id_pytania==	3122055) {
+				pytanie="Kto zosta³ Wielkim Ksiêciem Litwy po œmierci Witolda? By³o to w 1430 roku.";
+				};
+				if(id_pytania==	6818033) {
+				pytanie="Jak z francuskiego nazywa siê uliczny chodnik? Ta nazwa by³a u¿ywana niegdyœ w Polsce.";
+				};
+				if(id_pytania==	6909019) {
+				pytanie="W którym z trójmiejskich miast mo¿na zwiedzaæ ''Dar Pomorza''?";
+				};
+				if(id_pytania==	2908066) {
+				pytanie="Czy glukoza jest cukrem prostym?";
+				};
+				if(id_pytania==	720015)	{
+				pytanie="Stronnictwo Zygmunta III Wazy w Polsce nosi³o nazwê regalistów. Jak nazywano przeciwników króla?";
+				};
+				if(id_pytania==	6402067) {
+				pytanie="Czy liwr to dawna srebrna moneta w³oska?";
+				};
+				if(id_pytania==	6402076) {
+				pytanie="Jak nazywa siê przymusowe czasowe odosobnienie ludzi, którzy przebywaj¹ z miejsca w którym panuje epidemia?";
+				};
+				if(id_pytania==	6909056) {
+				pytanie="Na motywach którego dramatu Szekspira, powsta³ scenariusz do ''West Side Story''?";
+				};
+				if(id_pytania==	111003)	{
+				pytanie="Góry te zajmuj¹ 2/3 Austrii. Jakie to góry?";
+				};
+				if(id_pytania==	6402068) {
+				pytanie="Który rozmiar jest wiêkszy, oznaczony liter¹ m czy s?";
+				};
+				if(id_pytania==	3122025) {
+				pytanie="Kto napisa³ ''Dziewczêta z Nowolipek''?";
+				};
+				if(id_pytania==	6402009) {
+				pytanie="Jak nazywa siê za³o¿yciel i lider zespo³u Rolling Stones?";
+				};
+				if(id_pytania==	2908060) {
+				pytanie="Które miasto jest stolic¹ Chorwacji?";
+				};
+				if(id_pytania==	2908057) {
+				pytanie="Jak nazywa siê podstawa armaty, czêœæ dzia³a na której spoczywa lufa?";
+				};
+				if(id_pytania==	3122052) {
+				pytanie="Jak brzmi polski odpowiednik ³aciñskiej nazwy gwiazdozbioru Gemini?";
+				};
+				if(id_pytania==	6402027) {
+				pytanie="Która forma jest poprawna: b³ahy czy b³achy";
+				};
+				if(id_pytania==	3122001) {
+				pytanie="Kto jest autorem sztuki ''Szko³a ¯on''?";
+				};
+				if(id_pytania==	7223001) {
+				pytanie="Czy szarotki alpejskie w Polsce objête s¹ ochron¹?";
+				};
+				if(id_pytania==	6818003) {
+				pytanie="Czy niedŸwiedzie brunatne s¹ w Polsce objête ochron¹?";
+				};
+				if(id_pytania==	720047)	{
+				pytanie="Kto napisa³ utwory takie jak ''O Janku Wêdrowniczku'' oraz ''Na jagody''?";
+				};
+				if(id_pytania==	6402089) {
+				pytanie="Czym zajmuje siê dzia³ zoologii zwany entomologi¹?";
+				};
+				if(id_pytania==	7223065) {
+				pytanie="Ile pasków czyli belek znajduje siê na mundurze kaprala?";
+				};
+				if(id_pytania==	2908074) {
+				pytanie="Jak nazywa siê linia kolejowa ³¹cz¹ca europejsk¹ czêœæ Rosji z Syberi¹ i Dalekim Wschodem?";
+				};
+				if(id_pytania==	2908062) {
+				pytanie="Jak nazywa³ siê amerykañski genera³ w latach 1950-1951? Dowódca wojsk amerykañskich w Korei.";
+				};
+				if(id_pytania==	7223092) {
+				pytanie="Czêœci¹ którego pañstwa jest wyspa Zelandia, po³o¿ona miêdzy cieœninami Wielki Be³t i Sund?";
+				};
+				if(id_pytania==	6909001) {
+				pytanie="Jak nazywa siê ¿ywica drzew iglastych z trzeciorzêdu, obficie wystêpuj¹ca na wybrze¿ach Ba³tyku?";
+				};
+				if(id_pytania==	3122013) {
+				pytanie="Czego wed³ug powiedzenia nie nale¿y za sob¹ paliæ?";
+				};
+				if(id_pytania==	7017072) {
+				pytanie="Na dnie którego oceanu wznosz¹ siê Góry Cesarskie?";
+				};
+				if(id_pytania==	1725073) {
+				pytanie="Jak nazywa siê pojedynek w którym jeden szachista gra jednoczeœnie z wieloma przeciwnikami?";
+				};
+				if(id_pytania==	1725013) {
+				pytanie="W jakim kolorze s¹ kwiaty forsycji, krzewu ozdobnego kwitn¹cego wczesn¹ wiosn¹?";
+				};
+				if(id_pytania==	7223009) {
+				pytanie="Jak nazywa siê najd³u¿sza ciêciwa okrêgu?";
+				};
+				if(id_pytania==	3122034) {
+				pytanie="W której czêœci cia³a znajduje siê miêsieñ krawiecki?";
+				};
+				if(id_pytania==	6818070) {
+				pytanie="W którym mieœcie powsta³o Muzeum Historii ¯ydów Polskich?";
+				};
+				if(id_pytania==	111011)	{
+				pytanie="Jak nazywaj¹ siê rozdzia³y, na które jest podzielona œwiêta ksiêga islamu, Koran?";
+				};
+				if(id_pytania==	7223029) {
+				pytanie="Rocznice ilu lat panowania El¿biet II w Wielkiej Brytanii obchodzono w 2012 roku?";
+				};
+				if(id_pytania==	6909036) {
+				pytanie="1 rubel to ile kopiejek?";
+				};
+				if(id_pytania==	1725050) {
+				pytanie="Czyja postaæ znajduje siê w powsta³ej w 1633 roku fontannie, stoj¹cej na d³ugim targu w Gdañsku?";
+				};
+				if(id_pytania==	3122015) {
+				pytanie="Do którego pañstwa wyjecha³ po abdykacji Stanis³aw August Poniatowski?";
+				};
+				if(id_pytania==	720039) {
+				pytanie="Co kolekcjonuje filumenista?";
+				};
+				if(id_pytania==	6909045) {
+				pytanie="Proszê wymieniæ przynajmniej jednego poetê, którego nazwiska pada w ''Cichosza'' Grzegorza Turnaua?";
+				};
+				if(id_pytania==	1725005) {
+				pytanie="Które miasto jest stolic¹ Indii?";
+				};
+				if(id_pytania==	7017028) {
+				pytanie="Plac Œwiêtego Piotra w Rzymie jest przyk³adem architektury gotyckiej, renesansowej czy barokowej?";
+				};
+				if(id_pytania==	6402098) {
+				pytanie="Reprezentant uczestnika pojedynku to…";
+				};
+				if(id_pytania==	720043)	{
+				pytanie="Rzymska litera oznaczaj¹ca liczbê 1000, to?";
+				};
+				if(id_pytania==	7223017) {
+				pytanie="Metr szeœcienny jest miar¹ objêtoœci czy powierzchni?";
+				};
+				if(id_pytania==	720021)	 {
+				pytanie="Dekada, ile to dni?";
+				};
+				if(id_pytania==	6402005) {
+				pytanie="Jakim zwierzêciem by³ Behemot z powieœci Mistrz i Ma³gorzata, Bu³hakowa?";
+				};
+				if(id_pytania==	3122005) {
+				pytanie="Jak nazywa siê przyrz¹d wydaj¹cy dŸwiêk wzorcowy do strojenia instrumentów muzycznych?";
+				};
+				if(id_pytania==	7223079) {
+				pytanie="Cz³onkowie parlamentu europejskiego s¹ wybierani w wyborach bezpoœrednich czy poœrednich?";
+				};
+				if(id_pytania==	7017060) {
+				pytanie="Na którym kontynencie le¿y Andora?";
+				};
+				if(id_pytania==	1725031) {
+				pytanie="Która nauka zajmuje siê iloœciowymi i jakoœciowymi badaniami ludnoœci, ich rozmieszczeniem struktur¹ itd.?";
+				};
+				if(id_pytania==	6402048) {
+				pytanie="Regulaminowa wysokoœæ bramki na boisku wynosi mniej ni¿ 2,5 metra, dok³adnie tyle, czy wiêcej?";
+				};
+				if(id_pytania==	6818011) {
+				pytanie="Który pó³wysep Azji jest najwiêkszy?";
+				};
+				if(id_pytania==	6402030) {
+				pytanie="W którym europejskim jêzyku wystêpuje s³owo ''Achtung''?";
+				};
+				if(id_pytania==	111086)	{
+				pytanie="Jaki kraj jako jedno z pierwszych pañstw postkomunistycznych w Europie Œrodkowo-Wschodniej z³o¿y³ wniosek o przyjêcie do Unii Europejskiej?";
+				};
+				if(id_pytania==	3122037) {
+				pytanie="Ile wa¿y wie¿a Eiffla? Mo¿na siê pomyliæ o 2 tysi¹ce ton.";
+				};
+				if(id_pytania==	1725057) {
+				pytanie="Jak nazywa³ siê pierwszy rzecznik praw obywatelskich w Rosji?";
+				};
+				if(id_pytania==	7017021) {
+				pytanie="Czy Andrzej Wajda zosta³ nagrodzony Oscarem za konkretny film, czy za ca³okszta³t twórczoœci?";
+				};
+				if(id_pytania==	2908065) {
+				pytanie="Kto jest szkockim odpowiednikiem Robin Hooda. Bohaterem szkockich legend i opowieœci z prze³omu XVII i XVIII wieku?";
+				};
+				if(id_pytania==	3122041) {
+				pytanie="Jak nazywa³ siê brytyjski chemik i fizyk, twórca atomistycznej teorii materii, ¿y³ w XVIII i XIX wieku?";
+				};
+				if(id_pytania==	1725023) {
+				pytanie="Które miasto wg przys³owia nie od razu zbudowano?";
+				};
+				if(id_pytania==	7017024) {
+				pytanie="Czy grañ to krawêdŸ skalistego grzbietu górskiego, czy prze³êcz górska?";
+				};
+				if(id_pytania==	6818028) {
+				pytanie="Jak nazywa siê czynnoœæ polegaj¹ca na ³¹czeniu wapna palonego z wod¹?";
+				};
+				if(id_pytania==	6909051) {
+				pytanie="Pierwszy plebiscyt na najlepszego sportowca roku, Przegl¹du Sportowego, odby³ siê w latach 20,50 czy 70 ubieg³ego wieku?";
+				};
+				if(id_pytania==	1725021) {
+				pytanie="Jak zachowuje siê ciœnienie atmosferyczne wraz ze wzrostem wysokoœci? Wzrasta czy maleje?";
+				};
+				if(id_pytania==	2908011) {
+				pytanie="Ile dni ma luty w tym roku?";
+				};
+				if(id_pytania==	6909071) {
+				pytanie="Które miasto by³o do roku 1991 by³o stolic¹ Republiki Federalnej Niemiec?";
+				};
+				if(id_pytania==	7017070) {
+				pytanie="W którym roku proklamowano pañstwo Izrael?";
+				};
+				
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				if(id_pytania==	6818067) {
+				pytanie="Jak brzmi imiê patrona Litwy, ku czci którego odbywa siê w marcu w Wilnie s³ynny odpust?";
+				};
+				if(id_pytania==	6909069) {
+				pytanie="Który lud germañski w 455 roku zdoby³ i zniszczy³ Rzym?";
+				};
+				if(id_pytania==	2908063) {
+				pytanie="W którym miesi¹cu przypada 8 dniowe ¿ydowskie œwiêto Chanuka?";
+				};
+				if(id_pytania==	6818064) {
+				pytanie="Na jakie dwa g³ówne od³amy podzieli³ siê islam?";
+				};
+				if(id_pytania==	7223050) {
+				pytanie="Która planeta ma najkrótszy okres obrotu wokó³ w³asnej osi wœród planet Uk³adu S³onecznego?";
+				};
+				if(id_pytania==	7223081) {
+				pytanie="Amerykañski program lotów za³ogowych Apollo, mia³ na celu zbadanie którego cia³a niebieskiego?";
+				};
+				if(id_pytania==	3122024) {
+				pytanie="Jak nazywa siê amerykañski aktor, który zagra³ tytu³ow¹ rolê w filmie ''Terminator''?";
+				};
+				if(id_pytania==	111073)	{
+				pytanie="Szepty i wrzaski, czy to poprawny tytu³ jednego z filmów Ingmara Bergmana?";
+				};
+				if(id_pytania==	2908028) {
+				pytanie="Kto mianuje biskupa w koœciele katolickim?";
+				};
+				if(id_pytania==	3122040) {
+				pytanie="By³ jednym z najbardziej znanych powojennych dyplomatów radzieckich, ministrem spraw zagranicznych w latach 1957-1985. O kim mowa?";
+				};
+				if(id_pytania==	6402064) {
+				pytanie="Ile koni by³o w gospodarstwie pana Jonesa, w ksi¹¿ce Orwella ''Folwark zwierzêcy''?";
+				};
+				if(id_pytania==	6818015) {
+				pytanie="Jak mia³ na imiê Eiffel, konstruktor wie¿y w Pary¿u?";
+				};
+				if(id_pytania==	3122049) {
+				pytanie="Jak¹ d³ugoœæ ma tunel kolejowy pod kana³em La Manche, zwany Eurotunelem? 50.5km; 60.6km czy 70.5 km?";
+				};
+				if(id_pytania==	7017048) {
+				pytanie="Proszê podaæ datê ataku terrorystycznego na wie¿owce World Trade Center w Nowym Jorku.";
+				};
+				if(id_pytania==	720023) {
+				pytanie="W którym mieœcie w 1958 roku powsta³ zespó³ The Beatles?";
+				};
+				if(id_pytania==	7223027) {
+				pytanie="Czy Turyn jest stolic¹ krainy historycznej zwanej Turyngi¹?";
+				};
+				if(id_pytania==	3122031) {
+				pytanie="Czy brom jest metalem?";
+				};
+				if(id_pytania==	1725061) {
+				pytanie="W którym mieœcie znajduje siê grób Mahometa?";
+				};
+				if(id_pytania==	2908049)	 	{
+				pytanie="Ile wynosi cotangens z 45 stopni?";
+				};
+				if(id_pytania==	2908054) {
+				pytanie="Na prze³omie, których wieków ¿y³ Miko³aj Kopernik?";
+				};
+				if(id_pytania==	6818062) {
+				pytanie="Jak nazywa siê wiedŸma z powieœci ''Ogniem i Mieczem'', której Bohun odda³ pod opiekê Helenê Kuncewiczównê?";
+				};
+				if(id_pytania==	6402073) {
+				pytanie="Czy wszystkie ptaki s¹ jajorodne?";
+				};
+				if(id_pytania==	6909023) {
+				pytanie="Jak nazywa siê chroniona bylina z rodziny astrowatych? Symbol tatrzañskiej przyrody.";
+				};
+				if(id_pytania==	3122054) {
+				pytanie="Biegi krótkie maj¹ do 200, 400 czy 800 metrów?";
+				};
+				if(id_pytania==	3122019) {
+				pytanie="Jaki wzór chemiczny ma wodorotlenek sodu?";
+				};
+				if(id_pytania==	1725022) {
+				pytanie="Jak nazywa³ siê rodzaj dawnych kajdan, drewniane k³ody z otworami na rêce i nogi?";
+				};
+				if(id_pytania==	2908013) {
+				pytanie="Czy koklusz to choroba zakaŸna?";
+				};
+				if(id_pytania==	2908068) {
+				pytanie="Czy ostros³up mo¿e mieæ w podstawie dowolny wielok¹t?";
+				};
+				if(id_pytania==	1725086) {
+				pytanie="Jak w geologii okreœla siê doln¹ powierzchniê warstwy skalnej albo pok³adu kopaliny?";
+				};
+				if(id_pytania==	6818068) {
+				pytanie="Któr¹ czêœci¹ budynku jest wêgie³?";
+				};
+				if(id_pytania==	6402043) {
+				pytanie="Genesis to Ksiêga Wyjœcia czy Rodzaju?";
+				};
+				if(id_pytania==	6909068) {
+				pytanie="Kontestator to cz³owiek rozwa¿aj¹cy trudne problemy czy protestuj¹cy przeciw czemuœ?";
+				};
+				if(id_pytania==	2908015) {
+				pytanie="Która stolica le¿y nad We³taw¹, Praga czy Bratys³awa?";
+				};
+				if(id_pytania==	111108) {
+				pytanie="Jak nazywa siê podatek poœredni nak³adany przez organy pañstwowe na niektóre artyku³y konsumpcyjne? S¹ nim objête m.in.. Papierosy i alkohol.";
+				};
+				if(id_pytania==	6909041) {
+				pytanie="P³yn¹c Wis³¹ z Warszawy do Gdañska najpierw miniemy Toruñ czy Tczew?";
+				};
+				if(id_pytania==	7017032) {
+				pytanie="Który z siedmiu cudów œwiata jako jedyny zachowa³ siê do dziœ?";
+				};
+				if(id_pytania==	6818049) {
+				pytanie="Czy gronostaj zmienia kolor futra na zimê?";
+				};
+				if(id_pytania==	7017078) {
+				pytanie="Tomasz Morus by³ autorem dzie³a ''Pochwa³a G³upoty'', czy ''Utopia''?";
+				};
+				if(id_pytania==	7017066) {
+				pytanie="Który gatunek s³oni ma wiêksze uszy indyjski czy afrykañski?";
+				};
+				if(id_pytania==	720070)	{
+				pytanie="Jak nazywa siê flaga wskazuj¹ca przynale¿noœæ statku do okreœlonego pañstwa?";
+				};
+				if(id_pytania==	7223084) {
+				pytanie="Czy stopieñ Celsjusza, jednostka temperatury nale¿y do uk³adu SI?";
+				};
+				if(id_pytania==	111034)	{
+				pytanie="Miasto rosyjskie od XVIII wieku oœrodek przemys³u. S³ynê³o z produkcji uzbrojenia ale przede wszystkim wyrabiane by³y tam znane samowary. Jakie to miasto?";
+				};
+				if(id_pytania==	6402007) {
+				pytanie="Rzeczpospolita to dziennik czy tygodnik?";
+				};
+				if(id_pytania==	3122042) {
+				pytanie="W którym roku powsta³ pierwszy hitlerowski obóz koncentracyjny w Dachau?";
+				};
+				if(id_pytania==	7017074) {
+				pytanie="Co oznacza ³aciñskie wyra¿enie ''casus belli''?";
+				};
+				if(id_pytania==	6402097) {
+				pytanie="Ile razy Wincenty Witos sprawowa³ funkcjê premiera?";
+				};
+				if(id_pytania==	111084)	{
+				pytanie="Gdzie odbywa³y siê Mistrzostwa Œwiata w pi³ce no¿nej w 1990 roku?";
+				};
+				if(id_pytania==	7223057) {
+				pytanie="Jak z francuskiego nazywa siê mieszkanie kawalerskie tzw. kawalerka?";
+				};
+				if(id_pytania==	6818053) {
+				pytanie="Jeœli coœ mo¿e zawieœæ, to zawiedzie. Jak brzmi nazwisko cz³owieka uznawanego za autora tej regu³y??";
+				};
+				if(id_pytania==	3122057) {
+				pytanie="Czy poemat Juliana Tuwima ''Kwiaty Polskie'' zosta³ wydany po raz pierwszy przed czy po II wojnie œwiatowej?";
+				};
+				if(id_pytania==	7223071) {
+				pytanie="Na którym szczycie Polski stoi 15-metrowy ¿elazny krzy¿?";
+				};
+				if(id_pytania==	6402079) {
+				pytanie="W Polsce funkcjê instytucji p³atniczej funduszy europejskich pe³ni Ministerstwo Finansów czy Komisja Europejska?";
+				};
+				if(id_pytania==	7223005) {
+				pytanie="Horacy w swoich pieœniach radzi³ ''Carpe Diem''. Co to znaczy?";
+				};
+				if(id_pytania==	720040)	{
+				pytanie="Jak ma na imiê ksiê¿niczka Burgunda ze sztuki Witolda Gombrowicza?";
+				};
+				if(id_pytania==	2908003) {
+				pytanie="Jak nazywaj¹ siê czasowniki oznaczaj¹ce czynnoœæ skoñczon¹?";
+				};
+				if(id_pytania==	3122058) {
+				pytanie="Jak nazywa siê bogini staro¿ytnego Egiptu, ¿ona Ozyrysa i matka Horusa?";
+				};
+				if(id_pytania==	7223080) {
+				pytanie="Które s³owo jest antonimem s³owa dobro?";
+				};
+				if(id_pytania==	720027) {
+				pytanie="Jak brzmi dawna, tradycyjna polska nazwa kopalni soli?";
+				};
+				if(id_pytania==	6909075) {
+				pytanie="Jaki kolor ma fez, nakrycie g³owy mê¿czyzn w krajach muzu³mañskich?";
+				};
+				if(id_pytania==	6818030) {
+				pytanie="Które wydarzenia mia³y miejsce póŸniej, opisane w ''Iliadzie'' czy w ''Odysei''?";
+				};
+				if(id_pytania==	7223031) {
+				pytanie="Czy liczba osób, które otrzyma³y literackiego Nobla przekroczy³a 100?";
+				};
+				if(id_pytania==	720071)	{
+				pytanie="Jak nazywa siê grecka bogini prawa?";
+				};
+				if(id_pytania==	720031)	{
+				pytanie="Jak nazwaliœmy galaktykê, do której nale¿y nasz Uk³ad S³oneczny?";
+				};
+				if(id_pytania==	1725039) {
+				pytanie="Która budowla jako jedyna na œwiecie jest widoczna go³ym okiem z kosmosu?";
+				};
+				if(id_pytania==	1725092) {
+				pytanie="Kiedy przek¹tne w prostok¹cie przecinaj¹ siê pod k¹tem prostym?";
+				};
+				if(id_pytania==	6818017) {
+				pytanie="W którym wieku Boles³aw Prus napisa³ ''Lalkê''?";
+				};
+				if(id_pytania==	7223051) {
+				pytanie="Ile procent objêtoœci powietrza stanowi azot? Mo¿na siê pomyliæ o 2%.";
+				};
+				if(id_pytania==	720011)	{
+				pytanie="Jak nazywa siê gwiazda kina francuskiego urodzona w 1943 roku w Pary¿u? Gra³a w ''Parasolkach z Szerburga'' i w filmie ''Wstrêt'' Romana Polañskiego.";
+				};
+				if(id_pytania==	7223073) {
+				pytanie="Kto podpowiada aktorom tekst w trakcie przedstawienia?";
+				};
+				if(id_pytania==	6909084) {
+				pytanie="W którym roku zosta³a utworzona Liga Narodów? Mo¿na siê pomyliæ o rok.";
+				};
+				if(id_pytania==	720003)	{
+				pytanie="Jak z francuskiego nazywamy zwolennika ustroju monarchicznego, zwolennika króla?";
+				};
+				if(id_pytania==	6909073) {
+				pytanie="Na ile stopni dzieli oktawê skala pentatoniczna?";
+				};
+				if(id_pytania==	720063)	{
+				pytanie="Jak siê nazywa³ polski dzia³acz ruchu ludowego, publicysta, marsza³ek sejmu w latach 1922-1927, rozstrzelany przez Niemców w Palmirach?";
+				};
+				if(id_pytania==	111079)	{
+				pytanie="Jak brzmi tytu³ wielkiego dramatu Williama Szekspira, nazywanego czêsto tragedi¹ zazdroœci? Opowiada o niszcz¹cym uczuciu doprowadzaj¹cym do zbrodni.";
+				};
+				if(id_pytania==	6818034) {
+				pytanie="Walutê którego pañstwa oznacza siê na gie³dach skrótem JPY?";
+				};
+				if(id_pytania==	720060)	 {
+				pytanie="Jaki rodzaj produktów nosi takie nazwy: ekler, diablotka, bajaderka?";
+				};
+				if(id_pytania==	6818019) {
+				pytanie="Komu, wed³ug przys³owia, zawadza r¹bek u spódnicy?";
+				};
+				if(id_pytania==	720001)	 {
+				pytanie="Przez ile lat Edward Gierek by³ I sekretarzem Komitetu Centralnego Polskiej Zjednoczonej Partii Robotniczej? Mo¿na pomyliæ siê o 1 rok.";
+				};
+				if(id_pytania==	7223047) {
+				pytanie="Jak nazywa siê sztuka budowania skrzypiec?";
+				};
+				if(id_pytania==	7017058) {
+				pytanie="W³ókno ¿arówki z up³ywem czasu staje siê coraz cieñsze, czy moc ¿arówki roœnie czy maleje?";
+				};
+				if(id_pytania==	2908038) {
+				pytanie="Jak nazywa³ siê ojciec Achillesa?";
+				};
+				if(id_pytania==	2908067) {
+				pytanie="Co w staropolskim przys³owiu ''chwali ka¿da liszka''?";
+				};
+				if(id_pytania==	6402056) {
+				pytanie="Pr¹d peruwiañski to pr¹d zimny czy ciep³y?";
+				};
+				if(id_pytania==	1725020) {
+				pytanie="Kto by³ autorem s³ów ''Mazurka D¹browskiego''?";
+				};
+				if(id_pytania==	111114)	{
+				pytanie="W 1900 roku z okazji 30lecia pracy twórczej spo³eczeñstwo podarowa³o wybitnemu polskiemu pisarzowi pa³acyk w Oblêgorku pod Kielcami. Kto zosta³ tak uhonorowany?";
+				};
+				if(id_pytania==	6402049) {
+				pytanie="W Kopenhadze mo¿e zobaczyæ statuê ma³ej syrenki, któremu literatowi poœwiêcony jest ten pomnik	";
+				};
+				if(id_pytania==	111063)	{
+				pytanie="Jaki tytu³ nosi obraz W³adys³awa Podkowiñskiego, przedstawiaj¹cy nag¹ kobietê przytulaj¹c¹ siê do konia o rozwianej grzywie?";
+				};
+				if(id_pytania==	3122026) {
+				pytanie="W którym wieku odby³a siê uczta Wierzynka?";
+				};
+				if(id_pytania==	7223091) {
+				pytanie="Która roœlina po³¹czy³a groby Tristana i Izoldy. Krzew ja³owca, g³ogu czy tarniny?";
+				};
+				if(id_pytania==	111091)	{
+				pytanie="Ile praw mówi¹cych o ruchu planet wokó³ S³oñca odkry³ niemiecki astronom Jan Kepler?";
+				};
+				if(id_pytania==	3122047) {
+				pytanie="W jakim kolorze by³y krzy¿e na p³aszczach Krzy¿aków?";
+				};
+				if(id_pytania==	3122028) {
+				pytanie="W której europejskiej stolicy dzia³a lotnisko Szeremietiewo?";
+				};
+				if(id_pytania==	720035)	{
+				pytanie="Jak nazywa siê chorobliwy lêk przed ogniem?";
+				};
+				if(id_pytania==	6402053) {
+				pytanie="Jak do 17 wieku nazywa siê ¿o³nierz pieszy, wyszkolony w rzucaniu granatów rêcznych?";
+				};
+				if(id_pytania==	6818043) {
+				pytanie="W jaki sposób zginê³a Desdemona, bohaterka ''Otella''?";
+				};
+				if(id_pytania==	6909007) {
+				pytanie="W jakim materiale rzeŸbi snycerz?";
+				};
+				if(id_pytania==	6909009) {
+				pytanie="Jakie barwy ma salamandra plamista, która ¿yje w polskich górach?";
+				};
+				if(id_pytania==	2908075) {
+				pytanie="We Francji we wrzeœniu 1999 roku odby³o siê referendum, w którym obywatele opowiedzieli siê za skróceniem 7letniego mandatu prezydenckiego. Ile bêdzie teraz trwa³a kadencja prezydenta we Francji?";
+				};
+				if(id_pytania==	3122048) {
+				pytanie="Jak nazywa siê kazalnica w koœciele oraz stanowisko myœliwskie?";
+				};
+				if(id_pytania==	7223075) {
+				pytanie="Które dzie³o operowe Siergieja Prokofiewa zosta³o oparte na wielkiej powieœci Lwa To³stoja";
+				};
+				
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				if(id_pytania==	111105)	{
+				pytanie="Dwoje skrzypiec altówka i wiolonczela tworz¹ charakterystyczny zespó³ muzyczny. Jak siê taki zespó³ nazywa?";
+				};
+				if(id_pytania==	7223089) {
+				pytanie="Która liczba jest wiêksza kwintylion czy kwadrylion?";
+				};
+				if(id_pytania==	6402075) {
+				pytanie="Jakie imiona nosz¹ synowie brytyjskiej ksiê¿nej Diany?";
+				};
+				if(id_pytania==	1725090) {
+				pytanie="Do jakich celów przeznaczone jest pomieszczenie klasztorne zwane refektarzem?";
+				};
+				if(id_pytania==	3122044) {
+				pytanie="Któr¹ dyscyplinê sportu uprawia olimpijka Alicja Pêczak?";
+				};
+				if(id_pytania==	6402031) {
+				pytanie="Jak nazywali siê francuscy bracia, Jacques i Joseph, którzy dokonali pierwszej udanej próby lotu balonem?";
+				};
+				if(id_pytania==	3122039) {
+				pytanie="Kto jest twórc¹ muzyki opery ''don Carlos''?";
+				};
+				if(id_pytania==	7223040) {
+				pytanie="Na ile lat Polska straci³a niepodleg³oœæ w 1795 roku?";
+				};
+				if(id_pytania==	6402088) {
+				pytanie="Kto by³ ojcem Izaaka?";
+				};
+				if(id_pytania==	111026) {
+				pytanie="W którym z hiszpañskich miast odby³a siê g³oœna wystawa œwiatowa Expo 92?";
+				};
+				if(id_pytania==	6909038) {
+				pytanie="Czy za zapiêcie pasów bezpieczeñstwa przez pasa¿erów odpowiada wobec prawa kierowca?";
+				};
+				if(id_pytania==	6402078) {
+				pytanie="Czy Uran tak samo jak Saturn otoczony jest pierœcieniem oko³oplanetarnym?";
+				};
+				if(id_pytania==	6909049) {
+				pytanie="Czy Aleksander Wielki by³ za³o¿ycielem biblioteki aleksandryjskiej?";
+				};
+				if(id_pytania==	720026)	{
+				pytanie="Jak nazywa³ siê urzêdnik, który sprawowa³ opiekê nad rodzinami i maj¹tkiem walcz¹cej szlachty w Polsce?";
+				};
+				if(id_pytania==	7223078) {
+				pytanie="Jak nazywa siê ma³a okr¹g³a czapeczka, któr¹ nosz¹ biskupi i kardyna³owie?";
+				};
+				if(id_pytania==	3122063) {
+				pytanie="Kto skomponowa³ muzykê do piosenki Jana Pietrzaka ''¯eby Polska by³a Polsk¹''?";
+				};
+				if(id_pytania==	111009) {
+				pytanie="Jak nazywa siê najwiêksza wyspa w archipelagu Balearów na Morzu œródziemnym?";
+				};
+				if(id_pytania==	6909057) {
+				pytanie="Ile lat trwa³a s³u¿ba westalek?";
+				};
+				if(id_pytania==	111116)	{
+				pytanie="Jaki kryptonim przyjê³o Polskie Stronnictwo Ludowe podczas okupacji?";
+				};
+				if(id_pytania==	6909077) {
+				pytanie="Co w dos³ownym t³umaczeniu oznacza okreœlenie u¿ywane w odniesieniu do szko³y wy¿szej ''Alma Mater''?";
+				};
+				if(id_pytania==	6402011) {
+				pytanie="Czy noworodki szczepi siê przeciw gruŸlicy?";
+				};
+				if(id_pytania==	6818044) {
+				pytanie="Jak nazywa³ siê twórca firmy Apple?";
+				};
+				if(id_pytania==	6402092) {
+				pytanie="W którym koœciele odby³ siê œlub Lucjana Rydla z Jadwig¹ Miko³ajczykówn¹?";
+				};
+				if(id_pytania==	2908051) {
+				pytanie="Jak z angielskiego nazywa siê ogrodzona przestrzeñ w której odbywaj¹ siê parady koni wyœcigowych przed biegami?";
+				};
+				if(id_pytania==	111076)	 {
+				pytanie="W którym roku powsta³ Zwi¹zek Radziecki?";
+				};
+				if(id_pytania==	7017023) {
+				pytanie="Do którego zwierzêcia Adam Mickiewicz porówna³ róg, na którym gra³ Wojski w Panu Tadeuszu?";
+				};
+				if(id_pytania==	2908059) {
+				pytanie="Kto re¿yserowa³ seriale ''Wojna Domowa'' oraz ''Czterdziestolatek''?";
+				};
+				if(id_pytania==	6909070) {
+				pytanie="Kleszcz to owad, pajêczak czy skorupiak?";
+				};
+				if(id_pytania==	6818038) {
+				pytanie="Jak nazywa siê stanowisko amerykañskiego odpowiednika polskiego Ministra Spraw Zagranicznych?";
+				};
+				if(id_pytania==	7223013) {
+				pytanie="Jakie imiona nosi³ król polski, syn Bony Sforzy i Zygmunta Starego?";
+				};
+				if(id_pytania==	1725026) {
+				pytanie="Na którym instrumencie gra³a Danusia Jurandówna z ''Krzy¿aków''?";
+				};
+				if(id_pytania==	111110)	{
+				pytanie="Jak mia³a na imiê dziewczynka, która za spraw¹ pisarza Lewisa Carrolla znalaz³a siê w Krainie Czarów?";
+				};
+				if(id_pytania==	6909065) {
+				pytanie="Jaki kryptonim nosi³a akcja wysiedlania ludnoœci ukraiñskiej z po³udniowo-wschodnich obszarów Polski w 1947 roku?";
+				};
+				if(id_pytania==	2908058) {
+				pytanie="Z których trzech pierwiastków jest zbudowana cz¹steczka skrobi? Proszê wymieniæ przynajmniej dwa.";
+				};
+				if(id_pytania==	7223061) {
+				pytanie="''Milito pro patria'' to dewiza krzy¿a wojskowego, orderu ustanowionego w 2006 roku przez prezydenta RP. Co znaczy to has³o?";
+				};
+				if(id_pytania==	6402054) {
+				pytanie="W której operze Mozarta wystêpuj¹:  Tamina, Tamino, Sarastro?";
+				};
+				if(id_pytania==	6818036) {
+				pytanie="Jak nazywano rapier Gerwazego, jednego z bohaterów ''Pana Tadeusza'' Adama Mickiewicza?";
+				};
+				if(id_pytania==	111041)	 {
+				pytanie="Jak nazywa siê znana angielska pisarka, pisarka krymina³ów, których bohaterem najczêœciej jest niewysoki belg, detektyw Poirot?";
+				};
+				if(id_pytania==	7017052) {
+				pytanie="Z którego pañstwa pochodzi pisarz Haruki Murakami?";
+				};
+				if(id_pytania==	7017003) {
+				pytanie="Psie Pole to dzielnica którego miasta?";
+				};
+				if(id_pytania==	1725033) {
+				pytanie="Kto by³ kompozytorem muzyki do baletu ''Romeo i Julia''?";
+				};
+				if(id_pytania==	7017027) {
+				pytanie="Jak brzmi pseudonim urodzonej w Egipcie artystki, która wraz z Alainem Delonem œpiewa³a przebój ''Parole Parole''?";
+				};
+				if(id_pytania==	6818075) {
+				pytanie="W którym województwie le¿y kompleks leœny o nazwie Puszcza Bia³a?";
+				};
+				if(id_pytania==	6909022) {
+				pytanie="Kwartet to utwór kameralny przeznaczony dla ilu wykonawców?";
+				};
+				if(id_pytania==	3122056) {
+				pytanie="Który aktor jest wykonawc¹ piosenki ''Przystojny jestem''?";
+				};
+				if(id_pytania==	7017044) {
+				pytanie="Jak siê nazywa smêtna ukraiñska pieœñ ludowa?";
+				};
+				if(id_pytania==	7017075) {
+				pytanie="Czy sukulenty, po polsku roœliny gruboszowate, wymagaj¹ czêstego podlewania?";
+				};
+				if(id_pytania==	111056) {
+				pytanie="Jak nazywa siê choroba dzieciêca spowodowana niedoborem witaminy, w której koœci rosn¹cego dziecka s¹ zniekszta³cone i nie mog¹ stwardnieæ?";
+				};
+				if(id_pytania==	2908043) {
+				pytanie="Kto jest autorem powieœci ''Lot nad kuku³czym gniazdem''  z 1963 roku?";
+				};
+				if(id_pytania==	111017)	{
+				pytanie="W którym roku mia³ miejsce zamach w Sarajewie, w wyniku którego zgin¹³ austriacki nastêpca tronu arcyksi¹¿ê Ferdynand Franciszek?";
+				};
+				if(id_pytania==	1725009) {
+				pytanie="Ile pieœni solowych skomponowa³ Stanis³aw Moniuszko? Oko³o 100, 200 czy 300?";
+				};
+				if(id_pytania==	3122061) {
+				pytanie="Antygona mia³a dwóch braci. Proszê podaæ imiê choæ jednego z nich.";
+				};
+				if(id_pytania==	3122011) {
+				pytanie="Jak z niemieckiego nazywa siê zasuwa reguluj¹ca ci¹g w przewodzie kominowym?";
+				};
+				if(id_pytania==	1725062) {
+				pytanie="Czy Stany Zjednoczone by³y cz³onkiem Ligi Narodów?";
+				};
+				if(id_pytania==	720038)	{
+				pytanie="Czyj¹ ¿on¹ by³a francuska Maria Kazimiera d'Arquien, zwana przez mê¿a Marysieñk¹?";
+				};
+				if(id_pytania==	6818054) {
+				pytanie="Czy wysokoœæ podstawowego zasi³ku dla osób bezrobotnych przekracza w Polsce 1000 z³?";
+				};
+				if(id_pytania==	7017012) {
+				pytanie="Coœ nieokreœlonego, niewyraŸnego, to ni pies ni…";
+				};
+				if(id_pytania==	720065)	{
+				pytanie="Jak siê nazywa dzia³ zoologii dotycz¹cy p³azów i gadów?";
+				};
+				if(id_pytania==	2908042) {
+				pytanie="Która aktorka gra g³ówn¹ role w filmie ''kochankowie mojej mamy'' w re¿yserii Rados³awa Piwowarskiego?";
+				};
+				if(id_pytania==	2908050) {
+				pytanie="Jakie nazwisko nosi³ Hetman Wielki Koronny, kontrkandydat Stanis³awa Augusta Poniatowskiego do tronu?";
+				};
+				if(id_pytania==	7017020) {
+				pytanie="Dawne s³owo ''matrona'' oznacza³o kobietê ogólnie szanowan¹, czy pogardzan¹?";
+				};
+				if(id_pytania==	111001)	{
+				pytanie="Maria Stewart zyska³a przydomek ''Krwawej Mary''. T¹ sam¹ nazw¹ ochrzczono równie¿ popularny koktajl alkoholowy. Jaki oprócz alkoholu jest drugi sk³adnik tego koktajlu?";
+				};
+				if(id_pytania==	6818022) {
+				pytanie="Który w³adca zosta³ koronowany w 1025 roku po Boles³awie Chrobrym na króla Polski?";
+				};
+				if(id_pytania==	2908061) {
+				pytanie="Kto w plebiscycie og³oszonym z okazji 80lecia PZPN, zosta³ uznany za najlepszego Polskiego Pi³karza?";
+				};
+				if(id_pytania==	6402013) {
+				pytanie="Jak nazywa³ siê bohater powieœci Cervantesa, który walczy³ z wiatrakami?";
+				};
+				if(id_pytania==	720067)	{
+				pytanie="Z której czêœci roœliny otrzymywana jest przyprawa zwana cynamonem?";
+				};
+				if(id_pytania==	2908064) {
+				pytanie="Ile córek mia³ król Lir, postaæ z dramatu Szekspira?";
+				};
+				if(id_pytania==	720007)	{
+				pytanie="Rzymski odpowiednik greckiego boga Posejdona nazywa siê…";
+				};
+				if(id_pytania==	7223088) {
+				pytanie="Wyci¹g z tej roœliny jest siln¹ trucizn¹. Po jej wypiciu zmar³ Sokrates. Jak nazywa siê ta roœlina?";
+				};
+				if(id_pytania==	3122046) {
+				pytanie="Jak nazywa siê pó³wysep w Stanach Zjednoczonych oddzielaj¹cy Zatokê Meksykañsk¹ od Oceanu Atlantyckiego?";
+				};
+				if(id_pytania==	6818032) {
+				pytanie="Czy kwas solny jest wykorzystywany w procesie trawienia?";
+				};
+				if(id_pytania==	7223003) {
+				pytanie="Jak nazywa siê w¹ska cienka deseczka do krycia dachu?";
+				};
+				if(id_pytania==	6909053) {
+				pytanie="Wrak którego zatopionego liniowca znaleziono w 1985 roku na g³êbokoœci prawie 4 km?";
+				};
+				if(id_pytania==	1725044) {
+				pytanie="Jak nazywa siê pismo urzêdowe wysy³ane obiegiem osobom zainteresowanym do przeczytania?";
+				};
+				if(id_pytania==	720057)	{
+				pytanie="Jednostk¹ podstawow¹ d³ugoœci wed³ug miêdzynarodowego uk³adu jednostek miar jest…";
+				};
+				if(id_pytania==	720069)	{
+				pytanie="Jak w wyœcigu kolarskim nazywa siê tak zwarta grupa zawodników.";
+				};
+				if(id_pytania==	720029)	{
+				pytanie="W którym zespole ligi NBA gra³ Michael Jordan?";
+				};
+				if(id_pytania==	7017062) {
+				pytanie="East End i Greenwich to dzielnice którego europejskiego miasta?";
+				};
+				if(id_pytania==	111064) {
+				pytanie="W latach 1919-1920 by³ naczelnikiem pañstwa. W roku 1920 zosta³ mianowany marsza³kiem Polski. O kim mówimy?";
+				};
+				if(id_pytania==	6818047) {
+				pytanie="Ile lwów widnieje w godle Danii?";
+				};
+				if(id_pytania==	7017016) {
+				pytanie="Czy Konstanty Ildefons Ga³czyñski pisa³ wiersze dla dzieci?";
+				};
+				if(id_pytania==	6818071) {
+				pytanie="Która dynastia panowa³a na Litwie, w Polsce, na Wêgrzech a tak¿e w Czechach od XIV do XVI wieku?";
+				};
+				if(id_pytania==	720017)	{
+				pytanie="Ile razy Maria Sk³odowska otrzyma³a nagrodê Nobla w dziedzinie fizyki?";
+				};
+				if(id_pytania==	6402015) {
+				pytanie="Czy zwrotnik kozioro¿ca le¿y na pó³noc czy na po³udnie od równika?";
+				};
+				if(id_pytania==	7017035) {
+				pytanie="Wergiliusz, wybitny rzymski poeta, ¿y³ przed Chrystusem czy w naszej erze?";
+				};
+				if(id_pytania==	6909048) {
+				pytanie="Kto jest autorem zbioru wierszy dla dzieci ''Tañcowa³a ig³a z nitk¹''?";
+				};
+				if(id_pytania==	3122059) {
+				pytanie="Proszê podaæ nazwê miejscowoœci w której urodzi³ siê Leonardo da Vinci.";
+				};
+				if(id_pytania==	1725081) {
+				pytanie="W którym mieœcie zosta³a za³o¿ona w 1849 Agencja Reutera?";
+				};
+				if(id_pytania==	1725017) {
+				pytanie="Która bogini wg mitologii greckiej zosta³a zrodzona z morskiej piany?";
+				};
+				if(id_pytania==	2908007) {
+				pytanie="Czy Finlandia nale¿y do NATO?";
+				};
+				if(id_pytania==	6909086) {
+				pytanie="W którym utworze Adama Mickiewicza, wystêpuje postaæ ksiêcia Nowogródka, Litawora?";
+				};
+				if(id_pytania==	7223015) {
+				pytanie="Ile by³o muz, córek Zeusa?";
+				};
+				if(id_pytania==	1725082) {
+				pytanie="Czy mysz i s³oñ nale¿¹ do tej samej gromady?";
+				};
+				if(id_pytania==	720054)	{
+				pytanie="W którym polskim mieœcie mieœci siê Uniwersytet imienia Adama Mickiewicza?";
+				};
+				if(id_pytania==	6909031) {
+				pytanie="W której dziedzinie nagrodê Nobla dosta³, teolog, lekarz i organista Albert Schweitzer?";
+				};
+				if(id_pytania==	6402099) {
+				pytanie="W³adc¹ którego miasta by³ Agamemnon?";
+				};
+				if(id_pytania==	7017018) {
+				pytanie="Z którego jêzyka pochodz¹ gie³dowe okreœlenia hossa i bessa?";
+				};
+				if(id_pytania==	6402060) {
+				pytanie="Ligawka jeden z najstarszych polskich instrumentów to instrument dêty, strunowy czy perkusyjny?";
+				};
+				if(id_pytania==	7017063) {
+				pytanie="Czy poeta Lucjan Rydel tworzy³ równie¿ sztuki teatralne?";
+				};
+				if(id_pytania==	7017031) {
+				pytanie="Jak nazywa³a siê wieœ, pod któr¹ w 1831 roku rozegra³a siê najwiêksza bitwa powstania listopadowego?";
+				};
+				
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				if(id_pytania==	1725076) {
+				pytanie="W jakich jednostkach wyra¿a siê przyspieszenie liniowe?";
+				};
+				if(id_pytania==	6909050) {
+				pytanie="Jak nazywa siê pontyfikalne nakrycie g³owy papie¿a, ozdobione trzema koronami?";
+				};
+				if(id_pytania==	7223077) {
+				pytanie="Ile podpisów trzeba zebraæ aby zarejestrowaæ w Pañstwowej komisji wyborczej kandydata na prezydenta?";
+				};
+				if(id_pytania==	111024)	{
+				pytanie="Jak nazywa siê specjalnoœæ lekarska, zajmuj¹ca siê diagnozowaniem i leczeniem nowotworów?";
+				};
+				if(id_pytania==	2908048) {
+				pytanie="Ile wynosi tangens z 45 stopni?";
+				};
+				if(id_pytania==	3122060) {
+				pytanie="Proszê podaæ ogólnopolski numer telefonu wzywaj¹cy stra¿ po¿arn¹.";
+				};
+				if(id_pytania==	1725007) {
+				pytanie="Czy grypa jest chorob¹ wirusow¹?";
+				};
+				if(id_pytania==	6909061) {
+				pytanie="W którym wieku Konrad Mazowiecki sprowadzi³ do Polski Krzy¿aków?";
+				};
+				if(id_pytania==	6402085) {
+				pytanie="Który wodospad jest wy¿szy; Siklawa w Tatrach czy Niagara w Kanadzie?";
+				};
+				if(id_pytania==	111051) {
+				pytanie="Organizacja ta powsta³a w San Francisco po konferencji w 1946 roku. Gdzie znajdujê siê siedziba organizacji ONZ?";
+				};
+				if(id_pytania==	720051) {
+				pytanie="Czy przed II Wojn¹ Œwiatow¹ W³adys³aw Sikorski by³ premierem?";
+				};
+				if(id_pytania==	3122036) {
+				pytanie="Który impresjonista jest autorem obrazu ''Pani Charpentier z dzieæmi''?";
+				};
+				if(id_pytania==	720025) {
+				pytanie="W którym roku mia³a miejsce katastrofa Titanica? Mo¿na siê pomyliæ o 3 lata.";
+				};
+				if(id_pytania==	2908056) {
+				pytanie="Kto jest autorem opowiadañ zatytu³owanych ''Medaliony''?";
+				};
+				if(id_pytania==	3122043) {
+				pytanie="Który zwi¹zek chemiczny jest g³ównym sk³adnikiem marmurów?";
+				};
+				if(id_pytania==	6818069) {
+				pytanie="Jakim terminem, wywodz¹cym siê z jêzyka niemieckiego, okreœla siê prowadzenie statku pod wiatr z okresowymi zmianami kursu?";
+				};
+				if(id_pytania==	2908069) {
+				pytanie="Który gród ws³awi³ siê bohatersk¹ obron¹ przed wojskami króla cesarza Henryka w 1109? Rzecz by³a opisana przez Galla Anonima.";
+				};
+				if(id_pytania==	2908001) {
+				pytanie="Prawnikiem którego prezydenta by³ Lech Falandysz?";
+				};
+				if(id_pytania==	7017010) {
+				pytanie="Nad którym morzem le¿y Algieria?";
+				};
+				if(id_pytania==	6818061) {
+				pytanie="Na ile, wed³ug przys³owia, babka wró¿y³a?";
+				};
+				if(id_pytania==	2908026) {
+				pytanie="Kto jest autorem powieœci ''Ojciec Chrzestny''?";
+				};
+				if(id_pytania==	7017043) {
+				pytanie="Czy zjawisko dyfuzji zachodzi w cia³ach sta³ych?";
+				};
+				if(id_pytania==	111082)	{
+				pytanie="W jakim kraju afrykañskim w drugiej po³owie lat 60 toczy³a siê woja domowa spowodowana próba secesji jednej z prowincji, jako niezale¿nej republiki Biafry?";
+				};
+				if(id_pytania==	6909082) {
+				pytanie="''Dzierlatka'' to okreœlenie figlarnej, beztroskiej dziewczyny, czy jest jeszcze inne znaczenie tego s³owa?";
+				};
+				if(id_pytania==	7223011) {
+				pytanie="Jak piszemy nazwy mieszkañców miast? Z du¿ej czy ma³ej litery?";
+				};
+				if(id_pytania==	6909040) {
+				pytanie="Jak nazywamy sposób gry na skrzypcach, polegaj¹cy na szarpaniu struny palcem?";
+				};
+				if(id_pytania==	7223072) {
+				pytanie="Czy tuñczyk jest ryb¹ roœlino czy miêso¿ern¹?";
+				};
+				if(id_pytania==	111058)	{
+				pytanie="Dzienniki gwiazdowe, Solaris, Opowieœci o pilocie Pirxie, to ksi¹¿ki fantastyczno-naukowe, których autorem jest?";
+				};
+				if(id_pytania==	111005)	{
+				pytanie="Jak nazywa siê angielski mechanik, wynalazca maszyny parowej?";
+				};
+				if(id_pytania==	7017014) {
+				pytanie="Proszê podaæ skrót francuskiej nazwy Miêdzynarodowej Federacji Pi³ki No¿nej.";
+				};
+				if(id_pytania==	2908046) {
+				pytanie="Jak nazywa siê kompozytor opery ''Czarodziejski Flet'' powsta³ej w 1791 roku?";
+				};
+				if(id_pytania==	3122003) {
+				pytanie="Offset to technika druku p³askiego czy wypuk³ego?";
+				};
+				if(id_pytania==	6909064) {
+				pytanie="Jakie imiê przybra³a Kora, córka Zeusa i bogini Demeter, gdy zosta³a pani¹ podziemnego królestwa Hadesu?";
+				};
+				if(id_pytania==	3122045) {
+				pytanie="Jak nazywa³ siê polski pisarz, autor powieœci ''Znachor''?";
+				};
+				if(id_pytania==	111027)	{
+				pytanie="Twórca legend, gawêd i pieœni góralskich ¿yj¹cy w 19 wieku nazywa³ siê Jan Krzeptowski. Nazywany by³ tak¿e?";
+				};
+				if(id_pytania==	111007) {
+				pytanie="RzeŸbiarz Wac³aw Szymanowski jest autorem, s³ynnego, charakterystycznego pomnika znajduj¹cego siê u wejœcia do Parku £azienkowskiego, znajduj¹cego siê w Warszawie. Czyj to pomnik?";
+				};
+				if(id_pytania==	7223019) {
+				pytanie="Tchórz ssak z rodziny ³asicowatych, prowadzi tryb ¿ycia nocny czy dzienny?";
+				};
+				if(id_pytania==	7223068) {
+				pytanie="Jak nazywa siê lina stalowa usztywniaj¹ca maszt z burt¹ statku?";
+				};
+				if(id_pytania==	7223052) {
+				pytanie="Kto dowodzi³ polsk¹ I dywizj¹ pancern¹ w bitwie pod Falaise, w Normandii w sierpniu 1944 roku?";
+				};
+				if(id_pytania==	2908045) {
+				pytanie="Z którego muzeum skradziono w 1999 roku obraz Claude Monet, ''Pla¿a w Pourville''?";
+				};
+				if(id_pytania==	3122050) {
+				pytanie="Czyje imiê nosi pañstwowa Filharmonia w Krakowie?";
+				};
+				if(id_pytania==	1725052) {
+				pytanie="Jak nazywa siê niewra¿liwoœæ na ból? S³owo pochodzi z greki.";
+				};
+				if(id_pytania==	6818046) {
+				pytanie="Kto wed³ug Ewangelii jest autorem modlitwy ''Ojcze Nasz''?";
+				};
+				if(id_pytania==	1725066) {
+				pytanie="W którym z miast Holandii ma siedzibê dwór królewski, rz¹d i parlament?";
+				};
+				if(id_pytania==	1725046) {
+				pytanie="Z którego kraju pochodzi³ kompozytor Bela Bartok?";
+				};
+				if(id_pytania==	7017050) {
+				pytanie="Œrodki z tych funduszy wspieraj¹ miêdzy innymi projekty s³u¿¹ce zapobieganiu wykluczeniu spo³ecznemu. Który program operacyjny realizuje te zadania?";
+				};
+				if(id_pytania==	720068) {
+				pytanie="Przez które pañstwa przep³ywa rzeka Ren? Proszê wymieniæ przynajmniej dwa.";
+				};
+				if(id_pytania==	1725053) {
+				pytanie="Proszê podaæ nazwê okrêtu, na którego pok³adzie 2.09.1945 Japonia podpisa³a kapitulacjê.";
+				};
+				if(id_pytania==	7223033) {
+				pytanie="Przedrostek kilo przed jednostk¹ miary np.. kilo-metr, kilo-gram. Oznacza 10 do której potêgi?";
+				};
+				if(id_pytania==	7223090) {
+				pytanie="Jak nazywa siê pierwszy odcinek jelita cienkiego ³¹cz¹cy siê z ¿o³¹dkiem?";
+				};
+				if(id_pytania==	111069)	{
+				pytanie="Jeden z najg³oœniejszych zespo³ów bigbitowych w dziejach muzyki rozrywkowej. Czterej ch³opcy z Liverpoolu. O kim mówimy ?";
+				};
+				if(id_pytania==	6402019) {
+				pytanie="Jak nazywa siê stan którego stolic¹ jest Honolulu?";
+				};
+				if(id_pytania==	6402080) {
+				pytanie="Teotihuacan to miasto z piramid¹ s³oñca i ksiê¿yca które istnia³o do 8 wieku. W którym kraju sta³o to miasto?";
+				};
+				if(id_pytania==	111093)	 {
+				pytanie="Czy Stefan ¯eromski by³ równie¿ dramatopisarzem?";
+				};
+				if(id_pytania==	7017055) {
+				pytanie="W którym wieku urodzi³ siê poeta Jan Kasprowicz?";
+				};
+				if(id_pytania==	7017025) {
+				pytanie="Ile jezior liczy system Wielkich Jezior w Ameryce Pó³nocnej na pograniczu Stanów Zjednoczonych i Kanady?";
+				};
+				if(id_pytania==	6909060) {
+				pytanie="Jakie imiê nosi³a kobieta z Jerozolimy, której chusta podana Chrystusami mia³a zatrzymaæ jego odbicie twarzy";
+				};
+				if(id_pytania==	3122033) {
+				pytanie="Kto skomponowa³ etiudê c-mol zwan¹ Rewolucyjn¹?";
+				};
+				if(id_pytania==	7223041) {
+				pytanie="Która mitologiczna bogini by³a patronk¹ Grecji?";
+				};
+				if(id_pytania==	7017054) {
+				pytanie="Tulipanowiec amerykañski to drzewo, krzew czy roœlina cebulowa?";
+				};
+				if(id_pytania==	6818026) {
+				pytanie="W którym wieku Carl Friedrich Benz zbudowa³ pierwszy pojazd z silnikiem spalinowym?";
+				};
+				if(id_pytania==	720064)	{
+				pytanie="Oktet, ilu to muzyków?";
+				};
+				if(id_pytania==	2908073) {
+				pytanie="Kto zaprojektowa³ flagê olimpijsk¹?";
+				};
+				if(id_pytania==	6818027) {
+				pytanie="Na ''Autoportrecie z Saski¹'' Rembrandt przedstawi³ siebie i kobietê siedz¹c¹ mu na kolanach. Kim dla malarza by³a Saskia?";
+				};
+				if(id_pytania==	3122017) {
+				pytanie="Które dzia³anie matematyczne jest odwrotne do dzielenia?";
+				};
+				if(id_pytania==	7017006) {
+				pytanie="Homonto, czêœæ zaprzêgu, to wynalazek europejski czy azjatycki?";
+				};
+				if(id_pytania==	6909011) {
+				pytanie="Jak nazywamy nag³e, silne bóle g³owy?";
+				};
+				if(id_pytania==	6402017) {
+				pytanie="Jakim gestem Pi³at wskaza³, ¿e nie jest winien wydania Jezusa na œmieræ?";
+				};
+				if(id_pytania==	7017071) {
+				pytanie="Napoleon d'Or to nazwa monety czy wykwintnego alkoholu?";
+				};
+				if(id_pytania==	111032)	{
+				pytanie="21 sierpnia 1911 roku wyniós³ go z Luwru Vincenzo Peruggia, bowiem uwa¿a³, ¿e ten wspania³y portret zosta³ skradziony jego ojczyŸnie Italii i powinien do niej wróciæ. Kto zosta³ uwieczniony na owym portrecie?";
+				};
+				if(id_pytania==	720036)	{
+				pytanie="Jak siê stolica stanu Kolorado?";
+				};
+				if(id_pytania==	720048)	{
+				pytanie="Jak siê nazywa teren nad rzek¹, jeziorem albo kana³em s³u¿¹cy do sk³adowania i przygotowania drewna do sp³awu?";
+				};
+				if(id_pytania==	111090)	{
+				pytanie="Jak nazywa siê zbudowany w roku 1877 dworzec kolejowy usytuowany na tzw. linii obwodowej Warszawy?";
+				};
+				if(id_pytania==	7223093) {
+				pytanie="Bardzo daleki krewny to inaczej dziesi¹ta woda po...";
+				};
+				if(id_pytania==	6402037) {
+				pytanie="Jak mia³ na imiê Magellan, portugalski podró¿nik";
+				};
+				if(id_pytania==	111019)	{
+				pytanie="JFK to pierwsze litery imion i nazwiska, prezydenta Stanów Zjednoczonych Ameryki Pó³nocnej. Proszê je rozwin¹æ.";
+				};
+				if(id_pytania==	111089)	{
+				pytanie="Nazwê gwiazdozbioru Tarcza Sobieskiego wprowadzi³ s³awny XVII wieczny astronom z Gdañska. Jak siê nazywa³?";
+				};
+				if(id_pytania==	111099)	{
+				pytanie="Jak brzmi nazwisko konstruktora pierwszego wysokoprê¿nego silnika na olej napêdowy o samoczynnym zap³onie? Ten silnik nosi nazwisko swojego twórcy.";
+				};
+				if(id_pytania==	3122007) {
+				pytanie="Ile wie¿ ma koœció³ Mariacki w Krakowie?";
+				};
+				if(id_pytania==	720072)	{
+				pytanie="Druga strona monety albo medalu to?";
+				};
+				if(id_pytania==	7223049) {
+				pytanie="Do którego warszawskiego pomnika poetka Krystyna Krahelska pozowa³a rzeŸbiarce Ludwice Nitschowej?";
+				};
+				if(id_pytania==	6909028) {
+				pytanie="Jak nazywa siê noszona przez ¯ydów rytualna czapka, okrywaj¹ca czubek g³owy?";
+				};
+				if(id_pytania==	2908031) {
+				pytanie=" Chorobami którego organu zajmuje siê dzia³ medycyny zwany hepatologi¹?";
+				};
+				if(id_pytania==	1725003) {
+				pytanie="Czy wg polskiego kodeksu karnego przepisy o przedawnieniu stosuje siê do zbrodni wojennych?";
+				};
+				if(id_pytania==	6402042) {
+				pytanie="Jak nazywa siê tytu³ urzêdnika s¹du, który odby³ wymagan¹ aplikacjê a jeszcze nie uzyska³ nominacji?";
+				};
+				if(id_pytania==	3122009) {
+				pytanie="Który w³adca w 44 roku p.n.e. zosta³ zasztyletowany przez Brutusa i innych rzymskich senatorów?";
+				};
+				if(id_pytania==	7017001) {
+				pytanie="Które cia³o niebieskie nazywamy czasem Srebrnym Globem?";
+				};
+				if(id_pytania==	7017056) {
+				pytanie="Który pó³wysep oddziela Morze Barentsa od Morza Bia³ego?";
+				};
+				if(id_pytania==	111112)	{
+				pytanie="Morze Ba³tyckie z Morzem Pó³nocnym ³¹cz¹ dwie cieœniny. Proszê podaæ ich nazwy.";
+				};
+				if(id_pytania==	2908052) {
+				pytanie="Z jakiej roœliny otrzymuje siê w³ókno zwane sizalem? Wyrabia siê z niego miêdzy innymi liny do holowania statków.";
+				};
+				if(id_pytania==	6909080) {
+				pytanie="Jaki tytu³ nosi ostatnia ksiêga Nowego Testamentu, znana te¿ jako objawienie œw. Jana?";
+				};
+				if(id_pytania==	1725075) {
+				pytanie="Jak nazywa³ siê niemiecki lekarz, odkrywca pr¹tków gruŸlicy w 1882 i cholery w 1883? Laureat nagrody Nobla w 1905 roku.";
+				};
+				if(id_pytania==	1725028) {
+				pytanie="Czy tapir jest ssakiem kopytnym?";
+				};
+				if(id_pytania==	6402045) {
+				pytanie="Który kompozytor baroku jest Twórc¹ Toccaty?";
+				};
+				if(id_pytania==	6818059) {
+				pytanie="W którym wieku ¿y³ Adam Smith - Anglik, twórca klasycznej szko³y ekonomii?";
+				};
+				if(id_pytania==	111015)	{
+				pytanie="Bryza dzienna to bryza morska, a jak inaczej nazywa siê bryza nocna?";
+				};
+				if(id_pytania==	6818056) {
+				pytanie="Jak brzmi zdrobnienie polskiego wyrazu ''miech''?";
+				};
+				if(id_pytania==	6818065) {
+				pytanie="Jak nazywa³y siê pierwotne piece hutnicze, znane w staro¿ytnym Egipcie oko³o 3 tysiêcy lat p.n.e.? S³u¿y³y do wytapiania ¿elaza z rudy.";
+				};
+				if(id_pytania==	111044)	 {
+				pytanie="Proszê podaæ nazwisko rosyjskiego filozofa, uczonego i poety, za³o¿yciela uniwersytetu Moskiewskiego nosz¹cego obecnie jego imiê.";
+				};
+				if(id_pytania==	1725097) {
+				pytanie="Jak nazywa³ siê pu³kownik, który dokona³ nieudanego zamachu na Hitlera 20 lipca 1944?";
+				};
+				
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				if(id_pytania==1725015) {
+				pytanie="Kto dowodzi³ wojskami polskimi w bitwie z kozakami i tatarami pod Beresteczkiem w 1651 roku?";
+				};
+				if(id_pytania==6909005) {
+				pytanie="W których górach rozci¹ga siê po³onina Wetliñska?";
+				};
+				if(id_pytania==720049) {
+				pytanie="Proszê podaæ nazwê budowanej od 1882 roku, a nieskoñczonej do dziœ, bazyliki w Barcelonie.";
+				};
+				if(id_pytania==7017068) {
+				pytanie="Czy s³owiañska bogini Dziwo¿ona sprzyja³a ludziom, czy by³a im nieprzychylna?";
+				};
+				if(id_pytania==6402072) {
+				pytanie="Jak nazywamy 50-rocznicê œlubu";
+				};
+				if(id_pytania==6402029) {
+				pytanie="Piosenka Czes³awa Niemena Sen o … którym mieœcie?";
+				};
+				if(id_pytania==7223042) {
+				pytanie="Ile lat trwa³a wêdrówka ¿ydów z Egiptu do ziemi obiecanej?";
+				};
+				if(id_pytania==7017061) {
+				pytanie="Czy myd³o jest skuteczniejsze w wodzie twardej czy miêkkiej?";
+				};
+				if(id_pytania==	6402069) {
+				pytanie="Z 14 oœmiotysiêczników, 10 le¿y w Himalajach, w jakim paœmie le¿y pozosta³a czwórka?";
+				};
+				if(id_pytania==	720005)	{
+				pytanie="Czy skrzypce i kontrabas maj¹ tê sam¹ liczbê strun?";
+				};
+				if(id_pytania==	720044) {
+				pytanie="Od po³owy XVIII wieku tak nazywa³ siê oficer kawalerii odpowiadaj¹cy stopniem sier¿antowi piechoty.";
+				};
+				if(id_pytania==	1725058) {
+				pytanie="Jak nazywa siê pañstwo, którego stolic¹ jest Paramaribo?";
+				};
+				if(id_pytania==	6818007) {
+				pytanie="Proszê podaæ imiê i nazwisko obecnego Prezesa Rady Ministrów";
+				};
+				if(id_pytania==	111085) {
+				pytanie="Boja to rodzaj p³ywaj¹cego znaku nawigacyjnego na wodzie. Jak inaczej nazywa siê boja?";
+				};
+				if(id_pytania==	6909067) {
+				pytanie="Jaki tytu³ nosi powieœæ Aleksandra Dumasa ojca, w której prawdziwe nazwisko bohatera brzmi Edmund Dantes?";
+				};
+				if(id_pytania==	6909066) {
+				pytanie="Czy Honduras ma dostêp do Pacyfiku?";
+				};
+				if(id_pytania==	6909015) {
+				pytanie="Czy Mongolia graniczy Z Chinami?";
+				};
+				if(id_pytania==	6909025) {
+				pytanie="Która forma jest poprawna: ''nie b³ahy'' czy ''nieb³ahy''?";
+				};
+				if(id_pytania==	7017039) {
+				pytanie="Jak zaczyna siê fraza polskiej piosenki, która koñczy siê s³owami ''i dobrze mi z tym, bez dwóch zdañ''?";
+				};
+				if(id_pytania==	6402022) {
+				pytanie="Jak brzmi ³aciñska nazwa prawa do zrywania sejmów przez jednego pos³a?";
+				};
+				if(id_pytania==	6818037) {
+				pytanie="Delfy to siedziba wieszczki, kap³anki boga Apollina. Jak nazywa³a siê ta wieszczka?";
+				};
+				if(id_pytania==	7223070) {
+				pytanie="Czy w Australii œrodkiem p³atniczym jest funt brytyjski?";
+				};
+				if(id_pytania==	7223076) {
+				pytanie="Harlem i Bronx to dzielnice którego miasta?";
+				};
+				if(id_pytania==	720050)	{
+				pytanie="Schorzenie albo objaw, którego istot¹ jest zmniejszenie w organizmie liczby krwinek czerwonych albo zawartoœci hemoglobiny w tych krwinkach nazywa siê?";
+				};
+				if(id_pytania==	2908037) {
+				pytanie="Montevideo jest stolic¹ którego Pañstwa?";
+				};
+				if(id_pytania==	1725034) {
+				pytanie="Staro¿ytni Grecy uwa¿ali, ¿e kosmos sk³ada siê z czterech podstawowych ¿ywio³ów. Proszê je wymieniæ";
+				};
+				if(id_pytania==	3122062) {
+				pytanie="U podnó¿a których gór le¿y Poronin?	";
+				};
+				if(id_pytania==	6818066) {
+				pytanie="Wyspy Zielonego Przyl¹dka le¿¹ bli¿ej wybrze¿y Afryki czy Azji?";
+				};
+				if(id_pytania==	3122053){
+				pytanie="Kto odtwarza³ tytu³ow¹ rolê w filmie z 1934 roku p.t. ''Królowa Krystyna''?";
+				};
+				if(id_pytania==	111036) {
+				pytanie="Podstawa masztu ¿eglarskiego to piêta a szczyt to?";
+				};
+				if(id_pytania==	720019) {
+				pytanie="Bóg stworzy³ œwiat w ci¹gu szeœciu dni, a siódmego odpoczywa³. Którego dnia Bóg stworzy³ cz³owieka?";
+				};
+				if(id_pytania==	3122051) {
+				pytanie="Która pieœñ zaczyna siê od s³ów ''do broni hej ojczyzny dzieci, czas wieñcem chwa³y okryæ skroñ''?";
+				};
+				if(id_pytania==	6909058) {
+				pytanie="Richard Nixon sprawowa³ urz¹d prezydenta USA od 1969 roku. W którym roku zosta³ zmuszony do ust¹pienia?";
+				};
+				if(id_pytania==	1725065) {
+				pytanie="Jak dawniej by³ nazywany wk³ad do ¿elazka?";
+				};
+				if(id_pytania==	720061)	{
+				pytanie="Jak¹ nazwê nosi ruchome po³¹czenie stykaj¹cych siê koœci?";
+				};
+				if(id_pytania==	7223086) {
+				pytanie="Kim dla Stanis³awa Wokulskiego by³a Ma³gorzata Mincel?";
+				};
+				if(id_pytania==	7017038) {
+				pytanie="W którym wieku zniesiono w Rosji pañszczyznê?";
+				};
+				if(id_pytania==	7223037) {
+				pytanie="Czy wysokoœæ zawieszenia siatki w pi³ce siatkowej jest jednakowa dla kobiet i mê¿czyzn?";
+				};
+				if(id_pytania==	7017033) {
+				pytanie="22ego 1616 roku w Madrycie zmar³ hiszpañski pisarz Miguel de Cervantes. Nastêpnego dnia w Stratfordzie zmar³ s³ynny pisarz angielski. Który?";
+				};
+				if(id_pytania==	6818057) {
+				pytanie="Który stopieñ wojskowy w Wojsku Polskim jest wy¿szy od kapitana, a ni¿szy od podpu³kownika?";
+				};
+				if(id_pytania==	3122038) {
+				pytanie="Jak nazywa³ siê autor satyrycznej powieœci zatytu³owanej ''Café pod Minog¹''?";
+				};
+				if(id_pytania==	1725001) {
+				pytanie="Kto zosta³ wybrany przewodnicz¹cym socjaldemokracji RP po Józefie Oleksym?";
+				};
+				if(id_pytania==	111013)	{
+				pytanie="Jak nazywa siê ubiór noszony przez zakonników?";
+				};
+				if(id_pytania==	720046)	{
+				pytanie="Ile procent miejsc przypada³o opozycji solidarnoœciowej w Sejmie w wyborach w 1989 roku?";
+				};
+				if(id_pytania==	2908071) {
+				pytanie="W którym powstaniu zgin¹³ Krzysztof Kamil Baczyñski?";
+				};
+				if(id_pytania==	6402091) {
+				pytanie="Garniec by³ miar¹ objêtoœci czy masy?";
+				};
+				if(id_pytania==	720022)	{
+				pytanie="Urodzi³ siê w 1949 roku, krakowski rysownik, karykaturzysta autor m.in.. cyklów ''Jak ¿yæ?'', ''Porno dla ubogich''?";
+				};
+				if(id_pytania==	6402086) {
+				pytanie="Jak nazywa siê popularna dawniej na Œl¹sku gra karciana dla 3 osób, tali¹ 32-kartow¹?";
+				};
+				if(id_pytania==	2908029) {
+				pytanie="Jak¹ liter¹ greckiego alfabetu nazywamy najjaœniejsz¹ gwiazdê w gwiazdozbiorze?";
+				};
+				if(id_pytania==	720053)	{
+				pytanie="¯on¹ którego polskiego króla by³a Bona?";
+				};
+				if(id_pytania==	6402058) {
+				pytanie="Z którego jêzyka zosta³o zapo¿yczone do polszczyzny s³owo wiktua³y?";
+				};
+				if(id_pytania==	6818041) {
+				pytanie="Kwiryna³, Palatyn, Awentyn to nazwy wzgórz wznosz¹cych siê w którym mieœcie?";
+				};
+				if(id_pytania==	2908030) {
+				pytanie="Jak nazywa siê wieloetapowy wyœcig kolarski zawodowców, odbywaj¹cy siê we W³oszech od 1909 roku?";
+				};
+				if(id_pytania==	1725049) {
+				pytanie="Na którym kontynencie wystêpuj¹ w stanie naturalnym skunksy?";
+				};
+				if(id_pytania==	1725029) {
+				pytanie="W którym mieœcie wrêczane s¹ Oskary?";
+				};
+				if(id_pytania==	720013)	{
+				pytanie="Jak nazywa siê autor ksi¹¿ki zatytu³owanej ''Kamienie na szaniec''?";
+				};
+				if(id_pytania==	6818005) {
+				pytanie="Jak po Polsku okreœlany jest gatunek literacki, którego angielska nazwa brzmi science-fiction?";
+				};
+				if(id_pytania==	6818074) {
+				pytanie="Jak nazywa siê angielska jednostka d³ugoœci, równa w przybli¿eniu 91 cm?";
+				};
+				if(id_pytania==	7017034) {
+				pytanie="Czy Watykan jest cz³onkiem Organizacji Narodów Zjednoczonych?";
+				};
+				if(id_pytania==	7223059) {
+				pytanie="Czy pracê i energiê mierzymy w tych samych jednostkach uk³adu SI?";
+				};
+				if(id_pytania==	1725093) {
+				pytanie="Jak¹ nazwê nosi miejsce w którym zgromadzone kolekcje kamieni naturalnych albo fragmenty kamiennych rzeŸb pochodz¹cych z zabytkowych pomników?";
+				};
+				if(id_pytania==	720052) {
+				pytanie="Jak nazywa siê przeniesienie na ni¿sze stanowisko albo obni¿enie stopnia s³u¿bowego?";
+				};
+				if(id_pytania==	6909017) {
+				pytanie="Jakiej narodowoœci by³ reformator religijny Jan Hus spalony na stosie w Konstancji w 1415 roku?";
+				};
+				if(id_pytania==	111096)	{
+				pytanie="Akcja tej filmowej komedii w re¿yserii Marka Piwowskiego rozgrywa siê na statku spacerowym p³yn¹cym rzek¹ Wis³¹. Jak brzmi tytu³ tego filmu?";
+				};
+				if(id_pytania==	2908019) {
+				pytanie="Za któr¹ powieœæ Henryk Sienkiewicz dosta³ Nobla?";
+				};
+				if(id_pytania==	3122022) {
+				pytanie="Kto reprezentowa³ Polskê na tegorocznym festiwalu Eurowizji?";
+				};
+				if(id_pytania==	6909074) {
+				pytanie="Na terenie którego pañstwa wznosz¹ siê góry Schwarzwald?";
+				};
+				if(id_pytania==	2908009) {
+				pytanie="Jak nazywa siê w Polsce podstawowa jednostka samorz¹du terytorialnego?";
+				};
+				if(id_pytania==	6402074) {
+				pytanie="Proszê podaæ wartoœæ Pi z dok³adnoœci¹ do dwóch miejsc po przecinku";
+				};
+				if(id_pytania==	6402044) {
+				pytanie="Który film Chaplina by³ satyr¹ na rz¹dy Hitlera?";
+				};
+				if(id_pytania==	6402003) {
+				pytanie="Jak z angielskiego nazywa siê zegarek do mierzenia krótkich odcinków czasu, stosowany w sporcie?";
+				};
+				if(id_pytania==	6818045) {
+				pytanie="Jak nazywa siê ma³e ksiêstwo w Pirenejach, które nie nale¿y do Unii Europejskiej, ale u¿ywa waluty euro?";
+				};
+				if(id_pytania==	2908022) {
+				pytanie="Ile filmów Krzysztofa Kieœlowskiego, wesz³o w sk³ad dekalogu";
+				};
+				if(id_pytania==	7017049) {
+				pytanie="Jaki pseudonim nosi autor komiksów Henryk Chmielewski?";
+				};
+				if(id_pytania==	720066)	{
+				pytanie="Czyj¹ biografi¹ jest ksi¹¿ka Irwinga Stone'a p.t. ''Udrêka i ekstaza''?";
+				};
+				if(id_pytania==	7017042) {
+				pytanie="W którym pañstwie rz¹dzi³ Manuel Noriega, obalony w wyniku interwencji wojskowej Stanów Zjednoczonych?";
+				};
+				if(id_pytania==	7017046) {
+				pytanie="Z którego pañstwa pochodzi taniec zwany gawotem?";
+				};
+				if(id_pytania==	6818001) {
+				pytanie="Czy Indianie to rdzenna ludnoœæ Indii?";
+				};
+				if(id_pytania==	1725064) {
+				pytanie="Kto gra³ postaæ Maliniaka, w serialu ''Czterdziestolatek''	";
+				};
+				if(id_pytania==	111111)	 {
+				pytanie="Jak nazywa³ siê w mitologii greckiej syn Afrodyty, bo¿ek mi³oœci z ³ukiem i strza³¹? Jego rzymski odpowiednik to Amor.";
+				};
+				if(id_pytania==	6402021) {
+				pytanie="Jak na imiê mia³a tytu³owa dziewczynka z zielonego wzgórza?";
+				};
+				if(id_pytania==	6402001) {
+				pytanie="W którym europejskim mieœcie mieœci siê uniwersytet o nazwie Sorbona?";
+				};
+				if(id_pytania==	6818058) {
+				pytanie="Czy w Polsce s¹ obszary depresji g³êbsze ni¿ 3 metry poni¿ej poziomu morza?";
+				};
+				if(id_pytania==	2908053) {
+				pytanie="Jak nazywa siê bajeczny ptak wschodu, który zawsze unosi siê na skrzyd³ach, nigdy nie siada a wed³ug legendy, kto znajdzie siê w jego cieniu, przywdzieje koronê";
+				};
+				if(id_pytania==	7223036) {
+				pytanie="Do której Dynastii nale¿a³ pierwszy Polski król o imieniu Jan?";
+				};
+				if(id_pytania==	6909083) {
+				pytanie="Jak mia³ na imiê kompozytor wêgierski Bartok?";
+				};
+				if(id_pytania==	720058)	 {
+				pytanie="Stolic¹ którego pañstwa jest Erewañ?";
+				};
+				if(id_pytania==	3122027) {
+				pytanie="Czy parabola jest krzyw¹ zamkniêt¹ czy niezamkniêt¹?";
+				};
+				if(id_pytania==	6818013) {
+				pytanie="Jakiej narodowoœci by³ zdobywca bieguna po³udniowego Roald Amundsen?";
+				};
+				if(id_pytania==	2908017) {
+				pytanie="Sunnityzm, to od³am której religii?";
+				};
+				if(id_pytania==	6909003) {
+				pytanie="Czy Ernest Hemingway dosta³ Nobla?";
+				};
+				if(id_pytania==	111066)	{
+				pytanie="British Broadcasting Corporation, Brytyjska Korporacja Nadawcza zosta³a powo³ana w roku 1920 roku do nadawania transmisji radiowych a potem telewizyjnych. Proszê podaæ popularny skrót tej nazwy?";
+				};
+				if(id_pytania==	6909059) {
+				pytanie="Do pomiaru jakiej w³asnoœci p³ynów s³u¿y wiskozymetr?";
+				};
+				if(id_pytania==	720009)	{
+				pytanie="Czego wystraszy³ siê Stefek Burczymucha z wierszowanej przypowieœci Marii Konopnickiej?";
+				};
+				if(id_pytania==	720059)	{
+				pytanie="Galia est omnis divisa in partes tres - Galia jest podzielona na trzy czêœci. Kto jest autorem ksi¹¿ki, któr¹ ten cytat rozpoczyna?";
+				};
+				if(id_pytania==	720033)	{
+				pytanie="Rzemieœlnik odlewaj¹cy przedmioty z cyny nazywa siê…";
+				};
+				if(id_pytania==	6818009) {
+				pytanie="Jak z ³aciny nazywamy praktykê zawodow¹ osób po studiach prawniczych, przygotowuj¹c¹ do zawodu sêdziego, prokuratora, adwokata?";
+				};
+				if(id_pytania==	111097)	 {
+				pytanie="Jak nazywa siê pañstwo le¿¹ce na wyspie Barbados na oceanie Atlantyckim?";
+				};
+				if(id_pytania==	2908036) {
+				pytanie="Jak nazywa siê brytyjski historyk i dziennikarz autor dzie³ ''Europa'' i ''Bo¿e Igrzysko'' zajmuj¹cy siê histori¹ Polski?";
+				};
+				if(id_pytania==	6402087) {
+				pytanie="O którym zwierzêciu powiada siê, ¿e zawsze spada na 4 ³apy?";
+				};
+				
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				if(id_pytania==111001){
+				time=9;
+				};
+				if(id_pytania==111003){
+				time=3;
+				};
+				if(id_pytania==111005){
+				time=5;
+				};
+				if(id_pytania==111007){
+				time=10;
+				};
+				if(id_pytania==111009){
+				time=5;
+				};
+				if(id_pytania==111011){
+				time=5;
+				};
+				if(id_pytania==111013){
+				time=4;
+				};
+				if(id_pytania==111015){
+				time=6;
+				};
+				if(id_pytania==111017){
+				time=6;
+				};
+				if(id_pytania==111019){
+				time=9;
+				};
+				if(id_pytania==111024){
+				time=6;
+				};
+				if(id_pytania==111026){
+				time=5;
+				};
+				if(id_pytania==111027){
+				time=6;
+				};
+				if(id_pytania==111029){
+				time=9;
+				};
+				if(id_pytania==111032){
+				time=10;
+				};
+				if(id_pytania==111034){
+				time=7;
+				};
+				if(id_pytania==111036){
+				time=3;
+				};
+				if(id_pytania==111041){
+				time=8;
+				};
+				if(id_pytania==111044){
+				time=9;
+				};
+				if(id_pytania==111051){
+				time=7;
+				};
+				if(id_pytania==111056){
+				time=7;
+				};
+				if(id_pytania==111058){
+				time=7;
+				};
+				if(id_pytania==111063){
+				time=6;
+				};
+				if(id_pytania==111064){
+				time=8;
+				};
+				if(id_pytania==111066){
+				time=8;
+				};
+				if(id_pytania==111069){
+				time=7;
+				};
+				if(id_pytania==111073){
+				time=8;
+				};
+				if(id_pytania==111076){
+				time=3;
+				};
+				if(id_pytania==111079){
+				time=7;
+				};
+				if(id_pytania==111082){
+				time=7;
+				};
+				if(id_pytania==111085){
+				time=5;
+				};
+				if(id_pytania==111084){
+				time=5;
+				};
+				if(id_pytania==111086){
+				time=7;
+				};
+				if(id_pytania==111087){
+				time=5;
+				};
+				if(id_pytania==111089){
+				time=6;
+				};
+				if(id_pytania==111090){
+				time=7;
+				};
+				if(id_pytania==111091){
+				time=4;
+				};
+				if(id_pytania==111093){
+				time=3;
+				};
+				if(id_pytania==111096){
+				time=6;
+				};
+				if(id_pytania==111097){
+				time=5;
+				};
+				if(id_pytania==111099){
+				time=7;
+				};
+				if(id_pytania==111100){
+				time=5;
+				};
+				if(id_pytania==111104){
+				time=11;
+				};
+				if(id_pytania==111105){
+				time=6;
+				};
+				if(id_pytania==111108){
+				time=7;
+				};
+				if(id_pytania==111110){
+				time=5;
+				};
+				if(id_pytania==111111){
+				time=6;
+				};
+				if(id_pytania==111112){
+				time=8;
+				};
+				if(id_pytania==111114){
+				time=10;
+				};
+				if(id_pytania==111116){
+				time=4;
+				};
+				if(id_pytania==720001){
+				time=6;
+				};
+				if(id_pytania==720003){
+				time=6;
+				};
+				if(id_pytania==720005){
+				time=3;
+				};
+				if(id_pytania==720007){
+				time=4;
+				};
+				if(id_pytania==720009){
+				time=5;
+				};
+				if(id_pytania==720011){
+				time=10;
+				};
+				if(id_pytania==720013){
+				time=7;
+				};
+				if(id_pytania==720015){
+				time=6;
+				};
+				if(id_pytania==720017){
+				time=4;
+				};
+				if(id_pytania==720019){
+				time=6;
+				};
+				if(id_pytania==720021){
+				time=2;
+				};
+				if(id_pytania==720022){
+				time=8;
+				};
+				if(id_pytania==720023){
+				time=5;
+				};
+				if(id_pytania==720025){
+				time=4;
+				};
+				if(id_pytania==720026){
+				time=6;
+				};
+				if(id_pytania==720027){
+				time=4;
+				};
+				if(id_pytania==720029){
+				time=6;
+				};
+				if(id_pytania==720031){
+				time=6;
+				};
+				if(id_pytania==720033){
+				time=5;
+				};
+				if(id_pytania==720035){
+				time=4;
+				};
+				if(id_pytania==720036){
+				time=3;
+				};
+				if(id_pytania==720038){
+				time=8;
+				};
+				if(id_pytania==720039){
+				time=6;
+				};
+				if(id_pytania==720040){
+				time=4;
+				};
+				if(id_pytania==720043){
+				time=3;
+				};
+				if(id_pytania==720044){
+				time=6;
+				};
+				if(id_pytania==720046){
+				time=4;
+				};
+				if(id_pytania==720047){
+				time=7;
+				};
+				if(id_pytania==720048){
+				time=6;
+				};
+				if(id_pytania==720049){
+				time=7;
+				};
+				if(id_pytania==720050){
+				time=11;
+				};
+				if(id_pytania==720051){
+				time=4;
+				};
+				if(id_pytania==720052){
+				time=6;
+				};
+				if(id_pytania==720053){
+				time=6;
+				};
+				if(id_pytania==720054){
+				time=6;
+				};
+				if(id_pytania==720057){
+				time=5;
+				};
+				if(id_pytania==720058){
+				time=4;
+				};
+				if(id_pytania==720059){
+				time=8;
+				};
+				if(id_pytania==720060){
+				time=5;
+				};
+				if(id_pytania==720061){
+				time=4;
+				};
+				if(id_pytania==720063){
+				time=8;
+				};
+				if(id_pytania==720064){
+				time=2;
+				};
+				if(id_pytania==720065){
+				time=5;
+				};
+				if(id_pytania==720066){
+				time=6;
+				};
+				if(id_pytania==720067){
+				time=4;
+				};
+				if(id_pytania==720068){
+				time=16;
+				};
+				if(id_pytania==720069){
+				time=4;
+				};
+				if(id_pytania==720070){
+				time=5;
+				};
+				if(id_pytania==720071){
+				time=3;
+				};
+				if(id_pytania==720072){
+				time=3;
+				};
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				if(id_pytania==1725001){
+				time=6;
+				};
+				if(id_pytania==1725003){
+				time=5;
+				};
+				if(id_pytania==1725005){
+				time=4;
+				};
+				if(id_pytania==1725007){
+				time=3;
+				};
+				if(id_pytania==1725009){
+				time=5;
+				};
+				if(id_pytania==1725011){
+				time=4;
+				};
+				if(id_pytania==1725013){
+				time=5;
+				};
+				if(id_pytania==1725015){
+				time=8;
+				};
+				if(id_pytania==1725017){
+				time=5;
+				};
+				if(id_pytania==1725020){
+				time=5;
+				};
+				if(id_pytania==1725021){
+				time=5;
+				};
+				if(id_pytania==1725022){
+				time=4;
+				};
+				if(id_pytania==1725023){
+				time=4;
+				};
+				if(id_pytania==1725026){
+				time=5;
+				};
+				if(id_pytania==1725028){
+				time=3;
+				};
+				if(id_pytania==1725029){
+				time=5;
+				};
+				if(id_pytania==1725031){
+				time=7;
+				};
+				if(id_pytania==1725033){
+				time=6;
+				};
+				if(id_pytania==1725034){
+				time=11;
+				};
+				if(id_pytania==1725039){
+				time=7;
+				};
+				if(id_pytania==1725040){
+				time=4;
+				};
+				if(id_pytania==1725044){
+				time=8;
+				};
+				if(id_pytania==1725046){
+				time=4;
+				};
+				if(id_pytania==1725049){
+				time=6;
+				};
+				if(id_pytania==1725050){
+				time=5;
+				};
+				if(id_pytania==1725052){
+				time=5;
+				};
+				if(id_pytania==1725053){
+				time=6;
+				};
+				if(id_pytania==1725055){
+				time=6;
+				};
+				if(id_pytania==1725057){
+				time=6;
+				};
+				if(id_pytania==1725058){
+				time=4;
+				};
+				if(id_pytania==1725060){
+				time=8;
+				};
+				if(id_pytania==1725061){
+				time=4;
+				};
+				if(id_pytania==1725062){
+				time=3;
+				};
+				if(id_pytania==1725064){
+				time=6;
+				};
+				if(id_pytania==1725065){
+				time=3;
+				};
+				if(id_pytania==1725066){
+				time=4;
+				};
+				if(id_pytania==1725073){
+				time=6;
+				};
+				if(id_pytania==1725074){
+				time=5;
+				};
+				if(id_pytania==1725075){
+				time=7;
+				};
+				if(id_pytania==1725076){
+				time=8;
+				};
+				if(id_pytania==1725081){
+				time=5;
+				};
+				if(id_pytania==1725082){
+				time=3;
+				};
+				if(id_pytania==1725086){
+				time=5;
+				};
+				if(id_pytania==1725087){
+				time=4;
+				};
+				if(id_pytania==1725090){
+				time=8;
+				};
+				if(id_pytania==1725091){
+				time=7;
+				};
+				if(id_pytania==1725092){
+				time=8;
+				};
+				if(id_pytania==1725093){
+				time=8;
+				};
+				if(id_pytania==1725097){
+				time=9;
+				};
+				if(id_pytania==1725098){
+				time=6;
+				};
+				if(id_pytania==2908001){
+				time=5;
+				};
+				if(id_pytania==2908003){
+				time=5;
+				};
+				if(id_pytania==2908005){
+				time=7;
+				};
+				if(id_pytania==2908007){
+				time=3;
+				};
+				if(id_pytania==2908009){
+				time=4;
+				};
+				if(id_pytania==2908011){
+				time=2;
+				};
+				if(id_pytania==2908013){
+				time=3;
+				};
+				if(id_pytania==2908015){
+				time=4;
+				};
+				if(id_pytania==2908017){
+				time=3;
+				};
+				if(id_pytania==2908019){
+				time=5;
+				};
+				if(id_pytania==2908022){
+				time=3;
+				};
+				if(id_pytania==2908026){
+				time=5;
+				};
+				if(id_pytania==2908028){
+				time=4;
+				};
+				if(id_pytania==2908029){
+				time=4;
+				};
+				if(id_pytania==2908030){
+				time=7;
+				};
+				if(id_pytania==2908031){
+				time=5;
+				};
+				if(id_pytania==2908036){
+				time=8;
+				};
+				if(id_pytania==2908037){
+				time=4;
+				};
+				if(id_pytania==2908038){
+				time=3;
+				};
+				if(id_pytania==2908040){
+				time=5;
+				};
+				if(id_pytania==2908042){
+				time=7;
+				};
+				if(id_pytania==2908043){
+				time=5;
+				};
+				if(id_pytania==2908045){
+				time=9;
+				};
+				if(id_pytania==2908046){
+				time=5;
+				};
+				if(id_pytania==2908048){
+				time=2;
+				};
+				if(id_pytania==2908049){
+				time=2;
+				};
+				if(id_pytania==2908050){
+				time=9;
+				};
+				if(id_pytania==2908051){
+				time=6;
+				};
+				if(id_pytania==2908052){
+				time=6;
+				};
+				if(id_pytania==2908053){
+				time=7;
+				};
+				if(id_pytania==2908054){
+				time=4;
+				};
+				if(id_pytania==2908055){
+				time=5;
+				};
+				if(id_pytania==2908056){
+				time=6;
+				};
+				if(id_pytania==2908057){
+				time=7;
+				};
+				if(id_pytania==2908058){
+				time=8;
+				};
+				if(id_pytania==2908059){
+				time=5;
+				};
+				if(id_pytania==2908060){
+				time=4;
+				};
+				if(id_pytania==2908061){
+				time=7;
+				};
+				if(id_pytania==2908062){
+				time=8;
+				};
+				if(id_pytania==2908063){
+				time=5;
+				};
+				if(id_pytania==2908064){
+				time=3;
+				};
+				if(id_pytania==2908065){
+				time=6;
+				};
+				if(id_pytania==2908066){
+				time=3;
+				};
+				if(id_pytania==2908067){
+				time=4;
+				};
+				if(id_pytania==2908068){
+				time=3;
+				};
+				if(id_pytania==2908069){
+				time=6;
+				};
+				if(id_pytania==2908071){
+				time=5;
+				};
+				if(id_pytania==2908073){
+				time=6;
+				};
+				if(id_pytania==2908074){
+				time=7;
+				};
+				if(id_pytania==2908075){
+				time=8;
+				};
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				if(id_pytania==3122001){
+				time=4;
+				};
+				if(id_pytania==3122003){
+				time=5;
+				};
+				if(id_pytania==3122005){
+				time=5;
+				};
+				if(id_pytania==3122007){
+				time=3;
+				};
+				if(id_pytania==3122009){
+				time=7;
+				};
+				if(id_pytania==3122011){
+				time=5;
+				};
+				if(id_pytania==3122013){
+				time=4;
+				};
+				if(id_pytania==3122015){
+				time=5;
+				};
+				if(id_pytania==3122017){
+				time=5;
+				};
+				if(id_pytania==3122019){
+				time=3;
+				};
+				if(id_pytania==3122022){
+				time=4;
+				};
+				if(id_pytania==3122024){
+				time=8;
+				};
+				if(id_pytania==3122025){
+				time=6;
+				};
+				if(id_pytania==3122026){
+				time=3;
+				};
+				if(id_pytania==3122027){
+				time=5;
+				};
+				if(id_pytania==3122028){
+				time=5;
+				};
+				if(id_pytania==3122029){
+				time=4;
+				};
+				if(id_pytania==3122031){
+				time=2;
+				};
+				if(id_pytania==3122032){
+				time=6;
+				};
+				if(id_pytania==3122033){
+				time=6;
+				};
+				if(id_pytania==3122034){
+				time=6;
+				};
+				if(id_pytania==3122035){
+				time=6;
+				};
+				if(id_pytania==3122036){
+				time=5;
+				};
+				if(id_pytania==3122037){
+				time=4;
+				};
+				if(id_pytania==3122038){
+				time=9;
+				};
+				if(id_pytania==3122039){
+				time=5;
+				};
+				if(id_pytania==3122040){
+				time=8;
+				};
+				if(id_pytania==3122041){
+				time=7;
+				};
+				if(id_pytania==3122042){
+				time=4;
+				};
+				if(id_pytania==3122043){
+				time=6;
+				};
+				if(id_pytania==3122044){
+				time=5;
+				};
+				if(id_pytania==3122045){
+				time=8;
+				};
+				if(id_pytania==3122046){
+				time=6;
+				};
+				if(id_pytania==3122047){
+				time=4;
+				};
+				if(id_pytania==3122048){
+				time=4;
+				};
+				if(id_pytania==3122049){
+				time=5;
+				};
+				if(id_pytania==3122050){
+				time=7;
+				};
+				if(id_pytania==3122051){
+				time=6;
+				};
+				if(id_pytania==3122052){
+				time=5;
+				};
+				if(id_pytania==3122053){
+				time=6;
+				};
+				if(id_pytania==3122054){
+				time=4;
+				};
+				if(id_pytania==3122055){
+				time=6;
+				};
+				if(id_pytania==3122056){
+				time=6;
+				};
+				if(id_pytania==3122057){
+				time=5;
+				};
+				if(id_pytania==3122058){
+				time=4;
+				};
+				if(id_pytania==3122059){
+				time=4;
+				};
+				if(id_pytania==3122060){
+				time=4;
+				};
+				if(id_pytania==3122061){
+				time=7;
+				};
+				if(id_pytania==3122062){
+				time=3;
+				};
+				if(id_pytania==3122063){
+				time=7;
+				};
+				if(id_pytania==6402001){
+				time=4;
+				};
+				if(id_pytania==6402003){
+				time=5;
+				};
+				if(id_pytania==6402005){
+				time=4;
+				};
+				if(id_pytania==6402007){
+				time=4;
+				};
+				if(id_pytania==6402009){
+				time=5;
+				};
+				if(id_pytania==6402011){
+				time=3;
+				};
+				if(id_pytania==6402013){
+				time=5;
+				};
+				if(id_pytania==6402015){
+				time=5;
+				};
+				if(id_pytania==6402017){
+				time=5;
+				};
+				if(id_pytania==6402019){
+				time=4;
+				};
+				if(id_pytania==6402021){
+				time=4;
+				};
+				if(id_pytania==6402022){
+				time=6;
+				};
+				if(id_pytania==6402027){
+				time=4;
+				};
+				if(id_pytania==6402029){
+				time=4;
+				};
+				if(id_pytania==6402030){
+				time=5;
+				};
+				if(id_pytania==6402031){
+				time=7;
+				};
+				if(id_pytania==6402037){
+				time=5;
+				};
+				if(id_pytania==6402042){
+				time=6;
+				};
+				if(id_pytania==6402043){
+				time=4;
+				};
+				if(id_pytania==6402044){
+				time=4;
+				};
+				if(id_pytania==6402045){
+				time=6;
+				};
+				if(id_pytania==6402048){
+				time=5;
+				};
+				if(id_pytania==6402049){
+				time=9;
+				};
+				if(id_pytania==6402053){
+				time=6;
+				};
+				if(id_pytania==6402054){
+				time=7;
+				};
+				if(id_pytania==6402056){
+				time=3;
+				};
+				if(id_pytania==6402058){
+				time=4;
+				};
+				if(id_pytania==6402060){
+				time=5;
+				};
+				if(id_pytania==6402064){
+				time=4;
+				};
+				if(id_pytania==6402067){
+				time=3;
+				};
+				if(id_pytania==6402068){
+				time=3;
+				};
+				if(id_pytania==6402069){
+				time=6;
+				};
+				if(id_pytania==6402072){
+				time=3;
+				};
+				if(id_pytania==6402073){
+				time=3;
+				};
+				if(id_pytania==6402074){
+				time=4;
+				};
+				if(id_pytania==6402075){
+				time=6;
+				};
+				if(id_pytania==6402076){
+				time=7;
+				};
+				if(id_pytania==6402078){
+				time=4;
+				};
+				if(id_pytania==6402079){
+				time=9;
+				};
+				if(id_pytania==6402080){
+				time=6;
+				};
+				if(id_pytania==6402085){
+				time=5;
+				};
+				if(id_pytania==6402086){
+				time=5;
+				};
+				if(id_pytania==6402087){
+				time=4;
+				};
+				if(id_pytania==6402088){
+				time=3;
+				};
+				if(id_pytania==6402089){
+				time=6;
+				};
+				if(id_pytania==6402091){
+				time=4;
+				};
+				if(id_pytania==6402092){
+				time=7;
+				};
+				if(id_pytania==6402097){
+				time=3;
+				};
+				if(id_pytania==6402098){
+				time=4;
+				};
+				if(id_pytania==6402099){
+				time=3;
+				};
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				if(id_pytania==6818001){
+				time=3;
+				};
+				if(id_pytania==6818003){
+				time=3;
+				};
+				if(id_pytania==6818005){
+				time=8;
+				};
+				if(id_pytania==6818007){
+				time=6;
+				};
+				if(id_pytania==6818009){
+				time=7;
+				};
+				if(id_pytania==6818011){
+				time=6;
+				};
+				if(id_pytania==6818013){
+				time=5;
+				};
+				if(id_pytania==6818015){
+				time=6;
+				};
+				if(id_pytania==6818017){
+				time=3;
+				};
+				if(id_pytania==6818019){
+				time=9;
+				};
+				if(id_pytania==6818022){
+				time=7;
+				};
+				if(id_pytania==6818025){
+				time=6;
+				};
+				if(id_pytania==6818026){
+				time=4;
+				};
+				if(id_pytania==6818027){
+				time=6;
+				};
+				if(id_pytania==6818028){
+				time=10;
+				};
+				if(id_pytania==6818030){
+				time=5;
+				};
+				if(id_pytania==6818032){
+				time=4;
+				};
+				if(id_pytania==6818033){
+				time=5;
+				};
+				if(id_pytania==6818034){
+				time=4;
+				};
+				if(id_pytania==6818036){
+				time=6;
+				};
+				if(id_pytania==6818037){
+				time=5;
+				};
+				if(id_pytania==6818038){
+				time=7;
+				};
+				if(id_pytania==6818040){
+				time=6;
+				};
+				if(id_pytania==6818041){
+				time=5;
+				};
+				if(id_pytania==6818043){
+				time=9;
+				};
+				if(id_pytania==6818044){
+				time=4;
+				};
+				if(id_pytania==6818045){
+				time=6;
+				};
+				if(id_pytania==6818046){
+				time=4;
+				};
+				if(id_pytania==6818047){
+				time=2;
+				};
+				if(id_pytania==6818049){
+				time=3;
+				};
+				if(id_pytania==6818054){
+				time=4;
+				};
+				if(id_pytania==6818053){
+				time=6;
+				};
+				if(id_pytania==6818056){
+				time=4;
+				};
+				if(id_pytania==6818057){
+				time=5;
+				};
+				if(id_pytania==6818058){
+				time=4;
+				};
+				if(id_pytania==6818059){
+				time=6;
+				};
+				if(id_pytania==6818060){
+				time=6;
+				};
+				if(id_pytania==6818061){
+				time=4;
+				};
+				if(id_pytania==6818062){
+				time=6;
+				};
+				if(id_pytania==6818064){
+				time=7;
+				};
+				if(id_pytania==6818065){
+				time=7;
+				};
+				if(id_pytania==6818066){
+				time=4;
+				};
+				if(id_pytania==6818067){
+				time=6;
+				};
+				if(id_pytania==6818068){
+				time=7;
+				};
+				if(id_pytania==6818069){
+				time=7;
+				};
+				if(id_pytania==6818070){
+				time=5;
+				};
+				if(id_pytania==6818071){
+				time=7;
+				};
+				if(id_pytania==6818072){
+				time=4;
+				};
+				if(id_pytania==6818074){
+				time=4;
+				};
+				if(id_pytania==6818075){
+				time=5;
+				};
+				if(id_pytania==6909001){
+				time=6;
+				};
+				if(id_pytania==6909003){
+				time=3;
+				};
+				if(id_pytania==6909005){
+				time=7;
+				};
+				if(id_pytania==6909007){
+				time=3;
+				};
+				if(id_pytania==6909009){
+				time=9;
+				};
+				if(id_pytania==6909011){
+				time=4;
+				};
+				if(id_pytania==6909013){
+				time=5;
+				};
+				if(id_pytania==6909015){
+				time=3;
+				};
+				if(id_pytania==6909017){
+				time=5;
+				};
+				if(id_pytania==6909019){
+				time=4;
+				};
+				if(id_pytania==6909022){
+				time=3;
+				};
+				if(id_pytania==6909023){
+				time=5;
+				};
+				if(id_pytania==6909025){
+				time=4;
+				};
+				if(id_pytania==6909028){
+				time=8;
+				};
+				if(id_pytania==6909030){
+				time=4;
+				};
+				if(id_pytania==6909031){
+				time=8;
+				};
+				if(id_pytania==6909036){
+				time=2;
+				};
+				if(id_pytania==6909038){
+				time=4;
+				};
+				if(id_pytania==6909040){
+				time=5;
+				};
+				if(id_pytania==6909041){
+				time=4;
+				};
+				if(id_pytania==6909045){
+				time=12;
+				};
+				if(id_pytania==6909048){
+				time=6;
+				};
+				if(id_pytania==6909049){
+				time=5;
+				};
+				if(id_pytania==6909050){
+				time=5;
+				};
+				if(id_pytania==6909051){
+				time=5;
+				};
+				if(id_pytania==6909053){
+				time=5;
+				};
+				if(id_pytania==6909056){
+				time=6;
+				};
+				if(id_pytania==6909057){
+				time=3;
+				};
+				if(id_pytania==6909058){
+				time=5;
+				};
+				if(id_pytania==6909059){
+				time=4;
+				};
+				if(id_pytania==6909060){
+				time=6;
+				};
+				if(id_pytania==6909061){
+				time=5;
+				};
+				if(id_pytania==6909064){
+				time=6;
+				};
+				if(id_pytania==6909065){
+				time=7;
+				};
+				if(id_pytania==6909066){
+				time=3;
+				};
+				if(id_pytania==6909067){
+				time=9;
+				};
+				if(id_pytania==6909068){
+				time=6;
+				};
+				if(id_pytania==6909069){
+				time=5;
+				};
+				if(id_pytania==6909070){
+				time=4;
+				};
+				if(id_pytania==6909071){
+				time=4;
+				};
+				if(id_pytania==6909073){
+				time=3;
+				};
+				if(id_pytania==6909074){
+				time=4;
+				};
+				if(id_pytania==6909075){
+				time=5;
+				};
+				if(id_pytania==6909077){
+				time=11;
+				};
+				if(id_pytania==6909079){
+				time=5;
+				};
+				if(id_pytania==6909080){
+				time=6;
+				};
+				if(id_pytania==6909082){
+				time=7;
+				};
+				if(id_pytania==6909083){
+				time=3;
+				};
+				if(id_pytania==6909084){
+				time=4;
+				};
+				if(id_pytania==6909086){
+				time=5;
+				};
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				if(id_pytania==7017001){
+				time=4;
+				};
+				if(id_pytania==7017003){
+				time=4;
+				};
+				if(id_pytania==7017006){
+				time=5;
+				};
+				if(id_pytania==7017008){
+				time=8;
+				};
+				if(id_pytania==7017010){
+				time=4;
+				};
+				if(id_pytania==7017012){
+				time=4;
+				};
+				if(id_pytania==7017014){
+				time=4;
+				};
+				if(id_pytania==7017016){
+				time=4;
+				};
+				if(id_pytania==7017018){
+				time=6;
+				};
+				if(id_pytania==7017020){
+				time=7;
+				};
+				if(id_pytania==7017021){
+				time=9;
+				};
+				if(id_pytania==7017023){
+				time=6;
+				};
+				if(id_pytania==7017024){
+				time=5;
+				};
+				if(id_pytania==7017025){
+				time=5;
+				};
+				if(id_pytania==7017027){
+				time=6;
+				};
+				if(id_pytania==7017028){
+				time=6;
+				};
+				if(id_pytania==7017031){
+				time=8;
+				};
+				if(id_pytania==7017032){
+				time=7;
+				};
+				if(id_pytania==7017033){
+				time=7;
+				};
+				if(id_pytania==7017034){
+				time=4;
+				};
+				if(id_pytania==7017035){
+				time=5;
+				};
+				if(id_pytania==7017036){
+				time=7;
+				};
+				if(id_pytania==7017038){
+				time=3;
+				};
+				if(id_pytania==7017039){
+				time=9;
+				};
+				if(id_pytania==7017042){
+				time=6;
+				};
+				if(id_pytania==7017043){
+				time=3;
+				};
+				if(id_pytania==7017044){
+				time=4;
+				};
+				if(id_pytania==7017046){
+				time=4;
+				};
+				if(id_pytania==7017048){
+				time=7;
+				};
+				if(id_pytania==7017049){
+				time=6;
+				};
+				if(id_pytania==7017050){
+				time=9;
+				};
+				if(id_pytania==7017052){
+				time=5;
+				};
+				if(id_pytania==7017054){
+				time=4;
+				};
+				if(id_pytania==7017055){
+				time=3;
+				};
+				if(id_pytania==7017056){
+				time=4;
+				};
+				if(id_pytania==7017057){
+				time=6;
+				};
+				if(id_pytania==7017058){
+				time=5;
+				};
+				if(id_pytania==7017060){
+				time=4;
+				};
+				if(id_pytania==7017061){
+				time=5;
+				};
+				if(id_pytania==7017062){
+				time=5;
+				};
+				if(id_pytania==7017063){
+				time=4;
+				};
+				if(id_pytania==7017066){
+				time=5;
+				};
+				if(id_pytania==7017068){
+				time=7;
+				};
+				if(id_pytania==7017070){
+				time=3;
+				};
+				if(id_pytania==7017071){
+				time=4;
+				};
+				if(id_pytania==7017072){
+				time=6;
+				};
+				if(id_pytania==7017073){
+				time=7;
+				};
+				if(id_pytania==7017074){
+				time=6;
+				};
+				if(id_pytania==7017075){
+				time=4;
+				};
+				if(id_pytania==7017078){
+				time=4;
+				};
+				if(id_pytania==7223001){
+				time=3;
+				};
+				if(id_pytania==7223003){
+				time=4;
+				};
+				if(id_pytania==7223005){
+				time=9;
+				};
+				if(id_pytania==7223007){
+				time=3;
+				};
+				if(id_pytania==7223009){
+				time=4;
+				};
+				if(id_pytania==7223011){
+				time=5;
+				};
+				if(id_pytania==7223013){
+				time=6;
+				};
+				if(id_pytania==7223015){
+				time=2;
+				};
+				if(id_pytania==7223017){
+				time=5;
+				};
+				if(id_pytania==7223019){
+				time=4;
+				};
+				if(id_pytania==7223021){
+				time=3;
+				};
+				if(id_pytania==7223027){
+				time=4;
+				};
+				if(id_pytania==7223029){
+				time=4;
+				};
+				if(id_pytania==7223031){
+				time=4;
+				};
+				if(id_pytania==7223033){
+				time=4;
+				};
+				if(id_pytania==7223036){
+				time=5;
+				};
+				if(id_pytania==7223037){
+				time=4;
+				};
+				if(id_pytania==7223040){
+				time=3;
+				};
+				if(id_pytania==7223041){
+				time=4;
+				};
+				if(id_pytania==7223042){
+				time=3;
+				};
+				if(id_pytania==7223047){
+				time=4;
+				};
+				if(id_pytania==7223049){
+				time=5;
+				};
+				if(id_pytania==7223050){
+				time=5;
+				};
+				if(id_pytania==7223051){
+				time=4;
+				};
+				if(id_pytania==7223052){
+				time=8;
+				};
+				if(id_pytania==7223057){
+				time=5;
+				};
+				if(id_pytania==7223059){
+				time=4;
+				};
+				if(id_pytania==7223061){
+				time=9;
+				};
+				if(id_pytania==7223065){
+				time=3;
+				};
+				if(id_pytania==7223068){
+				time=4;
+				};
+				if(id_pytania==7223070){
+				time=3;
+				};
+				if(id_pytania==7223071){
+				time=4;
+				};
+				if(id_pytania==7223072){
+				time=5;
+				};
+				if(id_pytania==7223073){
+				time=4;
+				};
+				if(id_pytania==7223075){
+				time=7;
+				};
+				if(id_pytania==7223076){
+				time=4;
+				};
+				if(id_pytania==7223077){
+				time=6;
+				};
+				if(id_pytania==7223078){
+				time=5;
+				};
+				if(id_pytania==7223079){
+				time=7;
+				};
+				if(id_pytania==7223080){
+				time=3;
+				};
+				if(id_pytania==7223081){
+				time=6;
+				};
+				if(id_pytania==7223082){
+				time=5;
+				};
+				if(id_pytania==7223084){
+				time=4;
+				};
+				if(id_pytania==7223086){
+				time=4;
+				};
+				if(id_pytania==7223088){
+				time=5;
+				};
+				if(id_pytania==7223089){
+				time=5;
+				};
+				if(id_pytania==7223090){
+				time=6;
+				};
+				if(id_pytania==7223091){
+				time=5;
+				};
+				if(id_pytania==7223092){
+				time=5;
+				};
+				if(id_pytania==7223093){
+				time=4;
+				};
+				
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				time_lottery = rounddown((9-1+ 1)*random(), 1)+1;
+				if(time_lottery==1){
+				time_player=time*0.8;
+				};
+				if(time_lottery==2){
+				time_player=time*0.85;
+				};
+				if(time_lottery==3){
+				time_player=time*0.9;
+				};
+				if(time_lottery==4){
+				time_player=time*0.95;
+				};
+				if(time_lottery==5){
+				time_player=time;
+				};
+				if(time_lottery==6){
+				time_player=time*1.05;
+				};
+				if(time_lottery==7){
+				time_player=time*1.1;
+				};
+				if(time_lottery==8){
+				time_player=time*1.15;
+				};
+				if(time_lottery==9){
+				time_player=time*1.20;
+				};
+				time_left=time_player;
+				//wymuszenie zakonczenia etapu
+				//later (time_left) do  {
+				//LeaveStage=1;
+				//time_left=20;
+				//};
+				later ( 1 ) repeat {
+				time_left = time_left - 1;
+				ProgressBarPositionX = -18;
+				ProgressBarSize = 0;
+				};
+				
+				
+				
+				//later ( 1 ) repeat {
+				//time_left = time_left - 1;
+				//if(time_left<0) {
+				//LeaveStage = 1;
+				//time_left = 20;
+				//}
+				//else {
+				//LeaveStage=0;
+				//}
+				//}
+				
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				ProgressBarPositionX = -2*time_player;
+				ProgressBarSize = 0;
+				Time=0;
+				//this constantly runs in the background
+				later (0.01) repeat {
+				  if(time_player>=0) {
+				    Time = Time + 0.1;
+				    ProgressBarPositionX = -2*time_player + Time / 2;
+				    ProgressBarSize = Time;
+				  }
+				}
+				
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			containerbox "Container"{
+				hasframe = TRUE;
+				plotbox ""{
+					hasframe = FALSE;
+					height = 10%;
+					bottom = 90%;
+					cuttop = TRUE;
+					maintainaspectratio = FALSE;
+					xaxistype = LINEAR;
+					yaxistype = LINEAR;
+					xleft = -100;
+					xright = 100;
+					ybottom = 0;
+					ytop = 100;
+					plottext ""{
+						text = "Time";
+						x = 0;
+						y = 80;
+						horizontalalignment = CENTER;
+						verticalalignment = FIRSTLINE;
+						textcolor = rgb(0,0,0);
+						fontsize = 24;
+					}
+					plotrect "Progress Bar Background"{
+						x = -time_player;
+						y = 70;
+						width = 2*time_player+0.25;
+						height = 5;
+						linecolor = rgb(0.00,0.00,0.00);
+						linewidth = 3;
+						fillcolor = rgb(0.50,0.50,0.50);
+					}
+					plotrect "Progress Bar"{
+						x = ProgressBarPositionX;
+						y = 70;
+						width = min(ProgressBarSize, 40);
+						height = 4.5;
+						fillcolor = rgb(1.00,0.00,0.00);
+					}
+					plotrect "Reset"{
+						x = 90;
+						y = -90;
+						width = 16;
+						height = 8;
+						linecolor = rgb(0.25,0.00,0.00);
+						linewidth = 3;
+						fillcolor = rgb(1.00,0.50,0.50);
+					}
+				}
+				gridbox "Grid"{
+					hasframe = TRUE;
+					height = 50%;
+					left = 3%;
+					right = 3%;
+					cutbottom = TRUE;
+					buttonposition = BOTTOMMIDDLE;
+					buttonsequence = HORIZONTAL;
+					numrows = 3;
+					numcolumns = 1;
+					firstcolumnwidth = 100;
+					firstrowheight = 100;
+					fieldsinrows = TRUE;
+					infieldlabeisallowed = FALSE;
+					firstrowislabel = FALSE;
+					firstcolumnislabel = FALSE;
+					labelseparators = FALSE;
+					rowseparators = FALSE;
+					columnseparators = FALSE;
+					item{
+						variable = pytanie;
+						format = "1";
+						input = FALSE;
+					}
+					item{
+						label = "Twoja odpowiedŸ:";
+						variable = odpowiedz;
+						format = "!string";
+						input = TRUE;
+						showdefault = FALSE;
+						emptyallowed = TRUE;
+						min = 0;
+						max = 9999;
+						program{
+							table = subjects;
+							do{
+								y=odpowiedz;
+							}
+						}
+					}
+					item{
+						label = "pozosta³y czas";
+						variable = time_left;
+						format = "1";
+						input = FALSE;
+					}
+				}
+				headerbox "Header"{
+					hasframe = TRUE;
+					height = 10%;
+					top = 0p;
+					cutright = TRUE;
+					cuttop = TRUE;
+					displaycondition = time_left>0;
+					showPeriods = TRUE;
+					showNumPeriods = TRUE;
+					periodtext = "okres";
+					periodoftext = "z";
+					practiceperiodprefix = "próbny";
+					showtime = TRUE;
+					timestr = "<> Pozosta³y czas < time_left | 1 >";
+				}
+			}
+			gridbox "Grid"{
+				hasframe = TRUE;
+				height = 50%;
+				left = 3%;
+				right = 3%;
+				displaycondition = time_left<0;
+				buttonposition = MIDDLEMIDDLE;
+				buttonsequence = HORIZONTAL;
+				numrows = 2;
+				numcolumns = 1;
+				firstcolumnwidth = 100;
+				firstrowheight = 100;
+				fieldsinrows = TRUE;
+				infieldlabeisallowed = FALSE;
+				firstrowislabel = FALSE;
+				firstcolumnislabel = FALSE;
+				labelseparators = FALSE;
+				rowseparators = FALSE;
+				columnseparators = FALSE;
+				item{
+					label = "Czas min¹³";
+				}
+				button "                                  Dalej                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "ocena_trudnosci"{
+		startwaitforall = FALSE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = time_left_h_stagecounter;
+		program{
+			table = subjects;
+			do{
+				time_left_h=20;
+				//later (time_left_h) do  {
+				//LeaveStage=1;
+				//time_left_h=20;
+				//};
+				
+				//to dzialalo
+				later ( 1 ) repeat {
+				time_left_h = time_left_h - 1;
+				};
+				
+				
+				
+				
+				//later ( 1 ) repeat {
+				//time_left_h = time_left_h - 1;
+				//if(time_left_h<0) {
+				//LeaveStage = 1;
+				//time_left_h= 20;
+				//}
+				//else {
+				//LeaveStage=0;
+				//}
+				//}
+				
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Standard"{
+				hasframe = TRUE;
+				height = 50%;
+				buttonposition = BOTTOMMIDDLE;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Jak trudne by³o to pytanie? (1-bardzo ³atwe do 8-bardzo trudne)";
+					variable = trudnosc;
+					format = "1";
+					input = TRUE;
+					showdefault = FALSE;
+					emptyallowed = FALSE;
+					min = 1;
+					max = 8;
+				}
+				item{
+					label = "any bugs?";
+					variable = bugs;
+					format = "!string";
+					input = TRUE;
+					showdefault = FALSE;
+					emptyallowed = TRUE;
+					min = 1;
+					max = 40;
+				}
+				item{
+					label = "pozosta³y czas";
+					variable = time_left_h;
+					format = "1";
+					input = FALSE;
+				}
+				button "                                  Nastêpne pytanie                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Zakonczenie bloku 1"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = 3;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==21,1,0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			gridbox "Grid"{
+				hasframe = TRUE;
+				height = 50%;
+				left = 3%;
+				right = 3%;
+				displaycondition = time_left<0;
+				buttonposition = MIDDLEMIDDLE;
+				buttonsequence = HORIZONTAL;
+				numrows = 2;
+				numcolumns = 1;
+				firstcolumnwidth = 100;
+				firstrowheight = 100;
+				fieldsinrows = TRUE;
+				infieldlabeisallowed = FALSE;
+				firstrowislabel = FALSE;
+				firstcolumnislabel = FALSE;
+				labelseparators = FALSE;
+				rowseparators = FALSE;
+				columnseparators = FALSE;
+				item{
+					label = "Zakoñczy³eœ pierwszy z czterech bloków pytañ";
+				}
+				button "                                  Dalej                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Zakonczenie bloku 2"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = 3;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==42,1,0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			gridbox "Grid"{
+				hasframe = TRUE;
+				height = 50%;
+				left = 3%;
+				right = 3%;
+				displaycondition = time_left<0;
+				buttonposition = MIDDLEMIDDLE;
+				buttonsequence = HORIZONTAL;
+				numrows = 2;
+				numcolumns = 1;
+				firstcolumnwidth = 100;
+				firstrowheight = 100;
+				fieldsinrows = TRUE;
+				infieldlabeisallowed = FALSE;
+				firstrowislabel = FALSE;
+				firstcolumnislabel = FALSE;
+				labelseparators = FALSE;
+				rowseparators = FALSE;
+				columnseparators = FALSE;
+				item{
+					label = "Zakoñczy³eœ drugi z czterech bloków pytañ";
+				}
+				button "                                  Dalej                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Zakonczenie bloku 3"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = 3;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==63,1,0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			gridbox "Grid"{
+				hasframe = TRUE;
+				height = 50%;
+				left = 3%;
+				right = 3%;
+				displaycondition = time_left<0;
+				buttonposition = MIDDLEMIDDLE;
+				buttonsequence = HORIZONTAL;
+				numrows = 2;
+				numcolumns = 1;
+				firstcolumnwidth = 100;
+				firstrowheight = 100;
+				fieldsinrows = TRUE;
+				infieldlabeisallowed = FALSE;
+				firstrowislabel = FALSE;
+				firstcolumnislabel = FALSE;
+				labelseparators = FALSE;
+				rowseparators = FALSE;
+				columnseparators = FALSE;
+				item{
+					label = "Zakoñczy³eœ trzeci z czterech bloków pytañ";
+				}
+				button "                                  Dalej                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Zakonczenie bloku 4"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = 3;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==84,1,0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			gridbox "Grid"{
+				hasframe = TRUE;
+				height = 50%;
+				left = 3%;
+				right = 3%;
+				displaycondition = time_left<0;
+				buttonposition = MIDDLEMIDDLE;
+				buttonsequence = HORIZONTAL;
+				numrows = 2;
+				numcolumns = 1;
+				firstcolumnwidth = 100;
+				firstrowheight = 100;
+				fieldsinrows = TRUE;
+				infieldlabeisallowed = FALSE;
+				firstrowislabel = FALSE;
+				firstcolumnislabel = FALSE;
+				labelseparators = FALSE;
+				rowseparators = FALSE;
+				columnseparators = FALSE;
+				item{
+					label = "Zakoñczy³eœ ostatni blok pytañ";
+				}
+				button "                                  Dalej                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Ocena performance po choice"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = 30;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==period_choice+21, 1,0 );
+				
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Standard"{
+				hasframe = TRUE;
+				height = 50%;
+				left = 3%;
+				right = 3%;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Oceñ jak Twoim zdaniem poradzi³eœ sobie w tym bloku pytañ. Jeœli odgadniesz poprawnie, otrzymasz dodatkowe 3 z³.";
+					variable = relative_performance_choice;
+					format = "!radio: 1 = \"osi¹gn¹³em/am najwy¿szy wynik w grupie\"; 2 = \"osi¹gn¹³em/am drugi wynik w grupie\"; 3 = \"osi¹gn¹³em/am trzeci wynik w grupie\"; 4 = \"osi¹gn¹³em/am ostatni wynik w grupie\"";
+					input = TRUE;
+					showdefault = FALSE;
+					emptyallowed = FALSE;
+					min = 1;
+					max = 4;
+				}
+				button "                                  OK                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Ocena performance po piece"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = 30;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==period_piece+21, 1,0 );
+				
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Standard"{
+				hasframe = TRUE;
+				height = 50%;
+				left = 3%;
+				right = 3%;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "WyobraŸ sobie, ¿e teraz ³¹czymy losowo uczestników eksperymentu w czteroosobowe grupy.\r\nGdybyœ mia³ w takiej sytuacji oceniæ jak poradzi³eœ sobie w tym bloku pytañ na tle swojej grupy, to jak oceni³byœ swój wynik?\r\nJeœli odgadniesz poprawnie, otrzymasz dodatkowe 3 z³.";
+					variable = relative_performance_choice;
+					format = "!radio: 1 = \"osi¹gn¹³em/am najwy¿szy wynik w grupie\"; 2 = \"osi¹gn¹³em/am drugi wynik w grupie\"; 3 = \"osi¹gn¹³em/am trzeci wynik w grupie\"; 4 = \"osi¹gn¹³em/am ostatni wynik w grupie\"";
+					input = TRUE;
+					showdefault = FALSE;
+					emptyallowed = FALSE;
+					min = 1;
+					max = 4;
+				}
+				button "                                  OK                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Ocena performance po nonmonetary"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = 30;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==period_nonmonetary+21, 1,0 );
+				
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Standard"{
+				hasframe = TRUE;
+				height = 50%;
+				left = 3%;
+				right = 3%;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "WyobraŸ sobie, ¿e teraz ³¹czymy losowo uczestników eksperymentu w czteroosobowe grupy.\r\nGdybyœ mia³ w takiej sytuacji oceniæ jak poradzi³eœ sobie w tym bloku pytañ na tle swojej grupy, to jak oceni³byœ swój wynik?\r\nJeœli odgadniesz poprawnie, otrzymasz dodatkowe 3 z³.";
+					variable = relative_performance_choice;
+					format = "!radio: 1 = \"osi¹gn¹³em/am najwy¿szy wynik w grupie\"; 2 = \"osi¹gn¹³em/am drugi wynik w grupie\"; 3 = \"osi¹gn¹³em/am trzeci wynik w grupie\"; 4 = \"osi¹gn¹³em/am ostatni wynik w grupie\"";
+					input = TRUE;
+					showdefault = FALSE;
+					emptyallowed = FALSE;
+					min = 1;
+					max = 4;
+				}
+				button "                                  OK                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Ocena performance po tournament"{
+		startwaitforall = TRUE;
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = 30;
+		program{
+			table = subjects;
+			do{
+				Participate=if(Period==period_tour+21,1,0 );
+				
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Standard"{
+				hasframe = TRUE;
+				height = 50%;
+				left = 3%;
+				right = 3%;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Ocen jak Twoim zdaniem poradzi³eœ sobie w tym bloku pytañ.\r\nJeœli odgadniesz poprawnie, otrzymasz dodatkowe 3 z³.";
+					variable = relative_performance_tournament;
+					format = "!radio: 1 = \"osi¹gn¹³em/am najwy¿szy wynik w grupie\"; 2 = \"osi¹gn¹³em/am drugi wynik w grupie\"; 3 = \"osi¹gn¹³em/am trzeci wynik w grupie\"; 4 = \"osi¹gn¹³em/am ostatni wynik w grupie\"";
+					input = TRUE;
+					showdefault = FALSE;
+					emptyallowed = FALSE;
+					min = 1;
+					max = 4;
+				}
+				button "                                  OK                                  "{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	roles{
+		role "S 1"{
+		}
+	}
+	period "1"{
+		subject 1{
+			name = "111034";
+			group = 1;
+			do{
+				id_pytania = 111034;
+			}
+		}
+	}
+	period "2"{
+		subject 1{
+			name = "6402007";
+			group = 1;
+			do{
+				id_pytania = 6402007;
+			}
+		}
+	}
+	period "3"{
+		subject 1{
+			name = "6818053";
+			group = 1;
+			do{
+				id_pytania = 6818053;
+			}
+		}
+	}
+	period "4"{
+		subject 1{
+			name = "7017078";
+			group = 1;
+			do{
+				id_pytania = 7017078;
+			}
+		}
+	}
+	period "5"{
+		subject 1{
+			name = "6909075";
+			group = 1;
+			do{
+				id_pytania = 6909075;
+			}
+		}
+	}
+	period "6"{
+		subject 1{
+			name = "3122042";
+			group = 1;
+			do{
+				id_pytania = 3122042;
+			}
+		}
+	}
+	period "7"{
+		subject 1{
+			name = "3122057";
+			group = 1;
+			do{
+				id_pytania = 3122057;
+			}
+		}
+	}
+	period "8"{
+		subject 1{
+			name = "7017066";
+			group = 1;
+			do{
+				id_pytania = 7017066;
+			}
+		}
+	}
+	period "9"{
+		subject 1{
+			name = "720040";
+			group = 1;
+			do{
+				id_pytania = 720040;
+			}
+		}
+	}
+	period "10"{
+		subject 1{
+			name = "6818049";
+			group = 1;
+			do{
+				id_pytania = 6818049;
+			}
+		}
+	}
+	period "11"{
+		subject 1{
+			name = "111108";
+			group = 1;
+			do{
+				id_pytania = 111108;
+			}
+		}
+	}
+	period "12"{
+		subject 1{
+			name = "7223057";
+			group = 1;
+			do{
+				id_pytania = 7223057;
+			}
+		}
+	}
+	period "13"{
+		subject 1{
+			name = "7017032";
+			group = 1;
+			do{
+				id_pytania = 7017032;
+			}
+		}
+	}
+	period "14"{
+		subject 1{
+			name = "2908003";
+			group = 1;
+			do{
+				id_pytania = 2908003;
+			}
+		}
+	}
+	period "15"{
+		subject 1{
+			name = "111084";
+			group = 1;
+			do{
+				id_pytania = 111084;
+			}
+		}
+	}
+	period "16"{
+		subject 1{
+			name = "6402097";
+			group = 1;
+			do{
+				id_pytania = 6402097;
+			}
+		}
+	}
+	period "17"{
+		subject 1{
+			name = "6402079";
+			group = 1;
+			do{
+				id_pytania = 6402079;
+			}
+		}
+	}
+	period "18"{
+		subject 1{
+			name = "6818030";
+			group = 1;
+			do{
+				id_pytania = 6818030;
+			}
+		}
+	}
+	period "19"{
+		subject 1{
+			name = "3122058";
+			group = 1;
+			do{
+				id_pytania = 3122058;
+			}
+		}
+	}
+	period "20"{
+		subject 1{
+			name = "720027";
+			group = 1;
+			do{
+				id_pytania = 720027;
+			}
+		}
+	}
+	period "21"{
+		subject 1{
+			name = "7223084";
+			group = 1;
+			do{
+				id_pytania = 7223084;
+			}
+		}
+	}
+	period "22"{
+		subject 1{
+			name = "7017074";
+			group = 1;
+			do{
+				id_pytania = 7017074;
+			}
+		}
+	}
+	period "23"{
+		subject 1{
+			name = "7223080";
+			group = 1;
+			do{
+				id_pytania = 7223080;
+			}
+		}
+	}
+	period "24"{
+		subject 1{
+			name = "7223071";
+			group = 1;
+			do{
+				id_pytania = 7223071;
+			}
+		}
+	}
+	period "25"{
+		subject 1{
+			name = "2908015";
+			group = 1;
+			do{
+				id_pytania = 2908015;
+			}
+		}
+	}
+	period "26"{
+		subject 1{
+			name = "7223005";
+			group = 1;
+			do{
+				id_pytania = 7223005;
+			}
+		}
+	}
+	period "27"{
+		subject 1{
+			name = "6909041";
+			group = 1;
+			do{
+				id_pytania = 6909041;
+			}
+		}
+	}
+	period "28"{
+		subject 1{
+			name = "720070";
+			group = 1;
+			do{
+				id_pytania = 720070;
+			}
+		}
+	}
+	period "29"{
+		subject 1{
+			name = "7223073";
+			group = 1;
+			do{
+				id_pytania = 7223073;
+			}
+		}
+	}
+	period "30"{
+		subject 1{
+			name = "7223031";
+			group = 1;
+			do{
+				id_pytania = 7223031;
+			}
+		}
+	}
+	period "31"{
+		subject 1{
+			name = "1725039";
+			group = 1;
+			do{
+				id_pytania = 1725039;
+			}
+		}
+	}
+	period "32"{
+		subject 1{
+			name = "1725020";
+			group = 1;
+			do{
+				id_pytania = 1725020;
+			}
+		}
+	}
+	period "33"{
+		subject 1{
+			name = "720003";
+			group = 1;
+			do{
+				id_pytania = 720003;
+			}
+		}
+	}
+	period "34"{
+		subject 1{
+			name = "720060";
+			group = 1;
+			do{
+				id_pytania = 720060;
+			}
+		}
+	}
+	period "35"{
+		subject 1{
+			name = "6818019";
+			group = 1;
+			do{
+				id_pytania = 6818019;
+			}
+		}
+	}
+	period "36"{
+		subject 1{
+			name = "720001";
+			group = 1;
+			do{
+				id_pytania = 720001;
+			}
+		}
+	}
+	period "37"{
+		subject 1{
+			name = "1725092";
+			group = 1;
+			do{
+				id_pytania = 1725092;
+			}
+		}
+	}
+	period "38"{
+		subject 1{
+			name = "6402049";
+			group = 1;
+			do{
+				id_pytania = 6402049;
+			}
+		}
+	}
+	period "39"{
+		subject 1{
+			name = "720071";
+			group = 1;
+			do{
+				id_pytania = 720071;
+			}
+		}
+	}
+	period "40"{
+		subject 1{
+			name = "6818034";
+			group = 1;
+			do{
+				id_pytania = 6818034;
+			}
+		}
+	}
+	period "41"{
+		subject 1{
+			name = "7017058";
+			group = 1;
+			do{
+				id_pytania = 7017058;
+			}
+		}
+	}
+	period "42"{
+		subject 1{
+			name = "720063";
+			group = 1;
+			do{
+				id_pytania = 720063;
+			}
+		}
+	}
+	period "43"{
+		subject 1{
+			name = "6909073";
+			group = 1;
+			do{
+				id_pytania = 6909073;
+			}
+		}
+	}
+	period "44"{
+		subject 1{
+			name = "2908067";
+			group = 1;
+			do{
+				id_pytania = 2908067;
+			}
+		}
+	}
+	period "45"{
+		subject 1{
+			name = "7223051";
+			group = 1;
+			do{
+				id_pytania = 7223051;
+			}
+		}
+	}
+	period "46"{
+		subject 1{
+			name = "720011";
+			group = 1;
+			do{
+				id_pytania = 720011;
+			}
+		}
+	}
+	period "47"{
+		subject 1{
+			name = "111063";
+			group = 1;
+			do{
+				id_pytania = 111063;
+			}
+		}
+	}
+	period "48"{
+		subject 1{
+			name = "2908038";
+			group = 1;
+			do{
+				id_pytania = 2908038;
+			}
+		}
+	}
+	period "49"{
+		subject 1{
+			name = "6402056";
+			group = 1;
+			do{
+				id_pytania = 6402056;
+			}
+		}
+	}
+	period "50"{
+		subject 1{
+			name = "6818017";
+			group = 1;
+			do{
+				id_pytania = 6818017;
+			}
+		}
+	}
+	period "51"{
+		subject 1{
+			name = "111114";
+			group = 1;
+			do{
+				id_pytania = 111114;
+			}
+		}
+	}
+	period "52"{
+		subject 1{
+			name = "7223047";
+			group = 1;
+			do{
+				id_pytania = 7223047;
+			}
+		}
+	}
+	period "53"{
+		subject 1{
+			name = "111079";
+			group = 1;
+			do{
+				id_pytania = 111079;
+			}
+		}
+	}
+	period "54"{
+		subject 1{
+			name = "720031";
+			group = 1;
+			do{
+				id_pytania = 720031;
+			}
+		}
+	}
+	period "55"{
+		subject 1{
+			name = "3122026";
+			group = 1;
+			do{
+				id_pytania = 3122026;
+			}
+		}
+	}
+	period "56"{
+		subject 1{
+			name = "6909084";
+			group = 1;
+			do{
+				id_pytania = 6909084;
+			}
+		}
+	}
+	period "57"{
+		subject 1{
+			name = "7017073";
+			group = 1;
+			do{
+				id_pytania = 7017073;
+			}
+		}
+	}
+	period "58"{
+		subject 1{
+			name = "7223082";
+			group = 1;
+			do{
+				id_pytania = 7223082;
+			}
+		}
+	}
+	period "59"{
+		subject 1{
+			name = "111091";
+			group = 1;
+			do{
+				id_pytania = 111091;
+			}
+		}
+	}
+	period "60"{
+		subject 1{
+			name = "3122047";
+			group = 1;
+			do{
+				id_pytania = 3122047;
+			}
+		}
+	}
+	period "61"{
+		subject 1{
+			name = "111087";
+			group = 1;
+			do{
+				id_pytania = 111087;
+			}
+		}
+	}
+	period "62"{
+		subject 1{
+			name = "2908040";
+			group = 1;
+			do{
+				id_pytania = 2908040;
+			}
+		}
+	}
+	period "63"{
+		subject 1{
+			name = "3122028";
+			group = 1;
+			do{
+				id_pytania = 3122028;
+			}
+		}
+	}
+	period "64"{
+		subject 1{
+			name = "7017036";
+			group = 1;
+			do{
+				id_pytania = 7017036;
+			}
+		}
+	}
+	period "65"{
+		subject 1{
+			name = "3122035";
+			group = 1;
+			do{
+				id_pytania = 3122035;
+			}
+		}
+	}
+	period "66"{
+		subject 1{
+			name = "6909007";
+			group = 1;
+			do{
+				id_pytania = 6909007;
+			}
+		}
+	}
+	period "67"{
+		subject 1{
+			name = "2908005";
+			group = 1;
+			do{
+				id_pytania = 2908005;
+			}
+		}
+	}
+	period "68"{
+		subject 1{
+			name = "3122048";
+			group = 1;
+			do{
+				id_pytania = 3122048;
+			}
+		}
+	}
+	period "69"{
+		subject 1{
+			name = "6909079";
+			group = 1;
+			do{
+				id_pytania = 6909079;
+			}
+		}
+	}
+	period "70"{
+		subject 1{
+			name = "3122032";
+			group = 1;
+			do{
+				id_pytania = 3122032;
+			}
+		}
+	}
+	period "71"{
+		subject 1{
+			name = "720035";
+			group = 1;
+			do{
+				id_pytania = 720035;
+			}
+		}
+	}
+	period "72"{
+		subject 1{
+			name = "6909009";
+			group = 1;
+			do{
+				id_pytania = 6909009;
+			}
+		}
+	}
+	period "73"{
+		subject 1{
+			name = "1725091";
+			group = 1;
+			do{
+				id_pytania = 1725091;
+			}
+		}
+	}
+	period "74"{
+		subject 1{
+			name = "6402053";
+			group = 1;
+			do{
+				id_pytania = 6402053;
+			}
+		}
+	}
+	period "75"{
+		subject 1{
+			name = "6909013";
+			group = 1;
+			do{
+				id_pytania = 6909013;
+			}
+		}
+	}
+	period "76"{
+		subject 1{
+			name = "1725060";
+			group = 1;
+			do{
+				id_pytania = 1725060;
+			}
+		}
+	}
+	period "77"{
+		subject 1{
+			name = "111104";
+			group = 1;
+			do{
+				id_pytania = 111104;
+			}
+		}
+	}
+	period "78"{
+		subject 1{
+			name = "1725087";
+			group = 1;
+			do{
+				id_pytania = 1725087;
+			}
+		}
+	}
+	period "79"{
+		subject 1{
+			name = "1725098";
+			group = 1;
+			do{
+				id_pytania = 1725098;
+			}
+		}
+	}
+	period "80"{
+		subject 1{
+			name = "6818043";
+			group = 1;
+			do{
+				id_pytania = 6818043;
+			}
+		}
+	}
+	period "81"{
+		subject 1{
+			name = "2908075";
+			group = 1;
+			do{
+				id_pytania = 2908075;
+			}
+		}
+	}
+	period "82"{
+		subject 1{
+			name = "1725055";
+			group = 1;
+			do{
+				id_pytania = 1725055;
+			}
+		}
+	}
+	period "83"{
+		subject 1{
+			name = "7223075";
+			group = 1;
+			do{
+				id_pytania = 7223075;
+			}
+		}
+	}
+	period "84"{
+		subject 1{
+			name = "7223091";
+			group = 1;
+			do{
+				id_pytania = 7223091;
+			}
+		}
+	}
+}
