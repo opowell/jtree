@@ -1,3 +1,6 @@
+##### 0.5.3
+- Add: Client onClockUpdate function.
+
 ##### 0.5.2
 - Fix: Participant fields not being saved on App end.
 
