@@ -15,7 +15,7 @@ class ViewSessionTabs extends HTMLElement {
             </li>
             <li class="nav-item">
                 <div id='tab-session-participants' class="nav-link subview-tab session-tabBtn" onclick='jt.setSessionView("participants");'>
-                    <i class="fa fa-user"></i>&nbsp;&nbsp;Participants
+                    <i class="fa fa-user"></i>&nbsp;&nbsp;Participants (<span id='tabSessionParticipantsNumber'>0</span>)
                 </div>
             </li>
             <li class="nav-item">

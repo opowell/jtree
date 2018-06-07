@@ -24,7 +24,7 @@ jt.menuDefns = [
             {
                 id: 'Open Treatment...',
                 key: 'Ctrl+O',
-                fn: 'jt.openTreatment();'
+                fn: 'jt.showOpenTreatmentModal();'
             },
             {
                 id: 'Close',

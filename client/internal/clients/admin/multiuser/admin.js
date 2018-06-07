@@ -207,12 +207,12 @@ jt.connected = function() {
     }
     jt.setQueuesMode(queuesMode);
 
-  var sId = localStorage.getItem("sessionId");
-  if (sId !== null) {
-      server.openSessionId(sId);
-  } else {
-      server.sessionCreate();
-  }
+  // var sId = localStorage.getItem("sessionId");
+  // if (sId !== null) {
+  //     server.openSessionId(sId);
+  // } else {
+  //     server.sessionCreate();
+  // }
 
   var userId = Cookies.get('userId');
   if (userId !== undefined) {

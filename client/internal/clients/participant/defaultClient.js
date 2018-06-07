@@ -169,6 +169,22 @@ jt.setFormDefaults = function() {
 
 }
 
+// Disable navigation away from the page, unless password is entered.
+// Do not disable if page is in iFrame (i.e. being viewed from the admin page).
+jt.inIframe = function() {
+    try {
+        return window.self !== window.top;
+    } catch (e) {
+        return true;
+    }
+}
+
+window.onbeforeunload = function(ev) {
+    if (jt.inIframe()) {
+        return 'Want to unload?';
+    }
+};
+
 jt.setValues = function(player) {
     let clock = jt.getClock(jt.data.timeLeft);
 
@@ -256,7 +272,8 @@ jt.defaultConnected = function() {
             jt.setStageName(player.stage.id);
         }
         if (player.stageTimerTimeLeft > 0) {
-            var endTime = new Date(player.stageTimerStart).getTime() + player.stageTimerTimeLeft;
+            // Must use timer duration. Cannot use server time, since no guarantee that client time is the same.
+            var endTime = new Date().getTime() + player.stageTimerTimeLeft;
             jt.startClock(endTime);
         } else {
             jt.setStageHasTimeout(false);

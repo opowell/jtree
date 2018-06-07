@@ -44,8 +44,9 @@ jt.showSelectAppModal = function(title, onSelect) {
                 ($(ev.target).prop('tagName') !== 'SELECT') &&
                 ($(ev.target).prop('tagName') !== 'INPUT')
             ) {
-                onSelect();
-                $('#addAppToSessionModal').modal('hide');
+                var boundFN = onSelect.bind($(ev.target).closest('tr'));
+                boundFN();
+                $('#selectAppModal').modal('hide');
             }
         });
         row.css('cursor', 'pointer');

@@ -124,7 +124,9 @@ msgs.openSession = function(session) {
     // $('#session-participants').removeAttr('hidden');
 
     setView('session');
-    $('#setNumParticipants').val(objLength(jt.data.session.participants));
+    const numParts = objLength(jt.data.session.participants);
+    $('#setNumParticipants').val(numParts);
+    $('#tabSessionParticipantsNumber').text(numParts);
     jt.setSessionView('appqueue');
 }
 msgs.participantSetAppIndex = function(md) {

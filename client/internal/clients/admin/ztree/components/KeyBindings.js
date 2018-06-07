@@ -3,7 +3,7 @@
 
 jt.keyBindings = [
     ['Ctrl+B',      'jt.TreatmentPanel();'      ],
-    ['Ctrl+O',      'jt.openTreatment();'       ],
+    ['Ctrl+O',      'jt.showOpenTreatmentModal();' ],
     ['Ctrl+L',      'jt.closeFocussedPanel();'  ],
     ['Ctrl+Z',      'jt.undo();'                ],
     ['Ctrl+X',      'jt.cut();'                 ],
@@ -28,14 +28,18 @@ jt.bindKey = function(item) {
     });
 }
 
-jt.openTreatment = function() {
+jt.showOpenTreatmentModal = function() {
     // $("#openFileDialog").trigger("click");
-    var selectAppFn = function() {
+    var openAppFn = function() {
         var optionEls = $(this).find('[app-option-name]');
         var options = jt.deriveAppOptions(optionEls);
-        server.sessionAddApp($(this).data('appId'), options);
+        jt.openTreatment($(this).data('appId'));
     }
-    jt.showSelectAppModal('Open Treatment', selectAppFn);
+    jt.showSelectAppModal('Open Treatment', openAppFn);
+}
+
+jt.openTreatment = function(id) {
+    var panel = jt.TreatmentPanel(id);
 }
 
 for (var i in jt.keyBindings) {

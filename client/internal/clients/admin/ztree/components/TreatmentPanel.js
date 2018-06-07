@@ -1,6 +1,7 @@
 jt.newTreatmentCount = 1;
+jt.treatmentPanelCount = 1;
 
-jt.TreatmentPanel = function() {
+jt.TreatmentPanel = function(id) {
     var trmtDiv = $('<jt-panel>');
     trmtDiv.attr('panel-type', 'treatment-panel');
     $('#content-window').append(trmtDiv);
@@ -13,10 +14,15 @@ jt.TreatmentPanel = function() {
         handle: "panel-title"
     });
     trmtDiv.find('.menu-text .fa').addClass('fa-align-center');
-    trmtDiv.find('.panel-title-text').text('Untitled Treatment ' + jt.newTreatmentCount);
-    trmtDiv.css('top', jt.newTreatmentCount*28 + 'px');
-    trmtDiv.css('left', jt.newTreatmentCount*28 + 'px');
-    jt.newTreatmentCount++;
+    if (id == null) {
+        id = 'Untitled Treatment ' + jt.newTreatmentCount;
+        jt.newTreatmentCount++;
+    }
+    trmtDiv.find('.panel-title-text').text(id);
+    trmtDiv.css('top', jt.treatmentPanelCount*28 + 'px');
+    trmtDiv.css('left', jt.treatmentPanelCount*28 + 'px');
+
+    jt.treatmentPanelCount++;
 
     var treeData = [
         {
