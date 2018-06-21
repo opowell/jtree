@@ -1,58 +1,43 @@
 app.numPeriods = 3;
-app.html = `
-<span jt-status='playing' style='display: flex; flex-direction: column; align-items: center;'>
-    <div>
-        <span style='padding-right: 5rem;'>
-            Period: {{period.id}}/{{app.numPeriods}}
-        </span>
-        <span id="time-remaining-div">
-            Time: {{clock.minutes}}:{{clock.seconds}}
-        </span>
-    </div>
-    <div>
-        {{stages}}
-    </div>
-</span>
-<span jt-status='waiting' style='display: flex; flex-direction: column; align-items: center;'>
-    <h4>Waiting</h4>
-    <p>The experiment will continue soon.</p>
-</span>
-`;
+app.paymentSchemes = [
+    // [gross wage, tax rate]
+    [0.037, 0],
+    [0.0493, 25],
+    [0.074, 50]
+];
+app.maxPoints = 35;
+app.title = '5mariana - typing task.';
+app.description = 'Real effort typing task with varying gross and net performance rates.';
 
 var introStage = app.newStage('intro');
-introStage.duration = 5;
-introStage.content = `
+introStage.activeScreen = `
     <h4>INFORMATION</h4>
-    {{player.message}}
+    <p>
+        Please transcribe the article marked with the current period number during the next 5 minutes.
+        You earn EUR {{player.wage}} per word<span jt-displayIf='player.tax > 0'> and must pay a {{player.tax}}% tax</span>.
+        Your input may be verified against that of other participants to verify accuracy.
+        Click OK when you are ready and the period will start soon.
+    </p>
+    <form>
+        <button>OK</button>
+    </form>
 `;
+
 introStage.playerStart = function(player) {
 
-var messageNr1 = "Text 1m";
-var messageNr2 = "Text 2m";
-var messageNr3 = "Text 3m";
+    if (player.period().id === 1) {
+        let copy = player.app().paymentSchemes.slice();
+        player.participant.paymentSchemes = Utils.shuffle(copy);
+    }
 
-  var myMessage = "";
-
-  var messageIndex = Math.floor((Math.random() * 3) + 1);
-
-  if (messageIndex == 1) {
-    myMessage = messageNr1;
-  }
-
-  if (messageIndex == 2) {
-    myMessage = messageNr2;
-  }
-
-  if (messageIndex == 3) {
-     myMessage = messageNr3;
-  }
-
-  player.message = myMessage;
+    player.wage = player.participant.paymentSchemes[player.period().id-1][0];
+    player.tax = player.participant.paymentSchemes[player.period().id-1][1];
 }
 
+
 var entryStage = app.newStage('entry');
-entryStage.clientDuration = 10;
-entryStage.content = `
+entryStage.duration = 300;
+entryStage.activeScreen = `
     <h4>ENTER TEXT</h4>
     <form>
         <textarea rows=50 cols=80 name='player.textinput'></textarea><br><br>
@@ -60,25 +45,47 @@ entryStage.content = `
     </form>
 `;
 entryStage.playerEnd = function(player) {
-    if (player.textinput.length === undefined) {
-        player.numWords = 0;
-    } else {
-        player.numWords = player.textinput.split(' ').length;
+
+    if (player.period().id === 1) {
+        player.participant.periodPayouts = [];
+        player.participant.capPoints = 0;
     }
 
-    player.points = player.numWords;
-    player.participant.newVar = 5;
+    if (player.textinput.length === undefined) {
+        player.textinput = '';
+    }
+
+    // Replace multiple white space characters with a single space.
+    // https://stackoverflow.com/questions/1981349/regex-to-replace-multiple-spaces-with-a-single-space?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+    player.textinput = player.textinput.replace(/\s\s+/g, ' ');
+
+    player.numWords = player.textinput.split(' ').length;
+
+    player.points = player.numWords * (player.wage*(1-player.tax/100));
+
+    player.participant.periodPayouts.push(player.points.toFixed(2));
+
+    player.participant.capPoints = player.participant.capPoints + player.points;
+
+    if (player.participant.capPoints > app.maxPoints) {
+        player.participant.capPoints = app.maxPoints;
+    }
+
 }
 
 var resultsStage = app.newStage('results');
-resultsStage.content = `
-    <h4>RESULTS</h4>
-    <p>You typed {{player.numWords}} words.</p>
-    <p>Your payout: {{player.numWords * 0.0275}}.</p>
-    <p jt-displayif='period.id==app.numPeriods'>
-        Your total payout: {{participant.numPoints * 0.0275}}.
+resultsStage.canPlayerParticipate = function(player) {
+  return player.period().id === app.numPeriods;
+}
+resultsStage.activeScreen = `
+    <p>
+      Your payout in Period 1 is EUR {{participant.periodPayouts[0]}}.<br>
+      Your payout in Period 2 is EUR {{participant.periodPayouts[1]}}.<br>
+      Your payout in Period 3 is EUR {{participant.periodPayouts[2]}}.<br>
     </p>
+      <b>Your total payout is EUR {{participant.capPoints.toFixed(2)}}.</b><br>
     <form>
+	<br>
         <button>OK</button>
     </form>
 `

@@ -20,21 +20,23 @@ REM ------- Compile docs.
 call ./build-tools/buildDocs.bat
 
 REM ------- Copy all files to release folder.
-call xcopy ".\client\apps\beauty-contest" ".\releases\%vers%\apps\beauty-contest\" /E
-call xcopy ".\client\apps\centipede" ".\releases\%vers%\apps\centipede\" /E
-call xcopy ".\client\apps\dictator-game" ".\releases\%vers%\apps\dictator-game\" /E
-call xcopy ".\client\apps\display-profit" ".\releases\%vers%\apps\display-profit\" /E
-call xcopy ".\client\apps\double-auction" ".\releases\%vers%\apps\double-auction\" /E
-call xcopy ".\client\apps\enter-id" ".\releases\%vers%\apps\enter-id\" /E
-call xcopy ".\client\apps\market-entry-game" ".\releases\%vers%\apps\market-entry-game\" /E
-call xcopy ".\client\apps\public-good" ".\releases\%vers%\apps\public-good-w-punish\" /E
-call xcopy ".\client\apps\questionnaire" ".\releases\%vers%\apps\questionnaire\" /E
-call xcopy ".\client\apps\questionnaire-bootstrap" ".\releases\%vers%\apps\questionnaire-bootstrap\" /E
-call xcopy ".\client\apps\real-effort-sums" ".\releases\%vers%\apps\real-effort-sums\" /E
-call xcopy ".\client\apps\stag-hunt-game" ".\releases\%vers%\apps\stag-hunt-game\" /E
-call xcopy ".\client\apps\travellers-dilemma" ".\releases\%vers%\apps\travellers-dilemma\" /E
-call xcopy ".\client\apps\trust-game" ".\releases\%vers%\apps\trust-game\" /E
-call xcopy ".\client\apps\ultimatum-game" ".\releases\%vers%\apps\ultimatum-game\" /E
+call xcopy ".\client\apps\beauty-contest.jtt" ".\releases\%vers%\apps\" /E
+call xcopy ".\client\apps\centipede.jtt" ".\releases\%vers%\apps\" /E
+call xcopy ".\client\apps\dictator-game.jtt" ".\releases\%vers%\apps\" /E
+call xcopy ".\client\apps\display-profit.jtt" ".\releases\%vers%\apps\" /E
+call xcopy ".\client\apps\double-auction\" ".\releases\%vers%\apps\double-auction\" /E
+call xcopy ".\client\apps\enter-id.jtt" ".\releases\%vers%\apps\" /E
+call xcopy ".\client\apps\language-test.jtt" ".\releases\%vers%\apps\" /E
+call xcopy ".\client\apps\market-entry-game.jtt" ".\releases\%vers%\apps\" /E
+call xcopy ".\client\apps\public-good.jtt" ".\releases\%vers%\apps\" /E
+call xcopy ".\client\apps\public-good-w-punish.jtt" ".\releases\%vers%\apps\" /E
+call xcopy ".\client\apps\questionnaire.jtt" ".\releases\%vers%\apps\" /E
+call xcopy ".\client\apps\questionnaire-bootstrap.jtt" ".\releases\%vers%\apps\" /E
+call xcopy ".\client\apps\real-effort-sums.jtt" ".\releases\%vers%\apps\" /E
+call xcopy ".\client\apps\stag-hunt-game.jtt" ".\releases\%vers%\apps\" /E
+call xcopy ".\client\apps\travellers-dilemma.jtt" ".\releases\%vers%\apps\" /E
+call xcopy ".\client\apps\trust-game.jtt" ".\releases\%vers%\apps\" /E
+call xcopy ".\client\apps\ultimatum-game.jtt" ".\releases\%vers%\apps\" /E
 
 call xcopy ".\client\queues" ".\releases\%vers%\queues\" /E
 call xcopy ".\client\internal" ".\releases\%vers%\internal\" /E

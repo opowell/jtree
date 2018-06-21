@@ -71,6 +71,7 @@ class Timer {
         var out = {};
         out.running = this.running;
         out.timeLeft = this.timeLeft;
+        out.timeElapsed = 0;
         if (this.running) {
             var now = new Date();
             out.timeElapsed = now.getTime() - this.timeStarted.getTime();

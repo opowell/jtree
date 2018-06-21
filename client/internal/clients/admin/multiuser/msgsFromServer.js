@@ -124,9 +124,7 @@ msgs.openSession = function(session) {
     // $('#session-participants').removeAttr('hidden');
 
     setView('session');
-    const numParts = objLength(jt.data.session.participants);
-    $('#setNumParticipants').val(numParts);
-    $('#tabSessionParticipantsNumber').text(numParts);
+    jt.view.updateNumParticipants();
     jt.setSessionView('appqueue');
 }
 msgs.participantSetAppIndex = function(md) {
@@ -281,6 +279,17 @@ msgs.sessionDeleteApp = function(md) {
 msgs.sessionDeleteParticipant = function(md) {
     if (jt.data.session.id === md.sId) {
         deleteParticipant(md.pId);
+        jt.view.updateNumParticipants();
+    }
+}
+
+msgs.addParticipant = function(participant) {
+    if (participant.session.id === jt.data.session.id) {
+        console.log('add participant: ' + participant);
+        jt.data.session.participants[participant.id] = participant;
+        showParticipant(participant);
+        //        viewParticipant(participant.id);
+        jt.view.updateNumParticipants();
     }
 }
 

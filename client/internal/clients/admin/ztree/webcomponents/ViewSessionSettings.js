@@ -69,7 +69,7 @@ class ViewSessionSettings extends HTMLElement {
 }
 
 updateAllowNewParts = function() {
-    $('#allowNewParts')[0].checked = jt.data.session.allowNewParts;
+//    $('#allowNewParts')[0].checked = jt.data.session.allowNewParts;
 }
 
 jt.setCaseSensitiveLabels = function() {

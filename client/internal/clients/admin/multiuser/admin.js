@@ -69,6 +69,14 @@ jt.setApps = function(apps) {
     showAppInfos();
 }
 
+jt.view = {};
+
+jt.view.updateNumParticipants = function() {
+    const numParts = objLength(jt.data.session.participants);
+    $('#setNumParticipants').val(numParts);
+    $('#tabSessionParticipantsNumber').text(numParts);
+}
+
 function refresh(ag) {
     console.log('refresh');
 
@@ -139,15 +147,6 @@ jt.connected = function() {
     jt.socket.on('get-app', function(a) {
         jt.data.viewedApp = a;
         viewApp(a.id, a.title);
-    });
-
-    jt.socket.on('add-participant', function(participant) {
-        if (participant.session.id === jt.data.session.id) {
-            console.log('add participant: ' + participant);
-            jt.data.session.participants[participant.id] = participant;
-            showParticipant(participant);
-            //        viewParticipant(participant.id);
-        }
     });
 
     jt.socket.on('add-client', function(client) {

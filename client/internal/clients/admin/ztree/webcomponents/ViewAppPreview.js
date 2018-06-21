@@ -17,9 +17,11 @@ class ViewAppPreview extends HTMLElement {
 document.write('<link rel="stylesheet" type="text/css" href="/admin/multiuser/webcomponents/ViewAppPreview.css">');
 document.write('<script src="/admin/multiuser/webcomponents/AppSetVariableModal.js"></script>');
 
-jt.updateAppPreview = function() {
+jt.updateAppPreview = function(appId) {
     $('#editAppOptionsModal').modal('hide');
-    var appId = $('#view-app-id').text();
+    if (appId == null) {
+        appId = $('#view-app-id').text();
+    }
     var optionEls = $('#editAppOptionsModal').find('[app-option-name]');
     var options = jt.deriveAppOptions(optionEls);
     jt.socket.emit('updateAppPreview', {appId: appId, options: options});
@@ -230,7 +232,21 @@ jt.funcEl = function(name, value) {
     return div;
 }
 
+jt.showAppTreeTreamtmentPanels = function(app) {
+    var panels = $('[panel-type="treatment-panel"]');
+    for (let i=0; i<panels.length; i++) {
+        const panel = $(panels[i]);
+        if (panel.attr('treatment-id')===app.id) {
+            jt.TreatmentPanel_SetTree(panel.find('panel-content'), app);
+        }
+    }
+}
+
 jt.showAppTree = function(app) {
+
+    jt.showAppTreeTreamtmentPanels(app);
+
+    return;
 
     var appSkip = ['id', 'appjs', 'clientHTML', 'options', 'stages', 'optionValues', 'keyComparisons', 'finished', 'indexInSession', 'periods'];
     var appDefaultVars = ['waitForAll', 'groupMatchingType', 'numPeriods', 'description']

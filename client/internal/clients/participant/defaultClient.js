@@ -180,7 +180,7 @@ jt.inIframe = function() {
 }
 
 window.onbeforeunload = function(ev) {
-    if (jt.inIframe()) {
+    if (!jt.inIframe()) {
         return 'Want to unload?';
     }
 };
@@ -272,7 +272,7 @@ jt.defaultConnected = function() {
             jt.setStageName(player.stage.id);
         }
         if (player.stageTimerTimeLeft > 0) {
-            // Must use timer duration. Cannot use server time, since no guarantee that client time is the same.
+            // Must use timer duration. Cannot use server start time, since no guarantee that client time is the same.
             var endTime = new Date().getTime() + player.stageTimerTimeLeft;
             jt.startClock(endTime);
         } else {

@@ -6,10 +6,8 @@
 
 4. The administrator window opens automatically in your browser.
 
-5. New session should be created automatically. If not, create one yourself.
+5. Switch to the "Apps" view. Press the blue play button next to the App you wish to run.
 
-6. Add an app.
+6. Set the number of participants.
 
-7. Set the number of participants.
-
-8. Click “start / advance slowest”.
+7. Click "Start".

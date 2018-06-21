@@ -178,21 +178,37 @@ jt.getClock = function(timeLeft) {
     if (duration < 0) {
         duration = 0;
     }
-    clock.milliseconds    = duration%1000
-    clock.seconds         = parseInt((duration/1000)%60)
-    clock.secondsNoMS     = clock.milliseconds > 0 ? clock.seconds + 1 : clock.seconds;
-    clock.minutes         = parseInt((duration/(1000*60))%60)
+
+    clock.milliseconds    = duration%1000;
+    clock.seconds         = parseInt((duration/1000)%60);
+    clock.minutes         = parseInt((duration/(1000*60))%60);
     clock.hours           = parseInt((duration/(1000*60*60))%24);
-    //    hours = (hours < 10) ? "0" + hours : hours;
-    //    minutes = (minutes < 10) ? "0" + minutes : minutes;
-    clock.secondsNoMSPadded = (clock.secondsNoMS < 10) ? "0" + clock.secondsNoMS : clock.secondsNoMS;
+
+    clock.noMS = {};
+    clock.noMS.seconds = clock.milliseconds > 0 ? clock.seconds + 1 : clock.seconds;
+    clock.noMS.minutes = clock.minutes;
+    clock.noMS.hours = clock.hours;
+    if (clock.noMS.seconds >= 60) {
+        clock.noMS.seconds = clock.noMS.seconds - 60;
+        clock.noMS.minutes = clock.noMS.minutes + 1;
+        if (clock.noMS.minutes >= 60) {
+            clock.noMS.hours = clock.noMS.hours + 1;
+        }
+    }
     return clock;
+}
+
+// https://stackoverflow.com/questions/10073699/pad-a-number-with-leading-zeros-in-javascript/10073788
+jt.pad = function(n, width, z) {
+  z = z || '0';
+  n = n + '';
+  return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
 }
 
 jt.displayTimeLeft = function(min, secs, timeLeft) {
     let clock = jt.getClock(timeLeft);
-    min.text(clock.minutes);
-    secs.text(clock.secondsNoMSPadded);
+    min.text(clock.noMS.minutes);
+    secs.text(jt.pad(clock.noMS.seconds, 2));
 }
 
 // Should be overwritten.

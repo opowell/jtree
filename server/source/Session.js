@@ -61,6 +61,7 @@ class Session {
         * @type number
         */
         this.timeStarted = 0;
+        this.started = false;
 
         /**
         * Whether or not clients can create a participant that does not exist yet.
@@ -98,7 +99,8 @@ class Session {
             'outputHide',
             'apps',
             'fileStream',
-            'asyncQueue'
+            'asyncQueue',
+            'started'
         ];
 
     }
@@ -548,6 +550,7 @@ class Session {
         for (var i=0; i<this.apps.length; i++) {
             this.apps[i].saveOutput(fn);
         }
+        return fs.readFileSync(fn, 'utf8');
     }
 
     /**
@@ -836,7 +839,7 @@ class Session {
         participant.save();
         this.save();
         this.participants[participantId] = participant;
-        this.jt.socketServer.sendOrQueueAdminMsg(null, 'add-participant', participant.shell());
+        this.jt.socketServer.sendOrQueueAdminMsg(null, 'addParticipant', participant.shell());
         return participant;
     }
 
@@ -942,6 +945,13 @@ class Session {
         } else {
             this.jt.log('not ending stage');
             this.clockTimerStart();
+        }
+    }
+
+    start() {
+        if (!this.started) {
+            this.started = true;
+            this.advanceSlowest();
         }
     }
 

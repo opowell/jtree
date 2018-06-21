@@ -57,14 +57,35 @@ class App {
         this.insertJtreeRefAtStartOfClientHTML = true;
 
         // Shown on all client screens.
-        this.html = '';
+        this.html = `
+            <!DOCTYPE html>
+            <html>
+                <head>
+                    <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+                </head>
+                <body>
+                    <p>Period: {{period.id}}/{{app.numPeriods}}</p>
+                    <p id='time-remaining-div'>Time left: {{clock.minutes}}:{{clock.seconds}}</p>
+                    <span jt-status='active'>
+                        {{stages}}
+                    </span>
+                    <span jt-status='waiting'>
+                        {{waiting-screen}}
+                    </span>
+                </body>
+            </html>
+        `;
+
         this.screen = '';
 
         // Shown on all client playing screens if stage.useAppActiveScreen = true.
         this.activeScreen = null;
 
         // Shown on all client waiting screens if stage.useAppWaitingScreen = true.
-        this.waitingScreen = null;
+        this.waitingScreen = `
+            <p>WAITING</p>
+            <p>The experiment will continue soon.</p>
+        `;
 
         // If 'htmlFile' is not null, content of 'htmlFile' is added to client content.
         // Otherwise, if 'htmlFile' is null, content of this.id + ".html" is added to client content, if it exists.
@@ -443,14 +464,6 @@ class App {
             `;
         }
 
-        if (app.waitingScreen != null) {
-            html += `
-            <span jt-status='waiting' class='waiting-screen'>
-                ${app.waitingScreen}
-            </span>
-            `;
-        }
-
         // Load stage contents, if any.
         var stagesHTML = '';
         for (var i=0; i<app.stages.length; i++) {
@@ -481,6 +494,10 @@ class App {
         }
         if (html.includes('{{stages}}')) {
             html = html.replace('{{stages}}', stagesHTML);
+        }
+
+        if (html.includes('{{waiting-screen}}') && app.waitingScreen != null) {
+            html = html.replace('{{waiting-screen}}', app.waitingScreen);
         }
 
         // Replace {{ }} markers.
@@ -970,7 +987,7 @@ class App {
         var fields = [];
         for (var prop in this) {
             if (
-                !Utils.isFunction(this[prop]) &&
+                App.prototype[prop] !== this[prop] &&
                 !this.outputHide.includes(prop) &&
                 !this.outputHideAuto.includes(prop)
             )
@@ -1198,7 +1215,11 @@ class App {
         var fields = this.outputFields();
         for (var f in fields) {
             var field = fields[f];
-            out[field] = this[field];
+            if (Utils.isFunction(this[field])) {
+                out['__func_' + field] = this[field].toString();
+            } else {
+                out[field] = this[field];
+            }
         }
         out.indexInSession = this.indexInSession();
         out.periods = [];

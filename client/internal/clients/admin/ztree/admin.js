@@ -234,10 +234,11 @@ jt.connected = function() {
   $('#menu-\\?').css('flex-grow', '1');
 
   jt.TableModal();
-
+  jt.SelectAppModal();
+  jt.HTMLEditorModal();
   jt.TreatmentPanel();
 
-  $('body').append(jt.selectAppModal());
+
 
 }
 

@@ -23,7 +23,8 @@ class clPlayer {
         if (group.stageTimer !== undefined) {
             this.stageTimerStart = group.stageTimer.timeStarted;
             this.stageTimerDuration = group.stageTimer.duration;
-            this.stageTimerTimeLeft = group.stageTimer.timeLeft;
+            let state = group.stageTimer.state();
+            this.stageTimerTimeLeft = state.timeLeft - state.timeElapsed;
             this.stageTimerRunning = group.stageTimer.running;
         }
 

@@ -16,14 +16,14 @@ class ViewSession extends HTMLElement {
     }
 }
 
-document.write('<script src="/admin/multiuser/webcomponents/ViewSessionActivity.js"></script>');
-document.write('<script src="/admin/multiuser/webcomponents/ViewSessionApps.js"></script>');
-document.write('<script src="/admin/multiuser/webcomponents/ViewSessionControls.js"></script>');
-document.write('<script src="/admin/multiuser/webcomponents/ViewSessionParticipants.js"></script>');
-document.write('<script src="/admin/multiuser/webcomponents/ViewSessionResults.js"></script>');
-document.write('<script src="/admin/multiuser/webcomponents/ViewSessionSettings.js"></script>');
-document.write('<script src="/admin/multiuser/webcomponents/ViewSessionTabs.js"></script>');
-document.write('<script src="/admin/multiuser/webcomponents/ViewSessionUsers.js"></script>');
+document.write('<script src="/admin/ztree/webcomponents/ViewSessionActivity.js"></script>');
+document.write('<script src="/admin/ztree/webcomponents/ViewSessionApps.js"></script>');
+document.write('<script src="/admin/ztree/webcomponents/ViewSessionControls.js"></script>');
+document.write('<script src="/admin/ztree/webcomponents/ViewSessionParticipants.js"></script>');
+document.write('<script src="/admin/ztree/webcomponents/ViewSessionResults.js"></script>');
+document.write('<script src="/admin/ztree/webcomponents/ViewSessionSettings.js"></script>');
+document.write('<script src="/admin/ztree/webcomponents/ViewSessionTabs.js"></script>');
+document.write('<script src="/admin/ztree/webcomponents/ViewSessionUsers.js"></script>');
 
 deleteParticipantBtn = function() {
     var pId = $('#deleteParticipantSelect').val();

@@ -63,6 +63,12 @@ class StaticServer {
             res.sendFile(path.join(self.jt.path, self.jt.settings.clientUI, '/room.html'));
         });
 
+        expApp.get('/session-download/:sId', function(req, res) {
+            var session = self.jt.data.session(req.params.sId);
+            var out = session.saveOutput();
+            res.send(out);
+        });
+
         expApp.get('/room/:rId/:pId', function(req, res) {
             var room = self.jt.data.room(req.params.rId);
             if (room.isValidPId(req.params.pId, req.params.hash)) {

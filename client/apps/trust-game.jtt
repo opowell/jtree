@@ -1,0 +1,69 @@
+app.description = 'Trust game.';
+
+app.groupSize   = 2;
+app.addNumberOption('p1endowment', 10, 1, null, 1);
+app.addNumberOption('multiplier', 3, 1, null, null);
+app.addNumberOption('numPeriods', 3, 1, null, 1);
+app.addSelectOption('groupMatchingType', ['PARTNER_RANDOM', 'STRANGER']);
+
+var p1propose = app.newStage('p1send');
+p1propose.canPlayerParticipate = function(player) {
+    return player.idInGroup === 1;
+}
+p1propose.activeScreen = `
+<p>SEND TO P2</p>
+<p>You have E$ {{app.p1endowment}}. Choose the amount you choose to send to Player 2.</p>
+<form>
+    <p>The amount you choose to send to Player 2 (E$): <input id='p1send' name='player.send' required type='number' min='0' jt-max='app.p1endowment' step='1'></p>
+    <button>OK</button>
+</form>
+`;
+
+var p2choose = app.newStage('p2return');
+p2choose.canPlayerParticipate = function(player) {
+    return player.idInGroup === 2;
+}
+p2choose.groupStart = function(group) { // when a group starts this stage
+    var p1 = group.playerWithId(1);
+    // Amount between 0 and app.p1endowment for p1 to keep.
+    group.p1send = p1.send;
+    group.p2received = p1.send * app.multiplier;
+}
+p2choose.activeScreen = `
+<p>RETURN TO P1</p>
+<p>Player 1 sent you E$<span jt-text='group.p1send'></span>. This amount was multiplied by the multiplier (<span jt-text='app.multiplier'></span>), so in total you have
+    E$<span jt-text='group.p2received'></span>.
+<p>Choose the amount you choose to return to Player 1.</p>
+<form>
+    <p>The amount you choose to return to Player 1 (E$): <input id='p2return' name='player.return' required type='number' min='0' jt-max='group.p2received' step='1'></p>
+    <button>OK</button>
+</form>
+`;
+
+var resultsStage = app.newStage('results');
+resultsStage.duration = 30; // in seconds
+resultsStage.groupStart = function(group) { // when a group starts this stage
+    var p1 = group.playerWithId(1);
+    var p2 = group.playerWithId(2);
+
+    group.p2return = p2.return;
+
+    p1.points = app.p1endowment - p1.send + p2.return;
+    p2.points = group.p2received - p2.return;
+
+    group.p1points = p1.points;
+    group.p2points = p2.points;
+}
+resultsStage.activeScreen = `
+<p>Time left: <span jt-text='clock.minutes'>mm</span>:<span jt-text='clock.seconds'></span></p>
+<p>RESULTS</p>
+<p>Player 1 started with an endowment of E$<span jt-text='app.p1endowment'></span>.</p>
+<p>Player 1 sent E$<span jt-text='group.p1send'></span> to Player 2.</p>
+<p>This amount was multiplied by the multiplier (<span jt-text='app.multiplier'></span>), so in total Player 2 received
+    E$<span jt-text='group.p2received'></span>.</p>
+<p>Player 2 chose to return E$<span jt-text='group.p2return'></span>, therefore the payoffs are E$<span jt-text='group.p1points'></span> for Player 1
+    and E$<span jt-text='group.p2points'></span> for Player 2.</p>
+<form>
+    <button>OK</button>
+</form>    
+`;

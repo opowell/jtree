@@ -1,3 +1,7 @@
+##### 0.5.4
+- Fixed docs.
+- Client: fixed duration timer not displaying correctly.
+
 ##### 0.5.3
 - Add: Client onClockUpdate function.
 

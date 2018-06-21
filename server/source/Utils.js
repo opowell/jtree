@@ -162,6 +162,46 @@ class Utils {
         return Utils.randomEls(array, 1)[0];
     }
 
+    // https://stackoverflow.com/questions/9960908/permutations-in-javascript
+    static permutations(inputArr) {
+      let result = [];
+      const permute = function(arr, m, result) {
+        if (arr.length === 0) {
+          result.push(m);
+        } else {
+          for (let i = 0; i < arr.length; i++) {
+            let curr = arr.slice();
+            let next = curr.splice(i, 1);
+            permute(curr.slice(), m.concat(next), result);
+         }
+       }
+     }
+     permute(inputArr, [], result);
+     return result;
+    }
+
+    static shuffle(array) {
+
+        // https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array
+        let counter = array.length;
+
+        // While there are elements in the array
+        while (counter > 0) {
+            // Pick a random index
+            let index = this.randomInt(0, counter);
+
+            // Decrease counter by 1
+            counter--;
+
+            // And swap the last element with it
+            let temp = array[counter];
+            array[counter] = array[index];
+            array[index] = temp;
+        }
+
+        return array;
+    }
+
     /**
     * Random draws without replacement
     */

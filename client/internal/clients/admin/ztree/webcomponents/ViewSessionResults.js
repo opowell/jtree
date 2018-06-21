@@ -58,7 +58,7 @@ jt.updateChartPage = function() {
 }
 
 jt.chartVar = function() {
-
+    return;
     var colors = [
         "#3e95cd", '#3366cc', '#dc3912', '#ff9900', '#109618', '#990099',
         '#0099c6', '#dd4477', '#66aa00', '#b82e2e', '#316395', '#3366cc'

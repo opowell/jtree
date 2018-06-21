@@ -19,7 +19,7 @@ jt.keyBindings = [
 jt.bindKey = function(item) {
     console.log('binding ' + item.key + ' to ' + item.fn);
     $(document).bind('keydown', item.key, function(event) {
-        console.log('binding ' + item.key + ' to ' + item.fn);
+        console.log('executing ' + item.key + ' for ' + item.fn);
         event.preventDefault();
         event.stopPropagation();
         jt.closeMenu();

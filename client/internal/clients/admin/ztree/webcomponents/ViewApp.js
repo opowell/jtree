@@ -85,7 +85,7 @@ class ViewApp extends HTMLElement {
     }
 }
 
-document.write('<script src="/admin/multiuser/webcomponents/ViewAppPreview.js"></script>');
+document.write('<script src="/admin/ztree/webcomponents/ViewAppPreview.js"></script>');
 
 jt.resizeIFrameToFitContent = function(iframe) {
     $(iframe).prop('height', null);

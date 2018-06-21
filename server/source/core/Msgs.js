@@ -249,6 +249,18 @@ class Msgs {
     }
 
     /*
+     * Advance all participants who have not started the session yet. Calls {@link Session#advanceSlowest}.
+     *
+     * @param  {string} id The id of the session.
+     */
+    sessionStart(id) {
+        var session = Utils.findByIdWOJQ(this.jt.data.sessions, id);
+        if (session !== null) {
+            session.start();
+        }
+    }
+
+    /*
      * Advances the slowest participants in the given session. Calls {@link Session#advanceSlowest}.
      *
      * @param  {string} id The id of the session.

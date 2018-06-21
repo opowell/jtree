@@ -1,0 +1,57 @@
+app.description = 'Travellers dilemma. In pairs, players choose a number between two bounds. Players receive the lower of the two chosen numbers, and the player who chose the lower number receives a bonus.';
+
+app.addPositiveIntegerOption('numPeriods', 4);
+app.addSelectOption('groupMatchingType', ['STRANGER', 'PARTNER_RANDOM']);
+app.groupSize   = 2;
+app.lowerBound  = 10;
+app.upperBound  = 50;
+app.bonus       = 10;
+
+var decideStage = app.newStage('decide');
+decideStage.activeScreen = `
+<p>DECISION</p>
+<form>
+    <p>Choose an integer between {{app.lowerBound}} and {{app.upperBound}}: <input name='player.number' required type='number' jt-min='app.lowerBound' jt-max='app.upperBound' step='1'></p>
+    <button>OK</button>
+</form>
+`;
+var resultsStage = app.newStage('results');
+resultsStage.groupStart = function(group) { // when a group starts this stage
+
+    // Find winning number.
+    group.lowestNumber = Utils.min(group.players, 'number');
+
+    // Assign points
+    group.payBonus = false;
+    for (var i in group.players) {
+        var player = group.players[i];
+        player.points = group.lowestNumber;
+        if (player.number > group.lowestNumber) {
+            group.payBonus = true;
+        }
+    }
+
+    // Pay bonus, if necessary.
+    if (group.payBonus) {
+        for (var i in group.players) {
+            var player = group.players[i];
+            player.points = group.lowestNumber;
+            if (player.number > group.lowestNumber) {
+                player.points = player.points - app.bonus;
+            } else {
+                player.points = player.points + app.bonus;
+            }
+        }
+    }
+}
+resultsStage.activeScreen = `
+<p>RESULTS</p>
+<p>Your number was {{player.number}}.</p>
+<p>The lowest number in your group was {{group.lowestNumber}}.</p>
+<p jt-displayIf='player.points===1'>Your guess was one of the lowest in your group.</p>
+<p jt-displayIf='player.points===0'>Your guess was not one of the lowest in your group.</p>
+<p>Thus, your payoff in this period is <span jt-text='player.points' jt-decimals=2>Z</span> points.</p>
+<form>
+    <button>OK</button>
+</form>
+`;

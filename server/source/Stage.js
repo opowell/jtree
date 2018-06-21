@@ -77,9 +77,9 @@ class Stage {
         // 'outputHide' fields are not included in output
         this.outputHide = [];
         // 'outputHideAuto' fields are not included in output.
-        this.outputHideAuto = ['app', 'outputHide', 'outputHideAuto', 'content', 'html', 'htmlFile', 'useIdAsHTMLFileName'];
+        this.outputHideAuto = ['app', 'outputHide', 'outputHideAuto', 'html', 'htmlFile', 'useIdAsHTMLFileName'];
 
-        this.content = null;
+        this.activeScreen = null;
 
         this.html = null;
         this.htmlFile = null;
@@ -235,11 +235,12 @@ class Stage {
         return true;
     }
 
-    getContent() {
-        if (this.content == null) {
-            this.content = getStageContents(this.app.id, this.id)
+    getActiveScreen() {
+
+        if (this.activeScreen == null) {
+            this.activeScreen = Utils.getStageContents(this.app.id, this.id)
         }
-        return this.content;
+        return this.activeScreen;
     }
 
     /**
