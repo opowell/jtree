@@ -68,5 +68,5 @@ jt.showModal = function(id) {
 }
 
 jt.closeModal = function() {
-    $('.modal.modal-show').removeClass('modal-show');
+    $('.modal.show').removeClass('modal-show');
 }

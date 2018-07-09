@@ -5,12 +5,14 @@ jt.HTMLEditorModal = function() {
 
     var body = out.find('.modal-body');
 
-    body.append(`<div id='app-editor' style='height: 87vh; width: 100%;'></div>`);
+    let editor = `<div id='html-editor' style='height: 87vh; width: 100%;'></div>`;
+
+    body.append(editor);
 
     var right = jt.StandardBox(body);
     jt.Button('OK', function(ev) {
         ev.stopPropagation();
-        jt.storeTableInfo();
+        jt.storeHTML();
         jt.closeModal();
     }, right);
 
@@ -18,8 +20,20 @@ jt.HTMLEditorModal = function() {
         ev.stopPropagation();
         jt.closeModal();
     }, right);
+
+    ace.edit(editor, {
+        mode: 'ace/mode/javascript',
+        selectionStyle: 'text'
+    });
 };
 
-jt.HTMLEditorModal_editData(data) {
+jt.HTMLEditorModal_editData = function(data) {
+    var editor = ace.edit('html-editor')
+    editor.setValue(data);
+    editor.setSe
     $('#html-editor-modal').modal('show');
+}
+
+jt.storeHTML = function() {
+    
 }
