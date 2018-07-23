@@ -70,6 +70,7 @@ app.endowmentCash = 24*app.numPeriods*app.endowmentShares;
 
 var tradingStage = app.newStage('trading');
 tradingStage.duration = app.tradingTime;
+tradingStage.wrapPlayingScreenInFormTag = false;
 tradingStage.groupStart = function(group) {
     group.addTable('offers');
 }
