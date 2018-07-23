@@ -1,0 +1,100 @@
+app.description = 'Real-effort task, in which subjects have a fixed amount of time to calculate sums of numbers.';
+
+app.resultsTime = 30; // in seconds.
+
+app.addNumberOption('workTime', 120, 0, null, 1);
+app.addNumberOption('numbersPerProblem', 3, 0, null, 1);
+app.addNumberOption('maxNumber', 100, 0, null, 1);
+app.addNumberOption('numProblems', 40, 0, null, 1);
+
+app.numbers = [];
+for (var i=0; i<app.numProblems; i++) {
+    var problem = [];
+    for (var j=0; j<app.numbersPerProblem; j++) {
+        problem.push(Utils.randomInt(0, app.maxNumber));
+    }
+    app.numbers.push(problem);
+}
+
+app.html = `
+    <p>You are player <span jt-text='player.idInGroup'></span> in your group.</p>
+    <span jt-status='active'>
+    {{stages}}
+    </span>
+
+    <span jt-status='waiting'>
+    {{waiting-screen}}
+    </span>
+
+    <script>
+    // Run once the client page is loaded.
+    jt.connected = function() {
+        // Listen to messages from server
+        jt.socket.on('playerUpdate', function(player) {
+            var numbers = player.group.period.app.numbers;
+            $('#tasksDiv').empty(); // This message can be received multiple times at beginning of stage, will be fixed in future release.
+            for (let i=0; i<numbers.length; i++) {
+                var el = $('<div>').text(numbers[i]);
+                var input = $('<input name="player.A' + (i+1) + '" type="number">');
+                var parEl = $('<p>');
+                parEl.append(el);
+                parEl.append(input);
+                $('#tasksDiv').append(parEl);
+            }
+        });
+    }
+    </script>
+`;
+
+
+// Answers are recorded as player.A1, player.A2, etc.
+var workStage = app.newStage('work');
+workStage.duration = app.workTime;
+
+workStage.activeScreen = `
+    <p>TASKS</p>
+    <p>Calculate as many of the following sums as you can before time runs out.
+    <p>Time left: <span jt-text='clock.minutes'>mm</span>:<span jt-text='clock.seconds'></span></p>
+    <form>
+        <div id='tasksDiv'></div>
+        <button>OK</button>
+    </form>
+`;
+
+var resultsStage = app.newStage('results');
+
+resultsStage.activeScreen = `
+
+<p>RESULTS</p>
+<p>You calculated <span jt-text='player.points'></span> sums correctly.</p>
+<form>
+    <button>OK</button>
+</form>
+
+`;
+resultsStage.duration = app.resultsTime;
+resultsStage.playerStart = function(player) { // when a player starts this stage
+
+    let app = player.app();
+
+    // For each correct answer, increment player points by 1.
+    for (let i=0; i<app.numbers.length; i++) {
+
+        // the problem.
+        let prob = app.numbers[i];
+
+        // calculate the answer.
+        let ans = 0;
+        for (let j=0; j<prob.length; j++) {
+            ans = prob[j] + ans;
+        }
+
+        // check if player's answer is correct.
+        if (ans === player['A' + (i+1)]) {
+            player.points++;
+        }
+    }
+
+    player.participant.score = player.points;
+
+}
