@@ -1,3 +1,7 @@
+##### 0.6.0
+- Show # of participants in UI.
+- various model fixes.
+
 ##### 0.5.4
 - Fixed docs.
 - Client: fixed duration timer not displaying correctly.

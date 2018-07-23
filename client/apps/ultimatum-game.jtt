@@ -1,0 +1,75 @@
+app.groupSize   = 2;
+app.pieSize     = 100;
+app.numPeriods  = 5;
+
+var p1propose = app.newStage('p1propose');
+p1propose.canPlayerParticipate = function(player) {
+    return player.idInGroup === 1;
+}
+p1propose.activeScreen = `
+<p>CHOOSE</p>
+<p>You are Player <span jt-text='player.idInGroup'></span>. The pie size is <span jt-text='app.pieSize'></span>. Choose your offer.</p>
+<form>
+    <p>Your offer to Player 2 (E$): <input name='player.offerToP2' required type='number' min='0' jt-max='app.pieSize' step='1'></p>
+    <button>Make offer</button>
+</form>
+`;
+p1propose.groupEnd = function(group) {
+
+    // Find first player in group, idInGroup == 1.
+    var p1 = group.playerWithId(1);
+
+    // Store the offer.
+    group.offerForP1 = group.app().pieSize - p1.offerToP2;
+    group.offerForP2 = p1.offerToP2;
+}
+
+// p2 chooses to accept or reject the offer.
+var p2choose = app.newStage('p2choose');
+p2choose.waitToStart = true;
+p2choose.canPlayerParticipate = function(player) {
+    return player.idInGroup === 2;
+}
+p2choose.activeScreen = `
+<p>CHOOSE</p>
+<p>You are Player {{player.idInGroup}}. The pie size is <span jt-text='app.pieSize'></span>.</p>
+<p>Player 1 offered {{group.offerForP2}} to you, and to keep {{group.offerForP1}} for themselves.</p>
+<p>Choose your action.</p>
+<form>
+    <button name='player.choice' value='ACCEPT' type='submit'>Accept</button>
+    <button name='player.choice' value='REJECT' type='submit'>Reject</button>
+</form>
+`;
+
+
+var resultsStage = app.newStage('results');
+
+// calculate and display payoffs
+resultsStage.groupStart = function(group) {
+    var p1 = group.playerWithId(1);
+    var p2 = group.playerWithId(2);
+
+    // P2's choice, either "ACCEPT" or "REJECT".
+    group.p2choice = p2.choice;
+
+    if (group.p2choice === 'ACCEPT') {
+        p1.points = group.offerForP1;
+        p2.points = group.offerForP2;
+    } else {
+        p1.points = 0;
+        p2.points = 0;
+    }
+    group.p1points = p1.points;
+    group.p2points = p2.points;
+}
+resultsStage.activeScreen = `
+<p>RESULTS</p>
+<p>You are Player {{player.idInGroup}}. The pie size is <span jt-text='app.pieSize'></span>.</p>
+<p>Player 1 offered {{group.offerForP1}} points for Player 1, and {{group.offerForP2}} points for Player 2.</p>
+<p>Player 2 chose to {{group.p2choice}} this proposal, therefore the payoffs were {{group.p1points}} for Player 1
+    and {{group.p2points}} for Player 2.</p>
+<p>YOUR POINTS FROM THIS PERIOD: {{player.points}}.</p>
+<form>
+    <button>OK</button>
+</form>
+`;

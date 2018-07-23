@@ -21,7 +21,7 @@ decideStage.activeScreen = `
         <p>Guess an integer between {{app.lowerBound}} and {{app.upperBound}}: <input name='player.guess' required type='number' jt-min='app.lowerBound' jt-max='app.upperBound' step='1'></p>
         <button>Make guess</button>
     </form>
-`
+`;
 
 var resultsStage = app.newStage('results');
 resultsStage.duration = 30; // in seconds

@@ -3,6 +3,11 @@ app.description = 'Simple questionnaire.';
 // DEFINE STAGES
 var questionsStage = app.newStage('questions');
 questionsStage.activeScreen = `
+<script>
+showSliderVal = function(val) {
+    $("#sliderVal").text(val);
+}
+</script>
 <h4>QUESTIONS</h4>
 <form>
     <p>1. Type in some text:</p>

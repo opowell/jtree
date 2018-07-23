@@ -3,10 +3,10 @@ REM - 7z.exe and 7z.dll
 REM - jsdoc
 REM - pkg
 
-REM Assumes main folder is one level up from this file.
+REM Call from root folder (/jtree), which should be one level up from this file (jtree/build-tools/buildJTree.bat).
 
 REM Should match what is in server/jtree.js and doc-pages/release-notes.md.
-set "vers=0.5.3"
+set "vers=0.6.0"
 
 REM ------- Prepare output folder.
 call del ".\releases\%vers%" /Q /F
@@ -24,15 +24,12 @@ call xcopy ".\client\apps\beauty-contest.jtt" ".\releases\%vers%\apps\" /E
 call xcopy ".\client\apps\centipede.jtt" ".\releases\%vers%\apps\" /E
 call xcopy ".\client\apps\dictator-game.jtt" ".\releases\%vers%\apps\" /E
 call xcopy ".\client\apps\display-profit.jtt" ".\releases\%vers%\apps\" /E
-call xcopy ".\client\apps\double-auction\" ".\releases\%vers%\apps\double-auction\" /E
 call xcopy ".\client\apps\enter-id.jtt" ".\releases\%vers%\apps\" /E
 call xcopy ".\client\apps\language-test.jtt" ".\releases\%vers%\apps\" /E
 call xcopy ".\client\apps\market-entry-game.jtt" ".\releases\%vers%\apps\" /E
 call xcopy ".\client\apps\public-good.jtt" ".\releases\%vers%\apps\" /E
 call xcopy ".\client\apps\public-good-w-punish.jtt" ".\releases\%vers%\apps\" /E
 call xcopy ".\client\apps\questionnaire.jtt" ".\releases\%vers%\apps\" /E
-call xcopy ".\client\apps\questionnaire-bootstrap.jtt" ".\releases\%vers%\apps\" /E
-call xcopy ".\client\apps\real-effort-sums.jtt" ".\releases\%vers%\apps\" /E
 call xcopy ".\client\apps\stag-hunt-game.jtt" ".\releases\%vers%\apps\" /E
 call xcopy ".\client\apps\travellers-dilemma.jtt" ".\releases\%vers%\apps\" /E
 call xcopy ".\client\apps\trust-game.jtt" ".\releases\%vers%\apps\" /E
