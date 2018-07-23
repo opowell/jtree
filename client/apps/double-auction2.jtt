@@ -1,327 +1,301 @@
 app.html = `
-<!DOCTYPE html>
-<html>
-    <head>
+    <!DOCTYPE html>
+    <html>
+        <head>
 
-      <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
-      <script type="text/javascript" src='/participant/jtree.js'></script>
-      <script type="text/javascript" src="/double-auction/client.js"></script>    <!-- Client behavior for this app -->
-      <script type="text/javascript" src="/shared/popper.min.js"></script>
-      <script type="text/javascript" src="/shared/bootstrap.min.js"></script>
-      <script type="text/javascript" src="/shared/chartjs/Chart.bundle.min.js"></script>
-        <link rel="stylesheet" type="text/css" href="/double-auction/client.css">      <!-- Default styles for the client -->
-        <link rel="stylesheet" type="text/css" href="/shared/bootstrap.min.css">      <!-- Default styles for the client -->
+          <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+          <script type="text/javascript" src='/participant/jtree.js'></script>
+          <script type="text/javascript" src="/double-auction/client.js"></script>    <!-- Client behavior for this app -->
+          <script type="text/javascript" src="/shared/popper.min.js"></script>
+          <script type="text/javascript" src="/shared/bootstrap.min.js"></script>
+          <script type="text/javascript" src="/shared/chartjs/Chart.bundle.min.js"></script>
+          <link rel="stylesheet" type="text/css" href="/double-auction/client.css">      <!-- Default styles for the client -->
+          <link rel="stylesheet" type="text/css" href="/shared/bootstrap.min.css">      <!-- Default styles for the client -->
 
+        </head>
 
-    </head>
+        <body>
 
-    <body>
+                <div jt-status='playing'>
+                  {{stages}}
+                </div>
 
-            <div jt-status='active' class='tradingDiv' jt-stage='trading'>
-              {{trading}}
+                <div jt-status='waiting' class='box'>
+                  {{waiting-screen}}
+                </div>
 
-            </div>
-
-            <div jt-status='playing'>
-              {{playing-screen}}
-
-            </div>
-
-            <div jt-status='waiting' class='box'>
-              {{waiting-screen}}
-            </div>
-
-</body>
-
-
-
-
-
-
-        app.description = 'Shares are traded for experimental currency in a double auction. Shares pay random dividends every period. At the end of the game, shares are worth nothing. Reference: <a target="_blank" href="https://www.jstor.org/stable/1911361">Smith, Suchanek and Williams, 1988</a>.';
-        app.addSelectOption('mode', ['paid', 'paid']);
-
-        // Define parameters.
-        if (app.mode == 'practice') {
-            app.numPeriods = 1;
-            app.periodsText = 'PRACTICE';
-            app.tradingTime = 900;
-            app.endowments = [
-                {
-                    cash: 3600,
-                    shares: 10
-                },
-                {
-                    cash: 3600,
-                    shares: 10
-                }
-            ];
-        } else {
-            app.numPeriods = 15;
-            app.periodsText = '';
-            app.tradingTime = 12;
-            app.endowments = [
-                {
-                    cash: 225,
-                    shares: 3
-                },
-                {
-                    cash: 945,
-                    shares: 1
-                }
-            ]
-        }
-        app.divs        = [0, 8, 28, 60];
-
-
-
-
-
-        var tradingStage = app.newStage('trading');
-        tradingStage.duration = app.tradingTime;
-        tradingStage.groupStart = function(group) {
-            group.addTable('offers');
-        }
-        tradingStage.waitOnTimerEnd = false;
-        tradingStage.playerStart = function(player) { // when a player starts this stage.
-            var app = player.stage.app;
-            // First trading period
-            if (player.periodIndex() == 1) {
-                player.type     = player.idInGroup % 2;
-                player.cash     = app.endowments[player.type].cash;
-                player.shares   = app.endowments[player.type].shares;
-            }
-            // Other trading period
-            else {
-                player.cash     = player.old().cash;
-                player.shares   = player.old().shares;
-            }
-        }
-
-tradingStage.activeScreen = `
-<div id='infoDiv' class='box'>
-    <div id='timeDiv'>
-        <span style='flex: 1 1 auto;'>
-            <span data-toggle="tooltip" title="The number of periods remaining in this experiment.">
-                Period:
-            </span>
-            <span jt-text='period.id'>-</span>/<span jt-text='app.numPeriods'>-</span>
-        </span>
-        <span id='time-remaining-div'>
-            <span data-toggle="tooltip" title="The time remaining in the current period.">
-                Time:
-            </span>
-            <span jt-text='clock.minutes'>mm</span>:<span jt-text='clock.seconds'>ss</span>
-        </span>
-    </div>
-    <hr>
-    <!-- Variables for the player/group/period/app are displayed automatically. -->
-    <div id='inventory' style='display: flex'>
-        <span style='display: flex; flex-direction: column; flex: 1 1 auto; align-items: flex-start;'>
-            <span jt-text='player.cash' jt-decimals=0 style='font-size: 48pt;'>xx</span>
-            <span data-toggle="tooltip" title="The amount of cash you have. Exchanged for EUR at the end of the experiment.">
-                Cash (E$)
-            </span>
-        </span>
-        <span style='display: flex; flex-direction: column; flex: 1 1 auto; align-items: flex-start;'>
-            <span jt-text='player.shares' style='font-size: 48pt;'>xx</span>
-            <span data-toggle="tooltip" title="The amount of shares you have. Shares pay dividends at the end of every period.">
-                Shares
-            </span>
-        </span>
-    </div>
-</div>
-<div class='box' style='display: flex;'>
-    <div id='otbDiv' style='padding-right: 2rem; border-right: 1px solid rgba(0,0,0,.1);'>
-        <h5>Make offer</h5>
-        <div>
-            Enter buy price (E$):
-            <input id='offerToBuyPrice' type='number' min='1' jt-max='player.cash' step='1' oninput='checkIfValidOTBPrice()' onkeyup='checkIfValidOTBPrice()'>
-        </div>
-        <button id='makeOTBButton' onclick='makeOfferToBuy()'>Make buy offer</button>
-        <br>
-        <br>
-        <div>
-            Enter sell price (E$):
-            <input id='offerToSellPrice' type='number' min='1' max='1000' step='1' oninput='checkIfValidOTSPrice()' onkeyup='checkIfValidOTSPrice()'>
-        </div>
-        <button id='makeOTSButton' onclick='makeOfferToSell()'>Make sell offer</button>
-    </div>
-    <div id='otsDiv' style='padding-left: 2rem; border-right: 1px solid rgba(0,0,0,.1); padding-right: 2rem;'>
-        <h5>Available offers to buy</h5>
-        <div>
-            <select id='selectOTB' jt-table='offers' jt-show='price' jt-decimals='2' jt-sortasc='price' jt-filter='row.open && row.seller === undefined' size=5 style='width: 100px'></select>
-        </div>
-        <span>
-            <button jt-select='selectOTB' jt-action='acceptOTB' jt-enabledIf='selRow !== null && selRow.makerPId !== player.id && player.shares > 0'>Accept</button>
-            <button jt-select='selectOTB' jt-action='cancelOffer' jt-enabledIf='selRow !== null && selRow.makerPId === player.id'>Cancel</button>
-        </span>
-    </div>
-    <div style='padding-left: 2rem;'>
-        <h5>Available offers to sell</h5>
-        <div>
-            <select id='selectOTS' jt-table='offers' jt-show='price' jt-decimals='2' jt-sortdesc='price' jt-filter='row.open && row.buyer === undefined' size=5 style='width: 100px'></select>
-        </div>
-        <span>
-            <button jt-select='selectOTS' jt-action='acceptOTS' jt-enabledIf='selRow !== null && selRow.makerPId !== player.id && player.cash >= selRow.price'>Accept</button>
-            <button jt-select='selectOTS' jt-action='cancelOffer' jt-enabledIf='selRow !== null && selRow.makerPId === player.id'>Cancel</button>
-        </span>
-    </div>
-</div>
-<div class='box'>
-    <table class='table table-sm table-hover'>
-        <thead>
-            <tr>
-                <th>Period</th>
-                <th>Divs. left</th>
-                <th>E(d)</th>
-                <th>FV</th>
-            </tr>
-        </thead>
-        <tbody id='fvTable'>
-        </tbody>
-    </table>
-</div>
-<div class='box'>
-    <canvas id="tradesChart" width="800" height="400"></canvas>
-</div>
-
-</div>
-
-
-
-
-        if (app.mode === 'paid') {
-            var resultsStage = app.newStage('results');
-            resultsStage.duration = 10; // in seconds
-            resultsStage.waitOnTimerEnd = false;
-            resultsStage.groupStart = function(group) { // when a group starts this stage
-                group.dividendDraw = Utils.randomEl(app.divs);
-                for (var i in group.players) { // i = 0, 1, 2, 3
-                    var player = group.players[i];
-                    player.dividends = player.shares * group.dividendDraw;
-                    player.cash = player.cash + player.dividends;
-                    // Points only recorded for last period.
-                    if (group.period.id === group.app().numPeriods) {
-                        player.points = player.cash;
-                    }
-                }
-            }
-        }
-
-
-resultsStage.playingScreen = `
-        <h5>Results</h5>
-        <div>
-            <span data-toggle="tooltip" title="The number of periods remaining in this experiment.">
-                Period:
-            </span>
-            <span jt-text='period.id'>-</span>/<span jt-text='app.numPeriods'>-</span>
-        </div>
-        <div>
-            <span data-toggle="tooltip" title="The time remaining in the current period.">
-                Time:
-            </span>
-            <span jt-text='clock.minutes'>mm</span>:<span jt-text='clock.seconds'>ss</span>
-        </div>
-        <br>
-        <div>The dividend draw in this period (E$/share): <span jt-text='group.dividendDraw'></span>.</div>
-        <div>Dividends (E$): <span jt-text='player.dividends'></span>.</div>
-        <div>Cash (E$): <span jt-text='player.cash' jt-decimals=2></span>.</div>
-        <div>Shares: <span jt-text='player.shares'></span>.</div>
-        <!-- <form>
-            <button type='submit'>OK</button>
-        </form> -->
-    </div>
-
+        </body>
+    </html>
 `;
 
+app.description = 'Shares are traded for experimental currency in a double auction. Shares pay random dividends every period. At the end of the game, shares are worth nothing. Reference: <a target="_blank" href="https://www.jstor.org/stable/1911361">Smith, Suchanek and Williams, 1988</a>.';
 
+// Define parameters.
+if (app.mode == 'practice') {
+    app.numPeriods = 1;
+    app.periodsText = 'PRACTICE';
+    app.tradingTime = 900;
+    app.endowments = [
+        {
+            cash: 3600,
+            shares: 10
+        },
+        {
+            cash: 3600,
+            shares: 10
+        }
+    ];
+} else {
+    app.numPeriods = 15;
+    app.periodsText = '';
+    app.tradingTime = 12;
+    app.endowments = [
+        {
+            cash: 225,
+            shares: 3
+        },
+        {
+            cash: 945,
+            shares: 1
+        }
+    ]
+}
+app.divs        = [0, 8, 28, 60];
 
+var tradingStage = app.newStage('trading');
+tradingStage.duration = app.tradingTime;
+tradingStage.groupStart = function(group) {
+    group.addTable('offers');
+}
+tradingStage.waitOnTimerEnd = false;
+tradingStage.playerStart = function(player) { // when a player starts this stage.
+    var app = player.stage.app;
+    // First trading period
+    if (player.periodIndex() == 1) {
+        player.type     = player.idInGroup % 2;
+        player.cash     = app.endowments[player.type].cash;
+        player.shares   = app.endowments[player.type].shares;
+    }
+    // Other trading period
+    else {
+        player.cash     = player.old().cash;
+        player.shares   = player.old().shares;
+    }
+}
 
+tradingStage.activeScreen = `
+    <div id='infoDiv' class='box'>
+        <div id='timeDiv'>
+            <span style='flex: 1 1 auto;'>
+                <span data-toggle="tooltip" title="The number of periods remaining in this experiment.">
+                    Period:
+                </span>
+                <span jt-text='period.id'>-</span>/<span jt-text='app.numPeriods'>-</span>
+            </span>
+            <span id='time-remaining-div'>
+                <span data-toggle="tooltip" title="The time remaining in the current period.">
+                    Time:
+                </span>
+                <span jt-text='clock.minutes'>mm</span>:<span jt-text='clock.seconds'>ss</span>
+            </span>
+        </div>
+        <hr>
+        <!-- Variables for the player/group/period/app are displayed automatically. -->
+        <div id='inventory' style='display: flex'>
+            <span style='display: flex; flex-direction: column; flex: 1 1 auto; align-items: flex-start;'>
+                <span jt-text='player.cash' jt-decimals=0 style='font-size: 48pt;'>xx</span>
+                <span data-toggle="tooltip" title="The amount of cash you have. Exchanged for EUR at the end of the experiment.">
+                    Cash (E$)
+                </span>
+            </span>
+            <span style='display: flex; flex-direction: column; flex: 1 1 auto; align-items: flex-start;'>
+                <span jt-text='player.shares' style='font-size: 48pt;'>xx</span>
+                <span data-toggle="tooltip" title="The amount of shares you have. Shares pay dividends at the end of every period.">
+                    Shares
+                </span>
+            </span>
+        </div>
+    </div>
+    <div class='box' style='display: flex;'>
+        <div id='otbDiv' style='padding-right: 2rem; border-right: 1px solid rgba(0,0,0,.1);'>
+            <h5>Make offer</h5>
+            <div>
+                Enter buy price (E$):
+                <input id='offerToBuyPrice' type='number' min='1' jt-max='player.cash' step='1' oninput='checkIfValidOTBPrice()' onkeyup='checkIfValidOTBPrice()'>
+            </div>
+            <button id='makeOTBButton' onclick='makeOfferToBuy()'>Make buy offer</button>
+            <br>
+            <br>
+            <div>
+                Enter sell price (E$):
+                <input id='offerToSellPrice' type='number' min='1' max='1000' step='1' oninput='checkIfValidOTSPrice()' onkeyup='checkIfValidOTSPrice()'>
+            </div>
+            <button id='makeOTSButton' onclick='makeOfferToSell()'>Make sell offer</button>
+        </div>
+        <div id='otsDiv' style='padding-left: 2rem; border-right: 1px solid rgba(0,0,0,.1); padding-right: 2rem;'>
+            <h5>Available offers to buy</h5>
+            <div>
+                <select id='selectOTB' jt-table='offers' jt-show='price' jt-decimals='2' jt-sortasc='price' jt-filter='row.open && row.seller === undefined' size=5 style='width: 100px'></select>
+            </div>
+            <span>
+                <button jt-select='selectOTB' jt-action='acceptOTB' jt-enabledIf='selRow !== null && selRow.makerPId !== player.id && player.shares > 0'>Accept</button>
+                <button jt-select='selectOTB' jt-action='cancelOffer' jt-enabledIf='selRow !== null && selRow.makerPId === player.id'>Cancel</button>
+            </span>
+        </div>
+        <div style='padding-left: 2rem;'>
+            <h5>Available offers to sell</h5>
+            <div>
+                <select id='selectOTS' jt-table='offers' jt-show='price' jt-decimals='2' jt-sortdesc='price' jt-filter='row.open && row.buyer === undefined' size=5 style='width: 100px'></select>
+            </div>
+            <span>
+                <button jt-select='selectOTS' jt-action='acceptOTS' jt-enabledIf='selRow !== null && selRow.makerPId !== player.id && player.cash >= selRow.price'>Accept</button>
+                <button jt-select='selectOTS' jt-action='cancelOffer' jt-enabledIf='selRow !== null && selRow.makerPId === player.id'>Cancel</button>
+            </span>
+        </div>
+    </div>
+    <div class='box'>
+        <table class='table table-sm table-hover'>
+            <thead>
+                <tr>
+                    <th>Period</th>
+                    <th>Divs. left</th>
+                    <th>E(d)</th>
+                    <th>FV</th>
+                </tr>
+            </thead>
+            <tbody id='fvTable'>
+            </tbody>
+        </table>
+    </div>
+    <div class='box'>
+        <canvas id="tradesChart" width="800" height="400"></canvas>
+    </div>
+`;
 
-            //  Listen for messages from clients.
-            app.messages.makeOfferToBuy = function(price) {
-                var player = this.participant.player;
-                var offer = {price: price, makerPId: player.id, open: true, buyer: player.id};
-                player.group.offers.new(offer);
+if (app.mode === 'paid') {
+    var resultsStage = app.newStage('results');
+    resultsStage.duration = 10; // in seconds
+    resultsStage.waitOnTimerEnd = false;
+    resultsStage.groupStart = function(group) { // when a group starts this stage
+        group.dividendDraw = Utils.randomEl(app.divs);
+        for (var i in group.players) { // i = 0, 1, 2, 3
+            var player = group.players[i];
+            player.dividends = player.shares * group.dividendDraw;
+            player.cash = player.cash + player.dividends;
+            // Points only recorded for last period.
+            if (group.period.id === group.app().numPeriods) {
+                player.points = player.cash;
             }
-            app.messages.makeOfferToSell = function(price) {
-                var player = this.participant.player;
-                var offer = {price: price, makerPId: player.id, open: true, seller: player.id};
-                player.group.offers.new(offer);
-            }
-            app.messages.cancelOffer = function(id) {
-                var group = this.participant.player.group;
-                var offer = group.offers.getRow(id);
-                app.closeOffer(offer, group);
-            }
-            app.messages.acceptOTS = function(id) {
-                app.acceptOffer(id, 'buy', this.participant.player);
-            }
-            app.messages.acceptOTB = function(id) {
-                app.acceptOffer(id, 'sell', this.participant.player);
-            }
+        }
+    }
+}
 
-            // Helper functions
-            app.closeOffer = function(offer, group) {
-                offer.open = false;
-                group.offers.save();
-                group.emit('offersUpdate', offer);
-            }
-            app.acceptOffer = function(id, action, player) {
+resultsStage.playingScreen = `
+    <h5>Results</h5>
+    <div>
+        <span data-toggle="tooltip" title="The number of periods remaining in this experiment.">
+            Period:
+        </span>
+        <span jt-text='period.id'>-</span>/<span jt-text='app.numPeriods'>-</span>
+    </div>
+    <div>
+        <span data-toggle="tooltip" title="The time remaining in the current period.">
+            Time:
+        </span>
+        <span jt-text='clock.minutes'>mm</span>:<span jt-text='clock.seconds'>ss</span>
+    </div>
+    <br>
+    <div>The dividend draw in this period (E$/share): <span jt-text='group.dividendDraw'></span>.</div>
+    <div>Dividends (E$): <span jt-text='player.dividends'></span>.</div>
+    <div>Cash (E$): <span jt-text='player.cash' jt-decimals=2></span>.</div>
+    <div>Shares: <span jt-text='player.shares'></span>.</div>
+    <form>
+        <button type='submit'>OK</button>
+    </form>
+`;
 
-                var group = player.group;
-                var offer = group.offers.getRow(id);
-                var creator = group.player(offer.makerPId);
+//  Listen for messages from clients.
+app.messages.makeOfferToBuy = function(price) {
+    var player = this.participant.player;
+    var offer = {price: price, makerPId: player.id, open: true, buyer: player.id};
+    player.group.offers.new(offer);
+}
+app.messages.makeOfferToSell = function(price) {
+    var player = this.participant.player;
+    var offer = {price: price, makerPId: player.id, open: true, seller: player.id};
+    player.group.offers.new(offer);
+}
+app.messages.cancelOffer = function(id) {
+    var group = this.participant.player.group;
+    var offer = group.offers.getRow(id);
+    app.closeOffer(offer, group);
+}
+app.messages.acceptOTS = function(id) {
+    app.acceptOffer(id, 'buy', this.participant.player);
+}
+app.messages.acceptOTB = function(id) {
+    app.acceptOffer(id, 'sell', this.participant.player);
+}
 
-                if (action === 'buy') {
-                    // exit if trade not possible
-                    if (creator.shares < 1 || player.cash < offer.price) {
-                        return;
-                    }
-                    player.shares++;
-                    player.cash = player.cash - offer.price;
-                    creator.shares--;
-                    creator.cash = creator.cash + offer.price;
-                    offer.buyer = player.id;
-                } else if (action === 'sell') {
-                    // exit if trade not possible
-                    if (creator.cash < offer.price || player.shares < 1) {
-                        return;
-                    }
-                    player.shares--;
-                    player.cash = player.cash + offer.price;
-                    creator.shares++;
-                    creator.cash = creator.cash - offer.price;
-                    offer.seller = player.id;
+// Helper functions
+app.closeOffer = function(offer, group) {
+    offer.open = false;
+    group.offers.save();
+    group.emit('offersUpdate', offer);
+}
+app.acceptOffer = function(id, action, player) {
+
+    var group = player.group;
+    var offer = group.offers.getRow(id);
+    var creator = group.player(offer.makerPId);
+
+    if (action === 'buy') {
+        // exit if trade not possible
+        if (creator.shares < 1 || player.cash < offer.price) {
+            return;
+        }
+        player.shares++;
+        player.cash = player.cash - offer.price;
+        creator.shares--;
+        creator.cash = creator.cash + offer.price;
+        offer.buyer = player.id;
+    } else if (action === 'sell') {
+        // exit if trade not possible
+        if (creator.cash < offer.price || player.shares < 1) {
+            return;
+        }
+        player.shares--;
+        player.cash = player.cash + offer.price;
+        creator.shares++;
+        creator.cash = creator.cash - offer.price;
+        offer.seller = player.id;
+    }
+    offer.timeElapsed = player.timeInStage();
+    group.emit('acceptOffer', {oId: offer.id, time: offer.timeElapsed, seller: offer.seller, buyer: offer.buyer});
+    app.closeOffer(offer, group);
+
+    // Cancel other offers that might now be invalid.
+    for (var i=0; i<group.offers.rows.length; i++) {
+        var offer = group.offers.rows[i];
+        if (offer.open) {
+            var creator = group.player(offer.makerPId);
+            if (offer.seller === offer.makerPId) {
+                if (creator.shares < 1) {
+                    app.closeOffer(offer, group);
                 }
-                offer.timeElapsed = player.timeInStage();
-                group.emit('acceptOffer', {oId: offer.id, time: offer.timeElapsed, seller: offer.seller, buyer: offer.buyer});
-                app.closeOffer(offer, group);
-
-                // Cancel other offers that might now be invalid.
-                for (var i=0; i<group.offers.rows.length; i++) {
-                    var offer = group.offers.rows[i];
-                    if (offer.open) {
-                        var creator = group.player(offer.makerPId);
-                        if (offer.seller === offer.makerPId) {
-                            if (creator.shares < 1) {
-                                app.closeOffer(offer, group);
-                            }
-                        }
-                        if (offer.buyer === offer.makerPId) {
-                            if (creator.cash < offer.price) {
-                                app.closeOffer(offer, group);
-                            }
-                        }
-                    }
-
-                }
-
-                player.io().to(player.roomId()).emit('playerUpdateData', player.asClPlayer());
-                creator.io().to(creator.roomId()).emit('playerUpdateData', creator.asClPlayer());
-
-                player.save();
-                creator.save();
             }
+            if (offer.buyer === offer.makerPId) {
+                if (creator.cash < offer.price) {
+                    app.closeOffer(offer, group);
+                }
+            }
+        }
+
+    }
+
+    player.io().to(player.roomId()).emit('playerUpdateData', player.asClPlayer());
+    creator.io().to(creator.roomId()).emit('playerUpdateData', creator.asClPlayer());
+
+    player.save();
+    creator.save();
+}
