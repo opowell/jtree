@@ -1,4 +1,6 @@
-SIMPLE USE
+SIMPLE USE (direct editing of "master branch")
 1. Download Github.
 2. Clone jtree repository, by default use Master branch.
 3. Make changes to Github/jtree.
+4. From Github, "commit" changes.
+5. From Github, "Pull" and "Push" so that files are sent to Github.
