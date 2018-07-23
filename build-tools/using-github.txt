@@ -1,0 +1,4 @@
+SIMPLE USE
+1. Download Github.
+2. Clone jtree repository, by default use Master branch.
+3. Make changes to Github/jtree.
