@@ -1,13 +1,16 @@
 # jtree
 A javascript toolbox for running economics experiments.
-TEST
 
 ## Installing
 Download for your system, unzip and run.
 
-<a href='https://github.com/opowell/jtree/raw/master/releases/jtree-0.5.3-win.zip'>jtree 0.5.3 for Windows</a>
+<a href='https://github.com/opowell/jtree/raw/master/releases/jtree-win.zip'>jtree for Windows</a>
 
-<a href='https://github.com/opowell/jtree/raw/master/releases/jtree-0.5.3-mac.zip'>jtree 0.5.3 for Mac</a>
+<a href='https://github.com/opowell/jtree/raw/master/releases/jtree-macos.zip'>jtree for Mac</a>
+
+<a href='https://github.com/opowell/jtree/raw/master/releases/jtree-linux.zip'>jtree for Linux</a>
+
+<a href='https://github.com/opowell/jtree/raw/master/releases/jtree-winxp.zip'>jtree for WindowsXP</a>
 
 #### Planned features
 - same look and functionality as zTree, plus:
@@ -25,13 +28,13 @@ Download for your system, unzip and run.
 ### UNDER DEVELOPMENT
 Parts of the documentation are accurate, others are out of date, while still others refer to functionality that will be implemented soon (but for the moment still does not exist). Proceed with caution.
 
-#### <a href='doc-pages/1-quick-start.md'>Quick start</a>
+#### <a href='https://github.com/opowell/jtree/blob/master/doc-pages/1-quick-start.md'>Quick start</a>
 
-#### <a href='tutorial-2-setup.html'>Setup</a>
+#### <a href='https://github.com/opowell/jtree/blob/master/doc-pages/2-setup.md'>Setup</a>
 
-#### <a href='tutorial-3-running-a-session.html'>Running a session</a>
+#### <a href='https://github.com/opowell/jtree/blob/master/doc-pages/3-running-a-session.md'>Running a session</a>
 
-#### <a href='tutorial-4-designing-an-app.html'>Designing an app</a>
+#### <a href='https://github.com/opowell/jtree/blob/master/doc-pages/4-designing-an-app.md'>Designing an app</a>
 
-#### <a href='tutorial-7-release-notes.html'>Release notes</a>
+#### <a href='https://github.com/opowell/jtree/blob/master/doc-pages/7-release-notes.md'>Release notes</a>
 
