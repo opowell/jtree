@@ -3,8 +3,8 @@ const path      = require('path');
 const Utils     = require('./Utils.js');
 
 
-/*
- * A room for running sessions.
+/**
+ * A user.
 */
 class User {
 

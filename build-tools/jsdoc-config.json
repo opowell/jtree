@@ -11,7 +11,7 @@
   },
   "plugins": ["plugins/markdown"],
   "source": {
-    "include": ["./doc-pages"],
+    "include": ["./doc-pages", "./server/source"],
     "includePattern": ".+\\.js(doc|x)?$",
     "excludePattern": "(^|\\/|\\\\)_"
   },

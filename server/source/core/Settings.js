@@ -4,6 +4,7 @@ const fs        = require('fs-extra');
 const openport  = require('openport');
 const Utils     = require('../Utils.js');
 
+/** Settings that can be set in the settings.js file */
 class Settings {
 
      constructor(jt) {
