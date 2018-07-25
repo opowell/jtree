@@ -12,19 +12,10 @@ const SocketServer  = require('./core/SocketServer.js');
 const StaticServer  = require('./core/StaticServer.js');
 
 /**
- * @module jtree
- *
- * Creates instances of:
- * {@link Settings}
- * {@link Logger}
- * {@link Data}
- * {@link StaticServer}
- * {@link SocketServer}
- *
- * If requested, opens the admin interface.
- *
+ * @class jtree
+ * Entrypoint of the server. Maintains links between different processes, allowing for interaction.
+ * If requested, opens the admin interface in the browser.
  */
-
 var jt = {};
 
 /** The version of jtree, should match what is in buildJTree.bat
@@ -42,13 +33,27 @@ if (process.argv[0].indexOf('node') > -1) {
     jt.path         = path.dirname(process.execPath);
 }
 
-/** The server settings */
+/** The {@link Settings}. */
 jt.settings     = new Settings.new(jt);
 
+/** The {@link Logger} utility. */
 jt.logger       = new Logger.new(jt);
+
+/** The {@link Data} object. */
 jt.data         = new Data.new(jt);
+
+/**
+ * @type {StaticServer}
+ * The process that serves static files to clients.
+ */
 jt.staticServer = new StaticServer.new(jt);
+
+/**
+ * @type {SocketServer}
+ * The process that receives and sends messages to clients.
+ */
 jt.socketServer = new SocketServer.new(jt);
+
 if (jt.settings.openAdminOnStart) {
 //    opn('http://' + jt.staticServer.ip + ':' + jt.staticServer.port + '/admin');
     openurl.open('http://' + jt.staticServer.ip + ':' + jt.staticServer.port + '/admin');
