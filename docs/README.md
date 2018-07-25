@@ -4,6 +4,8 @@ A javascript toolbox for running economics experiments.
 ## Installing
 Download for your system, unzip and run.
 
+<a href='/reference/index.html'>REFERENCE</a>
+
 <a href='https://github.com/opowell/jtree/raw/master/releases/jtree-win.zip'>jtree for Windows</a>
 
 <a href='https://github.com/opowell/jtree/raw/master/releases/jtree-macos.zip'>jtree for Mac</a>
