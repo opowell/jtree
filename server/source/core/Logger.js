@@ -2,6 +2,7 @@ const fs        = require('fs-extra');
 const path      = require('path');
 const Utils     = require('../Utils.js');
 
+/** Logging utility */
 class Logger {
 
     constructor(jt) {
@@ -19,6 +20,11 @@ class Logger {
         }
     }
 
+    /**
+    * Writes the given text with a timestamp to the log given by {@link Settings#logPath}.
+    * If {@link Settings#logToConsole} is true, then also logs to console.
+    * @param text The text to be written.
+    */
     log(text) {
         var time = new Date().toString();
         this.logStream.write(time + ': ' + text + '\n');
@@ -28,7 +34,7 @@ class Logger {
         }
     }
 
-    
+
 
 }
 

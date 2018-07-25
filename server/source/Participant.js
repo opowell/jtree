@@ -1,7 +1,8 @@
-const Player = require('./Player.js');
-const clPlayer = require('./client/clPlayer.js');
-const Utils = require('./Utils.js');
+const Player    = require('./Player.js');
+const clPlayer  = require('./client/clPlayer.js');
+const Utils     = require('./Utils.js');
 const path      = require('path');
+
 /**
  * A participant in the experiment.
  */

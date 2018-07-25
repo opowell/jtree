@@ -11,7 +11,9 @@ const Data          = require('./core/Data.js');
 const SocketServer  = require('./core/SocketServer.js');
 const StaticServer  = require('./core/StaticServer.js');
 
-/*
+/**
+ * @module jtree
+ *
  * Creates instances of:
  * {@link Settings}
  * {@link Logger}
@@ -20,9 +22,9 @@ const StaticServer  = require('./core/StaticServer.js');
  * {@link SocketServer}
  *
  * If requested, opens the admin interface.
- * @module jtree
  *
  */
+
 var jt = {};
 
 /** The version of jtree, should match what is in buildJTree.bat
@@ -31,7 +33,9 @@ var jt = {};
 */
 jt.version      = '0.6.0';
 
-/** Location of the server executable. All files should be relative to this. */
+/** Location of the server executable. All files should be relative to this.
+*/
+jt.path = undefined;
 if (process.argv[0].indexOf('node') > -1) {
     jt.path         = process.cwd();
 } else {

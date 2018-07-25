@@ -1,4 +1,4 @@
-This describes in the sequence of events that make up a session. For a broader summary, see the <a href="tutorial-session-flow.html">basic tutorial</a>.
+This describes the sequence of events that make up a session. For a broader summary, see the <a href="tutorial-session-flow.html">basic tutorial</a>.
 
 A participants position in the session flow is determined by the following fields: `status`, `appIndex`, `periodIndex`, `stageIndex`, and `status`. When a participant connects to a new session for the first time, these fields are initialized to the following values:
 - `status = ready`

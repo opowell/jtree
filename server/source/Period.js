@@ -4,7 +4,12 @@ const Utils = require('./Utils.js');
 const fs        = require('fs-extra');
 const path      = require('path');
 
+/**
+* Period object - test link {@link Session} {@link Session.clients}.
+* @param  {App} app The app that this period belongs to.
+*/
 class Period {
+
     constructor(id, app) {
         this.id = id;
         this.app = app;

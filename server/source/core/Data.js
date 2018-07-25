@@ -7,7 +7,7 @@ const Room      = require('../Room.js');
 const Queue     = require('../Queue.js');
 const User      = require('../User.js');
 
-/* The data object. */
+/** The data object. */
 class Data {
 
     /*

@@ -4,6 +4,7 @@ const Utils     = require('../Utils.js');
 const socketIO  = require('socket.io');
 const Msgs      = require('./Msgs.js');
 
+/** Handles socket connections */
 class SocketServer {
 
     constructor(jt) {
