@@ -16,18 +16,42 @@ class Timer {
     /**
     * constructor - description
     *
-    * @param  {type} callback   The code to execute once the timer expires.
+    * @param  {Timer~callback} callback   The code to execute once the timer expires.
     * @param  {type} duration   The length of time to wait until the timer expires.
     * @param  {type} stageIndex description
     * @return {type}            description
     */
     // constructor(callback: function, duration: number, stageIndex: number) {
     constructor(callback, duration, stageIndex) {
+        /**
+         * @type Date
+         */
         this.timeStarted = new Date();
+
+        /**
+         * @type {number}
+         */
         this.duration = duration;
+
+        /**
+         * @type {number}
+         */
         this.timeLeft = duration;
+
+        /**
+         * @type {number}
+         */
         this.stageIndex = stageIndex;
+
+        /**
+         * @callback Timer~callback
+         */
         this.callback = callback;
+
+        /**
+         * @type boolean
+         * @default false
+         */
         this.running = false;
         this.setRunning(true);
     }

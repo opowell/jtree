@@ -11,22 +11,31 @@ class Player {
 
         /**
          * This player's participant.
-         * @type {@link Participant}
+         * @type {Participant}
          */
         this.participant = participant;
 
         /**
          * This player's group.
-         * @type {@link Group}
+         * @type {Group}
          */
         this.group = group;
 
         /**
          * The player's ID.
-         * @type {@link Participant}
+         * @type {Participant}
          */
         this.id = id;
+
+        /**
+         * @type number
+         */
         this.idInGroup = idInGroup;
+
+        /**
+         * @type number
+         * @default 0
+         */
         this.points = 0; // points from the current period
 
 
@@ -36,14 +45,34 @@ class Player {
          * 'ready': the player is ready to play their current stage, but is waiting (for their fellow group members).
          * 'playing': the player is playing their current stage.
          * 'finished': the player has finished their current stage.
+         * @type string
+         * @default 'ready'
          */
         this.status = 'ready';
 
+        /**
+         * @type number
+         * @default 0
+         */
         this.stageIndex = 0
+
+        /**
+         * @type {Stage}
+         * @default null
+         */
         this.stage = null;
-        // 'outputHide' fields are not included in output
+
+        /**
+         * 'outputHide' fields are not included in output.
+         * @type Array
+         * @default []
+         */
         this.outputHide = [];
-        // 'outputHideAuto' fields are not included in output.
+
+        /**
+         * 'outputHideAuto' fields are not included in output.
+         * @type {String[]}
+         */
         this.outputHideAuto = [
             'appIndex',
             'group',

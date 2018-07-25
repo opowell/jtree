@@ -1,0 +1,68 @@
+{
+    "1-quick-start": {
+        "title": "Quick Start"
+    },
+    "2-setup": {
+        "title": "Setup"
+    },
+    "3-running-a-session": {
+        "title": "Running a Session"
+    },
+    "4-designing-an-app": {
+        "title": "Designing an App"
+    },
+    "5-clients": {
+        "title": "Writing the client",
+        "children": ["autoplay", "buttons", "element-attributes", "including-files", "styles", "reference", "running-in-a-lab"]
+    },
+    "autoplay": {
+        "title": "Autoplay"
+    },
+    "buttons": {
+        "title": "Buttons"
+    },
+    "element-attributes": {
+        "title": "Element attributes"
+    },
+    "including-files": {
+        "title": "Including other files"
+    },
+    "reference": {
+        "title": "Reference"
+    },
+    "running-in-a-lab": {
+        "title": "Running in a lab"
+    },
+    "styles": {
+        "title": "Styles"
+    },
+    "6-server": {
+        "title": "Writing the server",
+        "children": ["can-participate", "grouping", "session-flow", "settings"]
+    },
+    "can-participate": {
+        "title": "Can participate"
+    },
+    "grouping": {
+        "title": "Grouping"
+    },
+    "session-flow": {
+        "title": "Session flow"
+    },
+    "settings": {
+        "title": "Settings"
+    },
+    "7-release-notes": {
+        "title": "Release Notes"
+    },
+    "8-advanced": {
+        "title": "Developers",
+        "children": ["session-flow-details"]
+    },
+    "session-flow-details": {
+        "title": "Session Flow Details"
+    },
+    "other": {
+        "title": "Other"
+    }
+}

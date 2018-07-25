@@ -6,13 +6,46 @@ const Utils     = require('./Utils.js');
 class Table {
 
     constructor(name, emitFunc, context, cId, session) {
+        /**
+         * @type {Name}
+         */
         this.name = name;
+
+        /**
+         * @type {Number}
+         * @default 0
+         */
         this.idCounter = 0;
+
+        /**
+         * @type Array
+         * @default []
+         */
         this.rows = [];
-        this.emitFunc = emitFunc;
+
+        /**
+         * @type TODO
+         */
+        his.emitFunc = emitFunc;
+
+        /**
+         * @type TODO
+         */
         this.context = context;
+
+        /**
+         * @type TODO
+         */
         this.contextId = cId;
+
+        /**
+         * @type {Session}
+         */
         this.session = session;
+
+        /**
+         * @type {String[]}
+         */
         this.outputHide = ['id'];
     }
 

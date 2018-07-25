@@ -11,10 +11,24 @@ const path      = require('path');
 class Period {
 
     constructor(id, app) {
+        /**
+         * Unique identifier for this participant.
+         * @type {String}
+         */
         this.id = id;
+
+        /**
+         * @type {App}
+         */
         this.app = app;
-        // List of groups for this period.
+
+        /**
+         * List of groups for this period.
+         * @type Array
+         * @default []
+         */
         this.groups = [];
+
         // 'outputHide' fields are not included in output
         this.outputHide = ['stage', 'status', 'this', 'curAppId', 'periodTemp',
         'periodPerm', 'periodPermAuto', 'outputHide', 'app', 'groups', 'type',

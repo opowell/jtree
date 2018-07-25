@@ -16,35 +16,68 @@ class Participant {
      * @return {type}         description
      */
     constructor(id, session) {
-
-
         /**
          * Unique identifier for this participant.
+         * @type {String}
          */
         this.id = id;
 
         /**
          *  Session for this participant.
+         * @type {Session}
          */
         this.session = session;
+
+        /**
+         * @type array
+         * @default []
+         */
         this.players = [];
+
+        /**
+         * @type {Player}
+         * @default null
+         */
         this.player = null;
+
+        /**
+         * @type array
+         * @default []
+         */
         this.clients = [];
 
-        // Indexed at 0.
+        /**
+         * Indexed at 0.
+         * @type number
+         * @default -1
+         */
         this.periodIndex = -1;
 
         /**
          * The current app index of this participant.
          * 0 indicates no current app.
+         * @type number
+         * @default 0
          */
         this.appIndex = 0;
 
+        /**
+         * @type boolean
+         * @default false
+         */
         this.autoplay = false;
 
-        // 'outputHide' fields are not included in output
+        /**
+         * 'outputHide' fields are not included in output.
+         * @type Array
+         * @default []
+         */
         this.outputHide = [];
-        // 'outputHideAuto' fields are not included in output.
+
+        /**
+         * 'outputHideAuto' fields are not included in output.
+         * @type {String[]}
+         */
         this.outputHideAuto = ['this', 'session', 'players', 'clients', 'outputHide', 'outputHideAuto', 'player', 'period', 'autoplay'];
     }
 
