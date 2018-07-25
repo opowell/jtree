@@ -1,8 +1,12 @@
-call del ".\client\internal\docs" /Q /F
-call rmdir ".\client\internal\docs" /Q /S
+REM Generate HTML help files.
+REM -------------------------
+set "htmlDir=.\client\internal\docs"
+call del %htmlDir% /Q /F
+call rmdir %htmlDir% /Q /S
 call jsdoc -c ".\build-tools\jsdoc-config.json"
 
-set "api-docs-folder=.\client\internal\source-docs"
-call del %api-docs-folder% /Q /F
-call rmdir %api-docs-folder% /Q /S
-call documentation build server/source/** -f html -o %api-docs-folder% --config build-tools/documentation.yml --github
+REM Generate JSON help content, used within the jtree editor.
+REM ---------------------------------------------------------
+set "jsonFile=.\client\internal\docjs.json"
+call del %jsonFile% /Q /F
+call documentation build server/source/** -f json -o %jsonFile%

@@ -7,51 +7,87 @@ const path      = require('path');
 
 /** A group of players playing in a {@link Period}. */
 class Group {
-    /*
+    /**
     * Create a new Group.
     *
-    * @param  {type} id     description
-    * @param  {type} period description
-    * @return {type}        description
+    * @param  {String} id     The id of this group.
+    * @param  {Period} period The period this group belongs to.
     */
     constructor(id, period) {
-        // this group's id
+        /**
+         * this group's id
+         * @type {String}
+         */
         this.id = id;
 
-        // Each Group belongs to a single Period.
+        /**
+         * Each Group belongs to a single Period.
+         * @type {Period}
+         */
         this.period = period;
 
-        // a list of the players in this group.
+        /**
+         * a list of the players in this group.
+         * @type array
+         * @default []
+         */
         this.players = [];
 
-        // whether or not all players in this group have been created yet.
+        /**
+         * whether or not all players in this group have been created yet.
+         * @type boolean
+         * @default false
+         */
         this.allPlayersCreated = false;
 
-        // 'outputHide' fields are not included in output
+        /**
+         * 'outputHide' fields are not included in output.
+         * @type array
+         * @default []
+         */
         this.outputHide = [];
-        // 'outputHideAuto' fields are not included in output.
+
+        /**
+         * 'outputHideAuto' fields are not included in output.
+         * @type {String[]}
+         */
         this.outputHideAuto = ['stage', 'status', 'outputHide', 'outputHideAuto', 'players', 'stageTimer', 'period', 'tables', 'type', 'stageIndex', 'stageFinishedIndex'];
 
+        /**
+         * @type array
+         * @default []
+         */
         this.tables = [];
 
+        /**
+         * @type number
+         * @default 0
+         */
         this.stageIndex = 0;
 
+        /**
+         * @type number
+         * @default -1
+         */
         this.stageFinishedIndex = -1;
     }
 
+    /**
+     * Returns the stage that this group is currently in.
+     */
     stage() {
         return this.app().stages[this.stageIndex];
     }
 
-    /*
-     * @static load - description
+    /**
+     * Loads the group from a given set of data.
      *
      * CALLED FROM:
      * - {@link Session#load}
      *
-     * @param  {type} json    description
-     * @param  {type} session description
-     * @return {type}         description
+     * @param  {type} json    The JSON data describing the group.
+     * @param  {type} session The session to which the group belongs.
+     * @return {Group}         The group.
      */
     static load(json, session, data) {
         var app = session.apps[json.appIndex-1];
@@ -85,7 +121,7 @@ class Group {
 
     /**
      * Find the player with the given participant ID.
-     * @param  {string} id the given id.
+     * @param  {String} id the given id.
      * @return {type}    the player where player.participant.id == id.
      */
     playerByParticipantId(id) {

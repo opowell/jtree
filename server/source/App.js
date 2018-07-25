@@ -619,7 +619,7 @@ class App {
      */
     end() {
 
-        
+
         this.finished = true;
 
         this.saveOutput(this.session.csvFN());
@@ -1174,7 +1174,8 @@ class App {
      * - Try to end the app ({@link App#tryToEndApp}).
      *
      * CALLED FROM
-     * -
+     * - xxx
+     *
      * @param  {Participant} participant The participant.
      */
     participantEnd(participant) {

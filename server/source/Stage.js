@@ -18,77 +18,140 @@ class Stage {
     // constructor(name: string, app: App) {
     constructor(name, app) {
 
-        // for display only, should be unique.
+        /**
+         * for display only, should be unique.
+         * @type {Name}
+         */
         this.name       = name;
-
 
         /**
          * The identifier of this stage.
+         * @type {String}
          */
         this.id = this.name;
 
-
         /**
          * the app of this stage.
+         * @type {App}
          */
         this.app        = app;
 
         /**
          * timeout duration in seconds
          * if <= 0, then no timeout for this stage.
+         * @type number
+         * @default 0
          */
         this.duration 	= 0;
 
         /**
          * How long clients have before stage is auto-submitted (from client, not from server).
          * if <= 0, then no client timeout for this stage.
+         * @type number
+         * @default 0
          */
         this.clientDuration = 0;
 
         /**
          * Wait for all players in group before players and group can start this stage.
+         * @type boolean
+         * @default true
          */
         this.waitToStart = true;
 
         /**
-         * Group waits for all players to finish stage before calling stage.groupEnd(group).
+         * Group waits for all players to finish stage before calling [stage.groupEnd(group)]{@link stage#groupEnd}.
+         * @type boolean
+         * @default true
          */
         this.waitToEnd = true;
 
-        // when starting stage for a player, send 'player' object or not.
-        // fields determined by player.outputFields.
+        /**
+         * when starting stage for a player, send 'player' object or not.
+         * fields determined by [player.outputFields]{@link player#outputFields}.
+         * @type boolean
+         * @default true
+         */
         this.onPlaySendPlayer = true;
 
         /**
          * how far up the tree should be sent on update.
          * possible values: 'player', 'group'
+         * @type string
+         * @default 'player'
          */
         this.updateObject = 'player';
 
         /**
          * Wait for all players to finish stage on their own (true), or end anyway (false).
+         * @type boolean
+         * @default true
          */
         this.waitOnTimerEnd = true;
 
+       /**
+        * @type boolean
+        * @default true
+        */
         this.useAppActiveScreen = true;
+
+        /**
+         * @type boolean
+         * @default true
+         */
         this.useAppWaitingScreen = true;
+
+        /**
+         *  TODO:
+         */
         this.wrapPlayingScreenInFormTag = app.stageWrapPlayingScreenInFormTag;
 
-        // 'outputHide' fields are not included in output
+        /**
+         * 'outputHide' fields are not included in output.
+         * @type Array
+         * @default []
+         */
         this.outputHide = [];
-        // 'outputHideAuto' fields are not included in output.
+
+        /**
+         * 'outputHideAuto' fields are not included in output.
+         * @type {String[]}
+         */
         this.outputHideAuto = ['app', 'outputHide', 'outputHideAuto', 'html', 'htmlFile', 'useIdAsHTMLFileName'];
 
+        /**
+         * @default null
+         */
         this.activeScreen = null;
 
+        /**
+         * @default null
+         */
         this.html = null;
+
+        /**
+         * @default null
+         */
         this.htmlFile = null;
+
+        /**
+         * @type boolean
+         * @default true
+         */
         this.useIdAsHTMLFileName = true;
 
-        // Child stages. If length > 0, then ...
+        /**
+         * Child stages. If length > 0, then ...
+         * @type Array
+         * @default []
+         */
         this.stages = [];
 
-        // The number of times to repeat child stages.
+        /**
+         * The number of times to repeat child stages.
+         * @type number
+         * @default 1
+         */
         this.repetitions = 1;
 
     }

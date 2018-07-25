@@ -19,6 +19,9 @@ class Client {
          socket.join(this.getChannelName());
      }
 
+     /**
+      * @return The name of this client's channel, which is 'socket_<client.id>', where <client.id> is this client's id.
+      */
      getChannelName() {
          return 'socket_' + this.id;
      }
