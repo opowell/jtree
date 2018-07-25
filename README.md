@@ -8,6 +8,10 @@ Download for your system, unzip and run.
 
 <a href='https://github.com/opowell/jtree/raw/master/releases/jtree-macos.zip'>jtree for Mac</a>
 
+<a href='https://github.com/opowell/jtree/raw/master/releases/jtree-linux.zip'>jtree for Linux</a>
+
+<a href='https://github.com/opowell/jtree/raw/master/releases/jtree-winxp.zip'>jtree for WindowsXP</a>
+
 #### Planned features
 - same look and functionality as zTree, plus:
 - modern programming capabilities (functions; objects).
@@ -24,7 +28,7 @@ Download for your system, unzip and run.
 ### UNDER DEVELOPMENT
 Parts of the documentation are accurate, others are out of date, while still others refer to functionality that will be implemented soon (but for the moment still does not exist). Proceed with caution.
 
-#### <a href='doc-pages/1-quick-start.md'>Quick start</a>
+#### <a href='https://github.com/opowell/jtree/blob/master/doc-pages/1-quick-start.md'>Quick start</a>
 
 #### <a href='tutorial-2-setup.html'>Setup</a>
 
