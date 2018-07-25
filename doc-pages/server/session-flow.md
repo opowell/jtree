@@ -2,7 +2,7 @@ This tutorial describes the sequence of events that happen during a session. In 
 
 In jtree, participants progress through a session which consists of apps, periods and stages. In doing so, they take the form of players and groups. Broadly speaking, each object calls `playerStart` (or `groupStart`) and `playerEnd` (or `groupEnd`) whenever a player (or group) begins or finishes that part of the experiment. Designing the logic of the app is simply a matter of overwriting these methods.
 
-This is done in the app's `app.js` file. This file has access to the `App` object, from which Stages can be created and customized via the `App.newStage(id)` function. Periods can be customized by overwriting the `App.createPeriod(id)` method.
+This is done in the app's `app.js` file. This file has access to the `App` object, from which Stages can be created and customized via the [`App.newStage(id)`]{@link App#newStage} function. Periods can be customized by overwriting the [`App.createPeriod(id)`]{@link App#createPeriod} method.
 
 The rest of this tutorial describes approximately the order in which events take place within a session. Due to the option of letting participants progress through different stages without waiting for each other, the actual order of these events may differ in actual sessions.
 
@@ -16,7 +16,7 @@ App.participantStart(participant)
 App.participantEnd(participant)
 ```
 
-Within the app, participants go through a series of periods. At the beginning of the period, participants are assigned to a player, and the players are assigned to groups, according to the output of `App.getGroupIdsForPeriod(period)`. Thus, each period calls the following functions:
+Within the app, participants go through a series of periods. At the beginning of the period, participants are assigned to a player, and the players are assigned to groups, according to the output of [`App.getGroupIdsForPeriod(period)`]{@link App#getGroupIdsForPeriod}. Thus, each period calls the following functions:
 
 ```javascript
 App.getGroupIdsForPeriod(period)
@@ -47,8 +47,8 @@ Stage.groupEnd(group) // Only called once all players have ended the stage.
 // Group begins procedure for next stage in session, if any.
 ```
 
-If `Stage.waitToStart` is `true`, no player can start the stage until all players in the group are ready.
-If `Stage.waitToEnd` is `true`, no player can end the stage until all players in the group are finished.
+If [`Stage.waitToStart`]{@link Stage#waitToStart} is `true`, no player can start the stage until all players in the group are ready.
+If [`Stage.waitToEnd`]{@link Stage#waitToEnd} is `true`, no player can end the stage until all players in the group are finished.
 As soon as a player ends the stage, they move to the next stage in the session (if there is one) and begin again at the first step of this procedure.
 
 Groups belong to Periods. This means that whenever a stage has `waitToStart` as false, groups can "start" that stage before finishing one or more of the group's previous stages.

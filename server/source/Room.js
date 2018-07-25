@@ -6,7 +6,7 @@ const RoomParticipant = require('./RoomParticipant.js');
 const hash      = require('object-hash');
 
 
-/*
+/**
  * A room for running sessions.
 */
 class Room {

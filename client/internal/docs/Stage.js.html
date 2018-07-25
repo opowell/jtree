@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Stage.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Stage.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// @flow
+
+const Timer = require('./Timer.js');
+const Utils     = require('./Utils.js');
+
+/**
+ * A stage of an {@link App}.
+ */
+class Stage {
+
+    /*
+     * constructor - description
+     *
+     * @param  {type} name description
+     * @param  {type} app  description
+     * @return {type}      description
+     */
+    // constructor(name: string, app: App) {
+    constructor(name, app) {
+
+        // for display only, should be unique.
+        this.name       = name;
+
+
+        /**
+         * The identifier of this stage.
+         */
+        this.id = this.name;
+
+
+        /**
+         * the app of this stage.
+         */
+        this.app        = app;
+
+        /**
+         * timeout duration in seconds
+         * if &lt;= 0, then no timeout for this stage.
+         */
+        this.duration 	= 0;
+
+        /**
+         * How long clients have before stage is auto-submitted (from client, not from server).
+         * if &lt;= 0, then no client timeout for this stage.
+         */
+        this.clientDuration = 0;
+
+        /**
+         * Wait for all players in group before players and group can start this stage.
+         */
+        this.waitToStart = true;
+
+        /**
+         * Group waits for all players to finish stage before calling stage.groupEnd(group).
+         */
+        this.waitToEnd = true;
+
+        // when starting stage for a player, send 'player' object or not.
+        // fields determined by player.outputFields.
+        this.onPlaySendPlayer = true;
+
+        /**
+         * how far up the tree should be sent on update.
+         * possible values: 'player', 'group'
+         */
+        this.updateObject = 'player';
+
+        /**
+         * Wait for all players to finish stage on their own (true), or end anyway (false).
+         */
+        this.waitOnTimerEnd = true;
+
+        this.useAppActiveScreen = true;
+        this.useAppWaitingScreen = true;
+        this.wrapPlayingScreenInFormTag = app.stageWrapPlayingScreenInFormTag;
+
+        // 'outputHide' fields are not included in output
+        this.outputHide = [];
+        // 'outputHideAuto' fields are not included in output.
+        this.outputHideAuto = ['app', 'outputHide', 'outputHideAuto', 'html', 'htmlFile', 'useIdAsHTMLFileName'];
+
+        this.activeScreen = null;
+
+        this.html = null;
+        this.htmlFile = null;
+        this.useIdAsHTMLFileName = true;
+
+        // Child stages. If length > 0, then ...
+        this.stages = [];
+
+        // The number of times to repeat child stages.
+        this.repetitions = 1;
+
+    }
+
+    /**
+     * indexInApp - description
+     *
+     * @return {type}  description
+     */
+    indexInApp() {
+        for (var i in this.app.stages) {
+            if (this.app.stages[i] === this) {
+                return parseInt(i);
+            }
+        }
+        return -1;
+    }
+
+    /*
+     * playerCanGroupProceedToNextStage - description
+     *
+     * @param  {type} player description
+     * @return {type}        description
+     */
+    playerCanGroupProceedToNextStage(player) {
+        // PROCEED GROUP
+        var players = player.otherPlayersInGroup();
+        for (var p in players) {
+            var otherPlyr = players[p];
+            if (!otherPlyr.atLeastFinishedStage(this, player.period())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    canGroupStart(group) {
+
+        var players = group.players;
+
+        if (this.waitToStart) {
+            // PROCEED ONLY IF ALL PLAYERS ARE "ready" and in this stage.
+            for (var p in players) {
+                var player = players[p];
+
+                // Stop if player is either:
+                // 1) not in this stage, or
+                // 2) not ready.
+                if (!player.participant.canStartStage(this)) {
+                    return false;
+                }
+
+            }
+        } else {
+            // PROCEED ONLY IF NO PLAYER HAS ALREADY STARTED PLAYING this stage.
+            for (var p in players) {
+                var player = players[p];
+
+                // If other player is in this stage and not ready, or already past this stage, return false.
+                if (
+                    (player.stageIndex === this.indexInApp() &amp;&amp; player.status !== 'ready') ||
+                    (player.stageIndex > this.indexInApp())
+                ) {
+                    return false;
+                }
+
+            }
+        }
+
+        return true;
+    }
+
+    newStage(id) {
+        var stage = new Stage.new(id, this.app, this.stages.length);
+        this.stages.push(stage);
+        return stage;
+    }
+
+    canGroupEnd(group) {
+
+        var players = group.players;
+
+        // If already finished, return false.
+        if (group.stageFinishedIndex >= this.indexInApp()) {
+            return false;
+        }
+
+        if (this.waitToEnd) {
+            // PROCEED ONLY IF ALL PLAYERS ARE "finished" and in this stage.
+            for (var p in players) {
+                var player = players[p];
+
+                // If other player is not finished, return false.
+                if (player.stageIndex !== this.indexInApp() || !player.isFinished()) {
+                    return false;
+                }
+
+            }
+        } else {
+            // PROCEED ONLY IF NO PLAYER HAS ALREADY FINISHED this stage.
+            for (var p in players) {
+                var player = players[p];
+
+                // If other player is in this stage and not finished, or not even in this stage yet, return false.
+                if (
+                    (player.stageIndex === this.indexInApp() &amp;&amp; !player.isFinished()) ||
+                    (player.stageIndex &lt; this.indexInApp())
+                ) {
+                    return false;
+                }
+
+            }
+        }
+
+        return true;
+
+    }
+
+    /**
+     * Overwrite in app.jtt.
+     *
+     * @param  {type} group description
+     * @return {type}       description
+     */
+    groupEnd(group) {}
+
+    /**
+    *  Called before the first player plays this stage.
+    * Overwrite in app.jtt
+    */
+    groupStart(group) {}
+
+    /**
+     * Can the given player participate in this stage?
+     *
+     * @param  {type} player description
+     * @return {type}        description
+     */
+    canPlayerParticipate(player) {
+        return true;
+    }
+
+    canGroupParticipate(group) {
+        return true;
+    }
+
+    getActiveScreen() {
+
+        if (this.activeScreen == null) {
+            this.activeScreen = Utils.getStageContents(this.app.id, this.id)
+        }
+        return this.activeScreen;
+    }
+
+    /**
+     * End this stage for the given player.
+     * Overwrite in app.jtt.
+     *
+     * @param  {type} player description
+     */
+    playerEnd(player) {}
+
+    /**
+     * Called when this player plays this stage.
+     * Overwrite in app.jtt.
+     **/
+    playerStart(player) {}
+
+    /**
+     * session - description
+     *
+     * @return {type}  description
+     */
+    session() {
+        return this.app.session;
+    }
+
+    outputFields() {
+        var fields = [];
+        for (var prop in this) {
+            if (
+                !Utils.isFunction(this[prop]) &amp;&amp;
+                !this.outputHide.includes(prop) &amp;&amp;
+                !this.outputHideAuto.includes(prop)
+            )
+            fields.push(prop);
+        }
+        return fields;
+    }
+
+    /**
+     * shellWithParent - description
+     *
+     * @return {type}  description
+     */
+    shellWithParent() {
+        var out = {};
+        var fields = this.outputFields();
+        for (var f in fields) {
+            var field = fields[f];
+            out[field] = this[field];
+        }
+        out['app.index'] = this.app.indexInSession();
+        out.app = this.app.shell();
+        return out;
+    }
+
+    /**
+     * CALLED FROM:
+     * - {@link Stage#save}
+     * - {@link App#shellWithChildren}
+     *
+     * @return {type}  description
+     */
+    shell() {
+        var out = {};
+        var fields = this.outputFields();
+        for (var f in fields) {
+            var field = fields[f];
+            out[field] = this[field];
+        }
+        out['app.index'] = this.app.indexInSession();
+        out.canPlayerParticipate = this.canPlayerParticipate;
+
+        out.groupStart = this.groupStart.toString();
+        out.groupEnd = this.groupEnd.toString();
+        out.playerStart = this.playerStart.toString();
+        out.playerEnd = this.playerEnd.toString();
+
+        return out;
+    }
+
+    getOutputDir() {
+        return this.app.getOutputFN() + '/stages/';
+    }
+
+    /**
+     * CALLED FROM:
+     * - {@link App#saveSelfAndChildren}
+     *
+     * @return {type}  description
+     */
+    save() {
+        try {
+            this.session().jt.log('Stage.save: ' + this.id);
+            var toSave = this.shell();
+    //        Utils.writeJSON(this.getOutputDir() + this.indexInApp() + '_' + this.id + '.json', toSave);
+            this.session().saveDataFS(toSave, 'STAGE');
+        } catch (err) {
+            console.log('Error saving stage ' + this.id + ': ' + err);
+        }
+    }
+
+}
+
+var exports = module.exports = {};
+exports.new = Stage;
+exports.load = Stage.load;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jul 25 2018 11:43:27 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

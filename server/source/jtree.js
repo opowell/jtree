@@ -11,17 +11,10 @@ const Data          = require('./core/Data.js');
 const SocketServer  = require('./core/SocketServer.js');
 const StaticServer  = require('./core/StaticServer.js');
 
-/*
- * Creates instances of:
- * {@link Settings}
- * {@link Logger}
- * {@link Data}
- * {@link StaticServer}
- * {@link SocketServer}
- *
- * If requested, opens the admin interface.
- * @module jtree
- *
+/**
+ * @class jtree
+ * Entrypoint of the server. Maintains links between different processes, allowing for interaction.
+ * If requested, opens the admin interface in the browser.
  */
 var jt = {};
 
@@ -31,20 +24,45 @@ var jt = {};
 */
 jt.version      = '0.6.0';
 
-/** Location of the server executable. All files should be relative to this. */
+/** Location of the server executable. All files should be relative to this.
+*/
+jt.path = undefined;
 if (process.argv[0].indexOf('node') > -1) {
     jt.path         = process.cwd();
 } else {
     jt.path         = path.dirname(process.execPath);
 }
 
-/** The server settings */
+/**
+ * @type  {Settings}
+ * The settings
+ */
 jt.settings     = new Settings.new(jt);
 
+/**
+ * @type {Logger}
+ * The utility for writting logs.
+ */
 jt.logger       = new Logger.new(jt);
+
+/**
+ * @type {Data}
+ * The Data object
+ */
 jt.data         = new Data.new(jt);
+
+/**
+ * @type {StaticServer}
+ * The process that serves static files to clients.
+ */
 jt.staticServer = new StaticServer.new(jt);
+
+/**
+ * @type {SocketServer}
+ * The process that receives and sends messages to clients.
+ */
 jt.socketServer = new SocketServer.new(jt);
+
 if (jt.settings.openAdminOnStart) {
 //    opn('http://' + jt.staticServer.ip + ':' + jt.staticServer.port + '/admin');
     openurl.open('http://' + jt.staticServer.ip + ':' + jt.staticServer.port + '/admin');

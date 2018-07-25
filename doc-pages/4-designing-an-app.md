@@ -3,10 +3,10 @@ This tutorial will show you how to program the simple public goods game used in 
 First, we will define the parameters and stages of the app. Each app file begins with a pre-defined App object called `app`, and fields are modified and/or added to this object using regular Javascript. Add the following code to your file now:
 
 ```javascript
-app.numPeriods  = 10
-app.groupSize   = 4
-app.endowment   = 20
-app.prodFactor  = 2
+app.numPeriods  = 10;
+app.groupSize   = 4;
+app.endowment   = 20;
+app.prodFactor  = 2;
 ```
 
 The code above sets the number of periods for this App to 10, and the number of players per group to 4. The last two lines create new fields specific to this app, the endowment that each player will begin with (20), and the production factor (2).
@@ -16,11 +16,11 @@ The next step is determining the stages of your app. Stages of an app are repeat
 1. Decision stage: players choose how much to contribute.
 2. Results stage: players are shown their profit for this period.
 
-Stages are created and added to the app using the `app.newStage(stageId)` function. Add the following code to your file:
+Stages are created and added to the app using the [`app.newStage(stageId)`]{@link App#newStage} function. Add the following code to your file:
 
 ```javascript
-var decideStage  = app.newStage('decide')
-var resultsStage = app.newStage('results')
+var decideStage  = app.newStage('decide');
+var resultsStage = app.newStage('results');
 ```
 
 The `content` field of a stage is shown to players when they are active in the stage. Content is mostly regular HTML, which consists of sets of tags. Tags are written in between greater than `<` and less than `>` characters, such as `<p>`. Tags can contain content, in which case they should also usually have an ending tag: `<p>This is a paragraph.</p>`.
@@ -32,7 +32,7 @@ For the 'Decide' screen, we want to show the following information to the player
 - An input field for the player's contribution.
 - A button to confirm the contribution.
 
-We will use the following tags: `<p>` (paragraph) to display text, `<input>` to create an input, and `<button>` to create a button. Set the value of `decideStage.activeScreen` to the following:
+We will use the following tags: `<p>` (paragraph) to display text, `<input>` to create an input, and `<button>` to create a button. Set the value of [`decideStage.activeScreen`]{@link Stage#activeScreen} to the following:
 
 ```html
 <p>DECISION</p>
@@ -52,7 +52,7 @@ decideStage.activeScreen = `
 `;
 ```
 
-jtree automatically updates any text it finds within double curly braces, `{{` and `}}`, with the value of the given expression. For example, in the decision screen, `{{app.endowment}}` would be replaced with "20". The `name` attribute of the `<input>` tag is the name assigned to the chosen value.
+jtree automatically updates any text it finds within double curly braces, [`{{`]{@link App#textMarkerBegin} and [`}}`]{@link App#textMarkerEnd}, with the value of the given expression. For example, in the decision screen, `{{app.endowment}}` would be replaced with "20". The `name` attribute of the `<input>` tag is the name assigned to the chosen value.
 
 For the results stage, we wish to first calculate production of the public good and payoffs, and then display this information to the players. Add the following to the end of your file:
 
@@ -69,7 +69,7 @@ resultsStage.groupStart = function(group) {
 }
 ```
 
-The `Stage.groupStart(group)` function is called whenever a group begins playing the stage in question. It is passed the Group object, which is essentially a list of Players, as an argument. In our example, whenever a group starts playing this stage, the group contributions, production and production per player are calculated and stored as fields of the group object. Then, for every player in the group, points for the current period are calculated.
+The [`Stage.groupStart(group)`]{@link Stage#groupStart} function is called whenever a group begins playing the stage in question. It is passed the Group object, which is essentially a list of Players, as an argument. In our example, whenever a group starts playing this stage, the group contributions, production and production per player are calculated and stored as fields of the group object. Then, for every player in the group, points for the current period are calculated.
 
 Now add the screen content:
 
@@ -124,4 +124,4 @@ resultsStage.activeScreen = `
 `;
 ```
 
-And now the app is complete. To test it, simply follow the previous tutorial on running a session.
+And now the app is complete. To test it, simply follow the previous tutorial on <a href='file:///Users/esragul/Downloads/jtree-0-2/internal/docs/tutorial-3-running-a-session.html'>running a session.</a>

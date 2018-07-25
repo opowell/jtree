@@ -3,7 +3,7 @@ const path      = require('path');
 const Utils     = require('./Utils.js');
 
 
-/*
+/**
  * A room for running sessions.
 */
 class Queue {

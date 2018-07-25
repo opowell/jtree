@@ -1,7 +1,7 @@
-This tutorial shows how to start and run a session. We will use an implementation of the public goods game described in Box 1 that comes included with jtree. The tutorial that follows this one will show you how to actually build the corresponding app.
+This tutorial shows how to start and run a session. A session consists of a series of apps. We will use an implementation of the public goods game app described in Box 1 that comes included with jtree. The tutorial that follows this one will show you how to actually build the corresponding app.
 
 *Box 1* - Description of the simple public goods game.
-A group of N players is given an endowment E from which they may contribute a certain amount ci to the creation of a public good. The total amount produced of the public good G = a * sum (ci) is a function of the sum of contributions and a production factor a \in (1, N). The public good is then divided equally among all players in the group. The payoff to player i is then E - ci + G/N.
+A group of players is given an endowment from which they may contribute a certain amount to the creation of a public good. The total amount produced of the public good is the sum of player contributions multiplied by a production factor. The public good is then divided equally among all players in the group. The payoff to each player is their endowment, minus their contribution, plus their share of the public good.
 
 Follow these steps to run a session:
 

@@ -27,10 +27,8 @@ var s1 = app.newStage('s1');
 s1.activeScreen = `
     <p>CHOOSE</p>
     <p>You are Player 1. The pie is currently {{player.pieSize1}} points. Choose your action.</p>
-    <form>
-        <button name='player.choice1' value='TAKE' type='submit'>Take</button>
-        <button name='player.choice1' value='PASS' type='submit'>Pass</button>
-    </form>
+    <button name='player.choice1' value='TAKE' type='submit'>Take</button>
+    <button name='player.choice1' value='PASS' type='submit'>Pass</button>
 `;
 s1.canPlayerParticipate = function(player) {
     return (!player.finished1);
@@ -107,10 +105,8 @@ var s2 = app.newStage('s2');
 s2.activeScreen = `
     <p>CHOOSE</p>
     <p>You are Player 2. The pie is currently {{player.pieSize2}} points. Choose your action.</p>
-    <form>
-        <button name='player.choice2' value='TAKE' type='submit'>Take</button>
-        <button name='player.choice2' value='PASS' type='submit'>Pass</button>
-    </form>
+    <button name='player.choice2' value='TAKE' type='submit'>Take</button>
+    <button name='player.choice2' value='PASS' type='submit'>Pass</button>
 `;
 s2.canPlayerParticipate = function(player) {
     return (!player.finished2);
@@ -154,9 +150,7 @@ resultsStage.activeScreen = `
 
     <p>Your total points from this game: {{player.points.toFixed(2)}}.</p>
 
-    <form>
-        <button>OK</button>
-    </form>
+    <button>OK</button>
 `;
 resultsStage.canPlayerParticipate = function(player) {
     return player.group.period.id === app.numPeriods;

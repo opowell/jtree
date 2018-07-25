@@ -1,5 +1,5 @@
 const Utils     = require('./Utils.js');
-/*
+/**
  * A client that is connected to a {@link Room}.
  */
 class RoomParticipant {

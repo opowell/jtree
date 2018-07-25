@@ -9,22 +9,26 @@ const path      = require('path');
 /** Class that represents an app. */
 class App {
 
-    /*
+    /**
      * Creates an App.
      *
      * @param  {Session} session description
-     * @param  {string} id      description
+     * @param  {String} id      description
      */
     constructor(session, id, jt, appPath) {
 
         /**
          * The unique identifier of this App.
+         * @type {String}
          */
         this.id = id;
 
+        /**
+         * @type {jt}
+         */
         this.jt = jt;
 
-        // Where the original definition of this app is stored on the server.
+        /** Where the original definition of this app is stored on the server.*/
         this.appPath = appPath;
 
         /**
@@ -37,26 +41,43 @@ class App {
         /**
          * The stages of this app.
          * @type Array
+         * @default []
          */
         this.stages = [];
 
+        /**
+         * The options of this app.
+         * @type Array
+         * @default []
+         */
         this.options = [];
 
+        /**
+         * The option values of this app.
+         * @type Object
+         * @default {}
+         */
         this.optionValues = {};
 
-        // Used by the participant client to find and create dynamic text elements.
+        /** Used by the participant client to find and create dynamic text elements.*/
         this.textMarkerBegin = '{{';
         this.textMarkerEnd = '}}';
 
         /**
          * The number of periods in this App.
          * @type number
+         * @default 1
          */
         this.numPeriods = 1;
 
+        /**
+         * Inserts jtree functionality to the start of client.html
+         * @type boolean
+         * @default true
+         */
         this.insertJtreeRefAtStartOfClientHTML = true;
 
-        // Shown on all client screens.
+        /** Shown on all client screens.*/
         this.html = `
             <!DOCTYPE html>
             <html>
@@ -76,26 +97,39 @@ class App {
             </html>
         `;
 
+        /** TODO:   */
         this.screen = '';
 
-        // Shown on all client playing screens if stage.useAppActiveScreen = true.
+        /** Shown on all client playing screens if {@link Stage.useAppActiveScreen} = true.
+        * @default null
+        */
         this.activeScreen = null;
 
-        // Shown on all client waiting screens if stage.useAppWaitingScreen = true.
+
+        /** Shown on all client waiting screens if {@link Stage.useWaitingScreen} = true.
+        */
         this.waitingScreen = `
             <p>WAITING</p>
             <p>The experiment will continue soon.</p>
         `;
 
-        // If 'htmlFile' is not null, content of 'htmlFile' is added to client content.
-        // Otherwise, if 'htmlFile' is null, content of this.id + ".html" is added to client content, if it exists.
+        /** If 'htmlFile' is not null, content of 'htmlFile' is added to client content.
+         * Otherwise, if 'htmlFile' is null, content of this.id + ".html" is added to client content, if it exists.
+         */
         this.htmlFile = null;
 
         /**
-         * The periods of this app.
+         * The periods of this App.
+         * @type Array
+         * @default []
          */
         this.periods = [];
 
+        /**
+        * Description of this App.
+        * @type String
+        * @default 'No description provided.'
+        */
         this.description = 'No description provided.';
 
         /**
@@ -105,7 +139,8 @@ class App {
          * - x-axis object (i.e. 'player')
          * - y-axis object (i.e. 'period')
          * Field values are aggregated using the arithmetic mean as necessary (for example, if field is player.x, but x-axis is group, then table shows arithmetic mean of all player.x in a group).
-         *
+         * @type Array
+         * @default []
          */
         this.keyComparisons = [];
 
@@ -126,27 +161,49 @@ class App {
         /**
          * Messages to listen for from clients.
          * @type Object
+         * @default {}
          */
         this.messages = {};
 
+        /**
+         * TODO: Description
+         * @type boolean
+         * @default true
+         */
         this.stageWrapPlayingScreenInFormTag = true;
 
         /**
          * If defined, subjects are assigned randomly to groups of this size takes precedence over numGroups.
+         * @type number
+         * @default undefined
          */
          this.groupSize = undefined;
-
-         // TODO: fix commenting
 
         /**
          * if defined, subjects are split evenly into this number of groups
          * overridden by groupSize.
+         * @type number
+         * @default undefined
          */
         this.numGroups = undefined;
 
+        /**
+         * Starts the stages of this App.
+         * TODO:
+         * @type string
+         * @default '<span jt-stage="{{stage.id}}">'
+         */
         this.stageContentStart = '<span jt-stage="{{stage.id}}">';
+
+        /**
+         * Ends the stages of this App.
+         * TODO:
+         * @type string
+         * @default '</span>'
+         */
         this.stageContentEnd = '</span>';
 
+        //TODO:
         this.outputHideAuto = [
             'stageContentStart',
             'stageContentEnd',
@@ -177,12 +234,21 @@ class App {
             'jt',
             'appPath'];
 
+        //TODO:
+        /**
+         * @type array
+         * @default []
+         */
         this.outputHide = [];
 
+        /** TODO: Description
+         * @type boolean
+         * @default false
+         */
         this.finished = false;
     }
 
-    /*
+    /**
      * @static Load an app from json.
      *
      * CALLED FROM:
@@ -201,10 +267,10 @@ class App {
         var appCode = Utils.readJS(folder + '/app.jtt');
         eval(appCode);
 
-        // If there is already an app in place, save its stages and periods??
+        //If there is already an app in place, save its stages and periods??
         if (session.apps.length > index-1) {
             var curApp = session.apps[index-1];
-            // app.stages = curApp.stages;
+            /** app.stages = curApp.stages;*/
             app.periods = curApp.periods;
         }
 
@@ -215,7 +281,7 @@ class App {
         session.apps[index-1] = app;
     }
 
-    /*
+    /**
      * Overwrite to add custom functionality for when a {@link Client} starts this app.
      *
      * Called from:
@@ -224,10 +290,10 @@ class App {
      * @param  {Client} client The client who is connecting to this app.
      */
     addClient(client) {
-        // Overwrite.
+        /** Overwrite */
     }
 
-    /*
+    /**
     * Called when a {@link Client} connected to a {@link Participant} starts this app.
     *
     * - client subscribes to this App's channel.
@@ -308,7 +374,7 @@ class App {
                         }
                     }
                 }
-                // console.log('msg: ' + JSON.stringify(data) + ', ' + client.player().roomId());
+                /** console.log('msg: ' + JSON.stringify(data) + ', ' + client.player().roomId());*/
                 var attemptToEndForGroup = true;
                 client.player().attemptToEndStage(attemptToEndForGroup);
             };
@@ -323,12 +389,14 @@ class App {
 
     }
 
+    /** TODO */
     addStages(array) {
         for (var i=0; i<array.length; i++) {
             this.addStage(array[i]);
         }
     }
 
+    // TODO
     addStage(name) {
         var stage = this.newStage(name);
         var fn = 'apps/' + this.id + '/' + name + '.js';
@@ -340,6 +408,7 @@ class App {
         }
     }
 
+    //TODO
     setContents(contents) {
         try {
             fs.writeFileSync('apps/' + this.id + '.jtt', contents);
@@ -348,6 +417,7 @@ class App {
         }
     }
 
+    //TODO
     setFileContents(filename, contents) {
         try {
             fs.writeFileSync('apps/' + this.id + '/' + filename, contents);
@@ -356,16 +426,16 @@ class App {
         }
     }
 
-    /*
+    /**
      * Get next stage for player in their current period. Return null if already at last stage of period.
      *
      * DUE TO:
-     * Stage.playerEnd
+     * {@link Stage.playerEnd}
      */
     getNextStageForPlayer(player) {
         var stageInd = player.stageIndex;
 
-        // If not in the last stage, return next stage.
+        /** If not in the last stage, return next stage.*/
         if (stageInd < this.stages.length-1) {
             return this.stages[stageInd+1];
         } else {
@@ -374,6 +444,10 @@ class App {
 
     }
 
+    /**
+     * TODO
+     * Get group ids for their current period
+     */
     getGroupIdsForPeriod(period) {
         var participants = this.session.participants;
         var numGroups = period.numGroups();
@@ -381,11 +455,12 @@ class App {
         for (var p in participants) {
             pIds.push(p);
         }
-        // Group IDs
+        // Group IDs.
         var gIds = [];
         for (var g=0; g<numGroups; g++) {
             gIds.push([]);
         }
+
         // Calculate number of elements per group
         var m = Math.floor((pIds.length-1) / numGroups) + 1;
 
@@ -520,6 +595,7 @@ class App {
         res.send(html);
     }
 
+    // TODO
     parseStageTag(stage, text) {
         while (text.includes('{{')) {
             var start = text.indexOf('{{');
@@ -531,7 +607,7 @@ class App {
         return text;
     }
 
-    /*
+    /**
      * Ends this App.
      *
      * - Create headers for this app, periods, groups, group tables, players and participants.
@@ -543,6 +619,7 @@ class App {
      */
     end() {
 
+        
         this.finished = true;
 
         this.saveOutput(this.session.csvFN());
@@ -551,7 +628,7 @@ class App {
 
     saveOutput(fn) {
 
-        // Create headers
+        //Create headers
         var appsHeaders = [];
         var appsSkip = ['id'];
         var appFields = this.outputFields();
@@ -598,7 +675,7 @@ class App {
             Utils.getHeaders(participantFields, participantSkip, participantHeaders);
         }
 
-        // Create data
+        //Create data
         var appsText = [];
         appsText.push('id,' + appsHeaders.join(','));
         var newLine = this.id + ',';
@@ -706,14 +783,14 @@ class App {
 
     }
 
-    /*
+    /**
      * @return {string}  Session path + {@link App#indexInSession} + '_' + app.id
      */
     getOutputFN() {
         return this.session.getOutputDir() + '/' + this.indexInSession() + '_' + this.id;
     }
 
-    /*
+    /**
      * - clear group's timer.
      * - if next stage exists, let the group play it.
      * - for each player in the group, call {@link App#playerMoveToNextStage}.
@@ -724,7 +801,7 @@ class App {
         group.clearStageTimer();
         var nextStage = this.nextStageForGroup(group);
 
-        // If not at last stage of session, mvoe group to next stage.
+        //If not at last stage of session, mvoe group to next stage.
         if (nextStage !== null) {
             nextStage.groupPlayDefault(group);
         }
@@ -752,7 +829,7 @@ class App {
         return -1;
     }
 
-    /*
+    /**
      * Creates a new period with the given id + 1, saves it and adds it to this App's periods.
      *
      * Called from:
@@ -766,7 +843,7 @@ class App {
         this.periods.push(period);
     }
 
-    /*
+    /**
      * metaData - description
      *
      * @return {type}  description
@@ -907,7 +984,7 @@ class App {
                         }
                     }
                 } else if (option.type === 'number') {
-                    correctedValue = value - 0; // coerce to number
+                    correctedValue = value - 0; /** coerce to number*/
                     isValid = true;
                     break;
                 } else if (option.type === 'text') {
@@ -933,14 +1010,14 @@ class App {
         return stage;
     }
 
-    /*
+    /**
      * Returns the next stage for a given group in a given stage.
      * 1. If stage is not the last stage of this app, return the next stage of this app.
      * 2. If period is not the last period of this app, return the first stage of this app.
      * 3. If app is not the last app of this session, return the first stage of the next app.
      * 4. Otherwise, return null.
      *
-     * TODO? Does the next stage have Stage.waitForGroup == true?
+     * TODO: Does the next stage have Stage.waitForGroup == true?
      *
      * CALLED FROM
      * - {@link Stage#playerEnd}
@@ -954,7 +1031,7 @@ class App {
         return slowestPlayers[0].nextStage();
     }
 
-    /*
+    /**
      * Called when a player finishes a stage.
      * By default, check whether everyone in group is finished.
      * If yes, then advance to next stage ([this.session.gotoNextStage(player.group)]{@link Session.gotoNextStage}).
@@ -975,7 +1052,7 @@ class App {
         }
     }
 
-    /*
+    /**
      * The names of fields to include in an export of this object. To be included, a field must:
      * - not be a function ({@link Utils.isFunction})
      * - not be included in {@link App#outputHide}
@@ -996,7 +1073,7 @@ class App {
         return fields;
     }
 
-    /*
+    /**
      * Called when a participant begins this app.
      * - For each of the [Clients]{@link Client} of this participant, call {@link App.addClientDefault}.
      * - Set the participant's periodIndex to -1.
@@ -1019,10 +1096,10 @@ class App {
         this.participantStart(participant);
         this.participantMoveToNextPeriod(participant);
 
-        participant.emit('start-new-app'); // refresh clients.
+        participant.emit('start-new-app'); /** refresh clients.*/
     }
 
-    /*
+    /**
      * A participant begins its current period.
      *
      * - Participant notifies its clients of periodIndex.
@@ -1052,7 +1129,7 @@ class App {
         return this.periods[index];
     }
 
-    /*
+    /**
      * A participant moves to its next period.
      *
      * FUNCTIONALITY
@@ -1089,7 +1166,7 @@ class App {
          }
      }
 
-    /*
+    /**
      * A participant finishes playing this app.
      *
      * FUNCTIONALITY
@@ -1108,7 +1185,7 @@ class App {
         this.tryToEndApp();
     }
 
-    /*
+    /**
      * Move the player to their next stage.
      *
      * FUNCTIONALITY
@@ -1137,7 +1214,7 @@ class App {
         }
     }
 
-    /*
+    /**
      * Returns the player of the current player's participant from the previous period.
      *
      * @param  {Player} player The player.
@@ -1152,6 +1229,12 @@ class App {
         }
     }
 
+    /**
+     * Returns the group of the current player's participant from the previous period.
+     *
+     * @param  {Group} group The group.
+     * @return TODO:{Player}        The previous player, if any.
+     */
     previousGroup(group) {
         var prevPeriod = group.period().prevPeriod();
         if (prevPeriod === null) {
@@ -1270,7 +1353,7 @@ class App {
         return out;
     }
 
-    /*
+    /**
      * If all participants have finished the app, end the app ({@link App#end}).
      *
      * CALLED FROM
@@ -1298,6 +1381,7 @@ class App {
     }
 
     // Helper method for writing to csv.
+    //TODO:
     appendValues(newLine, headers, obj) {
         for (var i=0; i<headers.length; i++) {
             var header = headers[i];

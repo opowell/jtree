@@ -1,8 +1,8 @@
 const fs        = require('fs-extra');
-const path        = require('path');
+const path      = require('path');
 const Utils     = require('../Utils.js');
 
-/*
+/**
  * Messages that the server listens for from clients.
  * Includes try-catch and notification (via console) of receipt.
  */
