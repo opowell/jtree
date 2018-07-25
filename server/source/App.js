@@ -179,6 +179,9 @@ class App {
          */
          this.groupSize = undefined;
 
+         //TODO:
+         this.groupingType = undefined;
+
         /**
          * if defined, subjects are split evenly into this number of groups
          * overridden by groupSize.
