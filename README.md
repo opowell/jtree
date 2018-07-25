@@ -30,11 +30,11 @@ Parts of the documentation are accurate, others are out of date, while still oth
 
 #### <a href='https://github.com/opowell/jtree/blob/master/doc-pages/1-quick-start.md'>Quick start</a>
 
-#### <a href='tutorial-2-setup.html'>Setup</a>
+#### <a href='https://github.com/opowell/jtree/blob/master/doc-pages/2-setup.md'>Setup</a>
 
-#### <a href='tutorial-3-running-a-session.html'>Running a session</a>
+#### <a href='https://github.com/opowell/jtree/blob/master/doc-pages/3-running-a-session.md'>Running a session</a>
 
-#### <a href='tutorial-4-designing-an-app.html'>Designing an app</a>
+#### <a href='https://github.com/opowell/jtree/blob/master/doc-pages/4-designing-an-app.md'>Designing an app</a>
 
-#### <a href='tutorial-7-release-notes.html'>Release notes</a>
+#### <a href='https://github.com/opowell/jtree/blob/master/doc-pages/7-release-notes.md'>Release notes</a>
 
