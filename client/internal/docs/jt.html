@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: Client</title>
+    <title>JSDoc: Class: jt</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: Client</h1>
+    <h1 class="page-title">Class: jt</h1>
 
     
 
@@ -28,9 +28,9 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>Client<span class="signature">(socket)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>jt<span class="signature">()</span><span class="type-signature"></span></h2>
         
-            <div class="class-description"><p>A client that is connected to a <a href="Participant.html">Participant</a>.</p></div>
+            <div class="class-description"><p>jtree<br>Entrypoint of the server. Maintains links between different processes, allowing for interaction.<br>If requested, opens the admin interface in the browser.</p></div>
         
     
 </header>
@@ -45,72 +45,19 @@
     
 
     
-    <h4 class="name" id="Client"><span class="type-signature"></span>new Client<span class="signature">(socket)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="jt"><span class="type-signature"></span>new jt<span class="signature">()</span><span class="type-signature"></span></h4>
     
 
     
 
 
 
-<div class="description">
-    <p>Creates a <a href="Client.html">Client</a> from a given socket connection.</p>
-</div>
 
 
 
 
 
 
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>socket</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">type</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>description</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -146,7 +93,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Client.js.html">Client.js</a>, <a href="Client.js.html#line5">line 5</a>
+        <a href="jtree.js.html">jtree.js</a>, <a href="jtree.js.html#line19">line 19</a>
     </li></ul></dd>
     
 
@@ -190,34 +137,30 @@
     
 
     
-
-    
-        <h3 class="subsection-title">Methods</h3>
+        <h3 class="subsection-title">Members</h3>
 
         
             
+<h4 class="name" id=".data"><span class="type-signature">(static) </span>data<span class="type-signature"> :<a href="Data.html">Data</a></span></h4>
 
-    
-
-    
-    <h4 class="name" id="app"><span class="type-signature"></span>app<span class="signature">()</span><span class="type-signature"> &rarr; {type}</span></h4>
-    
-
-    
 
 
 
 <div class="description">
-    <p>app - description</p>
+    <p>The Data object</p>
 </div>
 
 
 
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="Data.html">Data</a></span>
 
 
-
-
-
+        </li>
+    </ul>
 
 
 
@@ -252,7 +195,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Client.js.html">Client.js</a>, <a href="Client.js.html#line105">line 105</a>
+        <a href="jtree.js.html">jtree.js</a>, <a href="jtree.js.html#line52">line 52</a>
     </li></ul></dd>
     
 
@@ -268,64 +211,28 @@
 
 
 
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>description</p>
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">type</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
         
             
+<h4 class="name" id=".logger"><span class="type-signature">(static) </span>logger<span class="type-signature"> :<a href="Logger.html">Logger</a></span></h4>
 
-    
-
-    
-    <h4 class="name" id="group"><span class="type-signature"></span>group<span class="signature">()</span><span class="type-signature"> &rarr; {type}</span></h4>
-    
-
-    
 
 
 
 <div class="description">
-    <p>group - description</p>
+    <p>The utility for writting logs.</p>
 </div>
 
 
 
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="Logger.html">Logger</a></span>
 
 
-
-
-
+        </li>
+    </ul>
 
 
 
@@ -360,7 +267,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Client.js.html">Client.js</a>, <a href="Client.js.html#line87">line 87</a>
+        <a href="jtree.js.html">jtree.js</a>, <a href="jtree.js.html#line46">line 46</a>
     </li></ul></dd>
     
 
@@ -376,62 +283,16 @@
 
 
 
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>description</p>
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">type</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
         
             
+<h4 class="name" id=".path"><span class="type-signature">(static) </span>path<span class="type-signature"></span></h4>
 
-    
-
-    
-    <h4 class="name" id="period"><span class="type-signature"></span>period<span class="signature">()</span><span class="type-signature"> &rarr; {type}</span></h4>
-    
-
-    
 
 
 
 <div class="description">
-    <p>period - description</p>
+    <p>Location of the server executable. All files should be relative to this.</p>
 </div>
-
-
-
-
-
-
 
 
 
@@ -468,7 +329,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Client.js.html">Client.js</a>, <a href="Client.js.html#line96">line 96</a>
+        <a href="jtree.js.html">jtree.js</a>, <a href="jtree.js.html#line29">line 29</a>
     </li></ul></dd>
     
 
@@ -484,64 +345,28 @@
 
 
 
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>description</p>
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">type</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
         
             
+<h4 class="name" id=".settings"><span class="type-signature">(static) </span>settings<span class="type-signature"> :<a href="Settings.html">Settings</a></span></h4>
 
-    
-
-    
-    <h4 class="name" id="player"><span class="type-signature"></span>player<span class="signature">()</span><span class="type-signature"> &rarr; {type}</span></h4>
-    
-
-    
 
 
 
 <div class="description">
-    <p>player - description</p>
+    <p>The settings</p>
 </div>
 
 
 
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="Settings.html">Settings</a></span>
 
 
-
-
-
+        </li>
+    </ul>
 
 
 
@@ -576,7 +401,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Client.js.html">Client.js</a>, <a href="Client.js.html#line74">line 74</a>
+        <a href="jtree.js.html">jtree.js</a>, <a href="jtree.js.html#line40">line 40</a>
     </li></ul></dd>
     
 
@@ -587,40 +412,6 @@
     
 </dl>
 
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>description</p>
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">type</span>
-
-
-    </dd>
-</dl>
-
-    
 
 
 
@@ -628,22 +419,158 @@
 
         
             
+<h4 class="name" id=".socketServer"><span class="type-signature">(static) </span>socketServer<span class="type-signature"> :<a href="SocketServer.html">SocketServer</a></span></h4>
+
+
+
+
+<div class="description">
+    <p>The process that receives and sends messages to clients.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="SocketServer.html">SocketServer</a></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
 
     
 
     
-    <h4 class="name" id="shell"><span class="type-signature"></span>shell<span class="signature">()</span><span class="type-signature"> &rarr; {type}</span></h4>
+
+    
+
     
 
     
 
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="jtree.js.html">jtree.js</a>, <a href="jtree.js.html#line64">line 64</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
 
 
 
 
 
 
+        
+            
+<h4 class="name" id=".staticServer"><span class="type-signature">(static) </span>staticServer<span class="type-signature"> :<a href="StaticServer.html">StaticServer</a></span></h4>
 
+
+
+
+<div class="description">
+    <p>The process that serves static files to clients.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="StaticServer.html">StaticServer</a></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="jtree.js.html">jtree.js</a>, <a href="jtree.js.html#line58">line 58</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id=".version"><span class="type-signature">(static) </span>version<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    <p>The version of jtree, should match what is in buildJTree.bat<br>v.x.y.z<br>x / y / z indicates major / moderate / minor changes in stability and features.</p>
+</div>
 
 
 
@@ -680,7 +607,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Client.js.html">Client.js</a>, <a href="Client.js.html#line34">line 34</a>
+        <a href="jtree.js.html">jtree.js</a>, <a href="jtree.js.html#line25">line 25</a>
     </li></ul></dd>
     
 
@@ -696,41 +623,9 @@
 
 
 
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
         
-<div class="param-desc">
-    <p>description</p>
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">type</span>
-
-
-    </dd>
-</dl>
-
     
 
-
-
-
-
-        
     
 
     

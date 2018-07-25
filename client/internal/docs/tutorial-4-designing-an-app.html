@@ -28,20 +28,20 @@
 </header>
 
 <article>
-    <p>This tutorial will show you how to program the simple public goods game app used in the previous section. Begin by creating a file called <code>my-public-goods.jtt</code> in the <code>&lt;jtree&gt;/apps/</code> folder.</p>
-<p>An app is a series of stages, potentially repeated several times. First, we will define the parameters and stages of the app. Each app file begins with a pre-defined App object called <code>app</code>, and fields are modified and/or added to this object using regular Javascript. Add the following code to your file now:</p>
-<pre class="prettyprint source lang-javascript"><code>app.numPeriods  = 10
-app.groupSize   = 4
-app.endowment   = 20
-app.prodFactor  = 2</code></pre><p>The code above sets the number of periods for this App to 10, and the number of players per group to 4. The last two lines create new fields specific to this app, the endowment that each player will begin with (20), and the production factor (2).</p>
+    <p>This tutorial will show you how to program the simple public goods game used in the previous section. Create a file called <code>my-public-goods.jtt</code> in the <code>&lt;jtree&gt;/apps/</code> folder.</p>
+<p>First, we will define the parameters and stages of the app. Each app file begins with a pre-defined App object called <code>app</code>, and fields are modified and/or added to this object using regular Javascript. Add the following code to your file now:</p>
+<pre class="prettyprint source lang-javascript"><code>app.numPeriods  = 10;
+app.groupSize   = 4;
+app.endowment   = 20;
+app.prodFactor  = 2;</code></pre><p>The code above sets the number of periods for this App to 10, and the number of players per group to 4. The last two lines create new fields specific to this app, the endowment that each player will begin with (20), and the production factor (2).</p>
 <p>The next step is determining the stages of your app. Stages of an app are repeated a given number of times. The repeated public goods game has the following stages:</p>
 <ol>
 <li>Decision stage: players choose how much to contribute.</li>
 <li>Results stage: players are shown their profit for this period.</li>
 </ol>
 <p>Stages are created and added to the app using the <a href="App.html#newStage"><code>app.newStage(stageId)</code></a> function. Add the following code to your file:</p>
-<pre class="prettyprint source lang-javascript"><code>var decideStage  = app.newStage('decide')
-var resultsStage = app.newStage('results')</code></pre><p>The <code>content</code> field of a stage is shown to players when they are active in the stage. Content is mostly regular HTML, which consists of sets of tags. Tags are written in between greater than <code>&lt;</code> and less than <code>&gt;</code> characters, such as <code>&lt;p&gt;</code>. Tags can contain content, in which case they should also usually have an ending tag: <code>&lt;p&gt;This is a paragraph.&lt;/p&gt;</code>.</p>
+<pre class="prettyprint source lang-javascript"><code>var decideStage  = app.newStage('decide');
+var resultsStage = app.newStage('results');</code></pre><p>The <code>content</code> field of a stage is shown to players when they are active in the stage. Content is mostly regular HTML, which consists of sets of tags. Tags are written in between greater than <code>&lt;</code> and less than <code>&gt;</code> characters, such as <code>&lt;p&gt;</code>. Tags can contain content, in which case they should also usually have an ending tag: <code>&lt;p&gt;This is a paragraph.&lt;/p&gt;</code>.</p>
 <p>For the 'Decide' screen, we want to show the following information to the player:</p>
 <ul>
 <li>A title (&quot;DECISION&quot;).</li>
@@ -59,7 +59,7 @@ var resultsStage = app.newStage('results')</code></pre><p>The <code>content</cod
 <pre class="prettyprint source lang-javascript"><code>decideStage.activeScreen = `
     &lt;p>DECISION&lt;/p>
     ...
-`;</code></pre><p>jtree automatically updates any text it finds within double curly braces, <code>{{</code> and <code>}}</code>, with the value of the given expression. For example, in the decision screen, <code>{{app.endowment}}</code> would be replaced with &quot;20&quot;. The <code>name</code> attribute of the <code>&lt;input&gt;</code> tag is the name assigned to the chosen value.</p>
+`;</code></pre><p>jtree automatically updates any text it finds within double curly braces, <a href="App.html#textMarkerBegin"><code>{{</code></a> and <code>}}</code>, with the value of the given expression. For example, in the decision screen, <code>{{app.endowment}}</code> would be replaced with &quot;20&quot;. The <code>name</code> attribute of the <code>&lt;input&gt;</code> tag is the name assigned to the chosen value.</p>
 <p>For the results stage, we wish to first calculate production of the public good and payoffs, and then display this information to the players. Add the following to the end of your file:</p>
 <pre class="prettyprint source lang-javascript"><code>// app.js
 resultsStage.groupStart = function(group) {
@@ -70,7 +70,7 @@ resultsStage.groupStart = function(group) {
         var player = group.players[i];
         player.points = app.endowment - player.contribution + group.prodPerPlayer;
     }
-}</code></pre><p>The <code>Stage.groupStart(group)</code> function is called whenever a group begins playing the stage in question. It is passed the Group object, which is essentially a list of Players, as an argument. In our example, whenever a group starts playing this stage, the group contributions, production and production per player are calculated and stored as fields of the group object. Then, for every player in the group, points for the current period are calculated.</p>
+}</code></pre><p>The <a href="Stage.html#groupStart"><code>Stage.groupStart(group)</code></a> function is called whenever a group begins playing the stage in question. It is passed the Group object, which is essentially a list of Players, as an argument. In our example, whenever a group starts playing this stage, the group contributions, production and production per player are calculated and stored as fields of the group object. Then, for every player in the group, points for the current period are calculated.</p>
 <p>Now add the screen content:</p>
 <pre class="prettyprint source lang-javascript"><code>resultsStage.activeScreen = `
 &lt;p>RESULTS&lt;/p>
@@ -114,7 +114,7 @@ resultsStage.activeScreen = `
     &lt;form>
         &lt;button>OK&lt;/button>
     &lt;/form>
-`;</code></pre><p>And now the app is complete. To test it, simply follow the previous tutorial on running a session.</p>
+`;</code></pre><p>And now the app is complete. To test it, simply follow the previous tutorial on <a href='file:///Users/esragul/Downloads/jtree-0-2/internal/docs/tutorial-3-running-a-session.html'>running a session.</a></p>
 </article>
 
 </section>
@@ -122,13 +122,13 @@ resultsStage.activeScreen = `
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="jtree%250D%250DCreates%2520instances%2520of_%250D%257B@link%2520Settings%257D%250D%257B@link%2520Logger%257D%250D%257B@link%2520Data%257D%250D%257B@link%2520StaticServer%257D%250D%257B@link%2520SocketServer%257D%250D%250DIf%2520requested,%2520opens%2520the%2520admin%2520interface.module_.html">jtreeCreates instances of:<a href="Settings.html">Settings</a><a href="Logger.html">Logger</a><a href="Data.html">Data</a><a href="StaticServer.html">StaticServer</a><a href="SocketServer.html">SocketServer</a>If requested, opens the admin interface.</a></li></ul><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Jul 24 2018 14:40:21 GMT+0200 (Mitteleuropäische Sommerzeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jul 25 2018 11:43:27 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>
