@@ -9,3 +9,4 @@ client/sessions
 client/users
 client/internal/serverState.json
 .DS_Store
+desktop.ini
