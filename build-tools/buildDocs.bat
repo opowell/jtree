@@ -1,12 +1,10 @@
-call del ".\client\internal\docs" /Q /F
-call rmdir ".\client\internal\docs" /Q /S
+set "htmlDir=.\client\internal\docs"
+call del %htmlDir% /Q /F
+call rmdir %htmlDir% /Q /S
 call jsdoc -c ".\build-tools\jsdoc-config.json"
 
-set "htmlFolder="
-set "mdFolder="
-set "jsonFolder="
-call del %api-docs-folder% /Q /F
-call rmdir %api-docs-folder% /Q /S
-call documentation build server/source/** -f html -o .\client\internal\docjs-html --config build-tools/documentation.yml --github
-call documentation build server/source/** -f md -o .\client\internal\docjs.md --config build-tools/documentation.yml --github
+set "mdDir=.\client\internal\docjs-md"
+call del %mdDir% /Q /F
+call documentation build server/source/App.js -f md -o %mdDir%\app.md --github --shallow
+call documentation build server/source/Group.js -f md -o %mdDir%\group.md --github --shallow
 call documentation build server/source/** -f json -o .\client\internal\docjs.json --config build-tools/documentation.yml --github
