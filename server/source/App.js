@@ -179,7 +179,7 @@ class App {
          */
          this.groupSize = undefined;
 
-         //TODO:
+         /**TODO:*/
          this.groupingType = undefined;
 
         /**
