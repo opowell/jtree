@@ -1,4 +1,4 @@
-By default, all players will play all stages of an app. This behaviour can be customized by creating a `Stage.canPlayerParticipate(player)` function that returns true if the player should play the stage, or false otherwise.
+By default, all players will play all stages of an app. This behaviour can be customized by creating a [`Stage.canPlayerParticipate(player)`]{@link Stage#canPlayerParticipate} function that returns true if the player should play the stage, or false otherwise.
 
 Here is an example:
 
@@ -13,4 +13,4 @@ myStage.canPlayerParticipate = function(player) {
 }
 ```
 
-In this example, only the first players of each group will play `myStage`. Other players will proceed directly to the next stage, without calling `myStage.playerStart` and `myStage.playerEnd`.
+In this example, only the first players of each group will play `myStage`. Other players will proceed directly to the next stage, without calling [`myStage.playerStart`]{@link Stage#playerStart} and [`myStage.playerEnd`]{@link Stage#playerEnd}
