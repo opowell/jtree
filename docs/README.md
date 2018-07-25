@@ -4,9 +4,6 @@ A javascript toolbox for running economics experiments.
 ## Installing
 Download for your system, unzip and run.
 
-<a href='/reference/index.html'>INDEX</a>
-<a href='./reference/index.html'>INDEX2</a>
-
 {% assign image_files = site.static_files %}
 {% for myimage in image_files %}
   {{ myimage.path }}
@@ -45,3 +42,6 @@ Parts of the documentation are accurate, others are out of date, while still oth
 #### <a href='https://github.com/opowell/jtree/blob/master/doc-pages/4-designing-an-app.md'>Designing an app</a>
 
 #### <a href='https://github.com/opowell/jtree/blob/master/doc-pages/7-release-notes.md'>Release notes</a>
+
+#### <a href='./reference/index.html'>Reference</a>
+
