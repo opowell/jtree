@@ -1,91 +1,33 @@
-# Test
+## Installing
+Download for your system, unzip and run.
 
-Text can be **bold**, _italic_, or ~~strikethrough~~.
+<a href='https://github.com/opowell/jtree/raw/master/releases/jtree-0.5.3-win.zip'>jtree 0.5.3 for Windows</a>
 
-[Link to another page](./another-page.html).
+<a href='https://github.com/opowell/jtree/raw/master/releases/jtree-0.5.3-mac.zip'>jtree 0.5.3 for Mac</a>
 
-There should be whitespace between paragraphs.
+#### Planned features
+- same look and functionality as zTree, plus:
+- modern programming capabilities (functions; objects).
+- subjects not required to install separate program.
+- participants not required to use Windows. 
+- server runs natively on MacOS and Linux.
+- autoplay for testing.
+- users: share one server among many experimenters.
+- rooms: persistent links for subjects.
+- treatment options: facilitate switching between important parameter configurations of a treatment.
+- session queues: save sequences of treatments (including their options) for re-use.
 
-There should be whitespace between paragraphs. We recommend including a README, or a file with information about your project.
 
-# Header 1
+### UNDER DEVELOPMENT
+Parts of the documentation are accurate, others are out of date, while still others refer to functionality that will be implemented soon (but for the moment still does not exist). Proceed with caution.
 
-This is a normal paragraph following a header. GitHub is a code hosting platform for version control and collaboration. It lets you and others work together on projects from anywhere.
+#### <a href='doc-pages/1-quick-start.md'>Quick start</a>
 
-## Header 2
+#### <a href='tutorial-2-setup.html'>Setup</a>
 
-> This is a blockquote following a header.
->
-> When something is important enough, you do it even if the odds are not in your favor.
+#### <a href='tutorial-3-running-a-session.html'>Running a session</a>
 
-### Header 3
+#### <a href='tutorial-4-designing-an-app.html'>Designing an app</a>
 
-```js
-// Javascript code with syntax highlighting.
-var fun = function lang(l) {
-  dateformat.i18n = require('./lang/' + l)
-  return true;
-}
-```
+#### <a href='tutorial-7-release-notes.html'>Release notes</a>
 
-```ruby
-# Ruby code with syntax highlighting
-GitHubPages::Dependencies.gems.each do |gem, version|
-  s.add_dependency(gem, "= #{version}")
-end
-```
-
-#### Header 4
-
-*   This is an unordered list following a header.
-*   This is an unordered list following a header.
-*   This is an unordered list following a header.
-
-##### Header 5
-
-1.  This is an ordered list following a header.
-2.  This is an ordered list following a header.
-3.  This is an ordered list following a header.
-
-###### Header 6
-
-| head1        | head two          | three |
-|:-------------|:------------------|:------|
-| ok           | good swedish fish | nice  |
-| out of stock | good and plenty   | nice  |
-| ok           | good `oreos`      | hmm   |
-| ok           | good `zoute` drop | yumm  |
-
-### There's a horizontal rule below this.
-
-* * *
-
-### Here is an unordered list:
-
-*   Item foo
-*   Item bar
-*   Item baz
-*   Item zip
-
-### And an ordered list:
-
-1.  Item one
-1.  Item two
-1.  Item three
-1.  Item four
-
-### And a nested list:
-
-- level 1 item
-  - level 2 item
-  - level 2 item
-    - level 3 item
-    - level 3 item
-- level 1 item
-  - level 2 item
-  - level 2 item
-  - level 2 item
-- level 1 item
-  - level 2 item
-  - level 2 item
-- level 1 item
