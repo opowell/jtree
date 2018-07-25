@@ -51,4 +51,4 @@ If [`Stage.waitToStart`]{@link Stage#waitToStart} is `true`, no player can start
 If [`Stage.waitToEnd`]{@link Stage#waitToEnd} is `true`, no player can end the stage until all players in the group are finished.
 As soon as a player ends the stage, they move to the next stage in the session (if there is one) and begin again at the first step of this procedure.
 
-Groups belong to Periods. This means that whenever a stage has [`waitToStart`]{@link Stage#waitToStart} as false, groups can "start" that stage before finishing one or more of the group's previous stages.
+Groups belong to Periods. This means that whenever a stage has `waitToStart` as false, groups can "start" that stage before finishing one or more of the group's previous stages.

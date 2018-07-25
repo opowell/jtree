@@ -33,13 +33,22 @@ if (process.argv[0].indexOf('node') > -1) {
     jt.path         = path.dirname(process.execPath);
 }
 
-/** The {@link Settings}. */
+/**
+ * @type  {Settings}
+ * The settings
+ */
 jt.settings     = new Settings.new(jt);
 
-/** The {@link Logger} utility. */
+/**
+ * @type {Logger}
+ * The utility for writting logs.
+ */
 jt.logger       = new Logger.new(jt);
 
-/** The {@link Data} object. */
+/**
+ * @type {Data}
+ * The Data object
+ */
 jt.data         = new Data.new(jt);
 
 /**

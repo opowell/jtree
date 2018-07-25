@@ -13,15 +13,19 @@ class App {
      * Creates an App.
      *
      * @param  {Session} session description
-     * @param  {string} id      description
+     * @param  {String} id      description
      */
     constructor(session, id, jt, appPath) {
 
         /**
          * The unique identifier of this App.
+         * @type {String}
          */
         this.id = id;
 
+        /**
+         * @type {jt}
+         */
         this.jt = jt;
 
         /** Where the original definition of this app is stored on the server.*/
@@ -37,18 +41,21 @@ class App {
         /**
          * The stages of this app.
          * @type Array
+         * @default []
          */
         this.stages = [];
 
         /**
          * The options of this app.
          * @type Array
+         * @default []
          */
         this.options = [];
 
         /**
          * The option values of this app.
          * @type Object
+         * @default {}
          */
         this.optionValues = {};
 
@@ -59,6 +66,7 @@ class App {
         /**
          * The number of periods in this App.
          * @type number
+         * @default 1
          */
         this.numPeriods = 1;
 
@@ -89,7 +97,7 @@ class App {
             </html>
         `;
 
-        /** TODO:  */
+        /** TODO:   */
         this.screen = '';
 
         /** Shown on all client playing screens if {@link Stage.useAppActiveScreen} = true.
@@ -113,6 +121,7 @@ class App {
         /**
          * The periods of this App.
          * @type Array
+         * @default []
          */
         this.periods = [];
 
@@ -131,6 +140,7 @@ class App {
          * - y-axis object (i.e. 'period')
          * Field values are aggregated using the arithmetic mean as necessary (for example, if field is player.x, but x-axis is group, then table shows arithmetic mean of all player.x in a group).
          * @type Array
+         * @default []
          */
         this.keyComparisons = [];
 
@@ -151,6 +161,7 @@ class App {
         /**
          * Messages to listen for from clients.
          * @type Object
+         * @default {}
          */
         this.messages = {};
 
@@ -163,14 +174,16 @@ class App {
 
         /**
          * If defined, subjects are assigned randomly to groups of this size takes precedence over numGroups.
+         * @type number
+         * @default undefined
          */
          this.groupSize = undefined;
 
         /**
          * if defined, subjects are split evenly into this number of groups
          * overridden by groupSize.
-         * @default undefined
          * @type number
+         * @default undefined
          */
         this.numGroups = undefined;
 
@@ -222,6 +235,10 @@ class App {
             'appPath'];
 
         //TODO:
+        /**
+         * @type array
+         * @default []
+         */
         this.outputHide = [];
 
         /** TODO: Description
@@ -602,10 +619,7 @@ class App {
      */
     end() {
 
-        /** TODO: Description
-         * @type boolean
-         * @default true
-         */
+        
         this.finished = true;
 
         this.saveOutput(this.session.csvFN());

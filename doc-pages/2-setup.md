@@ -1,7 +1,7 @@
 Download the zip file for your system:
 
 - <a href='https://github.com/opowell/jtree/raw/master/releases/jtree-win.zip'>Windows</a>
-- <a href='https://github.com/opowell/jtree/raw/master/releases/jtree-macos.zip'> Mac OS</a>
+- <a href='https://github.com/opowell/jtree/raw/master/releases/jtree-macos.zip'>Mac OS</a>
 - <a href='https://github.com/opowell/jtree/raw/master/releases/jtree-linux.zip'>Linux</a>
 - <a href='https://github.com/opowell/jtree/raw/master/releases/jtree-winxp.zip'>WindowsXP</a>
 
