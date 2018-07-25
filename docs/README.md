@@ -4,11 +4,6 @@ A javascript toolbox for running economics experiments.
 ## Installing
 Download for your system, unzip and run.
 
-{% assign image_files = site.static_files %}
-{% for myimage in image_files %}
-  {{ myimage.path }}
-{% endfor %}
-
 <a href='https://github.com/opowell/jtree/raw/master/releases/jtree-win.zip'>jtree for Windows</a>
 
 <a href='https://github.com/opowell/jtree/raw/master/releases/jtree-macos.zip'>jtree for Mac</a>
