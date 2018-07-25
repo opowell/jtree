@@ -1,5 +1,6 @@
 # jtree
 A javascript toolbox for running economics experiments.
+TEST
 
 ## Installing
 Download for your system, unzip and run.
