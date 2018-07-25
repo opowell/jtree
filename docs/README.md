@@ -4,6 +4,8 @@ A javascript toolbox for running economics experiments.
 ## Installing
 Download for your system, unzip and run.
 
+<a href='/reference/index.html'>INDEX</a>
+
 {% assign image_files = site.static_files %}
 {% for myimage in image_files %}
   {{ myimage.path }}
