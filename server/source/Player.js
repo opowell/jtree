@@ -28,7 +28,7 @@ class Player {
         this.id = id;
 
         /**
-         * @type number
+         * @type {Number}
          */
         this.idInGroup = idInGroup;
 

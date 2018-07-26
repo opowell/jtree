@@ -1,0 +1,8 @@
+app.title = 'Show Picture';
+app.description = 'This app enables you to see a picture';
+
+var pictureStage = app.newStage('picture');
+pictureStage = activeScreen ´
+  <img src= "cat.jpg" alt= "cat picture" width= "500" height= "600">
+  <button> OK </button>
+´;
