@@ -1,8 +1,7 @@
-# jtree
-A javascript toolbox for running economics experiments.
-
-## Installing
+## Getting started
 Download for your system, unzip and run.
+
+Latest version (2018.07.26): *0.6.1*
 
 <a href='https://github.com/opowell/jtree/raw/master/releases/jtree-win.zip'>jtree for Windows</a>
 
@@ -16,7 +15,7 @@ Download for your system, unzip and run.
 - same look and functionality as zTree, plus:
 - modern programming capabilities (functions; objects).
 - subjects not required to install separate program.
-- participants not required to use Windows. 
+- participants not required to use Windows.
 - server runs natively on MacOS and Linux.
 - autoplay for testing.
 - users: share one server among many experimenters.
@@ -39,4 +38,3 @@ Parts of the documentation are accurate, others are out of date, while still oth
 #### <a href='https://github.com/opowell/jtree/blob/master/doc-pages/7-release-notes.md'>Release notes</a>
 
 #### <a href='./reference/index.html'>Reference</a>
-

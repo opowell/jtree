@@ -7,6 +7,5 @@ client/internal/clients/shared/shared.js
 client/queues
 client/sessions
 client/users
-client/internal/serverState.json
 .DS_Store
 desktop.ini

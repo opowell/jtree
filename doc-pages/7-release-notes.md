@@ -1,3 +1,6 @@
+##### 0.6.1
+- Cleaned up extra files.
+
 ##### 0.6.0
 - Show # of participants in UI.
 - various model fixes.

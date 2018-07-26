@@ -34,7 +34,7 @@ if (process.argv[0].indexOf('node') > -1) {
 }
 
 /**
- * @type  {Settings}
+ * @type {Settings}
  * The settings
  */
 jt.settings     = new Settings.new(jt);
