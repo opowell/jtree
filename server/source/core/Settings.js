@@ -39,6 +39,8 @@ class Settings {
 
          this.valsToSave = {};
 
+         this.logMessage = null;
+
          /**
           * Pre-specified participant IDs.
           */
@@ -62,7 +64,7 @@ class Settings {
                  this[i] = json[i];
              }
          } catch (err) {
-             jt.log(err);
+             this.logMessage = err;
          }
 
          if (this.port === undefined) {

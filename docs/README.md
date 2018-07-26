@@ -26,14 +26,16 @@ Latest version (2018.07.26): *0.6.2*
 ### UNDER DEVELOPMENT
 Parts of the documentation are accurate, others are out of date, while still others refer to functionality that will be implemented soon (but for the moment still does not exist). Proceed with caution.
 
-#### <a href='https://github.com/opowell/jtree/blob/master/doc-pages/1-quick-start.md'>Quick start</a>
+#### <a href='https://opowell.github.io/jtree/reference/tutorial-1-quick-start.html'>Quick start</a>
 
-#### <a href='https://github.com/opowell/jtree/blob/master/doc-pages/2-setup.md'>Setup</a>
+#### <a href='https://opowell.github.io/jtree/reference/tutorial-2-setup.html'>Setup</a>
 
-#### <a href='https://github.com/opowell/jtree/blob/master/doc-pages/3-running-a-session.md'>Running a session</a>
+#### <a href='https://opowell.github.io/jtree/reference/tutorial-3-running-a-session.html'>Running a session</a>
 
-#### <a href='https://github.com/opowell/jtree/blob/master/doc-pages/4-designing-an-app.md'>Designing an app</a>
+#### <a href='https://opowell.github.io/jtree/reference/tutorial-4-designing-an-app.html'>Designing an app</a>
 
-#### <a href='https://github.com/opowell/jtree/blob/master/doc-pages/7-release-notes.md'>Release notes</a>
+#### <a href='https://opowell.github.io/jtree/reference/tutorial-7-release-notes.html'>Release notes</a>
 
 #### <a href='https://opowell.github.io/jtree/reference/index.html'>Reference</a>
+
+<a href='https://opowell.github.io/jtree'>opowell.github.io/jtree</a>

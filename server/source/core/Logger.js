@@ -18,6 +18,10 @@ class Logger {
         jt.log = function(text) {
             jt.logger.log(text);
         }
+
+        if (jt.settings.logMessage != null) {
+            this.log(jt.settings.logMessage);
+        }
     }
 
     /**

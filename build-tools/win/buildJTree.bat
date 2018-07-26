@@ -34,7 +34,6 @@ call xcopy ".\client\apps\travellers-dilemma.jtt" ".\releases\%vers%\apps\" /E
 call xcopy ".\client\apps\trust-game.jtt" ".\releases\%vers%\apps\" /E
 call xcopy ".\client\apps\ultimatum-game.jtt" ".\releases\%vers%\apps\" /E
 
-call xcopy ".\client\queues" ".\releases\%vers%\queues\" /E
 call xcopy ".\client\internal" ".\releases\%vers%\internal\" /E
 call xcopy ".\client\help.html" ".\releases\%vers%\"
 call xcopy ".\server\source" ".\releases\%vers%\internal\source\" /E
@@ -55,11 +54,9 @@ call del ".\releases\%vers%\jtree-macos-x64" /Q /F
 call del ".\releases\%vers%\jtree-linux-x64" /Q /F
 call del ".\releases\%vers%\apps" /Q /F
 call del ".\releases\%vers%\internal" /Q /F
-call del ".\releases\%vers%\queues" /Q /F
 call del ".\releases\%vers%\help.html" /Q /F
 call rmdir ".\releases\%vers%\apps" /Q /S
 call rmdir ".\releases\%vers%\internal" /Q /S
-call rmdir ".\releases\%vers%\queues" /Q /S
 
 REM ------- Update latest release
 call xcopy ".\releases\%vers%\jtree-%vers%-winxp.zip" ".\releases" /i /Y
