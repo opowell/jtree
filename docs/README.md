@@ -37,4 +37,4 @@ Parts of the documentation are accurate, others are out of date, while still oth
 
 #### <a href='https://github.com/opowell/jtree/blob/master/doc-pages/7-release-notes.md'>Release notes</a>
 
-#### <a href='./reference/index.html'>Reference</a>
+#### <a href='https://opowell.github.io/jtree/reference/index.html'>Reference</a>
