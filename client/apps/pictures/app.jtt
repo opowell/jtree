@@ -1,0 +1,9 @@
+app.title = 'Show Picture';
+app.description = 'This app enables you to see a picture';
+
+var pictureStage = app.newStage('picture');
+pictureStage.activeScreen = `
+  <img src='./pictures/cat.jpg'>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/a/a3/June_odd-eyed-cat.jpg">
+  <button>OK</button>
+`;

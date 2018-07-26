@@ -29,7 +29,10 @@ class Period {
          */
         this.groups = [];
 
-        // 'outputHide' fields are not included in output
+        /**
+         * 'outputHide' fields are not included in output
+         * @type {String[]}
+         */
         this.outputHide = ['stage', 'status', 'this', 'curAppId', 'periodTemp',
         'periodPerm', 'periodPermAuto', 'outputHide', 'app', 'groups', 'type',
         'stageTimerStart','stageTimerDuration','stageTimerTimeLeft','stageTimerStageIndex','stageTimerCallback','periodId','appIndex', 'gIds'];
