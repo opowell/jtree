@@ -62,8 +62,7 @@ class Settings {
                  this[i] = json[i];
              }
          } catch (err) {
-             console.log(err);
-             debugger;
+             jt.log(err);
          }
 
          if (this.port === undefined) {

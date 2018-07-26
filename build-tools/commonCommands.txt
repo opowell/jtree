@@ -1,9 +1,9 @@
 PROCEDURE
 1. Set version in:
 - build-tools/xxx/buildJTree.xxx
-- server/jtree.js
 - doc-pages/release-notes.md
 - docs/README.md
+- server/jtree.js
 - README.md
 2. Compile new version of jtree.
 3. Commit and push changes to "master" branch on Github.

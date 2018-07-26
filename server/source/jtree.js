@@ -34,32 +34,32 @@ if (process.argv[0].indexOf('node') > -1) {
 }
 
 /**
- * @type {Settings}
  * The settings
+ * @type {Settings}
  */
 jt.settings     = new Settings.new(jt);
 
 /**
- * @type {Logger}
  * The utility for writting logs.
+ * @type {Logger}
  */
 jt.logger       = new Logger.new(jt);
 
 /**
- * @type {Data}
  * The Data object
+ * @type {Data}
  */
 jt.data         = new Data.new(jt);
 
 /**
- * @type {StaticServer}
  * The process that serves static files to clients.
+ * @type {StaticServer}
  */
 jt.staticServer = new StaticServer.new(jt);
 
 /**
- * @type {SocketServer}
  * The process that receives and sends messages to clients.
+ * @type {SocketServer}
  */
 jt.socketServer = new SocketServer.new(jt);
 

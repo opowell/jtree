@@ -18,7 +18,10 @@ class App {
     constructor(session, id, jt, appPath) {
 
         /**
-         * The unique identifier of this App.
+         * The unique identifier of this App. In order of precedence, the value is given by:
+         * - the explicit value in the .jtt file (if it has been set)
+         * - the name of the .jtt file (if it is not app.jtt or app.js)
+         * - the name of the folder containing the .jtt file
          * @type {String}
          */
         this.id = id;

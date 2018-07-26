@@ -4,7 +4,7 @@ A javascript toolbox for running economics experiments.
 ## Getting started
 Download for your system, unzip and run.
 
-Latest version (2018.07.26): *0.6.1*
+Latest version (2018.07.26): *0.6.2*
 
 <a href='https://github.com/opowell/jtree/raw/master/releases/jtree-win.zip'>jtree for Windows</a>
 
@@ -25,7 +25,6 @@ Latest version (2018.07.26): *0.6.1*
 - rooms: persistent links for subjects.
 - treatment options: facilitate switching between important parameter configurations of a treatment.
 - session queues: save sequences of treatments (including their options) for re-use.
-
 
 ### UNDER DEVELOPMENT
 Parts of the documentation are accurate, others are out of date, while still others refer to functionality that will be implemented soon (but for the moment still does not exist). Proceed with caution.

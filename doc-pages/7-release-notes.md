@@ -1,4 +1,8 @@
 ##### 0.6.1
+- Documentation for App.id and using static files.
+- Removed console error for missing settings.js file.
+
+##### 0.6.1
 - Cleaned up extra files.
 
 ##### 0.6.0

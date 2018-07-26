@@ -27,28 +27,24 @@ Period.playerEnd(player)
 Period.groupEnd(group)
 ```
 
-Customizing periods...
-
 Within the period, players and groups progress through the stages of the app. Within each stage, the following functions are called for the groups and players:
 
-```javascript
-player.status = 'ready'
-// If Stage.waitToStart == true, pause here until all players are ready.
-Stage.groupStart(group) // Called before any player starts the stage.
-player.status = 'playing'
-Stage.playerStart(player)
-// Players play the stage.
-player.status = 'finished'
-// If Stage.waitToEnd == true, pause here until all players are finished.
-Stage.playerEnd(player)
-player.status = 'done'
-// Player begins procedure for next stage in session, if any.
-Stage.groupEnd(group) // Only called once all players have ended the stage.
-// Group begins procedure for next stage in session, if any.
-```
+1. `player.status` is set to `'ready'`.
+2. If `Stage.waitToStart == true`, pause here until all players are ready.
+3. `Stage.groupStart(group)` is called.
+4. `player.status` is set to `'playing'`.
+5. `Stage.playerStart(player)` is called.
+6. Players are shown the active screen.
+7. `player.status` is set to `'finished'`.
+8. If `Stage.waitToEnd == true`, pause here until all players are finished.
+9. `Stage.playerEnd(player)` is called.
+10. `player.status` is set to `'done'`.
+11. Player begins procedure for next stage in session, if any.
+12. Once all players in the group have ended the stage, `Stage.groupEnd(group)` is called.
+13. Group begins procedure for next stage in session, if any.
 
-If [`Stage.waitToStart`]{@link Stage#waitToStart} is `true`, no player can start the stage until all players in the group are ready.
-If [`Stage.waitToEnd`]{@link Stage#waitToEnd} is `true`, no player can end the stage until all players in the group are finished.
+If [`Stage.waitToStart`]{@link Stage#waitToStart} is `true`, no player can start the stage (Step 3) until all players in the group are ready.
+If [`Stage.waitToEnd`]{@link Stage#waitToEnd} is `true`, no player can end the stage (Step 9) until all players in the group are finished.
 As soon as a player ends the stage, they move to the next stage in the session (if there is one) and begin again at the first step of this procedure.
 
 Groups belong to Periods. This means that whenever a stage has `waitToStart` as false, groups can "start" that stage before finishing one or more of the group's previous stages.
