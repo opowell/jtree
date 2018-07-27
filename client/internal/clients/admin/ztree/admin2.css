@@ -8,6 +8,10 @@ jt-panel {
     left: 4rem;
 }
 
+a:hover {
+    cursor: default;
+}
+
 .jt-panel .panel-title-control .fa-window-restore {
     display: none;
 }

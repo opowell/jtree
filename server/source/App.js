@@ -864,9 +864,12 @@ class App {
         metaData.appPath = this.appPath;
 
         // var folder = path.join(this.jt.path, this.jt.settings.appFolders[0] + '/' + this.id);
-
         try {
-            metaData.appjs = Utils.readJS(this.appPath + '/app.jtt');
+            if (this.appPath.endsWith('.jtt') || this.appPath.endsWith('.js')) {
+                metaData.appjs = Utils.readJS(this.appPath);
+            } else {
+                metaData.appjs = Utils.readJS(this.appPath + '/app.jtt');
+            }
         } catch (err) {
             metaData.appjs = '';
         }

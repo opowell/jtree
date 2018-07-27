@@ -59,7 +59,7 @@ jt.TreatmentPanel = function(id) {
         console.log('double click' + JSON.stringify(node));
         const app = $(this).data('app');
         switch (node.text) {
-            case 'App':
+            case 'Background':
                 jt.showAppPropertiesModal(app);
                 break;
             case 'Active screen':
@@ -144,7 +144,7 @@ jt.TreatmentPanel_SetTree = function(panel, appData) {
 jt.getTreeFromApp = function(app) {
     const out = [
         {
-            "text":"App",
+            "text":"Background",
             "type":"background",
             "state":{
                 "opened": true,
@@ -171,7 +171,7 @@ jt.getTreeFromApp = function(app) {
         }
     ];
 
-    const appFieldsToSkip = ['stages', 'options', 'periods', 'indexInSession'];
+    const appFieldsToSkip = ['id', 'stages', 'options', 'periods', 'indexInSession'];
     for (var i in app) {
         if (!appFieldsToSkip.includes(i)) {
             let name = i;

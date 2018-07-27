@@ -1,8 +1,20 @@
-This tutorial describes the sequence of events that happen during a session. In particular, it points out the various functions that can be used to design an app. For more details about this procedure, see the <a href="tutorial-session-flow-details.html">advanced tutorial</a>.
+This tutorial describes the sequence of events that happen during an app. In particular, it points out the various functions that can be used to design an app. For more details about this procedure, see the <a href="tutorial-session-flow-details.html">advanced tutorial</a>.
 
-In jtree, participants progress through a session which consists of apps, periods and stages. In doing so, they take the form of players and groups. Broadly speaking, each object calls `playerStart` (or `groupStart`) and `playerEnd` (or `groupEnd`) whenever a player (or group) begins or finishes that part of the experiment. Designing the logic of the app is simply a matter of overwriting these methods.
+In a jtree app, participants progress through a series of periods and stages. Within each period repeats the stages. In doing so, they take the form of players and groups. Broadly speaking, each object calls `playerStart` (or `groupStart`) and `playerEnd` (or `groupEnd`) whenever a player (or group) begins or finishes that part of the experiment.
 
-This is done in the app's `app.js` file. This file has access to the `App` object, from which Stages can be created and customized via the [`App.newStage(id)`]{@link App#newStage} function. Periods can be customized by overwriting the [`App.createPeriod(id)`]{@link App#createPeriod} method.
+For example, in a simple app the sequence of events might be:
+1. stage1.groupStart(G1);
+2. stage1.playerStart(P1);
+3. stage1.playerStart(P2);
+4. stage1.playerEnd(P1);
+5. stage1.playerEnd(P2);
+6. stage1.groupEnd(G1);
+
+(Note that the order of the player functions (P1, P2) depends on how quickly each player progresses through the app.)
+
+The logic of the app is implemented by overwriting each of these "start" and "end" methods.
+
+This is done in the app's source file. This file has access to the `{@link App}` object, from which Stages can be created via the [`App.newStage(id)`]{@link App#newStage} function. Periods can be customized by overwriting the [`App.createPeriod(id)`]{@link App#createPeriod} method.
 
 The rest of this tutorial describes approximately the order in which events take place within a session. Due to the option of letting participants progress through different stages without waiting for each other, the actual order of these events may differ in actual sessions.
 
@@ -27,7 +39,7 @@ Period.playerEnd(player)
 Period.groupEnd(group)
 ```
 
-Within the period, players and groups progress through the stages of the app. Within each stage, the following functions are called for the groups and players:
+Within each period, players and groups progress through the stages of the app. Within each stage, the following functions are called for the groups and players:
 
 1. `player.status` is set to `'ready'`.
 2. If `Stage.waitToStart == true`, pause here until all players are ready.
@@ -42,6 +54,8 @@ Within the period, players and groups progress through the stages of the app. Wi
 11. Player begins procedure for next stage in session, if any.
 12. Once all players in the group have ended the stage, `Stage.groupEnd(group)` is called.
 13. Group begins procedure for next stage in session, if any.
+
+When a session is started, all players begin the first app of the session.
 
 If [`Stage.waitToStart`]{@link Stage#waitToStart} is `true`, no player can start the stage (Step 3) until all players in the group are ready.
 If [`Stage.waitToEnd`]{@link Stage#waitToEnd} is `true`, no player can end the stage (Step 9) until all players in the group are finished.

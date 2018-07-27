@@ -135,7 +135,8 @@ class Data {
         }
 
         try {
-            eval(fs.readFileSync(appPath) + '');
+            app.appjs = fs.readFileSync(appPath) + '';
+            eval(app.appjs);
         } catch (err) {
             this.jt.log('Data.loadApp: ' + appPath);
             this.jt.log(err);

@@ -52,7 +52,7 @@ decideStage.activeScreen = `
 `;
 ```
 
-jtree automatically updates any text it finds within double curly braces, [`{{`]{@link App#textMarkerBegin} and [`}}`]{@link App#textMarkerEnd}, with the value of the given expression. For example, in the decision screen, `{{app.endowment}}` would be replaced with "20". The `name` attribute of the `<input>` tag is the name assigned to the chosen value.
+jtree automatically updates any text it finds within double curly braces, [`{{`]{@link App#textMarkerBegin} and [`}}`]{@link App#textMarkerEnd}, with the value of the given expression. For example, in the decision screen, `{{app.endowment}}` would be replaced with "20". Available objects are `player`, `group` (the current player's group), `period` (the group's period), `app`, `session` and `stage`. The `name` attribute of an `<input>` tag is the name of the inputted value.
 
 For the results stage, we wish to first calculate production of the public good and payoffs, and then display this information to the players. Add the following to the end of your file:
 

@@ -23,7 +23,7 @@ class Player {
 
         /**
          * The player's ID.
-         * @type {Participant}
+         * @type {String}
          */
         this.id = id;
 
@@ -66,12 +66,14 @@ class Player {
          * 'outputHide' fields are not included in output.
          * @type Array
          * @default []
+         * @private
          */
         this.outputHide = [];
 
         /**
          * 'outputHideAuto' fields are not included in output.
          * @type {String[]}
+         * @private
          */
         this.outputHideAuto = [
             'appIndex',

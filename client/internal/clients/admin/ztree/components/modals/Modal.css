@@ -13,6 +13,7 @@
 .modal-dialog {
     box-shadow: 0px 0px 5px 3px #00000024;
     max-width: 95vw;
+    width: fit-content;
 }
 
 /* Modal Content/Box */
@@ -51,6 +52,8 @@
 .zt-gridbox {
     display: grid;
     padding: 5px;
+    align-items: baseline;
+    grid-row-gap: 0.5em;
 }
 
 .zt-standardbox {

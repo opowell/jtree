@@ -75,7 +75,7 @@ class Stage {
         this.onPlaySendPlayer = true;
 
         /**
-         * how far up the tree should be sent on update.
+         * how far up the tree should be sent on update. More data comes at a cost of higher network load.
          * possible values: 'player', 'group'
          * @type string
          * @default 'player'

@@ -76,8 +76,13 @@ jt.menuDefns = [
         children: [
             {
                 id: 'Info',
-                key: 'Ctrl+Z',
-                fn: 'jt.undo();'
+                key: 'Ctrl+I',
+                fn: 'jt.showTreatmentInfo();'
+            },
+            {
+                id: 'View code',
+                key: 'Ctrl+Shift+C',
+                fn: 'jt.showFocussedTreatmentCode();'
             },
             'divider',
             {
@@ -291,6 +296,17 @@ jt.menuDefns = [
 
 jt.about = function() {
 
+}
+
+jt.showTreatmentInfo = function() {
+    var app = $('.focussed-panel').find('.jstree').data('app');
+    jt.showAppPropertiesModal(app);
+}
+
+jt.showFocussedTreatmentCode = function() {
+    var app = $('.focussed-panel').find('.jstree').data('app');
+    var modal = jt.TreatmentCodeModal(app);
+    modal.modal('show');
 }
 
 jt.MenuEl = function(defn, focusOnHover) {

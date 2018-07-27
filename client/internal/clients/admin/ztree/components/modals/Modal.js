@@ -28,7 +28,7 @@ jt.Modal = function(id, title) {
     //   </div>
     // </div>
 
-    out.find('.modal-dialog').draggable();
+    out.find('.modal-dialog').draggable({ handle: ".modal-header" });
 
     out.click(function(ev) {
         if ($(ev.target).hasClass('modal')) {
@@ -68,5 +68,5 @@ jt.showModal = function(id) {
 }
 
 jt.closeModal = function() {
-    $('.modal.show').removeClass('modal-show');
+    $('.modal.show').modal('hide');
 }
