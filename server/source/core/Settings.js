@@ -14,7 +14,7 @@ class Settings {
          this.admins                 = {};
          this.adminLoginReq          = false; // whether or not admins need to login.
          this.allowClientsToCreateParticipants = true; // default for new sessions
-         this.autoSaveFreq           = 1000; // how often to save active sessions, in ms.
+         this.autoSaveFreq           = 100000; // how often to save active sessions, in ms.
          this.logToConsole           = false;
          this.openAdminOnStart       = true; // whether or not the admin page should be opened when the server starts.
          this.multipleUsers          = false;
@@ -26,6 +26,7 @@ class Settings {
          this.participantUI          = 'internal/clients/participant';
          this.clientUI               = 'internal/clients/participant';
          this.adminUIsPath           = 'internal/clients/admin';
+         this.adminUIsSharedPath     = '/shared'; // relative to adminUIsPath.
          this.appFolders             = ['apps']; // the location of apps folders
          this.queuesPath             = 'queues';
          this.roomsPath              = 'rooms';

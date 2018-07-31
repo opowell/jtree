@@ -5,6 +5,7 @@ const Utils     = require('../Utils.js');
 /**
  * Messages that the server listens for from clients.
  * Includes try-catch and notification (via console) of receipt.
+ * Corresponds to client/internal/clients/admin/shared/msgsToServer.js
  */
 class Msgs {
 
@@ -38,6 +39,17 @@ class Msgs {
         this.jt.data.appsMetaData[d.aId] = app.metaData();
     }
 
+    getAppMetadatas(cb, socket) {
+        debugger;
+        var apps = this.jt.data.getApps();
+        var metadatas = [];
+        for (var i in apps) {
+            metadatas.push(apps[i].metaData());
+        }
+        var message = {cb: cb, data: metadatas};
+        this.jt.io.to('socket_' + socket.id).emit('dataMessage', message);
+    }
+
     /*
      * setNumParticipants - Sets the specified number of participants to the session.
      *
@@ -50,6 +62,10 @@ class Msgs {
         var session = this.jt.data.getSession(d.sId);
         var num = parseInt(d.number);
         session.setNumParticipants(num);
+    }
+
+    appAddStage(d, socket) {
+        var session = this.jt.data.getApp(d.aId);
     }
 
     deleteParticipant(d, socket) {
@@ -147,7 +163,7 @@ class Msgs {
 
     saveRoom(room, sock) {
         this.jt.data.saveRoom(room);
-//        this.jt.socketServer.emitToAdmins('saveRoom', room);
+//        this.jt.socketServer.emitToAdmins('saveRoom', room);a
     }
 
     deleteQueue(id, sock) {
@@ -158,7 +174,7 @@ class Msgs {
     deleteAppFromQueue(qId, aId, appIndex) {
         var queue = this.jt.data.queue(qId);
         queue.deleteApp(aId, appIndex);
-        this.jt.socketServer.emitToAdmins('deleteAppFromQueue', {qId, aId, appIndex});
+        this.jt.socketServer.emitToAdmins('deleteAppFromQueue', {qId: qId, aId: aId, appIndex: appIndex});
     }
 
     deleteApp(id, sock) {
@@ -166,7 +182,7 @@ class Msgs {
         this.jt.socketServer.emitToAdmins('deleteApp', id);
     }
 
-    saveApp(app, sock) {
+    saveAppHTML(app, sock) {
         this.jt.data.saveApp(app);
         var appInfo = this.jt.data.apps[app.id];
         appInfo.origId = app.origId;
@@ -313,13 +329,6 @@ class Msgs {
         var session = Utils.findByIdWOJQ(this.jt.data.sessions, id);
         if (session !== null) {
             session.resume();
-        }
-    }
-
-    sessionStart(id) {
-        var session = Utils.findByIdWOJQ(this.jt.data.sessions, id);
-        if (session !== null) {
-            session.start();
         }
     }
 

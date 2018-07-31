@@ -1,11 +1,11 @@
-jt.TreatmentCodeModal = function(app) {
-    var out = jt.Modal('treatment-code', 'Code');
+jt.Modal_HTMLEditor = function() {
+    var out = jt.Modal('html-editor', 'HTML Editor');
 
     $('#content-window').append(out);
 
     var body = out.find('.modal-body');
 
-    var editor = $(`<div id='treatment-code-editor' style='height: 87vh; width: 100%;'>${app.appjs}</div>`);
+    let editor = `<div id='html-editor' style='height: 87vh; width: 100%;'></div>`;
 
     body.append(editor);
 
@@ -21,15 +21,18 @@ jt.TreatmentCodeModal = function(app) {
         jt.closeModal();
     }, right);
 
-    $('#content-window').append(out);
-
-    ace.edit(editor[0], {
+    ace.edit(editor, {
         mode: 'ace/mode/javascript',
         selectionStyle: 'text'
     });
-
-    return out;
 };
+
+jt.HTMLEditorModal_editData = function(data) {
+    var editor = ace.edit('html-editor')
+    editor.setValue(data);
+    editor.setSe
+    $('#html-editor-modal').modal('show');
+}
 
 jt.storeHTML = function() {
 

@@ -1,4 +1,4 @@
-jt.SelectAppModal = function() {
+jt.Modal_SelectApp = function() {
     var div = $(`<div class="modal" id="selectAppModal" tabindex="-1" role="dialog">
               <div class="modal-dialog" role="document" style='max-width: 90%;'>
                   <div class="modal-content">
@@ -27,18 +27,17 @@ jt.SelectAppModal = function() {
               </div>
           </div>
     `);
-    $('body').append(div);
-}
+    return div;
+};
 
-jt.showSelectAppModal = function(title, onSelect) {
-    $('#selectAppModal .modal-title').text(title);
-    $('#selectAppModal').modal('show');
-    $('#selectAppModal #apps').empty();
-    for (var i in jt.data.appInfos) {
-        var app = jt.data.appInfos[i];
+jt.showSelectAppModal = function(title, onSelect, appMetadatas) {
+    var sam = jt.Modal_SelectApp();
+    sam.find('.modal-title').text(title);
+    sam.find('#apps').empty();
+    for (var i in appMetadatas) {
+        var app = appMetadatas[i];
         var row = jt.AppRow(app, {}, ['id', 'description']);
         row.data('appId', app.id);
-
         row.click(function(ev) {
             if (
                 ($(ev.target).prop('tagName') !== 'SELECT') &&
@@ -50,7 +49,22 @@ jt.showSelectAppModal = function(title, onSelect) {
             }
         });
         row.css('cursor', 'pointer');
-
-        $('#selectAppModal #apps').append(row);
+        sam.find('#apps').append(row);
     }
-}
+    $('body').append(sam);
+    sam.modal('show');
+};
+
+jt.showOpenTreatmentModal = function(apps) {
+    if (apps == null) {
+        jt.socket.emit('getAppMetadatas', 'jt.showOpenTreatmentModal(message.data)');
+        return;
+    }
+
+    var openAppFn = function() {
+        var optionEls = $(this).find('[app-option-name]');
+        var options = jt.deriveAppOptions(optionEls);
+        jt.openTreatment($(this).data('appId'));
+    };
+    jt.showSelectAppModal('Open Treatment', openAppFn, apps);
+};

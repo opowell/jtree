@@ -38,16 +38,16 @@ AppOptionRow = function(option, app, options) {
     div.append(tdSel);
     switch (option.type) {
         case 'select':
-        var select = $('<select class="form-control view-app-option" app-option-name="' + option.name + '" id="view-app-option-' + option.name + '">');
-        tdSel.append(select);
-        for (var j in option.values) {
-            var optEl = $('<option value="' + option.values[j] + '">' + option.values[j] + '</option>');
-            if (selected !== undefined && selected == option.values[j]) {
-                optEl.prop('selected', true);
+            var select = $('<select class="form-control view-app-option" app-option-name="' + option.name + '" id="view-app-option-' + option.name + '">');
+            tdSel.append(select);
+            for (var j in option.values) {
+                var optEl = $('<option value="' + option.values[j] + '">' + option.values[j] + '</option>');
+                if (selected !== undefined && selected == option.values[j]) {
+                    optEl.prop('selected', true);
+                }
+                select.append(optEl);
             }
-            select.append(optEl);
-        }
-        break;
+            break;
         case 'text':
             var input = $('<input type="text" class="form-control" app-option-name="' + option.name + '" id="view-app-option-' + option.name + '">');
             input.val(option.defaultVal);
@@ -91,16 +91,16 @@ AppOptionDiv = function(option, selected) {
     div.append(tdSel);
     switch (option.type) {
         case 'select':
-        var select = $('<select class="form-control view-app-option" app-option-name="' + option.name + '" id="view-app-option-' + option.name + '">');
-        tdSel.append(select);
-        for (var j in option.values) {
-            var optEl = $('<option value="' + option.values[j] + '">' + option.values[j] + '</option>');
-            if (selected !== undefined && selected == option.values[j]) {
-                optEl.prop('selected', true);
+            var select = $('<select class="form-control view-app-option" app-option-name="' + option.name + '" id="view-app-option-' + option.name + '">');
+            tdSel.append(select);
+            for (var j in option.values) {
+                var optEl = $('<option value="' + option.values[j] + '">' + option.values[j] + '</option>');
+                if (selected !== undefined && selected == option.values[j]) {
+                    optEl.prop('selected', true);
+                }
+                select.append(optEl);
             }
-            select.append(optEl);
-        }
-        break;
+            break;
         case 'text':
             var input = $('<input type="text" class="form-control" app-option-name="' + option.name + '" id="view-app-option-' + option.name + '">');
             input.val(option.defaultVal);
@@ -154,23 +154,23 @@ jt.AppRow = function(app, options, cols) {
 
         for (var i in cols) {
             var col = cols[i];
-            switch(col) {
-            case '#':
-                row.append($('<td>').text(app.index));
-                break;
-            case 'id':
-                row.append($('<td>').text(app.id));
-                break;
-            case 'description':
-                var color = '#000';
-                if (app.description === 'No description provided.') {
-                    color = '#AAA';
-                }
-                row.append($('<td style="white-space: normal; color: ' + color + ';">').html((app.description)));
-                break;
-            case 'name':
-                row.append($('<td>').text((app.name !== undefined ? app.name : app.id)));
-                break;
+            switch (col) {
+                case '#':
+                    row.append($('<td>').text(app.index));
+                    break;
+                case 'id':
+                    row.append($('<td>').text(app.id));
+                    break;
+                case 'description':
+                    var color = '#000';
+                    if (app.description === 'No description provided.') {
+                        color = '#AAA';
+                    }
+                    row.append($('<td style="white-space: normal; color: ' + color + ';">').html((app.description)));
+                    break;
+                case 'name':
+                    row.append($('<td>').text((app.name !== undefined ? app.name : app.id)));
+                    break;
                 case 'optionsView':
                     // var optionsEl = $('<td style="display: flex; flex-wrap: wrap; padding-top: calc(.375rem - 1px);">');
                     var optionsEl = $('<td>');
@@ -194,25 +194,25 @@ jt.AppRow = function(app, options, cols) {
                     }
                     row.append(optionsEl);
                     break;
-            case 'options':
-                var optionsEl = $('<td style="display: flex; flex-wrap: wrap; padding-top: calc(.375rem - 1px);">');
-                for (var i in app.options) {
-                    var option = app.options[i];
-                    var selected = undefined;
-                    if (app[option.name] !== undefined) {
-                        selected = app[option.name];
+                case 'options':
+                    var optionsEl = $('<td style="display: flex; flex-wrap: wrap; padding-top: calc(.375rem - 1px);">');
+                    for (var i in app.options) {
+                        var option = app.options[i];
+                        var selected = undefined;
+                        if (app[option.name] !== undefined) {
+                            selected = app[option.name];
+                        }
+                        if (option.defaultVal !== undefined) {
+                            selected = option.defaultVal;
+                        }
+                        if (options !== undefined && options[option.name] !== undefined) {
+                            selected = options[option.name];
+                        }
+                        var div = AppOptionDiv(option, selected);
+                        optionsEl.append(div);
                     }
-                    if (option.defaultVal !== undefined) {
-                        selected = option.defaultVal;
-                    }
-                    if (options !== undefined && options[option.name] !== undefined) {
-                        selected = options[option.name];
-                    }
-                    var div = AppOptionDiv(option, selected);
-                    optionsEl.append(div);
-                }
-                row.append(optionsEl);
-                break;
+                    row.append(optionsEl);
+                    break;
             }
         }
 
@@ -235,13 +235,13 @@ jt.UserRow = function(user, cols) {
 
         for (var i in cols) {
             var col = cols[i];
-            switch(col) {
-            case 'id':
-                row.append($('<td>').text(user.id));
-                break;
-            case 'type':
-                row.append($('<td>').text(user.type));
-                break;
+            switch (col) {
+                case 'id':
+                    row.append($('<td>').text(user.id));
+                    break;
+                case 'type':
+                    row.append($('<td>').text(user.type));
+                    break;
             }
         }
 
@@ -264,6 +264,7 @@ function addCardPanel(id, title, contentEl) {
     $('body').append(panel);
     return panel;
 }
+
 function addPanel(id, title, contentEl) {
     var panel = new Panel(id, title, contentEl);
     panel.attr('hidden', true);
@@ -313,19 +314,19 @@ jt.QueueRow = function(queue, cols) {
 
     for (var i in cols) {
         var col = cols[i];
-        switch(col) {
-        case 'id':
-            row.append($('<td>').text(queue.id));
-            break;
-        case 'apps':
-            var appsEl = $('<td>');
-            for (var i in queue.apps) {
-                var app = queue.apps[i];
-                var div = QueueAppDiv(app);
-                appsEl.append(div);
-            }
-            row.append(appsEl);
-            break;
+        switch (col) {
+            case 'id':
+                row.append($('<td>').text(queue.id));
+                break;
+            case 'apps':
+                var appsEl = $('<td>');
+                for (var i in queue.apps) {
+                    var app = queue.apps[i];
+                    var div = QueueAppDiv(app);
+                    appsEl.append(div);
+                }
+                row.append(appsEl);
+                break;
         }
     }
 
@@ -345,7 +346,7 @@ jt.CopyButton = function() {
 }
 
 jt.PlayerRow = function(player) {
-    var div = $('<tr class="player-' + player.id +'">');
+    var div = $('<tr class="player-' + player.id + '">');
     div.append($('<td>').text(player.id));
     return div;
 }
@@ -381,13 +382,12 @@ function CustomAppFolder(folder) {
 
 function showPlayerCurApp(participant) {
     var appText = participant.appIndex + '-';
-    if (participant.appIndex < 1 || participant.appIndex > jt.data.session.apps.length) {
-    } else {
-        var app = jt.data.session.apps[participant.appIndex-1];
+    if (participant.appIndex < 1 || participant.appIndex > jt.data.session.apps.length) {} else {
+        var app = jt.data.session.apps[participant.appIndex - 1];
         appText = appText + app.id;
     }
     $('#app-' + participant.id).text(appText);
-//    $('.participant-' + participant.id + '-appIndex').text(participant.appIndex);
+    //    $('.participant-' + participant.id + '-appIndex').text(participant.appIndex);
 }
 
 function openClient(event) {

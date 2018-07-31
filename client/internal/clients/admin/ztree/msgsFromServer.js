@@ -1,11 +1,20 @@
 // INCOMING MESSAGES FROM SERVER
 var msgs = {};
+
+/**
+ * message contains a callback 'cb' and a set of data '.data'.
+ */
+msgs.dataMessage = function(message) {
+    eval(message.cb);
+}
+
+
 msgs.addSession = function(session) {
   var index = findById(jt.data.sessions, session.id);
   if (index === null) {
       jt.data.sessions.push(session);
       showSessionRow(session);
-      jt.showUsersMode(jt.settings.multipleUsers); 
+      jt.showUsersMode(jt.settings.multipleUsers);
   }
 }
 msgs.deleteSession = function(id) {

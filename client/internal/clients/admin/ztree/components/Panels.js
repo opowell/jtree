@@ -17,14 +17,17 @@ jt.TreatmentPanel = function(id) {
     });
     trmtDiv.find('.menu-text .fa').addClass('fa-align-center');
     let updateTree = false;
+    var title = '';
     if (id == null) {
-        id = 'Untitled Treatment ' + jt.newTreatmentCount;
+        title = 'Untitled Treatment ' + jt.newTreatmentCount;
         jt.newTreatmentCount++;
     } else {
         var app = jt.app(id);
         updateTree = true;
+        var lastIndex = app.appPath.lastIndexOf('\\');
+        title = app.appPath.substring(lastIndex+1);
     }
-    trmtDiv.find('.panel-title-text').text(id);
+    trmtDiv.find('.panel-title-text').text(title);
     trmtDiv.css('top', jt.treatmentPanelCount*28 + 'px');
     trmtDiv.css('left', jt.treatmentPanelCount*28 + 'px');
 
@@ -133,6 +136,7 @@ jt.TreatmentPanel = function(id) {
         let appData = [];
         jt.TreatmentPanel_SetTree(trmtDiv.find('panel-content'), appData);
     }
+
 }
 
 jt.TreatmentPanel_SetTree = function(panel, appData) {
@@ -151,14 +155,14 @@ jt.getTreeFromApp = function(app) {
                 'selected': true
             },
             "children": [
-                {
-                    'id': 'abc',
-                    "text":"Properties",
-                    "type":"table",
-                    "children": [
-
-                    ]
-                },
+                // {
+                //     'id': 'abc',
+                //     "text":"Properties",
+                //     "type":"table",
+                //     "children": [
+                //
+                //     ]
+                // },
                 {
                     "text": "Active screen",
                     "type": "screen",
@@ -171,52 +175,54 @@ jt.getTreeFromApp = function(app) {
         }
     ];
 
-    const appFieldsToSkip = ['id', 'stages', 'options', 'periods', 'indexInSession'];
-    for (var i in app) {
-        if (!appFieldsToSkip.includes(i)) {
-            let name = i;
-            let type = 'field';
-            if (i.startsWith('__func_')) {
-                name = i.slice('__func_'.length);
-                type = 'function';
+    // const appFieldsToSkip = ['id', 'stages', 'options', 'periods', 'indexInSession'];
+    // for (var i in app) {
+    //     if (!appFieldsToSkip.includes(i)) {
+    //         let name = i;
+    //         let type = 'field';
+    //         if (i.startsWith('__func_')) {
+    //             name = i.slice('__func_'.length);
+    //             type = 'function';
+    //         }
+    //         out[0].children[0].children.push({
+    //             "text": name,
+    //             "type": type
+    //         });
+    //     }
+    // }
+
+    if (app.stages != null) {
+        for (let i=0; i<app.stages.length; i++) {
+            let stage = app.stages[i];
+            var stageOut = {
+                "id": "stage_" + stage.id,
+                'data': stage,
+                "text": stage.id,
+                "type": "background",
+                "children": [
+                    {
+                        'id': 'properties',
+                        'text': 'Properties',
+                        'type': 'table'
+                    },
+                    {
+                        'id': 'stage_' + stage.id + '_active-screen',
+                        'data': stage.activeScreen,
+                        'text': 'Active screen',
+                        'type': 'screen'
+                    },
+                    {
+                        'id': 'stage_' + stage.id + '_waiting-screen',
+                        'data': stage.waitingScreen,
+                        'text': 'Waiting screen',
+                        'type': 'screen'
+                    }
+                ]
             }
-            out[0].children[0].children.push({
-                "text": name,
-                "type": type
-            });
+            out.push(stageOut);
         }
     }
 
-    for (let i=0; i<app.stages.length; i++) {
-        let stage = app.stages[i];
-        var stageOut = {
-            "id": "stage_" + stage.id,
-            'data': stage,
-            "text": stage.id,
-            "type": "background",
-            "children": [
-                {
-                    'id': 'properties',
-                    'text': 'Properties',
-                    'type': 'table'
-                },
-                {
-                    'id': 'stage_' + stage.id + '_active-screen',
-                    'data': stage.activeScreen,
-                    'text': 'Active screen',
-                    'type': 'screen'
-                },
-                {
-                    'id': 'stage_' + stage.id + '_waiting-screen',
-                    'data': stage.waitingScreen,
-                    'text': 'Waiting screen',
-                    'type': 'screen'
-                }
-            ]
-        }
-
-        out.push(stageOut);
-    }
     return out;
 }
 

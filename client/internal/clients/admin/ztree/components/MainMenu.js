@@ -1,3 +1,4 @@
+// Keys are bound automatically.
 jt.menuDefns = [
     {
         id: 'activePanel',
@@ -30,7 +31,14 @@ jt.menuDefns = [
                 id: 'Close',
                 key: 'Ctrl+L',
                 fn: 'jt.closeFocussedPanel();'
+            },
+            'divider',
+            {
+                id: 'Save',
+                key: 'Ctrl+S',
+                fn: 'jt.saveApp();'
             }
+
         ]
     },
     {
@@ -81,18 +89,18 @@ jt.menuDefns = [
             },
             {
                 id: 'View code',
-                key: 'Ctrl+Shift+C',
+                key: 'Ctrl+J',
                 fn: 'jt.showFocussedTreatmentCode();'
             },
             'divider',
             {
                 id: 'New Stage...',
-                key: 'Ctrl+X',
-                fn: 'jt.cut();'
+                key: 'Ctrl+Shift+B',
+                fn: 'server.appAddStage();'
             },
             {
                 id: 'New Table...',
-                key: 'Ctrl+C',
+                key: 'Ctrl+??',
                 fn: 'jt.copy();'
             },
             {
@@ -166,7 +174,7 @@ jt.menuDefns = [
         children: [
             {
                 id: 'Clients\' Table',
-                key: 'Ctrl+Z',
+                key: 'Ctrl+??',
                 fn: 'jt.undo();'
             },
             'divider',
@@ -186,7 +194,7 @@ jt.menuDefns = [
             {
                 id: 'Start Treatment',
                 key: 'F5',
-                fn: 'jt.saveClientOrder();'
+                fn: 'jt.startTreatment();'
             },
             'divider',
             {
@@ -221,23 +229,19 @@ jt.menuDefns = [
         children: [
             {
                 id: 'Info',
-                key: 'Ctrl+Z',
                 fn: 'jt.undo();'
             },
             'divider',
             {
                 id: 'New Stage...',
-                key: 'Ctrl+X',
                 fn: 'jt.cut();'
             },
             {
                 id: 'New Table...',
-                key: 'Ctrl+C',
                 fn: 'jt.copy();'
             },
             {
                 id: 'New Table Loader...',
-                key: 'Ctrl+V',
                 fn: 'jt.paste();'
             }
         ]
@@ -247,23 +251,19 @@ jt.menuDefns = [
         children: [
             {
                 id: 'Info',
-                key: 'Ctrl+Z',
                 fn: 'jt.undo();'
             },
             'divider',
             {
                 id: 'New Stage...',
-                key: 'Ctrl+X',
                 fn: 'jt.cut();'
             },
             {
                 id: 'New Table...',
-                key: 'Ctrl+C',
                 fn: 'jt.copy();'
             },
             {
                 id: 'New Table Loader...',
-                key: 'Ctrl+V',
                 fn: 'jt.paste();'
             }
         ]
@@ -274,6 +274,11 @@ jt.menuDefns = [
             {
                 id: 'About jtree...',
                 fn: 'jt.about();'
+            },
+            {
+                id: 'Keyboard shortcuts',
+                key: 'Ctrl+H',
+                fn: 'jt.showKeyboardShortcuts();'
             }
         ]
     },
@@ -305,8 +310,7 @@ jt.showTreatmentInfo = function() {
 
 jt.showFocussedTreatmentCode = function() {
     var app = $('.focussed-panel').find('.jstree').data('app');
-    var modal = jt.TreatmentCodeModal(app);
-    modal.modal('show');
+    jt.TreatmentCodeModal(app);
 }
 
 jt.MenuEl = function(defn, focusOnHover) {
@@ -544,6 +548,10 @@ jt.MenuItem = function(item) {
     } else {
         var arrow = $('<div class="menudditem-arrow">');
         div.append(arrow);
+    }
+
+    if (item.key != null && item.fn != null) {
+        jt.bindKey(item);
     }
 
     return $(div);

@@ -5,7 +5,12 @@
 
 var server = {};
 
-// SERVER CALLS
+/**
+ * SERVER CALLS
+ * Corresponds to entries in server/Msgs.js.
+ */
+
+
 //server.refresh      = function()    { jt.socket.emit('refresh-admin'    , ''); }
 server.getVar       = function(a)   { jt.socket.emit('get-var'          , a ); }
 server.getApp       = function(id)  { jt.socket.emit('get-app'          , id); }
@@ -17,6 +22,14 @@ server.createQueue   = function(id)  { jt.socket.emit('createQueue'      , id); 
 server.saveRoom     = function(room) { jt.socket.emit('saveRoom', room); }
 server.startSessionFromQueue = function(id) { jt.socket.emit('startSessionFromQueue', {qId: id, userId: Cookies.get('userId')}); }
 server.createAppFromFile    = function(fn, contents) { jt.socket.emit('createAppFromFile', {fn: fn, contents: contents})}
+
+server.createApp    = function(id)  { jt.socket.emit('createApp'        , id); }
+
+server.appAddStage = function()  {
+    var app = $('.focussed-panel').find('.jstree').data('app');
+    var iId = 'app';
+    jt.socket.emit('appAddStage', {id: app.id, insertionPoint: iId});
+}
 
 server.deleteQueue = function(id) { jt.socket.emit('deleteQueue', id); }
 

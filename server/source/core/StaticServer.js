@@ -28,12 +28,18 @@ class StaticServer {
         var self = this;
         this.expApp = expApp;
 
+        //////////////////////////////
         // FILES TO SERVE
         expApp.use('', express.static(path.join(this.jt.path, jt.settings.participantUI)));
         expApp.use('/help', express.static(path.join(this.jt.path, jt.settings.helpPath)));
         expApp.use('/admin', express.static(this.defaultAdminUIPath()));
+        // expApp.use('/adminShared', express.static(this.adminUIsSharedPath()));
         var adminUIs = fs.readdirSync(this.adminUIsPath());
         for (var i in adminUIs) {
+            // Skip shared folder.
+            // if (adminUIs[i] == 'shared') {
+            //     continue;
+            // }
             var pathToFolder = path.join(this.adminUIsPath(), adminUIs[i]);
             if (fs.lstatSync(pathToFolder).isDirectory()) {
                 expApp.use('/admin/' + adminUIs[i], express.static(pathToFolder));
@@ -41,12 +47,14 @@ class StaticServer {
         }
         expApp.use('/participant', express.static(path.join(this.jt.path, jt.settings.participantUI)));
         expApp.use('/shared', express.static(path.join(this.jt.path, jt.settings.sharedUI)));
-
         for (var i in jt.data.appsMetaData) {
             let metaData = jt.data.appsMetaData[i];
             expApp.use('/' + metaData.id, express.static(path.parse(metaData.appPath).dir));
         }
+        // END FILE SERVING
+        //////////////////////////////
 
+        //////////////////////////////
         // REQUESTS
         expApp.get('/', function(req, res) {
             self.sendParticipantPage(req, res, 'test', undefined);
@@ -132,10 +140,14 @@ class StaticServer {
                 });
             }
         }
+        // END REQUESTS
+        //////////////////////////////
 
+
+        //////////////////////////////
+        // START SERVER
         this.port = jt.settings.port;
         this.ip = ip.address();
-
         this.server = http.Server(expApp);
         var self = this;
         try {
@@ -153,8 +165,12 @@ class StaticServer {
                 });
             }
         }
+        //////////////////////////////
 
+        //////////////////////////////
+        // Generate files used by clients.
         this.generateSharedJS();
+        //////////////////////////////
 
     }
 
@@ -191,6 +207,13 @@ class StaticServer {
 
     adminUIsPath() {
         return path.join(this.jt.path, this.jt.settings.adminUIsPath);
+    }
+
+    /**
+     * Folder containing content common to all admin UIs.
+     */
+    adminUIsSharedPath() {
+        return path.join(this.adminUIsPath(), this.jt.settings.adminUIsSharedPath);
     }
 
     /**

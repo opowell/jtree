@@ -1,4 +1,4 @@
-jt.TableModal = function() {
+jt.Modal_Table = function() {
     var out = jt.Modal('table', 'Table');
 
     var body = out.find('.modal-body');

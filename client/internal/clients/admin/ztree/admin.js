@@ -8,6 +8,19 @@ var participantTimers = {};
 //     }
 // }
 
+jt.saveApp = function() {
+    var app = $('.jt-panel.focussed-panel').data('app');
+    if (app == null) {
+        jt.promptForNewAppName($('.jt-panel.focussed-panel .panel-title-text').text());
+    } else {
+
+    }
+}
+
+jt.promptForNewAppName = function(id) {
+    jt.SaveAppAsModal(id);
+}
+
 function clearSelectedParticipants() {
     const numSelected = selectedParticipants.length;
     for (let i=0; i<numSelected; i++) {
@@ -102,6 +115,8 @@ function removeClient(cId) {
     $('#client-' + cId).remove();
 }
 
+ace.config.set("basePath", "/shared/ace");
+
 jt.connected = function() {
 
     // $('#startAdvanceSlowest').click(function(ev) {
@@ -195,30 +210,6 @@ jt.connected = function() {
         }
     });
 
-    var interfaceMode = localStorage.getItem('interfaceMode');
-    if (interfaceMode === null) {
-        interfaceMode = 'basic';
-    }
-    jt.setInterfaceMode(interfaceMode);
-
-    var queuesMode = localStorage.getItem('queuesMode');
-    if (queuesMode === null) {
-        queuesMode = 'hide';
-    }
-    jt.setQueuesMode(queuesMode);
-
-  var sId = localStorage.getItem("sessionId");
-  if (sId !== null) {
-      server.openSessionId(sId);
-  } else {
-      server.sessionCreate();
-  }
-
-  var userId = Cookies.get('userId');
-  if (userId !== undefined) {
-      $('#menu-userid').text(userId);
-  }
-
   jt.registerKeyEvents();
 
   var focusOnHover = true;
@@ -233,19 +224,13 @@ jt.connected = function() {
   $('#menu-closePanel').removeClass('menu-active');
   $('#menu-\\?').css('flex-grow', '1');
 
-  jt.TableModal();
-  jt.SelectAppModal();
-  jt.HTMLEditorModal();
-  jt.TreatmentPanel();
+  $.getJSON('/shared/docjs.json', function(data) {
+    jt.data.docs = {};
+    for (var i in data) {
+        var d = data[i];
+        jt.data.docs[d.name] = d;
+    }
+    console.log('FINISHED LOADING docs');
+  });
 
-
-
-}
-
-jt.socketConnected = function() {
-    server.refreshAdmin();
-
-    ace.config.set("basePath", "/shared/ace");
-
-    // jt.editor = new Editor();
 }

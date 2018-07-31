@@ -58,7 +58,7 @@ class ViewApp extends HTMLElement {
                   <button type="submit" class="btn btn-sm btn-outline-primary" onclick='jt.saveAppAndView();'>
                       <i class="fa fa-save"></i>&nbsp;Save and view
                   </button>
-                  <button type="submit" class="btn btn-outline-secondary btn-sm" onclick='jt.saveApp();'>
+                  <button type="submit" class="btn btn-outline-secondary btn-sm" onclick='jt.saveAppHTML();'>
                       <i class="fa fa-save"></i>&nbsp;Save
                   </button>
                   <button type="submit" class="btn btn-outline-secondary btn-sm" onclick='setView("app")'>
@@ -136,7 +136,7 @@ jt.deleteApp = function() {
     );
 }
 
-jt.saveApp = function() {
+jt.saveAppHTML = function() {
     var app = {};
     app.origId = $('#view-app-id').text();
     app.id = $('#edit-app-id').val();
@@ -146,12 +146,12 @@ jt.saveApp = function() {
     var editorCH = ace.edit("edit-app-clienthtml");
     app.clientHTML = editorCH.getValue();
 
-    jt.socket.emit('saveApp', app);
+    jt.socket.emit('saveAppHTML', app);
 
 }
 
 jt.saveAppAndView = function() {
-    jt.saveApp();
+    jt.saveAppHTML();
     setView('app');
 }
 

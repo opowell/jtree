@@ -1,7 +1,7 @@
 jt.Modal = function(id, title) {
     var out = $(`
         <div class="modal" id="${id}-modal">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
                         <div class="modal-title">${title}</div>

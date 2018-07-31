@@ -1,4 +1,4 @@
-jt.AppPropertiesModal = function(app) {
+jt.Modal_AppProperties = function(app) {
     var out = jt.Modal('app-properties', 'General Parameters');
     var body = out.find('.modal-body');
 
