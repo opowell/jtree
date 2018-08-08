@@ -20,12 +20,12 @@ jt.menuDefns = [
             {
                 id: 'New Treatment',
                 key: 'Ctrl+B',
-                fn: 'jt.TreatmentPanel();'
+                fn: 'jt.Panel_Treatment();'
             },
             {
                 id: 'Open Treatment...',
                 key: 'Ctrl+O',
-                fn: 'jt.showOpenTreatmentModal();'
+                fn: 'jt.socket.emit("getAppMetadatas", "jt.showOpenTreatmentModal(message.metadatas)");'
             },
             {
                 id: 'Close',
@@ -104,22 +104,6 @@ jt.menuDefns = [
                 fn: 'jt.copy();'
             },
             {
-                id: 'New Table Loader...',
-                fn: 'jt.TreatmentNewTableLoader();'
-            },
-            {
-                id: 'New Table Dumper...',
-                fn: 'jt.TreatmentNewTableDumper();'
-            },
-            {
-                id: 'New Program...',
-                fn: 'jt.TreatmentNewProgram();'
-            },
-            {
-                id: 'New External Program...',
-                fn: 'jt.TreatmentNewExternalProgram();'
-            },
-            {
                 id: 'New Box',
                 children: [
                     {
@@ -132,40 +116,11 @@ jt.menuDefns = [
                     }
                 ]
             },
-            {
-                id: 'Connector',
-                children: [
-                    {
-                        id: 'New Connector...',
-                        fn: 'jt.TreatmentNewConnector();'
-                    },
-                    'divider',
-                    {
-                        id: 'New Inlet...',
-                        fn: 'jt.TreatmentNewInlet();'
-                    },
-                    {
-                        id: 'New Outlet...',
-                        fn: 'jt.TreatmentNewOutlet();'
-                    }
-                ]
-            },
             'divider',
             {
                 id: 'Expand All',
                 key: 'Ctrl+E',
                 fn: 'jt.expandAll();'
-            },
-            'divider',
-            {
-                id: 'Parameter Table',
-                fn: 'jt.paste();'
-            },
-            'divider',
-            {
-                id: 'Check',
-                key: 'Ctrl+K',
-                fn: 'jt.check();'
             }
         ]
     },
@@ -173,9 +128,8 @@ jt.menuDefns = [
         id: 'Run',
         children: [
             {
-                id: 'Clients\' Table',
-                key: 'Ctrl+??',
-                fn: 'jt.undo();'
+                id: 'Clients',
+                fn: 'jt.Panel_Clients_show();'
             },
             'divider',
             {
@@ -278,7 +232,7 @@ jt.menuDefns = [
             {
                 id: 'Keyboard shortcuts',
                 key: 'Ctrl+H',
-                fn: 'jt.showKeyboardShortcuts();'
+                fn: 'jt.Modal_KeyboardShortcuts_show();'
             }
         ]
     },
@@ -310,7 +264,7 @@ jt.showTreatmentInfo = function() {
 
 jt.showFocussedTreatmentCode = function() {
     var app = $('.focussed-panel').find('.jstree').data('app');
-    jt.TreatmentCodeModal(app);
+    jt.Modal_TreatmentCode_show(app);
 }
 
 jt.MenuEl = function(defn, focusOnHover) {
@@ -562,7 +516,7 @@ $(document).click(function() {
 })
 
 jt.closeMenu = function() {
-    console.log('closing menu');
+    // console.log('closing menu');
     $('.menu').removeClass('show');
     $('.menu-dropdown').removeClass('show');
     $('.menu-focussed').removeClass('menu-focussed');
@@ -608,7 +562,7 @@ jt.openMenuItem = function(el) {
 jt.registerKeyEvents = function() {
 
     $(document).bind('keydown', 'alt', function(e) {
-        console.log('pressed alt');
+        // console.log('pressed alt');
         e.preventDefault();
         jt.toggleMainMenuFocus();
         return false;

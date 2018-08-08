@@ -1,4 +1,4 @@
-jt.Modal = function(id, title) {
+jt.Modal = function(id, title, options={draggable: true}) {
     var out = $(`
         <div class="modal" id="${id}-modal">
             <div class="modal-dialog modal-dialog-centered">
@@ -28,7 +28,13 @@ jt.Modal = function(id, title) {
     //   </div>
     // </div>
 
-    out.find('.modal-dialog').draggable({ handle: ".modal-header" });
+    if (options.draggable == true) { // @jshint ignore:line
+        out.find('.modal-dialog').draggable({ handle: ".modal-header" });
+    }
+
+    out.find('.modal-close-button').click(function() {
+        jt.closeModal();
+    });
 
     out.click(function(ev) {
         if ($(ev.target).hasClass('modal')) {

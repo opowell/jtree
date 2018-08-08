@@ -26,7 +26,7 @@ class Settings {
          this.participantUI          = 'internal/clients/participant';
          this.clientUI               = 'internal/clients/participant';
          this.adminUIsPath           = 'internal/clients/admin';
-         this.adminUIsSharedPath     = '/shared'; // relative to adminUIsPath.
+         this.adminUIsSharedPath     = 'internal/clients/admin/shared';
          this.appFolders             = ['apps']; // the location of apps folders
          this.queuesPath             = 'queues';
          this.roomsPath              = 'rooms';

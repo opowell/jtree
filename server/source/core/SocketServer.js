@@ -82,28 +82,6 @@ class SocketServer {
             self.refreshAdmin(null, 'socket_' + sock.id, msg.userId);
         });
 
-        socket.on('get-var', function(a) {
-            log('getting variable ' + a + ': ' + global[a]);
-        });
-
-        socket.on('get-app', function(id) {
-            var toSend = self.jt.data.apps[id].shell();
-            self.io.to(sock.id).emit('get-app', toSend);
-        });
-
-        socket.on('session-set-active', function(msg) {
-            var session = self.jt.data.getSession(msg.sId);
-            session.setActive(msg.active);
-        });
-
-        socket.on('refresh-apps', function(msg) {
-            self.jt.data.apps = self.jt.data.loadApps();
-        });
-
-        socket.on('add-app-folder', function(folder) {
-            self.data.addAppFolder(folder);
-        });
-
     }
 
     addRoomClient(socket, pId, roomId) {

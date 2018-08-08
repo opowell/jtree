@@ -231,9 +231,8 @@ class Session {
     *
     * @param  {string} appId The ID of the app to add to this session.
     */
-    addApp(appId, options) {
-        var appPath = this.jt.data.appsMetaData[appId].appPath;
-        var app = this.jt.data.loadApp(appId, this, appPath, options);
+    addApp(appPath, options) {
+        var app = this.jt.data.loadApp(appPath, this, appPath, options);
         if (app !== null) {
             this.apps.push(app);
             Utils.copyFiles(path.parse(app.appPath).dir, app.getOutputFN(), this.jt);

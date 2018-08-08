@@ -1,5 +1,3 @@
-// @flow
-
 const Stage     = require('./Stage.js');
 const Period    = require('./Period.js');
 const Utils     = require('./Utils.js');
@@ -15,7 +13,7 @@ class App {
      * @param  {Session} session description
      * @param  {String} id      description
      */
-    constructor(session, id, jt, appPath) {
+    constructor(session, jt, appPath) {
 
         /**
          * The unique identifier of this App. In order of precedence, the value is given by:
@@ -24,7 +22,7 @@ class App {
          * - the name of the folder containing the .jtt file
          * @type {String}
          */
-        this.id = id;
+        this.id = appPath;
 
         /**
          * @type {jt}
@@ -237,8 +235,7 @@ class App {
             'type',
             'folder',
             'options',
-            'jt',
-            'appPath'];
+            'jt'];
 
         //TODO:
         /**
@@ -252,6 +249,19 @@ class App {
          * @default false
          */
         this.finished = false;
+    }
+
+    /**
+     * @static newSansId - return an app with the given path.
+     *
+     * @param  {type} jt      description
+     * @param  {type} appPath The path relative to the server process. i.e. /apps/my-app.jtt or /apps/my-complex-app/app.js
+     * @return {App}          The given app.
+     */
+    static newSansId(jt, appPath) {
+        console.log('loading app with no session: ' + appPath);
+        var out = new App(null, jt, appPath);
+        return out;
     }
 
     /**
@@ -880,7 +890,7 @@ class App {
             metaData.clientHTML = '';
         }
 
-        var app = new App(null, this.id);
+        var app = new App(null, this.jt, this.id);
 
         metaData.stages = [];
         try {
@@ -1441,3 +1451,4 @@ class App {
 var exports = module.exports = {};
 exports.new = App;
 exports.load = App.load;
+exports.newSansId = App.newSansId;

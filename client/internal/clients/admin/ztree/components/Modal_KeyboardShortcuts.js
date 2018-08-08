@@ -1,8 +1,6 @@
 jt.Modal_KeyboardShortcuts = function(app) {
     var out = jt.Modal('keyboard-shortcuts', 'Keyboard Shortcuts');
 
-    $('#content-window').append(out);
-
     var body = out.find('.modal-body');
 
     //  style='height: 87vh; width: 100%;
@@ -18,13 +16,15 @@ jt.Modal_KeyboardShortcuts = function(app) {
 
     body.append(div);
 
-    $('#content-window').append(out);
-
     return out;
 
 };
 
-jt.showKeyboardShortcuts = function() {
-    var modal = jt.KeyboardShortcutsModal();
-    modal.modal('show');
+jt.Modal_KeyboardShortcuts_show = function() {
+    $('#keyboard-shortcuts-modal').modal('show');
+}
+
+jt.Modal_KeyboardShortcuts_init = function() {
+    var modal = jt.Modal_KeyboardShortcuts();
+    $('#content-window').append(modal);
 }

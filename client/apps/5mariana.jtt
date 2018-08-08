@@ -18,9 +18,7 @@ introStage.activeScreen = `
         Your input may be verified against that of other participants to verify accuracy.
         Click OK when you are ready and the period will start soon.
     </p>
-    <form>
-        <button>OK</button>
-    </form>
+    <button>OK</button>
 `;
 
 introStage.playerStart = function(player) {
@@ -39,10 +37,8 @@ var entryStage = app.newStage('entry');
 entryStage.duration = 300;
 entryStage.activeScreen = `
     <h4>ENTER TEXT</h4>
-    <form>
-        <textarea rows=50 cols=80 name='player.textinput'></textarea><br><br>
-        <button>OK</button>
-    </form>
+    <textarea rows=50 cols=80 name='player.textinput'></textarea><br><br>
+    <button>OK</button>
 `;
 entryStage.playerEnd = function(player) {
 
@@ -78,14 +74,12 @@ resultsStage.canPlayerParticipate = function(player) {
   return player.period().id === app.numPeriods;
 }
 resultsStage.activeScreen = `
-    <p>
-      Your payout in Period 1 is EUR {{participant.periodPayouts[0]}}.<br>
-      Your payout in Period 2 is EUR {{participant.periodPayouts[1]}}.<br>
-      Your payout in Period 3 is EUR {{participant.periodPayouts[2]}}.<br>
-    </p>
-      <b>Your total payout is EUR {{participant.capPoints.toFixed(2)}}.</b><br>
-    <form>
-	<br>
-        <button>OK</button>
-    </form>
+<p>
+  Your payout in Period 1 is EUR {{participant.periodPayouts[0]}}.<br>
+  Your payout in Period 2 is EUR {{participant.periodPayouts[1]}}.<br>
+  Your payout in Period 3 is EUR {{participant.periodPayouts[2]}}.<br>
+</p>
+<b>Your total payout is EUR {{participant.capPoints.toFixed(2)}}.</b><br>
+<br>
+<button>OK</button>
 `

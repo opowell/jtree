@@ -7,6 +7,7 @@ const http      = require('http');
 const replace   = require("replace");
 const bodyParser = require("body-parser");
 const session   = require('express-session');
+const babel     = require("babel-core");
 
 
 /** Server for static files */
@@ -32,6 +33,7 @@ class StaticServer {
         // FILES TO SERVE
         expApp.use('', express.static(path.join(this.jt.path, jt.settings.participantUI)));
         expApp.use('/help', express.static(path.join(this.jt.path, jt.settings.helpPath)));
+        expApp.use('/source', express.static(path.join(this.jt.path, jt.settings.adminUIsSharedPath)));
         expApp.use('/admin', express.static(this.defaultAdminUIPath()));
         // expApp.use('/adminShared', express.static(this.adminUIsSharedPath()));
         var adminUIs = fs.readdirSync(this.adminUIsPath());
@@ -47,7 +49,7 @@ class StaticServer {
         }
         expApp.use('/participant', express.static(path.join(this.jt.path, jt.settings.participantUI)));
         expApp.use('/shared', express.static(path.join(this.jt.path, jt.settings.sharedUI)));
-        for (var i in jt.data.appsMetaData) {
+        for (let i in jt.data.appsMetaData) {
             let metaData = jt.data.appsMetaData[i];
             expApp.use('/' + metaData.id, express.static(path.parse(metaData.appPath).dir));
         }
@@ -123,9 +125,8 @@ class StaticServer {
         });
 
         // Admin interfaces
-        var adminUIs = fs.readdirSync(this.adminUIsPath());
-        for (var i in adminUIs) {
-            var pathToFolder = path.join(this.adminUIsPath(), adminUIs[i]);
+        for (let i in adminUIs) {
+            let pathToFolder = path.join(this.adminUIsPath(), adminUIs[i]);
             if (fs.lstatSync(pathToFolder).isDirectory()) {
                 expApp.get('/admin/' + adminUIs[i], function(req, res) {
                     var ui = req.originalUrl.substring('/admin/'.length);
@@ -149,7 +150,6 @@ class StaticServer {
         this.port = jt.settings.port;
         this.ip = ip.address();
         this.server = http.Server(expApp);
-        var self = this;
         try {
             this.server.listen(this.port, function() {
                 console.log('###############################################');
@@ -170,8 +170,17 @@ class StaticServer {
         //////////////////////////////
         // Generate files used by clients.
         this.generateSharedJS();
+        // If running in development mode, recompile client webpack.
+        if (process.argv[0].indexOf('node') > -1) {
+            this.generateClientModels();
+        }
         //////////////////////////////
 
+    }
+
+    generateClientModels() {
+        var file = babel.transformFileSync(path.join(this.jt.path, "../server/source/App.js"), {});
+        fs.writeFileSync(path.join(this.jt.path, 'internal/clients/admin/shared/models.js'), file.code);
     }
 
     handleRequest(req, res) {

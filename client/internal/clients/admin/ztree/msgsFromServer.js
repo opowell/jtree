@@ -2,10 +2,10 @@
 var msgs = {};
 
 /**
- * message contains a callback 'cb' and a set of data '.data'.
+ * message contains a callback 'cb'. Additional fields may be referenced withing the callback itself (i.e. cb = 'jt.runSomething(message.otherField)');
  */
 msgs.dataMessage = function(message) {
-    eval(message.cb);
+    eval(message.cb); // jshint ignore:line
 }
 
 

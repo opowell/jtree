@@ -28,7 +28,7 @@ jt.bindKey = function(item) {
 };
 
 jt.openTreatment = function(id) {
-    var panel = jt.TreatmentPanel(id);
+    var panel = jt.Panel_Treatment(id);
 };
 
 for (var i in jt.keyBindings) {

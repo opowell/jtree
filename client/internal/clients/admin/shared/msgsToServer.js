@@ -10,13 +10,6 @@ var server = {};
  * Corresponds to entries in server/Msgs.js.
  */
 
-
-//server.refresh      = function()    { jt.socket.emit('refresh-admin'    , ''); }
-server.getVar       = function(a)   { jt.socket.emit('get-var'          , a ); }
-server.getApp       = function(id)  { jt.socket.emit('get-app'          , id); }
-server.getRoom      = function(id)  { jt.socket.emit('get-room'         , id); }
-server.refreshApps  = function()    { jt.socket.emit('refresh-apps'     , ''); }
-server.addAppFolder = function(f)   { jt.socket.emit('add-app-folder'   , f); }
 server.createRoom   = function(id)  { jt.socket.emit('createRoom'      , id); }
 server.createQueue   = function(id)  { jt.socket.emit('createQueue'      , id); }
 server.saveRoom     = function(room) { jt.socket.emit('saveRoom', room); }
@@ -29,6 +22,10 @@ server.appAddStage = function()  {
     var app = $('.focussed-panel').find('.jstree').data('app');
     var iId = 'app';
     jt.socket.emit('appAddStage', {id: app.id, insertionPoint: iId});
+}
+
+server.setAppContents = function(appPath, content, cb) {
+    jt.socket.emit('setAppContents', {appPath: appPath, content: content, cb: cb});
 }
 
 server.deleteQueue = function(id) { jt.socket.emit('deleteQueue', id); }
@@ -100,7 +97,11 @@ server.refreshAdmin = function() {
 }
 
 server.sessionAddApp = function(id, options) {
-    var d = {appId: id, sId: jt.data.session.id, options: options};
+    let sId = undefined;
+    if (jt.data.session != null) {
+        sId = jt.data.session.id;
+    }
+    var d = {appId: id, sId: sId, options: options};
     jt.socket.emit('sessionAddApp', d);
 }
 

@@ -233,4 +233,11 @@ jt.connected = function() {
     console.log('FINISHED LOADING docs');
   });
 
+  jt.Modal_AppProperties_init();
+  jt.Modal_HTMLEditor_init();
+  jt.Modal_KeyboardShortcuts_init();
+  jt.Modal_SelectApp_init();
+  jt.Modal_TreatmentCode_init();
+  jt.Panel_Clients_init();
+
 }

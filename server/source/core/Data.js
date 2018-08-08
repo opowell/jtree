@@ -33,16 +33,6 @@ class Data {
         this.lastTimeOn = this.loadLastTimeOn();
 
         /*
-         * The list of available apps, loaded from the contents of the {@link Settings#appsFolder} folder.
-         * @type Object
-         */
-
-        this.apps = {};
-        this.appsMetaData = {};
-
-        this.loadApps();
-
-        /*
          * Available [Sessions]{@link Session}, loaded from the contents of the 'sessions' folder.
          * Sorted in ascending order according to time created.
          * @type Array of {@link Session}.
@@ -116,18 +106,18 @@ class Data {
         fs.writeJSON(fn, now, this.callStoreTimeInfoFunc.bind(this));
     }
 
-    app(id, options) {
-        if (this.jt.settings.reloadApps) {
-            var appPath = this.appsMetaData[id].appPath;
-            return this.loadApp(id, null, appPath, options);
-        } else {
-            return this.apps[id];
-        }
-    }
-
+    // app(id, options) {
+    //     if (this.jt.settings.reloadApps) {
+    //         var appPath = this.appsMetaData[id].appPath;
+    //         return this.loadApp(id, null, appPath, options);
+    //     } else {
+    //         return this.apps[id];
+    //     }
+    // }
+    //
     loadApp(id, session, appPath, options) {
         var app = null;
-        app = new App.new(session, id, this.jt, appPath);
+        app = new App.new(session, this.jt, appPath);
 
         // Set options before running code.
         for (var i in options) {
@@ -138,7 +128,7 @@ class Data {
             app.appjs = fs.readFileSync(appPath) + '';
             eval(app.appjs); // jshint ignore:line
         } catch (err) {
-            this.jt.log('Data.loadApp: ' + appPath);
+            this.jt.log('Error loading app: ' + appPath);
             this.jt.log(err);
             app = null;
         }
@@ -170,8 +160,8 @@ class Data {
                     }
                     let app = this.loadApp(id, null, curPath, {});
                     if (app != null) {
-                        this.apps[id] = app;
-                        this.appsMetaData[id] = app.metaData();
+                        // this.apps[id] = app;
+                        // this.appsMetaData[id] = app.metaData();
                         out.push(app);
                     }
                 } else if (curPathIsFolder) {
@@ -265,11 +255,30 @@ class Data {
         }
     }
 
+    getApp(appPath, options) {
+        var app = App.newSansId(this.jt, appPath);
+
+        // Set options before running code.
+        for (var i in options) {
+            app.setOptionValue(i, options[i]);
+        }
+
+        try {
+            app.appjs = fs.readFileSync(appPath) + '';
+            eval(app.appjs); // jshint ignore:line
+        } catch (err) {
+            this.jt.log('Error loading app: ' + appPath);
+            this.jt.log(err);
+            app = null;
+        }
+        return app;
+    }
+
     getApps() {
         var out = [];
         for (var i in this.jt.settings.appFolders) {
             var folder = this.jt.settings.appFolders[i];
-            out = out.concat(this.getAppsFromDir(path.join(this.jt.path, folder)));
+            out = out.concat(this.getAppsFromDir(folder));
         }
         return out;
     }
@@ -281,21 +290,21 @@ class Data {
         }
     }
 
-    saveApp(appToSave) {
-        try {
-            var origFolder = this.appPath(appToSave.origId);
-            var newFolder = this.appPath(appToSave.id);
-            fs.renameSync(origFolder, newFolder);
-            var appjsPath = path.join(newFolder, 'app.jtt');
-            fs.writeFileSync(appjsPath, appToSave.appjs);
-            appjsPath = path.join(newFolder, 'client.html');
-            fs.writeFileSync(appjsPath, appToSave.clientHTML);
-            delete this.apps[appToSave.origId];
-            this.apps[appToSave.id] = this.loadAppMetaData(appToSave.id, newFolder);
-        } catch (err) {
-
-        }
-    }
+    // saveApp(appToSave) {
+    //     try {
+    //         var origFolder = this.appPath(appToSave.origId);
+    //         var newFolder = this.appPath(appToSave.id);
+    //         fs.renameSync(origFolder, newFolder);
+    //         var appjsPath = path.join(newFolder, 'app.jtt');
+    //         fs.writeFileSync(appjsPath, appToSave.appjs);
+    //         appjsPath = path.join(newFolder, 'client.html');
+    //         fs.writeFileSync(appjsPath, appToSave.clientHTML);
+    //         delete this.apps[appToSave.origId];
+    //         this.apps[appToSave.id] = this.loadAppMetaData(appToSave.id, newFolder);
+    //     } catch (err) {
+    //
+    //     }
+    // }
 
     /*
      * loadSessions - description
@@ -491,7 +500,7 @@ class Data {
 
         var session = null;
         var appPath = this.appPath(id);
-        var app = new App.new(session, id, this.jt, appPath);
+        var app = new App.new(session, this.jt, appPath);
 
         fs.writeFileSync(this.appPath(id), '');
 

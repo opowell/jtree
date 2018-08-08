@@ -13,6 +13,7 @@ jt.Modal_SelectApp = function() {
                               <thead>
                                   <tr>
                                       <th>id</th>
+                                      <th>path</th>
                                       <th>description</th>
                                   </tr>
                               </thead>
@@ -30,14 +31,20 @@ jt.Modal_SelectApp = function() {
     return div;
 };
 
-jt.showSelectAppModal = function(title, onSelect, appMetadatas) {
+// To only be called once.
+jt.Modal_SelectApp_init = function() {
     var sam = jt.Modal_SelectApp();
+    $('body').append(sam);
+}
+
+jt.showSelectAppModal = function(title, onSelect, appMetadatas) {
+    var sam = $('#selectAppModal');
     sam.find('.modal-title').text(title);
     sam.find('#apps').empty();
     for (var i in appMetadatas) {
         var app = appMetadatas[i];
-        var row = jt.AppRow(app, {}, ['id', 'description']);
-        row.data('appId', app.id);
+        var row = jt.Item_AppRow(app, {}, ['id', 'path', 'description']);
+        row.data('appPath', app.appPath);
         row.click(function(ev) {
             if (
                 ($(ev.target).prop('tagName') !== 'SELECT') &&
@@ -51,20 +58,14 @@ jt.showSelectAppModal = function(title, onSelect, appMetadatas) {
         row.css('cursor', 'pointer');
         sam.find('#apps').append(row);
     }
-    $('body').append(sam);
     sam.modal('show');
 };
 
 jt.showOpenTreatmentModal = function(apps) {
-    if (apps == null) {
-        jt.socket.emit('getAppMetadatas', 'jt.showOpenTreatmentModal(message.data)');
-        return;
-    }
-
     var openAppFn = function() {
         var optionEls = $(this).find('[app-option-name]');
         var options = jt.deriveAppOptions(optionEls);
-        jt.openTreatment($(this).data('appId'));
+        jt.socket.emit("getApp", {appPath: $(this).data('appPath'), cb: "jt.openTreatment(message.app)"});
     };
     jt.showSelectAppModal('Open Treatment', openAppFn, apps);
 };

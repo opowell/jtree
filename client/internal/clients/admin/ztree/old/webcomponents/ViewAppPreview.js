@@ -237,7 +237,7 @@ jt.showAppTreeTreamtmentPanels = function(app) {
     for (let i=0; i<panels.length; i++) {
         const panel = $(panels[i]);
         if (panel.attr('treatment-id')===app.id) {
-            jt.TreatmentPanel_SetTree(panel.find('panel-content'), app);
+            jt.Panel_Treatment_SetTree(panel.find('panel-content'), app);
         }
     }
 }
