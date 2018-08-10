@@ -129,7 +129,7 @@ jt.menuDefns = [
         children: [
             {
                 id: 'Clients',
-                fn: 'jt.Panel_Clients_show();'
+                fn: 'jt.Panel_Clients_loadAndShow();'
             },
             'divider',
             {

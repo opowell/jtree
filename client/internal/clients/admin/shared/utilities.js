@@ -3,7 +3,11 @@ partLink = function(pId) {
         return jt.serverURL() + '/' + pId;
     } else {
 //        return jt.serverURL() + '/' + pId + '?sessionId=' + jt.data.session.id;
-        return jt.serverURL() + '/session/' + jt.data.session.id + '/' + pId;
+        if (jt.data.session != null) {
+          return jt.serverURL() + '/session/' + jt.data.session.id + '/' + pId;
+        } else {
+          return jt.serverURL() + '/' + pId;
+        }
     }
 }
 

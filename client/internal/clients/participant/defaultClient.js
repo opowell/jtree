@@ -454,14 +454,14 @@ jt.defaultConnected = function() {
             var tableRows = player.group[tableName];
             for (var j=0; j<tableRows.length; j++) {
                 var row = tableRows[j];
-                eval('jt.' + tableName + 'Show')(row);
+                eval('jt.' + tableName + 'Show')(row); // @jshint ignore:line
             }
         }
     });
 
     jt.socket.on('logged-in', function(id){
         $('#player').text(id);
-        console.log('logged-in');
+        console.log('logged-in as ' + id);
     });
 
     jt.socket.on('set-clock-timeleft', function(val) {

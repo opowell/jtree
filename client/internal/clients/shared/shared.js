@@ -75,7 +75,6 @@ jt.checkIfLoaded = function() {
 
 // Overwrite
 jt.socketConnected = function() {
-
 }
 
 jt.isAdmin = function() {

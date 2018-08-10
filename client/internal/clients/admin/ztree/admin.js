@@ -165,31 +165,6 @@ jt.connected = function() {
         }
     });
 
-    jt.socket.on('add-client', function(client) {
-        if (client.session.id === jt.data.session.id) {
-            // console.log('add client: ' + client);
-            jt.data.session.clients.push(client);
-            var participant = findByIdWOJQ(jt.data.session.participants, client.pId);
-            if (participant !== null) {
-                participant.numClients++;
-                $('.participant-' + client.pId + '-numClients').text(participant.numClients);
-            }
-        }
-    });
-
-    jt.socket.on('remove-client', function(client) {
-        if (client.session.id === jt.data.session.id) {
-            console.log('remove client: ' + client);
-            deleteById(jt.data.session.clients, client.id);
-            removeClient(client.id);
-            var participant = findByIdWOJQ(jt.data.session.participants, client.pId);
-            if (participant != null) {
-                participant.numClients--;
-                $('.participant-' + client.pId + '-numClients').text(participant.numClients);
-            }
-        }
-    });
-
 // TODO: move all message functionality here
     jt.socket.on('messages', function(msgs) {
         for (m in msgs) {

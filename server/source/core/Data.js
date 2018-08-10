@@ -90,6 +90,21 @@ class Data {
         return out;
     }
 
+    getClients(sessionId) {
+        let out = [];
+        let session = this.getSession(sessionId);
+        if (sessionId != null) {
+            if (session != null) {
+                for (let i=0; i<session.clients.length; i++) {
+                    out.push(session.clients[i].toShell());
+                }
+            }
+        } else {
+            out = this.jt.socketServer.participantClients;
+        }
+        return out;
+    }
+
     /*
      * FUNCTIONALITY
      * write current time to disk

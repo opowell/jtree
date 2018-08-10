@@ -265,10 +265,20 @@ class StaticServer {
         } else {
             session = Utils.findByIdWOJQ(this.jt.data.sessions, sessionId);
         }
-        if (session === null) {
-            res.sendFile(path.resolve(this.jt.path, './' + this.jt.settings.participantUI + '/invalidSession.html'));
+
+        // If asked for a particular session, and that session:
+        // - does not exists, send invalid session page.
+        // - does exist, send participant page for that session.
+        // If did not ask for particular session,
+        // - send default start page.
+        if (sessionId != null) {
+            if (session === null) {
+                res.sendFile(path.resolve(this.jt.path, './' + this.jt.settings.participantUI + '/invalidSession.html'));
+            } else {
+                session.sendParticipantPage(req, res, pId);
+            }
         } else {
-            session.sendParticipantPage(req, res, pId);
+            res.sendFile(path.join(this.jt.path, this.jt.settings.participantUI + '/readyClient.html'));
         }
     }
 

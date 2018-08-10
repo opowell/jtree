@@ -39,6 +39,11 @@ class Msgs {
         this.jt.data.appsMetaData[d.aId] = app.metaData();
     }
 
+    getClients(data, socket) {
+        let clients = this.jt.data.getClients(data.sessionId);
+        var message = {cb: data.cb, clients: clients};
+        socket.emit('dataMessage', message);
+    }
 
     /**
      * getAppMetadatas - Get an array of the app metadatas found on the server.

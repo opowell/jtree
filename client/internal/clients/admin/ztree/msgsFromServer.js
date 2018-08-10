@@ -8,6 +8,35 @@ msgs.dataMessage = function(message) {
     eval(message.cb); // jshint ignore:line
 }
 
+msgs.addClient = function(client) {
+    jt.data.clients.push(client);
+    jt.addClient(client);
+    // if (client.session.id === jt.data.session.id) {
+    //     jt.data.session.clients.push(client);
+    //     var participant = findByIdWOJQ(jt.data.session.participants, client.pId);
+    //     if (participant !== null) {
+    //         participant.numClients++;
+    //         $('.participant-' + client.pId + '-numClients').text(participant.numClients);
+    //     }
+    // }
+};
+
+msgs.removeClient = function(client) {
+    console.log('remove client: ' + JSON.stringify(client));
+    deleteById(jt.data.clients, client.id);
+    // if (
+    //     (client.session == null && jt.data.session == null) ||
+    //     (client.session.id === jt.data.session.id)) {
+    //     removeClient(client.id);
+    //     var participant = findByIdWOJQ(jt.data.session.participants, client.pId);
+    //     if (participant != null) {
+    //         participant.numClients--;
+    //         $('.participant-' + client.pId + '-numClients').text(participant.numClients);
+    //     }
+    // }
+};
+
+
 
 msgs.addSession = function(session) {
   var index = findById(jt.data.sessions, session.id);

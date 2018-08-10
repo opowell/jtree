@@ -103,10 +103,32 @@ class SocketServer {
                 session = this.jt.data.getMostRecentActiveSession();
             }
 
-            const client = session.addClient(socket, pId);
+            let client = null;
+            if (session != null) {
+                // Add client to session (automatic notification of admins + client).
+                client = session.addClient(socket, pId);
+            } else {
+                // No session, so notify manually.
+                client = {
+                    pId: pId
+                };
+                this.sendOrQueueAdminMsg(null, 'addClient', client);
+                let participant = {
+                    id: pId,
+                    session: {
+                        id: 'none'
+                    }
+                };
+                socket.emit('logged-in', participant);
+                let socketServer = this;
+                socket.on('disconnect', function() {
+                    console.log('disconnect for ' + JSON.stringify(client));
+                    socketServer.sendOrQueueAdminMsg(null, 'removeClient', client);
+                });
+            }
 
             // If no fixed session ID, add to list of clients to reset.
-            if (session.id !== sessionId && client !== null) {
+            if ((session == null || session.id !== sessionId) && client !== null) {
                 this.participantClients.push(client);
             }
 
