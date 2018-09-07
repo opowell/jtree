@@ -231,6 +231,32 @@ jt.setValues = function(player) {
 
 }
 
+jt.setVueData = function() {
+
+    jt.vueData = {
+        player: jt.player,
+        group: jt.player.group,
+        period: jt.player.group.period,
+        stage: jt.player.stage,
+        app: jt.player.stage.app,
+        session: jt.player.stage.app.session,
+        timeLeft: jt.data.timeLeft
+    }
+
+    jt.vueComputed = {
+        clock: function() {
+            jt.getClock(this.timeLeft);
+        }
+    }
+
+    jt.vue = new Vue({
+        el: 'body',
+        data: jt.vueData,
+        computed: jt.vueComputed
+    });
+
+}
+
 // Default client functionality to be included in all (most?) apps.
 jt.defaultConnected = function() {
 
@@ -265,6 +291,7 @@ jt.defaultConnected = function() {
 
         window.scrollTo(0, 0);
 
+        jt.setVueData();
         jt.setValues(player);
         jt.evaluateDisplayConditions(player);
         jt.setPlayerStatus(player.status);

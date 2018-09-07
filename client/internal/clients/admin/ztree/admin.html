@@ -19,10 +19,16 @@
     <!-- Allow timers to run even when page is not in focus. -->
     <script src="/shared/HackTimer.min.js"></script>
     <script src="/shared/HackTimerWorker.min.js"></script>
+    <script src="/shared/axios.min.js"></script>
     <script src="/shared/jquery-1.11.1.js"></script>
     <script src="/shared/tether.min.js"></script>
+    
+    <!-- For synchronizing client and server data. -->
+    <script src="/shared/syc.js"></script> 
+    
     <!-- // For dropdowns, must be before bootstrap.js -->
     <script src="/shared/popper.min.js"></script>
+    
     <script src="/shared/bootstrap.min.js"></script>
     <script src="/shared/jquery-ui.js"></script>
     <script src="/shared/object_hash.js"></script>
@@ -35,11 +41,13 @@
     <script src="/shared/utilsFns.js"></script>
 
     <!-- ADMIN LIBRARIES -->
+    <script src="/shared/webcomponents-bundle.js"></script>
     <script src="/admin/shared/utilities.js"></script>
     <script src="/admin/shared/msgsToServer.js"></script>
     <script src="/shared/Binding.js"></script>
-    <script src='/shared/knockout-3.4.2.js'></script>
-
+    <script src='/shared/vue.js'></script>
+    <script src='/shared/vuex.js'></script>
+    <script src='/shared/vue-wc-wrapper.global.js'></script>
 
     <!-- Generic UI components -->
     <script src="/admin/ztree/components/JTPanel.js"></script>
@@ -65,6 +73,24 @@
     <script src="/admin/ztree/components/Panel_Treatment.js"></script>
     <script src="/admin/ztree/components/Panel_Clients.js"></script>
 
+    <script src="/admin/ztree/vue-comps/Menu.js"></script>
+    <link rel="stylesheet" type="text/css" href="/admin/ztree/vue-comps/Menu.css">
+
+    <script src="/admin/ztree/vue-comps/MenuItem.js"></script>
+    <link rel="stylesheet" type="text/css" href="/admin/ztree/vue-comps/MenuItem.css">
+
+    <script src="/admin/ztree/vue-comps/PanelTitle.js"></script>
+    <link rel="stylesheet" type="text/css" href="/admin/ztree/vue-comps/PanelTitle.css">
+
+    <script src="/admin/ztree/vue-comps/Panel.js"></script>
+    <script src="/admin/ztree/vue-comps/panels/PanelApps.js"></script>
+    <script src="/admin/ztree/vue-comps/panels/PanelClients.js"></script>
+    <script src="/admin/ztree/vue-comps/panels/PanelSessions.js"></script>
+    <script src="/admin/ztree/vue-comps/panels/ActiveSession.js"></script>
+    <link rel="stylesheet" type="text/css" href="/admin/ztree/vue-comps/Panel.css">
+
+    <script src="/admin/ztree/vue-comps/ClientRow.js"></script>
+
     <!-- <script src="/source/models.js"></script> -->
 
 </head>
@@ -72,7 +98,12 @@
 
     <input id='openFileDialog' accept='.jtt, .ztt, .ztq, .js, .json' type="file" style="display: none" onchange="jt.openSelectedFile();"/>
     <div id='jt-menu'></div>
-    <div id='content-window'></div>
+    <div id='content-window'>
+        <panel-sessions :sessions='sessions'></panel-sessions>
+        <panel-apps :apps='apps'></panel-apps>
+        <panel-clients :clients='clients'></panel-clients>
+        <panel-active-session :active-session='activeSession'></panel-active-session>
+    </div>
 
 </body>
 </html>

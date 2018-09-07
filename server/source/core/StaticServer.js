@@ -62,6 +62,33 @@ class StaticServer {
             self.sendParticipantPage(req, res, 'test', undefined);
         });
 
+        expApp.get('/api/sessions', function(req, res) {
+            let sessions = self.jt.data.loadSessions();
+            let out = [];
+            for (let i=0; i<sessions.length; i++) {
+                out.push(sessions[i].shell());
+            }
+            res.send(out);
+        });
+
+        expApp.get('/api/apps', function(req, res) {
+            let apps = self.jt.data.getApps();
+            let out = [];
+            for (let i=0; i<apps.length; i++) {
+                out.push(apps[i].metaData());
+            }
+            res.send(out);
+        });
+
+        expApp.get('/api/clients', function(req, res) {
+            let clients = self.jt.data.getClients(req.params.sessionId);
+            // let out = [];
+            // for (let i=0; i<clients.length; i++) {
+            //     out.push(clients[i].shell());
+            // }
+            res.send(clients);
+        });
+
         expApp.get('/:pId', this.handleRequest.bind(this));
         expApp.post('/:pId', this.handleRequest.bind(this));
 

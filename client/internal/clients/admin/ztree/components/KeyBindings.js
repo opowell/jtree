@@ -12,7 +12,7 @@ jt.keyboardShortcuts = [];
 
 // Uses jQuery hotkeys package.
 jt.bindKey = function(item) {
-    console.log('binding ' + item.key + ' to ' + item.fn);
+//    console.log('binding ' + item.key + ' to ' + item.fn);
     jt.keyboardShortcuts.push({
         key: item.key,
         fn: item.fn

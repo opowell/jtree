@@ -9,8 +9,7 @@ msgs.dataMessage = function(message) {
 }
 
 msgs.addClient = function(client) {
-    jt.data.clients.push(client);
-    jt.addClient(client);
+    jt.models.clients.push(client);
     // if (client.session.id === jt.data.session.id) {
     //     jt.data.session.clients.push(client);
     //     var participant = findByIdWOJQ(jt.data.session.participants, client.pId);
@@ -23,7 +22,7 @@ msgs.addClient = function(client) {
 
 msgs.removeClient = function(client) {
     console.log('remove client: ' + JSON.stringify(client));
-    deleteById(jt.data.clients, client.id);
+    deleteById(jt.models.clients, client.id);
     // if (
     //     (client.session == null && jt.data.session == null) ||
     //     (client.session.id === jt.data.session.id)) {
@@ -39,12 +38,13 @@ msgs.removeClient = function(client) {
 
 
 msgs.addSession = function(session) {
-  var index = findById(jt.data.sessions, session.id);
-  if (index === null) {
-      jt.data.sessions.push(session);
-      showSessionRow(session);
-      jt.showUsersMode(jt.settings.multipleUsers);
-  }
+//   var index = findById(jt.data.sessions, session.id);
+//   if (index === null) {
+//       jt.data.sessions.push(session);
+//       showSessionRow(session);
+//       jt.showUsersMode(jt.settings.multipleUsers);
+//   }
+    jt.data.session = session;
 }
 msgs.deleteSession = function(id) {
     for (i in jt.data.sessions) {
@@ -150,20 +150,20 @@ msgs.openSession = function(session) {
             .text(filelink)
             .attr('href', 'file:///' + filelink);
         showPanel("#panel-session-info");
-        showParticipants(jt.data.session.participants);
+    //    showParticipants(jt.data.session.participants);
         // viewAllParticipants();
-        updateSessionApps();
-        jt.updateSessionUsers();
-        updateAllowNewParts();
-        jt.updateChartPage();
-        jt.chartVar('test');
+        //updateSessionApps();
+   //     jt.updateSessionUsers();
+   //     updateAllowNewParts();
+   //     jt.updateChartPage();
+   //     jt.chartVar('test');
     }
 
     // $('#session-participants').removeAttr('hidden');
 
-    setView('session');
+    //setView('session');
     $('#setNumParticipants').val(objLength(jt.data.session.participants));
-    jt.setSessionView('appqueue');
+    //jt.setSessionView('appqueue');
 }
 msgs.participantSetAppIndex = function(md) {
     var participant = jt.data.session.participants[md.participantId];

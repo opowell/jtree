@@ -127,7 +127,7 @@ jt.connected = function() {
     // Register to listen for messages defined in msgs object.
     // https://stackoverflow.com/questions/29917977/get-event-name-in-events-callback-function-in-socket-io
     for (var i in msgs) {
-        console.log('listening for message ' + i);
+        // console.log('listening for message ' + i);
         (function(i) {
             jt.socket.on(i, function(d) {
                 console.log('received message ' + i + ': ' + JSON.stringify(d));
@@ -213,6 +213,59 @@ jt.connected = function() {
   jt.Modal_KeyboardShortcuts_init();
   jt.Modal_SelectApp_init();
   jt.Modal_TreatmentCode_init();
-  jt.Panel_Clients_init();
 
+  jt.models = {
+    apps: [],
+    clients: [],
+    sessions: [],
+    activeSession: null
+  }
+
+  new Vue({
+    el: '#content-window',
+    data: jt.models
+  });
+
+  Syc.connect(jt.socket);
+  Syc.loaded(function () {
+          Syc.list('syncData');
+          Syc.watch(Syc.list('syncData'), function (change) { 
+            console.log(JSON.stringify(change));
+         });
+ });
+
+}
+
+refreshClients = function() {
+    axios
+    .get('http://' + jt.serverURL() + '/api/clients')
+    .then(response => {
+        window.jt.models.clients = response.data;
+    })
+}
+
+refreshSessions = function() {
+    axios
+    .get('http://' + jt.serverURL() + '/api/sessions')
+    .then(response => {
+        window.jt.models.sessions = response.data;
+    })
+}
+
+refreshApps = function() {
+    axios
+    .get('http://' + jt.serverURL() + '/api/apps')
+    .then(response => {
+        window.jt.models.apps = response.data;
+    })
+}
+
+jt.startTreatment = function() {
+    let panel = $('.jt-panel.focussed-panel');
+    // var optionEls = $(this).find('[app-option-name]');
+    // var options = jt.deriveAppOptions(optionEls);
+    let options = {};
+    let appPath = panel.find('panel-content').data('app').appPath;
+    // server.sessionAddApp(appPath, options);
+    server.createSessionAndAddApp(appPath, options);
 }

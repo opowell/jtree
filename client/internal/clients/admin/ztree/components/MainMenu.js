@@ -37,8 +37,16 @@ jt.menuDefns = [
                 id: 'Save',
                 key: 'Ctrl+S',
                 fn: 'jt.saveApp();'
-            }
-
+            },
+            'divider',
+            {
+                id: 'Apps',
+                fn: 'jt.showAppsPanel();'
+            },
+            {
+                id: 'Sessions',
+                fn: 'jt.showSessionsPanel();'
+            },
         ]
     },
     {
@@ -129,7 +137,11 @@ jt.menuDefns = [
         children: [
             {
                 id: 'Clients',
-                fn: 'jt.Panel_Clients_loadAndShow();'
+                fn: 'jt.showClientsPanel();'
+            },
+            {
+                id: 'Session Info',
+                fn: 'jt.showActiveSession();'
             },
             'divider',
             {

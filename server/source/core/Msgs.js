@@ -258,13 +258,15 @@ class Msgs {
             socket.join(session.roomId());
             this.jt.io.to('socket_' + socket.id).emit('openSession', session.shellWithChildren());
             this.jt.data.lastOpenedSession = session;
+            this.jt.data.syncData.hello = 'updated active session!';
+            this.jt.data.syncData.activeSession = session;
             // this.reloadClients();
             // Called from client-side.
         }
     }
 
     reloadClients() {
-        const clients = this.jt.socketServer.participantClients;
+        const clients = this.jt.data.participantClients;
         for (let i=0; i<clients.length; i++) {
             try {
                 clients[i].reload();

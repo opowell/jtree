@@ -22,8 +22,8 @@ a:hover {
     background-color: #d5dce8;
     display: flex;
     flex-direction: column;
-    top: 4rem;
-    left: 4rem;
+    /* top: 4rem; */
+    /* left: 4rem; */
     position: absolute;
     border: 1px outset #ddd;
     border-top-left-radius: 4px;
@@ -31,6 +31,15 @@ a:hover {
     border-bottom-left-radius: 1px;
     border-bottom-right-radius: 1px;
     box-shadow: 0px 1px 3px 3px #888;
+}
+
+.sessions-title {
+    display: flex;
+    align-items: baseline;
+    flex: 0 0 auto;
+    padding: 2px 1px;
+    color: #6f6f6f;
+    min-height: 26px;
 }
 
 .panel-title-div {
@@ -138,6 +147,14 @@ panel-content {
     overflow: auto;
 }
 
+.sessions-content {
+    background-color: #fff;
+    flex: 1 1 auto;
+    padding: 2px 6px;
+    border: 1px inset rgba(0,0,0,0.3);
+    overflow: auto;
+}
+
 panel-title {
     flex: 0 0 auto;
     padding: 2px 1px;
@@ -216,6 +233,7 @@ panel-title {
 .menubar-focussed .menu-text-first {
     text-decoration: underline;
 }
+
 .menu-text-first {
 
 }

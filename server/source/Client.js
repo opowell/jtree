@@ -12,6 +12,7 @@ class Client {
          this.id = socket.id;
          this.session = session;
          this.ip = null;
+         this.pId = null;
          this.participant = null;
          this.lastActivity = Utils.getDate(new Date());
          this.socket = socket;
@@ -38,9 +39,11 @@ class Client {
         var out = {};
         out.id = this.id;
         out.ip = this.ip;
-        out.pId = this.participant.id;
+        out.pId = this.pId;
         out.lastActivity = this.lastActivity;
-        out.session = this.session.shell();
+        if (this.session != null) {
+            out.session = this.session.shell();
+        }
         return out;
     }
 

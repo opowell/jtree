@@ -46,6 +46,15 @@ class Data {
         this.users = this.loadUsers();
 
         this.storeTimeInfo();
+
+        // Participant clients with no session IDs.
+        // Reload them when a new session is opened.
+        this.participantClients = [];
+
+        this.syncData = {
+            hello: 'world'
+        }
+
     }
 
     /*
@@ -100,7 +109,9 @@ class Data {
                 }
             }
         } else {
-            out = this.jt.socketServer.participantClients;
+            for (let i in this.participantClients) {
+                out.push(this.participantClients[i].shell());
+            }
         }
         return out;
     }
