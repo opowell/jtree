@@ -7,7 +7,6 @@ const http      = require('http');
 const replace   = require("replace");
 const bodyParser = require("body-parser");
 const session   = require('express-session');
-const babel     = require("babel-core");
 
 
 /** Server for static files */
@@ -206,8 +205,8 @@ class StaticServer {
     }
 
     generateClientModels() {
-        var file = babel.transformFileSync(path.join(this.jt.path, "../server/source/App.js"), {});
-        fs.writeFileSync(path.join(this.jt.path, 'internal/clients/admin/shared/models.js'), file.code);
+//        var file = babel.transformFileSync(path.join(this.jt.path, "../server/source/App.js"), {});
+//        fs.writeFileSync(path.join(this.jt.path, 'internal/clients/admin/shared/models.js'), file.code);
     }
 
     handleRequest(req, res) {

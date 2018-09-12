@@ -10,3 +10,5 @@ client/users
 server/node_modules/*
 .DS_Store
 desktop.ini
+client/internal/clients/shared/shared.js
+client/internal/serverState.json

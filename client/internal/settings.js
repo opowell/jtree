@@ -1,5 +1,5 @@
 {
     "multipleUsers": false,
     "defaultAdminPwd": "",
-    "defaultAdminUI": "ztree"
+    "defaultAdminUI": "multiuser"
 }
