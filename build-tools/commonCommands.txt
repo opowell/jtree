@@ -1,3 +1,9 @@
+INITIAL
+Install build packages.
+npm install -g pkg
+npm install -g documentation
+npm install -g jsdoc
+
 PROCEDURE
 1. Set version in:
 - build-tools/xxx/buildJTree.xxx

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: core/StaticServer.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: core/StaticServer.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const express   = require('express');
+const path      = require('path');
+const fs        = require('fs-extra');
+const Utils     = require('../Utils.js');
+const ip        = require('ip');
+const http      = require('http');
+const replace   = require("replace");
+const bodyParser = require("body-parser");
+const session   = require('express-session');
+
+
+/** Server for static files */
+class StaticServer {
+
+    constructor(jt) {
+        this.jt = jt;
+        var expApp = express();
+        expApp.use(bodyParser.urlencoded({extended : true}));
+        expApp.use(session(
+            {
+                secret: 'keyboard cat',
+                cookie: { maxAge: 60000 },
+                resave: false,
+                saveUninitialized: true
+            }
+        ))
+
+        var self = this;
+        this.expApp = expApp;
+
+        //////////////////////////////
+        // FILES TO SERVE
+        expApp.use('', express.static(path.join(this.jt.path, jt.settings.participantUI)));
+        expApp.use('/help', express.static(path.join(this.jt.path, jt.settings.helpPath)));
+        expApp.use('/source', express.static(path.join(this.jt.path, jt.settings.adminUIsSharedPath)));
+        expApp.use('/admin', express.static(this.defaultAdminUIPath()));
+        // expApp.use('/adminShared', express.static(this.adminUIsSharedPath()));
+        var adminUIs = fs.readdirSync(this.adminUIsPath());
+        for (var i in adminUIs) {
+            // Skip shared folder.
+            // if (adminUIs[i] == 'shared') {
+            //     continue;
+            // }
+            var pathToFolder = path.join(this.adminUIsPath(), adminUIs[i]);
+            if (fs.lstatSync(pathToFolder).isDirectory()) {
+                expApp.use('/admin/' + adminUIs[i], express.static(pathToFolder));
+            }
+        }
+        expApp.use('/participant', express.static(path.join(this.jt.path, jt.settings.participantUI)));
+        expApp.use('/shared', express.static(path.join(this.jt.path, jt.settings.sharedUI)));
+        for (let i in jt.data.appsMetaData) {
+            let metaData = jt.data.appsMetaData[i];
+            expApp.use('/' + metaData.id, express.static(path.parse(metaData.appPath).dir));
+        }
+        // END FILE SERVING
+        //////////////////////////////
+
+        //////////////////////////////
+        // REQUESTS
+        expApp.get('/', function(req, res) {
+            self.sendParticipantPage(req, res, 'test', undefined);
+        });
+
+        expApp.get('/api/sessions', function(req, res) {
+            let sessions = self.jt.data.loadSessions();
+            let out = [];
+            for (let i=0; i&lt;sessions.length; i++) {
+                out.push(sessions[i].shell());
+            }
+            res.send(out);
+        });
+
+        expApp.get('/api/apps', function(req, res) {
+            let apps = self.jt.data.getApps();
+            let out = [];
+            for (let i=0; i&lt;apps.length; i++) {
+                out.push(apps[i].metaData());
+            }
+            res.send(out);
+        });
+
+        expApp.get('/api/clients', function(req, res) {
+            let clients = self.jt.data.getClients(req.params.sessionId);
+            // let out = [];
+            // for (let i=0; i&lt;clients.length; i++) {
+            //     out.push(clients[i].shell());
+            // }
+            res.send(clients);
+        });
+
+        expApp.get('/:pId', this.handleRequest.bind(this));
+        expApp.post('/:pId', this.handleRequest.bind(this));
+
+        expApp.get('/room/:rId', function(req, res) {
+            res.cookie('roomId', req.params.rId);
+            var room = self.jt.data.room(req.params.rId);
+            res.cookie('roomDN', room.displayName);
+            res.cookie('hasSecret', room.useSecureURLs);
+            res.sendFile(path.join(self.jt.path, self.jt.settings.clientUI, '/room.html'));
+        });
+
+        expApp.get('/session-download/:sId', function(req, res) {
+            var session = self.jt.data.session(req.params.sId);
+            var out = session.saveOutput();
+            res.send(out);
+        });
+
+        expApp.get('/room/:rId/:pId', function(req, res) {
+            var room = self.jt.data.room(req.params.rId);
+            if (room.isValidPId(req.params.pId, req.params.hash)) {
+                res.sendFile(path.join(self.jt.path, self.jt.settings.participantUI + '/readyClient.html'));
+            } else {
+                res.cookie('roomId', req.params.rId);
+                res.cookie('participantId', req.params.pId);
+                res.cookie('roomDN', room.displayName);
+                res.cookie('hasSecret', room.useSecureURLs);
+                res.sendFile(path.join(self.jt.path, self.jt.settings.clientUI, '/room.html'));
+            }
+
+        });
+
+        // GET /logout
+        expApp.get('/users/logout', function(req, res, next) {
+          if (req.session) {
+
+              for (var i in self.jt.data.users) {
+                  var user = self.jt.data.users[i];
+                  if (user.id === req.session.userId) {
+                      var ind = user.sessionIds.indexOf(req.session.id);
+                      user.sessionIds.splice(ind, 1);
+                  }
+              }
+
+            // delete session object
+            req.session.destroy(function(err) {
+              if(err) {
+                return next(err);
+              } else {
+                return res.redirect('/admin');
+              }
+            });
+          }
+        });
+
+        // expApp.get('/', function(req, res) {
+        //     self.sendParticipantPage(req, res, req.query.id, undefined);
+        // });
+        //
+        expApp.get('/session/:sId/:pId', function(req, res) {
+            self.sendParticipantPage(req, res, req.params.pId, req.params.sId);
+        });
+
+        // Admin interfaces
+        for (let i in adminUIs) {
+            let pathToFolder = path.join(this.adminUIsPath(), adminUIs[i]);
+            if (fs.lstatSync(pathToFolder).isDirectory()) {
+                expApp.get('/admin/' + adminUIs[i], function(req, res) {
+                    var ui = req.originalUrl.substring('/admin/'.length);
+                    var id = req.query.id;
+                    var pwd = req.query.pwd;
+                    var admin = jt.data.getAdmin(id, pwd);
+                    if (admin == null &amp;&amp; jt.settings.adminLoginReq === true) {
+                        res.sendFile(path.join(jt.staticServer.adminUIsPath(), ui, 'invalidAdminLogin.html'));
+                    } else {
+                        res.sendFile(path.join(jt.staticServer.adminUIsPath(), ui, 'admin.html'));
+                    }
+                });
+            }
+        }
+        // END REQUESTS
+        //////////////////////////////
+
+
+        //////////////////////////////
+        // START SERVER
+        this.port = jt.settings.port;
+        this.ip = ip.address();
+        this.server = http.Server(expApp);
+        try {
+            this.server.listen(this.port, function() {
+                console.log('###############################################');
+                console.log('jtree ' + jt.version + ', listening on ' + self.ip + ':' + self.port);
+            });
+        } catch (err) {
+            if (jt.settings.port === 80) {
+                jt.settings.port = 3000;
+                this.port = jt.settings.port;
+                this.server.listen(this.port, function() {
+                    console.log('###############################################');
+                    console.log('jtree ' + jt.version + ', listening on ' + self.ip + ':' + self.port);
+                });
+            }
+        }
+        //////////////////////////////
+
+        //////////////////////////////
+        // Generate files used by clients.
+        this.generateSharedJS();
+        // If running in development mode, recompile client webpack.
+        if (process.argv[0].indexOf('node') > -1) {
+            this.generateClientModels();
+        }
+        //////////////////////////////
+
+    }
+
+    generateClientModels() {
+//        var file = babel.transformFileSync(path.join(this.jt.path, "../server/source/App.js"), {});
+//        fs.writeFileSync(path.join(this.jt.path, 'internal/clients/admin/shared/models.js'), file.code);
+    }
+
+    handleRequest(req, res) {
+        var jt = this.jt;
+        if (req.params.pId === 'admin') {
+                var id = req.body.uId;
+                var pwd = req.body.pwd;
+                var adminUser = jt.data.isValidAdmin(id, pwd);
+                if (
+                    adminUser !== null
+                ) {
+                    if (adminUser !== 'defaultAdmin') {
+                        adminUser.sessionIds.push(req.session.id);
+                        req.session.userId = adminUser.id;
+                        res.cookie('userId', adminUser.id);
+                    }
+                    res.sendFile(jt.staticServer.defaultAdminUIPath() + '/admin.html');
+                } else {
+                    if (jt.settings.multipleUsers) {
+                        res.sendFile(jt.staticServer.defaultAdminUIPath() + '/adminLogin.html');
+                    } else {
+                        res.sendFile(jt.staticServer.defaultAdminUIPath() + '/defaultAdminLogin.html');
+                    }
+                }
+        } else {
+                this.sendParticipantPage(req, res, req.params.pId, undefined);
+        }
+    }
+
+    defaultAdminUIPath() {
+        return path.join(this.adminUIsPath(), this.jt.settings.defaultAdminUI);
+    }
+
+    adminUIsPath() {
+        return path.join(this.jt.path, this.jt.settings.adminUIsPath);
+    }
+
+    /**
+     * Folder containing content common to all admin UIs.
+     */
+    adminUIsSharedPath() {
+        return path.join(this.adminUIsPath(), this.jt.settings.adminUIsSharedPath);
+    }
+
+    /**
+     * Generates "shared.js", to be used by all clients to connect to server.
+     * 1. Create a copy of 'sharedTemplate.js'.
+     * 2. Overwrite the serverURL variable with the IP + port of the current machine.
+     *
+     * References:
+     * http://stackoverflow.com/questions/3653065/get-local-ip-address-in-node-js
+     * http://stackoverflow.com/questions/14177087/replace-a-string-in-a-file-with-nodejs
+     */
+    generateSharedJS() {
+        var fn = path.join(this.jt.path, this.jt.settings.clientJSTemplateFile) // file with marker
+        var newFN = path.join(this.jt.path, this.jt.settings.clientJSFile) // actual file to be sent to clients and admins
+        try {
+            fs.copySync(fn, newFN);
+            replace({
+                regex: '{{{SERVER_IP}}}',
+                replacement: this.ip,
+                paths: [newFN],
+                recursive: true,
+                silent: true,
+            });
+            replace({
+                regex: '{{{SERVER_PORT}}}',
+                replacement: this.port,
+                paths: [newFN],
+                recursive: true,
+                silent: true,
+            });
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    sendParticipantPage(req, res, pId, sessionId) {
+        var session = null;
+        if (sessionId == null || sessionId == undefined) {
+            session = this.jt.data.getMostRecentActiveSession();
+        } else {
+            session = Utils.findByIdWOJQ(this.jt.data.sessions, sessionId);
+        }
+
+        // If asked for a particular session, and that session:
+        // - does not exists, send invalid session page.
+        // - does exist, send participant page for that session.
+        // If did not ask for particular session,
+        // - send default start page.
+        if (sessionId != null &amp;&amp; session === null) {
+            res.sendFile(path.resolve(this.jt.path, './' + this.jt.settings.participantUI + '/invalidSession.html'));
+        } else {
+            if (session != null) {
+                session.sendParticipantPage(req, res, pId);
+            } else {
+                res.sendFile(path.join(this.jt.path, this.jt.settings.participantUI + '/readyClient.html'));
+            }
+        }
+    }
+
+}
+
+var exports = module.exports = {};
+exports.new = StaticServer;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Sep 13 2018 16:26:19 GMT+0200 (GMT+02:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
