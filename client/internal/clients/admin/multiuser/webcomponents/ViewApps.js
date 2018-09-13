@@ -58,8 +58,11 @@ function showAppInfos() {
             }
         });
         row.css('cursor', 'pointer');
+        
         row.data('appId', app.id);
         row.attr('appId', app.id);
+        
+        row.data('appShortId', app.shortId);
 
         var actionDiv = $('<div class="btn-group">');
         var createSessionBtn = $(`
@@ -126,7 +129,7 @@ function addAppToSessionAndStart(event) {
 }
 
 jt.startSessionWithApp = function() {
-    var appId = $('#view-app-id').text();
+    var appId = $('#view-app-fullId').text();
     var optionEls = $('#view-app [app-option-name]');
     var options = jt.deriveAppOptions(optionEls);
     server.createSessionAndAddApp(appId, options);

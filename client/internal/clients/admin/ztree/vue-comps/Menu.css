@@ -1,0 +1,61 @@
+.v-menu {
+    display: flex;
+    flex: 0 0 auto;
+    margin-right: 3px;
+    position: relative;
+}
+
+.v-menu-text {
+    cursor: default;
+    border-radius: 0px;
+    border-width: 1px;
+    border-color: rgba(0,0,0,0);
+    border-style: solid;
+    font-size: 9pt;
+    background-color: inherit;
+    outline: none;
+    box-shadow: none;
+    display: flex;
+    padding: 4px 3px;
+}
+
+.v-menu-text:hover {
+    background-color: #EEE;
+}
+
+.v-menu-dropdown {
+    display: none;
+    margin: 0px;
+    padding: 3px;
+    transform: translate3d(0px, 0px, 0px) !important;
+    border-radius: 0px;
+    box-shadow: 1px 1px 1px 1px #00000057;
+    background-color: hsla(0, 0%, 97%, 1);
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    float: left;
+    min-width: 10rem;
+    font-size: 1rem;
+    color: #212529;
+    text-align: left;
+    list-style: none;
+    background-clip: padding-box;
+    border: 1px solid rgba(0,0,0,.15);
+}
+
+.v-menu-dropdown.show {
+    display: block;
+}
+
+.v-menu-focussed {
+    box-shadow: none;
+    background-color: rgba(0, 123, 255, 0.25);
+    border-color: rgba(0, 123, 255, 0.50);
+}
+
+.v-menu-focussed:hover {
+    background-color: rgba(0, 123, 255, 0.25);
+    border-color: rgba(0, 123, 255, 0.50);
+}

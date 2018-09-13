@@ -40,7 +40,7 @@ jt.appSaveFileContentsFromEditor = function() {
 }
 
 jt.appSaveFileContents = function(filename, content) {
-  var appId = $('#view-app-id').text();
+  var appId = $('#view-app-fullId').text();
   jt.socket.emit('appSaveFileContents', {filename: filename, aId: appId, content: content});
   var app = jt.app(appId);
   if (filename === 'app.js') {

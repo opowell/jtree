@@ -151,7 +151,7 @@ function findByIdWOJQ(array, id) {
 // http://stackoverflow.com/questions/5767325/how-to-remove-a-particular-element-from-an-array-in-javascript
 function deleteById(array, id) {
     for (var i = array.length-1; i>=0; i--) {
-        if(array[i].id === id) {
+        if (array[i] != null && array[i].id === id) {
            array.splice(i, 1);
         }
     }

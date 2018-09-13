@@ -22,7 +22,7 @@ var jt = {};
 * v.x.y.z
 * x / y / z indicates major / moderate / minor changes in stability and features.
 */
-jt.version      = '0.6.2';
+jt.version      = '0.6.4';
 
 /** Location of the server executable. All files should be relative to this.
 */

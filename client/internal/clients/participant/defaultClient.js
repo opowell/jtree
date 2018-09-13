@@ -231,6 +231,34 @@ jt.setValues = function(player) {
 
 }
 
+jt.setVueData = function() {
+
+    jt.player = jt.data.player;
+
+    jt.vueData = {
+        player: jt.player,
+        group: jt.player.group,
+        period: jt.player.group.period,
+        stage: jt.player.stage,
+        app: jt.player.stage.app,
+        session: jt.player.stage.app.session,
+        timeLeft: jt.data.timeLeft
+    }
+
+    jt.vueComputed = {
+        clock: function() {
+            jt.getClock(this.timeLeft);
+        }
+    }
+
+/*    jt.vue = new Vue({
+        el: 'body',
+        data: jt.vueData,
+        computed: jt.vueComputed
+    });
+*/
+}
+
 // Default client functionality to be included in all (most?) apps.
 jt.defaultConnected = function() {
 
@@ -265,6 +293,7 @@ jt.defaultConnected = function() {
 
         window.scrollTo(0, 0);
 
+        jt.setVueData();
         jt.setValues(player);
         jt.evaluateDisplayConditions(player);
         jt.setPlayerStatus(player.status);
@@ -454,14 +483,14 @@ jt.defaultConnected = function() {
             var tableRows = player.group[tableName];
             for (var j=0; j<tableRows.length; j++) {
                 var row = tableRows[j];
-                eval('jt.' + tableName + 'Show')(row);
+                eval('jt.' + tableName + 'Show')(row); // @jshint ignore:line
             }
         }
     });
 
     jt.socket.on('logged-in', function(id){
         $('#player').text(id);
-        console.log('logged-in');
+        console.log('logged-in as ' + id);
     });
 
     jt.socket.on('set-clock-timeleft', function(val) {

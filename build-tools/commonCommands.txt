@@ -12,8 +12,8 @@ RUNNING FROM SOURCE
 cd '.\Documents\Github\jtree\client'
 node --inspect '..\server\source\jtree.js'
 node --inspect-brk '..\server\source\jtree.js'
-nodemon -w ..\server\source --inspect '..\server\source\jtree.js'
+nodemon --inspect '..\server\source\jtree.js'
 
-COMPILING A RELEASE
+COMPILING A RELEASE - WINDOWS
 cd '.\Documents\Github\jtree\'
 .\build-tools\win\buildJTree.bat

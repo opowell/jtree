@@ -1,5 +1,3 @@
-// @flow
-
 const Stage     = require('./Stage.js');
 const Period    = require('./Period.js');
 const Utils     = require('./Utils.js');
@@ -15,7 +13,7 @@ class App {
      * @param  {Session} session description
      * @param  {String} id      description
      */
-    constructor(session, id, jt, appPath) {
+    constructor(session, jt, appPath) {
 
         /**
          * The unique identifier of this App. In order of precedence, the value is given by:
@@ -24,7 +22,40 @@ class App {
          * - the name of the folder containing the .jtt file
          * @type {String}
          */
-        this.id = id;
+        this.id = appPath;
+
+        let id = appPath;
+        if (id.includes('app.js') || id.includes('app.jtt')) {
+           // Strip trailing slashes.
+            if (id.endsWith('/') > -1) {
+                id = id.substring(0, id.lastIndexOf('/'));
+            } else if (id.endsWith('\\') > -1) {
+                id = id.substring(0, id.lastIndexOf('\\'));
+            }
+            // Cut all but last part of path.
+            if (id.endsWith('/') > -1) {
+                id = id.substring(id.lastIndexOf('/') + 1);
+            } else if (id.endsWith('\\') > -1) {
+                id = id.substring(id.lastIndexOf('\\') + 1);
+            }
+        } else {
+            // Strip folders.
+            if (id.lastIndexOf('/') > -1) {
+                this.appDir = id.substring(0, id.lastIndexOf('/'));
+                id = id.substring(id.lastIndexOf('/') + 1);
+            } else if (id.lastIndexOf('\\') > -1) {
+                this.appDir = id.substring(0, id.lastIndexOf('\\'));
+                id = id.substring(id.lastIndexOf('\\') + 1);
+            }
+            this.appFilename = id;
+            if (id.endsWith('.js')) {
+                id = id.substring(0, id.length - '.js'.length);
+            } else if (id.endsWith('.jtt')) {
+                id = id.substring(0, id.length - '.jtt'.length);
+            }
+        }
+        this.shortId = id;
+
 
         /**
          * @type {jt}
@@ -237,8 +268,7 @@ class App {
             'type',
             'folder',
             'options',
-            'jt',
-            'appPath'];
+            'jt'];
 
         //TODO:
         /**
@@ -252,6 +282,19 @@ class App {
          * @default false
          */
         this.finished = false;
+    }
+
+    /**
+     * @static newSansId - return an app with the given path.
+     *
+     * @param  {type} jt      description
+     * @param  {type} appPath The path relative to the server process. i.e. /apps/my-app.jtt or /apps/my-complex-app/app.js
+     * @return {App}          The given app.
+     */
+    static newSansId(jt, appPath) {
+        console.log('loading app with no session: ' + appPath);
+        var out = new App(null, jt, appPath);
+        return out;
     }
 
     /**
@@ -793,7 +836,7 @@ class App {
      * @return {string}  Session path + {@link App#indexInSession} + '_' + app.id
      */
     getOutputFN() {
-        return this.session.getOutputDir() + '/' + this.indexInSession() + '_' + this.id;
+        return this.session.getOutputDir() + '/' + this.indexInSession() + '_' + this.shortId;
     }
 
     /**
@@ -859,6 +902,7 @@ class App {
         metaData.numPeriods = this.numPeriods;
         metaData.groupSize = this.groupSize;
         metaData.id = this.id;
+        metaData.shortId = this.shortId;
         metaData.title = this.title;
         metaData.description = this.description;
         metaData.appPath = this.appPath;
@@ -880,7 +924,7 @@ class App {
             metaData.clientHTML = '';
         }
 
-        var app = new App(null, this.id);
+        var app = new App(null, this.jt, this.id);
 
         metaData.stages = [];
         try {
@@ -967,7 +1011,7 @@ class App {
     }
 
     reload() {
-        var app = new App(this.session, this.id, this.jt);
+        var app = new App(this.session, this.jt, this.id);
         app.optionValues = this.optionValues;
         for (var opt in app.optionValues) {
             app[opt] = app.optionValues[opt];
@@ -1441,3 +1485,4 @@ class App {
 var exports = module.exports = {};
 exports.new = App;
 exports.load = App.load;
+exports.newSansId = App.newSansId;

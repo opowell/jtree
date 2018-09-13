@@ -8,6 +8,19 @@ var participantTimers = {};
 //     }
 // }
 
+jt.saveApp = function() {
+    var app = $('.jt-panel.focussed-panel').data('app');
+    if (app == null) {
+        jt.promptForNewAppName($('.jt-panel.focussed-panel .panel-title-text').text());
+    } else {
+
+    }
+}
+
+jt.promptForNewAppName = function(id) {
+    jt.SaveAppAsModal(id);
+}
+
 function clearSelectedParticipants() {
     const numSelected = selectedParticipants.length;
     for (let i=0; i<numSelected; i++) {
@@ -102,6 +115,8 @@ function removeClient(cId) {
     $('#client-' + cId).remove();
 }
 
+ace.config.set("basePath", "/shared/ace");
+
 jt.connected = function() {
 
     // $('#startAdvanceSlowest').click(function(ev) {
@@ -112,7 +127,7 @@ jt.connected = function() {
     // Register to listen for messages defined in msgs object.
     // https://stackoverflow.com/questions/29917977/get-event-name-in-events-callback-function-in-socket-io
     for (var i in msgs) {
-        console.log('listening for message ' + i);
+        // console.log('listening for message ' + i);
         (function(i) {
             jt.socket.on(i, function(d) {
                 console.log('received message ' + i + ': ' + JSON.stringify(d));
@@ -150,31 +165,6 @@ jt.connected = function() {
         }
     });
 
-    jt.socket.on('add-client', function(client) {
-        if (client.session.id === jt.data.session.id) {
-            // console.log('add client: ' + client);
-            jt.data.session.clients.push(client);
-            var participant = findByIdWOJQ(jt.data.session.participants, client.pId);
-            if (participant !== null) {
-                participant.numClients++;
-                $('.participant-' + client.pId + '-numClients').text(participant.numClients);
-            }
-        }
-    });
-
-    jt.socket.on('remove-client', function(client) {
-        if (client.session.id === jt.data.session.id) {
-            console.log('remove client: ' + client);
-            deleteById(jt.data.session.clients, client.id);
-            removeClient(client.id);
-            var participant = findByIdWOJQ(jt.data.session.participants, client.pId);
-            if (participant != null) {
-                participant.numClients--;
-                $('.participant-' + client.pId + '-numClients').text(participant.numClients);
-            }
-        }
-    });
-
 // TODO: move all message functionality here
     jt.socket.on('messages', function(msgs) {
         for (m in msgs) {
@@ -195,30 +185,6 @@ jt.connected = function() {
         }
     });
 
-    var interfaceMode = localStorage.getItem('interfaceMode');
-    if (interfaceMode === null) {
-        interfaceMode = 'basic';
-    }
-    jt.setInterfaceMode(interfaceMode);
-
-    var queuesMode = localStorage.getItem('queuesMode');
-    if (queuesMode === null) {
-        queuesMode = 'hide';
-    }
-    jt.setQueuesMode(queuesMode);
-
-  var sId = localStorage.getItem("sessionId");
-  if (sId !== null) {
-      server.openSessionId(sId);
-  } else {
-      server.sessionCreate();
-  }
-
-  var userId = Cookies.get('userId');
-  if (userId !== undefined) {
-      $('#menu-userid').text(userId);
-  }
-
   jt.registerKeyEvents();
 
   var focusOnHover = true;
@@ -233,19 +199,73 @@ jt.connected = function() {
   $('#menu-closePanel').removeClass('menu-active');
   $('#menu-\\?').css('flex-grow', '1');
 
-  jt.TableModal();
-  jt.SelectAppModal();
-  jt.HTMLEditorModal();
-  jt.TreatmentPanel();
+  $.getJSON('/shared/docjs.json', function(data) {
+    jt.data.docs = {};
+    for (var i in data) {
+        var d = data[i];
+        jt.data.docs[d.name] = d;
+    }
+    console.log('FINISHED LOADING docs');
+  });
 
+  jt.Modal_AppProperties_init();
+  jt.Modal_HTMLEditor_init();
+  jt.Modal_KeyboardShortcuts_init();
+  jt.Modal_SelectApp_init();
+  jt.Modal_TreatmentCode_init();
 
+  jt.models = {
+    apps: [],
+    clients: [],
+    sessions: [],
+    activeSession: null
+  }
+
+  new Vue({
+    el: '#content-window',
+    data: jt.models
+  });
+
+  Syc.connect(jt.socket);
+  Syc.loaded(function () {
+          Syc.list('syncData');
+          Syc.watch(Syc.list('syncData'), function (change) { 
+            console.log(JSON.stringify(change));
+         });
+ });
 
 }
 
-jt.socketConnected = function() {
-    server.refreshAdmin();
+refreshClients = function() {
+    axios
+    .get('http://' + jt.serverURL() + '/api/clients')
+    .then(response => {
+        window.jt.models.clients = response.data;
+    })
+}
 
-    ace.config.set("basePath", "/shared/ace");
+refreshSessions = function() {
+    axios
+    .get('http://' + jt.serverURL() + '/api/sessions')
+    .then(response => {
+        window.jt.models.sessions = response.data;
+    })
+}
 
-    // jt.editor = new Editor();
+refreshApps = function() {
+    axios
+    .get('http://' + jt.serverURL() + '/api/apps')
+    .then(response => {
+        window.jt.models.apps = response.data;
+    })
+}
+
+jt.startTreatment = function() {
+    let panel = $('.jt-panel.focussed-panel');
+    // var optionEls = $(this).find('[app-option-name]');
+    // var options = jt.deriveAppOptions(optionEls);
+    let options = {};
+    let appPath = panel.find('panel-content').data('app').appPath;
+    // server.sessionAddApp(appPath, options);
+    server.createSessionAndAddApp(appPath, options);
 }

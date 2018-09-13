@@ -159,7 +159,12 @@ jt.AppRow = function(app, options, cols) {
                 row.append($('<td>').text(app.index));
                 break;
             case 'id':
-                row.append($('<td>').text(app.id));
+                row.append($(`
+                    <td>
+                        <div>${app.shortId}</div>
+                        <div><small class='text-muted'>${app.id}<small></div>
+                    </td>    
+                `));
                 break;
             case 'description':
                 var color = '#000';
@@ -384,7 +389,7 @@ function showPlayerCurApp(participant) {
     if (participant.appIndex < 1 || participant.appIndex > jt.data.session.apps.length) {
     } else {
         var app = jt.data.session.apps[participant.appIndex-1];
-        appText = appText + app.id;
+        appText = appText + app.shortId;
     }
     $('#app-' + safePId(participant.id)).text(appText);
 //    $('.participant-' + participant.id + '-appIndex').text(participant.appIndex);

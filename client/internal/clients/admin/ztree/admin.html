@@ -2,24 +2,108 @@
 <html>
 <head>
     <title>jtree - admin</title>
+
+    <!-- IMPORT GENERAL STYLES -->
     <link rel="stylesheet" type="text/css" href="/shared/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="/shared/jquery-ui.css">
     <link rel="stylesheet" type='text/css' href='/shared/font-awesome-5.0.8/css/fontawesome-all.min.css'>
-    <link rel="stylesheet" type="text/css" href="/admin/ztree/admin2.css">
+    <link rel="stylesheet" type="text/css" href="/admin/ztree/admin.css">
     <link rel="stylesheet" href="/shared/jstree/themes/default/style.min.css" />
+    <!-- IMPORT SPECIFIC STYLES -->
+    <link rel="stylesheet" type="text/css" href="/admin/ztree/components/Box_Tacky.css">
+    <link rel="stylesheet" type="text/css" href="/admin/ztree/components/Modal.css">
 
-    <link rel="stylesheet" type="text/css" href="/admin/ztree/components/boxes/TackyBox.css">
-    <link rel="stylesheet" type="text/css" href="/admin/ztree/components/modals/Modal.css">
-
+    <!-- LIBRARIES USED BY BOTH PARTICIPANTS AND ADMINS -->
     <!-- Import custom js -->
-    <script src="/admin/ztree/imports.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <!-- Allow timers to run even when page is not in focus. -->
+    <script src="/shared/HackTimer.min.js"></script>
+    <script src="/shared/HackTimerWorker.min.js"></script>
+    <script src="/shared/axios.min.js"></script>
+    <script src="/shared/jquery-1.11.1.js"></script>
+    <script src="/shared/tether.min.js"></script>
+    
+    <!-- For synchronizing client and server data. -->
+    <script src="/shared/syc.js"></script> 
+    
+    <!-- // For dropdowns, must be before bootstrap.js -->
+    <script src="/shared/popper.min.js"></script>
+    
+    <script src="/shared/bootstrap.min.js"></script>
+    <script src="/shared/jquery-ui.js"></script>
+    <script src="/shared/object_hash.js"></script>
+    <script src="/shared/jquery.hotkeys.js"></script>
+    <script src="/shared/chartjs/Chart.bundle.min.js"></script>
+    <script src="/shared/ace/ace2.js"></script>
+    <script src="/shared/js.cookie.js"></script>
+    <script src="/shared/jstree/jstree.min.js"></script>
+    <script src="/shared/shared.js"></script>
+    <script src="/shared/utilsFns.js"></script>
+
+    <!-- ADMIN LIBRARIES -->
+    <script src="/shared/webcomponents-bundle.js"></script>
+    <script src="/admin/shared/utilities.js"></script>
+    <script src="/admin/shared/msgsToServer.js"></script>
+    <script src="/shared/Binding.js"></script>
+    <script src='/shared/vue.js'></script>
+    <script src='/shared/vuex.js'></script>
+    <script src='/shared/vue-wc-wrapper.global.js'></script>
+
+    <!-- Generic UI components -->
+    <script src="/admin/ztree/components/JTPanel.js"></script>
+    <script src="/admin/ztree/components/PanelContent.js"></script>
+    <script src="/admin/ztree/components/PanelTitle.js"></script>
+
+    <!-- LIBRARIES FOR THIS ADMIN UI -->
+    <script src="/admin/ztree/admin.js"></script>
+    <script src="/admin/ztree/msgsFromServer.js"></script>
+    <script src="/admin/ztree/components/Boxes.js"></script>
+    <script src="/admin/ztree/components/Items.js"></script>
+    <script src="/admin/ztree/components/KeyBindings.js"></script>
+    <script src="/admin/ztree/components/MainMenu.js"></script>
+    <script src="/admin/ztree/components/Modal.js"></script>
+    <script src="/admin/ztree/components/Modal_AppProperties.js"></script>
+    <script src="/admin/ztree/components/Modal_HTMLEditor.js"></script>
+    <script src="/admin/ztree/components/Modal_KeyboardShortcuts.js"></script>
+    <script src="/admin/ztree/components/Modal_SaveAppAs.js"></script>
+    <script src="/admin/ztree/components/Modal_SelectApp.js"></script>
+    <script src="/admin/ztree/components/Modal_Table.js"></script>
+    <script src="/admin/ztree/components/Modal_TreatmentCode.js"></script>
+    <script src="/admin/ztree/components/Panels.js"></script>
+    <script src="/admin/ztree/components/Panel_Treatment.js"></script>
+    <script src="/admin/ztree/components/Panel_Clients.js"></script>
+
+    <script src="/admin/ztree/vue-comps/Menu.js"></script>
+    <link rel="stylesheet" type="text/css" href="/admin/ztree/vue-comps/Menu.css">
+
+    <script src="/admin/ztree/vue-comps/MenuItem.js"></script>
+    <link rel="stylesheet" type="text/css" href="/admin/ztree/vue-comps/MenuItem.css">
+
+    <script src="/admin/ztree/vue-comps/PanelTitle.js"></script>
+    <link rel="stylesheet" type="text/css" href="/admin/ztree/vue-comps/PanelTitle.css">
+
+    <script src="/admin/ztree/vue-comps/Panel.js"></script>
+    <script src="/admin/ztree/vue-comps/panels/PanelApps.js"></script>
+    <script src="/admin/ztree/vue-comps/panels/PanelClients.js"></script>
+    <script src="/admin/ztree/vue-comps/panels/PanelSessions.js"></script>
+    <script src="/admin/ztree/vue-comps/panels/ActiveSession.js"></script>
+    <link rel="stylesheet" type="text/css" href="/admin/ztree/vue-comps/Panel.css">
+
+    <script src="/admin/ztree/vue-comps/ClientRow.js"></script>
+
+    <!-- <script src="/source/models.js"></script> -->
 
 </head>
 <body>
 
     <input id='openFileDialog' accept='.jtt, .ztt, .ztq, .js, .json' type="file" style="display: none" onchange="jt.openSelectedFile();"/>
     <div id='jt-menu'></div>
-    <div id='content-window'></div>
+    <div id='content-window'>
+        <panel-sessions :sessions='sessions'></panel-sessions>
+        <panel-apps :apps='apps'></panel-apps>
+        <panel-clients :clients='clients'></panel-clients>
+        <panel-active-session :active-session='activeSession'></panel-active-session>
+    </div>
 
 </body>
 </html>
