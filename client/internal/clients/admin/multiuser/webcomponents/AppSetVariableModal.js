@@ -31,7 +31,7 @@ class AppSetVariableModal extends HTMLElement {
 }
 
 jt.appSetVariable = function() {
-  var appId = $('#view-app-id').text();
+  var appId = $('#view-app-fullId').text();
   var app = jt.app(appId);
   var name = $('#editVarName').text();
   var value = $('#appSetVariable-newVal').val();

@@ -120,7 +120,7 @@ class Msgs {
     }
 
     createSessionAndAddApp(msgData, sock) {
-        var appPath = msgData.appPath;
+        var appPath = msgData.appId;
         var options = msgData.options;
         var session = this.jt.data.createSession(msgData.userId);
         session.resume();

@@ -3,6 +3,7 @@ class ViewApp extends HTMLElement {
       this.innerHTML = `
       <div id='view-app' class='view hidden'>
           <h2 id='view-app-id'></h2>
+          <h6 id='view-app-fullId' class='text-muted'></h6>
 
           <div class="view-buttons btn-group">
           <button class="btn btn-outline-primary btn-sm" onclick='jt.startSessionWithApp()'>
@@ -101,8 +102,9 @@ jt.appShowOptions = function() {
 jt.openApp = function(appId) {
     var app = jt.app(appId);
 
-    $('#edit-app-id').val(app.id);
-    $('#view-app-id').text(app.id);
+    $('#edit-app-id').val(app.shortId);
+    $('#view-app-id').text(app.shortId);
+    $('#view-app-fullId').text(app.id);
     $('#view-app-appjs').text(app.appjs);
     $('#view-app-clienthtml').text(app.clientHTML);
 
@@ -128,7 +130,7 @@ jt.appEdit = function() {
 }
 
 jt.deleteApp = function() {
-    var appId = $('#view-app-id').text();
+    var appId = $('#view-app-fullId').text();
     jt.confirm(
         'Are you sure you want to delete App ' + appId + '?',
         function() {
@@ -139,7 +141,7 @@ jt.deleteApp = function() {
 
 jt.saveApp = function() {
     var app = {};
-    app.origId = $('#view-app-id').text();
+    app.origId = $('#view-app-fullId').text();
     app.id = $('#edit-app-id').val();
     var editor = ace.edit("edit-app-appjs");
     app.appjs = editor.getValue();

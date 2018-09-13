@@ -224,6 +224,10 @@ class Stage {
         return true;
     }
 
+    getClientDuration(player) {
+        return this.clientDuration;
+    };
+
     newStage(id) {
         var stage = new Stage.new(id, this.app, this.stages.length);
         this.stages.push(stage);

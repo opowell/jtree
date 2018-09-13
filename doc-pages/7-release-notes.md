@@ -1,4 +1,7 @@
-##### 0.6.1
+##### 0.6.4
+- Added Stage.getClientDuration(player) function.
+
+##### 0.6.2
 - Documentation for App.id and using static files.
 - Removed console error for missing settings.js file.
 

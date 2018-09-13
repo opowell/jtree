@@ -233,6 +233,8 @@ jt.setValues = function(player) {
 
 jt.setVueData = function() {
 
+    jt.player = jt.data.player;
+
     jt.vueData = {
         player: jt.player,
         group: jt.player.group,
@@ -249,12 +251,12 @@ jt.setVueData = function() {
         }
     }
 
-    jt.vue = new Vue({
+/*    jt.vue = new Vue({
         el: 'body',
         data: jt.vueData,
         computed: jt.vueComputed
     });
-
+*/
 }
 
 // Default client functionality to be included in all (most?) apps.

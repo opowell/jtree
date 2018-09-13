@@ -61,10 +61,27 @@ class Utils {
      * @param  {type} destDir description
      * @return {type}           description
      */
-    static copyFiles(sourceDir, destDir, jt) {
+    static copyFiles(sourceDir, destDir) {
         fs.ensureDirSync(destDir);
         try {
           fs.copySync(sourceDir, destDir);
+        } catch (err) {
+          console.error(err);
+        }
+    }
+
+    /**
+     * CALLED FROM:
+     * - {@link Session#addApp}
+     *
+     * @param  {type} sourceDir description
+     * @param  {type} destDir description
+     * @return {type}           description
+     */
+    static copyFile(fn, sourceDir, destDir) {
+        fs.ensureDirSync(destDir);
+        try {
+          fs.copySync(path.join(sourceDir, fn), path.join(destDir, fn));
         } catch (err) {
           console.error(err);
         }

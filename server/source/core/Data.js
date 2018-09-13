@@ -32,6 +32,16 @@ class Data {
          */
         this.lastTimeOn = this.loadLastTimeOn();
 
+                /*
+         * The list of available apps, loaded from the contents of the {@link Settings#appsFolder} folder.
+         * @type Object
+         */
+
+        this.apps = {};
+        this.appsMetaData = {};
+
+        this.loadApps();
+
         /*
          * Available [Sessions]{@link Session}, loaded from the contents of the 'sessions' folder.
          * Sorted in ascending order according to time created.
@@ -132,18 +142,20 @@ class Data {
         fs.writeJSON(fn, now, this.callStoreTimeInfoFunc.bind(this));
     }
 
-    // app(id, options) {
-    //     if (this.jt.settings.reloadApps) {
-    //         var appPath = this.appsMetaData[id].appPath;
-    //         return this.loadApp(id, null, appPath, options);
-    //     } else {
-    //         return this.apps[id];
-    //     }
-    // }
-    //
+    app(id, options) {
+        if (this.jt.settings.reloadApps) {
+            var appPath = this.appsMetaData[id].appPath;
+            return this.loadApp(id, null, appPath, options);
+        } else {
+            return this.apps[id];
+        }
+    }
+    
     loadApp(id, session, appPath, options) {
+        console.log('loading app ' + appPath);
         var app = null;
         app = new App.new(session, this.jt, appPath);
+     //   app.shortId = id;
 
         // Set options before running code.
         for (var i in options) {
@@ -224,8 +236,8 @@ class Data {
                     }
                     let app = this.loadApp(id, null, curPath, {});
                     if (app != null) {
-                        this.apps[id] = app;
-                        this.appsMetaData[id] = app.metaData();
+                        this.apps[curPath] = app;
+                        this.appsMetaData[curPath] = app.metaData();
                     }
                 } else if (curPathIsFolder) {
                     this.loadAppDir(curPath);

@@ -28,8 +28,8 @@ class clPlayer {
             this.stageTimerRunning = group.stageTimer.running;
         }
 
-        if (player.stage.clientDuration > 0) {
-            this.stageClientDuration = player.stage.clientDuration;
+        if (player.stage.getClientDuration(player) > 0) {
+            this.stageClientDuration = player.stage.getClientDuration(player);
         }
 
         if (player.stage !== null && player.stage !== undefined) {

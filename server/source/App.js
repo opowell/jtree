@@ -24,6 +24,39 @@ class App {
          */
         this.id = appPath;
 
+        let id = appPath;
+        if (id.includes('app.js') || id.includes('app.jtt')) {
+           // Strip trailing slashes.
+            if (id.endsWith('/') > -1) {
+                id = id.substring(0, id.lastIndexOf('/'));
+            } else if (id.endsWith('\\') > -1) {
+                id = id.substring(0, id.lastIndexOf('\\'));
+            }
+            // Cut all but last part of path.
+            if (id.endsWith('/') > -1) {
+                id = id.substring(id.lastIndexOf('/') + 1);
+            } else if (id.endsWith('\\') > -1) {
+                id = id.substring(id.lastIndexOf('\\') + 1);
+            }
+        } else {
+            // Strip folders.
+            if (id.lastIndexOf('/') > -1) {
+                this.appDir = id.substring(0, id.lastIndexOf('/'));
+                id = id.substring(id.lastIndexOf('/') + 1);
+            } else if (id.lastIndexOf('\\') > -1) {
+                this.appDir = id.substring(0, id.lastIndexOf('\\'));
+                id = id.substring(id.lastIndexOf('\\') + 1);
+            }
+            this.appFilename = id;
+            if (id.endsWith('.js')) {
+                id = id.substring(0, id.length - '.js'.length);
+            } else if (id.endsWith('.jtt')) {
+                id = id.substring(0, id.length - '.jtt'.length);
+            }
+        }
+        this.shortId = id;
+
+
         /**
          * @type {jt}
          */
@@ -803,7 +836,7 @@ class App {
      * @return {string}  Session path + {@link App#indexInSession} + '_' + app.id
      */
     getOutputFN() {
-        return this.session.getOutputDir() + '/' + this.indexInSession() + '_' + this.id;
+        return this.session.getOutputDir() + '/' + this.indexInSession() + '_' + this.shortId;
     }
 
     /**
@@ -869,6 +902,7 @@ class App {
         metaData.numPeriods = this.numPeriods;
         metaData.groupSize = this.groupSize;
         metaData.id = this.id;
+        metaData.shortId = this.shortId;
         metaData.title = this.title;
         metaData.description = this.description;
         metaData.appPath = this.appPath;
@@ -977,7 +1011,7 @@ class App {
     }
 
     reload() {
-        var app = new App(this.session, this.id, this.jt);
+        var app = new App(this.session, this.jt, this.id);
         app.optionValues = this.optionValues;
         for (var opt in app.optionValues) {
             app[opt] = app.optionValues[opt];

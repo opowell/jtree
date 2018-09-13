@@ -297,14 +297,14 @@ class StaticServer {
         // - does exist, send participant page for that session.
         // If did not ask for particular session,
         // - send default start page.
-        if (sessionId != null) {
-            if (session === null) {
-                res.sendFile(path.resolve(this.jt.path, './' + this.jt.settings.participantUI + '/invalidSession.html'));
-            } else {
-                session.sendParticipantPage(req, res, pId);
-            }
+        if (sessionId != null && session === null) {
+            res.sendFile(path.resolve(this.jt.path, './' + this.jt.settings.participantUI + '/invalidSession.html'));
         } else {
-            res.sendFile(path.join(this.jt.path, this.jt.settings.participantUI + '/readyClient.html'));
+            if (session != null) {
+                session.sendParticipantPage(req, res, pId);
+            } else {
+                res.sendFile(path.join(this.jt.path, this.jt.settings.participantUI + '/readyClient.html'));
+            }
         }
     }
 

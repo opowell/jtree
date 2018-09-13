@@ -1,7 +1,7 @@
 const path      = require('path');
 const fs        = require('fs-extra');
 const socketIO  = require('socket.io');
-const syc       = require('syc');
+// const syc       = require('syc');
 
 const Utils     = require('../Utils.js');
 const Client    = require('../Client.js');
@@ -17,7 +17,7 @@ class SocketServer {
         this.msgs         = new Msgs.new(jt); // MESSAGES TO LISTEN FOR FROM CLIENTS
         jt.io = this.io;
         this.io.on('connection', this.onConnection.bind(this));
-        syc.sync('syncData', this.jt.data.syncData);
+        // syc.sync('syncData', this.jt.data.syncData);
     }
 
     /**
@@ -60,7 +60,7 @@ class SocketServer {
         socket.join(this.ADMIN_TYPE);
         socket.join('socket_' + sock.id);
 
-        syc.connect(socket);
+        // syc.connect(socket);
 
         var functionList = Object.getOwnPropertyNames(Object.getPrototypeOf(this.msgs));
         for (var i in functionList) {
@@ -81,6 +81,28 @@ class SocketServer {
         socket.on('refreshAdmin', function(msg) {
             log('Server.refreshAdmin: socket_' + sock.id);
             self.refreshAdmin(null, 'socket_' + sock.id, msg.userId);
+        });
+
+        socket.on('get-var', function(a) {
+            log('getting variable ' + a + ': ' + global[a]);
+        });
+
+        socket.on('get-app', function(id) {
+            var toSend = self.jt.data.apps[id].shell();
+            self.io.to(sock.id).emit('get-app', toSend);
+        });
+
+        socket.on('session-set-active', function(msg) {
+            var session = self.jt.data.getSession(msg.sId);
+            session.setActive(msg.active);
+        });
+
+        socket.on('refresh-apps', function(msg) {
+            self.jt.data.apps = self.jt.data.loadApps();
+        });
+
+        socket.on('add-app-folder', function(folder) {
+            self.data.addAppFolder(folder);
         });
 
     }
