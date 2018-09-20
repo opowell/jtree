@@ -94,8 +94,8 @@ class App {
         this.optionValues = {};
 
         /** Used by the participant client to find and create dynamic text elements.*/
-        this.textMarkerBegin = '{{';
-        this.textMarkerEnd = '}}';
+        this.textMarkerBegin = '{{{';
+        this.textMarkerEnd = '}}}';
 
         /**
          * The number of periods in this App.
@@ -119,14 +119,16 @@ class App {
                     <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
                 </head>
                 <body>
-                    <p>Period: {{period.id}}/{{app.numPeriods}}</p>
-                    <p id='time-remaining-div'>Time left: {{clock.minutes}}:{{clock.seconds}}</p>
-                    <span jt-status='active'>
-                        {{stages}}
-                    </span>
-                    <span jt-status='waiting'>
-                        {{waiting-screen}}
-                    </span>
+                    <div id='jtree'>
+                        <p>Period: {{period.id}}/{{app.numPeriods}}</p>
+                        <p v-show='hasTimeout'>Time left (s): {{clock.seconds}}</p>
+                        <span v-show='player.status=="playing"'>
+                            {{stages}}
+                        </span>
+                        <span v-show='["waiting", "finished", "done"].includes(player.status)'>
+                            {{waiting-screens}}
+                        </span>
+                    </div>
                 </body>
             </html>
         `;
@@ -230,7 +232,12 @@ class App {
          * @type string
          * @default '<span jt-stage="{{stage.id}}">'
          */
-        this.stageContentStart = '<span jt-stage="{{stage.id}}">';
+        // this.stageContentStart = '<span jt-stage="{{stage.id}}">';
+
+        this.stageContentStart = `
+            <span v-show="stage.id == '{{stage.id}}'">
+        `;
+
 
         /**
          * Ends the stages of this App.
@@ -571,7 +578,7 @@ class App {
 
         if (app.activeScreen != null) {
             html += `
-            <span jt-status='playing' class='playing-screen'>
+            <span v-show='player.status == "playing"' class='playing-screen'>
                 ${app.activeScreen}
                 <div>
                 {{stages}}
@@ -582,7 +589,7 @@ class App {
 
         if (!html.includes('{{stages}}')) {
             html += `
-            <span jt-status='playing' class='playing-screen'>
+            <span v-show='player.status == "playing"' class='playing-screen'>
                 {{stages}}
             </span>
             `;
@@ -590,38 +597,60 @@ class App {
 
         // Load stage contents, if any.
         var stagesHTML = '';
+        var waitingScreensHTML = '';
         for (var i=0; i<app.stages.length; i++) {
             var stage = app.stages[i];
+            var stageHTML = '';
+            var contentStart = app.parseStageTag(stage, app.stageContentStart);
+            var contentEnd = app.parseStageTag(stage, app.stageContentEnd);
             if (stage.content != null) {
-                if (stagesHTML.length > 0) {
-                    stagesHTML = stagesHTML + '\n';
-                }
-                var contentStart = app.parseStageTag(stage, app.stageContentStart);
-                var contentEnd = app.parseStageTag(stage, app.stageContentEnd);
-                stagesHTML = stagesHTML + contentStart + '\n' + stage.content + '\n' + contentEnd;
+                stageHTML = contentStart + '\n' + stage.content + '\n' + contentEnd;
             }
             if (stage.activeScreen != null) {
-                if (stagesHTML.length > 0) {
-                    stagesHTML = stagesHTML + '\n';
-                }
-                stagesHTML += app.parseStageTag(stage, app.stageContentStart)  + '\n';
                 var wrapInForm = stage.wrapPlayingScreenInFormTag;
+                stageHTML += app.parseStageTag(stage, app.stageContentStart)  + '\n';
                 if (wrapInForm) {
-                    stagesHTML += '<form>\n';
+                    stageHTML += '<form>\n';
                 }
-                stagesHTML += stage.activeScreen + '\n';
+                stageHTML += stage.activeScreen + '\n';
+                let addOKButtonIfNone = stage.addOKButtonIfNone;
+                if (addOKButtonIfNone) {
+                    if (!stageHTML.includes('<button')) {
+                        stageHTML += `<button>OK</button>`;
+                    }
+                }
                 if (wrapInForm) {
-                    stagesHTML += '</form>\n';
+                    stageHTML += '</form>\n';
                 }
-                stagesHTML += app.parseStageTag(stage, app.stageContentEnd);
+                stageHTML += app.parseStageTag(stage, app.stageContentEnd);
             }
-        }
+
+            if (stagesHTML.length > 0) {
+                stagesHTML += '\n';
+            }
+            stagesHTML += stageHTML;
+
+            var waitingScreenHTML = contentStart;
+            if (stage.useAppWaitingScreen) {
+                waitingScreenHTML += app.waitingScreen;
+            }
+            if (stage.waitingScreen != null) {
+                waitingScreenHTML += stage.waitingScreen;
+            }
+            waitingScreenHTML += contentEnd;
+
+            if (waitingScreensHTML.length > 0) {
+                waitingScreensHTML += '\n';
+            }
+            waitingScreensHTML += waitingScreenHTML;
+    }
+
         if (html.includes('{{stages}}')) {
             html = html.replace('{{stages}}', stagesHTML);
         }
 
-        if (html.includes('{{waiting-screen}}') && app.waitingScreen != null) {
-            html = html.replace('{{waiting-screen}}', app.waitingScreen);
+        if (html.includes('{{waiting-screens}}') && app.waitingScreen != null) {
+            html = html.replace('{{waiting-screens}}', app.waitingScreen);
         }
 
         // Replace {{ }} markers.

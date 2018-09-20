@@ -77,6 +77,16 @@ function updatePartClock() {
 
 jt.setSessionView = function(a) {
     jt.setSubView('session', a);
+    // Do not hide 'Activity' tab, instead move it off screen.
+    let actEl = $('#view-session-activity');
+    if (actEl.hasClass('hidden')) {
+        actEl.css('top', '-10000px');        
+        actEl.css('position', 'absolute');        
+        actEl.removeClass('hidden');
+    } else {
+        actEl.css('top', '');
+        actEl.css('position', '');        
+    }
 }
 
 window.customElements.define('view-session', ViewSession);

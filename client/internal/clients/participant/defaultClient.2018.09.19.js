@@ -59,6 +59,46 @@ jt.likertScale = function(field) {
     el.append(maxTextEl);
 }
 
+// jt.evaluateDisplayConditions = function(player) {
+//     let group = player.group;
+//     let period = group.period;
+//     let app = period.app;
+//     let session = app.session;
+//     let stage = player.stage;
+//     let participant = player.participant;
+//     let clock = jt.getClock(jt.data.timeLeft);
+//     let valEls = $('[jt-displayIf]');
+//     for (let i=0; i<valEls.length; i++) {
+//         try {
+//             let el = $(valEls[i]);
+//             let val = eval(el.attr('jt-displayIf'));
+//             if (val === true) {
+//                 el.show();
+//             } else {
+//                 el.hide();
+//             }
+//         } catch (err) {
+
+//         }
+//     }
+
+// }
+
+jt.specialAttrNames = [
+    'jt-status',
+    'jt-stage',
+    'jt-displayif',
+    'jt-enabledif',
+    'jt-decimals',
+    'jt-table',
+    'jt-show',
+    'jt-sortasc',
+    'jt-sortdesc',
+    'jt-filter',
+    'jt-select',
+    'jt-action'
+]
+
 jt.setFormDefaults = function() {
     // Set up automated form submission for stages.
     $('form').each(function() {
@@ -146,6 +186,52 @@ window.onbeforeunload = function(ev) {
     }
 };
 
+// jt.setValues = function(player) {
+//     let clock = jt.getClock(jt.data.timeLeft);
+
+//     $('*').each(function(index) {
+//         let atts = this.attributes;
+//         for (var i=0; i<atts.length; i++){
+//             var att = atts[i];
+//             if (att.name.startsWith('jt-')) {
+//                 if (att.name === 'jt-html') {
+//                     let val = jt.eval(att.value, player, clock);
+//                     val = jt.formatValue(this, val);
+//                     this.innerHTML = val;
+//                 } else if (att.name === 'jt-text') {
+//                     let val = jt.eval(att.value, player, clock);
+//                     val = jt.formatValue(this, val);
+//                     $(this).text(val);
+//                 } else if (
+//                     jt.specialAttrNames.includes(att.name)
+//                 ) {
+//                     // DO NOTHING
+//                 } else {
+//                     try {
+//                         let val = jt.eval(att.value, player, clock);
+//                         var attrName = att.name.substring('jt-'.length);
+//                         var stepSize = $(this).attr('step');
+//                         if (stepSize != null) {
+//                             switch (attrName) {
+//                             case 'max':
+//                                 val = Math.floor(val/stepSize)*stepSize;
+//                                 break;
+//                             case 'min':
+//                                 val = Math.ceil(val/stepSize)*stepSize;
+//                                 break;
+//                             }
+//                         }
+//                         this.setAttribute(attrName, val);
+//                     } catch (err) {
+//                         console.log('ERROR in defaultClient.js: \n' + err);
+//                     }
+//                 }
+//             }
+//         }
+//     });
+
+// }
+
 // Default client functionality to be included in all (most?) apps.
 jt.defaultConnected = function() {
 
@@ -167,31 +253,22 @@ jt.defaultConnected = function() {
         jt.vue = new Vue({
             el: '#jtree',
             data: {
-                player: {},
-                group: {
-                    players: []
+                player: {
+                    status: ''
                 },
+                group: {},
                 period: {},
-                stage: {},
+                stage: {
+                    id: ''
+                },
                 app: {},
                 participant: {},
-                timeLeft: 0,
-                hasTimeout: false
+                timeLeft: 0
             },
             computed: {
                 clock: function() {
                     return jt.getClock(this.timeLeft);
                 },
-                groupOtherPlayers: function() {
-                    let players = [];
-                    let me = this.player;
-                    if (this.group.players != null) {
-                        players = this.group.players.filter(function (grpPlyr) {
-                            return grpPlyr.id !== me.id;
-                        })
-                    }
-                    return players;
-                }
             },
             mounted: function() {
                 console.log('mounted Vue');
@@ -240,6 +317,10 @@ jt.defaultConnected = function() {
         jt.vue.app = player.stage.app;
         jt.vue.participant = player.participant;
 
+        //jt.setVueData();
+        // jt.setValues(player);
+        // jt.evaluateDisplayConditions(player);
+        // jt.setPlayerStatus(player.status);
         if (player.stage !== undefined) {
             jt.setStageName(player.stage.id);
         }
@@ -547,23 +628,63 @@ jt.setButtonEnabled = function(but, enabled) {
 }
 
 jt.setStageName = function(name) {
+    // console.log('set-stage-name: ' + name);
+
+    // $('body').css('display', 'none');
+
     document.title = name;
+    // $('[jt-stage]').each(function () {
+    //     $(this).removeClass('stage-active');
+    //     if (jt.alwaysShowAllStages) {
+    //         this.removeAttribute('hidden');
+    //     } else {
+    //         this.setAttribute('hidden', true);
+    //     }
+    // });
+
     $('body').css('display', 'block');
+
+    // $('[jt-stage="' + name + '"]').each(function () {
+    //     this.removeAttribute('hidden');
+    //     $(this).addClass('stage-active');
+    //     // Clear inputs
+    //     $(this).find(':input')
+    //     .removeAttr('checked')
+    //     .removeAttr('selected')
+    //     .not(':button, :submit, :reset, :hidden, :radio, :checkbox')
+    //     .val('');
+    // });
+
     $('body').find(':input')
         .removeAttr('checked')
         .removeAttr('selected')
         .not(':button, :submit, :reset, :hidden, :radio, :checkbox')
         .val('');
+
 }
 
+// jt.setPlayerStatus = function(newStatus) {
+//     console.log('set-player-status: ' + newStatus);
+//     $('[jt-status]').each(function () {
+//         let attr = $(this).attr('jt-status');
+//         if (attr === newStatus ||
+//             (attr === 'waiting' && (newStatus === 'ready' || newStatus === 'finished' || newStatus === 'done')) ||
+//             (attr === 'active' && newStatus === 'playing')
+//         ) {
+//             $(this).show();
+//         } else {
+//             $(this).hide();
+//         }
+//     });
+// }
+
 jt.setStageHasTimeout = function(b) {
-    jt.vue.hasTimeout = b;
-    // console.log('setStageHasTimeout: ' + b);
-    // if (b) {
-    //     $('#time-remaining-div').removeAttr('hidden');
-    // } else {
-    //     $('#time-remaining-div').attr('hidden', true);
-    // }
+    console.log('setStageHasTimeout: ' + b);
+    if (b) {
+        $('#time-remaining-div').removeAttr('hidden');
+    } else {
+        $('#time-remaining-div').attr('hidden', true);
+    }
 }
 
 jt.clockStop = function(timeLeft) {
@@ -592,7 +713,7 @@ jt.startClock = function(endTime) {
         jt.data.timeLeft = jt.data.endTime - Date.now();
     }
 
-    jt.vue.timeLeft = jt.data.timeLeft;
+    jt.vue.clock = jt.data.timeLeft;
 
     jt.updateClock(); // update once without starting
 
@@ -622,7 +743,7 @@ jt.updateClock = function() {
     if (jt.data.clockRunning) {
         var now = Date.now();
         jt.data.timeLeft = jt.data.endTime - now;
-        jt.vue.timeLeft = jt.data.timeLeft;
+        jt.vue.clock = jt.data.timeLeft;
         if (jt.data.timeLeft <= 0) {
             if (jt.data.player.stageClientDuration > 0) {
                 jt.endStage(jt.data.player);
@@ -642,15 +763,15 @@ jt.updateClock = function() {
             jt.endStage(jt.data.player);
         }
     }
-    // jt.displayTime();
+    jt.displayTime();
     jt.onClockUpdate();
 }
 
 jt.onClockUpdate = function() {}
 
-// jt.displayTime = function() {
-//     jt.displayTimeLeft($('[jt-text="clock.minutes"]'), $('[jt-text="clock.seconds"]'), jt.data.timeLeft);
-// }
+jt.displayTime = function() {
+    jt.displayTimeLeft($('[jt-text="clock.minutes"]'), $('[jt-text="clock.seconds"]'), jt.data.timeLeft);
+}
 
 jt.sendMessage = function(msgName, msgData) {
     var metaData = {player: jt.data.player, data: msgData};

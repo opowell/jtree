@@ -2,10 +2,14 @@ app.title = 'Beauty Contest Game';
 app.description = 'Players make a guess between 0 and 100. Winner is the player whose guess is closest to 2/3 of the average guess.';
 app.tags = ['async', 'options'];
 
+app.addPositiveIntegerOption('numGroups', 1, null, 'The number of groups.');
+app.addPositiveIntegerOption('numPeriods', 50, null, 'The number of periods.');
+app.addSelectOption('async', [false, true]);
+
 app.multiplier  = 2/3;
 app.lowerBound  = 0;
 app.upperBound  = 100;
-app.numPeriods  = 5;
+app.numPeriods  = 50;
 app.prize       = 10;
 
 var decideStage = app.newStage('decide');
@@ -13,7 +17,7 @@ decideStage.waitToStart = app.async;
 decideStage.waitToEnd = app.async;
 decideStage.activeScreen = `
     <p>DECISION</p>
-    <p>Guess an integer between {{app.lowerBound}} and {{app.upperBound}}: <input name='player.guess' required type='number' :min='app.lowerBound' :max='app.upperBound' step='1'></p>
+    <p>Guess an integer between {{app.lowerBound}} and {{app.upperBound}}: <input name='player.guess' required type='number' jt-min='app.lowerBound' jt-max='app.upperBound' step='1'></p>
     <button>Make guess</button>
 `;
 
@@ -49,10 +53,6 @@ resultsStage.groupStart = function(group) { // when a group starts this stage
 resultsStage.activeScreen = `
     <p>RESULTS</p>
     <p>Your guess was {{player.guess}}.</p>
-    <p>The guesses in your group were:</p>
-    <ul>
-        <li v-for='player in group.players'>{{ player.guess }}</li>
-    </ul>
     <p>The sum of guesses in your group was {{group.totalGuesses}}. The multiplier was <span jt-text='app.multiplier' jt-decimals=2></span>, therefore the target was <span jt-text='group.target' jt-decimals=2></span>.</p>
     <p>There were {{group.numWinners}} winning guesses for the prize of {{app.prize}}.</p>
     <p jt-displayIf='player.points>0'>Your guess was one of the closest to this amount.</p>

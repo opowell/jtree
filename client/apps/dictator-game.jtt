@@ -12,8 +12,7 @@ decideStage.activeScreen = `
     <p>DECISION</p>
     <p>You are player {{player.idInGroup}} in your group.</p>
     <p>You have {{app.pieSize}} E$. Choose the amount you would like to keep. The rest will be given to the other player.</p>
-    <p>The amount you would like to keep (E$): <input id='player.keep' name='player.keep' required type='number' min='0' jt-max='app.pieSize' step='1'></p>
-    <button>OK</button>
+    <p>The amount you would like to keep (E$): <input id='player.keep' name='player.keep' required type='number' min='0' :max='app.pieSize' step='1'></p>
 `;
 
 var resultsStage = app.newStage('results');
@@ -31,5 +30,4 @@ resultsStage.activeScreen = `
     <p>The pie size was {{app.pieSize}} E$.</p>
     <p>Player 1 chose to keep {{group.p1keep}} E$, thus the payoff to player 2 was {{group.p2points}} E$.</p>
     <p>Thus, your payoff in this period is {{player.points}} E$.</p>
-    <button>OK</button>
 `;

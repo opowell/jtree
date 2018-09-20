@@ -3,8 +3,5 @@ app.description = 'Players can enter an id or name.';
 var inputStage = app.newStage('input');
 inputStage.activeScreen = `
 <p>INPUT YOUR NAME</p>
-<form>
-    <p><input name='participant.name' required type='text'></p>
-    <button>OK</button>
-</form>
+<input name='participant.name' required type='text'>
 `;

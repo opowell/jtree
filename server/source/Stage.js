@@ -75,7 +75,7 @@ class Stage {
         this.onPlaySendPlayer = true;
 
         /**
-         * how far up the tree should be sent on update. More data comes at a cost of higher network load.
+         * how far up the tree should be sent on update. More data comes at cost of higher latency.
          * possible values: 'player', 'group'
          * @type string
          * @default 'player'
@@ -112,6 +112,10 @@ class Stage {
          * @default []
          */
         this.outputHide = [];
+
+        this.addOKButtonIfNone = true;
+
+        this.waitingScreen = null;
 
         /**
          * 'outputHideAuto' fields are not included in output.
