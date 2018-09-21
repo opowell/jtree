@@ -4,7 +4,8 @@ app.groupSize   = 4;
 app.endowment   = 20;
 app.punMult     = 2;
 app.prodMult    = 2;
-app.numPeriods  = 3;
+app.numPeriods  = 10;
+app.maxPun      = 3;
 app.addSelectOption('groupMatchingType', ['STRANGER', 'PARTNER_RANDOM']);
 
 var decideStage = app.newStage('decide');
@@ -27,10 +28,10 @@ punishStage.activeScreen = `
 </div>
 </p>
 <p>If you like, you may punish the other members of your group.
-    For every point you pay (up to 3 per target player), you may reduce another target player's points by {{ app.punMult }}.</p>
+    For every point you pay (up to {{ app.maxPun }} per target player), you may reduce the target player's points by {{ app.punMult }}.</p>
 <p v-for='plyr in groupOtherPlayers'>
     <span>Punishment for Player {{plyr.idInGroup}}:
-    <input :name="'player.pun' + plyr.idInGroup" type="number" max=3 min=0 step=1 required>
+    <input :name="'player.pun' + plyr.idInGroup" type="number" :max="app.maxPun" min=0 step=1 required>
 </p>
 <button>Make punishments</button>
 `;
@@ -83,37 +84,37 @@ resultsStage.activeScreen = `
     </div>
 </p>
 <p>In total, you received {{ player.receivedPuns }} punishment points from other players.</p>
-<p>Thus, your payoff in this period is:
+<p>Thus, your payoff in this period (in points) is:
 <table>
 <tr>
 <td>Endowment</td>
 <td></td>
-<td> {{ app.endowment }} points</td>
+<td> {{ app.endowment }}</td>
 </tr>
 <tr>
 <td>Your contribution</td>
 <td>-</td>
-<td>{{ player.contribution }} points</td>
+<td>{{ player.contribution }}</td>
 </tr>
 <tr>
 <td>Group production per player</td>
 <td>+</td>
-<td>{{ group.prodPerPlayer | round(2) }} points</td>
+<td>{{ group.prodPerPlayer | round(2) }}</td>
 </tr>
 <tr>
 <td>Punishments you gave out</td>
 <td>-</td>
-<td>{{ player.sentPuns }} points</td>
+<td>{{ player.sentPuns }}</td>
 </tr>
 <tr>
 <td>Punishments you received</td>
 <td>-</td>
-<td>{{ app.punMult }} x {{ player.receivedPuns }} points</td>
+<td>{{ player.receivedPuns * app.punMult }}</td>
 </tr>
 <tr>
 <td><b>Payoff</b></td>
 <td>=</td>
-<td><b> {{ player.points | round(2) }} points</b>.</td>
+<td><b> {{ player.points | round(2) }}</b>.</td>
 </tr>
 </table>
 </p>

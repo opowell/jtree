@@ -146,6 +146,162 @@ window.onbeforeunload = function(ev) {
     }
 };
 
+jt.vueMounted = false;
+
+jt.mountVue = function(player) {
+    let vueModel = {
+        jt: jt,
+        player: player,
+        group: player.group,
+        period: player.group.period,
+        stage: player.stage,
+        app: player.stage.app,
+        participant: player.participant,
+        timeLeft: 0,
+        hasTimeout: false
+    }
+    vueModel.group.players = {};
+    let models = player.stage.app.vueModels;
+    for (let i in models) {
+        vueModel[i] = models[i];
+    }
+    let vueComputed = {
+        clock: function() {
+            return jt.getClock(this.timeLeft);
+        },
+        groupOtherPlayers: function() {
+            let players = [];
+            let me = this.player;
+            if (this.group.players != null) {
+                players = this.group.players.filter(function (grpPlyr) {
+                    return grpPlyr.id !== me.id;
+                })
+            }
+            return players;
+        }
+    };
+    let computed = player.stage.app.vueComputedText;
+    for (let i in computed) {
+        eval('vueComputed[i] = ' + computed[i]);
+    }
+
+    jt.vue = new Vue({
+        el: '#jtree',
+        data: vueModel,
+        computed: vueComputed,
+        mounted: function() {
+        }
+    });
+
+    jt.vueMounted = true;
+    jt.updatePlayer(player, false);
+
+}
+
+jt.updatePlayer = function(player, updateVue) {
+    // console.log('player update: ' + JSON.stringify(player));
+    if (jt.data.player !== undefined && player.participant.id !== jt.data.player.participant.id) {
+        return;
+    }
+
+    console.log('playerUpdate');
+
+    player.participant.session = player.group.period.app.session;
+    if (player.stage !== undefined) {
+        player.stage.app = player.group.period.app;
+    }
+
+    if (!jt.vueMounted) {
+        jt.mountVue(player);
+        return;
+    } else {
+        if (updateVue) {
+            jt.vue.player = player;
+            jt.vue.group = player.group;
+            jt.vue.period = player.group.period;
+            jt.vue.stage = player.stage;
+            jt.vue.app = player.stage.app;
+            jt.vue.participant = player.participant;
+        }
+    }
+
+    jt.data.player = player; // TODO: Remove.
+//        window.player = player;
+
+    // Re-establish object links.
+    window.scrollTo(0, 0);
+
+    if (player.stage !== undefined) {
+        jt.setStageName(player.stage.id);
+    }
+    if (player.stageTimerTimeLeft > 0) {
+        // Must use timer duration. Cannot use server start time, since no guarantee that client time is the same.
+        var endTime = new Date().getTime() + player.stageTimerTimeLeft;
+        jt.startClock(endTime);
+    } else {
+        jt.setStageHasTimeout(false);
+    }
+
+    if (player.stageClientDuration > 0 && player.status == 'playing') {
+        var endTime = new Date().getTime() + player.stageClientDuration*1000;
+        jt.startClock(endTime);
+    }
+
+    // Group tables
+    for (var i=0; i<player.group.tables.length; i++) {
+
+        var tableName = player.group.tables[i];
+
+        // Listen for tableAdd methods.
+        if (jt.socket._callbacks['$' + tableName + 'Add'] === undefined) {
+            jt.socket.on(tableName + 'Add', function(data) {
+                eval('jt.' + tableName + 'Add')(data);
+            });
+        }
+
+        // Listen for tableRemove methods.
+        if (jt.socket._callbacks['$' + tableName + 'Remove'] === undefined) {
+            jt.socket.on(tableName + 'Remove', function(id) {
+                eval('jt.' + tableName + 'Remove')(id);
+            });
+        }
+
+        if (jt.socket._callbacks['$' + tableName + 'Update'] === undefined) {
+            jt.socket.on(tableName + 'Update', function(id) {
+                eval('jt.' + tableName + 'Update')(id);
+            });
+        }
+
+        // Called automatically when row is added to server.
+        // Add row to data object.
+        if (jt[tableName + 'Add'] === undefined) {
+            jt[tableName + 'Add'] = function(newRow) {
+                jt.data.player.group[tableName].push(newRow);
+            }
+        }
+
+        if (jt[tableName + 'Update'] === undefined) {
+            jt[tableName + 'Update'] = function(row) {
+                eval('jt.' + tableName + 'Remove')(row.id);
+                eval('jt.' + tableName + 'Add')(row);
+            }
+        }
+
+        if (jt[tableName + 'Remove'] === undefined) {
+            jt[tableName + 'Remove'] = function(id) {
+                var table = jt.data.player.group[tableName];
+                for (var i=0; i<table.length; i++) {
+                    var row = table[i];
+                    if (row.id === id) {
+                        table.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+
 // Default client functionality to be included in all (most?) apps.
 jt.defaultConnected = function() {
 
@@ -164,39 +320,6 @@ jt.defaultConnected = function() {
             return value;
         });
 
-        jt.vue = new Vue({
-            el: '#jtree',
-            data: {
-                player: {},
-                group: {
-                    players: []
-                },
-                period: {},
-                stage: {},
-                app: {},
-                participant: {},
-                timeLeft: 0,
-                hasTimeout: false
-            },
-            computed: {
-                clock: function() {
-                    return jt.getClock(this.timeLeft);
-                },
-                groupOtherPlayers: function() {
-                    let players = [];
-                    let me = this.player;
-                    if (this.group.players != null) {
-                        players = this.group.players.filter(function (grpPlyr) {
-                            return grpPlyr.id !== me.id;
-                        })
-                    }
-                    return players;
-                }
-            },
-            mounted: function() {
-                console.log('mounted Vue');
-            }
-        });
     }
     
     jt.setFormDefaults();
@@ -214,221 +337,7 @@ jt.defaultConnected = function() {
     });
 
     jt.socket.on('playerUpdate', function(player) {
-        // console.log('player update: ' + JSON.stringify(player));
-        if (jt.data.player !== undefined && player.participant.id !== jt.data.player.participant.id) {
-            return;
-        }
-
-        console.log('playerUpdate');
-
-        jt.data.player = player; // TODO: Remove.
-//        window.player = player;
-
-        // Re-establish object links.
-        player.participant.session = player.group.period.app.session;
-        if (player.stage !== undefined) {
-            player.stage.app = player.group.period.app;
-        }
-
-
-        window.scrollTo(0, 0);
-
-        jt.vue.player = player;
-        jt.vue.group = player.group;
-        jt.vue.period = player.group.period;
-        jt.vue.stage = player.stage;
-        jt.vue.app = player.stage.app;
-        jt.vue.participant = player.participant;
-
-        if (player.stage !== undefined) {
-            jt.setStageName(player.stage.id);
-        }
-        if (player.stageTimerTimeLeft > 0) {
-            // Must use timer duration. Cannot use server start time, since no guarantee that client time is the same.
-            var endTime = new Date().getTime() + player.stageTimerTimeLeft;
-            jt.startClock(endTime);
-        } else {
-            jt.setStageHasTimeout(false);
-        }
-
-        if (player.stageClientDuration > 0 && player.status == 'playing') {
-            var endTime = new Date().getTime() + player.stageClientDuration*1000;
-            jt.startClock(endTime);
-        }
-
-        // Group tables
-        for (var i=0; i<player.group.tables.length; i++) {
-
-            var tableName = player.group.tables[i];
-
-            // Listen for tableAdd methods.
-            if (jt.socket._callbacks['$' + tableName + 'Add'] === undefined) {
-                jt.socket.on(tableName + 'Add', function(data) {
-                    eval('jt.' + tableName + 'Add')(data);
-                });
-            }
-
-            // Listen for tableRemove methods.
-            if (jt.socket._callbacks['$' + tableName + 'Remove'] === undefined) {
-                jt.socket.on(tableName + 'Remove', function(id) {
-                    eval('jt.' + tableName + 'Remove')(id);
-                });
-            }
-
-            if (jt.socket._callbacks['$' + tableName + 'Update'] === undefined) {
-                jt.socket.on(tableName + 'Update', function(id) {
-                    eval('jt.' + tableName + 'Update')(id);
-                });
-            }
-
-            var tableEls = $('*[jt-table="' + tableName + '"]');
-            for (var j=0; j<tableEls.length; j++) {
-                var tableEl = tableEls[j];
-                var selectName = $(tableEl).attr('id');
-
-                // Refresh button status
-                jt.refreshButtons(selectName);
-
-                // Clear select
-                $(tableEl).html('');
-
-                // Set button actions.
-                var buttons = $('*[jt-select=' + selectName + ']');
-                for (var b=0; b<buttons.length; b++) {
-                    var clickFN = function(event) {
-                        var but = $(event.target);
-                        var action = but.attr('jt-action');
-                        var selectName = but.attr('jt-select');
-                        var tableEl = $('#' + selectName);
-                        var rowId = $(tableEl).val();
-                        console.log(jt.data.player.id + ', ' + action + ', ' + rowId);
-                        jt.sendMessage(action, rowId);
-                    };
-                    var but = $(buttons[b]);
-
-                    // Clear previous click function, if any.
-                    but.off('click');
-
-                    // Add click function.
-                    but.click(clickFN);
-                }
-            }
-
-            // Called automatically when row is added to server.
-            // Add row to data object, then add to display.
-            if (jt[tableName + 'Add'] === undefined) {
-                jt[tableName + 'Add'] = function(newRow) {
-                    jt.data.player.group[tableName].push(newRow);
-                    eval('jt.' + tableName + 'Show')(newRow);
-                }
-            }
-
-            if (jt[tableName + 'Update'] === undefined) {
-                jt[tableName + 'Update'] = function(row) {
-                    eval('jt.' + tableName + 'Remove')(row.id);
-                    eval('jt.' + tableName + 'Add')(row);
-                }
-            }
-
-            if (jt[tableName + 'Remove'] === undefined) {
-                jt[tableName + 'Remove'] = function(id) {
-                    var table = jt.data.player.group[tableName];
-                    for (var i=0; i<table.length; i++) {
-                        var row = table[i];
-                        if (row.id === id) {
-                            // https://www.w3schools.com/js/js_array_methods.asp
-                            table.splice(i, 1);
-                            break;
-                        }
-                    }
-
-                    // Remove all HTML elements for this row.
-                    $('.group-' + tableName + '-' + id).remove();
-
-                    // Refresh buttons
-                    var tableEls = $('*[jt-table="' + tableName + '"]');
-                    for (var j=0; j<tableEls.length; j++) {
-                        var tableEl = tableEls[j];
-                        var selectName = $(tableEl).attr('id');
-                        jt.refreshButtons(selectName);
-                    }
-                    eval(tableName + 'Remove')(id);
-                }
-            }
-
-            // Added row to display.
-            if (jt[tableName + 'Show'] === undefined) {
-                jt[tableName + 'Show'] = function(row) {
-                    var tableEls = $('*[jt-table="' + tableName + '"]');
-                    for (var j=0; j<tableEls.length; j++) {
-                        var tableEl = $(tableEls[j]);
-                        var fieldToShow = tableEl.attr('jt-show');
-                        var filter = 'true';
-                        if (tableEl.attr('jt-filter') !== undefined) {
-                            filter = tableEl.attr('jt-filter');
-                        }
-                        var selectName = tableEl.attr('id');
-                        if (eval(filter)) {
-                            var rowEl = $('<option>');
-                            var value = jt.formatValue(tableEl, row[fieldToShow]);
-                            rowEl.text(value);
-                            rowEl.val(row.id);
-                            rowEl.addClass('group-' + tableName + '-' + row.id);
-                            rowEl.data(row);
-                            if (row.makerPId === jt.data.player.id) {
-                                rowEl.css('color', 'blue');
-                            }
-                            var sortAsc = tableEl.attr('jt-sortasc');
-                            var sortDesc = tableEl.attr('jt-sortdesc');
-                            var added = false;
-                            if (sortAsc !== undefined) {
-                                var children = tableEl.children();
-                                var rowVal = row[sortAsc];
-                                for (var i=0; i<children.length; i++) {
-                                    var child = $(children[i]);
-                                    var childVal = child.data(sortAsc);
-                                    if (!isNaN(rowVal)) {
-                                        childVal = parseFloat(childVal);
-                                    }
-                                    if (childVal < rowVal) {
-                                        rowEl.insertBefore(child);
-                                        added = true;
-                                        break;
-                                    }
-                                }
-                            } else if (sortDesc !== undefined) {
-                                var children = tableEl.children();
-                                var rowVal = row[sortDesc];
-                                for (var i=0; i<children.length; i++) {
-                                    var child = $(children[i]);
-                                    var childVal = child.data(sortDesc);
-                                    if (!isNaN(rowVal)) {
-                                        childVal = parseFloat(childVal);
-                                    }
-                                    if (childVal > rowVal) {
-                                        rowEl.insertBefore(child);
-                                        added = true;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (!added) {
-                                tableEl.append(rowEl);
-                            }
-                            rowEl.click({selectName: selectName}, function(event) {
-                                jt.refreshButtons(event.data.selectName);
-                            });
-                        }
-                    }
-                }
-            }
-
-            var tableRows = player.group[tableName];
-            for (var j=0; j<tableRows.length; j++) {
-                var row = tableRows[j];
-                eval('jt.' + tableName + 'Show')(row); // @jshint ignore:line
-            }
-        }
+        jt.updatePlayer(player, false);
     });
 
     jt.socket.on('logged-in', function(id){

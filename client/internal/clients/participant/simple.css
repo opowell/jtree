@@ -65,6 +65,10 @@ button {
       min-height: 92vh;
   }
 
+  table {
+    font-size: 8vh;
+  }
+
   input {
       font-size: 8vh;
       padding: 1vh;

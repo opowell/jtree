@@ -133,6 +133,10 @@ class App {
             </html>
         `;
 
+        this.vueModels = {};
+        this.vueComputed = {};
+        this.clientScripts = null;
+
         /** TODO:   */
         this.screen = '';
 
@@ -667,6 +671,10 @@ class App {
         // Insert jtree functionality.
         if (app.insertJtreeRefAtStartOfClientHTML) {
             html = '<script type="text/javascript" src="/participant/jtree.js"></script>\n' + html;
+        }
+
+        if (app.clientScripts != null) {
+            html = html + '<script>' + app.clientScripts + '</script>';
         }
 
         // Return to client.
@@ -1414,6 +1422,10 @@ class App {
         }
         out.session = this.session.shell();
         out.numStages = this.stages.length;
+        out.vueComputedText = {};
+        for (let i in this.vueComputed) {
+            out.vueComputedText[i] = this.vueComputed[i].toString();
+        }
         return out;
     }
 

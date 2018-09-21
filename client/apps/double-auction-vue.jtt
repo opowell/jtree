@@ -29,33 +29,21 @@ app.clientScripts = `
 
 app.vueComputed = {
     offersOpen: function() {
-        return this.group.offers.filter(function (offer) {
-            return offer.open;
-        });
+        return this.group.offers.filter((offer) => offer.open);
     },
     offersToBuy: function() {
-        return this.offersOpen.filter(function (offer) {
-            return offer.seller == null;
-        });
+        let out = this.offersOpen.filter((offer) => offer.seller == null);
+        return out.sort((a, b) => b.price - a.price);
     },
     offersToSell: function() {
-        return this.offersOpen.filter(function (offer) {
-            return offer.buyer == null;
-        });
+        let out = this.offersOpen.filter((offer) => offer.buyer == null);
+        return out.sort((a, b) => a.price - b.price);
     },
     selOTS: function() {
-        if (this.selOTSId == '') {
-            return null;
-        } else {
-            return this.offersToSell[this.selOTSId];
-        }
+        return this.offersToSell.find(x => x.id === this.selOTSId);
     },
     selOTB: function() {
-        if (this.selOTBId == '') {
-            return null;
-        } else {
-            return this.offersToBuy[this.selOTBId];
-        }
+        return this.offersToBuy.find(x => x.id === this.selOTBId);
     }
 }
 
@@ -92,24 +80,23 @@ tradingStage.activeScreen = `
         <input id='otsPrice' style='width: 100px' v-model='otsPrice' type='number' min='1' max='1000' step='1'>
         <button :disabled='player.shares == 0 || !(otsPrice > 0)' onclick='makeOfferToSell()'>Make sell offer</button>
     </p>
-    <p>Sell offers:
-        <select id='selectOTB' jt-table='offers' jt-show='price' jt-sortasc='price' jt-filter='row.open && row.seller === undefined' size=5 style='width: 100px'></select>
-        <button jt-select='selectOTB' jt-action='acceptOTB' jt-enabledIf='selRow !== null && selRow.makerPId !== player.id && player.shares > 0'>Accept</button>
-        <button jt-select='selectOTB' jt-action='cancelOffer' jt-enabledIf='selRow !== null && selRow.makerPId === player.id'>Cancel</button>
-    </p>
-    <p>Sell Vue:
+    <p>Offers to buy:
         <select size=5 style='width: 100px' v-model='selOTBId'>
-            <option :value='offer.id' v-for='offer in offersToBuy'>
+            <option v-for='offer in offersToBuy' :value='offer.id' v-bind:style="offer.makerPId == player.id ? {color: 'blue'} : {}">
                 {{ offer.price }}
             </option>
         </select>
-        <button :disabled='selOTB == null || player.shares < 1'>Accept</button>
-        <button :disabled='selOTB == null || selOTB.makerPId == player.id'>Cancel</button>
+        <button @click='jt.sendMessage("acceptOTB"  , selOTBId)' :disabled='selOTB == null || selOTB.makerPId == player.id || player.shares < 1'>Accept / Sell</button>
+        <button @click='jt.sendMessage("cancelOffer", selOTBId)' :disabled='selOTB == null || selOTB.makerPId != player.id'>Cancel</button>
     </p>
-    <p>Buy offers:
-        <select id='selectOTS' jt-table='offers' jt-show='price' jt-sortdesc='price' jt-filter='row.open && row.buyer === undefined' size=5 style='width: 100px'></select>
-        <button jt-select='selectOTS' jt-action='acceptOTS' jt-enabledIf='selRow !== null && selRow.makerPId !== player.id && player.cash >= selRow.price'>Accept</button>
-        <button jt-select='selectOTS' jt-action='cancelOffer' jt-enabledIf='selRow !== null && selRow.makerPId === player.id'>Cancel</button>
+    <p>Offers to sell:
+        <select size=5 style='width: 100px' v-model='selOTSId'>
+            <option v-for='offer in offersToSell' :value='offer.id' v-bind:style="offer.makerPId == player.id ? {color: 'blue'} : {}">
+                {{ offer.price }}
+            </option>
+        </select>
+        <button @click='jt.sendMessage("acceptOTS"  , selOTSId)' :disabled='selOTS == null || selOTS.makerPId == player.id || player.cash < selOTS.price'>Accept / Buy</button>
+        <button @click='jt.sendMessage("cancelOffer", selOTSId)' :disabled='selOTS == null || selOTS.makerPId != player.id'>Cancel</button>
     </p>
 `;
 
