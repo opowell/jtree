@@ -129,6 +129,7 @@ class App {
                             {{waiting-screens}}
                         </span>
                     </div>
+                    {{scripts}}
                 </body>
             </html>
         `;
@@ -206,7 +207,7 @@ class App {
         this.messages = {};
 
         /**
-         * TODO: Description
+         * TODO: Set default value for Stage.wrapPlayingScreenInFormTag.
          * @type boolean
          * @default true
          */
@@ -673,8 +674,17 @@ class App {
             html = '<script type="text/javascript" src="/participant/jtree.js"></script>\n' + html;
         }
 
+        let scriptsHTML = '';
         if (app.clientScripts != null) {
-            html = html + '<script>' + app.clientScripts + '</script>';
+            if (!app.clientScripts.trim().startsWith('<script')) {
+                scriptsHTML = '<script>' + app.clientScripts + '</script>';
+            } else {
+                scriptsHTML = app.clientScripts;                
+            }
+        }
+        
+        if (html.includes('{{scripts}}')) {
+            html = html.replace('{{scripts}}', scriptsHTML);
         }
 
         // Return to client.

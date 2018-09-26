@@ -185,6 +185,26 @@ jt.mountVue = function(player) {
         eval('vueComputed[i] = ' + computed[i]);
     }
 
+    // Scan page for vue models, add if not already present.
+    let vueModelEls = $('[v-model]');
+    for (let i=0; i<vueModelEls.length; i++) {
+        let varName = vueModelEls[i].getAttribute('v-model');
+        if (vueModel[varName] == null) {
+            vueModel[varName] = '';
+        }
+    }
+
+    let page = document.documentElement.innerHTML;
+    let index = page.indexOf('@input=');
+    while (index > -1) {
+        let end = page.indexOf("=", index + '@input='.length);
+        let varName = page.substring(index + '@input='.length + 1, end).trim();
+        if (vueModel[varName] == null) {
+            vueModel[varName] = '';
+        }
+        index = page.indexOf('@input=', end);
+    }
+
     jt.vue = new Vue({
         el: '#jtree',
         data: vueModel,
@@ -516,7 +536,7 @@ jt.startClock = function(endTime) {
     console.log('Time left: ' + diff);
     // If there is time left on the clock, set refresh interval.
     if (jt.data.endTime > now && jt.data.clockRunning) {
-        jt.timer = setInterval(jt.updateClock, jt.data.CLOCK_FREQUENCY);
+        jt.timer = setInterval(jt.updateClock, jt.data.CLOCK_FREQUENCY*5);
     }
     // Otherwise, do not set refresh interval.
     else {

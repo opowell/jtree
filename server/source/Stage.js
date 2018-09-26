@@ -102,7 +102,7 @@ class Stage {
         this.useAppWaitingScreen = true;
 
         /**
-         *  TODO:
+         *  Wrap stage playing screens in a <form> tag or not.
          */
         this.wrapPlayingScreenInFormTag = app.stageWrapPlayingScreenInFormTag;
 
