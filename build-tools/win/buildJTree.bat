@@ -5,7 +5,7 @@ REM - pkg
 
 REM Call from root folder (/jtree), which should be two levels up from this file (jtree/build-tools/win/buildJTree.bat).
 
-set "vers=0.6.4"
+set "vers=0.6.5"
 
 REM ------- Prepare output folder.
 call del ".\releases\%vers%" /Q /F

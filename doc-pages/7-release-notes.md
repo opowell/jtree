@@ -1,3 +1,7 @@
+##### 2018.09.27 - 0.6.5
+- Integrate Vue.js on clients.
+- Added: Double auction app.
+
 ##### 0.6.4
 - Added Stage.getClientDuration(player) function.
 

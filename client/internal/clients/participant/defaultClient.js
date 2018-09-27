@@ -140,8 +140,11 @@ jt.inIframe = function() {
     }
 }
 
+// Setting to indicate whether server has asked for client to reload.
+jt.forcedUnload = false;
+
 window.onbeforeunload = function(ev) {
-    if (!jt.inIframe()) {
+    if (!jt.inIframe() && !jt.forcedUnload) {
         return 'Want to unload?';
     }
 };
@@ -205,13 +208,19 @@ jt.mountVue = function(player) {
         index = page.indexOf('@input=', end);
     }
 
-    jt.vue = new Vue({
-        el: '#jtree',
-        data: vueModel,
-        computed: vueComputed,
-        mounted: function() {
-        }
-    });
+    if (player.stage.app.useVue) {
+        jt.vue = new Vue({
+            el: '#jtree',
+            data: vueModel,
+            computed: vueComputed,
+            mounted: function() {
+                jt.setFormDefaults();
+            }
+        });
+    } else {
+        jt.vue = {};
+        jt.setFormDefaults();
+    }
 
     jt.vueMounted = true;
     jt.updatePlayer(player, false);
@@ -251,6 +260,8 @@ jt.updatePlayer = function(player, updateVue) {
     // Re-establish object links.
     window.scrollTo(0, 0);
 
+    jt.setValues(player);
+
     if (player.stage !== undefined) {
         jt.setStageName(player.stage.id);
     }
@@ -259,7 +270,7 @@ jt.updatePlayer = function(player, updateVue) {
         var endTime = new Date().getTime() + player.stageTimerTimeLeft;
         jt.startClock(endTime);
     } else {
-        jt.setStageHasTimeout(false);
+        jt.vue.hasTimeout = false;
     }
 
     if (player.stageClientDuration > 0 && player.status == 'playing') {
@@ -328,14 +339,12 @@ jt.defaultConnected = function() {
     if ($('#jtree').length > 0) {
         // https://gist.github.com/belsrc/672b75d1f89a9a5c192c
         Vue.filter('round', function(value, decimals) {
-            if(!value) {
-            value = 0;
+            if (!value) {
+                value = 0;
             }
-        
-            if(!decimals) {
-            decimals = 0;
+            if (!decimals) {
+                decimals = 0;
             }
-        
             value = Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
             return value;
         });
@@ -348,11 +357,13 @@ jt.defaultConnected = function() {
 
     // Listen for default messages from server.
     jt.socket.on('start-new-app', function(id) {
+        jt.forcedUnload = true;
         location.reload();
     });
 
     // Listen for default messages from server.
     jt.socket.on('reload', function(id) {
+        jt.forcedUnload = true;
         location.reload();
     });
 
@@ -430,50 +441,50 @@ jt.endStage = function(player) {
     }
 }
 
-jt.refreshButtons = function(elName) {
+// jt.refreshButtons = function(elName) {
 
-    if (elName == null) {
-        return false;
-    }
+//     if (elName == null) {
+//         return false;
+//     }
 
-    let player = jt.data.player;
-    let group = player.group;
-    let period = group.period;
-    let app = period.app;
-    let session = app.session;
-    let stage = player.stage;
-    let clock = jt.getClock(jt.data.timeLeft);
+//     let player = jt.data.player;
+//     let group = player.group;
+//     let period = group.period;
+//     let app = period.app;
+//     let session = app.session;
+//     let stage = player.stage;
+//     let clock = jt.getClock(jt.data.timeLeft);
 
-    var selRow = null;
-    var el = $('#' + elName);
-    var selId = el.val();
-    var tableName = el.attr('jt-table');
-    var rows = group[tableName];
-    for (var i=0; i<rows.length; i++) {
-        if (rows[i].id + '' === selId) {
-            selRow = rows[i];
-            break;
-        }
-    }
-    var buttons = $('*[jt-select=' + elName + ']');
-    for (var b=0; b<buttons.length; b++) {
-        var but = $(buttons[b]);
-        var enabled = true;
-        if (but.attr('jt-enabledIf') !== undefined) {
-            enabled = eval(but.attr('jt-enabledIf'));
-        }
-        jt.setButtonEnabled(but, enabled);
-    }
-}
+//     var selRow = null;
+//     var el = $('#' + elName);
+//     var selId = el.val();
+//     var tableName = el.attr('jt-table');
+//     var rows = group[tableName];
+//     for (var i=0; i<rows.length; i++) {
+//         if (rows[i].id + '' === selId) {
+//             selRow = rows[i];
+//             break;
+//         }
+//     }
+//     var buttons = $('*[jt-select=' + elName + ']');
+//     for (var b=0; b<buttons.length; b++) {
+//         var but = $(buttons[b]);
+//         var enabled = true;
+//         if (but.attr('jt-enabledIf') !== undefined) {
+//             enabled = eval(but.attr('jt-enabledIf'));
+//         }
+//         jt.setButtonEnabled(but, enabled);
+//     }
+// }
 
-jt.setButtonEnabled = function(but, enabled) {
-    but.prop("disabled",!enabled);
-    if (enabled) {
-        but.removeClass('disabled');
-    } else {
-        but.addClass('disabled');
-    }
-}
+// jt.setButtonEnabled = function(but, enabled) {
+//     but.prop("disabled",!enabled);
+//     if (enabled) {
+//         but.removeClass('disabled');
+//     } else {
+//         but.addClass('disabled');
+//     }
+// }
 
 jt.setStageName = function(name) {
     document.title = name;
@@ -483,16 +494,6 @@ jt.setStageName = function(name) {
         .removeAttr('selected')
         .not(':button, :submit, :reset, :hidden, :radio, :checkbox')
         .val('');
-}
-
-jt.setStageHasTimeout = function(b) {
-    jt.vue.hasTimeout = b;
-    // console.log('setStageHasTimeout: ' + b);
-    // if (b) {
-    //     $('#time-remaining-div').removeAttr('hidden');
-    // } else {
-    //     $('#time-remaining-div').attr('hidden', true);
-    // }
 }
 
 jt.clockStop = function(timeLeft) {
@@ -505,7 +506,7 @@ jt.clockStop = function(timeLeft) {
 
 jt.startClock = function(endTime) {
     console.log('clock-start until ' + endTime);
-    jt.setStageHasTimeout(true);
+    jt.vue.hasTimeout = true;
     jt.data.endTime = endTime;
     jt.data.clockRunning = false;
 

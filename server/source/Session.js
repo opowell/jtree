@@ -954,6 +954,11 @@ class Session {
     start() {
         if (!this.started) {
             this.started = true;
+            // this.io().to(this.roomId()).emit('dataUpdate', [{
+            //     roomId: this.roomId(),
+            //     field: 'started',
+            //     value: this.started
+            // }]);
             this.advanceSlowest();
         }
     }

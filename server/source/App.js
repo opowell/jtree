@@ -26,16 +26,24 @@ class App {
 
         let id = appPath;
         if (id.includes('app.js') || id.includes('app.jtt')) {
+            let str = null;
+            if (id.includes('app.js')) {
+                str = 'app.js';
+            } else if (id.includes('app.jtt')) {
+                str = 'app.jtt';
+            }
+            id = id.substring(0, id.lastIndexOf(str));
+
            // Strip trailing slashes.
-            if (id.endsWith('/') > -1) {
+            if (id.endsWith('/')) {
                 id = id.substring(0, id.lastIndexOf('/'));
-            } else if (id.endsWith('\\') > -1) {
+            } else if (id.endsWith('\\')) {
                 id = id.substring(0, id.lastIndexOf('\\'));
             }
             // Cut all but last part of path.
-            if (id.endsWith('/') > -1) {
+            if (id.lastIndexOf('/') > -1) {
                 id = id.substring(id.lastIndexOf('/') + 1);
-            } else if (id.endsWith('\\') > -1) {
+            } else if (id.lastIndexOf('\\') > -1) {
                 id = id.substring(id.lastIndexOf('\\') + 1);
             }
         } else {
@@ -121,7 +129,7 @@ class App {
                 <body>
                     <div id='jtree'>
                         <p>Period: {{period.id}}/{{app.numPeriods}}</p>
-                        <p v-show='hasTimeout'>Time left (s): {{clock.seconds}}</p>
+                        <p v-show='hasTimeout'>Time left (s): {{clock.totalSeconds}}</p>
                         <span v-show='player.status=="playing"'>
                             {{stages}}
                         </span>
@@ -207,11 +215,14 @@ class App {
         this.messages = {};
 
         /**
-         * TODO: Set default value for Stage.wrapPlayingScreenInFormTag.
-         * @type boolean
+         * Set default value for Stage.wrapPlayingScreenInFormTag.
+         * If 'yes', then form is added.
+         * If 'no', no form is added.
+         * If 'onlyIfNoButton', then form is added only if page has no buttons.
+         * @type String
          * @default true
          */
-        this.stageWrapPlayingScreenInFormTag = true;
+        this.stageWrapPlayingScreenInFormTag = 'onlyIfNoButton';
 
         /**
          * If defined, subjects are assigned randomly to groups of this size takes precedence over numGroups.
@@ -612,8 +623,19 @@ class App {
                 stageHTML = contentStart + '\n' + stage.content + '\n' + contentEnd;
             }
             if (stage.activeScreen != null) {
-                var wrapInForm = stage.wrapPlayingScreenInFormTag;
                 stageHTML += app.parseStageTag(stage, app.stageContentStart)  + '\n';
+                let wrapInForm = null;
+                if (stage.wrapPlayingScreenInFormTag === 'yes') {
+                    wrapInForm = true;
+                } else if (stage.wrapPlayingScreenInFormTag === 'no') {
+                    wrapInForm = false;
+                } else if (stage.wrapPlayingScreenInFormTag === 'onlyIfNoButton') {
+                    if (!stage.activeScreen.includes('<button')) {
+                        wrapInForm = true;
+                    } else {
+                        wrapInForm = false;
+                    }
+                }
                 if (wrapInForm) {
                     stageHTML += '<form>\n';
                 }

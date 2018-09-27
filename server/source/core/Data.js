@@ -228,8 +228,7 @@ class Data {
                         } else if (dir.lastIndexOf('\\') > -1) {
                             id = dir.substring(dir.lastIndexOf('\\') + 1);
                         }
-                    }
-                    if (id.endsWith('.js')) {
+                    } else if (id.endsWith('.js')) {
                         id = id.substring(0, id.length - '.js'.length);
                     } else if (id.endsWith('.jtt')) {
                         id = id.substring(0, id.length - '.jtt'.length);

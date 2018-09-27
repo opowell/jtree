@@ -32,6 +32,14 @@ msgs.createRoom = function(room) {
     showRoom(room);
 }
 
+msgs.dataUpdate = function(dataChanges) {
+    for (let i=0; i<dataChanges.length; i++) {
+        let change = dataChanges[i];
+        let obj = jt.getObject(change.roomId);
+        obj[change.field] = change.value;
+    }
+}
+
 msgs.createUser = function(user) {
     jt.data.users.push(user);
     showUser(user);
