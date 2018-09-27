@@ -1,7 +1,10 @@
 const path      = require('path');
 const fs        = require('fs-extra');
-const Utils     = require('../Utils.js');
 const socketIO  = require('socket.io');
+// const syc       = require('syc');
+
+const Utils     = require('../Utils.js');
+const Client    = require('../Client.js');
 const Msgs      = require('./Msgs.js');
 
 /** Handles socket connections */
@@ -14,11 +17,7 @@ class SocketServer {
         this.msgs         = new Msgs.new(jt); // MESSAGES TO LISTEN FOR FROM CLIENTS
         jt.io = this.io;
         this.io.on('connection', this.onConnection.bind(this));
-
-        // Participant clients with no session IDs.
-        // Reload them when a new session is opened.
-        this.participantClients = [];
-
+        // syc.sync('syncData', this.jt.data.syncData);
     }
 
     /**
@@ -60,6 +59,8 @@ class SocketServer {
         log('socket connection to ' + this.ADMIN_TYPE);
         socket.join(this.ADMIN_TYPE);
         socket.join('socket_' + sock.id);
+
+        // syc.connect(socket);
 
         var functionList = Object.getOwnPropertyNames(Object.getPrototypeOf(this.msgs));
         for (var i in functionList) {
@@ -125,11 +126,33 @@ class SocketServer {
                 session = this.jt.data.getMostRecentActiveSession();
             }
 
-            const client = session.addClient(socket, pId);
+            let client = null;
+            if (session != null) {
+                // Add client to session (automatic notification of admins + client).
+                client = session.addClient(socket, pId);
+            } else {
+                // No session, so notify manually.
+                client = new Client.new(socket, null);
+                client.pId = pId;
+                this.sendOrQueueAdminMsg(null, 'addClient', client.shell());
+                let participant = {
+                    id: pId,
+                    session: {
+                        id: 'none'
+                    }
+                };
+                socket.emit('logged-in', participant);
+                let socketServer = this;
+                socket.on('disconnect', function() {
+                    console.log('disconnect for ' + JSON.stringify(client.shell()));
+                    socketServer.sendOrQueueAdminMsg(null, 'removeClient', client.shell());
+                    Utils.deleteById(socketServer.jt.data.participantClients, client.id);
+                });
+            }
 
             // If no fixed session ID, add to list of clients to reset.
-            if (session.id !== sessionId && client !== null) {
-                this.participantClients.push(client);
+            if ((session == null || session.id !== sessionId) && client !== null) {
+                this.jt.data.participantClients.push(client);
             }
 
         } catch (err) {

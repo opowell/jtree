@@ -1,5 +1,3 @@
-// @flow
-
 const Stage     = require('./Stage.js');
 const Period    = require('./Period.js');
 const Utils     = require('./Utils.js');
@@ -15,7 +13,7 @@ class App {
      * @param  {Session} session description
      * @param  {String} id      description
      */
-    constructor(session, id, jt, appPath) {
+    constructor(session, jt, appPath) {
 
         /**
          * The unique identifier of this App. In order of precedence, the value is given by:
@@ -24,7 +22,48 @@ class App {
          * - the name of the folder containing the .jtt file
          * @type {String}
          */
-        this.id = id;
+        this.id = appPath;
+
+        let id = appPath;
+        if (id.includes('app.js') || id.includes('app.jtt')) {
+            let str = null;
+            if (id.includes('app.js')) {
+                str = 'app.js';
+            } else if (id.includes('app.jtt')) {
+                str = 'app.jtt';
+            }
+            id = id.substring(0, id.lastIndexOf(str));
+
+           // Strip trailing slashes.
+            if (id.endsWith('/')) {
+                id = id.substring(0, id.lastIndexOf('/'));
+            } else if (id.endsWith('\\')) {
+                id = id.substring(0, id.lastIndexOf('\\'));
+            }
+            // Cut all but last part of path.
+            if (id.lastIndexOf('/') > -1) {
+                id = id.substring(id.lastIndexOf('/') + 1);
+            } else if (id.lastIndexOf('\\') > -1) {
+                id = id.substring(id.lastIndexOf('\\') + 1);
+            }
+        } else {
+            // Strip folders.
+            if (id.lastIndexOf('/') > -1) {
+                this.appDir = id.substring(0, id.lastIndexOf('/'));
+                id = id.substring(id.lastIndexOf('/') + 1);
+            } else if (id.lastIndexOf('\\') > -1) {
+                this.appDir = id.substring(0, id.lastIndexOf('\\'));
+                id = id.substring(id.lastIndexOf('\\') + 1);
+            }
+            this.appFilename = id;
+            if (id.endsWith('.js')) {
+                id = id.substring(0, id.length - '.js'.length);
+            } else if (id.endsWith('.jtt')) {
+                id = id.substring(0, id.length - '.jtt'.length);
+            }
+        }
+        this.shortId = id;
+
 
         /**
          * @type {jt}
@@ -63,8 +102,8 @@ class App {
         this.optionValues = {};
 
         /** Used by the participant client to find and create dynamic text elements.*/
-        this.textMarkerBegin = '{{';
-        this.textMarkerEnd = '}}';
+        this.textMarkerBegin = '{{{';
+        this.textMarkerEnd = '}}}';
 
         /**
          * The number of periods in this App.
@@ -88,17 +127,24 @@ class App {
                     <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
                 </head>
                 <body>
-                    <p>Period: {{period.id}}/{{app.numPeriods}}</p>
-                    <p id='time-remaining-div'>Time left: {{clock.minutes}}:{{clock.seconds}}</p>
-                    <span jt-status='active'>
-                        {{stages}}
-                    </span>
-                    <span jt-status='waiting'>
-                        {{waiting-screen}}
-                    </span>
+                    <div id='jtree'>
+                        <p>Period: {{period.id}}/{{app.numPeriods}}</p>
+                        <p v-show='hasTimeout'>Time left (s): {{clock.totalSeconds}}</p>
+                        <span v-show='player.status=="playing"'>
+                            {{stages}}
+                        </span>
+                        <span v-show='["waiting", "finished", "done"].includes(player.status)'>
+                            {{waiting-screens}}
+                        </span>
+                    </div>
+                    {{scripts}}
                 </body>
             </html>
         `;
+
+        this.vueModels = {};
+        this.vueComputed = {};
+        this.clientScripts = null;
 
         /** TODO:   */
         this.screen = '';
@@ -169,11 +215,14 @@ class App {
         this.messages = {};
 
         /**
-         * TODO: Description
-         * @type boolean
+         * Set default value for Stage.wrapPlayingScreenInFormTag.
+         * If 'yes', then form is added.
+         * If 'no', no form is added.
+         * If 'onlyIfNoButton', then form is added only if page has no buttons.
+         * @type String
          * @default true
          */
-        this.stageWrapPlayingScreenInFormTag = true;
+        this.stageWrapPlayingScreenInFormTag = 'onlyIfNoButton';
 
         /**
          * If defined, subjects are assigned randomly to groups of this size takes precedence over numGroups.
@@ -199,7 +248,12 @@ class App {
          * @type string
          * @default '<span jt-stage="{{stage.id}}">'
          */
-        this.stageContentStart = '<span jt-stage="{{stage.id}}">';
+        // this.stageContentStart = '<span jt-stage="{{stage.id}}">';
+
+        this.stageContentStart = `
+            <span v-show="stage.id == '{{stage.id}}'">
+        `;
+
 
         /**
          * Ends the stages of this App.
@@ -237,8 +291,7 @@ class App {
             'type',
             'folder',
             'options',
-            'jt',
-            'appPath'];
+            'jt'];
 
         //TODO:
         /**
@@ -252,6 +305,19 @@ class App {
          * @default false
          */
         this.finished = false;
+    }
+
+    /**
+     * @static newSansId - return an app with the given path.
+     *
+     * @param  {type} jt      description
+     * @param  {type} appPath The path relative to the server process. i.e. /apps/my-app.jtt or /apps/my-complex-app/app.js
+     * @return {App}          The given app.
+     */
+    static newSansId(jt, appPath) {
+        console.log('loading app with no session: ' + appPath);
+        var out = new App(null, jt, appPath);
+        return out;
     }
 
     /**
@@ -528,7 +594,7 @@ class App {
 
         if (app.activeScreen != null) {
             html += `
-            <span jt-status='playing' class='playing-screen'>
+            <span v-show='player.status == "playing"' class='playing-screen'>
                 ${app.activeScreen}
                 <div>
                 {{stages}}
@@ -539,7 +605,7 @@ class App {
 
         if (!html.includes('{{stages}}')) {
             html += `
-            <span jt-status='playing' class='playing-screen'>
+            <span v-show='player.status == "playing"' class='playing-screen'>
                 {{stages}}
             </span>
             `;
@@ -547,38 +613,71 @@ class App {
 
         // Load stage contents, if any.
         var stagesHTML = '';
+        var waitingScreensHTML = '';
         for (var i=0; i<app.stages.length; i++) {
             var stage = app.stages[i];
+            var stageHTML = '';
+            var contentStart = app.parseStageTag(stage, app.stageContentStart);
+            var contentEnd = app.parseStageTag(stage, app.stageContentEnd);
             if (stage.content != null) {
-                if (stagesHTML.length > 0) {
-                    stagesHTML = stagesHTML + '\n';
-                }
-                var contentStart = app.parseStageTag(stage, app.stageContentStart);
-                var contentEnd = app.parseStageTag(stage, app.stageContentEnd);
-                stagesHTML = stagesHTML + contentStart + '\n' + stage.content + '\n' + contentEnd;
+                stageHTML = contentStart + '\n' + stage.content + '\n' + contentEnd;
             }
             if (stage.activeScreen != null) {
-                if (stagesHTML.length > 0) {
-                    stagesHTML = stagesHTML + '\n';
+                stageHTML += app.parseStageTag(stage, app.stageContentStart)  + '\n';
+                let wrapInForm = null;
+                if (stage.wrapPlayingScreenInFormTag === 'yes') {
+                    wrapInForm = true;
+                } else if (stage.wrapPlayingScreenInFormTag === 'no') {
+                    wrapInForm = false;
+                } else if (stage.wrapPlayingScreenInFormTag === 'onlyIfNoButton') {
+                    if (!stage.activeScreen.includes('<button')) {
+                        wrapInForm = true;
+                    } else {
+                        wrapInForm = false;
+                    }
                 }
-                stagesHTML += app.parseStageTag(stage, app.stageContentStart)  + '\n';
-                var wrapInForm = stage.wrapPlayingScreenInFormTag;
                 if (wrapInForm) {
-                    stagesHTML += '<form>\n';
+                    stageHTML += '<form>\n';
                 }
-                stagesHTML += stage.activeScreen + '\n';
+                stageHTML += stage.activeScreen + '\n';
+                let addOKButtonIfNone = stage.addOKButtonIfNone;
+                if (addOKButtonIfNone) {
+                    if (!stageHTML.includes('<button')) {
+                        stageHTML += `<button>OK</button>`;
+                    }
+                }
                 if (wrapInForm) {
-                    stagesHTML += '</form>\n';
+                    stageHTML += '</form>\n';
                 }
-                stagesHTML += app.parseStageTag(stage, app.stageContentEnd);
+                stageHTML += app.parseStageTag(stage, app.stageContentEnd);
             }
-        }
+
+            if (stagesHTML.length > 0) {
+                stagesHTML += '\n';
+            }
+            stagesHTML += stageHTML;
+
+            var waitingScreenHTML = contentStart;
+            if (stage.useAppWaitingScreen) {
+                waitingScreenHTML += app.waitingScreen;
+            }
+            if (stage.waitingScreen != null) {
+                waitingScreenHTML += stage.waitingScreen;
+            }
+            waitingScreenHTML += contentEnd;
+
+            if (waitingScreensHTML.length > 0) {
+                waitingScreensHTML += '\n';
+            }
+            waitingScreensHTML += waitingScreenHTML;
+    }
+
         if (html.includes('{{stages}}')) {
             html = html.replace('{{stages}}', stagesHTML);
         }
 
-        if (html.includes('{{waiting-screen}}') && app.waitingScreen != null) {
-            html = html.replace('{{waiting-screen}}', app.waitingScreen);
+        if (html.includes('{{waiting-screens}}') && app.waitingScreen != null) {
+            html = html.replace('{{waiting-screens}}', app.waitingScreen);
         }
 
         // Replace {{ }} markers.
@@ -595,6 +694,19 @@ class App {
         // Insert jtree functionality.
         if (app.insertJtreeRefAtStartOfClientHTML) {
             html = '<script type="text/javascript" src="/participant/jtree.js"></script>\n' + html;
+        }
+
+        let scriptsHTML = '';
+        if (app.clientScripts != null) {
+            if (!app.clientScripts.trim().startsWith('<script')) {
+                scriptsHTML = '<script>' + app.clientScripts + '</script>';
+            } else {
+                scriptsHTML = app.clientScripts;                
+            }
+        }
+        
+        if (html.includes('{{scripts}}')) {
+            html = html.replace('{{scripts}}', scriptsHTML);
         }
 
         // Return to client.
@@ -793,7 +905,7 @@ class App {
      * @return {string}  Session path + {@link App#indexInSession} + '_' + app.id
      */
     getOutputFN() {
-        return this.session.getOutputDir() + '/' + this.indexInSession() + '_' + this.id;
+        return this.session.getOutputDir() + '/' + this.indexInSession() + '_' + this.shortId;
     }
 
     /**
@@ -859,6 +971,7 @@ class App {
         metaData.numPeriods = this.numPeriods;
         metaData.groupSize = this.groupSize;
         metaData.id = this.id;
+        metaData.shortId = this.shortId;
         metaData.title = this.title;
         metaData.description = this.description;
         metaData.appPath = this.appPath;
@@ -880,7 +993,7 @@ class App {
             metaData.clientHTML = '';
         }
 
-        var app = new App(null, this.id);
+        var app = new App(null, this.jt, this.id);
 
         metaData.stages = [];
         try {
@@ -967,7 +1080,7 @@ class App {
     }
 
     reload() {
-        var app = new App(this.session, this.id, this.jt);
+        var app = new App(this.session, this.jt, this.id);
         app.optionValues = this.optionValues;
         for (var opt in app.optionValues) {
             app[opt] = app.optionValues[opt];
@@ -1341,6 +1454,10 @@ class App {
         }
         out.session = this.session.shell();
         out.numStages = this.stages.length;
+        out.vueComputedText = {};
+        for (let i in this.vueComputed) {
+            out.vueComputedText[i] = this.vueComputed[i].toString();
+        }
         return out;
     }
 
@@ -1441,3 +1558,4 @@ class App {
 var exports = module.exports = {};
 exports.new = App;
 exports.load = App.load;
+exports.newSansId = App.newSansId;

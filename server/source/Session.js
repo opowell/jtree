@@ -231,12 +231,15 @@ class Session {
     *
     * @param  {string} appId The ID of the app to add to this session.
     */
-    addApp(appId, options) {
-        var appPath = this.jt.data.appsMetaData[appId].appPath;
-        var app = this.jt.data.loadApp(appId, this, appPath, options);
+    addApp(appPath, options) {
+        var app = this.jt.data.loadApp(appPath, this, appPath, options);
         if (app !== null) {
             this.apps.push(app);
-            Utils.copyFiles(path.parse(app.appPath).dir, app.getOutputFN(), this.jt);
+            if (app.appPath.endsWith('.jtt') || app.appPath.endsWith('.js')) {
+                Utils.copyFile(app.appFilename, app.appDir, app.getOutputFN());
+            } else {
+                Utils.copyFiles(path.parse(app.appPath).dir, app.getOutputFN());
+            }
             // app.saveSelfAndChildren();
             this.save();
             this.emit('sessionAddApp', {sId: this.id, app: app.shellWithChildren()});
@@ -311,7 +314,7 @@ class Session {
         socket.join(this.roomId());
         participant.clientAdd(client);
         this.clients.push(client);
-        this.jt.socketServer.sendOrQueueAdminMsg(null, 'add-client', client.shell());
+        this.jt.socketServer.sendOrQueueAdminMsg(null, 'addClient', client.shell());
         this.io().to(socket.id).emit('logged-in', participant.shell());
         if (participant.player !== null) {
             participant.player.sendUpdate(socket.id);
@@ -951,6 +954,11 @@ class Session {
     start() {
         if (!this.started) {
             this.started = true;
+            // this.io().to(this.roomId()).emit('dataUpdate', [{
+            //     roomId: this.roomId(),
+            //     field: 'started',
+            //     value: this.started
+            // }]);
             this.advanceSlowest();
         }
     }

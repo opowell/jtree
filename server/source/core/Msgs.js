@@ -5,6 +5,7 @@ const Utils     = require('../Utils.js');
 /**
  * Messages that the server listens for from clients.
  * Includes try-catch and notification (via console) of receipt.
+ * Corresponds to client/internal/clients/admin/shared/msgsToServer.js
  */
 class Msgs {
 
@@ -38,6 +39,50 @@ class Msgs {
         this.jt.data.appsMetaData[d.aId] = app.metaData();
     }
 
+    getClients(data, socket) {
+        let clients = this.jt.data.getClients(data.sessionId);
+        var message = {cb: data.cb, clients: clients};
+        socket.emit('dataMessage', message);
+    }
+
+    /**
+     * getAppMetadatas - Get an array of the app metadatas found on the server.
+     *
+     * @param  {String} cb     The callback to execute when returning the metadatas to the client.
+     * @param  {Socket} socket The socket which asked for the data.
+     * @return {Message}        A message object, which includes callback (cb) and data fields.
+     */
+    getAppMetadatas(cb, socket) {
+        var apps = this.jt.data.getApps();
+        var metadatas = [];
+        for (var i in apps) {
+            metadatas.push(apps[i].metaData());
+        }
+        var message = {cb: cb, metadatas: metadatas};
+        this.jt.io.to('socket_' + socket.id).emit('dataMessage', message);
+    }
+
+    /**
+     * getApp - Return the app with identifier data.appId.
+     *
+     * @param  {String} data.appId   Identifier of the app.
+     * @param  {Socket} socket The socket which asked for the app.
+     * @return {Message}        A message object, which includes callback (cb) and data fields.
+     */
+    getApp(data, socket) {
+        data.app = this.jt.data.getApp(data.appPath).shellWithChildren();
+        this.jt.io.to('socket_' + socket.id).emit('dataMessage', data);
+    }
+
+    setAppContents(data, socket) {
+        fs.writeFileSync(path.join(this.jt.path, data.appPath), data.content);
+        var outMessage = {};
+        outMessage.appPath = data.appPath;
+        outMessage.cb   = data.cb;
+        outMessage.app  = this.jt.data.getApp(data.appPath).shellWithChildren();
+        this.jt.io.to('socket_' + socket.id).emit('dataMessage', outMessage);
+    }
+
     /*
      * setNumParticipants - Sets the specified number of participants to the session.
      *
@@ -50,6 +95,10 @@ class Msgs {
         var session = this.jt.data.getSession(d.sId);
         var num = parseInt(d.number);
         session.setNumParticipants(num);
+    }
+
+    appAddStage(d, socket) {
+        var session = this.jt.data.getApp(d.aId);
     }
 
     deleteParticipant(d, socket) {
@@ -71,12 +120,12 @@ class Msgs {
     }
 
     createSessionAndAddApp(msgData, sock) {
-        var appId = msgData.appId;
+        var appPath = msgData.appId;
         var options = msgData.options;
         var session = this.jt.data.createSession(msgData.userId);
         session.resume();
         this.jt.data.sessions.push(session);
-        var d = {sId: session.id, appId: appId, options: options};
+        var d = {sId: session.id, appPath: appPath, options: options};
         this.sessionAddApp(d);
         this.openSession(session.id, sock);
     }
@@ -101,11 +150,6 @@ class Msgs {
     updateAppPreview(d, socket) {
         var app = this.jt.data.app(d.appId, d.options);
         this.jt.io.to('socket_' + socket.id).emit('updateAppPreview', app.shellWithChildren());
-    }
-
-    reloadApps(d, sock) {
-        this.jt.data.loadApps();
-        this.jt.socketServer.emitToAdmins('reloadApps', this.jt.data.appsMetaData);
     }
 
     startSessionFromQueue(data, sock) {
@@ -147,7 +191,7 @@ class Msgs {
 
     saveRoom(room, sock) {
         this.jt.data.saveRoom(room);
-//        this.jt.socketServer.emitToAdmins('saveRoom', room);
+//        this.jt.socketServer.emitToAdmins('saveRoom', room);a
     }
 
     deleteQueue(id, sock) {
@@ -158,7 +202,7 @@ class Msgs {
     deleteAppFromQueue(qId, aId, appIndex) {
         var queue = this.jt.data.queue(qId);
         queue.deleteApp(aId, appIndex);
-        this.jt.socketServer.emitToAdmins('deleteAppFromQueue', {qId, aId, appIndex});
+        this.jt.socketServer.emitToAdmins('deleteAppFromQueue', {qId: qId, aId: aId, appIndex: appIndex});
     }
 
     deleteApp(id, sock) {
@@ -166,7 +210,7 @@ class Msgs {
         this.jt.socketServer.emitToAdmins('deleteApp', id);
     }
 
-    saveApp(app, sock) {
+    saveAppHTML(app, sock) {
         this.jt.data.saveApp(app);
         var appInfo = this.jt.data.apps[app.id];
         appInfo.origId = app.origId;
@@ -214,13 +258,15 @@ class Msgs {
             socket.join(session.roomId());
             this.jt.io.to('socket_' + socket.id).emit('openSession', session.shellWithChildren());
             this.jt.data.lastOpenedSession = session;
+            this.jt.data.syncData.hello = 'updated active session!';
+            this.jt.data.syncData.activeSession = session;
             // this.reloadClients();
             // Called from client-side.
         }
     }
 
     reloadClients() {
-        const clients = this.jt.socketServer.participantClients;
+        const clients = this.jt.data.participantClients;
         for (let i=0; i<clients.length; i++) {
             try {
                 clients[i].reload();
@@ -228,8 +274,15 @@ class Msgs {
         }
     }
 
-    sessionAddApp(d) {
-        this.jt.data.getSession(d.sId).addApp(d.appId, d.options);
+
+    /**
+     * sessionAddApp - Add an app to the given session.
+     *
+     * @param  {Object} d An object containing the session ID (sId), the app id (appPath), and options for the app (options).
+     * @return {type}
+     */
+    sessionAddApp(data, socket) {
+        this.jt.data.getSession(data.sId).addApp(data.appPath, data.options);
     }
 
     sessionAddUser(d) {
@@ -313,13 +366,6 @@ class Msgs {
         var session = Utils.findByIdWOJQ(this.jt.data.sessions, id);
         if (session !== null) {
             session.resume();
-        }
-    }
-
-    sessionStart(id) {
-        var session = Utils.findByIdWOJQ(this.jt.data.sessions, id);
-        if (session !== null) {
-            session.start();
         }
     }
 

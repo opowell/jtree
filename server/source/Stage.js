@@ -75,7 +75,7 @@ class Stage {
         this.onPlaySendPlayer = true;
 
         /**
-         * how far up the tree should be sent on update. More data comes at a cost of higher network load.
+         * how far up the tree should be sent on update. More data comes at cost of higher latency.
          * possible values: 'player', 'group'
          * @type string
          * @default 'player'
@@ -102,7 +102,7 @@ class Stage {
         this.useAppWaitingScreen = true;
 
         /**
-         *  TODO:
+         *  Wrap stage playing screens in a <form> tag or not.
          */
         this.wrapPlayingScreenInFormTag = app.stageWrapPlayingScreenInFormTag;
 
@@ -112,6 +112,10 @@ class Stage {
          * @default []
          */
         this.outputHide = [];
+
+        this.addOKButtonIfNone = true;
+
+        this.waitingScreen = null;
 
         /**
          * 'outputHideAuto' fields are not included in output.
@@ -223,6 +227,10 @@ class Stage {
 
         return true;
     }
+
+    getClientDuration(player) {
+        return this.clientDuration;
+    };
 
     newStage(id) {
         var stage = new Stage.new(id, this.app, this.stages.length);

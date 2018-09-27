@@ -19,7 +19,7 @@ document.write('<script src="/admin/multiuser/webcomponents/AppSetVariableModal.
 
 jt.updateAppPreview = function() {
     $('#editAppOptionsModal').modal('hide');
-    var appId = $('#view-app-id').text();
+    var appId = $('#view-app-fullId').text();
     var optionEls = $('#editAppOptionsModal').find('[app-option-name]');
     var options = jt.deriveAppOptions(optionEls);
     jt.socket.emit('updateAppPreview', {appId: appId, options: options});

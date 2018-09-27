@@ -26,7 +26,7 @@ class Table {
         /**
          * @type TODO
          */
-        his.emitFunc = emitFunc;
+        this.emitFunc = emitFunc;
 
         /**
          * @type TODO

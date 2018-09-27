@@ -1,4 +1,11 @@
-##### 0.6.1
+##### 2018.09.27 - 0.6.5
+- Integrate Vue.js on clients.
+- Added: Double auction app.
+
+##### 0.6.4
+- Added Stage.getClientDuration(player) function.
+
+##### 0.6.2
 - Documentation for App.id and using static files.
 - Removed console error for missing settings.js file.
 

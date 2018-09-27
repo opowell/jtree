@@ -1,88 +1,48 @@
-app.description = '[UNDER CONSTRUCTION] Shares are traded for experimental currency in a double auction. Shares pay random dividends every period. At the end of the game, shares are worth nothing. Reference: <a target="_blank" href="https://www.jstor.org/stable/1911361">Smith, Suchanek and Williams, 1988</a>.';
-
-app.html = `
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
-        <script>
-        // Send messages to server.
-        makeOfferToBuy = function() {
-            var price = $('#offerToBuyPrice').val();
-            if (price === '') {
-                debugger;
-            }
-            jt.sendMessage('makeOfferToBuy', price);
-        }
-        makeOfferToSell = function() {
-            var price = $('#offerToSellPrice').val();
-            if (price === '') {
-                debugger;
-            }
-            jt.sendMessage('makeOfferToSell', price);
-        }
-
-        // Checks for the client.
-        checkIfValidOTBPrice = function() {
-            var otbInput = $('#offerToBuyPrice');
-            var price = parseFloat(otbInput.val());
-            var max = otbInput.attr('max');
-            jt.setButtonEnabled($('#makeOTBButton'), price <= max);
-        }
-        checkIfValidOTSPrice = function() {
-            var input = $('#offerToSellPrice');
-            var price = parseFloat(input.val());
-            var shares = jt.data.player.shares;
-            jt.setButtonEnabled($('#makeOTSButton'), shares > 0 && !isNaN(price));
-        }
-
-        // Run once the client page is loaded.
-        jt.connected = function() {
-
-            // Listen to messages from server
-            jt.socket.on('playerUpdateData', function(player) {
-                jt.setValues(player);
-                checkIfValidOTBPrice();
-                checkIfValidOTSPrice();
-            });
-        }
-        </script>
-    </head>
-    <body>
-        <p>Period: {{period.id}}/{{app.numPeriods}}</p>
-        <p id='time-remaining-div'>Time left: {{clock.minutes}}:{{clock.seconds}}</p>
-        <span jt-status='active'>
-            {{stages}}
-        </span>
-        <span jt-status='waiting'>
-            {{waiting-screen}}
-        </span>
-    </body>
-</html>
-`;
+app.description = 'Shares are traded for experimental currency in a double auction. Shares pay random dividends every period. At the end of the game, shares are worth nothing. Reference: <a target="_blank" href="https://www.jstor.org/stable/1911361">Smith, Suchanek and Williams, 1988</a>.';
 
 app.numPeriods = 15;
-app.periodsText = '';
 app.tradingTime = 120;
 app.divs        = [0, 8, 28, 60];
 app.endowmentShares = 3;
 app.endowmentCash = 24*app.numPeriods*app.endowmentShares;
 
+app.vueComputed = {
+    offersOpen: function() {
+        return this.group.offers.filter((offer) => offer.open && offer.period == this.period.id);
+    },
+    offersToBuy: function() {
+        let out = this.offersOpen.filter((offer) => offer.seller == null);
+        return out.sort((a, b) => b.price - a.price);
+    },
+    offersToSell: function() {
+        let out = this.offersOpen.filter((offer) => offer.buyer == null);
+        return out.sort((a, b) => a.price - b.price);
+    },
+    trades: function() {
+        return this.group.offers.filter((offer) => offer.buyer != null && offer.seller != null && offer.period == this.period.id)
+    },
+    selOTS: function() {
+        return this.offersToSell.find(x => x.id === this.selOTSId);
+    },
+    selOTB: function() {
+        return this.offersToBuy.find(x => x.id === this.selOTBId);
+    }
+}
+
 var tradingStage = app.newStage('trading');
 tradingStage.duration = app.tradingTime;
-tradingStage.wrapPlayingScreenInFormTag = false;
 tradingStage.groupStart = function(group) {
     group.addTable('offers');
 }
 tradingStage.waitOnTimerEnd = false;
-tradingStage.playerStart = function(player) { // when a player starts this stage.
+tradingStage.playerStart = function(player) {
     var app = player.stage.app;
     // First trading period
     if (player.periodIndex() == 1) {
         player.cash     = app.endowmentCash;
         player.shares   = app.endowmentShares;
     }
-    // Other trading period
+    // Not first trading period
     else {
         player.cash     = player.old().cash;
         player.shares   = player.old().shares;
@@ -94,28 +54,38 @@ tradingStage.activeScreen = `
     <p>Cash: {{player.cash}}</p>
     <p>Shares: {{player.shares}}</p>
     <p>Make offer to buy:
-        <input id='offerToBuyPrice' type='number' min='1' jt-max='player.cash' step='1' oninput='checkIfValidOTBPrice()' onkeyup='checkIfValidOTBPrice()'>
-        <button id='makeOTBButton' onclick='makeOfferToBuy()'>Make buy offer</button>
+        <input id='otbPrice' style='width: 100px' v-model='otbPrice' type='number' min='1' :max='player.cash' step='1'>
+        <button :disabled='player.cash < otbPrice || !(otbPrice > 0)' @click='jt.sendMessage("makeOfferToBuy", otbPrice)'>Make buy offer</button>
     </p>
     <p>Make offer to sell:
-        <input id='offerToSellPrice' type='number' min='1' max='1000' step='1' oninput='checkIfValidOTSPrice()' onkeyup='checkIfValidOTSPrice()'>
-        <button id='makeOTSButton' onclick='makeOfferToSell()'>Make sell offer</button>
+        <input id='otsPrice' style='width: 100px' v-model='otsPrice' type='number' min='1' max='1000' step='1'>
+        <button :disabled='player.shares == 0 || !(otsPrice > 0)' @click='jt.sendMessage("makeOfferToSell", otsPrice)'>Make sell offer</button>
     </p>
-    <p>Sell:
-        <select id='selectOTB' jt-table='offers' jt-show='price' jt-decimals='2' jt-sortasc='price' jt-filter='row.open && row.seller === undefined' size=5 style='width: 100px'></select>
-        <button jt-select='selectOTB' jt-action='acceptOTB' jt-enabledIf='selRow !== null && selRow.makerPId !== player.id && player.shares > 0'>Accept</button>
-        <button jt-select='selectOTB' jt-action='cancelOffer' jt-enabledIf='selRow !== null && selRow.makerPId === player.id'>Cancel</button>
+    <p>Offers to buy:
+        <!-- Normally you would use v-model='selOTBId', but Vue has problems with timers and selects. -->
+        <select size=5 style='width: 100px' @input="selOTBId = $event.target.value-0">
+            <option v-for='offer in offersToBuy' :value='offer.id' :key='offer.id' v-bind:style="offer.makerPId == player.id ? {color: 'blue'} : {}">
+                {{ offer.price }}
+            </option>
+        </select>
+        <button @click='jt.sendMessage("acceptOTB"  , selOTBId)' :disabled='selOTB == null || selOTB.makerPId == player.id || player.shares < 1'>Accept / Sell</button>
+        <button @click='jt.sendMessage("cancelOffer", selOTBId)' :disabled='selOTB == null || selOTB.makerPId != player.id'>Cancel</button>
     </p>
-    <p>Buy:
-        <select id='selectOTS' jt-table='offers' jt-show='price' jt-decimals='2' jt-sortdesc='price' jt-filter='row.open && row.buyer === undefined' size=5 style='width: 100px'></select>
-        <button jt-select='selectOTS' jt-action='acceptOTS' jt-enabledIf='selRow !== null && selRow.makerPId !== player.id && player.cash >= selRow.price'>Accept</button>
-        <button jt-select='selectOTS' jt-action='cancelOffer' jt-enabledIf='selRow !== null && selRow.makerPId === player.id'>Cancel</button>
+    <p>Offers to sell:
+        <select size=5 style='width: 100px' @input="selOTSId = $event.target.value-0">
+            <option v-for='offer in offersToSell' :value='offer.id' v-bind:style="offer.makerPId == player.id ? {color: 'blue'} : {}">
+                {{ offer.price }}
+            </option>
+        </select>
+        <button @click='jt.sendMessage("acceptOTS"  , selOTSId)' :disabled='selOTS == null || selOTS.makerPId == player.id || player.cash < selOTS.price'>Accept / Buy</button>
+        <button @click='jt.sendMessage("cancelOffer", selOTSId)' :disabled='selOTS == null || selOTS.makerPId != player.id'>Cancel</button>
     </p>
+    <div>Trades:
+        <div v-for='trade in trades' class='trade'>{{trade.price}}</div>
+    </div>
 `;
 
 var resultsStage = app.newStage('results');
-resultsStage.duration = 10; // in seconds
-resultsStage.waitOnTimerEnd = false;
 resultsStage.groupStart = function(group) { // when a group starts this stage
     group.dividendDraw = Utils.randomEl(app.divs);
     for (var i in group.players) { // i = 0, 1, 2, 3
@@ -130,24 +100,21 @@ resultsStage.groupStart = function(group) { // when a group starts this stage
 }
 resultsStage.activeScreen = `
     <p>RESULTS</p>
-    <div>The dividend draw in this period (E$/share): <span jt-text='group.dividendDraw'></span>.</div>
-    <div>Dividends (E$): <span jt-text='player.dividends'></span>.</div>
-    <div>Cash (E$): <span jt-text='player.cash' jt-decimals=2></span>.</div>
-    <div>Shares: <span jt-text='player.shares'></span>.</div>
-    <form>
-        <button type='submit'>OK</button>
-    </form>
+    <div>The dividend draw in this period (E$/share): {{ group.dividendDraw }}.</div>
+    <div>Dividends (E$): {{ player.dividends }}.</div>
+    <div>Cash (E$): {{ player.cash }}.</div>
+    <div>Shares: {{ player.shares }}.</div>
 `;
 
 //  Listen for messages from clients.
 app.messages.makeOfferToBuy = function(price) {
     var player = this.participant.player;
-    var offer = {price: price, makerPId: player.id, open: true, buyer: player.id};
+    var offer = {price: price, makerPId: player.id, open: true, buyer: player.id, period: player.periodIndex()};
     player.group.offers.new(offer);
 }
 app.messages.makeOfferToSell = function(price) {
     var player = this.participant.player;
-    var offer = {price: price, makerPId: player.id, open: true, seller: player.id};
+    var offer = {price: price, makerPId: player.id, open: true, seller: player.id, period: player.periodIndex()};
     player.group.offers.new(offer);
 }
 app.messages.cancelOffer = function(id) {
@@ -202,25 +169,28 @@ app.acceptOffer = function(id, action, player) {
     // Cancel other offers that might now be invalid.
     for (var i=0; i<group.offers.rows.length; i++) {
         var offer = group.offers.rows[i];
-        if (offer.open) {
-            var creator = group.player(offer.makerPId);
-            if (offer.seller === offer.makerPId) {
-                if (creator.shares < 1) {
-                    app.closeOffer(offer, group);
-                }
-            }
-            if (offer.buyer === offer.makerPId) {
-                if (creator.cash < offer.price) {
-                    app.closeOffer(offer, group);
-                }
-            }
+        if (!app.isOfferValid(offer, group)) {
+            app.closeOffer(offer, group);
         }
-
     }
 
-    player.io().to(player.roomId()).emit('playerUpdateData', player.asClPlayer());
-    creator.io().to(creator.roomId()).emit('playerUpdateData', creator.asClPlayer());
+    player.saveAndUpdate();
+    creator.saveAndUpdate();
+}
 
-    player.save();
-    creator.save();
+app.isOfferValid = function(offer, group) {
+    if (offer.open) {
+        var creator = group.player(offer.makerPId);
+        if (offer.seller === offer.makerPId) {
+            if (creator.shares < 1) {
+                return false;
+            }
+        }
+        if (offer.buyer === offer.makerPId) {
+            if (creator.cash < offer.price) {
+                return false;
+            }
+        }
+    }
+    return true;
 }

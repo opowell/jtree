@@ -626,6 +626,11 @@ class Player {
         }
     }
 
+    saveAndUpdate() {
+        this.io().to(this.roomId()).emit('playerUpdate', this.asClPlayer());
+        this.save();
+    }
+
     /**
      * Is the player at least finished the given stage of the given period?
      *

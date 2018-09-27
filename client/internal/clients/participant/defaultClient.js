@@ -59,46 +59,6 @@ jt.likertScale = function(field) {
     el.append(maxTextEl);
 }
 
-jt.evaluateDisplayConditions = function(player) {
-    let group = player.group;
-    let period = group.period;
-    let app = period.app;
-    let session = app.session;
-    let stage = player.stage;
-    let participant = player.participant;
-    let clock = jt.getClock(jt.data.timeLeft);
-    let valEls = $('[jt-displayIf]');
-    for (let i=0; i<valEls.length; i++) {
-        try {
-            let el = $(valEls[i]);
-            let val = eval(el.attr('jt-displayIf'));
-            if (val === true) {
-                el.show();
-            } else {
-                el.hide();
-            }
-        } catch (err) {
-
-        }
-    }
-
-}
-
-jt.specialAttrNames = [
-    'jt-status',
-    'jt-stage',
-    'jt-displayif',
-    'jt-enabledif',
-    'jt-decimals',
-    'jt-table',
-    'jt-show',
-    'jt-sortasc',
-    'jt-sortdesc',
-    'jt-filter',
-    'jt-select',
-    'jt-action'
-]
-
 jt.setFormDefaults = function() {
     // Set up automated form submission for stages.
     $('form').each(function() {
@@ -162,7 +122,8 @@ jt.setFormDefaults = function() {
                     jt.sendMessage(stageName, values);
                 });
             } catch (err) {
-
+                console.log('error assigning submit button action');
+                console.log(JSON.stringify(err));
             }
         }
     });
@@ -179,289 +140,240 @@ jt.inIframe = function() {
     }
 }
 
+// Setting to indicate whether server has asked for client to reload.
+jt.forcedUnload = false;
+
 window.onbeforeunload = function(ev) {
-    if (!jt.inIframe()) {
+    if (!jt.inIframe() && !jt.forcedUnload) {
         return 'Want to unload?';
     }
 };
 
-jt.setValues = function(player) {
-    let clock = jt.getClock(jt.data.timeLeft);
+jt.vueMounted = false;
 
-    $('*').each(function(index) {
-        let atts = this.attributes;
-        for (var i=0; i<atts.length; i++){
-            var att = atts[i];
-            if (att.name.startsWith('jt-')) {
-                if (att.name === 'jt-html') {
-                    let val = jt.eval(att.value, player, clock);
-                    val = jt.formatValue(this, val);
-                    this.innerHTML = val;
-                } else if (att.name === 'jt-text') {
-                    let val = jt.eval(att.value, player, clock);
-                    val = jt.formatValue(this, val);
-                    $(this).text(val);
-                } else if (
-                    jt.specialAttrNames.includes(att.name)
-                ) {
-                    // DO NOTHING
-                } else {
-                    try {
-                        let val = jt.eval(att.value, player, clock);
-                        var attrName = att.name.substring('jt-'.length);
-                        var stepSize = $(this).attr('step');
-                        if (stepSize != null) {
-                            switch (attrName) {
-                            case 'max':
-                                val = Math.floor(val/stepSize)*stepSize;
-                                break;
-                            case 'min':
-                                val = Math.ceil(val/stepSize)*stepSize;
-                                break;
-                            }
-                        }
-                        this.setAttribute(attrName, val);
-                    } catch (err) {
-                        console.log('ERROR in defaultClient.js: \n' + err);
+jt.mountVue = function(player) {
+    let vueModel = {
+        jt: jt,
+        player: player,
+        group: player.group,
+        period: player.group.period,
+        stage: player.stage,
+        app: player.stage.app,
+        participant: player.participant,
+        timeLeft: 0,
+        hasTimeout: false
+    }
+    vueModel.group.players = {};
+    let models = player.stage.app.vueModels;
+    for (let i in models) {
+        vueModel[i] = models[i];
+    }
+    let vueComputed = {
+        clock: function() {
+            return jt.getClock(this.timeLeft);
+        },
+        groupOtherPlayers: function() {
+            let players = [];
+            let me = this.player;
+            if (this.group.players != null) {
+                players = this.group.players.filter(function (grpPlyr) {
+                    return grpPlyr.id !== me.id;
+                })
+            }
+            return players;
+        }
+    };
+    let computed = player.stage.app.vueComputedText;
+    for (let i in computed) {
+        eval('vueComputed[i] = ' + computed[i]);
+    }
+
+    // Scan page for vue models, add if not already present.
+    let vueModelEls = $('[v-model]');
+    for (let i=0; i<vueModelEls.length; i++) {
+        let varName = vueModelEls[i].getAttribute('v-model');
+        if (vueModel[varName] == null) {
+            vueModel[varName] = '';
+        }
+    }
+
+    let page = document.documentElement.innerHTML;
+    let index = page.indexOf('@input=');
+    while (index > -1) {
+        let end = page.indexOf("=", index + '@input='.length);
+        let varName = page.substring(index + '@input='.length + 1, end).trim();
+        if (vueModel[varName] == null) {
+            vueModel[varName] = '';
+        }
+        index = page.indexOf('@input=', end);
+    }
+
+    if (player.stage.app.useVue) {
+        jt.vue = new Vue({
+            el: '#jtree',
+            data: vueModel,
+            computed: vueComputed,
+            mounted: function() {
+                jt.setFormDefaults();
+            }
+        });
+    } else {
+        jt.vue = {};
+        jt.setFormDefaults();
+    }
+
+    jt.vueMounted = true;
+    jt.updatePlayer(player, false);
+
+}
+
+jt.updatePlayer = function(player, updateVue) {
+    // console.log('player update: ' + JSON.stringify(player));
+    if (jt.data.player !== undefined && player.participant.id !== jt.data.player.participant.id) {
+        return;
+    }
+
+    console.log('playerUpdate');
+
+    player.participant.session = player.group.period.app.session;
+    if (player.stage !== undefined) {
+        player.stage.app = player.group.period.app;
+    }
+
+    if (!jt.vueMounted) {
+        jt.mountVue(player);
+        return;
+    } else {
+        if (updateVue) {
+            jt.vue.player = player;
+            jt.vue.group = player.group;
+            jt.vue.period = player.group.period;
+            jt.vue.stage = player.stage;
+            jt.vue.app = player.stage.app;
+            jt.vue.participant = player.participant;
+        }
+    }
+
+    jt.data.player = player; // TODO: Remove.
+//        window.player = player;
+
+    // Re-establish object links.
+    window.scrollTo(0, 0);
+
+    jt.setValues(player);
+
+    if (player.stage !== undefined) {
+        jt.setStageName(player.stage.id);
+    }
+    if (player.stageTimerTimeLeft > 0) {
+        // Must use timer duration. Cannot use server start time, since no guarantee that client time is the same.
+        var endTime = new Date().getTime() + player.stageTimerTimeLeft;
+        jt.startClock(endTime);
+    } else {
+        jt.vue.hasTimeout = false;
+    }
+
+    if (player.stageClientDuration > 0 && player.status == 'playing') {
+        var endTime = new Date().getTime() + player.stageClientDuration*1000;
+        jt.startClock(endTime);
+    }
+
+    // Group tables
+    for (var i=0; i<player.group.tables.length; i++) {
+
+        var tableName = player.group.tables[i];
+
+        // Listen for tableAdd methods.
+        if (jt.socket._callbacks['$' + tableName + 'Add'] === undefined) {
+            jt.socket.on(tableName + 'Add', function(data) {
+                eval('jt.' + tableName + 'Add')(data);
+            });
+        }
+
+        // Listen for tableRemove methods.
+        if (jt.socket._callbacks['$' + tableName + 'Remove'] === undefined) {
+            jt.socket.on(tableName + 'Remove', function(id) {
+                eval('jt.' + tableName + 'Remove')(id);
+            });
+        }
+
+        if (jt.socket._callbacks['$' + tableName + 'Update'] === undefined) {
+            jt.socket.on(tableName + 'Update', function(id) {
+                eval('jt.' + tableName + 'Update')(id);
+            });
+        }
+
+        // Called automatically when row is added to server.
+        // Add row to data object.
+        if (jt[tableName + 'Add'] === undefined) {
+            jt[tableName + 'Add'] = function(newRow) {
+                jt.data.player.group[tableName].push(newRow);
+            }
+        }
+
+        if (jt[tableName + 'Update'] === undefined) {
+            jt[tableName + 'Update'] = function(row) {
+                eval('jt.' + tableName + 'Remove')(row.id);
+                eval('jt.' + tableName + 'Add')(row);
+            }
+        }
+
+        if (jt[tableName + 'Remove'] === undefined) {
+            jt[tableName + 'Remove'] = function(id) {
+                var table = jt.data.player.group[tableName];
+                for (var i=0; i<table.length; i++) {
+                    var row = table[i];
+                    if (row.id === id) {
+                        table.splice(i, 1);
+                        break;
                     }
                 }
             }
         }
-    });
-
+    }
 }
 
 // Default client functionality to be included in all (most?) apps.
 jt.defaultConnected = function() {
 
-    jt.setFormDefaults();
+    if ($('#jtree').length > 0) {
+        // https://gist.github.com/belsrc/672b75d1f89a9a5c192c
+        Vue.filter('round', function(value, decimals) {
+            if (!value) {
+                value = 0;
+            }
+            if (!decimals) {
+                decimals = 0;
+            }
+            value = Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
+            return value;
+        });
 
-    jt.setPlayerStatus('waiting');
+    }
+    
+    jt.setFormDefaults();
+    
+    // jt.setPlayerStatus('waiting');
 
     // Listen for default messages from server.
     jt.socket.on('start-new-app', function(id) {
+        jt.forcedUnload = true;
         location.reload();
     });
 
     // Listen for default messages from server.
     jt.socket.on('reload', function(id) {
+        jt.forcedUnload = true;
         location.reload();
     });
 
     jt.socket.on('playerUpdate', function(player) {
-        // console.log('player update: ' + JSON.stringify(player));
-        if (jt.data.player !== undefined && player.participant.id !== jt.data.player.participant.id) {
-            return;
-        }
-
-        jt.data.player = player; // TODO: Remove.
-//        window.player = player;
-
-        // Re-establish object links.
-        player.participant.session = player.group.period.app.session;
-        if (player.stage !== undefined) {
-            player.stage.app = player.group.period.app;
-        }
-
-        window.scrollTo(0, 0);
-
-        jt.setValues(player);
-        jt.evaluateDisplayConditions(player);
-        jt.setPlayerStatus(player.status);
-        if (player.stage !== undefined) {
-            jt.setStageName(player.stage.id);
-        }
-        if (player.stageTimerTimeLeft > 0) {
-            // Must use timer duration. Cannot use server start time, since no guarantee that client time is the same.
-            var endTime = new Date().getTime() + player.stageTimerTimeLeft;
-            jt.startClock(endTime);
-        } else {
-            jt.setStageHasTimeout(false);
-        }
-
-        if (player.stageClientDuration > 0 && player.status == 'playing') {
-            var endTime = new Date().getTime() + player.stageClientDuration*1000;
-            jt.startClock(endTime);
-        }
-
-        // Group tables
-        for (var i=0; i<player.group.tables.length; i++) {
-
-            var tableName = player.group.tables[i];
-
-            // Listen for tableAdd methods.
-            if (jt.socket._callbacks['$' + tableName + 'Add'] === undefined) {
-                jt.socket.on(tableName + 'Add', function(data) {
-                    eval('jt.' + tableName + 'Add')(data);
-                });
-            }
-
-            // Listen for tableRemove methods.
-            if (jt.socket._callbacks['$' + tableName + 'Remove'] === undefined) {
-                jt.socket.on(tableName + 'Remove', function(id) {
-                    eval('jt.' + tableName + 'Remove')(id);
-                });
-            }
-
-            if (jt.socket._callbacks['$' + tableName + 'Update'] === undefined) {
-                jt.socket.on(tableName + 'Update', function(id) {
-                    eval('jt.' + tableName + 'Update')(id);
-                });
-            }
-
-            var tableEls = $('*[jt-table="' + tableName + '"]');
-            for (var j=0; j<tableEls.length; j++) {
-                var tableEl = tableEls[j];
-                var selectName = $(tableEl).attr('id');
-
-                // Refresh button status
-                jt.refreshButtons(selectName);
-
-                // Clear select
-                $(tableEl).html('');
-
-                // Set button actions.
-                var buttons = $('*[jt-select=' + selectName + ']');
-                for (var b=0; b<buttons.length; b++) {
-                    var clickFN = function(event) {
-                        var but = $(event.target);
-                        var action = but.attr('jt-action');
-                        var selectName = but.attr('jt-select');
-                        var tableEl = $('#' + selectName);
-                        var rowId = $(tableEl).val();
-                        console.log(jt.data.player.id + ', ' + action + ', ' + rowId);
-                        jt.sendMessage(action, rowId);
-                    };
-                    var but = $(buttons[b]);
-
-                    // Clear previous click function, if any.
-                    but.off('click');
-
-                    // Add click function.
-                    but.click(clickFN);
-                }
-            }
-
-            // Called automatically when row is added to server.
-            // Add row to data object, then add to display.
-            if (jt[tableName + 'Add'] === undefined) {
-                jt[tableName + 'Add'] = function(newRow) {
-                    jt.data.player.group[tableName].push(newRow);
-                    eval('jt.' + tableName + 'Show')(newRow);
-                }
-            }
-
-            if (jt[tableName + 'Update'] === undefined) {
-                jt[tableName + 'Update'] = function(row) {
-                    eval('jt.' + tableName + 'Remove')(row.id);
-                    eval('jt.' + tableName + 'Add')(row);
-                }
-            }
-
-            if (jt[tableName + 'Remove'] === undefined) {
-                jt[tableName + 'Remove'] = function(id) {
-                    var table = jt.data.player.group[tableName];
-                    for (var i=0; i<table.length; i++) {
-                        var row = table[i];
-                        if (row.id === id) {
-                            // https://www.w3schools.com/js/js_array_methods.asp
-                            table.splice(i, 1);
-                            break;
-                        }
-                    }
-
-                    // Remove all HTML elements for this row.
-                    $('.group-' + tableName + '-' + id).remove();
-
-                    // Refresh buttons
-                    var tableEls = $('*[jt-table="' + tableName + '"]');
-                    for (var j=0; j<tableEls.length; j++) {
-                        var tableEl = tableEls[j];
-                        var selectName = $(tableEl).attr('id');
-                        jt.refreshButtons(selectName);
-                    }
-                    eval(tableName + 'Remove')(id);
-                }
-            }
-
-            // Added row to display.
-            if (jt[tableName + 'Show'] === undefined) {
-                jt[tableName + 'Show'] = function(row) {
-                    var tableEls = $('*[jt-table="' + tableName + '"]');
-                    for (var j=0; j<tableEls.length; j++) {
-                        var tableEl = $(tableEls[j]);
-                        var fieldToShow = tableEl.attr('jt-show');
-                        var filter = 'true';
-                        if (tableEl.attr('jt-filter') !== undefined) {
-                            filter = tableEl.attr('jt-filter');
-                        }
-                        var selectName = tableEl.attr('id');
-                        if (eval(filter)) {
-                            var rowEl = $('<option>');
-                            var value = jt.formatValue(tableEl, row[fieldToShow]);
-                            rowEl.text(value);
-                            rowEl.val(row.id);
-                            rowEl.addClass('group-' + tableName + '-' + row.id);
-                            rowEl.data(row);
-                            if (row.makerPId === jt.data.player.id) {
-                                rowEl.css('color', 'blue');
-                            }
-                            var sortAsc = tableEl.attr('jt-sortasc');
-                            var sortDesc = tableEl.attr('jt-sortdesc');
-                            var added = false;
-                            if (sortAsc !== undefined) {
-                                var children = tableEl.children();
-                                var rowVal = row[sortAsc];
-                                for (var i=0; i<children.length; i++) {
-                                    var child = $(children[i]);
-                                    var childVal = child.data(sortAsc);
-                                    if (!isNaN(rowVal)) {
-                                        childVal = parseFloat(childVal);
-                                    }
-                                    if (childVal < rowVal) {
-                                        rowEl.insertBefore(child);
-                                        added = true;
-                                        break;
-                                    }
-                                }
-                            } else if (sortDesc !== undefined) {
-                                var children = tableEl.children();
-                                var rowVal = row[sortDesc];
-                                for (var i=0; i<children.length; i++) {
-                                    var child = $(children[i]);
-                                    var childVal = child.data(sortDesc);
-                                    if (!isNaN(rowVal)) {
-                                        childVal = parseFloat(childVal);
-                                    }
-                                    if (childVal > rowVal) {
-                                        rowEl.insertBefore(child);
-                                        added = true;
-                                        break;
-                                    }
-                                }
-                            }
-                            if (!added) {
-                                tableEl.append(rowEl);
-                            }
-                            rowEl.click({selectName: selectName}, function(event) {
-                                jt.refreshButtons(event.data.selectName);
-                            });
-                        }
-                    }
-                }
-            }
-
-            var tableRows = player.group[tableName];
-            for (var j=0; j<tableRows.length; j++) {
-                var row = tableRows[j];
-                eval('jt.' + tableName + 'Show')(row);
-            }
-        }
+        jt.updatePlayer(player, false);
     });
 
     jt.socket.on('logged-in', function(id){
         $('#player').text(id);
-        console.log('logged-in');
+        console.log('logged-in as ' + id);
     });
 
     jt.socket.on('set-clock-timeleft', function(val) {
@@ -529,103 +441,59 @@ jt.endStage = function(player) {
     }
 }
 
-jt.refreshButtons = function(elName) {
+// jt.refreshButtons = function(elName) {
 
-    if (elName == null) {
-        return false;
-    }
+//     if (elName == null) {
+//         return false;
+//     }
 
-    let player = jt.data.player;
-    let group = player.group;
-    let period = group.period;
-    let app = period.app;
-    let session = app.session;
-    let stage = player.stage;
-    let clock = jt.getClock(jt.data.timeLeft);
+//     let player = jt.data.player;
+//     let group = player.group;
+//     let period = group.period;
+//     let app = period.app;
+//     let session = app.session;
+//     let stage = player.stage;
+//     let clock = jt.getClock(jt.data.timeLeft);
 
-    var selRow = null;
-    var el = $('#' + elName);
-    var selId = el.val();
-    var tableName = el.attr('jt-table');
-    var rows = group[tableName];
-    for (var i=0; i<rows.length; i++) {
-        if (rows[i].id + '' === selId) {
-            selRow = rows[i];
-            break;
-        }
-    }
-    var buttons = $('*[jt-select=' + elName + ']');
-    for (var b=0; b<buttons.length; b++) {
-        var but = $(buttons[b]);
-        var enabled = true;
-        if (but.attr('jt-enabledIf') !== undefined) {
-            enabled = eval(but.attr('jt-enabledIf'));
-        }
-        jt.setButtonEnabled(but, enabled);
-    }
-}
+//     var selRow = null;
+//     var el = $('#' + elName);
+//     var selId = el.val();
+//     var tableName = el.attr('jt-table');
+//     var rows = group[tableName];
+//     for (var i=0; i<rows.length; i++) {
+//         if (rows[i].id + '' === selId) {
+//             selRow = rows[i];
+//             break;
+//         }
+//     }
+//     var buttons = $('*[jt-select=' + elName + ']');
+//     for (var b=0; b<buttons.length; b++) {
+//         var but = $(buttons[b]);
+//         var enabled = true;
+//         if (but.attr('jt-enabledIf') !== undefined) {
+//             enabled = eval(but.attr('jt-enabledIf'));
+//         }
+//         jt.setButtonEnabled(but, enabled);
+//     }
+// }
 
-jt.setButtonEnabled = function(but, enabled) {
-    but.prop("disabled",!enabled);
-    if (enabled) {
-        but.removeClass('disabled');
-    } else {
-        but.addClass('disabled');
-    }
-}
+// jt.setButtonEnabled = function(but, enabled) {
+//     but.prop("disabled",!enabled);
+//     if (enabled) {
+//         but.removeClass('disabled');
+//     } else {
+//         but.addClass('disabled');
+//     }
+// }
 
 jt.setStageName = function(name) {
-    console.log('set-stage-name: ' + name);
-
-    $('body').css('display', 'none');
-
     document.title = name;
-    $('[jt-stage]').each(function () {
-        $(this).removeClass('stage-active');
-        if (jt.alwaysShowAllStages) {
-            this.removeAttribute('hidden');
-        } else {
-            this.setAttribute('hidden', true);
-        }
-    });
-
     $('body').css('display', 'block');
-
-    $('[jt-stage="' + name + '"]').each(function () {
-        this.removeAttribute('hidden');
-        $(this).addClass('stage-active');
-        // Clear inputs
-        $(this).find(':input')
+    $('body').find(':input')
         .removeAttr('checked')
         .removeAttr('selected')
         .not(':button, :submit, :reset, :hidden, :radio, :checkbox')
         .val('');
-    });
-
-}
-
-jt.setPlayerStatus = function(newStatus) {
-    console.log('set-player-status: ' + newStatus);
-    $('[jt-status]').each(function () {
-        let attr = $(this).attr('jt-status');
-        if (attr === newStatus ||
-            (attr === 'waiting' && (newStatus === 'ready' || newStatus === 'finished' || newStatus === 'done')) ||
-            (attr === 'active' && newStatus === 'playing')
-        ) {
-            $(this).show();
-        } else {
-            $(this).hide();
-        }
-    });
-}
-
-jt.setStageHasTimeout = function(b) {
-    console.log('setStageHasTimeout: ' + b);
-    if (b) {
-        $('#time-remaining-div').removeAttr('hidden');
-    } else {
-        $('#time-remaining-div').attr('hidden', true);
-    }
 }
 
 jt.clockStop = function(timeLeft) {
@@ -638,7 +506,7 @@ jt.clockStop = function(timeLeft) {
 
 jt.startClock = function(endTime) {
     console.log('clock-start until ' + endTime);
-    jt.setStageHasTimeout(true);
+    jt.vue.hasTimeout = true;
     jt.data.endTime = endTime;
     jt.data.clockRunning = false;
 
@@ -654,6 +522,8 @@ jt.startClock = function(endTime) {
         jt.data.timeLeft = jt.data.endTime - Date.now();
     }
 
+    jt.vue.timeLeft = jt.data.timeLeft;
+
     jt.updateClock(); // update once without starting
 
     jt.data.clockRunning = jt.data.player.stageTimerRunning;
@@ -667,7 +537,7 @@ jt.startClock = function(endTime) {
     console.log('Time left: ' + diff);
     // If there is time left on the clock, set refresh interval.
     if (jt.data.endTime > now && jt.data.clockRunning) {
-        jt.timer = setInterval(jt.updateClock, jt.data.CLOCK_FREQUENCY);
+        jt.timer = setInterval(jt.updateClock, jt.data.CLOCK_FREQUENCY*5);
     }
     // Otherwise, do not set refresh interval.
     else {
@@ -682,6 +552,7 @@ jt.updateClock = function() {
     if (jt.data.clockRunning) {
         var now = Date.now();
         jt.data.timeLeft = jt.data.endTime - now;
+        jt.vue.timeLeft = jt.data.timeLeft;
         if (jt.data.timeLeft <= 0) {
             if (jt.data.player.stageClientDuration > 0) {
                 jt.endStage(jt.data.player);
@@ -701,15 +572,15 @@ jt.updateClock = function() {
             jt.endStage(jt.data.player);
         }
     }
-    jt.displayTime();
+    // jt.displayTime();
     jt.onClockUpdate();
 }
 
 jt.onClockUpdate = function() {}
 
-jt.displayTime = function() {
-    jt.displayTimeLeft($('[jt-text="clock.minutes"]'), $('[jt-text="clock.seconds"]'), jt.data.timeLeft);
-}
+// jt.displayTime = function() {
+//     jt.displayTimeLeft($('[jt-text="clock.minutes"]'), $('[jt-text="clock.seconds"]'), jt.data.timeLeft);
+// }
 
 jt.sendMessage = function(msgName, msgData) {
     var metaData = {player: jt.data.player, data: msgData};

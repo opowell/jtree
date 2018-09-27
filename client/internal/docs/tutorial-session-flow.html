@@ -28,9 +28,20 @@
 </header>
 
 <article>
-    <p>This tutorial describes the sequence of events that happen during a session. In particular, it points out the various functions that can be used to design an app. For more details about this procedure, see the <a href="tutorial-session-flow-details.html">advanced tutorial</a>.</p>
-<p>In jtree, participants progress through a session which consists of apps, periods and stages. In doing so, they take the form of players and groups. Broadly speaking, each object calls <code>playerStart</code> (or <code>groupStart</code>) and <code>playerEnd</code> (or <code>groupEnd</code>) whenever a player (or group) begins or finishes that part of the experiment. Designing the logic of the app is simply a matter of overwriting these methods.</p>
-<p>This is done in the app's <code>app.js</code> file. This file has access to the <code>App</code> object, from which Stages can be created and customized via the <a href="App.html#newStage"><code>App.newStage(id)</code></a> function. Periods can be customized by overwriting the <code>App.createPeriod(id)</code> method.</p>
+    <p>This tutorial describes the sequence of events that happen during an app. In particular, it points out the various functions that can be used to design an app. For more details about this procedure, see the <a href="tutorial-session-flow-details.html">advanced tutorial</a>.</p>
+<p>In a jtree app, participants progress through a series of periods and stages. Within each period repeats the stages. In doing so, they take the form of players and groups. Broadly speaking, each object calls <code>playerStart</code> (or <code>groupStart</code>) and <code>playerEnd</code> (or <code>groupEnd</code>) whenever a player (or group) begins or finishes that part of the experiment.</p>
+<p>For example, in a simple app the sequence of events might be:</p>
+<ol>
+<li>stage1.groupStart(G1);</li>
+<li>stage1.playerStart(P1);</li>
+<li>stage1.playerStart(P2);</li>
+<li>stage1.playerEnd(P1);</li>
+<li>stage1.playerEnd(P2);</li>
+<li>stage1.groupEnd(G1);</li>
+</ol>
+<p>(Note that the order of the player functions (P1, P2) depends on how quickly each player progresses through the app.)</p>
+<p>The logic of the app is implemented by overwriting each of these &quot;start&quot; and &quot;end&quot; methods.</p>
+<p>This is done in the app's source file. This file has access to the <code><a href="App.html">App</a></code> object, from which Stages can be created via the <a href="App.html#newStage"><code>App.newStage(id)</code></a> function. Periods can be customized by overwriting the <code>App.createPeriod(id)</code> method.</p>
 <p>The rest of this tutorial describes approximately the order in which events take place within a session. Due to the option of letting participants progress through different stages without waiting for each other, the actual order of these events may differ in actual sessions.</p>
 <p>At the beginning of an app, the following functions are called:</p>
 <pre class="prettyprint source lang-javascript"><code>eval(app.js) // evaluates the contents of app.js
@@ -43,7 +54,7 @@ Period.groupStart(group)
 Period.playerStart(player)
 // Players go through the stages of the app.
 Period.playerEnd(player)
-Period.groupEnd(group)</code></pre><p>Within the period, players and groups progress through the stages of the app. Within each stage, the following functions are called for the groups and players:</p>
+Period.groupEnd(group)</code></pre><p>Within each period, players and groups progress through the stages of the app. Within each stage, the following functions are called for the groups and players:</p>
 <ol>
 <li><code>player.status</code> is set to <code>'ready'</code>.</li>
 <li>If <code>Stage.waitToStart == true</code>, pause here until all players are ready.</li>
@@ -59,6 +70,7 @@ Period.groupEnd(group)</code></pre><p>Within the period, players and groups prog
 <li>Once all players in the group have ended the stage, <code>Stage.groupEnd(group)</code> is called.</li>
 <li>Group begins procedure for next stage in session, if any.</li>
 </ol>
+<p>When a session is started, all players begin the first app of the session.</p>
 <p>If <a href="Stage.html#waitToStart"><code>Stage.waitToStart</code></a> is <code>true</code>, no player can start the stage (Step 3) until all players in the group are ready.<br>If <a href="Stage.html#waitToEnd"><code>Stage.waitToEnd</code></a> is <code>true</code>, no player can end the stage (Step 9) until all players in the group are finished.<br>As soon as a player ends the stage, they move to the next stage in the session (if there is one) and begin again at the first step of this procedure.</p>
 <p>Groups belong to Periods. This means that whenever a stage has <code>waitToStart</code> as false, groups can &quot;start&quot; that stage before finishing one or more of the group's previous stages.</p>
 </article>
@@ -74,7 +86,7 @@ Period.groupEnd(group)</code></pre><p>Within the period, players and groups prog
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Jul 26 2018 14:20:29 GMT+0200 (Mitteleuropäische Sommerzeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Sep 27 2018 15:40:40 GMT+0200 (GMT+02:00)
 </footer>
 
 <script> prettyPrint(); </script>

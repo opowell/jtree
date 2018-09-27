@@ -1,3 +1,9 @@
+INITIAL
+Install build packages.
+npm install -g pkg
+npm install -g documentation
+npm install -g jsdoc
+
 PROCEDURE
 1. Set version in:
 - build-tools/xxx/buildJTree.xxx
@@ -12,8 +18,8 @@ RUNNING FROM SOURCE
 cd '.\Documents\Github\jtree\client'
 node --inspect '..\server\source\jtree.js'
 node --inspect-brk '..\server\source\jtree.js'
-nodemon -w ..\server\source --inspect '..\server\source\jtree.js'
+nodemon --inspect '..\server\source\jtree.js'
 
-COMPILING A RELEASE
+COMPILING A RELEASE - WINDOWS
 cd '.\Documents\Github\jtree\'
 .\build-tools\win\buildJTree.bat

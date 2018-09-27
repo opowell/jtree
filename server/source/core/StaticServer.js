@@ -28,12 +28,19 @@ class StaticServer {
         var self = this;
         this.expApp = expApp;
 
+        //////////////////////////////
         // FILES TO SERVE
         expApp.use('', express.static(path.join(this.jt.path, jt.settings.participantUI)));
         expApp.use('/help', express.static(path.join(this.jt.path, jt.settings.helpPath)));
+        expApp.use('/source', express.static(path.join(this.jt.path, jt.settings.adminUIsSharedPath)));
         expApp.use('/admin', express.static(this.defaultAdminUIPath()));
+        // expApp.use('/adminShared', express.static(this.adminUIsSharedPath()));
         var adminUIs = fs.readdirSync(this.adminUIsPath());
         for (var i in adminUIs) {
+            // Skip shared folder.
+            // if (adminUIs[i] == 'shared') {
+            //     continue;
+            // }
             var pathToFolder = path.join(this.adminUIsPath(), adminUIs[i]);
             if (fs.lstatSync(pathToFolder).isDirectory()) {
                 expApp.use('/admin/' + adminUIs[i], express.static(pathToFolder));
@@ -41,15 +48,44 @@ class StaticServer {
         }
         expApp.use('/participant', express.static(path.join(this.jt.path, jt.settings.participantUI)));
         expApp.use('/shared', express.static(path.join(this.jt.path, jt.settings.sharedUI)));
-
-        for (var i in jt.data.appsMetaData) {
+        for (let i in jt.data.appsMetaData) {
             let metaData = jt.data.appsMetaData[i];
             expApp.use('/' + metaData.id, express.static(path.parse(metaData.appPath).dir));
         }
+        // END FILE SERVING
+        //////////////////////////////
 
+        //////////////////////////////
         // REQUESTS
         expApp.get('/', function(req, res) {
             self.sendParticipantPage(req, res, 'test', undefined);
+        });
+
+        expApp.get('/api/sessions', function(req, res) {
+            let sessions = self.jt.data.loadSessions();
+            let out = [];
+            for (let i=0; i<sessions.length; i++) {
+                out.push(sessions[i].shell());
+            }
+            res.send(out);
+        });
+
+        expApp.get('/api/apps', function(req, res) {
+            let apps = self.jt.data.getApps();
+            let out = [];
+            for (let i=0; i<apps.length; i++) {
+                out.push(apps[i].metaData());
+            }
+            res.send(out);
+        });
+
+        expApp.get('/api/clients', function(req, res) {
+            let clients = self.jt.data.getClients(req.params.sessionId);
+            // let out = [];
+            // for (let i=0; i<clients.length; i++) {
+            //     out.push(clients[i].shell());
+            // }
+            res.send(clients);
         });
 
         expApp.get('/:pId', this.handleRequest.bind(this));
@@ -115,9 +151,8 @@ class StaticServer {
         });
 
         // Admin interfaces
-        var adminUIs = fs.readdirSync(this.adminUIsPath());
-        for (var i in adminUIs) {
-            var pathToFolder = path.join(this.adminUIsPath(), adminUIs[i]);
+        for (let i in adminUIs) {
+            let pathToFolder = path.join(this.adminUIsPath(), adminUIs[i]);
             if (fs.lstatSync(pathToFolder).isDirectory()) {
                 expApp.get('/admin/' + adminUIs[i], function(req, res) {
                     var ui = req.originalUrl.substring('/admin/'.length);
@@ -132,12 +167,15 @@ class StaticServer {
                 });
             }
         }
+        // END REQUESTS
+        //////////////////////////////
 
+
+        //////////////////////////////
+        // START SERVER
         this.port = jt.settings.port;
         this.ip = ip.address();
-
         this.server = http.Server(expApp);
-        var self = this;
         try {
             this.server.listen(this.port, function() {
                 console.log('###############################################');
@@ -153,9 +191,22 @@ class StaticServer {
                 });
             }
         }
+        //////////////////////////////
 
+        //////////////////////////////
+        // Generate files used by clients.
         this.generateSharedJS();
+        // If running in development mode, recompile client webpack.
+        if (process.argv[0].indexOf('node') > -1) {
+            this.generateClientModels();
+        }
+        //////////////////////////////
 
+    }
+
+    generateClientModels() {
+//        var file = babel.transformFileSync(path.join(this.jt.path, "../server/source/App.js"), {});
+//        fs.writeFileSync(path.join(this.jt.path, 'internal/clients/admin/shared/models.js'), file.code);
     }
 
     handleRequest(req, res) {
@@ -191,6 +242,13 @@ class StaticServer {
 
     adminUIsPath() {
         return path.join(this.jt.path, this.jt.settings.adminUIsPath);
+    }
+
+    /**
+     * Folder containing content common to all admin UIs.
+     */
+    adminUIsSharedPath() {
+        return path.join(this.adminUIsPath(), this.jt.settings.adminUIsSharedPath);
     }
 
     /**
@@ -233,10 +291,20 @@ class StaticServer {
         } else {
             session = Utils.findByIdWOJQ(this.jt.data.sessions, sessionId);
         }
-        if (session === null) {
+
+        // If asked for a particular session, and that session:
+        // - does not exists, send invalid session page.
+        // - does exist, send participant page for that session.
+        // If did not ask for particular session,
+        // - send default start page.
+        if (sessionId != null && session === null) {
             res.sendFile(path.resolve(this.jt.path, './' + this.jt.settings.participantUI + '/invalidSession.html'));
         } else {
-            session.sendParticipantPage(req, res, pId);
+            if (session != null) {
+                session.sendParticipantPage(req, res, pId);
+            } else {
+                res.sendFile(path.join(this.jt.path, this.jt.settings.participantUI + '/readyClient.html'));
+            }
         }
     }
 

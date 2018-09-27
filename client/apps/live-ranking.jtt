@@ -8,10 +8,7 @@ stage1.playerStart = function(player){
 }
 stage1.updateObject='group';
 stage1.activeScreen = `
-      {{group.players[0].x}}
-      {{group.players[1].x}}
-      <form>
-          <div id='tasksDiv'></div>
-          <button>OK</button>
-      </form>
+  <ul>
+    <li v-for='player in group.players'>Player {{ player.idInGroup }}: {{ player.guess | round(3) }}</li>
+  </ul>
 `;
