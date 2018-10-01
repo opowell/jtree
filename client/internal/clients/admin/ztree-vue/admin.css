@@ -1,0 +1,380 @@
+jt-panel {
+    width: 800px;
+    height: 400px;
+    background-color: #a6c4f9;
+    display: flex;
+    flex-direction: column;
+    top: 4rem;
+    left: 4rem;
+}
+
+a:hover {
+    cursor: default;
+}
+
+.jt-panel .panel-title-control .fa-window-restore {
+    display: none;
+}
+
+.jt-panel {
+    width: 800px;
+    height: 400px;
+    background-color: #d5dce8;
+    display: flex;
+    flex-direction: column;
+    /* top: 4rem; */
+    /* left: 4rem; */
+    position: absolute;
+    border: 1px outset #ddd;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-left-radius: 1px;
+    border-bottom-right-radius: 1px;
+    box-shadow: 0px 1px 3px 3px #888;
+}
+
+.sessions-title {
+    display: flex;
+    align-items: baseline;
+    flex: 0 0 auto;
+    padding: 2px 1px;
+    color: #6f6f6f;
+    min-height: 26px;
+}
+
+.panel-title-div {
+    display: flex;
+    align-items: baseline;
+}
+
+.panel-title-text {
+    flex: 1 1 auto;
+    cursor: default;
+    white-space: nowrap;
+    padding-right: 5px;
+}
+
+.panel-title-icon {
+    flex: 0 0 auto;
+    margin-right: 3px;
+}
+
+.panel-title-icon .menu-text {
+    padding: 4px 3px;
+}
+
+.panel-title-control {
+    flex: 0 0 auto;
+    padding: 5px;
+    cursor: default;
+    margin-right: 1px;
+    border-radius: 3px;
+}
+
+.panel-title-control:hover {
+    background-color: #EEE;
+}
+
+.ui-resizable-handle {
+    background-color: inherit;
+}
+
+.ui-resizable-s {
+    border-bottom: 1px outset;
+}
+
+.ui-resizable-n {
+    border-top: 1px outset;
+}
+
+.ui-resizable-w {
+    border-left: 1px outset;
+}
+
+.ui-resizable-e {
+    border-right: 1px outset;
+}
+
+.ui-resizable-nw {
+    border-top: 1px outset;
+    border-left: 1px outset;
+    cursor: nw-resize;
+    width: 7px;
+    height: 7px;
+    top: -5px;
+    left: -5px;
+    border-radius: 5px 0px 0px 0px;
+}
+
+.ui-resizable-ne {
+    border-top: 1px outset;
+    border-right: 1px outset;
+    cursor: ne-resize;
+    width: 7px;
+    height: 7px;
+    right: -5px;
+    top: -5px;
+    border-radius: 0px 5px 0px 0px;
+}
+
+.ui-resizable-sw {
+    border-bottom: 1px outset;
+    border-left: 1px outset;
+    cursor: sw-resize;
+    width: 7px;
+    height: 7px;
+    left: -5px;
+    bottom: -5px;
+    border-radius: 0px 0px 0px 5px;
+}
+
+.ui-resizable-se {
+    border-bottom: 1px outset;
+    border-right: 1px outset;
+    cursor: se-resize;
+    width: 7px;
+    height: 7px;
+    right: -5px;
+    bottom: -5px;
+    border-radius: 0px 0px 5px 0px;
+}
+
+panel-content {
+    background-color: #fff;
+    flex: 1 1 auto;
+    padding: 2px 6px;
+    border: 1px inset rgba(0,0,0,0.3);
+    overflow: auto;
+}
+
+.sessions-content {
+    background-color: #fff;
+    flex: 1 1 auto;
+    padding: 2px 6px;
+    border: 1px inset rgba(0,0,0,0.3);
+    overflow: auto;
+}
+
+panel-title {
+    flex: 0 0 auto;
+    padding: 2px 1px;
+    color: #6f6f6f;
+    min-height: 26px;
+}
+
+.menudditem:focus {
+    background-color: rgba(0,123,255,.5);
+}
+
+.menudditem-shortcut {
+    flex: 0 0 auto;
+    margin-left: 4rem;
+}
+
+.menudditem-text {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: baseline;
+}
+
+.menudditem-text i {
+    margin-right: 8px;
+    width: 12px;
+}
+
+.menudditem {
+    display: flex;
+    cursor: default;
+    padding-left: 5px;
+    color: #000;
+    padding-right: 3px;
+}
+
+.menudditem:hover {
+    background-color: rgba(0,123,255,.25);
+}
+
+.menu {
+    display: none;
+}
+
+.menu-dropdown {
+    display: none;
+    margin: 0px;
+    padding: 3px;
+    transform: translate3d(0px, 0px, 0px) !important;
+    border-radius: 0px;
+    box-shadow: 1px 1px 1px 1px #00000057;
+    background-color: hsla(0, 0%, 97%, 1);
+}
+
+#jt-menu .menu-text {
+    padding: 0px 7px;
+    z-index: 10000;
+}
+
+.menu-text {
+    cursor: default;
+    border-radius: 0px;
+    border-width: 1px;
+    border-color: rgba(0,0,0,0);
+    border-style: solid;
+    font-size: 9pt;
+    background-color: inherit;
+    outline: none;
+    box-shadow: none;
+    display: flex;
+}
+
+.menu-text i {
+    align-self: center;
+}
+
+.menubar-focussed .menu-text-first {
+    text-decoration: underline;
+}
+
+.menu-text-first {
+
+}
+
+.menu-text-rest {
+
+}
+
+.menu-active {
+    display: flex;
+}
+
+.menu.show {
+    border-color: rgb(123, 206, 153);
+    box-shadow: none;
+    outline: none;
+}
+
+.dropdown-divider {
+    margin: 2px 0px;
+}
+
+.menu-text:hover {
+    background-color: rgba(0, 123, 255, 0.13);
+        border-color: rgba(0, 123, 255, 0.26);
+}
+
+.menu-focussed {
+    box-shadow: none;
+    background-color: rgba(0, 123, 255, 0.25);
+        border-color: rgba(0, 123, 255, 0.50);
+}
+
+.menu-focussed:hover {
+    background-color: rgba(0, 123, 255, 0.25);
+        border-color: rgba(0, 123, 255, 0.50);
+}
+
+#jt-menu {
+    display: flex;
+    background-color: rgb(251, 251, 251);
+    align-items: stretch;
+    border-bottom: 1px solid;
+}
+
+body {
+    margin: 0px;
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+}
+
+#content-window {
+    background-color: #b3b3b3;
+    flex: 1 1 auto;
+    position: relative;
+    display: flex;
+}
+
+* {
+    font-size: 9pt;
+}
+
+.jt-panel .panel-title-control.fa-window-restore {
+    display: none;
+}
+
+.panel-max {
+    position: unset;
+    width: auto;
+    height: auto;
+    flex: 1 1 auto;
+    display: none;
+    box-shadow: none;
+    border: none;
+}
+
+.panel-max panel-content {
+    border: none;
+    border-top: 1px solid #888;
+}
+
+.panel-minimized {
+    height: auto !important;
+}
+
+.panel-minimized > panel-content {
+    display: none;
+}
+
+.panel-minimized .panel-title-control.fa-window-restore {
+    display: block;
+}
+
+.panel-max .panel-title-control.fa-window-restore {
+    display: block;
+}
+
+.panel-minimized .panel-title-control.fa-window-minimize {
+    display: none;
+}
+
+.panel-minimized .ui-resizable-handle {
+    display: none;
+}
+
+.focussed-panel {
+    background-color: #9ec1de;
+    display: flex;
+}
+
+.focussed-panel > panel-title {
+    color: #000;
+}
+
+.panel-max panel-title {
+    display: none;
+}
+
+.panel-max .ui-resizable-handle {
+    display: none;
+}
+
+.panel-title-icon .menu-text:hover {
+    background-color: #EEE;
+}
+
+.menudditem-arrow {
+    width: 20px;
+    position: relative;
+    padding-left: 3px;
+    padding-right: 3px;
+    text-align: center;
+}
+
+.menuitem-dropright {
+    top: -4px;
+    left: 100%;
+}
+
+.modal {
+    z-index: 20000;
+}

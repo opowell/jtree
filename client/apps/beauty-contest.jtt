@@ -4,7 +4,7 @@ app.description = 'Players make a guess between 0 and 100. Winner is the player 
 app.multiplier  = 2/3;
 app.lowerBound  = 0;
 app.upperBound  = 100;
-app.numPeriods  = 50;
+app.numPeriods  = 5;
 app.prize       = 10;
 
 var decideStage = app.newStage('decide');

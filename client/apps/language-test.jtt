@@ -16,7 +16,5 @@ demoStage.activeScreen = `
     Подождите, пожалуйста, эксперимент.
     <h4>Hebrew</h4>
     המתן לניסוי.
-    <form>
-        <button>OK</button>
-    </form>
+    <br><br>
 `

@@ -105,6 +105,8 @@ class App {
         this.textMarkerBegin = '{{{';
         this.textMarkerEnd = '}}}';
 
+        this.useVue = true;
+
         /**
          * The number of periods in this App.
          * @type number
@@ -630,7 +632,10 @@ class App {
                 } else if (stage.wrapPlayingScreenInFormTag === 'no') {
                     wrapInForm = false;
                 } else if (stage.wrapPlayingScreenInFormTag === 'onlyIfNoButton') {
-                    if (!stage.activeScreen.includes('<button')) {
+                    if (
+                        !stage.activeScreen.includes('<button') ||
+                        stage.addOKButtonIfNone
+                        ) {
                         wrapInForm = true;
                     } else {
                         wrapInForm = false;
@@ -640,8 +645,7 @@ class App {
                     stageHTML += '<form>\n';
                 }
                 stageHTML += stage.activeScreen + '\n';
-                let addOKButtonIfNone = stage.addOKButtonIfNone;
-                if (addOKButtonIfNone) {
+                if (stage.addOKButtonIfNone) {
                     if (!stageHTML.includes('<button')) {
                         stageHTML += `<button>OK</button>`;
                     }

@@ -215,15 +215,63 @@ jt.mountVue = function(player) {
             computed: vueComputed,
             mounted: function() {
                 jt.setFormDefaults();
+                jt.setValues();
             }
         });
     } else {
         jt.vue = {};
         jt.setFormDefaults();
+        jt.setValues();
     }
 
     jt.vueMounted = true;
     jt.updatePlayer(player, false);
+
+}
+
+jt.setValues = function(player) {
+    let clock = jt.getClock(jt.data.timeLeft);
+
+    $('*').each(function(index) {
+        let atts = this.attributes;
+        for (var i=0; i<atts.length; i++){
+            var att = atts[i];
+            if (att.name.startsWith('jt-')) {
+                if (att.name === 'jt-html') {
+                    let val = jt.eval(att.value, player, clock);
+                    val = jt.formatValue(this, val);
+                    this.innerHTML = val;
+                } else if (att.name === 'jt-text') {
+                    let val = jt.eval(att.value, player, clock);
+                    val = jt.formatValue(this, val);
+                    $(this).text(val);
+                } else if (
+                    jt.specialAttrNames.includes(att.name)
+                ) {
+                    // DO NOTHING
+                } else {
+                    try {
+                        let val = jt.eval(att.value, player, clock);
+                        var attrName = att.name.substring('jt-'.length);
+                        var stepSize = $(this).attr('step');
+                        if (stepSize != null) {
+                            switch (attrName) {
+                            case 'max':
+                                val = Math.floor(val/stepSize)*stepSize;
+                                break;
+                            case 'min':
+                                val = Math.ceil(val/stepSize)*stepSize;
+                                break;
+                            }
+                        }
+                        this.setAttribute(attrName, val);
+                    } catch (err) {
+                        console.log('ERROR in defaultClient.js: \n' + err);
+                    }
+                }
+            }
+        }
+    });
 
 }
 
@@ -235,10 +283,13 @@ jt.updatePlayer = function(player, updateVue) {
 
     console.log('playerUpdate');
 
+    // Re-establish object links.
     player.participant.session = player.group.period.app.session;
     if (player.stage !== undefined) {
         player.stage.app = player.group.period.app;
     }
+
+    jt.data.player = player; // TODO: Remove.
 
     if (!jt.vueMounted) {
         jt.mountVue(player);
@@ -251,16 +302,11 @@ jt.updatePlayer = function(player, updateVue) {
             jt.vue.stage = player.stage;
             jt.vue.app = player.stage.app;
             jt.vue.participant = player.participant;
+            jt.setValues(player);
         }
     }
 
-    jt.data.player = player; // TODO: Remove.
-//        window.player = player;
-
-    // Re-establish object links.
     window.scrollTo(0, 0);
-
-    jt.setValues(player);
 
     if (player.stage !== undefined) {
         jt.setStageName(player.stage.id);
@@ -368,7 +414,7 @@ jt.defaultConnected = function() {
     });
 
     jt.socket.on('playerUpdate', function(player) {
-        jt.updatePlayer(player, false);
+        jt.updatePlayer(player, true);
     });
 
     jt.socket.on('logged-in', function(id){

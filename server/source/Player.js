@@ -535,7 +535,7 @@ class Player {
             out.stageTimerRunning = this.group.stageTimer.running;
         }
 
-        if (this.stage.clientDuration > 0) {
+        if (this.stage != null && this.stage.clientDuration > 0) {
             out.stageClientDuration = this.stage.clientDuration;
         }
 

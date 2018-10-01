@@ -1,14 +1,10 @@
 app.description = 'Shares are traded for experimental currency in a double auction. Shares pay random dividends every period. At the end of the game, shares are worth nothing. Reference: <a target="_blank" href="https://www.jstor.org/stable/1911361">Smith, Suchanek and Williams, 1988</a>.';
-app.useVue = false;
 
 // Define parameters.
 app.numPeriods  = 10;
 app.endowCash   = 720;
 app.endowShares = 3;
 app.divs        = [0, 8, 28, 60];
-app.html = '';
-app.htmlFile = 'client.html';
-app.insertJtreeRefAtStartOfClientHTML = false;
 
 // Trading stage.
 var tradingStage = app.newStage('trading');
