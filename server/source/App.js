@@ -121,7 +121,11 @@ class App {
          */
         this.insertJtreeRefAtStartOfClientHTML = true;
 
-        /** Shown on all client screens.*/
+        /**
+         * Shown on all client screens.
+         * @type String
+         * @default 
+         */ 
         this.html = `
             <!DOCTYPE html>
             <html>
@@ -674,7 +678,20 @@ class App {
                 waitingScreensHTML += '\n';
             }
             waitingScreensHTML += waitingScreenHTML;
-    }
+        }
+
+        let strippedScripts = '';
+
+        while (stagesHTML.includes('<script')) {
+            let start = stagesHTML.indexOf('<script');
+            let end = stagesHTML.indexOf('/script>') + '/script>'.length;
+            if (start == -1 || end == -1 || start >= end) {
+                break;
+            }
+            
+            strippedScripts += stagesHTML.substring(start, end);
+            stagesHTML = stagesHTML.substring(0, start) + stagesHTML.substring(end);
+        }
 
         if (html.includes('{{stages}}')) {
             html = html.replace('{{stages}}', stagesHTML);
@@ -700,7 +717,7 @@ class App {
             html = '<script type="text/javascript" src="/participant/jtree.js"></script>\n' + html;
         }
 
-        let scriptsHTML = '';
+        let scriptsHTML = strippedScripts;
         if (app.clientScripts != null) {
             if (!app.clientScripts.trim().startsWith('<script')) {
                 scriptsHTML = '<script>' + app.clientScripts + '</script>';

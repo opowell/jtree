@@ -40,6 +40,8 @@ class Data {
         this.apps = {};
         this.appsMetaData = {};
 
+        //this.queues = this.loadQueues();
+        this.queues = [];
         this.loadApps();
 
         /*
@@ -50,8 +52,6 @@ class Data {
         this.sessions = this.loadSessions();
 
         this.rooms = this.loadRooms();
-
-        this.queues = this.loadQueues();
 
         this.users = this.loadUsers();
 
@@ -181,9 +181,15 @@ class Data {
                 var curPath = path.join(dir, appDirContents[i]);
                 var curPathIsFile = fs.lstatSync(curPath).isFile();
                 var curPathIsFolder = fs.lstatSync(curPath).isDirectory();
-                if ((curPath.endsWith('.js') || curPath.endsWith('.jtt')) && curPathIsFile) {
+                if (curPathIsFile) {
+                    console.log('check queue: ' + id);
+
                     var id = appDirContents[i];
+
+                    let isApp = false;
+                    // Treatment / App
                     if (id == 'app.js' || id == 'app.jtt') {
+                        isApp = true;
                         // Take id from path name.
                         if (dir.lastIndexOf('/') > -1) {
                             id = dir.substring(dir.lastIndexOf('/') + 1);
@@ -192,15 +198,27 @@ class Data {
                         }
                     }
                     if (id.endsWith('.js')) {
+                        isApp = true;
                         id = id.substring(0, id.length - '.js'.length);
                     } else if (id.endsWith('.jtt')) {
+                        isApp = true;
                         id = id.substring(0, id.length - '.jtt'.length);
                     }
-                    let app = this.loadApp(id, null, curPath, {});
-                    if (app != null) {
-                        // this.apps[id] = app;
-                        // this.appsMetaData[id] = app.metaData();
-                        out.push(app);
+                    if (isApp) {
+                        let app = this.loadApp(id, null, curPath, {});
+                        if (app != null) {
+                            // this.apps[id] = app;
+                            // this.appsMetaData[id] = app.metaData();
+                            out.push(app);
+                        }
+                    }
+
+                    // Queue / Session Config
+                    if (id.endsWith('.jtq')) {
+                        id = id.substring(0, id.indexOf('.jtq'));
+                        var queue = Queue.loadJTQ(id, this.jt, curPath);
+                        console.log('loading queue ' + queue.id);
+                        out.push(queue);
                     }
                 } else if (curPathIsFolder) {
                     out = out.concat(this.getAppsFromDir(curPath));
@@ -219,24 +237,41 @@ class Data {
                 var curPath = path.join(dir, appDirContents[i]);
                 var curPathIsFile = fs.lstatSync(curPath).isFile();
                 var curPathIsFolder = fs.lstatSync(curPath).isDirectory();
-                if ((curPath.endsWith('.js') || curPath.endsWith('.jtt')) && curPathIsFile) {
+                if (curPathIsFile) {
                     var id = appDirContents[i];
+
+                    let isApp = false;
+                    // Treatment / App
                     if (id == 'app.js' || id == 'app.jtt') {
+                        isApp = true;
                         // Take id from path name.
                         if (dir.lastIndexOf('/') > -1) {
                             id = dir.substring(dir.lastIndexOf('/') + 1);
                         } else if (dir.lastIndexOf('\\') > -1) {
                             id = dir.substring(dir.lastIndexOf('\\') + 1);
                         }
-                    } else if (id.endsWith('.js')) {
+                    }
+                    if (id.endsWith('.js')) {
+                        isApp = true;
                         id = id.substring(0, id.length - '.js'.length);
                     } else if (id.endsWith('.jtt')) {
+                        isApp = true;
                         id = id.substring(0, id.length - '.jtt'.length);
                     }
-                    let app = this.loadApp(id, null, curPath, {});
-                    if (app != null) {
-                        this.apps[curPath] = app;
-                        this.appsMetaData[curPath] = app.metaData();
+                    if (isApp) {
+                        let app = this.loadApp(id, null, curPath, {});
+                        if (app != null) {
+                            this.apps[curPath] = app;
+                            this.appsMetaData[curPath] = app.metaData();
+                        }
+                    }
+
+                    // Queue / Session Config
+                    if (id.endsWith('.jtq')) {
+                        id = id.substring(0, id.indexOf('.jtq'));
+                        var queue = Queue.loadJTQ(id, this.jt, dir);
+                        console.log('loading queue ' + curPath);
+                        this.queues[curPath] = queue;
                     }
                 } else if (curPathIsFolder) {
                     this.loadAppDir(curPath);
@@ -311,14 +346,14 @@ class Data {
         return app;
     }
 
-    getApps() {
-        var out = [];
-        for (var i in this.jt.settings.appFolders) {
-            var folder = this.jt.settings.appFolders[i];
-            out = out.concat(this.getAppsFromDir(folder));
-        }
-        return out;
-    }
+    // getApps() {
+    //     var out = [];
+    //     for (var i in this.jt.settings.appFolders) {
+    //         var folder = this.jt.settings.appFolders[i];
+    //         out = out.concat(this.getAppsFromDir(folder));
+    //     }
+    //     return out;
+    // }
 
     loadApps() {
         for (var i in this.jt.settings.appFolders) {

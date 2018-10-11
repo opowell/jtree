@@ -292,7 +292,7 @@ msgs.sessionDeleteParticipant = function(md) {
 }
 
 msgs.addParticipant = function(participant) {
-    if (participant.session.id === jt.data.session.id) {
+    if (jt.data.session != null && participant.session.id === jt.data.session.id) {
         console.log('add participant: ' + participant);
         jt.data.session.participants[participant.id] = participant;
         showParticipant(participant);

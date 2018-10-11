@@ -159,7 +159,7 @@ class Msgs {
         var queue = this.jt.data.queue(data.qId);
         for (var a in queue.apps) {
             var app = queue.apps[a];
-            var d = {sId: session.id, appId: app.appId, options: app.options};
+            var d = {sId: session.id, appPath: app.appId, options: app.options};
             this.sessionAddApp(d);
         }
         this.openSession(session.id, sock);

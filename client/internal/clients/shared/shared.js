@@ -12,7 +12,7 @@ jt.data.timeLeft = 0;
 jt.data.clockRunning = false;
 jt.data.CLOCK_FREQUENCY = 100; // in ms
 
-jt.serverIP = '192.168.32.134';
+jt.serverIP = '137.208.208.202';
 jt.serverPort = '80';
 jt.server = {};
 

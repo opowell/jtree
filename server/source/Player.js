@@ -137,7 +137,9 @@ class Player {
         if (stage.canPlayerParticipate(player)) {
             player.status = 'playing';
             try {
-                console.log(this.jt().settings.getConsoleTimeStamp() + ' START - PLAYER: ' + stage.id + ', ' + player.roomId());
+                let timeStamp = this.jt().settings.getConsoleTimeStamp();
+                console.log(timeStamp + ' START - PLAYER: ' + stage.id + ', ' + player.roomId());
+                player['timeStart_' + stage.id] = timeStamp;
                 stage.playerStart(player);
             } catch(err) {
                 console.log(err + '\n' + err.stack);
@@ -220,7 +222,11 @@ class Player {
             return;
         }
 
-        console.log(this.jt().settings.getConsoleTimeStamp() + ' END   - PLAYER: ' + stage.id + ', ' + player.roomId());
+        let timeStamp = this.jt().settings.getConsoleTimeStamp();
+        console.log(timeStamp + ' END   - PLAYER: ' + stage.id + ', ' + player.roomId());
+        player['timeEnd_' + stage.id] = timeStamp;
+        player['msInStage_' + stage.id] = Utils.dateFromStr(timeStamp) - Utils.dateFromStr(player['timeStart_' + stage.id]);
+
         stage.playerEnd(this);
         this.status = 'done';
 //        this.group.attemptToEndStage(stage);

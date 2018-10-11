@@ -15,6 +15,7 @@ class Queue {
         this.apps           = [];
     }
 
+    /** Deprecated 2018.10.11. Replaced by Queue.loadJTQ. */
     static load(fn, id, jt) {
         var queue = new Queue(id, jt);
 
@@ -29,6 +30,33 @@ class Queue {
             }
         }
 
+        return queue;
+    }
+
+    static loadJTQ(id, jt, folder) {
+        var queue = new Queue(id, jt);
+        let fullPath = path.join(folder, id + '.jtq');
+        if (fs.existsSync(fullPath)) {
+            var json = Utils.readJSON(fullPath);
+            if (json.displayName !== undefined) {
+                queue.displayName = json.displayName;
+            }
+            if (json.apps !== undefined) {
+                for (let i=0; i<json.apps.length; i++) {
+                    let curJSON = json.apps[i];
+                    let appId = curJSON;
+                    if (curJSON.appId != null) {
+                        appId = curJSON.appId;
+                    }
+                    let app = {
+                        appId: path.join(folder, appId + '.jtt'),
+                        "options": {},
+                        "indexInQueue": i+1
+                    };
+                    queue.apps.push(app);
+                }
+            }
+        }
         return queue;
     }
 
@@ -77,3 +105,4 @@ class Queue {
 var exports = module.exports = {};
 exports.new = Queue;
 exports.load = Queue.load;
+exports.loadJTQ = Queue.loadJTQ;

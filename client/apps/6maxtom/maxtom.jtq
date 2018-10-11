@@ -1,0 +1,7 @@
+{
+    "apps": [
+        "implicit",
+        "survey",
+        "public-good"
+    ]
+}

@@ -187,16 +187,6 @@ jt.connected = function() {
 
   jt.registerKeyEvents();
 
-  var focusOnHover = true;
-  for (var i in jt.menuDefns) {
-      var defn = jt.menuDefns[i];
-      $('#jt-menu').append(jt.MenuEl(defn, focusOnHover));
-  }
-
-  $('#menu-activePanel').removeClass('menu-active');
-  $('#menu-minPanel').removeClass('menu-active');
-  $('#menu-restorePanel').removeClass('menu-active');
-  $('#menu-closePanel').removeClass('menu-active');
   $('#menu-\\?').css('flex-grow', '1');
 
   $.getJSON('/shared/docjs.json', function(data) {
@@ -208,11 +198,13 @@ jt.connected = function() {
     console.log('FINISHED LOADING docs');
   });
 
-  jt.Modal_AppProperties_init();
-  jt.Modal_HTMLEditor_init();
-  jt.Modal_KeyboardShortcuts_init();
-  jt.Modal_SelectApp_init();
-  jt.Modal_TreatmentCode_init();
+//   jt.Modal_AppProperties_init();
+//   jt.Modal_HTMLEditor_init();
+//   jt.Modal_KeyboardShortcuts_init();
+//   jt.Modal_SelectApp_init();
+//   jt.Modal_TreatmentCode_init();
+
+  jt.data.appInfos = {};
 
   jt.models = {
     apps: [],
@@ -221,18 +213,18 @@ jt.connected = function() {
     activeSession: null
   }
 
-  new Vue({
-    el: '#content-window',
-    data: jt.models
-  });
+//   new Vue({
+//     el: '#content-window',
+//     data: jt.models
+//   });
 
-  Syc.connect(jt.socket);
-  Syc.loaded(function () {
-          Syc.list('syncData');
-          Syc.watch(Syc.list('syncData'), function (change) { 
-            console.log(JSON.stringify(change));
-         });
- });
+//   Syc.connect(jt.socket);
+//   Syc.loaded(function () {
+//           Syc.list('syncData');
+//           Syc.watch(Syc.list('syncData'), function (change) { 
+//             console.log(JSON.stringify(change));
+//          });
+//  });
 
 }
 

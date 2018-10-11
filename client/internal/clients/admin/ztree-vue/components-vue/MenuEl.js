@@ -17,8 +17,8 @@ export default {
       }
     },
     template: `
-      <div class="menu menu-active dropdown">
-        <div class="menu-text" tabindex="-1">
+      <div class="menu dropdown" :class='{ "menu-active": menu.isActive !== false }' :id='"menu-" + menu.id'>
+        <div class="menu-text" tabindex="-1" @click='click' @mouseover='hover'>
           <template v-if='menu.icon'>
             <i :class="menu.icon"></i>
           </template>
@@ -32,4 +32,26 @@ export default {
         </div>
       </div>
       `,
+      methods: {
+        click: function(ev) {
+          ev.stopPropagation();
+          var menu = $(ev.target).closest('.menu');
+          if (menu.hasClass('show')) {
+              jt.closeMenu();
+          } else {
+              jt.openMenu(menu);
+          }
+        },
+        hover: function(ev) {
+          // Explicitly turn off, otherwise leave on.
+          if (this.menu.focusOnHover !== false) {
+            // Is there a menu open?
+            var menuOpen = $('.menu.show').length > 0;
+            var menu = $(ev.target).closest('.menu');
+            if (menuOpen && !menu.hasClass('show')) {
+                $(ev.target).click();
+            }
+          }
+        }
+      }
     };

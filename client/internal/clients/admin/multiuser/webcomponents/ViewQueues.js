@@ -48,10 +48,10 @@ function showQueue(queue) {
     try {
         div.append($('<td>').text(queue.id));
         div.append($('<td>').text(queue.displayName));
-        var appsText = queue.apps.length + ': ';
+        var appsText = '';
         for (var i=0; i<queue.apps.length; i++) {
             var app = queue.apps[i];
-            appsText += app.appId;
+            appsText += app.indexInQueue + ': ' + app.appId;
             // if (objLength(app.options) > 0) {
             //     appsText += '(';
             //     for (var j in app.options) {
@@ -61,11 +61,11 @@ function showQueue(queue) {
             //     appsText = appsText.substring(0, appsText.length - 2);
             //     appsText += ')';
             // }
-            // if (i < queue.apps.length - 1) {
-            //     appsText += ', ';
-            // }
+            if (i < queue.apps.length - 1) {
+                appsText += '<br>';
+            }
         }
-        div.append($('<td>').text(appsText));
+        div.append($('<td>').html(appsText));
         var que = queue;
         var qId = que.id;
 

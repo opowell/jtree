@@ -265,6 +265,18 @@ class Utils {
         return date.year + date.formattedMonth + date.formattedDay + "-" +  date.formattedHour + date.formattedMinute + date.formattedSecond + '-' + date.formattedMS;
     }
 
+    static dateFromStr(str) {
+        str = 
+            str.substring(0, 4) + '-' + 
+            str.substring(4, 6) + '-' + 
+            str.substring(6, 8) + 'T' + 
+            str.substring(9, 11) + ':' + 
+            str.substring(11, 13) + ':' + 
+            str.substring(13, 15) + '.' + 
+            str.substring(16, 19);
+        return new Date(str);
+    }
+
     static min(array, field) {
         var out = null;
         for (var i=0; i<array.length; i++) {

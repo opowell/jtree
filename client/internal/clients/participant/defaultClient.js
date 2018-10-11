@@ -150,6 +150,7 @@ window.onbeforeunload = function(ev) {
 };
 
 jt.vueMounted = false;
+jt.vueMethods = {};
 
 jt.mountVue = function(player) {
     let vueModel = {
@@ -175,7 +176,7 @@ jt.mountVue = function(player) {
         groupOtherPlayers: function() {
             let players = [];
             let me = this.player;
-            if (this.group.players != null) {
+            if (this.group.players != null && this.group.players.length > 0) {
                 players = this.group.players.filter(function (grpPlyr) {
                     return grpPlyr.id !== me.id;
                 })
@@ -213,6 +214,7 @@ jt.mountVue = function(player) {
             el: '#jtree',
             data: vueModel,
             computed: vueComputed,
+            methods: jt.vueMethods,
             mounted: function() {
                 jt.setFormDefaults();
                 jt.setValues();
@@ -469,6 +471,9 @@ jt.defaultConnected = function() {
 }
 
 jt.endStage = function(player) {
+    if (player == null) {
+        player = jt.data.player;
+    }
     if (
         jt.data.player.id === player.id &&
         jt.data.player.group.period.id === player.group.period.id &&
