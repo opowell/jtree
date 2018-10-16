@@ -1,4 +1,4 @@
-## Getting started
+## jtree
 Download for your system, unzip and run.
 
 Latest version (2018.10.16): *0.6.6*
