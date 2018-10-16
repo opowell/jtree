@@ -5,7 +5,7 @@ REM - pkg
 
 REM Call from root folder (/jtree), which should be two levels up from this file (jtree/build-tools/win/buildJTree.bat).
 
-set "vers=0.6.5"
+set "vers=0.6.6"
 
 REM ------- Prepare output folder.
 call del ".\releases\%vers%" /Q /F
@@ -44,10 +44,10 @@ call del ".\releases\%vers%\internal\serverState*.*" /Q /F
 call del ".\releases\%vers%\internal\settings.js" /Q /F
 
 REM ------- Create zip files
-call .\build-tools\win\7z.exe a ".\releases\%vers%\jtree-%vers%-winxp.zip" ".\releases\%vers%\jtree-win-x86.exe" ".\releases\%vers%\apps" ".\releases\%vers%\queues" ".\releases\%vers%\internal" ".\releases\%vers%\help.html"
-call .\build-tools\win\7z.exe a ".\releases\%vers%\jtree-%vers%-win.zip" ".\releases\%vers%\jtree-win-x64.exe" ".\releases\%vers%\apps" ".\releases\%vers%\queues" ".\releases\%vers%\internal" ".\releases\%vers%\help.html"
-call .\build-tools\win\7z.exe a ".\releases\%vers%\jtree-%vers%-macos.zip" ".\releases\%vers%\jtree-macos-x64" ".\releases\%vers%\apps" ".\releases\%vers%\queues" ".\releases\%vers%\internal" ".\releases\%vers%\help.html"
-call .\build-tools\win\7z.exe a ".\releases\%vers%\jtree-%vers%-linux.zip" ".\releases\%vers%\jtree-linux-x64" ".\releases\%vers%\apps" ".\releases\%vers%\queues" ".\releases\%vers%\internal" ".\releases\%vers%\help.html"
+call .\build-tools\win\7z.exe a ".\releases\%vers%\jtree-%vers%-winxp.zip" ".\releases\%vers%\jtree-win-x86.exe" ".\releases\%vers%\apps" ".\releases\%vers%\internal" ".\releases\%vers%\help.html"
+call .\build-tools\win\7z.exe a ".\releases\%vers%\jtree-%vers%-win.zip" ".\releases\%vers%\jtree-win-x64.exe" ".\releases\%vers%\apps" ".\releases\%vers%\internal" ".\releases\%vers%\help.html"
+call .\build-tools\win\7z.exe a ".\releases\%vers%\jtree-%vers%-macos.zip" ".\releases\%vers%\jtree-macos-x64" ".\releases\%vers%\apps" ".\releases\%vers%\internal" ".\releases\%vers%\help.html"
+call .\build-tools\win\7z.exe a ".\releases\%vers%\jtree-%vers%-linux.zip" ".\releases\%vers%\jtree-linux-x64" ".\releases\%vers%\apps" ".\releases\%vers%\internal" ".\releases\%vers%\help.html"
 call del ".\releases\%vers%\jtree-win-x86.exe" /Q /F
 call del ".\releases\%vers%\jtree-win-x64.exe" /Q /F
 call del ".\releases\%vers%\jtree-macos-x64" /Q /F

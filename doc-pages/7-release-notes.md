@@ -1,3 +1,7 @@
+##### 2018.10.16 - 0.6.6
+- Queues turned on by default.
+- Record time spent in each stage.
+
 ##### 2018.09.27 - 0.6.5
 - Integrate Vue.js on clients.
 - Added: Double auction app.

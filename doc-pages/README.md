@@ -2,7 +2,7 @@
 
 <a href='https://opowell.github.io/jtree'>opowell.github.io/jtree</a>
 
-A toolbox for running economics experiments.
+A javascript toolbox for running economics experiments.
 
 #### Features
 - easy to program: uses Javascript, a widely-known programming language

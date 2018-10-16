@@ -48,12 +48,7 @@ class Queue {
                     if (curJSON.appId != null) {
                         appId = curJSON.appId;
                     }
-                    let app = {
-                        appId: path.join(folder, appId + '.jtt'),
-                        "options": {},
-                        "indexInQueue": i+1
-                    };
-                    queue.apps.push(app);
+                    queue.addApp(path.join(folder, appId + '.jtt'));
                 }
             }
         }
@@ -73,10 +68,19 @@ class Queue {
     * @param  {string} appId The ID of the app to add to this session.
     */
     addApp(appId, options) {
-        var app = {appId: appId, options: options, indexInQueue: this.apps.length+1};
+        if (options == null) {
+            options = {};
+        }
+        var app = {
+            appId: appId, 
+            options: options, 
+            indexInQueue: this.apps.length + 1
+        };
         this.apps.push(app);
-        this.save();
-        this.jt.socketServer.sendOrQueueAdminMsg(null, 'queueAddApp', {queueId: this.id, app: app});
+        if (this.jt.socketServer != null) {
+            this.save();
+            this.jt.socketServer.sendOrQueueAdminMsg(null, 'queueAddApp', {queueId: this.id, app: app});
+        }
     }
 
     shell() {

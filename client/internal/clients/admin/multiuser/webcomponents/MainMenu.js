@@ -15,7 +15,7 @@ class MainMenu extends HTMLElement {
                           Apps
                       </span>
                   </li>
-                  <li class="nav-item" queues-mode='show'>
+                  <li class="nav-item">
                       <span id='tab-queues' class="nav-link view-tab" onclick='setView("queues")'>
                           Queues
                       </span>

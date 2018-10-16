@@ -45,20 +45,6 @@ class ViewSettings extends HTMLElement {
 
           <h5 class='mt-3'>Personal</h5>
           <div>These settings only affect the users of this computer. They are stored in the browser.</div>
-          <h6 class='mt-3 mb-2'>Queues menu</h6>
-          <small class="form-text text-muted">By default, Queues are hidden until one has been created.</small>
-          <div class="form-check mt-3">
-            <input class="form-check-input" type="radio" name="settings-queues-menu" id="queues-mode-hide" value="basic" onchange='jt.setQueuesMode("hide");'>
-            <label class="form-check-label" for="queues-mode-hide">
-                Hide
-            </label>
-          </div>
-          <div class="form-check mt-3">
-            <input class="form-check-input" type="radio" name="settings-queues-menu" id="queues-mode-show" value="basic" onchange='jt.setQueuesMode("show");'>
-            <label class="form-check-label" for="queues-mode-show">
-                Show
-            </label>
-          </div>
 
           <h6 class='mt-3 mb-2'>Interface mode</h6>
           <div class="form-check mt-3">
@@ -78,7 +64,6 @@ class ViewSettings extends HTMLElement {
 
           <h6 class='mt-3 mb-2'>Content folders</h6>
           <div>jtree.path/apps</div>
-          <div>jtree.path/queues</div>
           <div>jtree.path/sessions</div>
 
       </div>
@@ -127,19 +112,6 @@ jt.updateLogoutLink = function() {
     } else {
         $('#logoutLink').addClass('hidden');
     }
-}
-
-jt.setQueuesMode = function(mode) {
-    jt.queuesMode = mode;
-    localStorage.setItem('queuesMode', mode);
-    if (mode === 'show') {
-        $('#queues-mode-show').prop('checked', true);
-    }
-    else if (mode === 'hide') {
-        $('#queues-mode-hide').prop('checked', true);
-    }
-    $('[queues-mode][queues-mode="' + mode + '"]').show();
-    $('[queues-mode][queues-mode!="' + mode + '"]').hide();
 }
 
 window.customElements.define('view-settings', ViewSettings);

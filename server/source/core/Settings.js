@@ -28,7 +28,6 @@ class Settings {
          this.adminUIsPath           = 'internal/clients/admin';
          this.adminUIsSharedPath     = 'internal/clients/admin/shared';
          this.appFolders             = ['apps']; // the location of apps folders
-         this.queuesPath             = 'queues';
          this.roomsPath              = 'rooms';
          this.usersPath              = 'users';
          this.helpPath               = 'internal/docs'; // location of help documents.

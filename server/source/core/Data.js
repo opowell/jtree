@@ -233,6 +233,12 @@ class Data {
     loadAppDir(dir) {
         if (Utils.isDirectory(dir)) {
             var appDirContents = fs.readdirSync(dir);
+
+            // Load folder as its own queue.
+            var queue = new Queue.new(dir, this.jt);
+            console.log('loading queue ' + dir);
+
+            // Load individual apps and queues.
             for (var i in appDirContents) {
                 var curPath = path.join(dir, appDirContents[i]);
                 var curPathIsFile = fs.lstatSync(curPath).isFile();
@@ -264,6 +270,7 @@ class Data {
                             this.apps[curPath] = app;
                             this.appsMetaData[curPath] = app.metaData();
                         }
+                        queue.addApp(curPath);
                     }
 
                     // Queue / Session Config
@@ -276,6 +283,11 @@ class Data {
                 } else if (curPathIsFolder) {
                     this.loadAppDir(curPath);
                 }
+            }
+
+            if (queue.apps.length > 0) {
+                queue.displayName = dir.substring(dir.lastIndexOf('\\')+1);
+                this.queues[dir] = queue;
             }
         }
     }

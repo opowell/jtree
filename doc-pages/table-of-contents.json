@@ -38,10 +38,13 @@
     },
     "6-server": {
         "title": "Writing the server",
-        "children": ["can-participate", "grouping", "session-flow", "settings"]
+        "children": ["can-participate", "grouping", "session-flow", "settings", "queues"]
     },
     "can-participate": {
         "title": "Can participate"
+    },
+    "queues": {
+        "title": "Queues"
     },
     "grouping": {
         "title": "Grouping"

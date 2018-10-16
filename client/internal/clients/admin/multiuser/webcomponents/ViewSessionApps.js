@@ -8,7 +8,7 @@ class ViewSessionApps extends HTMLElement {
                 <button type='button' class='btn btn-outline-primary btn-sm' onclick='jt.showAddAppToSessionModal();'>
                     <i class="fa fa-plus"></i>&nbsp;&nbsp;add App...
                 </button>
-                <button type='button' class='btn btn-outline-primary btn-sm' onclick='jt.showAddQueueToSessionModal();' queues-mode='show'>
+                <button type='button' class='btn btn-outline-primary btn-sm' onclick='jt.showAddQueueToSessionModal();'>
                     <i class="fa fa-plus"></i>&nbsp;&nbsp;add Queue...
                 </button>
                 <button type='button' class='btn btn-outline-primary btn-sm' onclick='jt.showAddQueueToSessionModal();'>

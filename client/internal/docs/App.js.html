@@ -54,16 +54,24 @@ class App {
 
         let id = appPath;
         if (id.includes('app.js') || id.includes('app.jtt')) {
+            let str = null;
+            if (id.includes('app.js')) {
+                str = 'app.js';
+            } else if (id.includes('app.jtt')) {
+                str = 'app.jtt';
+            }
+            id = id.substring(0, id.lastIndexOf(str));
+
            // Strip trailing slashes.
-            if (id.endsWith('/') > -1) {
+            if (id.endsWith('/')) {
                 id = id.substring(0, id.lastIndexOf('/'));
-            } else if (id.endsWith('\\') > -1) {
+            } else if (id.endsWith('\\')) {
                 id = id.substring(0, id.lastIndexOf('\\'));
             }
             // Cut all but last part of path.
-            if (id.endsWith('/') > -1) {
+            if (id.lastIndexOf('/') > -1) {
                 id = id.substring(id.lastIndexOf('/') + 1);
-            } else if (id.endsWith('\\') > -1) {
+            } else if (id.lastIndexOf('\\') > -1) {
                 id = id.substring(id.lastIndexOf('\\') + 1);
             }
         } else {
@@ -125,6 +133,8 @@ class App {
         this.textMarkerBegin = '{{{';
         this.textMarkerEnd = '}}}';
 
+        this.useVue = true;
+
         /**
          * The number of periods in this App.
          * @type number
@@ -139,7 +149,11 @@ class App {
          */
         this.insertJtreeRefAtStartOfClientHTML = true;
 
-        /** Shown on all client screens.*/
+        /**
+         * Shown on all client screens.
+         * @type String
+         * @default 
+         */ 
         this.html = `
             &lt;!DOCTYPE html>
             &lt;html>
@@ -149,7 +163,7 @@ class App {
                 &lt;body>
                     &lt;div id='jtree'>
                         &lt;p>Period: {{period.id}}/{{app.numPeriods}}&lt;/p>
-                        &lt;p v-show='hasTimeout'>Time left (s): {{clock.seconds}}&lt;/p>
+                        &lt;p v-show='hasTimeout'>Time left (s): {{clock.totalSeconds}}&lt;/p>
                         &lt;span v-show='player.status=="playing"'>
                             {{stages}}
                         &lt;/span>
@@ -235,11 +249,14 @@ class App {
         this.messages = {};
 
         /**
-         * TODO: Set default value for Stage.wrapPlayingScreenInFormTag.
-         * @type boolean
+         * Set default value for Stage.wrapPlayingScreenInFormTag.
+         * If 'yes', then form is added.
+         * If 'no', no form is added.
+         * If 'onlyIfNoButton', then form is added only if page has no buttons.
+         * @type String
          * @default true
          */
-        this.stageWrapPlayingScreenInFormTag = true;
+        this.stageWrapPlayingScreenInFormTag = 'onlyIfNoButton';
 
         /**
          * If defined, subjects are assigned randomly to groups of this size takes precedence over numGroups.
@@ -640,14 +657,27 @@ class App {
                 stageHTML = contentStart + '\n' + stage.content + '\n' + contentEnd;
             }
             if (stage.activeScreen != null) {
-                var wrapInForm = stage.wrapPlayingScreenInFormTag;
                 stageHTML += app.parseStageTag(stage, app.stageContentStart)  + '\n';
+                let wrapInForm = null;
+                if (stage.wrapPlayingScreenInFormTag === 'yes') {
+                    wrapInForm = true;
+                } else if (stage.wrapPlayingScreenInFormTag === 'no') {
+                    wrapInForm = false;
+                } else if (stage.wrapPlayingScreenInFormTag === 'onlyIfNoButton') {
+                    if (
+                        !stage.activeScreen.includes('&lt;button') ||
+                        stage.addOKButtonIfNone
+                        ) {
+                        wrapInForm = true;
+                    } else {
+                        wrapInForm = false;
+                    }
+                }
                 if (wrapInForm) {
                     stageHTML += '&lt;form>\n';
                 }
                 stageHTML += stage.activeScreen + '\n';
-                let addOKButtonIfNone = stage.addOKButtonIfNone;
-                if (addOKButtonIfNone) {
+                if (stage.addOKButtonIfNone) {
                     if (!stageHTML.includes('&lt;button')) {
                         stageHTML += `&lt;button>OK&lt;/button>`;
                     }
@@ -676,7 +706,20 @@ class App {
                 waitingScreensHTML += '\n';
             }
             waitingScreensHTML += waitingScreenHTML;
-    }
+        }
+
+        let strippedScripts = '';
+
+        while (stagesHTML.includes('&lt;script')) {
+            let start = stagesHTML.indexOf('&lt;script');
+            let end = stagesHTML.indexOf('/script>') + '/script>'.length;
+            if (start == -1 || end == -1 || start >= end) {
+                break;
+            }
+            
+            strippedScripts += stagesHTML.substring(start, end);
+            stagesHTML = stagesHTML.substring(0, start) + stagesHTML.substring(end);
+        }
 
         if (html.includes('{{stages}}')) {
             html = html.replace('{{stages}}', stagesHTML);
@@ -702,7 +745,7 @@ class App {
             html = '&lt;script type="text/javascript" src="/participant/jtree.js">&lt;/script>\n' + html;
         }
 
-        let scriptsHTML = '';
+        let scriptsHTML = strippedScripts;
         if (app.clientScripts != null) {
             if (!app.clientScripts.trim().startsWith('&lt;script')) {
                 scriptsHTML = '&lt;script>' + app.clientScripts + '&lt;/script>';
@@ -1581,7 +1624,7 @@ exports.newSansId = App.newSansId;
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Sep 27 2018 15:40:39 GMT+0200 (GMT+02:00)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Oct 16 2018 15:04:52 GMT+0200 (GMT+02:00)
 </footer>
 
 <script> prettyPrint(); </script>
