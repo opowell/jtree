@@ -57,14 +57,14 @@ class Stage {
          * @type boolean
          * @default true
          */
-        this.waitToStart = true;
+        this.waitToStart = app.stageWaitToStart;
 
         /**
          * Group waits for all players to finish stage before calling [stage.groupEnd(group)]{@link stage#groupEnd}.
          * @type boolean
          * @default true
          */
-        this.waitToEnd = true;
+        this.waitToEnd = app.stageWaitToEnd;
 
         /**
          * when starting stage for a player, send 'player' object or not.

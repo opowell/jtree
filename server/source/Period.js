@@ -165,7 +165,7 @@ class Period {
             pIds.push(p);
         }
 
-        for (var g=0; g<numGroups; g++) {
+        for (var g=this.groups.length; g<numGroups; g++) {
             var group = new Group.new(g+1, this);
             group.save();
             this.groups.push(group);
@@ -207,8 +207,8 @@ class Period {
         }
     }
 
-    getStrangerMatching(numGroups, pIds, gIds, m) {
-        for (var g=0; g<numGroups; g++) {
+    getStrangerMatching(numGroups, pIds, gIds, m, numCurrentGroups) {
+        for (var g=numCurrentGroups; g<numGroups; g++) {
             for (var i=0; i<m; i++) {
                 if (pIds.length < 1) {
                     return;

@@ -822,6 +822,12 @@ class Session {
     */
     participant(participantId) {
         var participant = this.participants[participantId];
+        if (participant == null && this.allowNewParts && this.isValidPId(participantId)) {
+            participant = this.participantCreate(participantId);
+            if (this.started) {
+                participant.moveToNextStage();
+            }
+        }
         return participant;
     }
 

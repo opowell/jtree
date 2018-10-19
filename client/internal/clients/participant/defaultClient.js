@@ -232,6 +232,9 @@ jt.mountVue = function(player) {
 }
 
 jt.setValues = function(player) {
+    if (player == null) {
+        player = jt.data.player;
+    }
     let clock = jt.getClock(jt.data.timeLeft);
 
     $('*').each(function(index) {
@@ -247,9 +250,9 @@ jt.setValues = function(player) {
                     let val = jt.eval(att.value, player, clock);
                     val = jt.formatValue(this, val);
                     $(this).text(val);
-                } else if (
-                    jt.specialAttrNames.includes(att.name)
-                ) {
+                // } else if (
+                //     jt.specialAttrNames.includes(att.name)
+                // ) {
                     // DO NOTHING
                 } else {
                     try {

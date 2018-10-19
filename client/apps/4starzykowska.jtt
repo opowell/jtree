@@ -1,3 +1,6 @@
+app.description = 'Players answer questions under time pressure, rewarded according to different payment schemes.';
+app.author = 'opowell@gmail.com';
+
 // Array of questions. Each row is a sub-array consisting of: 1) the question, 2) the answer, and 3) the time given for that question.
 app.allQuestions = [
     ['25-2' ,        23, ],
@@ -92,17 +95,20 @@ app.html = `
 </style>
 </head>
 <body>
-<span jt-status='playing' style='display: flex; flex-direction: column; align-items: center;'>
+<div id='jtree'>
+<span v-show='player.status === "playing"' style='display: flex; flex-direction: column; align-items: center;'>
 
     <div>
         {{stages}}
     </div>
 
 </span>
-<span jt-status='waiting' style='display: flex; flex-direction: column; align-items: center;'>
+<span v-show='player.status === "waiting"' style='display: flex; flex-direction: column; align-items: center;'>
     <h4>Waiting</h4>
     <p>Proszê czekaæ.</p>
 </span>
+</div>
+
 </body>
 </html>
 `;
@@ -186,17 +192,17 @@ informationStage.playerStart = function(player) {
 informationStage.content = `
 <h4>INFORMATION</h4>
 <p>Block: {{participant.block}}.
-<div jt-displayif="participant.schemeText == 'test'">
+<div v-show="participant.schemeText == 'test'">
     <p>Na kolejnych ekranach zobaczysz kilka pytañ próbnych.</p>
     <p>Ich celem jest zaznajomienie Ciê z charakterem pytañ, z którymi bêdziesz mia³ do czynienia w etapach, za które mo¿esz otrzymaæ wynagrodzenie.</p>
     <p>WeŸ pod uwagê, ¿e w pytaniach próbnych bêdziesz mia³ trochê wiêcej czasu na udzielenie odpowiedzi, ni¿ w tych sk³adaj¹cych siê na w³aœciw¹ czêœæ eksperymentu.</p>
     <form><button>OK</button></form>
 </div>
-<div jt-displayif='participant.schemeText == "piecerate"'>
+<div v-show='participant.schemeText == "piecerate"'>
     Za ka¿d¹ poprawn¹ odpowiedŸ otrzymasz 4 z³.
     <form><button>OK</button></form>
 </div>
-<div jt-displayif='participant.schemeText == "choice"'>
+<div v-show='participant.schemeText == "choice"'>
     Uczestnicy zostali losowo przydzieleni do czteroosobowych grup. Wybierz preferowany schemat wynagrodzenia:<br>
     <br>
     Opcja A: Za ka¿d¹ poprawn¹ odpowiedŸ otrzymasz 2 z³.<br>
@@ -238,11 +244,11 @@ informationStage.content = `
 
     Uwaga: Grupy zosta³y ju¿ wylosowane. Oznacza to, ze jeœli wybierzesz opcjê B, to Twój wynik niekoniecznie bêdzie porównywany akurat z wynikami osób, które tak¿e wola³y opcjê B.
 </div>
-<div jt-displayif='participant.schemeText == "flatrate"'>
+<div v-show='participant.schemeText == "flatrate"'>
     W tym etapie Twoje wynagrodzenie NIE jest uzale¿nione od liczby Twoich poprawnych odpowiedzi. Niezale¿nie od udzielonych odpowiedzi za ten etap otrzymasz 40 z³.
     <form><button>OK</button></form>
 </div>
-<div jt-displayif='participant.schemeText == "tournament"'>
+<div v-show='participant.schemeText == "tournament"'>
     W tym bloku bêdziesz rywalizowaæ z innymi uczestnikami eksperymentu.<br>
     <br>
     Wynik jaki osi¹gniesz w tym bloku zostanie porównany z wynikami 3 losowo wybranych osób. Dotyczy to ka¿dego uczestnika eksperymentu. Za ka¿d¹ poprawn¹ odpowiedŸ otrzymasz 16 z³ pod warunkiem, ¿e Twój wynik bêdzie lepszy od wyniku ka¿dej z tych 3 osób. W przeciwnym razie otrzymasz zero.<br>
@@ -279,21 +285,20 @@ questionStage.playerStart = function(player) {
     player.correctAnswer = player.app().allQuestions[player.qIndex][1];
     participant.curQIndex++;
 }
+
+app.vueComputed.tickerWidth = function() {
+    var ms = this.clock.milliseconds;
+    var secs = this.clock.seconds - 0;
+    return (secs + ms/1000)*100/(this.stage.clientDuration) + '%';
+}
+
 questionStage.content = `
     <h4>QUESTION</h4>
     <p>Time: {{clock.seconds}}</p>
     <p>{{player.question}}</p>
     <div style='width: 100%; border: 1px solid #000;'>
-        <div id='questionTicker' style='height: 20px; background-color: #000'></div>
+        <div id='questionTicker' v-bind:style='{width: tickerWidth}' style='height: 20px; background-color: #000'></div>
     </div>
-    <script>
-        jt.onClockUpdate = function() {
-            var clock = jt.getClock(jt.data.timeLeft);
-            var ms = clock.milliseconds;
-            var secs = clock.seconds - 0;
-            $('#questionTicker').css('width', (secs + ms/1000)*100/(jt.data.player.stage.clientDuration) + '%');
-        }
-    </script>
     <br>
     <form>
     <input name='player.answer' autocomplete="off"></input>
@@ -338,8 +343,8 @@ endInfoStage.canPlayerParticipate = function(player) {
 }
 endInfoStage.content = `
 <h4>END INFO</h4>
-<p jt-displayif='period.id == app.numTestQs'>You have finished the test questions.</p>
-<p jt-displayif='period.id > app.numTestQs'>You have finished block {{participant.block}} of 4.</p>
+<p v-show='period.id == app.numTestQs'>You have finished the test questions.</p>
+<p v-show='period.id > app.numTestQs'>You have finished block {{participant.block}} of 4.</p>
 <form><button>OK</button></form>
 `;
 

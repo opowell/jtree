@@ -48,9 +48,12 @@ class StaticServer {
         }
         expApp.use('/participant', express.static(path.join(this.jt.path, jt.settings.participantUI)));
         expApp.use('/shared', express.static(path.join(this.jt.path, jt.settings.sharedUI)));
-        for (let i in jt.data.appsMetaData) {
-            let metaData = jt.data.appsMetaData[i];
-            expApp.use('/' + metaData.id, express.static(path.parse(metaData.appPath).dir));
+        for (let i in jt.data.queues) {
+            let queue = jt.data.queues[i];
+            if (fs.existsSync(queue.id)) {
+                console.log('serving files from ' + queue.id + ' as /' + queue.shortId);
+                expApp.use('/' + queue.shortId, express.static(queue.id));
+            }
         }
         // END FILE SERVING
         //////////////////////////////
@@ -211,7 +214,8 @@ class StaticServer {
 
     handleRequest(req, res) {
         var jt = this.jt;
-        if (req.params.pId === 'admin') {
+        let pId = req.params.pId;
+        if (pId === 'admin') {
                 var id = req.body.uId;
                 var pwd = req.body.pwd;
                 var adminUser = jt.data.isValidAdmin(id, pwd);
@@ -231,8 +235,10 @@ class StaticServer {
                         res.sendFile(jt.staticServer.defaultAdminUIPath() + '/defaultAdminLogin.html');
                     }
                 }
+        } else if (pId === 'favicon.ico') {
+            jt.log('asking for favicon.ico');
         } else {
-                this.sendParticipantPage(req, res, req.params.pId, undefined);
+            this.sendParticipantPage(req, res, req.params.pId, undefined);
         }
     }
 

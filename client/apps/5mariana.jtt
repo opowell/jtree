@@ -8,17 +8,17 @@ app.paymentSchemes = [
 app.maxPoints = 35;
 app.title = '5mariana - typing task.';
 app.description = 'Real effort typing task with varying gross and net performance rates.';
+app.author = 'opowell@gmail.com';
 
 var introStage = app.newStage('intro');
 introStage.activeScreen = `
     <h4>INFORMATION</h4>
     <p>
         Please transcribe the article marked with the current period number during the next 5 minutes.
-        You earn EUR {{player.wage}} per word<span jt-displayIf='player.tax > 0'> and must pay a {{player.tax}}% tax</span>.
+        You earn EUR {{player.wage}} per word<span v-if='player.tax > 0'> and must pay a {{player.tax}}% tax</span>.
         Your input may be verified against that of other participants to verify accuracy.
         Click OK when you are ready and the period will start soon.
     </p>
-    <button>OK</button>
 `;
 
 introStage.playerStart = function(player) {
@@ -32,13 +32,11 @@ introStage.playerStart = function(player) {
     player.tax = player.participant.paymentSchemes[player.period().id-1][1];
 }
 
-
 var entryStage = app.newStage('entry');
 entryStage.duration = 300;
 entryStage.activeScreen = `
     <h4>ENTER TEXT</h4>
     <textarea rows=50 cols=80 name='player.textinput'></textarea><br><br>
-    <button>OK</button>
 `;
 entryStage.playerEnd = function(player) {
 
@@ -81,5 +79,4 @@ resultsStage.activeScreen = `
 </p>
 <b>Your total payout is EUR {{participant.capPoints.toFixed(2)}}.</b><br>
 <br>
-<button>OK</button>
 `

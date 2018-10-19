@@ -13,6 +13,7 @@ class Queue {
         this.id             = id;
         this.displayName    = id;
         this.apps           = [];
+        this.shortId        = path.basename(id);
     }
 
     /** Deprecated 2018.10.11. Replaced by Queue.loadJTQ. */

@@ -152,7 +152,6 @@ class Data {
     }
     
     loadApp(id, session, appPath, options) {
-        console.log('loading app ' + appPath);
         var app = null;
         app = new App.new(session, this.jt, appPath);
      //   app.shortId = id;
@@ -165,6 +164,7 @@ class Data {
         try {
             app.appjs = fs.readFileSync(appPath) + '';
             eval(app.appjs); // jshint ignore:line
+            console.log('loaded app ' + appPath);
         } catch (err) {
             this.jt.log('Error loading app: ' + appPath);
             this.jt.log(err);
@@ -269,8 +269,8 @@ class Data {
                         if (app != null) {
                             this.apps[curPath] = app;
                             this.appsMetaData[curPath] = app.metaData();
+                            queue.addApp(curPath);
                         }
-                        queue.addApp(curPath);
                     }
 
                     // Queue / Session Config

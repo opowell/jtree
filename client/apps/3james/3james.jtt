@@ -1,3 +1,5 @@
+app.description = 'Players make risk decisions using one of two methods.'
+
 app.numGroups   = 1;
 app.showUpFee   = 2; // Euros
 app.stageWrapPlayingScreenInFormTag = false;
@@ -189,11 +191,8 @@ app.html = `
 
     jt.setup = false;
 
-    // Record amount of time spent on each stage.
     jt.connected = function() {
         jt.socket.on('playerUpdate', function(player) {
-            console.log('resetting start time');
-            jt.startTime = new Date();
             if (!jt.setup) {
                 jt.setup = true;
                 // Set up comprehension sections
@@ -211,56 +210,26 @@ app.html = `
             }
         });
 
-        // Set up time records.
-        var forms = $('form');
-        forms.each(function(i) {
-            var form = $(this);
-            var stage = form.closest('[jt-stage]').attr('jt-stage');
-            var input = $('<input id="time" name="player.' + stage + 'Time" hidden>');
-            form.append(input);
-
-            // Remove standard submit functionality
-            form.find('button').attr('type', 'button');
-
-            form.find('button').click({stage: stage}, function(ev) {
-                jt.setTimeAndSubmit(ev.data.stage);
-            })
-        });
-
-    }
-
-    jt.setTimeAndSubmit = function(stage) {
-        var form = $('[jt-stage="' + stage + '"] form:visible');
-        if (form[0].checkValidity()) {
-            jt.endTime = new Date();
-            form.find('#time').val(jt.endTime - jt.startTime);
-            form.submit();
-        } else {
-            // display validation errors
-            const tmpSubmit = document.createElement('button');
-            form[0].appendChild(tmpSubmit);
-            tmpSubmit.click();
-            form[0].removeChild(tmpSubmit);
-        }
     }
 </script>
+<div id='jtree'>
+<span v-show='player.status == "playing"' style='display: flex; flex-direction: column; align-items: center;'>
 
-<span jt-status='playing' style='display: flex; flex-direction: column; align-items: center;'>
-
-    <h4 jt-displayif='player.stageIndex == 0'>Introduction</h4>
-    <h4 jt-displayif='player.stageIndex > 0 && player.stageIndex < 8'>Instructions for Part {{player.stageIndex}}</h4>
-    <h4 jt-displayif='player.stageIndex == 8'>Questionnaire</h4>
-    <h4 jt-displayif='player.stageIndex == 9'>Results</h4>
+    <h4 v-if='player.stageIndex == 0'>Introduction</h4>
+    <h4 v-if='player.stageIndex > 0 && player.stageIndex < 8'>Instructions for Part {{player.stageIndex}}</h4>
+    <h4 v-if='player.stageIndex == 8'>Questionnaire</h4>
+    <h4 v-if='player.stageIndex == 9'>Results</h4>
 
     <div>
         {{stages}}
     </div>
 
 </span>
-<span jt-status='waiting' style='display: flex; flex-direction: column; align-items: center;'>
+<span v-show='["waiting", "finished", "done"].includes(player.status)' style='display: flex; flex-direction: column; align-items: center;'>
     <h4>Waiting</h4>
     <p>The experiment will continue soon.</p>
 </span>
+</div>
 
 </html>
 `;

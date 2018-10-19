@@ -1,3 +1,6 @@
+##### 2018.10.16 - 0.6.7
+- Added fields: App.stageWaitToStart, App.stageWaitToEnd.
+
 ##### 2018.10.16 - 0.6.6
 - Queues turned on by default.
 - Record time spent in each stage.

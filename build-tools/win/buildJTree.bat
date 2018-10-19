@@ -5,7 +5,7 @@ REM - pkg
 
 REM Call from root folder (/jtree), which should be two levels up from this file (jtree/build-tools/win/buildJTree.bat).
 
-set "vers=0.6.6"
+set "vers=0.6.7"
 
 REM ------- Prepare output folder.
 call del ".\releases\%vers%" /Q /F
@@ -19,6 +19,7 @@ REM ------- Compile docs.
 call ./build-tools/win/buildDocs.bat
 
 REM ------- Copy files to release folder.
+call xcopy ".\client\apps\3james" ".\releases\%vers%\apps\3james" /E
 call xcopy ".\client\apps\beauty-contest.jtt" ".\releases\%vers%\apps\" /E
 call xcopy ".\client\apps\centipede.jtt" ".\releases\%vers%\apps\" /E
 call xcopy ".\client\apps\dictator-game.jtt" ".\releases\%vers%\apps\" /E

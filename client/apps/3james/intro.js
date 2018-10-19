@@ -47,7 +47,7 @@ stage.content = `
     <p><i>Please note that you will not be able to ask questions about the instructions. If there is something you do not understand, read the instructions again carefully and answer to the best of your ability.</i></p>
     <p>The experiment consists of several parts. Please click OK to begin Part 1.</p>
     <form>
-        <button>OK</button>
+      <button>OK</button>
     </form>
 `
 

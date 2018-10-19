@@ -12,7 +12,7 @@ stage.playerStart = function(player) {
 }
 
 stage.content = `
-    <img src='./3james/urns.png' style='max-width: 500px; width: 100%; float: right; padding-left: 2rem;'>
+    <img src='urns.png' style='max-width: 500px; width: 100%; float: right; padding-left: 2rem;'>
     <p>In this part of the experiment there are two Urns with different numbers of Green and Purple balls, as shown in this image.</p>
     <p>One of the two Urns has been randomly selected by the computer. Urn 1 and Urn 2 have an equal chance (50%) of being selected.</p>
     <p>You do not know which Urn was selected.</p>

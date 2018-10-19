@@ -34,7 +34,7 @@ You earned {{player.part2Points}} Euros.
 <p>
     You contributed {{player.part5Cont}} of your endowment of {{app.part5End}}.
     In total, your group contributed <span jt-text='player.part5GroupContributions' jt-decimals=2></span> and produced <span jt-text='player.part5GroupProd' jt-decimals=2></span>.
-    Your total income is {{app.part5End}} - {{player.part5Cont}} + ({{player.part5Cont}} + {{player.part5GroupContributions - player.part5Cont}}) x {{player.part5Mult}}/{{player.part5GroupPlayerIds.length}} = <span jt-text='player.part5Points' jt-decimals=2></span> points.
+    Your total income is {{app.part5End}} - {{player.part5Cont}} + ({{player.part5Cont}} + {{player.part5GroupContributions - player.part5Cont}}) x {{player.part5Mult}}/player.part5GroupPlayerIds.length = <span jt-text='player.part5Points' jt-decimals=2></span> points.
     Each point is converted to {{app.part5ExchRate}} Euros, therefore you earned {{player.part5Eur}} Euros.
 </p>
 

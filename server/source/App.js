@@ -152,6 +152,8 @@ class App {
         this.vueComputed = {};
         this.clientScripts = null;
 
+        this.modifyPathsToIncludeId = true;
+
         /** TODO:   */
         this.screen = '';
 
@@ -205,6 +207,9 @@ class App {
          * @default true
          */
         this.waitForAll = true;
+
+        this.stageWaitToStart = true;
+        this.stageWaitToEnd = true;
 
         /**
          * The matching type to be used for groups in this App.
@@ -477,7 +482,12 @@ class App {
     // TODO
     addStage(name) {
         var stage = this.newStage(name);
-        var fn = 'apps/' + this.id + '/' + name + '.js';
+        var fn = path.join(path.dirname(this.id), name);
+        if (fs.existsSync(fn + '.jtt')) {
+            fn = fn + '.jtt';
+        } else if (fs.existsSync(fn + '.js')) {
+            fn = fn + '.js';
+        }
         try {
             eval(Utils.readJS(fn));
         } catch (err) {
@@ -539,11 +549,23 @@ class App {
             gIds.push([]);
         }
 
+        for (let i=0; i<period.groups.length; i++) {
+            let group = period.groups[i];
+            for (let j=0; j<group.players.length; j++) {
+                gIds[i].push(group.players[j].id);
+                for (let k=0; k<pIds.length; k++) {
+                    if (pIds[k] == group.players[j].id) {
+                        pIds.splice(k, 1);
+                    }
+                }
+            }
+        }
+
         // Calculate number of elements per group
         var m = Math.floor((pIds.length-1) / numGroups) + 1;
 
         if (this.groupMatchingType === 'PARTNER_1122') {
-            for (var g=0; g<numGroups; g++) {
+            for (var g=this.groups.length; g<numGroups; g++) {
                 for (var i=0; i<m; i++) {
                     gIds[g].push(pIds[0]);
                     pIds.splice(0, 1);
@@ -551,20 +573,20 @@ class App {
             }
         } else if (this.groupMatchingType === 'PARTNER_1212') {
             for (var i=0; i<m; i++) {
-                for (var g=0; g<numGroups; g++) {
+                for (var g=this.groups.length; g<numGroups; g++) {
                     gIds[g].push(pIds[0]);
                     pIds.splice(0, 1);
                 }
             }
         } else if (this.groupMatchingType === 'PARTNER_RANDOM') {
             if (period.id === 1) {
-                period.getStrangerMatching(numGroups, pIds, gIds, m);
+                period.getStrangerMatching(numGroups, pIds, gIds, m, period.groups.length);
             } else {
                 var prevPeriod = period.prevPeriod();
                 gIds = prevPeriod.groupIds();
             }
         } else if (this.groupMatchingType === 'STRANGER') {
-            period.getStrangerMatching(numGroups, pIds, gIds, m);
+            period.getStrangerMatching(numGroups, pIds, gIds, m, period.groups.length);
         }
         return gIds;
     }
@@ -680,18 +702,9 @@ class App {
             waitingScreensHTML += waitingScreenHTML;
         }
 
-        let strippedScripts = '';
-
-        while (stagesHTML.includes('<script')) {
-            let start = stagesHTML.indexOf('<script');
-            let end = stagesHTML.indexOf('/script>') + '/script>'.length;
-            if (start == -1 || end == -1 || start >= end) {
-                break;
-            }
-            
-            strippedScripts += stagesHTML.substring(start, end);
-            stagesHTML = stagesHTML.substring(0, start) + stagesHTML.substring(end);
-        }
+        let [strippedScripts, stagesHTML1] = this.stripTag('script', stagesHTML);
+        let [strippedStyles, stagesHTML2] = this.stripTag('style', stagesHTML1);
+        stagesHTML = stagesHTML2;
 
         if (html.includes('{{stages}}')) {
             html = html.replace('{{stages}}', stagesHTML);
@@ -717,7 +730,7 @@ class App {
             html = '<script type="text/javascript" src="/participant/jtree.js"></script>\n' + html;
         }
 
-        let scriptsHTML = strippedScripts;
+        let scriptsHTML = strippedStyles + '\n' + strippedScripts;
         if (app.clientScripts != null) {
             if (!app.clientScripts.trim().startsWith('<script')) {
                 scriptsHTML = '<script>' + app.clientScripts + '</script>';
@@ -730,8 +743,36 @@ class App {
             html = html.replace('{{scripts}}', scriptsHTML);
         }
 
+        if (this.modifyPathsToIncludeId) {
+
+            // Temporary fix.
+            html = html.replace('src="/', 'src/="');
+            html = html.replace("src='/", "src/='");
+
+            html = html.replace('src="', 'src="./' + this.shortId + '/');
+            html = html.replace("src='", "src='./" + this.shortId + '/');
+
+            // Revert fix.
+            html = html.replace('src/="', 'src="/');
+            html = html.replace("src/='", "src='/");
+
+        }
         // Return to client.
         res.send(html);
+    }
+
+    stripTag(tagName, text) {
+        let strippedText = '';
+        while (text.includes('<' + tagName)) {
+            let start = text.indexOf('<' + tagName);
+            let end = text.indexOf('/' + tagName + '>') + ('/' + tagName + '>').length;
+            if (start == -1 || end == -1 || start >= end) {
+                break;
+            }
+            strippedText += text.substring(start, end);
+            text = text.substring(0, start) + text.substring(end);
+        }
+        return [strippedText, text];
     }
 
     // TODO

@@ -1,0 +1,45 @@
+app.title = 'Anagram game';
+app.description = 'Players find a word in an anagram.';
+app.groupSize = 1;
+app.questions = [
+    {
+        list: 'abcdefghi',
+        answer: 'abc'
+    },
+    {
+        list: '1234567890',
+        answer: '234'
+    }
+];
+app.numPeriods = app.questions.length;
+app.participantStart = function(participant) {
+    participant.score = 0;
+}
+
+var decideStage = app.newStage('decide');
+decideStage.playerStart = function(player) {
+    player.list = app.questions[player.period().id-1].list;
+    player.answer = app.questions[player.period().id-1].answer;
+}
+decideStage.activeScreen = `
+    <p>DECISION</p>
+    <p>Here is the string:</p>
+    <p>{{player.list}}</p>
+    <p>Enter your guess:</p>
+    <p><input name='player.guess' required type='text'></p>
+    <button>Make guess</button>
+`;
+decideStage.playerEnd = function(player) {
+    if (player.guess == player.answer) {
+        player.participant.score++;
+    }
+}
+
+var resultsStage = app.newStage('results');
+resultsStage.canPlayerParticipate = function(player) {
+    return player.period().id === app.numPeriods;
+}
+resultsStage.activeScreen = `
+    <p>RESULTS</p>
+    <p>Number of correct guesses: {{participant.score}}.</p>
+`
