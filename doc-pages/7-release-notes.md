@@ -1,5 +1,6 @@
-##### 2018.10.16 - 0.6.7
+##### 2018.10.22 - 0.6.7
 - Added fields: App.stageWaitToStart, App.stageWaitToEnd.
+- Fix for Queues in admin UI.
 
 ##### 2018.10.16 - 0.6.6
 - Queues turned on by default.
