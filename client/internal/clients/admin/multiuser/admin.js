@@ -200,11 +200,11 @@ jt.connected = function() {
     }
     jt.setInterfaceMode(interfaceMode);
 
-    var queuesMode = localStorage.getItem('queuesMode');
-    if (queuesMode === null) {
-        queuesMode = 'hide';
-    }
-    jt.setQueuesMode(queuesMode);
+    // var queuesMode = localStorage.getItem('queuesMode');
+    // if (queuesMode === null) {
+    //     queuesMode = 'hide';
+    // }
+    // jt.setQueuesMode(queuesMode);
 
   // var sId = localStorage.getItem("sessionId");
   // if (sId !== null) {
@@ -218,10 +218,10 @@ jt.connected = function() {
       $('#menu-userid').text(userId);
   }
 
-  jt.vue = new Vue({
-    el: 'queues-table',
-    data: jt.data.queues,
-  });
+//   jt.vue = new Vue({
+//     el: 'queues-table',
+//     data: jt.data.queues,
+//   });
 
 }
 

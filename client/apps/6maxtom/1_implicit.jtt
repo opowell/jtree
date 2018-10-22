@@ -1,5 +1,6 @@
 app.title = 'Implicit Association Test';
 app.description = 'Players classify two sets of items into two choices.';
+app.groupSize = 1;
 
 app.words = [
     { // List 1, nouns vs. adjectives
