@@ -3,7 +3,10 @@ REM - 7z.exe and 7z.dll
 REM - jsdoc
 REM - pkg
 
-REM Call from root folder (/jtree), which should be two levels up from this file (jtree/build-tools/win/buildJTree.bat).
+REM Set version (here, jtree.js, and release-notes.md). 
+REM Call this file from root folder (/jtree), which should be two levels up from this file (jtree/build-tools/win/buildJTree.bat).
+REM Update README.md on Github.
+REM Update docs/README.md.
 
 set "vers=0.6.8"
 
