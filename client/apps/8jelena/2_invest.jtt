@@ -1,0 +1,126 @@
+app.groupSize = 1;
+
+app.countries = ['Canada', 'Spain', 'Serbia'];
+app.managerNames = ['Owen', 'Jim', 'Jelena'];
+app.numReps = 2;
+
+app.proposals = [
+    {
+        text: 'This is a proposal blah blah 1.',
+        risk: 'high'
+    },
+    {
+        text: 'This is another proposal 2.',
+        risk: 'low'
+    },
+    {
+        text: 'This is a proposal blah blah 3.',
+        risk: 'high'
+    },
+    {
+        text: 'This is another proposal 4.',
+        risk: 'low'
+    },
+    {
+        text: 'This is a proposal blah blah 5.',
+        risk: 'high'
+    },
+    {
+        text: 'This is another proposal 6.',
+        risk: 'low'
+    }
+]
+
+app.endowment = 10;
+app.numPeriods = app.countries.length * app.numReps;
+
+app.randomize = function(length, numReps) {
+    let originalNums = []; // 1, 1, 2, 2, 3, 3, ...
+    for (let i=0; i<length; i++) {
+        for (let j=0; j<numReps; j++) {
+            originalNums.push(i);
+        }
+    }
+    let out = Utils.shuffle(originalNums);
+    return out;
+}
+
+app.participantStart = function(participant) {
+    participant.draw = app.randomize(app.countries.length, app.numReps);
+    participant.countries = [];
+    participant.managerNames = [];
+    for (let i=0; i<participant.draw.length; i++) {
+        participant.countries.push(app.countries[participant.draw[i]]);
+        participant.managerNames.push(app.managerNames[participant.draw[i]]);
+    }
+    participant.proposals = [];
+    participant.proposalDraw = app.randomize(app.proposals.length, 1);
+    for (let i=0; i<participant.proposalDraw.length; i++) {
+        participant.proposals.push(app.proposals[participant.proposalDraw[i]]);
+    }
+}
+
+let question = app.newStage('question');
+question.playerStart = function(player) {
+    player.proposal     = player.participant.proposals[player.period.id() - 1];
+    player.country      = player.participant.countries[player.period().id - 1];
+    player.managerName  = player.participant.managerNames[player.period().id - 1];
+}
+question.content = `
+<div style="border: 1px solid #444; box-shadow: 0px 0px 5px 1px #585858; padding: 15px; margin: 15px;">
+<div>Reply | Reply All | Forward</div>
+
+<div>Tue 10/2/2018</div>
+
+<div style="color: #888; font-size: 14pt; font-family: Tahoma">{{player.managerName}} &lt;{{player.managerName}}@Carnegy{{player.country}}.com&gt;</div>
+
+<div>To: Carnegy HQ</div>
+
+<hr>
+<div><b>Project proposal</b></div>
+
+<div style="font-family: Arial">Dear HQ board,<br>
+<br>
+{{player.proposal.text}}<br>
+<br>
+The HQ risk evaluation team has evaluated this project as a <strong>{{player.proposal.risk}} risk proposal</strong>.<br>
+<br>
+Best regards,<br>
+<br>
+{{player.managerName}}<br>
+&nbsp;</div>
+</div>
+
+<br>
+<hr>
+<br>
+
+<div>
+Choose an amount to invest in this project (0 - {{app.endowment}}):
+<input name='invest' min=0 :max='app.endowment' type='number' required>
+</div>
+`
+
+question.playerEnd = function(player) {
+    let probSuccess = null;
+    let successReturn = null;
+    if (player.proposal.risk === 'high') {
+        probSuccess = 0.25;
+        successReturn = 5;
+    } else {
+        probSuccess = 0.75;
+        successReturn = 5/3;
+    }
+    player.investDraw = Math.random(); // between 0 and 1
+    if (player.investDraw < probSuccess) {
+        player.investReturn = player.invest * successReturn;
+    } else {
+        player.investReturn = 0;
+    }
+
+    player.points = app.endowment - player.invest + player.investReturn;
+}
+
+app.participantEnd = function(participant) {
+    participant.investmentPoints = participant.points;
+}

@@ -1,3 +1,7 @@
+##### 2018.10.31 - 0.6.8
+- Fix for Queue options.
+- Added "timeElapsed" field to client.
+
 ##### 2018.10.22 - 0.6.7
 - Added fields: App.stageWaitToStart, App.stageWaitToEnd.
 - Fix for Queues in admin UI.

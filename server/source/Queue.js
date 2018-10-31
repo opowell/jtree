@@ -46,10 +46,12 @@ class Queue {
                 for (let i=0; i<json.apps.length; i++) {
                     let curJSON = json.apps[i];
                     let appId = curJSON;
+                    let options = {};
                     if (curJSON.appId != null) {
                         appId = curJSON.appId;
+                        options = curJSON.options;
                     }
-                    queue.addApp(path.join(folder, appId + '.jtt'));
+                    queue.addApp(path.join(folder, appId + '.jtt'), options);
                 }
             }
         }

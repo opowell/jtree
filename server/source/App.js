@@ -299,10 +299,10 @@ class App {
             'outputHide',
             'periods',
             'messages',
-            'type',
             'folder',
             'options',
-            'jt'];
+            'jt'
+        ];
 
         //TODO:
         /**
@@ -1156,9 +1156,11 @@ class App {
         this.optionValues[name] = value;
         var correctedValue = value;
         var isValid = false;
+        let foundOpt = false;
         for (var opt in this.options) {
             var option = this.options[opt];
             if (option.name === name) {
+                foundOpt = true;
                 if (option.type === 'select') {
                     for (var i in option.values) {
                         if (option.values[i] == value) { // allow for coercion
@@ -1177,7 +1179,7 @@ class App {
                 }
             }
         }
-        if (isValid) {
+        if (isValid || !foundOpt) {
             this[name] = correctedValue;
         }
     }

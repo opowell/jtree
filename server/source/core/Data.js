@@ -157,7 +157,7 @@ class Data {
      //   app.shortId = id;
 
         // Set options before running code.
-        for (var i in options) {
+         for (var i in options) {
             app.setOptionValue(i, options[i]);
         }
 
@@ -235,8 +235,8 @@ class Data {
             var appDirContents = fs.readdirSync(dir);
 
             // Load folder as its own queue.
-            var queue = new Queue.new(dir, this.jt);
-            console.log('loading queue ' + dir);
+            var folderQueue = new Queue.new(dir, this.jt);
+            console.log('loading folder queue ' + dir);
 
             // Load individual apps and queues.
             for (var i in appDirContents) {
@@ -269,7 +269,7 @@ class Data {
                         if (app != null) {
                             this.apps[curPath] = app;
                             this.appsMetaData[curPath] = app.metaData();
-                            queue.addApp(curPath);
+                            folderQueue.addApp(curPath);
                         }
                     }
 
@@ -277,7 +277,7 @@ class Data {
                     if (id.endsWith('.jtq')) {
                         id = id.substring(0, id.indexOf('.jtq'));
                         var queue = Queue.loadJTQ(id, this.jt, dir);
-                        console.log('loading queue ' + curPath);
+                        console.log('loading file queue ' + curPath);
                         this.queues[curPath] = queue;
                     }
                 } else if (curPathIsFolder) {
@@ -285,9 +285,9 @@ class Data {
                 }
             }
 
-            if (queue.apps.length > 0) {
-                queue.displayName = dir.substring(dir.lastIndexOf('\\')+1);
-                this.queues[dir] = queue;
+            if (folderQueue.apps.length > 0) {
+                folderQueue.displayName = dir.substring(dir.lastIndexOf('\\')+1);
+                this.queues[dir] = folderQueue;
             }
         }
     }

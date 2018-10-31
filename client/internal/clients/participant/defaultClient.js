@@ -162,7 +162,8 @@ jt.mountVue = function(player) {
         app: player.stage.app,
         participant: player.participant,
         timeLeft: 0,
-        hasTimeout: false
+        hasTimeout: false,
+        timeElapsed: 0
     }
     vueModel.group.players = {};
     let models = player.stage.app.vueModels;
@@ -298,6 +299,7 @@ jt.updatePlayer = function(player, updateVue) {
 
     if (!jt.vueMounted) {
         jt.mountVue(player);
+        $('body').addClass('show');
         return;
     } else {
         if (updateVue) {
@@ -307,6 +309,7 @@ jt.updatePlayer = function(player, updateVue) {
             jt.vue.stage = player.stage;
             jt.vue.app = player.stage.app;
             jt.vue.participant = player.participant;
+            jt.vue.timeElapsed = 0;
             jt.setValues(player);
         }
     }
@@ -559,21 +562,26 @@ jt.clockStop = function(timeLeft) {
 }
 
 jt.startClock = function(endTime) {
+
     console.log('clock-start until ' + endTime);
-    jt.vue.hasTimeout = true;
+
+    // Cancel update of UI.
+    clearInterval(jt.timer);
+
     jt.data.endTime = endTime;
     jt.data.clockRunning = false;
 
     // If using server-side duration
+    jt.data.startTime = Date.now();
     if (jt.data.player.stageTimerRunning) {
-        jt.data.timeLeft = jt.data.endTime - Date.now();
+        jt.data.timeLeft = jt.data.endTime - jt.data.startTime;
     } else {
         jt.data.timeLeft = jt.data.player.stageTimerTimeLeft;
     }
 
     // If using client-side duration
     if (jt.data.player.stageClientDuration > 0) {
-        jt.data.timeLeft = jt.data.endTime - Date.now();
+        jt.data.timeLeft = jt.data.endTime - jt.data.startTime;
     }
 
     jt.vue.timeLeft = jt.data.timeLeft;
@@ -587,10 +595,10 @@ jt.startClock = function(endTime) {
     }
 
     var now = Date.now();
-    var diff = jt.data.endTime - now;
-    console.log('Time left: ' + diff);
+    var timeLeft = jt.data.endTime - now;
+    console.log('Time left: ' + timeLeft);
     // If there is time left on the clock, set refresh interval.
-    if (jt.data.endTime > now && jt.data.clockRunning) {
+    if (timeLeft > 0 && jt.data.clockRunning) {
         jt.timer = setInterval(jt.updateClock, jt.data.CLOCK_FREQUENCY*5);
     }
     // Otherwise, do not set refresh interval.
@@ -603,11 +611,16 @@ jt.startClock = function(endTime) {
 }
 
 jt.updateClock = function() {
+    if (jt.data.player.stageClientDuration > 0 && jt.data.timeLeft <= 0) {
+        jt.endStage(jt.data.player);
+    }
+
     if (jt.data.clockRunning) {
         var now = Date.now();
-        jt.data.timeLeft = jt.data.endTime - now;
+        jt.data.timeLeft = Math.max(jt.data.endTime - now, 0);
         jt.vue.timeLeft = jt.data.timeLeft;
-        if (jt.data.timeLeft <= 0) {
+        jt.vue.timeElapsed = now - jt.data.startTime;
+        if (jt.data.timeLeft <= 0 && jt.vue.hasTimeout) {
             if (jt.data.player.stageClientDuration > 0) {
                 jt.endStage(jt.data.player);
             }
@@ -619,10 +632,8 @@ jt.updateClock = function() {
     }
     // Stage timer finished.
     else {
-        // Cancel update of UI.
-        clearInterval(jt.timer);
         // If client duration, end stage.
-        if (jt.data.player.stageClientDuration > 0 && jt.data.player.timeLeft < 0) {
+        if (jt.data.player.stageClientDuration > 0 && jt.data.timeLeft < 0) {
             jt.endStage(jt.data.player);
         }
     }

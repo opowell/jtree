@@ -1,3 +1,4 @@
+.vscode
 build-tools/7z.dll
 build-tools/7z.exe
 client/internal/serverState.json
