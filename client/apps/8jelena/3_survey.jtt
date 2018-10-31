@@ -1,62 +1,156 @@
+// TO CUSTOMIZE, SEE https://surveyjs.io/Examples/Library?id=questiontype-radiogroup&platform=Vue&theme=default
+
 app.description = 'Questionnaire.';
+
+app.html = `
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+        <script src="https://surveyjs.azureedge.net/1.0.53/survey.vue.js"></script>
+        <link href="https://surveyjs.azureedge.net/1.0.53/survey.css" type="text/css" rel="stylesheet"/>
+        <style>
+        table {
+            font-size: 1em;
+        }
+        body {
+            max-width: none;
+        }
+        </style>
+    </head>
+    <body>
+        <div id='jtree'>
+            <p>Period: {{period.id}}/{{app.numPeriods}}</p>
+            <p v-show='hasTimeout'>Time left (s): {{clock.totalSeconds}}</p>
+            <span v-show='player.status=="playing"'>
+                {{stages}}
+            </span>
+            <span v-show='["waiting", "finished", "done"].includes(player.status)'>
+                {{waiting-screens}}
+            </span>
+        </div>
+        {{scripts}}
+    </body>
+</html>
+`
 
 // DEFINE STAGES
 var questionsStage = app.newStage('questions');
+questionsStage.wrapPlayingScreenInFormTag = false;
+questionsStage.addOKButtonIfNone = false;
 questionsStage.activeScreen = `
 <script>
-showSliderVal = function(val) {
-    $("#sliderVal").text(val);
-}
+
+Survey
+    .StylesManager
+    .applyTheme("default");
+
+var json = {
+    questions: [
+        {
+            name: "name",
+            type: "text",
+            title: "Please enter your name:",
+            placeHolder: "Jon Snow",
+            isRequired: true
+        }, {
+            name: "email",
+            type: "text",
+            inputType: "email",
+            title: "Your e-mail:",
+            placeHolder: "jon.snow@nightwatch.org",
+            isRequired: true,
+            validators: [
+                {
+                    type: "email"
+                }
+            ]
+        },
+        {
+            type: "radiogroup",
+            name: "car",
+            title: "What car are you driving?",
+            isRequired: true,
+            colCount: 4,
+            choices: [
+                "None",
+                "Ford",
+                "Vauxhall",
+                "Volkswagen",
+                "Nissan",
+                "Audi",
+                "Mercedes-Benz",
+                "BMW",
+                "Peugeot",
+                "Toyota",
+                "Citroen"
+            ]
+        },
+        {
+            type: "matrix",
+            name: "Quality",
+            title: "Please indicate if you agree or disagree with the following statements",
+            columns: [
+                {
+                    value: 1,
+                    text: "Strongly Disagree"
+                }, {
+                    value: 2,
+                    text: "Disagree"
+                }, {
+                    value: 3,
+                    text: "Neutral"
+                }, {
+                    value: 4,
+                    text: "Agree"
+                }, {
+                    value: 5,
+                    text: "Strongly Agree"
+                }
+            ],
+            rows: [
+                {
+                    value: "affordable",
+                    text: "Product is affordable"
+                }, {
+                    value: "does what it claims",
+                    text: "Product does what it claims"
+                }, {
+                    value: "better then others",
+                    text: "Product is better than other products on the market"
+                }, {
+                    value: "easy to use",
+                    text: "Product is easy to use"
+                }
+            ]
+        }
+    ]
+};
+
+window.survey = new Survey.Model(json);
+
+survey
+    .onComplete
+    .add(function (result) {
+        document
+            .querySelector('#surveyResult')
+            .innerHTML = "result: " + JSON.stringify(result.data);
+    });
+
+var app = new Vue({
+    el: '#surveyElement',
+    data: {
+        survey: survey
+    }
+});
+
+
+
 </script>
-<h4>QUESTIONS</h4>
-<p>1. Type in some text:</p>
-<input name='player.text' type='text'>
-<br><br>
-<p>2. Type in an email address:</p>
-<input name='player.email' required type='email'>
-<br><br>
-<p>3. Type in a lot of text:</p>
-<textarea name='player.longtext' rows=5 cols=40></textarea>
-<br><br>
-<p>4. Select a choice from a dropdown:</p>
-<select name='player.dropdown' required>
-    <option value="dropdown1">Dropdown 1</option>
-    <option value="dropdown2">Dropdown 2</option>
-    <option value="dropdown3">Dropdown 3</option>
-    <option value="dropdown4">Dropdown 4</option>
-</select>
-<br><br>
-<p>5. Select a choice from a list:</p>
-<select name='player.list' required size=4>
-    <option value="list1">List 1</option>
-    <option value="list2">List 2</option>
-    <option value="list3">List 3</option>
-    <option value="list4">List 4</option>
-</select>
-<br><br>
-<p>6. Select a radio button:</p>
-<input name='player.radio' type='radio' required value='radio1' id='radio1'>
-<label for='radio1'>Radio 1</label>
-<input name='player.radio' type='radio' required value='radio2' id='radio2'>
-<label for='radio2'>Radio 2</label>
-<input name='player.radio' type='radio' required value='radio3' id='radio3'>
-<label for='radio3'>Radio 3</label>
-<br><br>
-<p>7. Check as many boxes as you like:</p>
-<input name='player.checkbox' type='checkbox' value='checkbox1' id='checkbox1'>
-<label for='checkbox1'>Checkbox 1</label>
-<input name='player.checkbox' type='checkbox' value='checkbox2' id='checkbox2'>
-<label for='checkbox2'>Checkbox 2</label>
-<input name='player.checkbox' type='checkbox' value='checkbox3' id='checkbox3'>
-<label for='checkbox3'>Checkbox 3</label>
-<br><br>
-<p>8. Type in a number:</p>
-<input name='player.number' type='number' required min='0' max='100' step='1'>
-<br><br>
-<p>9. Choose a number from a slider:</p>
-<b>0</b> <input id="slider" type="range" name='player.slider' min="0" max="100" step="10" oninput="showSliderVal(this.value)" onchange="showSliderVal(this.value)"> <b>100</b><br>
-<span>Current Slider Value: <span id="sliderVal">-</span></span>
-<br><br>
+<div id="surveyElement">
+<survey :survey='survey'/>
+</div>
+<div id="surveyResult"></div>
 `;
 
 app.waitingScreen = `
@@ -75,4 +169,3 @@ app.waitingScreen = `
 <p><b>Slider: </b>{{player.slider}}</p>
 `;
 
-app.newStage

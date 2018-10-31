@@ -1,7 +1,7 @@
 app.groupSize = 1;
 
 let page1 = app.newStage('page1');
-page1.content = `
+page1.activeScreen = `
 Welcome and thanks for participating. From now on,
 <ul>
  <li>do not communicate with other participants</li>
@@ -12,14 +12,14 @@ Welcome and thanks for participating. From now on,
 `;
 
 let page2 = app.newStage('page2');
-page2.content = `
+page2.activeScreen = `
 <p>You are the <strong>Business Development Manager</strong> in the Viennese HQ of the Austrian aerospace company “Carnegy”. Carnegy has many local subsidiaries abroad. All subsidiaries are considered to serve roughly similarly sized markets (despite population differences).</p><p><br></p>
 <p>In the bottom-up strategy process, subsidiary top managers usually pitch first rough project ideas to you. This year, <strong>12 different project proposals, </strong><strong><span style="font-weight:normal;mso-bidi-font-weight:bold">which</span></strong> seem to fit local markets, reach your inbox.</p>
 <p>Now, you have to decide <strong>how much money you would like to invest</strong> in each project. However, the board gave you the directive that you can only spend <strong>up to 100,000 EUR</strong> per project. You cannot spend more than 100,000 EUR on one project even if you “saved” money in others. There is also no pressure to spend all resources or none. It is your decision.</p>
 `
 
 let page3 = app.newStage('page3');
-page3.content = `
+page3.activeScreen = `
 <p>You might want to consider the following criteria:</p>
 
 <ul>
@@ -59,7 +59,7 @@ normal;mso-bidi-font-weight:bold"><strong>75% chance to gain 1.66 times your inv
 </ul>`
 
 let page4 = app.newStage('page4');
-page4.content = `
+page4.activeScreen = `
 <p>Once you click on “<strong>start</strong>” [the little arrow in the lower right corner],</p>
 
 <ul>
@@ -67,9 +67,8 @@ page4.content = `
  <li>you are under heavy time pressure. Therefore,…
  <ul>
   <li>… you have to allocate your budget <strong>within 60 seconds</strong>, and…</li>
-  <li>… you cannot go back to reconsider your investments.</li><li><br></li>
+  <li>… you cannot go back to reconsider your investments.</li>
  </ul>
- </li>
 </ul>
 
 <p><strong>After your decisions</strong>, you will be asked to fill in a questionnaire. There are no “right” or “wrong” answers. Just put in what you think fits best.</p>

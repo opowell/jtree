@@ -152,6 +152,7 @@ class App {
         this.vueComputed = {};
         this.clientScripts = null;
 
+        // Paths of script tags.
         this.modifyPathsToIncludeId = true;
 
         /** TODO:   */
@@ -745,9 +746,11 @@ class App {
 
         if (this.modifyPathsToIncludeId) {
 
-            // Temporary fix.
+            // Temporary fix, do not change anything that starts with '/' or 'http'.
             html = html.replace('src="/', 'src/="');
             html = html.replace("src='/", "src/='");
+            html = html.replace('src="http', 'src/http="');
+            html = html.replace("src='http", "src/http='");
 
             html = html.replace('src="', 'src="./' + this.shortId + '/');
             html = html.replace("src='", "src='./" + this.shortId + '/');
@@ -755,6 +758,8 @@ class App {
             // Revert fix.
             html = html.replace('src/="', 'src="/');
             html = html.replace("src/='", "src='/");
+            html = html.replace('src/http="', 'src="http');
+            html = html.replace("src/http='", "src='http");
 
         }
         // Return to client.

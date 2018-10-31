@@ -62,11 +62,11 @@ app.participantStart = function(participant) {
 
 let question = app.newStage('question');
 question.playerStart = function(player) {
-    player.proposal     = player.participant.proposals[player.period.id() - 1];
+    player.proposal     = player.participant.proposals[player.period().id - 1];
     player.country      = player.participant.countries[player.period().id - 1];
     player.managerName  = player.participant.managerNames[player.period().id - 1];
 }
-question.content = `
+question.activeScreen = `
 <div style="border: 1px solid #444; box-shadow: 0px 0px 5px 1px #585858; padding: 15px; margin: 15px;">
 <div>Reply | Reply All | Forward</div>
 
