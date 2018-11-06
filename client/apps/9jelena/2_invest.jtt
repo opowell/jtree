@@ -1,4 +1,4 @@
-// TODO:
+// TODO: 60 seconds timer, if no answer then invest 0.
 // - two sessions simultaneously
 
 // BEGIN - SETTINGS
@@ -7,7 +7,6 @@
 app.countries = ['Canada', 'Spain', 'Serbia'];
 app.managerNames = ['Owen', 'Jim', 'Jelena'];
 app.numReps = 2;
-app.choiceTime = 60; // in seconds
 
 app.proposals = [
     {
@@ -35,48 +34,8 @@ app.proposals = [
         risk: 'low'
     }
 ]
-app.endowment = 10;
-// END SETTINGS.
 
-app.groupSize = 1;
-app.numPeriods = app.countries.length * app.numReps;
-
-app.randomize = function(length, numReps) {
-    let originalNums = []; // 1, 1, 2, 2, 3, 3, ...
-    for (let i=0; i<length; i++) {
-        for (let j=0; j<numReps; j++) {
-            originalNums.push(i);
-        }
-    }
-    let out = Utils.shuffle(originalNums);
-    return out;
-}
-
-app.participantStart = function(participant) {
-    participant.draw = app.randomize(app.countries.length, app.numReps);
-    participant.countries = [];
-    participant.managerNames = [];
-    for (let i=0; i<participant.draw.length; i++) {
-        participant.countries.push(app.countries[participant.draw[i]]);
-        participant.managerNames.push(app.managerNames[participant.draw[i]]);
-    }
-    participant.proposals = [];
-    participant.proposalDraw = app.randomize(app.proposals.length, 1);
-    for (let i=0; i<participant.proposalDraw.length; i++) {
-        participant.proposals.push(app.proposals[participant.proposalDraw[i]]);
-    }
-
-    participant.totalInvestmentPoints = 0;
-    participant.nonInvestedPoints = 0;
-}
-
-let question = app.newStage('question');
-question.playerStart = function(player) {
-    player.proposal     = player.participant.proposals[player.period().id - 1];
-    player.country      = player.participant.countries[player.period().id - 1];
-    player.managerName  = player.participant.managerNames[player.period().id - 1];
-}
-question.activeScreen = `
+var questionHTML = `
 <div style="border: 1px solid #444; box-shadow: 0px 0px 5px 1px #585858; padding: 15px; margin: 15px;">
 <div>Reply | Reply All | Forward</div>
 
@@ -110,8 +69,47 @@ Country Manager {{player.country}}
 Choose an amount to invest in this project (0 - {{app.endowment}}):
 <input name='invest' min=0 :max='app.endowment' type='number' required>
 </div>
-`;
-question.duration = app.choiceTime;
+`
+
+app.endowment = 10;
+// END SETTINGS.
+
+app.groupSize = 1;
+app.numPeriods = app.countries.length * app.numReps;
+
+app.randomize = function(length, numReps) {
+    let originalNums = []; // 1, 1, 2, 2, 3, 3, ...
+    for (let i=0; i<length; i++) {
+        for (let j=0; j<numReps; j++) {
+            originalNums.push(i);
+        }
+    }
+    let out = Utils.shuffle(originalNums);
+    return out;
+}
+
+app.participantStart = function(participant) {
+    participant.draw = app.randomize(app.countries.length, app.numReps);
+    participant.countries = [];
+    participant.managerNames = [];
+    for (let i=0; i<participant.draw.length; i++) {
+        participant.countries.push(app.countries[participant.draw[i]]);
+        participant.managerNames.push(app.managerNames[participant.draw[i]]);
+    }
+    participant.proposals = [];
+    participant.proposalDraw = app.randomize(app.proposals.length, 1);
+    for (let i=0; i<participant.proposalDraw.length; i++) {
+        participant.proposals.push(app.proposals[participant.proposalDraw[i]]);
+    }
+}
+
+let question = app.newStage('question');
+question.playerStart = function(player) {
+    player.proposal     = player.participant.proposals[player.period().id - 1];
+    player.country      = player.participant.countries[player.period().id - 1];
+    player.managerName  = player.participant.managerNames[player.period().id - 1];
+}
+question.activeScreen = questionHTML;
 
 question.playerEnd = function(player) {
     let probSuccess = null;
@@ -123,11 +121,6 @@ question.playerEnd = function(player) {
         probSuccess = 0.75;
         successReturn = 5/3;
     }
-
-    if (player.invest == null) {
-        player.invest = 0;
-    }
-
     player.investDraw = Math.random(); // between 0 and 1
     if (player.investDraw < probSuccess) {
         player.investReturn = player.invest * successReturn;
@@ -136,7 +129,8 @@ question.playerEnd = function(player) {
     }
 
     player.points = app.endowment - player.invest + player.investReturn;
+}
 
-    participant.totalInvestmentPoints += player.invest + player.investReturn;
-    participant.nonInvestedPoints += app.endowment - player.invest;
+app.participantEnd = function(participant) {
+    participant.investmentPoints = participant.points;
 }

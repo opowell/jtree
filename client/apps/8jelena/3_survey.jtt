@@ -1,14 +1,28 @@
-// TO CUSTOMIZE, SEE https://surveyjs.io/Examples/Library?id=questiontype-radiogroup&platform=Vue&theme=default
+// SETTINGS
+app.countries = ['India', 'Hungary', 'Germany'];
+app.matrices = [
+    {
+        name: 'safety',
+        text: 'do you like safety?',
+        left: 'agree',
+        right: 'disagree',
+    },
+    {
+        name: 'matrix2',
+        text: 'another matrix question?',
+        left: 'agree2',
+        right: 'disagree2',
+    }
+]
 
-app.description = 'Questionnaire.';
+// end SETTINGS
 
+app.groupSize = 1;
 app.html = `
 <!DOCTYPE html>
 <html>
     <head>
         <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
-        <script src="https://surveyjs.azureedge.net/1.0.53/survey.vue.js"></script>
-        <link href="https://surveyjs.azureedge.net/1.0.53/survey.css" type="text/css" rel="stylesheet"/>
         <style>
         table {
             font-size: 1em;
@@ -20,7 +34,7 @@ app.html = `
     </head>
     <body>
         <div id='jtree'>
-            <p>Period: {{period.id}}/{{app.numPeriods}}</p>
+            <p v-show='app.numPeriods > 1'>Period: {{period.id}}/{{app.numPeriods}}</p>
             <p v-show='hasTimeout'>Time left (s): {{clock.totalSeconds}}</p>
             <span v-show='player.status=="playing"'>
                 {{stages}}
@@ -34,138 +48,148 @@ app.html = `
 </html>
 `
 
-// DEFINE STAGES
-var questionsStage = app.newStage('questions');
-questionsStage.wrapPlayingScreenInFormTag = false;
-questionsStage.addOKButtonIfNone = false;
-questionsStage.activeScreen = `
-<script>
-
-Survey
-    .StylesManager
-    .applyTheme("default");
-
-var json = {
-    questions: [
-        {
-            name: "name",
-            type: "text",
-            title: "Please enter your name:",
-            placeHolder: "Jon Snow",
-            isRequired: true
-        }, {
-            name: "email",
-            type: "text",
-            inputType: "email",
-            title: "Your e-mail:",
-            placeHolder: "jon.snow@nightwatch.org",
-            isRequired: true,
-            validators: [
-                {
-                    type: "email"
-                }
-            ]
-        },
-        {
-            type: "radiogroup",
-            name: "car",
-            title: "What car are you driving?",
-            isRequired: true,
-            colCount: 4,
-            choices: [
-                "None",
-                "Ford",
-                "Vauxhall",
-                "Volkswagen",
-                "Nissan",
-                "Audi",
-                "Mercedes-Benz",
-                "BMW",
-                "Peugeot",
-                "Toyota",
-                "Citroen"
-            ]
-        },
-        {
-            type: "matrix",
-            name: "Quality",
-            title: "Please indicate if you agree or disagree with the following statements",
-            columns: [
-                {
-                    value: 1,
-                    text: "Strongly Disagree"
-                }, {
-                    value: 2,
-                    text: "Disagree"
-                }, {
-                    value: 3,
-                    text: "Neutral"
-                }, {
-                    value: 4,
-                    text: "Agree"
-                }, {
-                    value: 5,
-                    text: "Strongly Agree"
-                }
-            ],
-            rows: [
-                {
-                    value: "affordable",
-                    text: "Product is affordable"
-                }, {
-                    value: "does what it claims",
-                    text: "Product does what it claims"
-                }, {
-                    value: "better then others",
-                    text: "Product is better than other products on the market"
-                }, {
-                    value: "easy to use",
-                    text: "Product is easy to use"
-                }
-            ]
+app.vueComputed = {
+    sortedCountries: function() {
+        function compare(a, b) {
+          if (a.value < b.value)
+            return -1;
+          if (a.value > b.value)
+            return 1;
+          return 0;
         }
-    ]
-};
 
-window.survey = new Survey.Model(json);
+        let copy = [];
+        for (let i=0; i<this.player.countries.length; i++) {
+            copy.push(this.player.countries[i]);
+        }
 
-survey
-    .onComplete
-    .add(function (result) {
-        document
-            .querySelector('#surveyResult')
-            .innerHTML = "result: " + JSON.stringify(result.data);
-    });
-
-var app = new Vue({
-    el: '#surveyElement',
-    data: {
-        survey: survey
+        return copy.sort(compare);
+    },
+    madeAllChoices: function() {
+        for (let i=0; i<this.player.countries.length; i++) {
+            if (this.player.countries[i].value === '') {
+                return false;
+            }
+        }
+        return true;
     }
-});
+}
 
-
-
-</script>
-<div id="surveyElement">
-<survey :survey='survey'/>
+let page1 = app.newStage('page1');
+page1.playerStart = function(player) {
+    let shuffled = Utils.shuffle(app.countries);
+    player.countries = [];
+    for (let i=0; i<shuffled.length; i++) {
+        player.countries.push({
+            name: shuffled[i],
+            value: ''
+        });
+    }
+}
+page1.activeScreen = `
+<p>To what extent you perceive the following foreign countries to be close or far away, in terms of psychic distance, from your home country (country of origin)? With psychic distance we mean the sum of factors (cultural or language differences, geographical distance, etc.) that affect the flow and interpretation of information to and from a foreign country.</p>
+<p>First write your home country (country of origin) below. In case that you home country is on the list below, set the distance value to ‘0’ and the distance to the country on the list that you perceive to be the most distant to ‘100’. Assign index values for the remaining countries so that they reflect your relative perceived distance from both your home country and the one you consider to be most distant. For countries that you judge to be of equal distance, assign the same score.<br>
+</p>
+<input type='text' name='player.countryOfOrigin' required>
+<p>In case that you perceive yourself to belong equaly to 2 different cultures (e.g. born and grew up in one country, but raised with a family and values from another country), indicate your second home country below.<br>
+</p>
+<input type='text' name='player.secondCountry'>
+<p>Now indicate you psychic distance perception for the following countries moving the slider to your wished number. Be aware that you have to move slider even in the case when you want to indicate 0 as a value. In this case just move the slider forward and then back to 0.</p>
+<div style='width: 100%; display: grid; grid-template-columns: min-content auto; row-gap: 0.5em;'>
+<template v-for='country in player.countries'>
+    <span>{{country.name}}: {{country.value}}</span>
+    <input type="range" :name='"player.slider" + country' min="0" max="100" step="1" v-model='country.value' value='country.value'>
+</template>
 </div>
-<div id="surveyResult"></div>
+<br>
+<br>
+<h4>Sorted</h4>
+<div v-for='country in sortedCountries' :key='country.name'>
+{{country.name}}: {{country.value}}
+</div>
+<br>
+<br>
+<button :disabled='!madeAllChoices'>OK</button>
 `;
 
-app.waitingScreen = `
-<h4>RESPONSES</h4>
-
-<p><b>Total earnings from Investment:</b> {{player.participant.investmentPoints}} EUR.</p>
-
-<p><b>Text: </b>{{player.text}}</p>
-<p><b>Email: </b>{{player.email}}</p>
-<p><b>Long text: </b>{{player.longtext}}</p>
-<p><b>Dropdown: </b>{{player.dropdown}}</p>
-<p><b>List: </b>{{player.list}}</p>
-<p><b>Radio: </b>{{player.radio}}</p>
-<p><b>Checkbox: </b>{{player.checkbox}}</p>
-<p><b>Number: </b>{{player.number}}</p>
-<p><b>Slider: </b>{{player.slider}}</p>
+let page2 = app.newStage('page2');
+page2.activeScreen = `
+<p>Please indicate the extent to which you agree or disagree with the following statement. Please do not think too long before answering; usually your first inclination is also the best one.</p>
+<div v-for='(value, key, index) in app.matrices'>
+    <p>{{value.text}}</p>
+    <div style='width: 100%; padding-bottom: 1em; display: flex; align-items: center; text-align: center'>
+        <span style='flex: 1 1 auto'>{{value.left}}</span>
+        <input style='flex: 1 1 auto; height: 20pt;' :name='"player.matrix" + value.name' type='radio' value='1'>
+        <input style='flex: 1 1 auto; height: 20pt;' :name='"player.matrix" + value.name' type='radio' value='2'>
+        <input style='flex: 1 1 auto; height: 20pt;' :name='"player.matrix" + value.name' type='radio' value='3'>
+        <input style='flex: 1 1 auto; height: 20pt;' :name='"player.matrix" + value.name' type='radio' value='4'>
+        <input style='flex: 1 1 auto; height: 20pt;' :name='"player.matrix" + value.name' type='radio' value='5'>
+        <span style='flex: 1 1 auto'>{{value.right}}</span>
+    </div>
+</div>
 `;
 
+let page3 = app.newStage('page3');
+page3.activeScreen = `
+<p>What is your age?</p>
+<input name='player.age' type='number' required min='0' max='100' step='1'>
+<br><br>
+<p>What is your gender?</p>
+<input name='player.gender' type='radio' required value='female' id='gender1'>
+<label for='gender1'>Female</label>
+<input name='player.gender' type='radio' required value='male' id='gender2'>
+<label for='gender2'>Male</label>
+<br><br>
+`
+
+let page4 = app.newStage('page4');
+page4.activeScreen = `
+<p>Years of full-time business experience (including full-time internships):</p>
+<input name='player.yearsOfBusExp' type='number' required min='0' max='100' step='1'>
+<br><br>
+<p>Current position:</p>
+<input name='player.currentPosition' required type='text'>
+<br><br>
+<p>Current industry and city of work place:</p>
+<input name='player.currentPosition' required type='text'>
+<br><br>
+<p>Please indicate your business experience:</p>
+<textarea name='player.busExp' rows=5 cols=40 required></textarea>
+<br><br>
+`;
+
+let page5 = app.newStage('page5');
+page5.activeScreen = `
+<p>Number of years spent abroad:</p>
+<input name='player.yearsAbroad' type='number' required min='0' max='100' step='1'>
+<br><br>
+<p>Countries in which you lived for more than 3 months:</p>
+<input name='player.countriesLived' type='text'>
+<br><br>
+<p>Purposes for staying abroad for longer than 3 months (more answers possible):</p>
+
+<div style='display: grid; grid-template-columns: min-content auto; align-items: center; row-gap: 0.5em; column-gap: 0.5em'>
+<input name='player.purposes' type='checkbox' value='studying' id='purpose1'>
+<label for='purpose1'>Studying</label>
+<input name='player.purposes' type='checkbox' value='work' id='purpose2'>
+<label for='purpose2'>Work</label>
+<input name='player.purposes' type='checkbox' value='family' id='purpose3'>
+<label for='purpose3'>Accompanying family member(s)</label>
+<input name='player.purposes' type='checkbox' value='tourism' id='purpose4'>
+<label for='purpose4'>Tourism</label>
+<input name='player.purposes' type='checkbox' value='other' id='purpose5'>
+<label for='purpose5'>Others</label>
+<input name='player.purposes' type='checkbox' value='never' id='purpose6'>
+<label for='purpose6'>I have never stayed abroad for that long</label>
+</div>
+<br><br>
+`
+
+page5.useAppWaitingScreen = false;
+page5.waitingScreen = `
+<p>Thank you for participating in this experiment. You can find bellow the amount of invested ECU, you earned ECU from the investment and the final earned ECU trough the whole experiment.</p>
+<p>Your non-invested points: {{participant.nonInvestedPoints}}</p>
+<p>Your points from investment: {{participant.totalInvestmentPoints}}</p>
+<p>Total points: {{participant.points}}</p>
+<p>Please stay at your seat until the experimenter approaches to give you your lottery tickets based on your final earned ECU. Please note that all the numbers with decimal numbers will be rounder to the whole number following the logic <0.50=0 and >=0.50=1.</p>
+`;

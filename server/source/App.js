@@ -150,6 +150,15 @@ class App {
 
         this.vueModels = {};
         this.vueComputed = {};
+        this.vueMethods = {};
+
+        this.vueMethodsDefaults = {
+            checkForm: function (e) {
+                return true;
+                e.preventDefault();
+            }
+        }
+
         this.clientScripts = null;
 
         // Paths of script tags.
@@ -711,9 +720,10 @@ class App {
             html = html.replace('{{stages}}', stagesHTML);
         }
 
-        if (html.includes('{{waiting-screens}}') && app.waitingScreen != null) {
-            html = html.replace('{{waiting-screens}}', app.waitingScreen);
-        }
+        // if (html.includes('{{waiting-screens}}') && app.waitingScreen != null) {
+        //     html = html.replace('{{waiting-screens}}', app.waitingScreen);
+        // }
+        html = html.replace('{{waiting-screens}}', waitingScreensHTML);
 
         // Replace {{ }} markers.
         var markerStart = app.textMarkerBegin;
@@ -747,19 +757,19 @@ class App {
         if (this.modifyPathsToIncludeId) {
 
             // Temporary fix, do not change anything that starts with '/' or 'http'.
-            html = html.replace('src="/', 'src/="');
-            html = html.replace("src='/", "src/='");
-            html = html.replace('src="http', 'src/http="');
-            html = html.replace("src='http", "src/http='");
+            html = html.replace(/src="\//gmi, 'srcXXX="');
+            html = html.replace(/src='\//gmi, "srcXXX='");
+            html = html.replace(/src="http/gmi, 'srcXXXhttp="');
+            html = html.replace(/src='http/gmi, "srcXXXhttp='");
 
-            html = html.replace('src="', 'src="./' + this.shortId + '/');
-            html = html.replace("src='", "src='./" + this.shortId + '/');
+            html = html.replace(/src="/gmi, 'src="./' + this.shortId + '/');
+            html = html.replace(/src='/gmi, "src='./" + this.shortId + '/');
 
             // Revert fix.
-            html = html.replace('src/="', 'src="/');
-            html = html.replace("src/='", "src='/");
-            html = html.replace('src/http="', 'src="http');
-            html = html.replace("src/http='", "src='http");
+            html = html.replace(/srcXXX="/gmi, 'src="/');
+            html = html.replace(/srcXXX='/gmi, "src='/");
+            html = html.replace(/srcXXXhttp="/gmi, 'src="http');
+            html = html.replace(/srcXXXhttp='/gmi, "src='http");
 
         }
         // Return to client.
@@ -1526,6 +1536,15 @@ class App {
         out.vueComputedText = {};
         for (let i in this.vueComputed) {
             out.vueComputedText[i] = this.vueComputed[i].toString();
+        }
+        out.vueMethodsText = {};
+        for (let i in this.vueMethods) {
+            out.vueMethodsText[i] = this.vueMethods[i].toString();
+        }
+        for (let i in this.vueMethodsDefault) {
+            if (out.vueMethodsText[i] == null) {
+                out.vueMethodsText[i] = this.vueMethodsDefault[i].toString();
+            }
         }
         return out;
     }

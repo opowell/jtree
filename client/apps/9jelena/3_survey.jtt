@@ -1,0 +1,289 @@
+// TODO
+// 2. Randomize countries order.
+// WAITING Screen
+
+// SETTINGS
+app.countryNames = ['India', 'Hungary', 'Germany'];
+
+
+// end SETTINGS
+
+// TO CUSTOMIZE, SEE https://surveyjs.io/Examples/Library?id=questiontype-radiogroup&platform=Vue&theme=default
+app.useVue = false;
+app.html = `
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+        <script src="https://surveyjs.azureedge.net/1.0.53/survey.vue.js"></script>
+        <link href="https://surveyjs.azureedge.net/1.0.53/survey.css" type="text/css" rel="stylesheet"/>
+        <script src="https://unpkg.com/nouislider@9.2.0/distribute/nouislider.js"></script>
+        <script src="https://unpkg.com/wnumb@1.1.0"></script>
+        <link href="https://unpkg.com/nouislider@9.2.0/distribute/nouislider.min.css" rel="stylesheet"/>
+        <script src="https://unpkg.com/surveyjs-widgets"></script>
+        <style>
+        table {
+            font-size: 1em;
+        }
+        body {
+            max-width: none;
+        }
+        </style>
+    </head>
+    <body>
+        <div id="surveyElement">
+        <survey :survey='survey'/>
+        </div>
+        <div id="surveyResult"></div>
+        {{scripts}}
+    </body>
+</html>
+`
+
+app.surveyData = 
+    {
+        pages: [
+         {
+          name: "page1",
+          elements: [
+           {
+            type: "html",
+            name: "question2",
+            html: "To what extent you perceive the following foreign countries to be close or far away, in terms of psychic distance, from your home country (country of origin)? With psychic distance we mean the sum of factors (cultural or language differences, geographical distance, etc.) that affect the flow and interpretation of information to and from a foreign country.\n<br><br>\nFirst write your home country (country of origin) below. In case that you home country is on the list below, set the distance value to ‘0’ and the distance to the country on the list that you perceive to be the most distant to ‘100’. Assign index values for the remaining countries so that they reflect your relative perceived distance from both your home country and the one you consider to be most distant. For countries that you judge to be of equal distance, assign the same score."
+           },
+           {
+            type: "text",
+            name: "question1",
+            title: "Your home country (country of origin):",
+            isRequired: true
+           },
+           {
+            type: "html",
+            name: "question4",
+            html: "In case that you perceive yourself to belong equaly to 2 different cultures (e.g. born and grew up in one country, but raised with a family and values from another country), indicate your second home country below."
+           },
+           {
+            type: "text",
+            name: "question3",
+            title: "Second country (if any)"
+           },
+           {
+            type: "html",
+            name: "question5",
+            html: "Now indicate you psychic distance perception for the following countries moving the slider to your wished number. Be aware that you have to move slider even in the case when you want to indicate 0 as a value. In this case just move the slider forward and then back to 0."
+           },
+          ]
+         },
+         {
+          name: "page2",
+          elements: [
+           {
+            type: "matrix",
+            name: "question6",
+            title: "Please indicate the extent to which you agree or disagree with the following statement. Please do not think too long before answering; usually your first inclination is also the best one.",
+            isRequired: true,
+            columns: [
+             "1 Totally disagree",
+             "2",
+             "3",
+             "4",
+             "5",
+             "6",
+             "7",
+             "8",
+             "9 Totally agree"
+            ],
+            rows: [
+             {
+              value: "row1",
+              text: "Safety first"
+             },
+             {
+              value: "row2",
+              text: "I do not take risks with my health"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          name: "page3",
+          elements: [
+           {
+            type: "text",
+            name: "question8",
+            title: "Age",
+            isRequired: true,
+            inputType: "number"
+           },
+           {
+            type: "radiogroup",
+            name: "question9",
+            title: "What is your gender?",
+            choices: [
+             {
+              value: "item1",
+              text: "Female"
+             },
+             {
+              value: "item2",
+              text: "Male"
+             }
+            ]
+           }
+          ]
+         },
+         {
+          name: "page4",
+          elements: [
+           {
+            type: "text",
+            name: "question10",
+            title: "Years of full-time business experience (including full-time internships)",
+            isRequired: true
+           },
+           {
+            type: "text",
+            name: "question7",
+            title: "Current position",
+            isRequired: true
+           },
+           {
+            type: "text",
+            name: "question11",
+            title: "Current industry and city of work place",
+            isRequired: true
+           }
+          ],
+          title: "Please indicate your business experience:"
+         },
+         {
+          name: "page5",
+          elements: [
+           {
+            type: "text",
+            name: "question12",
+            title: "Number of years spent abroad",
+            isRequired: true
+           },
+           {
+            type: "text",
+            name: "question13",
+            title: "Countries in which you lived for more than 3 months",
+            isRequired: true
+           },
+           {
+            type: "checkbox",
+            name: "question14",
+            title: "Purposes for staying abroad for longer than 3 months (more answers possible)",
+            choices: [
+             {
+              value: "item1",
+              text: "Studying"
+             },
+             {
+              value: "item2",
+              text: "Work"
+             },
+             {
+              value: "item3",
+              text: "Accompaning family member(s)"
+             },
+             {
+              value: "item4",
+              text: "Tourism"
+             },
+             {
+              value: "item5",
+              text: "Others"
+             },
+             {
+              value: "item6",
+              text: "I have never stayed abroad for that long"
+             }
+            ]
+           }
+          ],
+          title: "Please indicate your international experience:"
+         },
+         {
+          name: "page6"
+         }
+        ]
+       }
+
+page6.waitingScreen = `
+<p>Thank you for participating in this experiment. You can find bellow the amount of invested ECU, you earned ECU from the investment and the final earned ECU trough the whole experiment.</p>
+<p>Your non-invested points: {{player.nonInvestedPoints}}</p>
+<p>Your points from investment: {{player.totalInvestmentPoints}}</p>
+<p>Total points: {{player.totalPoints}}</p>
+<p>Please stay at your seat until the experimenter approaches to give you your lottery tickets based on your final earned ECU. Please note that all the numbers with decimal numbers will be rounder to the whole number following the logic <0.50=0 and >=0.50=1.</p>
+`;
+
+for (let i=0; i<app.countryNames.length; i++) {
+    app.surveyData.pages[0].elements.push({
+        "type": "nouislider",
+        "name": "slider" + app.countryNames[i],
+        "title": app.countryNames[i],
+        "defaultValue": -1,
+        "rangeMax": 100,
+        "rangeMin": 0,
+        "pipsValues": [
+            0,
+            100
+        ],
+        "validators": [
+            {
+             "type": "numeric",
+             "minValue": 0,
+             "maxValue": 100
+            }
+        ],
+        "titleLocation": "bottom",
+    });
+}
+
+// DEFINE STAGES
+var questionsStage = app.newStage('questions');
+questionsStage.wrapPlayingScreenInFormTag = false;
+questionsStage.addOKButtonIfNone = false;
+questionsStage.activeScreen = `
+<script>
+
+Survey
+    .StylesManager
+    .applyTheme("default");
+
+jt.postUpdatePlayer = function() {
+    
+    var app = jt.data.player.group.period.app;
+
+    window.survey = new Survey.Model(app.surveyData);
+    
+    survey
+        .onComplete
+        .add(function (result) {
+            var stageName = jt.data.player.stage.id;
+            var values = {};
+            values.fnName = stageName;
+            let keys = Object.keys(result.data);
+            for (let i=0; i<keys.length; i++) {
+                values['player.' + keys[i]] = result.data[keys[i]];
+            }
+            jt.sendMessage(stageName, values);
+        });
+    
+    survey.completeText = 'OK';
+    
+    var app = new Vue({
+        el: '#surveyElement',
+        data: {
+            survey: survey
+        }
+    });
+        
+}
+
+</script>
+`;
+

@@ -60,6 +60,7 @@ jt.likertScale = function(field) {
 }
 
 jt.setFormDefaults = function() {
+ //   return;
     // Set up automated form submission for stages.
     $('form').each(function() {
         // If it only contains a single button, make this the submit button.
@@ -188,6 +189,10 @@ jt.mountVue = function(player) {
     let computed = player.stage.app.vueComputedText;
     for (let i in computed) {
         eval('vueComputed[i] = ' + computed[i]);
+    }
+    let methods = player.stage.app.vueMethodsText;
+    for (let i in methods) {
+        eval('vueMethods[i] = ' + methods[i]);
     }
 
     // Scan page for vue models, add if not already present.
@@ -385,7 +390,12 @@ jt.updatePlayer = function(player, updateVue) {
             }
         }
     }
+
+    jt.postUpdatePlayer();
+
 }
+
+jt.postUpdatePlayer = function() {}
 
 // Default client functionality to be included in all (most?) apps.
 jt.defaultConnected = function() {
@@ -474,7 +484,11 @@ jt.defaultConnected = function() {
         }
     });
 
+    jt.connected();
+
 }
+
+jt.connected = function() {}
 
 jt.endStage = function(player) {
     if (player == null) {
