@@ -6,9 +6,14 @@
 // Linked by index, so first country always goes with first name, etc.
 app.countries = ['Canada', 'Spain', 'Serbia'];
 app.managerNames = ['Owen', 'Jim', 'Jelena'];
-app.numReps = 2;
-app.choiceTime = 60; // in seconds
 
+// number of times to repeat each country and name pair. Each pair is randomly assigned a proposal.
+app.numReps = 2; 
+
+// in seconds
+app.choiceTime = 60;
+
+// The proposals that are shown.
 app.proposals = [
     {
         text: 'This is a proposal blah blah 1.',
@@ -35,7 +40,10 @@ app.proposals = [
         risk: 'low'
     }
 ]
+
+// How much players are able to invest.
 app.endowment = 10;
+
 // END SETTINGS.
 
 app.groupSize = 1;
@@ -76,6 +84,7 @@ question.playerStart = function(player) {
     player.country      = player.participant.countries[player.period().id - 1];
     player.managerName  = player.participant.managerNames[player.period().id - 1];
 }
+question.duration = app.choiceTime;
 question.activeScreen = `
 <div style="border: 1px solid #444; box-shadow: 0px 0px 5px 1px #585858; padding: 15px; margin: 15px;">
 <div>Reply | Reply All | Forward</div>
@@ -108,10 +117,9 @@ Country Manager {{player.country}}
 
 <div>
 Choose an amount to invest in this project (0 - {{app.endowment}}):
-<input name='invest' min=0 :max='app.endowment' type='number' required>
+<input name='player.invest' min=0 :max='app.endowment' type='number' required>
 </div>
 `;
-question.duration = app.choiceTime;
 
 question.playerEnd = function(player) {
     let probSuccess = null;
@@ -137,6 +145,6 @@ question.playerEnd = function(player) {
 
     player.points = app.endowment - player.invest + player.investReturn;
 
-    participant.totalInvestmentPoints += player.invest + player.investReturn;
-    participant.nonInvestedPoints += app.endowment - player.invest;
+    player.participant.totalInvestmentPoints += player.investReturn;
+    player.participant.nonInvestedPoints += app.endowment - player.invest;
 }

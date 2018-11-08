@@ -166,6 +166,7 @@ function ParticipantRow(participant) {
     var div = $('<tr class="participant-' + participant.id +'">');
     div.append($('<td>').text(participant.id));
     div.append($('<td><a href="http://' + partLink(participant.id) + '" target="_blank">' + partLink(participant.id) + '</a></td>'));
+    div.append($('<td><a href="http://' + fullPartLink(participant.id) + '" target="_blank">' + fullPartLink(participant.id) + '</a></td>'));
     div.append($('<td class="participant-' + participant.id + '-numClients">').text(participant.numClients));
     //    div.append($('<td class="participant-' + participant.id + '-numPoints">').text(round(participant.numPoints, 2)));
     div.append($('<td id="app-' + participant.id + '">').text('-'));
@@ -195,7 +196,7 @@ function addParticipantPlayerHeader(name) {
 function resetParticipantsTable() {
     $('#participants').empty();
     $('#session-participants-headers').empty();
-    const headers = ['id', 'link', 'clients', 'app', 'period', 'group', 'stage', 'time', 'status'];
+    const headers = ['id', 'link', 'full link', 'clients', 'app', 'period', 'group', 'stage', 'time', 'status'];
     for (let i=0; i<headers.length; i++) {
         $('#session-participants-headers').append($('<th>').text(headers[i]));
     }

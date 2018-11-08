@@ -7,6 +7,10 @@ partLink = function(pId) {
     }
 }
 
+fullPartLink = function(pId) {
+    return jt.serverURL() + '/session/' + jt.data.session.id + '/' + pId;
+}
+
 roomLink = function(roomId) {
     return jt.serverURL() + '/room/' + roomId;
 }

@@ -4,6 +4,14 @@ class ViewSessionSettings extends HTMLElement {
         <div id='view-session-general' class='session-tab hidden'>
 
             <div class='tab-grid'>
+                <div>Id</div>
+                <div>
+                    <input id='view-session-id-input' type='text'>
+                    <button type="button" class="btn btn-sm btn-primary" onclick='setSessionId();'>Set</button>
+                    <small class="form-text text-muted">
+                        Must be unique across all sessions. Clients must be reconnected after change.
+                    </small>
+            </div>
                 <div>Number of participants</div>
                 <div>
                     <div>
@@ -66,6 +74,12 @@ class ViewSessionSettings extends HTMLElement {
             </div>
     `;
     }
+}
+
+setSessionId = function() {
+    let newId = $('#view-session-id-input').val();
+    let origId = jt.data.session.id;
+    server.setSessionId(origId, newId);
 }
 
 updateAllowNewParts = function() {

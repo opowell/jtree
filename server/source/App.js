@@ -3,6 +3,7 @@ const Period    = require('./Period.js');
 const Utils     = require('./Utils.js');
 const fs        = require('fs-extra');
 const path      = require('path');
+const Timer     = require('./Timer.js');
 
 /** Class that represents an app. */
 class App {
@@ -101,6 +102,9 @@ class App {
          */
         this.optionValues = {};
 
+        // If not null, the length of time a participant has to play this app.
+        this.duration = null;
+
         /** Used by the participant client to find and create dynamic text elements.*/
         this.textMarkerBegin = '{{{';
         this.textMarkerEnd = '}}}';
@@ -134,7 +138,7 @@ class App {
                 </head>
                 <body>
                     <div id='jtree'>
-                        <p>Period: {{period.id}}/{{app.numPeriods}}</p>
+                        <p v-show='app.numPeriods > 1'>Period: {{period.id}}/{{app.numPeriods}}</p>
                         <p v-show='hasTimeout'>Time left (s): {{clock.totalSeconds}}</p>
                         <span v-show='player.status=="playing"'>
                             {{stages}}
@@ -372,6 +376,13 @@ class App {
         }
 
         session.apps[index-1] = app;
+    }
+
+    /**
+     * Returns the amount of time this participant has to play this app.
+     */
+    getParticipantDuration(participant) {
+        return this.duration;
     }
 
     /**
@@ -1294,6 +1305,15 @@ class App {
         participant.periodIndex = -1;
         participant.emit('participantSetAppIndex', {appIndex: this.indexInSession()});
 
+        let duration = this.getParticipantDuration(participant);
+        if (duration != null) {
+            participant.appTimer = new Timer.new(
+                function() {
+                    participant.session.addMessageToStartOfQueue(participant, {}, 'endCurrentApp');
+                },
+                duration*1000
+            );
+        }
         this.participantStart(participant);
         this.participantMoveToNextPeriod(participant);
 

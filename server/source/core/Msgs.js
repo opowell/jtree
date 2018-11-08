@@ -83,6 +83,12 @@ class Msgs {
         this.jt.io.to('socket_' + socket.id).emit('dataMessage', outMessage);
     }
 
+    setSessionId(data, socket) {
+        var session = this.jt.data.getSession(data.oldId);
+        session.setId(data.newId);
+        this.jt.io.to('socket_' + socket.id).emit('setSessionId', data);
+    }
+
     /*
      * setNumParticipants - Sets the specified number of participants to the session.
      *

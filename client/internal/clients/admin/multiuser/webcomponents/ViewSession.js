@@ -89,4 +89,9 @@ jt.setSessionView = function(a) {
     }
 }
 
+jt.showSessionId = function(id) {
+    $('#session-id').text(id);
+    $('#view-session-id-input').val(id);
+}
+
 window.customElements.define('view-session', ViewSession);

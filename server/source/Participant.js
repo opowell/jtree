@@ -35,6 +35,7 @@ class Participant {
         this.players = [];
 
         /**
+         * The current player of this participant.
          * @type {Player}
          * @default null
          */
@@ -78,7 +79,18 @@ class Participant {
          * 'outputHideAuto' fields are not included in output.
          * @type {String[]}
          */
-        this.outputHideAuto = ['this', 'session', 'players', 'clients', 'outputHide', 'outputHideAuto', 'player', 'period', 'autoplay'];
+        this.outputHideAuto = [
+            'this',
+            'session',
+            'players',
+            'clients',
+            'outputHide',
+            'outputHideAuto',
+            'player',
+            'period',
+            'autoplay',
+            'appTimer',
+        ];
     }
 
     /**
@@ -139,7 +151,15 @@ class Participant {
         return false;
     }
 
+    finishCurrentApp() {
+        // ensure that they are in the last period and waiting
+        if (this.player.group.period.id < this.app().numPeriods) {
+            // this.player.group.
+        }
+    }
+
     endCurrentApp() {
+
         if (this.app() !== null) {
             this.app().participantEnd(this);
         }
@@ -157,6 +177,10 @@ class Participant {
         this.session.tryToEnd();
     }
 
+    refreshClients() {
+        this.emit('reload');
+    }
+
     startApp(app) {
 
         this.appIndex = app.indexInSession();
@@ -172,6 +196,12 @@ class Participant {
         this.periodIndex = period.id - 1;
         this.app().participantBeginPeriod(this);
     }
+
+    canProcessMessage() {
+        return true;
+    }
+
+
 
     /**
      * roomId - description

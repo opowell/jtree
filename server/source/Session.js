@@ -345,8 +345,8 @@ class Session {
         //        fs.appendFileSync(this.getOutputDir() + '/messages.csv', line);
     }
 
-    addMessageToStartOfQueue(obj, da, funcName) {
-        var msg = {obj: obj, data: da, fn: funcName, jt: this.jt};
+    addMessageToStartOfQueue(obj, data, funcName) {
+        var msg = {obj: obj, data: data, fn: funcName, jt: this.jt};
         this.asyncQueue.unshift(msg, this.messageCallback);
         //        var playerId = Player.genRoomId(da.player);
         //        var line = cl.participant.id + ', ' + cl.id + ', ' + playerId + ', ' + funcName + ', ' + JSON.stringify(da.data) + '\n';
@@ -359,9 +359,11 @@ class Session {
         let fn = msg.fn;
         let jt = msg.jt;
         try {
-            if (fn !== 'endStage') {
+
+            if (fn !== 'endStage' && fn !== 'endApp') {
                 data = Utils.parseFloatRec(data);
             }
+            
             if (obj.canProcessMessage()) {
                 obj[fn](data);
                 //            }
@@ -431,6 +433,14 @@ class Session {
         for (var i in this.participants) {
             var participant = this.participants[i];
             participant.player.emitUpdate2();
+        }
+    }
+
+    setId(id) {
+        this.id = id;
+        for (var i in this.participants) {
+            var participant = this.participants[i];
+            participant.refreshClients();
         }
     }
 

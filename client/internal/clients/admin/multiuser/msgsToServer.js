@@ -19,6 +19,7 @@ server.startSessionFromQueue = function(id) { jt.socket.emit('startSessionFromQu
 server.createAppFromFile    = function(fn, contents) { jt.socket.emit('createAppFromFile', {fn: fn, contents: contents})}
 server.saveOutput = function() { jt.socket.emit('saveOutput', jt.data.session.id); }
 server.deleteQueue = function(id) { jt.socket.emit('deleteQueue', id); }
+server.setSessionId = function(oldId, newId) { jt.socket.emit('setSessionId', {oldId: oldId, newId: newId}); }
 
 server.sendMessages = function(data) {
     jt.socket.emit('messages', data);

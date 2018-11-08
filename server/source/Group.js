@@ -188,12 +188,13 @@ class Group {
             return;
         }
 
-        if (stage.duration > 0) {
+        let groupDuration = stage.getGroupDuration(group);
+        if (groupDuration > 0) {
             group.stageTimer = new Timer.new(
                 function() {
                     group.session().addMessageToStartOfQueue(group, stage, 'endStage');
                 },
-                stage.duration*1000,
+                groupDuration*1000,
                 stage.indexInApp());
         }
 

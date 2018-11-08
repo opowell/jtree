@@ -16,63 +16,65 @@ Welcome and thanks for participating. From now on,
 
 let page2 = app.newStage('page2');
 page2.activeScreen = `
-<p>You are the <strong>Business Development Manager</strong> in the Viennese HQ of the Austrian aerospace company “Carnegy”. Carnegy has many local subsidiaries abroad. All subsidiaries are considered to serve roughly similarly sized markets (despite population differences).</p><p><br></p>
-<p>In the bottom-up strategy process, subsidiary top managers usually pitch first rough project ideas to you. This year, <strong>12 different project proposals, </strong><strong><span style="font-weight:normal;mso-bidi-font-weight:bold">which</span></strong> seem to fit local markets, reach your inbox.</p>
-<p>Now, you have to decide <strong>how much money you would like to invest</strong> in each project. However, the board gave you the directive that you can only spend <strong>up to 100,000 EUR</strong> per project. You cannot spend more than 100,000 EUR on one project even if you “saved” money in others. There is also no pressure to spend all resources or none. It is your decision.</p>
+<p>You are the <b>Business Development Manager</b> in the Viennese HQ of the Austrian aerospace company “Carnegy”. Carnegy has many local subsidiaries abroad. All subsidiaries are considered to serve roughly similarly sized markets (despite population differences).</p>
+<p>In the bottom-up strategy process, subsidiary top managers usually pitch first rough project ideas to you. This year, <b>12 different project proposals, </b>which seem to fit local markets, reach your inbox.</p>
+<p>Now, you have to decide <b>how much money you would like to invest</b> in each project. However, the board gave you the directive that you can only spend <b>up to 100,000 EUR</b> per project. You cannot spend more than 100,000 EUR on one project even if you “saved” money in others. There is also no pressure to spend all resources or none. It is your decision.</p>
 `
 
 let page3 = app.newStage('page3');
+page3.playerStart = function(player) {
+    player.negativeFirst = Math.random() < 0.5;
+}
 page3.activeScreen = `
 <p>You might want to consider the following criteria:</p>
 
 <ul>
- <li><strong><span style="font-weight:normal;
-mso-bidi-font-weight:bold">You keep the money that you did not invest in your budget for next year (so “not investing 100,000 EUR” means that your financial “return” one year later will 100,000 EUR)</span></strong></li>
- <li>The risk profile of the project will have an influence on your returns. Before you, Carnegy’s risk management team (some colleagues in the HQ) has already had a look at the projects and evaluated their <strong>risk</strong>. There are two broad categories:
+ <li><b><span style="font-weight:normal;
+mso-bidi-font-weight:bold">You keep the money that you did not invest in your budget for next year (so “not investing 100,000 EUR” means that your financial “return” one year later will 100,000 EUR)</span></b></li>
+ <li>The risk profile of the project will have an influence on your returns. Before you, Carnegy’s risk management team (some colleagues in the HQ) has already had a look at the projects and evaluated their <b>risk</b>. There are two broad categories:
  <ul>
-  <li><strong>“High risk</strong> <strong>proposals”</strong> mean that you have a
-  <ul>
-   <li><strong>75% chance to lose what you invested, </strong><strong><span style="font-weight:
-normal;mso-bidi-font-weight:bold">and</span> </strong><strong><span style="font-weight:normal;mso-bidi-font-weight:bold">a</span></strong></li>
-   <li><strong><span style="font-weight:normal;mso-bidi-font-weight:bold"><strong>25% chance to gain 5 times your investment</strong></span></strong></li>
-  </ul>
+  <li><b>“High risk proposals”</b> mean that you have a
+    <ul>
+        <li v-show='player.negativeFirst'><b>75% chance to lose what you invested</b>, and a</li>
+        <li><b>25% chance to gain 5 times your investment</b></li>
+        <li v-show='!player.negativeFirst'><b>75% chance to lose what you invested</b>, and a</li>
+    </ul>
   </li>
-  <li><strong>“Low risk proposals”</strong> mean you have a
-  <ul>
-   <li><strong>25% chance to lose what you invested, </strong><strong><span style="font-weight:
-normal;mso-bidi-font-weight:bold">and a</span></strong></li>
-   <li><strong><span style="font-weight:
-normal;mso-bidi-font-weight:bold"><strong>75% chance to gain 1.66 times your investment</strong>.</span></strong></li>
-  </ul>
+  <li><b>“Low risk proposals”</b> mean that you have a
+    <ul>
+        <li v-show='player.negativeFirst'><b>25% chance to lose what you invested</b>, and a</li>
+        <li><b>75% chance to gain 1.66 times your investment</b>.</li>
+        <li v-show='!player.negativeFirst'><b>25% chance to lose what you invested</b>, and a</li>
+    </ul>
   </li>
  </ul>
  </li>
- <li>Of course, the board wants you to <strong>maximize the returns</strong>.
+ <li>Of course, the board wants you to <b>maximize the returns</b>.
  <ul>
   <li>The returns of each project will be generated by the computer and summed up.</li>
   <li>While good outcomes increase your chances of getting promoted, you will also be paid in form of lottery tickets.
   <ul>
-   <li>The <strong>higher the financial returns</strong> – the <strong>more lottery tickets</strong> you get.</li>
-   <li>At the end, a winner of a <strong>100 EUR price</strong> will be drawn from the lottery tickets</li>
+   <li>The <b>higher the financial returns</b> – the <b>more lottery tickets</b> you get.</li>
+   <li>At the end, a winner of a <b>100 EUR price</b> will be drawn from the lottery tickets</li>
   </ul>
   </li>
-  <li><strong>Thus, the better you perform, the higher your chances of getting the 100 EUR price.</strong></li>
+  <li><b>Thus, the better you perform, the higher your chances of getting the 100 EUR prize.</b></li>
  </ul>
  </li>
 </ul>`
 
 let page4 = app.newStage('page4');
 page4.activeScreen = `
-<p>Once you click on “<strong>start</strong>” [the little arrow in the lower right corner],</p>
+<p>Once you click “<b>OK</b>”,</p>
 
 <ul>
  <li>you will be presented with the first email and info on the first project.</li>
  <li>you are under heavy time pressure. Therefore,…
  <ul>
-  <li>… you have to allocate your budget <strong>within 60 seconds</strong>, and…</li>
+  <li>… you have to allocate your budget <b>within 60 seconds</b>, and…</li>
   <li>… you cannot go back to reconsider your investments.</li>
  </ul>
 </ul>
 
-<p><strong>After your decisions</strong>, you will be asked to fill in a questionnaire. There are no “right” or “wrong” answers. Just put in what you think fits best.</p>
+<p><b>After your decisions</b>, you will be asked to fill in a questionnaire. There are no “right” or “wrong” answers. Just put in what you think fits best.</p>
 `

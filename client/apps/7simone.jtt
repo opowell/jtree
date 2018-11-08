@@ -9,14 +9,46 @@ app.questions = [
     {
         list: '1234567890',
         answer: '234'
-    }
+    },
+    {
+        list: 'abcdefghi',
+        answer: 'abc'
+    },
+    {
+        list: '1234567890',
+        answer: '234'
+    },
+    {
+        list: 'abcdefghi',
+        answer: 'abc'
+    },
+    {
+        list: '1234567890',
+        answer: '234'
+    },
+    {
+        list: 'abcdefghi',
+        answer: 'abc'
+    },
+    {
+        list: '1234567890',
+        answer: '234'
+    },
 ];
 app.numPeriods = app.questions.length;
 app.participantStart = function(participant) {
     participant.score = 0;
+    participant.finishTime = new Date().getTime() + app.duration*1000;
 }
+app.duration = 10; // in seconds
 
 var decideStage = app.newStage('decide');
+decideStage.canPlayerParticipate = function(player) {
+    return new Date().getTime() < player.participant.finishTime;
+}
+decideStage.getGroupDuration = function(group) {
+    return (group.players[0].participant.finishTime - new Date().getTime()) / 1000;
+}
 decideStage.playerStart = function(player) {
     player.list = app.questions[player.period().id-1].list;
     player.answer = app.questions[player.period().id-1].answer;

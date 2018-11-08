@@ -388,8 +388,13 @@ class Stage {
         out.groupEnd = this.groupEnd.toString();
         out.playerStart = this.playerStart.toString();
         out.playerEnd = this.playerEnd.toString();
+        out.getGroupDuration = this.getGroupDuration.toString();
 
         return out;
+    }
+
+    getGroupDuration(group) {
+        return this.duration;
     }
 
     getOutputDir() {

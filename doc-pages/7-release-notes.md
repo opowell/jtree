@@ -1,3 +1,7 @@
+##### 2018.11.08 - 0.6.9
+- Added "Stage.getGroupDuration(group)" function to allow stage duration to be dynamic.
+- Allow editing of session ids.
+
 ##### 2018.10.31 - 0.6.8
 - Fix for Queue options.
 - Added "timeElapsed" field to client.

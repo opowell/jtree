@@ -56,6 +56,15 @@ msgs.createQueue = function(queue) {
     showQueue(queue);
 }
 
+msgs.setSessionId = function(data) {
+    var session = findById(jt.data.sessions, data.oldId);
+    session.id = data.newId;
+    if (jt.data.session.id === data.oldId) {
+        jt.data.session.id = data.newId;
+        jt.showSessionId(data.newId);
+    }
+}
+
 msgs.appSaved = function(app) {
     delete jt.data.appInfos[app.origId];
     jt.data.appInfos[app.id] = app;
@@ -114,7 +123,7 @@ msgs.openSession = function(session) {
     localStorage.setItem('sessionId', session.id);
 
     if (session !== undefined) {
-        $('#session-id').text(session.id);
+        jt.showSessionId(session.id);
         var filelink = jt.data.jtreeLocalPath + '/sessions/' + session.id + '.csv';
         $('#view-session-results-filelink')
             .text(filelink)
@@ -135,6 +144,18 @@ msgs.openSession = function(session) {
     jt.view.updateNumParticipants();
     jt.setSessionView('appqueue');
 }
+
+msgs.updateSessionId = function(md) {
+    var session = findById(jt.data.sessions, d.sId);
+    if (session !== null && session !== undefined) {
+        session.users.push(d.uId);
+        showSessions();
+    }
+    if (jt.data.session.id === d.sId) {
+        updateSessionUsers();
+    }
+}
+
 msgs.participantSetAppIndex = function(md) {
     var participant = jt.data.session.participants[md.participantId];
     participant.appIndex = md.appIndex;

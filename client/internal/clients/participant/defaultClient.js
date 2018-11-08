@@ -577,6 +577,8 @@ jt.clockStop = function(timeLeft) {
 
 jt.startClock = function(endTime) {
 
+    jt.vue.hasTimeout = true;
+
     console.log('clock-start until ' + endTime);
 
     // Cancel update of UI.

@@ -187,9 +187,9 @@ page5.activeScreen = `
 
 page5.useAppWaitingScreen = false;
 page5.waitingScreen = `
-<p>Thank you for participating in this experiment. You can find bellow the amount of invested ECU, you earned ECU from the investment and the final earned ECU trough the whole experiment.</p>
+<p>Thank you for participating in this experiment. You can find below the amount of invested ECU, your earned ECU from the investment and the final earned ECU through the whole experiment.</p>
 <p>Your non-invested points: {{participant.nonInvestedPoints}}</p>
-<p>Your points from investment: {{participant.totalInvestmentPoints}}</p>
-<p>Total points: {{participant.points}}</p>
-<p>Please stay at your seat until the experimenter approaches to give you your lottery tickets based on your final earned ECU. Please note that all the numbers with decimal numbers will be rounder to the whole number following the logic <0.50=0 and >=0.50=1.</p>
+<p>Your points from investment: {{participant.totalInvestmentPoints | round}}</p>
+<p>Total points: {{participant.numPoints | round}}</p>
+<p>Please stay at your seat until the experimenter approaches to give you your lottery tickets based on your final earned ECU. Please note that all the numbers with decimal numbers will be rounded to the nearest whole number following the logic <0.50=0 and >=0.50=1.</p>
 `;
