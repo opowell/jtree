@@ -1,3 +1,6 @@
+##### 2018.11.14 - 0.6.10
+- Session: fixed "Download" button.
+
 ##### 2018.11.08 - 0.6.9
 - Added "Stage.getGroupDuration(group)" function to allow stage duration to be dynamic.
 - Allow editing of session ids.

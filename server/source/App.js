@@ -936,7 +936,7 @@ class App {
             for (var h=0; h<participantHeaders.length; h++) {
                 var header = participantHeaders[h];
                 if (participant[header] !== undefined) {
-                    newLine += participant[header];
+                    newLine += JSON.stringify(participant[header]);
                 }
                 if (h<participantHeaders.length-1) {
                     newLine += ',';

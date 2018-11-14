@@ -105,7 +105,9 @@ class StaticServer {
         expApp.get('/session-download/:sId', function(req, res) {
             var session = self.jt.data.session(req.params.sId);
             var out = session.saveOutput();
-            res.send(out);
+            res.setHeader('Content-disposition', 'attachment; filename=' + session.csvFN());
+            res.set('Content-Type', 'text/csv');
+            res.status(200).send(out);
         });
 
         expApp.get('/room/:rId/:pId', function(req, res) {

@@ -8,7 +8,7 @@ REM Call this file from root folder (/jtree), which should be two levels up from
 REM Update README.md on Github.
 REM Update docs/README.md.
 
-set "vers=0.6.9"
+set "vers=0.6.10"
 
 REM ------- Prepare output folder.
 call del ".\releases\%vers%" /Q /F
