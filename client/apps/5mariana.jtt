@@ -10,6 +10,11 @@ app.title = '5mariana - typing task.';
 app.description = 'Real effort typing task with varying gross and net performance rates.';
 app.author = 'opowell@gmail.com';
 
+app.vueModels.participant = {
+    'periodPayouts': [],
+    'capPoints': 0
+}; // must declare vue fields up front.
+
 var introStage = app.newStage('intro');
 introStage.activeScreen = `
     <h4>INFORMATION</h4>
@@ -73,10 +78,12 @@ resultsStage.canPlayerParticipate = function(player) {
 }
 resultsStage.activeScreen = `
 <p>
-  Your payout in Period 1 is EUR {{participant.periodPayouts[0]}}.<br>
-  Your payout in Period 2 is EUR {{participant.periodPayouts[1]}}.<br>
-  Your payout in Period 3 is EUR {{participant.periodPayouts[2]}}.<br>
+<div v-for='(payout, index) in participant.periodPayouts'>
+Your payout in Period {{index+1}} is EUR {{payout}}.
+</div>
 </p>
 <b>Your total payout is EUR {{participant.capPoints.toFixed(2)}}.</b><br>
 <br>
 `
+
+

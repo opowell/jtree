@@ -154,6 +154,56 @@ jt.vueMounted = false;
 jt.vueMethods = {};
 
 jt.mountVue = function(player) {
+    if (player.stage.app.useVue) {
+    
+        let vueComputed = {
+            clock: function() {
+                return jt.getClock(this.timeLeft);
+            },
+            groupOtherPlayers: function() {
+                let players = [];
+                let me = this.player;
+                if (this.group.players != null && this.group.players.length > 0) {
+                    players = this.group.players.filter(function (grpPlyr) {
+                        return grpPlyr.id !== me.id;
+                    })
+                }
+                return players;
+            }
+        };
+        let computed = player.stage.app.vueComputedText;
+        for (let i in computed) {
+            eval('vueComputed[i] = ' + computed[i]);
+        }
+        let methods = player.stage.app.vueMethodsText;
+        for (let i in methods) {
+            eval('vueMethods[i] = ' + methods[i]);
+        }
+    
+        let vueModel = jt.getVueModels(player);
+
+        jt.vue = new Vue({
+            el: '#jtree',
+            data: vueModel,
+            computed: vueComputed,
+            methods: jt.vueMethods,
+            mounted: function() {
+                jt.setFormDefaults();
+                jt.setValues();
+            }
+        });
+    } else {
+        jt.vue = {};
+        jt.setFormDefaults();
+        jt.setValues();
+    }
+
+    jt.vueMounted = true;
+    jt.updatePlayer(player, false);
+
+}
+
+jt.getVueModels = function(player) {
     let vueModel = {
         jt: jt,
         player: player,
@@ -166,33 +216,21 @@ jt.mountVue = function(player) {
         hasTimeout: false,
         timeElapsed: 0
     }
-    vueModel.group.players = {};
+    if (vueModel.group.players == null) {
+        vueModel.group.players = [];
+    }
     let models = player.stage.app.vueModels;
     for (let i in models) {
-        vueModel[i] = models[i];
-    }
-    let vueComputed = {
-        clock: function() {
-            return jt.getClock(this.timeLeft);
-        },
-        groupOtherPlayers: function() {
-            let players = [];
-            let me = this.player;
-            if (this.group.players != null && this.group.players.length > 0) {
-                players = this.group.players.filter(function (grpPlyr) {
-                    return grpPlyr.id !== me.id;
-                })
-            }
-            return players;
+        if (vueModel[i] == null) {
+            vueModel[i] = models[i];
         }
-    };
-    let computed = player.stage.app.vueComputedText;
-    for (let i in computed) {
-        eval('vueComputed[i] = ' + computed[i]);
     }
-    let methods = player.stage.app.vueMethodsText;
-    for (let i in methods) {
-        eval('vueMethods[i] = ' + methods[i]);
+    if (models.participant != null) {
+        for (let i in models.participant) {
+            if (vueModel.participant[i] == null) {
+                vueModel.participant[i] = models.participant[i];
+            }
+        }
     }
 
     // Scan page for vue models, add if not already present.
@@ -215,26 +253,7 @@ jt.mountVue = function(player) {
         index = page.indexOf('@input=', end);
     }
 
-    if (player.stage.app.useVue) {
-        jt.vue = new Vue({
-            el: '#jtree',
-            data: vueModel,
-            computed: vueComputed,
-            methods: jt.vueMethods,
-            mounted: function() {
-                jt.setFormDefaults();
-                jt.setValues();
-            }
-        });
-    } else {
-        jt.vue = {};
-        jt.setFormDefaults();
-        jt.setValues();
-    }
-
-    jt.vueMounted = true;
-    jt.updatePlayer(player, false);
-
+    return vueModel;
 }
 
 jt.setValues = function(player) {
@@ -308,12 +327,13 @@ jt.updatePlayer = function(player, updateVue) {
         return;
     } else {
         if (updateVue) {
-            jt.vue.player = player;
-            jt.vue.group = player.group;
-            jt.vue.period = player.group.period;
-            jt.vue.stage = player.stage;
-            jt.vue.app = player.stage.app;
-            jt.vue.participant = player.participant;
+            let models = jt.getVueModels(player);
+            jt.vue.player = models.player;
+            jt.vue.group = models.group;
+            jt.vue.period = models.period;
+            jt.vue.stage = models.stage;
+            jt.vue.app = models.app;
+            jt.vue.participant = models.participant;
             jt.vue.timeElapsed = 0;
             jt.setValues(player);
         }
@@ -559,12 +579,12 @@ jt.endStage = function(player) {
 
 jt.setStageName = function(name) {
     document.title = name;
-    $('body').css('display', 'block');
     $('body').find(':input')
         .removeAttr('checked')
         .removeAttr('selected')
         .not(':button, :submit, :reset, :hidden, :radio, :checkbox')
         .val('');
+    $('body').removeClass('hidden');
 }
 
 jt.clockStop = function(timeLeft) {

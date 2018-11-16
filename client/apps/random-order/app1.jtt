@@ -1,0 +1,5 @@
+app.groupSize = 1;
+var stage = app.newStage('APP 1');
+stage.activeScreen = `
+<h1>App 1</h1>
+`

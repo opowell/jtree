@@ -1,26 +1,19 @@
-html {
-    /* display: flex; */
-    /* justify-content: center; */
-    /* flex-wrap: wrap; */
-}
-
-table {
-  font-size: 3vh;
-}
-
 body {
-    margin: 2vh;
-    font-size: 3vh;
-    min-height: 96vh;
-    display: none;
-    align-items: center;
-    flex-direction: column;
-    justify-content: center;
-    max-width: 800px;
+    /* margin: 2vh; */
+    /* min-height: 96vh; */
+    /* display: none; */
+    /* align-items: center; */
+    /* flex-direction: column; */
+    /* justify-content: center; */
+    /* max-width: 800px; */
 }
 
 *[jt-stage] {
     max-height: 0px;
+}
+
+.hidden {
+    display: none;
 }
 
 .stage-active {
@@ -28,54 +21,45 @@ body {
 }
 
 select, input, textarea {
-    font-size: 3vh;
     padding: 2px;
     font-family: 'Arial';
+    max-width: 100%;
 }
 
 button {
-    font-size: 3vh;
     padding: 1vh;
 }
 
-/* On screens that are 992px or less, set the background color to blue */
-@media screen and (max-width: 992px) {
+/* TABLETS */
+/* @media screen and (max-width: 992px) {
   body {
-      margin: 3vh;
-      /* font-size: 4vh; */
-      min-height: 94vh;
   }
 
   input {
-      font-size: 4vh;
       padding: 1vh;
   }
 
   button {
-      font-size: 4vh;
+      padding: 1vh;
+  }
+} */
+
+/* PHONES */
+@media screen and (max-width: 600px) {
+  body {
+      margin: 4vh;
+      min-height: 92vh;
+  }
+
+  input {
+      padding: 1vh;
+  }
+
+  button {
       padding: 1vh;
   }
 }
 
-/* On screens that are 600px or less, set the background color to olive */
-@media screen and (max-width: 600px) {
-  body {
-      margin: 4vh;
-      font-size: 8vh;
-      min-height: 92vh;
-  }
-
-  table {
-    font-size: 8vh;
-  }
-
-  input {
-      font-size: 8vh;
-      padding: 1vh;
-  }
-
-  button {
-      font-size: 8vh;
-      padding: 1vh;
-  }
+body, input, button {
+    font-size: 16pt;
 }

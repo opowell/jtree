@@ -32,7 +32,16 @@ class Session {
     * @param  {Object} jt         Server object.
     * @param  {type} id               The id of the new session.
     */
-    constructor(jt, id) {
+    constructor(jt, id, options) {
+
+        if (options == null) {
+            options = {};
+        }
+
+        if (options.createFolder == null) {
+            options.createFolder = true;
+        }
+
         this.jt = jt;
         this.id = id;
         if (this.id === null || this.id === undefined) {
@@ -232,6 +241,11 @@ class Session {
     * @param  {string} appId The ID of the app to add to this session.
     */
     addApp(appPath, options) {
+
+        if (this.queuePath != null) {
+            appPath = path.join(this.queuePath, appPath);
+        }
+
         var app = this.jt.data.loadApp(appPath, this, appPath, options);
         if (app !== null) {
             this.apps.push(app);
@@ -295,7 +309,7 @@ class Session {
             var periodId = msg.periodId;
             var participant = session.participant(pId);
             if (participant.stageId() === stageId && participant.player.periodIndex() === periodId) {
-                participant.app().playerMoveToNextStage(participant.player);
+                participant.getApp().playerMoveToNextStage(participant.player);
             }
         });
 
@@ -501,12 +515,12 @@ class Session {
             res.sendFile(path.join(this.jt.path, this.participantUI() + '/readyClient.html'));
         }
         // Participant, but not in an app yet.
-        else if (participant.app() === null) {
+        else if (participant.getApp() == null) {
             res.sendFile(path.join(this.jt.path, this.participantUI() + '/readyClient.html'));
         }
         // participant in an app.
         else {
-            const app = participant.app();
+            const app = participant.getApp();
             app.sendParticipantPage(req, res, participant);
         }
     }
@@ -887,8 +901,8 @@ class Session {
     * @return {type}             description
     */
     participantMoveToNextApp(participant) {
-        if (participant.app() !== null) {
-            participant.app().participantEnd(participant);
+        if (participant.getApp() != null) {
+            participant.getApp().participantEnd(participant);
         }
 
         if (participant.appIndex < this.apps.length) {
@@ -950,7 +964,7 @@ class Session {
             return false;
         }
 
-        var app = this.apps[participant.appIndex-1];
+        var app = this.getApp(participant);
         app.participantBegin(participant);
     }
 
@@ -967,9 +981,16 @@ class Session {
         }
     }
 
+    participantStart(participant) {
+        
+    }
+
     start() {
         if (!this.started) {
             this.started = true;
+            for (let p in this.participants) {
+                this.participantStart(this.participants[p]);
+            }
             // this.io().to(this.roomId()).emit('dataUpdate', [{
             //     roomId: this.roomId(),
             //     field: 'started',
@@ -987,11 +1008,15 @@ class Session {
         return this.jt.io;
     }
 
-    getNextApp(participant) {
-        if (participant.appIndex >= this.apps.length) {
+    /**
+     * Return the next app in the session for this participant, null if there are no more apps for this participant.
+     * @param {Participant} participant 
+     */
+    getApp(participant) {
+        if (participant.appIndex < 1 || participant.appIndex > this.apps.length) {
             return null;
         } else {
-            return this.apps[participant.appIndex];
+            return this.apps[participant.appIndex - 1];
         }
     }
 

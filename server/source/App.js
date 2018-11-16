@@ -135,8 +135,9 @@ class App {
             <html>
                 <head>
                     <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
                 </head>
-                <body>
+                <body class='hidden'>
                     <div id='jtree'>
                         <p v-show='app.numPeriods > 1'>Period: {{period.id}}/{{app.numPeriods}}</p>
                         <p v-show='hasTimeout'>Time left (s): {{clock.totalSeconds}}</p>
@@ -823,14 +824,20 @@ class App {
      * CALLED FROM
      * - {@link App#tryToEndApp}
      */
-    end() {
+    internalEnd() {
 
+        this.end();
+
+        let timeStamp = this.session.jt.settings.getConsoleTimeStamp();
+        console.log(timeStamp + ' END   - APP   : ' + this.shortId);
 
         this.finished = true;
 
         this.saveOutput(this.session.csvFN());
 
     }
+
+    end() {}
 
     saveOutput(fn) {
 
@@ -993,7 +1000,7 @@ class App {
      * @return {string}  Session path + {@link App#indexInSession} + '_' + app.id
      */
     getOutputFN() {
-        return this.session.getOutputDir() + '/' + this.indexInSession() + '_' + this.shortId;
+        return this.session.getOutputDir() + '/' + this.getIdInSession();
     }
 
     /**
@@ -1017,6 +1024,10 @@ class App {
                 this.playerMoveToNextStage(group.players[p]);
             }
         }
+    }
+
+    getIdInSession() {
+        return this.indexInSession() + '_' + this.shortId;
     }
 
     /**
@@ -1611,7 +1622,7 @@ class App {
             }
         }
         if (proceed) {
-            this.end();
+            this.internalEnd();
         }
     }
 
