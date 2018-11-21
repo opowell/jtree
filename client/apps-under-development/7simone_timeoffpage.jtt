@@ -1,0 +1,132 @@
+app.title = 'Anagram game';
+app.description = 'Players find a word in an anagram.';
+
+app.duration = 5000; // total seconds to answer questions.
+app.questionDuration = 500; // seconds to spend on each question.
+
+// TODO:
+// 1. Both overall timer and individual question timer.
+// 2. Record time on page
+// a. window.onblur 
+// b. buttons to open new tab and return to task.
+
+app.questions = [
+    {
+        list: 'abcdefghi',
+        answer: 'abc'
+    },
+    {
+        list: '1234567890',
+        answer: '234'
+    },
+    {
+        list: 'abcdefghi',
+        answer: 'abc'
+    },
+    {
+        list: '1234567890',
+        answer: '234'
+    },
+    {
+        list: 'abcdefghi',
+        answer: 'abc'
+    },
+    {
+        list: '1234567890',
+        answer: '234'
+    },
+    {
+        list: 'abcdefghi',
+        answer: 'abc'
+    },
+    {
+        list: '1234567890',
+        answer: '234'
+    },
+];
+app.numPeriods = app.questions.length;
+app.participantStart = function(participant) {
+    participant.score = 0;
+    participant.finishTime = new Date().getTime() + app.duration*1000;
+}
+
+app.groupSize = 1;
+app.html = `
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script>
+            openNewTab = function() {
+                window.open('http://www.google.com', name='_blank');
+                jt.vue.player.away = true;
+                jt.vue.player.awayStartTime = jt.vue.clock.totalSeconds;
+            }
+            playAgain = function() {
+                jt.vue.player.away = false;
+                jt.vue.player.timeAway += jt.vue.player.awayStartTime - jt.vue.clock.totalSeconds;
+                jt.vue.player.awayStartTime = 0;
+            }
+        </script>
+    </head>
+    <body class='hidden'>
+        <div id='jtree'>
+            <div v-show='player.away' style='background-color: whitesmoke; display: flex; align-items: center; justify-content: center; position: absolute; width: 98%; height: 98%'>
+                <button onclick='playAgain()'>Solve more questions</button>
+            </div>
+            <p v-show='app.numPeriods > 1'>Period: {{period.id}}/{{app.numPeriods}}</p>
+            <p v-show='hasTimeout'>Time left in this period (s): {{clock.totalSeconds}}</p>
+            <p v-show='hasTimeoutClient'>Time left for this question (s): {{clockClient.totalSeconds}}</p>
+            <span v-show='player.status=="playing"'>
+                {{stages}}
+            </span>
+            <span v-show='["waiting", "finished", "done"].includes(player.status)'>
+                {{waiting-screens}}
+            </span>
+        </div>
+        {{scripts}}
+    </body>
+</html>
+`;
+
+var decideStage = app.newStage('decide');
+decideStage.canPlayerParticipate = function(player) {
+    return new Date().getTime() < player.participant.finishTime;
+}
+decideStage.getGroupDuration = function(group) {
+    return (group.players[0].participant.finishTime - new Date().getTime()) / 1000;
+}
+decideStage.playerStart = function(player) {
+    player.list = app.questions[player.period().id-1].list;
+    player.answer = app.questions[player.period().id-1].answer;
+    player.timeAway = 0;
+}
+decideStage.activeScreen = `
+    <p>DECISION</p>
+    <p>Here is the string:</p>
+    <p>{{player.list}}</p>
+    <p>Enter your guess:</p>
+<form>
+    <p><input name='player.guess' required type='text'></p>
+    Time away: <input name='player.timeAway' v-model='player.timeAway'>
+    Away time started: <input name='player.timeAway' v-model='player.awayStartTime'>
+    <button>Make guess</button>
+</form>
+    <button onclick='openNewTab()'>Browse</button>
+`;
+decideStage.playerEnd = function(player) {
+    if (player.guess == player.answer) {
+        player.participant.score++;
+    }
+}
+decideStage.clientDuration = app.questionDuration;
+
+var resultsStage = app.newStage('results');
+resultsStage.canPlayerParticipate = function(player) {
+    return player.period().id === app.numPeriods;
+}
+resultsStage.activeScreen = `
+    <p>RESULTS</p>
+    <p>Number of correct guesses: {{participant.score}}.</p>
+`

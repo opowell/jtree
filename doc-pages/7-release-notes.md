@@ -1,3 +1,8 @@
+##### 2018.11.21 - 0.6.12
+- update `3james` app to work with latest release.
+- update `7simone` app to include two timers.
+- clients run two seperate timers (stage.duration and stage.clientDuration).
+
 ##### 2018.11.16 - 0.6.11
 - Fixed font size for smaller screens (phones).
 - App order is customizable (Session.getApp(participant)).

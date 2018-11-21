@@ -160,6 +160,9 @@ jt.mountVue = function(player) {
             clock: function() {
                 return jt.getClock(this.timeLeft);
             },
+            clockClient: function() {
+                return jt.getClock(this.timeLeftClient);
+            },
             groupOtherPlayers: function() {
                 let players = [];
                 let me = this.player;
@@ -213,8 +216,11 @@ jt.getVueModels = function(player) {
         app: player.stage.app,
         participant: player.participant,
         timeLeft: 0,
+        timeLeftClient: 0,
         hasTimeout: false,
-        timeElapsed: 0
+        hasTimeoutClient: false,
+        timeElapsed: 0,
+        timeElapsedClient: 0,
     }
     if (vueModel.group.players == null) {
         vueModel.group.players = [];
@@ -354,7 +360,7 @@ jt.updatePlayer = function(player, updateVue) {
 
     if (player.stageClientDuration > 0 && player.status == 'playing') {
         var endTime = new Date().getTime() + player.stageClientDuration*1000;
-        jt.startClock(endTime);
+        jt.startClockClient(endTime);
     }
 
     // Group tables
@@ -532,51 +538,6 @@ jt.endStage = function(player) {
     }
 }
 
-// jt.refreshButtons = function(elName) {
-
-//     if (elName == null) {
-//         return false;
-//     }
-
-//     let player = jt.data.player;
-//     let group = player.group;
-//     let period = group.period;
-//     let app = period.app;
-//     let session = app.session;
-//     let stage = player.stage;
-//     let clock = jt.getClock(jt.data.timeLeft);
-
-//     var selRow = null;
-//     var el = $('#' + elName);
-//     var selId = el.val();
-//     var tableName = el.attr('jt-table');
-//     var rows = group[tableName];
-//     for (var i=0; i<rows.length; i++) {
-//         if (rows[i].id + '' === selId) {
-//             selRow = rows[i];
-//             break;
-//         }
-//     }
-//     var buttons = $('*[jt-select=' + elName + ']');
-//     for (var b=0; b<buttons.length; b++) {
-//         var but = $(buttons[b]);
-//         var enabled = true;
-//         if (but.attr('jt-enabledIf') !== undefined) {
-//             enabled = eval(but.attr('jt-enabledIf'));
-//         }
-//         jt.setButtonEnabled(but, enabled);
-//     }
-// }
-
-// jt.setButtonEnabled = function(but, enabled) {
-//     but.prop("disabled",!enabled);
-//     if (enabled) {
-//         but.removeClass('disabled');
-//     } else {
-//         but.addClass('disabled');
-//     }
-// }
-
 jt.setStageName = function(name) {
     document.title = name;
     $('body').find(':input')
@@ -593,6 +554,45 @@ jt.clockStop = function(timeLeft) {
     clearInterval(jt.timer);
     jt.data.clockRunning = false;
     jt.updateClock();
+}
+
+jt.startClockClient = function(endTime) {
+    jt.vue.hasTimeoutClient = true;
+
+    console.log('clock-start(client) until ' + endTime);
+
+    // Cancel update of UI.
+    clearInterval(jt.timerClient);
+
+    jt.data.endTimeClient = endTime;
+    jt.data.clockRunningClient = false;
+
+    jt.data.startTimeClient = Date.now();
+    if (jt.data.player.stageClientDuration > 0) {
+        jt.data.timeLeftClient = jt.data.endTimeClient - jt.data.startTimeClient;
+    }
+
+    jt.vue.timeLeftClient = jt.data.timeLeftClient;
+
+    jt.updateClockClient(); // update once without starting
+
+    jt.data.clockRunningClient = true;
+
+    var now = Date.now();
+    var timeLeft = jt.data.endTimeClient - now;
+    console.log('Time left: ' + timeLeft);
+    // If there is time left on the clock, set refresh interval.
+    if (timeLeft > 0 && jt.data.clockRunningClient) {
+        jt.timerClient = setInterval(jt.updateClockClient, jt.data.CLOCK_FREQUENCY);
+    }
+    // Otherwise, do not set refresh interval.
+    else {
+        // If there was a client duration, end stage.
+        if (jt.data.player.stageClientDuration > 0) {
+            jt.endStage(jt.data.player);
+        }
+    }
+
 }
 
 jt.startClock = function(endTime) {
@@ -613,11 +613,6 @@ jt.startClock = function(endTime) {
         jt.data.timeLeft = jt.data.endTime - jt.data.startTime;
     } else {
         jt.data.timeLeft = jt.data.player.stageTimerTimeLeft;
-    }
-
-    // If using client-side duration
-    if (jt.data.player.stageClientDuration > 0) {
-        jt.data.timeLeft = jt.data.endTime - jt.data.startTime;
     }
 
     jt.vue.timeLeft = jt.data.timeLeft;
@@ -646,6 +641,37 @@ jt.startClock = function(endTime) {
     }
 }
 
+jt.updateClockClient = function() {
+    if (jt.data.player.stageClientDuration > 0 && jt.data.timeLeftClient <= 0) {
+        jt.endStage(jt.data.player);
+    }
+
+    if (jt.data.clockRunning) {
+        var now = Date.now();
+        jt.data.timeLeftClient = Math.max(jt.data.endTimeClient - now, 0);
+        jt.vue.timeLeftClient = jt.data.timeLeftClient;
+        jt.vue.timeElapsedClient = now - jt.data.startTimeClient;
+        if (jt.data.timeLeftClient <= 0 && jt.vue.hasTimeoutClient) {
+            if (jt.data.player.stageClientDuration > 0) {
+                jt.endStage(jt.data.player);
+            }
+        } else {
+            if (jt.timerClient === null) {
+                jt.startClockClient();
+            }
+        }
+    }
+    // Stage timer finished.
+    else {
+        // If client duration, end stage.
+        if (jt.data.player.stageClientDuration > 0 && jt.data.timeLeftClient < 0) {
+            jt.endStage(jt.data.player);
+        }
+    }
+    // jt.displayTime();
+    jt.onClockUpdateClient();
+}
+
 jt.updateClock = function() {
     if (jt.data.player.stageClientDuration > 0 && jt.data.timeLeft <= 0) {
         jt.endStage(jt.data.player);
@@ -666,18 +692,11 @@ jt.updateClock = function() {
             }
         }
     }
-    // Stage timer finished.
-    else {
-        // If client duration, end stage.
-        if (jt.data.player.stageClientDuration > 0 && jt.data.timeLeft < 0) {
-            jt.endStage(jt.data.player);
-        }
-    }
-    // jt.displayTime();
     jt.onClockUpdate();
 }
 
 jt.onClockUpdate = function() {}
+jt.onClockUpdateClient = function() {}
 
 // jt.displayTime = function() {
 //     jt.displayTimeLeft($('[jt-text="clock.minutes"]'), $('[jt-text="clock.seconds"]'), jt.data.timeLeft);
