@@ -1,6 +1,9 @@
 app.title = 'Anagram game';
 app.description = 'Players find a word in an anagram.';
-app.groupSize = 1;
+
+app.duration = 100; // total seconds to answer questions.
+app.questionDuration = 5; // seconds to spend on each question.
+
 app.questions = [
     {
         list: 'abcdefghi',
@@ -40,7 +43,31 @@ app.participantStart = function(participant) {
     participant.score = 0;
     participant.finishTime = new Date().getTime() + app.duration*1000;
 }
-app.duration = 10; // in seconds
+
+app.groupSize = 1;
+app.html = `
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body class='hidden'>
+        <div id='jtree'>
+            <p v-show='app.numPeriods > 1'>Period: {{period.id}}/{{app.numPeriods}}</p>
+            <p v-show='hasTimeout'>Time left in this period (s): {{clock.totalSeconds}}</p>
+            <p v-show='hasTimeoutClient'>Time left for this question (s): {{clockClient.totalSeconds}}</p>
+            <span v-show='player.status=="playing"'>
+                {{stages}}
+            </span>
+            <span v-show='["waiting", "finished", "done"].includes(player.status)'>
+                {{waiting-screens}}
+            </span>
+        </div>
+        {{scripts}}
+    </body>
+</html>
+`;
 
 var decideStage = app.newStage('decide');
 decideStage.canPlayerParticipate = function(player) {
@@ -52,6 +79,7 @@ decideStage.getGroupDuration = function(group) {
 decideStage.playerStart = function(player) {
     player.list = app.questions[player.period().id-1].list;
     player.answer = app.questions[player.period().id-1].answer;
+    player.timeAway = 0;
 }
 decideStage.activeScreen = `
     <p>DECISION</p>
@@ -66,6 +94,7 @@ decideStage.playerEnd = function(player) {
         player.participant.score++;
     }
 }
+decideStage.clientDuration = app.questionDuration;
 
 var resultsStage = app.newStage('results');
 resultsStage.canPlayerParticipate = function(player) {
