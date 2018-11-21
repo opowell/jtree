@@ -1,3 +1,10 @@
+##### 2018.11.16 - 0.6.11
+- Fixed font size for smaller screens (phones).
+- App order is customizable (Session.getApp(participant)).
+- Added Utils.drawRandomly function.
+- Added App.end() function.
+- Queues can be defined programmatically (i.e. "session.addApp(...)");
+
 ##### 2018.11.14 - 0.6.10
 - Session: fixed "Download" button.
 

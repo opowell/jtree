@@ -163,10 +163,15 @@ class Msgs {
         session.resume();
         this.jt.data.sessions.push(session);
         var queue = this.jt.data.queue(data.qId);
-        for (var a in queue.apps) {
-            var app = queue.apps[a];
-            var d = {sId: session.id, appPath: app.appId, options: app.options};
-            this.sessionAddApp(d);
+        if (queue.code == null) {
+            for (var a in queue.apps) {
+                var app = queue.apps[a];
+                var d = {sId: session.id, appPath: app.appId, options: app.options};
+                this.sessionAddApp(d);
+            }
+        } else {
+            session.queuePath = path.dirname(queue.id);
+            eval(queue.code);
         }
         this.openSession(session.id, sock);
     }

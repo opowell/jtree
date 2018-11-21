@@ -1,25 +1,26 @@
 const fs        = require('fs-extra');
 const path      = require('path');
 const Utils     = require('./Utils.js');
+const Session   = require('./Session.js');
 
 
 /**
- * A room for running sessions.
+ * A Queue definition for sessions.
 */
 class Queue {
 
     constructor(id, jt) {
         this.jt             = jt;
         this.id             = id;
-        this.displayName    = id;
-        this.apps           = [];
         this.shortId        = path.basename(id);
+        this.displayName    = this.shortId;
+        this.apps           = [];
     }
 
     /** Deprecated 2018.10.11. Replaced by Queue.loadJTQ. */
     static load(fn, id, jt) {
         var queue = new Queue(id, jt);
-
+        
         // Read fields, if any.
         if (fs.existsSync(fn)) {
             var json = Utils.readJSON(fn);
@@ -36,22 +37,31 @@ class Queue {
 
     static loadJTQ(id, jt, folder) {
         var queue = new Queue(id, jt);
-        let fullPath = path.join(folder, id + '.jtq');
-        if (fs.existsSync(fullPath)) {
-            var json = Utils.readJSON(fullPath);
-            if (json.displayName !== undefined) {
-                queue.displayName = json.displayName;
-            }
-            if (json.apps !== undefined) {
-                for (let i=0; i<json.apps.length; i++) {
-                    let curJSON = json.apps[i];
-                    let appId = curJSON;
-                    let options = {};
-                    if (curJSON.appId != null) {
-                        appId = curJSON.appId;
-                        options = curJSON.options;
+        if (fs.existsSync(id)) {
+            var json = Utils.readJSON(id);
+            if (json === 'JSON error') {
+                // let session = new Session.new(jt, id, {createFolder: false});
+                queue.code = Utils.readJS(id);
+                // eval(queue.code);
+                // for (let i=0; i<session.apps.length; i++) {
+                //     let app = session.apps[i];
+                //     queue.addApp(app.appPath, app.givenOptions);
+                // }
+            } else {
+                if (json.displayName !== undefined) {
+                    queue.displayName = json.displayName;
+                }
+                if (json.apps !== undefined) {
+                    for (let i=0; i<json.apps.length; i++) {
+                        let curJSON = json.apps[i];
+                        let appId = curJSON;
+                        let options = {};
+                        if (curJSON.appId != null) {
+                            appId = curJSON.appId;
+                            options = curJSON.options;
+                        }
+                        queue.addApp(path.join(folder, appId + '.jtt'), options);
                     }
-                    queue.addApp(path.join(folder, appId + '.jtt'), options);
                 }
             }
         }

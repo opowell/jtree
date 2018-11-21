@@ -16,7 +16,7 @@ decideStage.activeScreen = `
 
 var resultsStage = app.newStage('results');
 resultsStage.updateObject = 'group';
-resultsStage.duration = 30;
+// resultsStage.duration = 30;
 resultsStage.groupStart = function(group) { // when a group starts this stage
     group.totalGuesses = Utils.sum(group.players, 'guess');
     group.target = group.totalGuesses * app.multiplier / Utils.objLength(group.players);
@@ -45,10 +45,10 @@ resultsStage.groupStart = function(group) { // when a group starts this stage
 }
 resultsStage.activeScreen = `
     <p>RESULTS</p>
-    <p>Your guess was {{player.guess}}.</p>
+    <p>You are Player {{player.idInGroup}}. Your guess was {{player.guess}}.</p>
     <p>The guesses in your group were:</p>
     <ul>
-        <li v-for='player in group.players'>{{ player.guess }}</li>
+        <li v-for='player in group.players'>Player {{ player.idInGroup }}: {{ player.guess }}</li>
     </ul>
     <p>The sum of guesses in your group was {{ group.totalGuesses }}. The multiplier was {{ app.multiplier | round(2) }}, therefore the target was {{ group.target | round(2) }}.</p>
     <p>There were {{group.numWinners}} winning guesses for the prize of {{app.prize}}.</p>

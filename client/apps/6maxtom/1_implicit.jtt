@@ -64,8 +64,10 @@ for (let i=0; i<app.usedLists.length; i++) {
         });
     }
 }
-app.words = Utils.shuffle(app.origWords);
 
+// the number of "questions" to use.
+// app.numPeriods = app.words.length; // use all words
+app.numPeriods = 20; // use X words.
 
 app.html = `
     <!DOCTYPE html>
@@ -83,9 +85,15 @@ app.html = `
                     display: flex;
                     justify-content: center;
                 }
+
+                td, th {
+                    border: 1px solid #ddd;
+                    padding: 5px;
+                }
+
             </style>
         </head>
-        <body>
+        <body class='hidden'>
             <div id='jtree'>
                 <span style='width: 100%; text-align: center;' v-show='player.status=="playing"'>
                     {{stages}}
@@ -99,11 +107,46 @@ app.html = `
     </html>
 `
 
-app.numPeriods = app.words.length;
-
 app.participantStart = function(participant) {
     participant.totalErrors = 0;
+    participant.words = Utils.drawRandomly(participant.app.origWords, {
+        withReplacement: true, 
+        numDraws: app.numPeriods
+    });
 }
+
+var generalInstructions = app.newStage('generalInstructions');
+generalInstructions.canPlayerParticipate = function(player) {
+    return player.period().id === 1 && player.app().indexInSession() === 1;
+}
+generalInstructions.activeScreen = `
+<p>
+Next, you will use the 'E' and 'I' computer keys to categorize items into groups as fast as you can. These are the four groups and the items that belong to each:
+</p>
+<table style='border: 1px solid #ddd;'>
+<t style='background-color: #eee; font-weight: bold'>
+<td style='padding-right: 50px'>Category</t>
+<td>Items</td>
+</tr>
+<template v-for='list in app.allLists'>
+<tr>
+<td>{{list.optionA}}</tdorder:>
+<td><span v-for="(item, index) in list.wordsA">
+    <span>{{item}}</span><span v-if="index+1 < list.wordsA.length">, </span>
+</span>
+</td>
+</tr>
+<tr>
+<td>{{list.optionB}}</td>
+<td><span v-for="(item, index) in list.wordsB">
+    <span>{{item}}</span><span v-if="index+1 < list.wordsB.length">, </span>
+</span>
+</td>
+</tr>
+</template>
+</table>
+<p>There are seven parts. The instructions change for each part. Pay attention!</p>
+`
 
 var instructions = app.newStage('instructions');
 instructions.addOKButtonIfNone = false;
@@ -132,7 +175,7 @@ delayStage.addOKButtonIfNone = false;
 var decideStage = app.newStage('decide');
 decideStage.playerStart = function(player) {
     player.keyPresses = [];
-    let question = app.words[player.group.period.id-1];
+    let question = player.participant.words[player.group.period.id-1];
     player.word = question.word;
     player.answer = question.answer;
     player.errorCount = 0;

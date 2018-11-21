@@ -18,6 +18,19 @@ function isNumeric(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
+function drawRandomly(data, options) {
+    let out = [];
+
+    for (let i=0; i<options.numDraws; i++) {
+        if (options.withReplacement) {
+            out.push(randomEl(data));
+        } else {
+            // Todo.
+        }
+    }
+    return out;
+}
+
 function shuffle(array) {
 
     var currentIndex = array.length,

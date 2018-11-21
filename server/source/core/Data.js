@@ -154,6 +154,7 @@ class Data {
     loadApp(id, session, appPath, options) {
         var app = null;
         app = new App.new(session, this.jt, appPath);
+        app.givenOptions = options;
      //   app.shortId = id;
 
         // Set options before running code.
@@ -161,12 +162,17 @@ class Data {
             app.setOptionValue(i, options[i]);
         }
 
+        let filePath = appPath;
+        if (!fs.existsSync(appPath) && session.queuePath != null) {
+            filePath = path.join(session.queuePath, appPath);
+        }
+
         try {
-            app.appjs = fs.readFileSync(appPath) + '';
+            app.appjs = fs.readFileSync(filePath) + '';
             eval(app.appjs); // jshint ignore:line
-            console.log('loaded app ' + appPath);
+            console.log('loaded app ' + filePath);
         } catch (err) {
-            this.jt.log('Error loading app: ' + appPath);
+            this.jt.log('Error loading app: ' + filePath);
             this.jt.log(err);
             app = null;
         }
@@ -275,8 +281,7 @@ class Data {
 
                     // Queue / Session Config
                     if (id.endsWith('.jtq')) {
-                        id = id.substring(0, id.indexOf('.jtq'));
-                        var queue = Queue.loadJTQ(id, this.jt, dir);
+                        var queue = Queue.loadJTQ(curPath, this.jt, dir);
                         console.log('loading file queue ' + curPath);
                         this.queues[curPath] = queue;
                     }

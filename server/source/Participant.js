@@ -28,6 +28,8 @@ class Participant {
          */
         this.session = session;
 
+        this.indexInSession = Object.keys(session.participants).length;
+
         /**
          * @type array
          * @default []
@@ -63,6 +65,11 @@ class Participant {
         this.appIndex = 0;
 
         /**
+         * List of app ids that this participant has completed.
+         */
+        this.finishedApps = [];
+
+        /**
          * @type boolean
          * @default false
          */
@@ -90,6 +97,8 @@ class Participant {
             'period',
             'autoplay',
             'appTimer',
+            'indexInSession',
+            'finishedApps'
         ];
     }
 
@@ -153,19 +162,29 @@ class Participant {
 
     finishCurrentApp() {
         // ensure that they are in the last period and waiting
-        if (this.player.group.period.id < this.app().numPeriods) {
+        if (this.player.group.period.id < this.getApp().numPeriods) {
             // this.player.group.
         }
     }
 
+    getApp() {
+        if (this.appIndex < 1) {
+            return null;
+        }
+        return this.session.getApp(this);
+    }
+
     endCurrentApp() {
 
-        if (this.app() !== null) {
-            this.app().participantEnd(this);
+        if (this.getApp() !== null) {
+            this.getApp().participantEnd(this);
+            this.finishedApps.push(this.getApp().getIdInSession());
         }
 
-        var nextApp = this.session.getNextApp(this);
-        if (nextApp !== null) {
+        this.appIndex++;
+
+        var nextApp = this.session.getApp(this);
+        if (nextApp != null) {
             this.startApp(nextApp);
         } else {
             this.endSession();
@@ -183,7 +202,7 @@ class Participant {
 
     startApp(app) {
 
-        this.appIndex = app.indexInSession();
+        // this.appIndex = app.indexInSession();
         this.periodIndex = -1;
         app.participantStart(this);
         this.startPeriod(app.getNextPeriod(this));
@@ -194,7 +213,7 @@ class Participant {
 
     startPeriod(period) {
         this.periodIndex = period.id - 1;
-        this.app().participantBeginPeriod(this);
+        this.getApp().participantBeginPeriod(this);
     }
 
     canProcessMessage() {
@@ -225,14 +244,6 @@ class Participant {
         }
     }
 
-    app() {
-        if (this.appIndex < 1 || this.appIndex > this.session.apps.length) {
-            return null;
-        } else {
-            return this.session.apps[this.appIndex-1];
-        }
-    }
-
     stageIndex() {
         if (this.player === null) {
             return -1;
@@ -259,12 +270,14 @@ class Participant {
      *
      */
     isFinishedApp(app) {
-        // In a previous app.
-        if (this.appIndex < app.indexInSession()) {
-            return false;
+
+        // Already finished this app.
+        if (this.finishedApps.includes(app.getIdInSession())) {
+            return true;
         }
+
         // In this app.
-        else if (this.appIndex === app.indexInSession()) {
+        if (this.getApp().getIdInSession() === app.getIdInSession()) {
             // Not yet in the last period.
             if (this.periodIndex < app.numPeriods - 1) {
                 return false;
@@ -276,10 +289,9 @@ class Participant {
             // Finished all periods and no longer 'playing'.
             return true;
         }
-        // Already past this app.
-        else {
-            return true;
-        }
+
+        // Not in this app, and not finished it already.
+        return false;
     }
 
 // TODO: Remove??

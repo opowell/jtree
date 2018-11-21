@@ -114,7 +114,7 @@ class Utils {
         try {
             return jsonfile.readFileSync(file);
         } catch(err) {
-            return null;
+            return 'JSON error';
         }
     }
 
@@ -195,6 +195,18 @@ class Utils {
      }
      permute(inputArr, [], result);
      return result;
+    }
+
+    static drawRandomly(data, options) {
+        let out = [];
+        for (let i=0; i<options.numDraws; i++) {
+            if (options.withReplacement) {
+                out.push(this.randomEl(data));
+            } else {
+                // Todo.
+            }
+        }
+        return out;
     }
 
     static shuffle(array) {
