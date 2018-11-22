@@ -11,17 +11,19 @@ Latest version (2018.11.14): *0.6.10*
 
 <a href='https://github.com/opowell/jtree/raw/master/releases/jtree-winxp.zip'>jtree for WindowsXP</a>
 
-#### Planned features
-- same look and functionality as zTree, plus:
+#### Features
 - modern programming capabilities (functions; objects).
-- subjects not required to install separate program.
-- participants not required to use Windows.
-- server runs natively on MacOS and Linux.
+- subjects not required to run separate program / use Windows.
+- server runs natively on Windows, MacOS and Linux.
 - autoplay for testing.
-- users: share one server among many experimenters.
-- rooms: persistent links for subjects.
 - treatment options: facilitate switching between important parameter configurations of a treatment.
 - session queues: save sequences of treatments (including their options) for re-use.
+
+##### Planned features
+- same look and functionality as z-Tree and oTree.
+- documentation.
+- users: share one server among many experimenters.
+- rooms: persistent links for subjects.
 
 ### UNDER DEVELOPMENT
 Parts of the documentation are accurate, others are out of date, while still others refer to functionality that will be implemented soon (but for the moment still does not exist). Proceed with caution.
