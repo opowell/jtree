@@ -1,3 +1,4 @@
+app.numWords = 10;
 app.title = 'Implicit Association Test';
 app.description = 'Players classify two sets of items into two choices.';
 app.groupSize = 1;
@@ -44,9 +45,13 @@ app.origWords = [];
 app.optionAText = '';
 app.optionBText = '';
 
+app.actualLists = [];
+
 for (let i=0; i<app.usedLists.length; i++) {
 
     let list = app.allLists[app.usedLists[i]];
+
+    app.actualLists.push(list);
 
     app.optionAText += (i>0? " / " : "") + "'" + list.optionA + "'";
     app.optionBText += (i>0? " / " : "") + "'" + list.optionB + "'";
@@ -67,7 +72,7 @@ for (let i=0; i<app.usedLists.length; i++) {
 
 // the number of "questions" to use.
 // app.numPeriods = app.words.length; // use all words
-app.numPeriods = 20; // use X words.
+app.numPeriods = app.numWords; // use X words.
 
 app.html = `
     <!DOCTYPE html>
@@ -78,6 +83,8 @@ app.html = `
                 body.show {
                     max-width: none;
                     display: flex !important;
+                    align-items: center;
+                    justify-content: center;
                 }
 
                 #jtree {
@@ -105,28 +112,75 @@ app.html = `
             {{scripts}}
         </body>
     </html>
-`
+`;
+
+let usedWordIds = [];
+for (let i=0; i<app.usedLists.length; i++) {
+    let list = app.allLists[app.usedLists[i]];
+    let listWordsA = [];
+    for (let j=0; j<list.wordsA.length; j++) {
+        listWordsA.push(j);
+    }
+    let listWordsB = [];
+    for (let j=0; j<list.wordsB.length; j++) {
+        listWordsB.push(j);
+    }
+
+    usedWordIds.push([
+        listWordsA,
+        listWordsB
+    ]);
+}
+
+app.drawnWords = [];
+for (let i=0; i<app.numWords; i++) {
+    // Draw a random list.
+    let listIndex = Utils.randomInt(0, app.usedLists.length);
+    let listIds = usedWordIds[listIndex];
+    // List A or B
+    let ab = Math.random() < 0.5 ? 0 : 1;
+
+    // Draw a random word from the given A/B list.
+    let j = Utils.randomInt(0, listIds[ab].length);
+    let ablist = ab === 0 ? 'wordsA' : 'wordsB';
+    let answer = ab === 0 ? 'A' : 'B';
+    app.drawnWords.push({
+        word: app.allLists[app.usedLists[listIndex]][ablist][j],
+        answer: answer
+    });
+    
+    // Remove the index of this word from the id list
+    listIds[ab].splice(j, 1);
+
+    // If list is empty, repopulate it.
+    if (listIds[ab].length === 0) {
+        for (let k=0; k<app.allLists[app.usedLists[listIndex]][ablist].length; k++) {
+            listIds[ab].push(k);
+        }
+    }
+}
 
 app.participantStart = function(participant) {
-    participant.totalErrors = 0;
-    participant.words = Utils.drawRandomly(participant.app.origWords, {
-        withReplacement: true, 
-        numDraws: app.numPeriods
-    });
+    participant.totalErrors[participant.appIndex - 1] = 0;
+    // participant.words = Utils.drawRandomly(app.origWords, {
+    //     withReplacement: true, 
+    //     numDraws: app.numPeriods
+    // });
+    participant.words = app.drawnWords;
 }
 
 var generalInstructions = app.newStage('generalInstructions');
 generalInstructions.canPlayerParticipate = function(player) {
-    return player.period().id === 1 && player.app().indexInSession() === 1;
+    return player.period().id === 1 && player.participant.appIndex === 1;
 }
 generalInstructions.activeScreen = `
 <p>
 Next, you will use the 'E' and 'I' computer keys to categorize items into groups as fast as you can. These are the four groups and the items that belong to each:
 </p>
-<table style='border: 1px solid #ddd;'>
-<t style='background-color: #eee; font-weight: bold'>
-<td style='padding-right: 50px'>Category</t>
-<td>Items</td>
+<table style='border: 1px solid #ddd; margin: auto; font-size: 14pt;'>
+<tr style='background-color: #eee; font-weight: bold;'>
+    <td style='padding-right: 50px'>Category</td>
+    <td>Items</td>
 </tr>
 <template v-for='list in app.allLists'>
 <tr>
@@ -164,6 +218,11 @@ instructions.activeScreen = `
         <div>Press space bar to continue.</div>
     </div>    
 `;
+instructions.autoplay = `
+    let key = ' ';
+    let e = jQuery.Event( "keydown", { key: key } );
+    $('body').trigger(e);
+`;
 
 var delayStage = app.newStage('delay');
 delayStage.clientDuration = 1; // in seconds
@@ -180,6 +239,11 @@ decideStage.playerStart = function(player) {
     player.answer = question.answer;
     player.errorCount = 0;
 }
+decideStage.autoplay = `
+    let key = Math.random() < 0.5 ? 'e' : 'i';
+    let e = jQuery.Event( "keydown", { key: key } );
+    $('body').trigger(e);
+`
 decideStage.activeScreen = `
     <div style='display: flex; flex-direction: column; align-items: center'>
         <div style='font-size: 3em'>{{ player.word }}</div>
@@ -214,11 +278,12 @@ decideStage.activeScreen = `
                 else jt.vue.player.errorCount++;
             }
         });
+
     </script>
 `;
 decideStage.addOKButtonIfNone = false;
 decideStage.playerEnd = function(player) {
-    player.participant.totalErrors += player.errorCount;
+    player.participant.totalErrors[player.participant.appIndex - 1] += player.errorCount;
 }
 
 

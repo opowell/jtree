@@ -37,7 +37,8 @@ var playerFieldsToSkip = [
     'stageTimerRunning',
     'status',
     'time',
-    'participant'
+    'participant',
+    'full link'
 ];
 
 function setPlayerTimeLeft(participant, tl) {

@@ -139,12 +139,12 @@ class App {
                 </head>
                 <body class='hidden'>
                     <div id='jtree'>
-                        <p v-show='app.numPeriods > 1'>Period: {{period.id}}/{{app.numPeriods}}</p>
+                        <p v-show='app.numPeriods > 1'>{{ app.periodText }}: {{period.id}}/{{app.numPeriods}}</p>
                         <p v-show='hasTimeout'>Time left (s): {{clock.totalSeconds}}</p>
                         <span v-show='player.status=="playing"'>
                             {{stages}}
                         </span>
-                        <span v-show='["waiting", "finished", "done"].includes(player.status)'>
+                        <span v-show='["ready", "waiting", "finished", "done"].includes(player.status)'>
                             {{waiting-screens}}
                         </span>
                     </div>
@@ -152,6 +152,8 @@ class App {
                 </body>
             </html>
         `;
+
+        this.periodText = 'Period'
 
         this.vueModels = {};
         this.vueComputed = {};
@@ -761,6 +763,7 @@ class App {
                 scriptsHTML = app.clientScripts;                
             }
         }
+        scriptsHTML += this.getAutoplayScript();
         
         if (html.includes('{{scripts}}')) {
             html = html.replace('{{scripts}}', scriptsHTML);
@@ -786,6 +789,38 @@ class App {
         }
         // Return to client.
         res.send(html);
+    }
+
+    getAutoplayScript() {
+        let out = `
+        <script>
+        jt.autoplay = function() {
+            switch (jt.vue.player.stage.id) {
+                `;
+        for (let i=0; i<this.stages.length; i++) {
+            out += `
+            case "${this.stages[i].id}":
+                jt.autoplay_${this.stages[i].id}();
+                break;
+            `;
+        }
+
+        out += `
+            }
+        }
+        `
+        for (let i=0; i<this.stages.length; i++) {
+            out += `
+                jt.autoplay_${this.stages[i].id} = function() {
+                    ${this.stages[i].autoplay}
+                };
+            `;
+        }
+
+        out += `
+        </script>`;
+
+        return out;
     }
 
     stripTag(tagName, text) {

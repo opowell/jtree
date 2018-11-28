@@ -3,12 +3,15 @@ REM - 7z.exe and 7z.dll
 REM - jsdoc
 REM - pkg
 
-REM Set version (here, jtree.js, and release-notes.md). 
-REM Call this file from root folder (/jtree), which should be two levels up from this file (jtree/build-tools/win/buildJTree.bat).
-REM Update README.md on Github.
-REM Update docs/README.md.
+REM PROCEDURE
+REM **************************************
+REM 1. Set version (here, jtree.js, and release-notes.md). 
+REM 2. Call this file from root folder (/jtree), which should be two levels up from this file (jtree/build-tools/win/buildJTree.bat).
+REM 4. Update README.md.
+REM 5. Update docs/README.md.
+REM 3. Commit to Github.
 
-set "vers=0.6.12"
+set "vers=0.6.13"
 
 REM ------- Prepare output folder.
 call del ".\releases\%vers%" /Q /F
@@ -23,11 +26,12 @@ call ./build-tools/win/buildDocs.bat
 
 REM ------- Copy files to release folder.
 call xcopy ".\client\apps\3james" ".\releases\%vers%\apps\3james\" /E
+call xcopy ".\client\apps\6maxtom" ".\releases\%vers%\apps\6maxtom\" /E
+call xcopy ".\client\apps\8jelena" ".\releases\%vers%\apps\8jelena\" /E
+call xcopy ".\client\apps\random-order" ".\releases\%vers%\apps\random-order\" /E
 call xcopy ".\client\apps\4starzykowska.jtt" ".\releases\%vers%\apps\" /E
 call xcopy ".\client\apps\5mariana.jtt" ".\releases\%vers%\apps\" /E
-call xcopy ".\client\apps\6maxtom" ".\releases\%vers%\apps\6maxtom\" /E
 call xcopy ".\client\apps\7simone.jtt" ".\releases\%vers%\apps\" /E
-call xcopy ".\client\apps\8jelena" ".\releases\%vers%\apps\8jelena\" /E
 call xcopy ".\client\apps\beauty-contest.jtt" ".\releases\%vers%\apps\" /E
 call xcopy ".\client\apps\centipede.jtt" ".\releases\%vers%\apps\" /E
 call xcopy ".\client\apps\dictator-game.jtt" ".\releases\%vers%\apps\" /E

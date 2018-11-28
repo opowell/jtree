@@ -1,4 +1,5 @@
 app.description = 'Questionnaire.';
+app.groupSize = 1;
 
 // DEFINE STAGES
 var questionsStage = app.newStage('questions');
@@ -69,6 +70,9 @@ RIGHT
 <span>Current Slider Value: <span id="sliderVal">-</span></span>
 <br><br>
 `;
+questionsStage.playerEnd = function(player) {
+    player.participant.name = player.text;
+}
 
 app.waitingScreen = `
 <h4>RESPONSES</h4>

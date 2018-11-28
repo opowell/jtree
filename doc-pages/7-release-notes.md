@@ -1,3 +1,10 @@
+##### 2018.11.28 - 0.6.13
+- app randomization via queue (session.getApp(participant). See "random-order" app.
+- Admin UI: fix Participants table showing blank spaces.
+- Stage.autoplay: write autoplay code for each stage individually.
+- App.periodText: text to display for "Period".
+
+
 ##### 2018.11.21 - 0.6.12
 - update `3james` app to work with latest release.
 - update `7simone` app to include two timers.

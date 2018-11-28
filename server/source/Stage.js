@@ -158,6 +158,10 @@ class Stage {
          */
         this.repetitions = 1;
 
+        this.autoplay = `
+            jt.defaultAutoplay();
+        `
+
     }
 
     /**

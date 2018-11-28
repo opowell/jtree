@@ -646,7 +646,7 @@ jt.updateClockClient = function() {
         jt.endStage(jt.data.player);
     }
 
-    if (jt.data.clockRunning) {
+    if (jt.data.clockRunningClient) {
         var now = Date.now();
         jt.data.timeLeftClient = Math.max(jt.data.endTimeClient - now, 0);
         jt.vue.timeLeftClient = jt.data.timeLeftClient;
@@ -720,6 +720,10 @@ jt.showStage = function(s) {
 }
 
 
+jt.autoplay = function() {
+    jt.defaultAutoplay();
+}
+
 /**
  * First, attempts to set the value of an input that currently has no value.
  * If no such value is found, it "clicks" a random submit button.
@@ -727,7 +731,7 @@ jt.showStage = function(s) {
  * Overwrite this function to implement custom autoplay functionality.
  *
  */
-jt.autoplay = function() {
+jt.defaultAutoplay = function() {
     var acted = false;
     //var inputs = $('input:visible:not([disabled])');
     var inputs = $('input,textarea,select').filter(':visible:not([disabled])');
