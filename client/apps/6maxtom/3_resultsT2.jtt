@@ -34,18 +34,18 @@ thankyouStage.playerStart = function(player) {
           if (part.treatment === 2) {
             player.parts1.push(
                 {
-                    text: part.name,
-                    errors: part.totalErrors[0]
+                    text: part.id,
+                    value: part.times[0].sumOfTimes
                 }
             );
             player.parts2.push(
                 {
-                    text: part.name,
-                    errors: part.totalErrors[1]
+                    text: part.id,
+                    value: part.times[1].sumOfTimes
                 }
             );
           }
     }
-      player.parts1.sort(app.propComparator('errors'));
-      player.parts2.sort(app.propComparator('errors'));
+    player.parts1.sort(app.propComparator('value'));
+    player.parts2.sort(app.propComparator('value'));
 }

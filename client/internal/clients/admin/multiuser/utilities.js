@@ -19,7 +19,7 @@ function roundValue(obj, dec) {
     if (isNumber(obj)) {
         return round(obj-0, dec);
     } else {
-        return obj;
+        return JSON.stringify(obj);
     }
 }
 

@@ -295,5 +295,5 @@ decideStage.playerEnd = function(player) {
     // Total errors for this participant in this instance of this app.
     player.participant.totalErrors[player.participant.appIndex - 1] += player.errorCount;
 
-    player.participant.times[player.participant.appIndex - 1].sumOfTimes += Math.random()*5;
+    player.participant.times[player.participant.appIndex - 1].sumOfTimes += player.msInStage_decide;
 }
