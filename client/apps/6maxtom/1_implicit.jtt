@@ -3,8 +3,12 @@ app.title = 'Implicit Association Test';
 app.description = 'Players classify two sets of items into two choices.';
 app.groupSize = 1;
 
+// TODO:
+// Record times.
+
 app.addSelectOption('type', ['real', 'practice']);
 app.addTextOption('usedLists', [0, 1], 'the lists to use');
+app.addTextOption('flip', [false, true], 'whether or not to flip the left/right assignment of each list');
 
 app.allLists = [
     { // List 1, good vs. bad
@@ -13,28 +17,20 @@ app.allLists = [
         'wordsA': [
             'good',
             'happy',
-            'GOOD',
-            'HAPPY'
         ],
         'wordsB': [
             'sad',
             'hurt',
-            'SAD',
-            'HURT',
         ]
     },
     { // List 2, neutral, uppercase vs. lowercase
-        'optionA': 'uppercase',
-        'optionB': 'lowercase',
+        'optionA': 'male',
+        'optionB': 'female',
         'wordsA': [
-            'FATHER',
-            'UNCLE',
-            'MOTHER',
-            'AUNT'
-        ],
-        'wordsB': [
             'father',
             'uncle',
+        ],
+        'wordsB': [
             'mother',
             'aunt'
         ]
@@ -51,21 +47,23 @@ for (let i=0; i<app.usedLists.length; i++) {
 
     let list = app.allLists[app.usedLists[i]];
 
+    let flip = app.flip[i];
+
     app.actualLists.push(list);
 
-    app.optionAText += (i>0? " / " : "") + "'" + list.optionA + "'";
-    app.optionBText += (i>0? " / " : "") + "'" + list.optionB + "'";
+    app.optionAText += (i>0? " / " : "") + "'" + (flip ? list.optionB : list.optionA) + "'";
+    app.optionBText += (i>0? " / " : "") + "'" + (flip ? list.optionA : list.optionB) + "'";
 
     for (let j=0; j<list.wordsA.length; j++) {
         app.origWords.push({
             word: list.wordsA[j],
-            answer: 'A'            
+            answer: flip ? 'B' : 'A'            
         });
     }
     for (let j=0; j<list.wordsB.length; j++) {
         app.origWords.push({
             word: list.wordsB[j],
-            answer: 'B'            
+            answer: flip ? 'A' : 'B'            
         });
     }
 }
@@ -142,10 +140,11 @@ for (let i=0; i<app.numWords; i++) {
 
     // Draw a random word from the given A/B list.
     let j = Utils.randomInt(0, listIds[ab].length);
+    let wordIndex = listIds[ab][j];
     let ablist = ab === 0 ? 'wordsA' : 'wordsB';
-    let answer = ab === 0 ? 'A' : 'B';
+    let answer = (app.flip[listIndex] ? 1-ab : ab) === 0 ? 'A' : 'B';
     app.drawnWords.push({
-        word: app.allLists[app.usedLists[listIndex]][ablist][j],
+        word: app.allLists[app.usedLists[listIndex]][ablist][wordIndex],
         answer: answer
     });
     
@@ -158,10 +157,19 @@ for (let i=0; i<app.numWords; i++) {
             listIds[ab].push(k);
         }
     }
+    console.log(JSON.stringify(app.drawnWords));
+    console.log(JSON.stringify(listIds));
 }
 
 app.participantStart = function(participant) {
-    participant.totalErrors[participant.appIndex - 1] = 0;
+    if (participant.totalErrors != null) {
+        participant.totalErrors[participant.appIndex - 1] = 0;
+    }
+
+    participant.times[participant.appIndex - 1].lists = app.usedLists;
+    participant.times[participant.appIndex - 1].flip = app.flip;
+    participant.times[participant.appIndex - 1].sumOfTimes = 0;
+    
     // participant.words = Utils.drawRandomly(app.origWords, {
     //     withReplacement: true, 
     //     numDraws: app.numPeriods
@@ -224,12 +232,12 @@ instructions.autoplay = `
     $('body').trigger(e);
 `;
 
-var delayStage = app.newStage('delay');
-delayStage.clientDuration = 1; // in seconds
-delayStage.activeScreen = `
-<h2>+</h2>
-`;
-delayStage.addOKButtonIfNone = false;
+// var delayStage = app.newStage('delay');
+// delayStage.clientDuration = 1; // in seconds
+// delayStage.activeScreen = `
+// <h2>+</h2>
+// `;
+// delayStage.addOKButtonIfNone = false;
 
 var decideStage = app.newStage('decide');
 decideStage.playerStart = function(player) {
@@ -283,16 +291,9 @@ decideStage.activeScreen = `
 `;
 decideStage.addOKButtonIfNone = false;
 decideStage.playerEnd = function(player) {
+
+    // Total errors for this participant in this instance of this app.
     player.participant.totalErrors[player.participant.appIndex - 1] += player.errorCount;
+
+    player.participant.times[player.participant.appIndex - 1].sumOfTimes += Math.random()*5;
 }
-
-
-// CHANGELOG
-// 2018.10.31
-// TODO
-// 5. Change color of labels, if time.
-// DONE
-// 1. Make order easier to modify.
-// 2. Center content.
-// 3. Time errors, record all keypresses.
-// 4. Training rounds: first with a single list, then with two lists. Options for different versions of app.

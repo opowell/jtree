@@ -8,6 +8,12 @@ app.auditp 	= 0.3;
 app.finefactor 	= 3;
 app.pointfactor = 0.1;
 
+// Save data for results screen.
+// Initialize variables.
+app.participantStart = function(participant) {
+	participant.numAudits = 0;
+}
+
 app.html = `
 <!DOCTYPE html>
 <html>
@@ -59,3 +65,8 @@ resultsStage.activeScreen = `
     <p>In dieser Runde beträgt Ihr Einkommen nach Steuern Euro <b>{{player.result | round(1)}}.</b></p>
     <p>In dieser Runde haben Sie <b>{{player.points | round(2)}}</b> Punkte verdient.</p>
 `;
+
+// Update variables.
+resultsStage.playerEnd = function(player) {
+	player.participant.numAudits += player.auditNum;
+};

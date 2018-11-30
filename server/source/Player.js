@@ -45,6 +45,10 @@ class Player {
          * 'ready': the player is ready to play their current stage, but is waiting (for their fellow group members).
          * 'playing': the player is playing their current stage.
          * 'finished': the player has finished their current stage.
+         * 'done': stage.playerEnd has been called, if necessary.
+         * 
+         * See Session Flow tutorial for more details.
+         * 
          * @type string
          * @default 'ready'
          */
