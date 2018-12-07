@@ -42,18 +42,19 @@ Period.groupEnd(group)
 Within each period, players and groups progress through the stages of the app. Within each stage, the following functions are called for the groups and players:
 
 1. `player.status` is set to `'ready'`.
-2. If `Stage.waitToStart == true`, pause here until all players are ready.
-3. `Stage.groupStart(group)` is called.
-4. `player.status` is set to `'playing'`.
-5. `Stage.playerStart(player)` is called.
-6. Players are shown the active screen.
-7. `player.status` is set to `'finished'`.
-8. If `Stage.waitToEnd == true`, pause here until all players are finished.
-9. `Stage.playerEnd(player)` is called.
-10. `player.status` is set to `'done'`.
-11. Player begins procedure for next stage in session, if any.
-12. Once all players in the group have ended the stage, `Stage.groupEnd(group)` is called.
-13. Group begins procedure for next stage in session, if any.
+2. If `Stage.waitToStart == true` and not all players in group are ready, stop.
+3. If `Stage.groupStart(group)` has not already been called, call it.
+4. If `Stage.canPlayerParticipate(player)` is true:
+  1. `player.status` is set to `'playing'`.
+  2. `Stage.playerStart(player)` is called.
+  3. Players are shown the active screen.
+  4. `player.status` is set to `'done'`.
+  5. If `Stage.waitToEnd == true` and not all players in group are done, stop.
+  6. `Stage.playerEnd(player)` is called.
+5. `player.status` is set to `'finished'`.
+6. Player begins from step 1 for next stage in session, if any.
+7. Once all players in the group have ended the stage, `Stage.groupEnd(group)` is called.
+8. Group begins procedure for next stage in session, if any.
 
 When a session is started, all players begin the first app of the session.
 

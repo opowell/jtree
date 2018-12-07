@@ -20,6 +20,8 @@ DUE TO:
 - session start / advance slowest.
 
 ### Participant starts an app
+FUNCTION: [`App.participantBegin()`]{@link App#participantBegin}
+
 If [`app.started`]{@link app#started} is `false`, evaluate the app's `app.js` file. Set [`app.started`]{@link App#started} to `true`.
 
 Call [`App.participantStart(participant)`]{@link App#participantStart}.

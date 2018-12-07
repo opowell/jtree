@@ -71,7 +71,7 @@ app.getGroupIdsForPeriod = function(period) {
     for (var p in participants) {
         pIds.push(p);
     }
-    let half = pIds.length / 2;
+    Utils.alphanumSort(pIds); // P1, P2, ..., P10, P11, ...
     var numGroups = pIds.length / app.playersPerGroup;
     var numPairsPerGroup = app.playersPerGroup / app.playersPerSubgroup;
 
@@ -93,7 +93,7 @@ app.getGroupIdsForPeriod = function(period) {
         }
     }
 
-    console.log('Period ' + period.id + ': ids = ' + JSON.stringify(gIds));
+    // console.log('Period ' + period.id + ': ids = ' + JSON.stringify(gIds));
     return gIds;
 }
 
@@ -115,7 +115,7 @@ app.html = `
             @media screen and (max-width: 600px) {
                 body {
                     align-items: start;
-                    background-color: yellow;
+                    background-color: #e4e4e4;
                     width: unset;
                     margin: 10px;
                     padding-top: unset;
@@ -125,7 +125,8 @@ app.html = `
 			</style>
 		</head>
 		<body class='hidden'>
-			<div id='jtree'>
+            <div id='jtree'>
+                <p>{{ period.id }} / {{ group.id }} / {{ stage.id }} / {{ player.status }}</p>
 				<p>{{ app.periodText }}: {{period.id}}/{{app.numPeriods}}</p>
 				<p v-show='hasTimeout'>Time left (s): {{clock.totalSeconds}}</p>
 				<span v-show='player.status=="playing"'>
@@ -197,20 +198,20 @@ pAbuyInfo.groupEnd = function(group) {
 				}
 				break;
 			case app.REPTYPE_AVERAGE:
-				console.log(JSON.stringify(pBHistory));
+				// console.log(JSON.stringify(pBHistory));
 				pA.histLength = Math.min(app.N, pBHistory.length);
-				console.log(JSON.stringify(pA.histLength));
+				// console.log(JSON.stringify(pA.histLength));
 				pA.pBRep = 0;
 				for (var i=0; i<pA.histLength; i++) {
 					pA.pBRep += pBHistory[pBHistory.length - 1 - i];
 				}
-				console.log(pA.pBRep);
+				// console.log(pA.pBRep);
 				pA.pBRep = pA.pBRep / pA.histLength;
-				console.log('pBRep: ' + pA.pBRep);
+				// console.log('pBRep: ' + pA.pBRep);
 				pA.pBRepReturn = (100*pA.pBRep).toFixed(0);
-				console.log('Return: ' + pA.pBRepReturn);
+				// console.log('Return: ' + pA.pBRepReturn);
 				pA.pBRepNotReturn = 100 - pA.pBRepReturn;
-				console.log('Not return: ' + pA.pBRepNotReturn);
+				// console.log('Not return: ' + pA.pBRepNotReturn);
 				break;
 		}
     }

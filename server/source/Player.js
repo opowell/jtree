@@ -42,10 +42,10 @@ class Player {
         /**
          * The current status of this player.
          *
-         * 'ready': the player is ready to play their current stage, but is waiting (for their fellow group members).
-         * 'playing': the player is playing their current stage.
-         * 'finished': the player has finished their current stage.
-         * 'done': stage.playerEnd has been called, if necessary.
+         * 1. 'ready': the player is ready to play their current stage, but is waiting (for their fellow group members).
+         * 2. 'playing': the player is playing their current stage.
+         * 3. 'done': the player is done playing their current stage, waiting to call 'Stage.playerEnd(player)'.
+         * 4. 'finished': player is ready to move to next stage.
          * 
          * See Session Flow tutorial for more details.
          * 
@@ -99,71 +99,8 @@ class Player {
         return this.group.timeInStage();
     }
 
-    moveToStage(stage) {
-        this.stageIndex = stage.indexInApp();
-        this.stage = stage;
-        this.status = 'ready';
-        this.attemptToStartStage();
-    }
-
-    setStage(stageIndex) {
-        if (stageIndex < this.app().stages.length) {
-            this.stageIndex = stageIndex;
-            this.stage = this.app().stages[stageIndex];
-            this.status = 'ready';
-        }
-    }
-
-    // nextForGroup - whether or not to also start the stage for this player's group.
-    attemptToStartStage(nextForGroup) {
-        if (nextForGroup == null || nextForGroup) {
-            this.group.attemptToStartStage(this.stage);
-        }
-        if (!this.stage.waitToStart) {
-            this.startStage();
-        } else {
-            this.emitUpdate2();
-        }
-    }
-
     asClPlayer() {
         return new clPlayer.new(this);
-    }
-
-    startStage() {
-        let stage = this.stage;
-        let player = this;
-
-        if (player.status !== 'ready') {
-            return;
-        }
-
-        if (stage.canPlayerParticipate(player)) {
-            player.status = 'playing';
-            try {
-                let timeStamp = this.jt().settings.getConsoleTimeStamp();
-                console.log(timeStamp + ' START - PLAYER: ' + stage.id + ', ' + player.roomId());
-                player['timeStart_' + stage.id] = timeStamp;
-                stage.playerStart(player);
-            } catch(err) {
-                console.log(err + '\n' + err.stack);
-            }
-            player.save();
-            if (stage.onPlaySendPlayer) {
-                player.emitUpdate2();
-            }
-            if (!stage.waitToStart && player.duration > 0) {
-                player.stageTimer = setTimeout(function () {player.finishStage();}, stage.duration*1000);
-            }
-        } else {
-            player.status = 'done';
-            player.group.attemptToEndStage(stage);
-            player.emitUpdate2();
-        }
-    }
-
-    finishStage() {
-
     }
 
     outputFields() {
@@ -179,119 +116,45 @@ class Player {
         return fields;
     }
 
-    /**
-     * Move this player to their next stage.
-     *
-     * If this player is currently in a stage, call {@link Stage#playerEnd}.
-     * Otherwise, call {@link App#playerMoveToNextStage}.
-     *
-     * @return {type}  description
-     */
-    moveToNextStage() {
-        if (this.stage !== null) {
-            this.stage.playerEnd(this);
-        } else {
-            // TODO: Delete.
-            console.log('SHOULD NEVER HAPPEN??');
-            debugger;
-            this.app().playerMoveToNextStage(this);
+    // /**
+    //  * Move this player to their next stage.
+    //  *
+    //  * If this player is currently in a stage, call {@link Stage#playerEnd}.
+    //  * Otherwise, call {@link App#playerMoveToNextStage}.
+    //  *
+    //  * @return {type}  description
+    //  */
+    // moveToNextStage() {
+    //     console.log('player.moveToNextStage: ' + this.roomId());
+    //     this.session().printStatuses();
+
+    //     if (this.stage !== null) {
+    //         this.stage.playerEnd(this);
+    //     } else {
+    //         // TODO: Delete.
+    //         console.log('SHOULD NEVER HAPPEN??');
+    //         debugger;
+    //         this.app().playerMoveToNextStage(this);
+    //     }
+    // }
+
+    recordStageEndTime(stage) {
+        let timeStamp = this.timeStamp();
+        this['timeEnd_' + stage.id] = this.timeStamp();
+        if (this['timeStart_' + stage.id] == null) {
+            this['timeStart_' + stage.id] = timeStamp;
         }
+        this['msInStage_' + stage.id] = Utils.dateFromStr(timeStamp) - Utils.dateFromStr(this['timeStart_' + stage.id]);
     }
 
-    attemptToEndStage(endForGroup) {
-        if (this.status !== 'done') {
-            this.status = 'finished';
-        }
-        let stage = this.stage;
-        if (this.stage === null || !this.stage.waitToEnd || this.status === 'done') {
-            this.endStage(endForGroup);
-        } else {
-            this.emitUpdate2();
-            if (endForGroup) {
-                this.group.attemptToEndStage(stage);
-            }
-        }
-    }
-
-    justEndStage() {
-        let stage = this.stage;
-        let player = this;
-        // If player is not at this stage, do nothing.
-        if (player.stageIndex !== stage.indexInApp()) {
-            return;
-        }
-
-        // If participant is no longer in this period, or already waiting, do nothing.
-        if (player.period().id !== player.participant.player.period().id || player.status === 'done') {
-            return;
-        }
-
-        let timeStamp = this.jt().settings.getConsoleTimeStamp();
-        console.log(timeStamp + ' END   - PLAYER: ' + stage.id + ', ' + player.roomId());
-        player['timeEnd_' + stage.id] = timeStamp;
-        player['msInStage_' + stage.id] = Utils.dateFromStr(timeStamp) - Utils.dateFromStr(player['timeStart_' + stage.id]);
-
-        stage.playerEnd(this);
-        this.status = 'done';
-//        this.group.attemptToEndStage(stage);
+    recordStageStartTime(stage) {
+        let timeStamp = this.timeStamp();
+        console.log(timeStamp + ' START - PLAYER: ' + stage.id + ', ' + this.roomId());
+        this['timeStart_' + stage.id] = timeStamp;
     }
 
     jt() {
         return this.session().jt;
-    }
-
-    // nextForGroup - whether or not to also start the next stage for this player's group.
-    justGoToNextStage(nextForGroup) {
-        let stage = this.stage;
-        let player = this;
-
-        // If player is not at this stage, do nothing.
-        if (player.stageIndex !== stage.indexInApp()) {
-            return;
-        }
-
-        // If participant is no longer in this period, do nothing.
-        if (player.period().id !== player.participant.player.period().id) {
-            return;
-        }
-
-        // Advance this player, if possible.
-        var nextStage = this.app().getNextStageForPlayer(player);
-        var nextPeriod = this.app().getNextPeriod(player.participant);
-
-        if (nextStage !== null) {
-            player.stage = nextStage;
-            player.stageIndex++;
-            player.status = 'ready';
-            player.attemptToStartStage(nextForGroup);
-        } else if (nextPeriod !== null) {
-            player.participant.startPeriod(nextPeriod);
-        } else {
-            this.emitUpdate2();
-            player.participant.endCurrentApp();
-        }
-
-    }
-
-    endStage(endForGroup) {
-
-        var curStageIndex = this.stageIndex;
-        var periodIndex = this.period().id;
-        var appIndex = this.app().indexInSession();
-
-        this.justEndStage();
-        if (endForGroup === undefined || endForGroup) {
-            this.group.attemptToEndStage(this.app().stages[curStageIndex]);
-        }
-
-        if (
-            curStageIndex   === this.participant.player.stageIndex &&
-            periodIndex     === this.participant.player.period().id &&
-            appIndex        === this.participant.player.app().indexInSession()
-        ) {
-            this.justGoToNextStage();
-        }
-
     }
 
     canProcessMessage() {
@@ -706,6 +569,120 @@ class Player {
         }
         group.players[json.idInGroup-1] = newPlayer;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    startStage(stage) {
+        this.group.startStage(this.stage);
+        if (!this.participant.canStartStage(stage)) {
+            return;
+        }
+        if (this.stageIndex !== stage.indexInApp()) {
+            this.stage = stage;
+            this.stageIndex = stage.indexInApp();
+            this.status = 'ready';            
+        }
+        if (this.group.canPlayersStart(this.stage)) {
+            if (this.stage.canPlayerParticipate(this)) {
+                if (this.status === 'ready') {
+                    this.status = 'playing';
+                    this.recordStageStartTime(stage);
+                    try {
+                        stage.playerStart(this);
+                    } catch(err) {
+                        console.log(err + '\n' + err.stack);
+                    }
+                    this.save();
+                }
+            } else {
+                this.finishStage(true);
+            }
+        }
+        this.emitUpdate2();
+    }
+
+    endStage(endGroup) {
+        if (endGroup == null) {
+            endGroup = true;
+        }
+
+        if (this.status === 'playing') {
+            this.recordStageEndTime(this.stage);
+            this.status = 'done';
+        }
+
+        if (!this.group.canPlayersEnd(this.stage)) {
+            this.emitUpdate2();
+            return;
+        }
+
+        console.log(this.timeStamp() + ' END   - PLAYER: ' + this.stage.id + ', ' + this.roomId());
+        this.stage.playerEnd(this);
+        this.finishStage(endGroup);
+    }
+
+    timeStamp() {
+        return this.jt().settings.getConsoleTimeStamp();
+    }
+
+    finishStage(endGroup) {
+        this.status = 'finished';
+        console.log(this.timeStamp() + ' FINISH- PLAYER: ' + this.stage.id + ', ' + this.roomId());
+        if (endGroup) {
+            this.group.endStage(this.stage);
+        } else {
+            this.moveToNextStage();
+        }
+    }
+
+    // If there is a next stage, enter it.
+    // Otherwise, if there is a next period, start it.
+    // Otherwise, end the current app.
+    moveToNextStage() {
+        let stage = this.stage;
+        let player = this;
+
+        // If this player is no longer active, do nothing.
+        if (player.roomId() !== player.participant.player.roomId()) {
+            return;
+        }
+
+        var nextStage = this.app().getNextStageForPlayer(player);
+        var nextPeriod = this.app().getNextPeriod(player.participant);
+        if (nextStage !== null) {
+            player.stage = nextStage;
+            player.stageIndex++;
+            player.status = 'ready';
+            console.log(this.timeStamp() + ' READY - PLAYER: ' + this.stage.id + ', ' + this.roomId());
+            player.startStage(player.stage);
+        } else if (nextPeriod !== null) {
+            player.participant.startPeriod(nextPeriod);
+        } else {
+            this.emitUpdate2();
+            player.participant.endCurrentApp();
+        }
+
+    } 
+
+
+
+
+
+
+
+
+
+
 
 }
 
