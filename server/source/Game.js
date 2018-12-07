@@ -492,8 +492,8 @@ class Game {
                     }
                 }
                 /** console.log('msg: ' + JSON.stringify(data) + ', ' + client.player().roomId());*/
-                var attemptToEndForGroup = true;
-                client.player().attemptToEndStage(attemptToEndForGroup);
+                var endForGroup = true;
+                client.player().endStage(endForGroup);
             };
         }
 

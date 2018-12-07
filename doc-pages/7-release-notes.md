@@ -1,3 +1,7 @@
+#### 2018.12.07 - 0.7.0
+- fix stage engine
+- sort participants alphanumerically when downloading output
+
 ##### 2018.11.28 - 0.6.13
 - app randomization via queue (session.getApp(participant). See "random-order" app.
 - Admin UI: fix Participants table showing blank spaces.
