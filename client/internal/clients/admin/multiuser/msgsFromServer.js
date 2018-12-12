@@ -176,6 +176,9 @@ msgs.playerSetStageIndex = function(md) {
     var participant = jt.data.session.participants[md.participantId];
     participant.player.stageIndex = md.stageIndex;
     var app = jt.data.session.apps[participant.appIndex-1];
+    if (app == null) {
+        return;
+    }
     var stage = app.stages[participant.player.stageIndex];
     var stageText = '';
     if (stage !== undefined) {

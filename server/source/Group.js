@@ -470,7 +470,20 @@ class Group {
             return true;
         }
 
-        return false;
+        // If do not need to wait for all players, return true.
+        if (!stage.waitToStart) {
+            return true;
+        }
+
+        // If any player is not ready, return false.
+        for (let p in this.players) {
+            let player = this.players[p];
+            if (!player.isReady(stage.indexInApp())) {
+                return false;
+            }
+        }
+
+        return true;
 
     }
 
@@ -586,10 +599,11 @@ class Group {
         this.stageIndex = stage.indexInApp();
         let groupDuration = stage.getGroupDuration(this);
         if (groupDuration > 0) {
+            let timeOutCB = function(stage) {
+                this.session().addMessageToStartOfQueue(this, stage, 'forceEndStage');
+            }.bind(this, stage);
             this.stageTimer = new Timer.new(
-                function() {
-                    this.session().addMessageToStartOfQueue(this, stage, 'endStage');
-                },
+                timeOutCB,
                 groupDuration*1000,
                 stage.indexInApp()
             );
@@ -611,17 +625,29 @@ class Group {
         }
     }
 
-    endStage(stage) {
+    forceEndStage(stage) {
+        console.log('Group.forceEndStage: ' + stage.id);
+        this.clearStageTimer();
+        this.endStage(stage, true);
+    }
+
+    endStage(stage, forcePlayersToEnd) {
+
+        if (forcePlayersToEnd == null) {
+            forcePlayersToEnd = false;
+        }
+
         if (!stage.canGroupEnd(this)) {
             return;
         }
-        this.clearStageTimer();
 
         // If waiting for any players, stop.
-        if (this.waitingForPlayersInStage(stage)) {
+        if (this.waitingForPlayersInStage(stage, forcePlayersToEnd)) {
             return;
         }
-        
+
+        this.clearStageTimer();
+
         for (var p in this.players) {
             var player = this.players[p];
             if (player.stage.id === stage.id && player.status !== 'finished') {
@@ -657,7 +683,7 @@ class Group {
     // Check if this group is waiting for players to finish playing the given stage.
     // If it is, tell those players to end the stage.
     // Return whether or not any player
-    waitingForPlayersInStage(stage) {
+    waitingForPlayersInStage(stage, forcePlayersToEnd) {
         let waitingForPlayers = false;
         if (stage.waitOnTimerEnd) {
             for (var p in this.players) {
@@ -670,17 +696,17 @@ class Group {
                     } else {
                         // If player is in this stage and not finished...
                         if (!player.isFinished()) {
-                            // If any clients are connected, let player finish via call to "endStage".
-                            if (player.participant.clients.length > 0) {
-                                waitingForPlayers = true;
-                                if (endPlayers) {
+                            waitingForPlayers = true;
+                            if (forcePlayersToEnd) {
+                                // If any clients are connected, let player finish via call to "endStage".
+                                if (player.participant.clients.length > 0) {
                                     player.emit('endStage', player.shellWithParent());
                                 }
-                            }
-                            // If not, end player immediately.
-                            else {
-                                console.log('No connected clients for ' + player.id + ', ending immediately.');
-                                player.endStage(false);
+                                // If not, end player immediately.
+                                else {
+                                    console.log('No connected clients for ' + player.id + ', ending immediately.');
+                                    player.endStage(false);
+                                }
                             }
                         }
                 }

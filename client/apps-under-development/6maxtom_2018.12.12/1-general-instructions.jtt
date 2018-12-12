@@ -1,0 +1,38 @@
+app.description = 'Welcome message and general instructions';
+
+app.numPeriods 	= 1;
+app.groupSize 	= 1;
+
+app.html = `
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body class='hidden'>
+		<div id='jtree'>
+			<p v-show='hasTimeout'>Verbleibende Zeit (s): {{clock.totalSeconds}}</p>
+			<span v-show='player.status=="playing"'>
+				{{stages}}
+			</span>
+			<span v-show='["waiting", "finished", "done"].includes(player.status)'>
+				{{waiting-screens}}
+			</span>
+		</div>
+		{{scripts}}
+	</body>
+</html>
+`;
+
+var welcomeScreen = app.newStage('welcome');
+welcomeScreen.duration = 60;
+welcomeScreen.activeScreen = `
+	<p>Herzlich Willkommen!</p>
+	<p>In diesem Experiment werden Sie in mehreren, unnterschiedlichen Abschnitten Aufgaben erfüllen und Fragen beantworten.</p>
+	<p>Bitte lesen Sie sämtliche Nachrichten genau durch und folgen Sie den Instruktionen auf dem Bildschirm.</p>
+	<p></p>
+	<p>In manchen Teilen können Sie in Abhängigkeit von Ihren Entscheidungen Geld verdienen, und Ihre Bezahlung für dieses Experiment zu erhöhen.</p>
+	<p>Dies wird im jeweiligen Abschnitt näher erläutert. Die Bezahlung erfolgt am Ende des Experiments.</p>
+`;
+

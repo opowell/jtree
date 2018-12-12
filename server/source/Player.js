@@ -140,8 +140,9 @@ class Player {
 
     recordStageEndTime(stage) {
         let timeStamp = this.timeStamp();
-        this['timeEnd_' + stage.id] = this.timeStamp();
+        this['timeEnd_' + stage.id] = timeStamp;
         if (this['timeStart_' + stage.id] == null) {
+            console.log('Player ERROR, missing stage start time! Using end time.');
             this['timeStart_' + stage.id] = timeStamp;
         }
         this['msInStage_' + stage.id] = Utils.dateFromStr(timeStamp) - Utils.dateFromStr(this['timeStart_' + stage.id]);
@@ -486,6 +487,30 @@ class Player {
     }
 
     /**
+     * isReady - description
+     *
+     * @return {type}  description
+     */
+    isReady(stageIndex) {
+        var actualPlyr = this.participant.player;
+
+        // No active player.
+        if (actualPlyr == null || this.roomId() !== actualPlyr.roomId()) {
+            return false;
+        }
+
+        if (this.stageIndex !== stageIndex) {
+            return false;
+        }
+
+        if (this.status !== 'ready') {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * save - description
      *
      */
@@ -628,6 +653,7 @@ class Player {
 
         console.log(this.timeStamp() + ' END   - PLAYER: ' + this.stage.id + ', ' + this.roomId());
         this.stage.playerEnd(this);
+        this.emitUpdate2();
         this.finishStage(endGroup);
     }
 
@@ -638,9 +664,12 @@ class Player {
     finishStage(endGroup) {
         this.status = 'finished';
         console.log(this.timeStamp() + ' FINISH- PLAYER: ' + this.stage.id + ', ' + this.roomId());
+        let curRoomId = this.roomId();
+        let curStageIndex = this.stageIndex;
         if (endGroup) {
             this.group.endStage(this.stage);
-        } else {
+        }
+        if (curRoomId == this.roomId() && curStageIndex === this.stageIndex) {
             this.moveToNextStage();
         }
     }
@@ -653,7 +682,7 @@ class Player {
         let player = this;
 
         // If this player is no longer active, do nothing.
-        if (player.roomId() !== player.participant.player.roomId()) {
+        if (player.participant.player == null || player.roomId() !== player.participant.player.roomId()) {
             return;
         }
 

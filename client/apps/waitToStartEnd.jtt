@@ -1,0 +1,47 @@
+app.description = `Demo to demonstrate options for starting and ending stages individually and in groups.`
+app.numGroups = 1;
+app.stageContent = `
+<p>Status {{player.status}}</p>
+<p>Stage {{stage.id}}</p>
+<p>waitToStart = {{stage.waitToStart}}</p>
+<p>waitToEnd = {{stage.waitToEnd}}</p>
+<p>duration = {{stage.duration}}</p>
+`;
+
+let stage1 = app.newStage('stage1');
+stage1.waitToStart = false;
+stage1.waitToEnd = false;
+stage1.activeScreen = app.stageContent;
+stage1.waitingScreen = app.stageContent;
+
+let stage2 = app.newStage('stage2');
+stage2.waitToStart = true;
+stage2.waitToEnd = false;
+stage2.activeScreen = app.stageContent;
+stage2.waitingScreen = app.stageContent;
+
+let stage3 = app.newStage('stage3');
+stage3.waitToStart = false;
+stage3.waitToEnd = true;
+stage3.activeScreen = app.stageContent;
+stage3.waitingScreen = app.stageContent;
+
+let stage4 = app.newStage('stage4');
+stage4.waitToStart = true;
+stage4.waitToEnd = false;
+stage4.activeScreen = app.stageContent;
+stage4.waitingScreen = app.stageContent;
+
+let stage5 = app.newStage('stage5');
+stage5.waitToStart = true;
+stage5.waitToEnd = false;
+stage5.duration = 10;
+stage5.activeScreen = app.stageContent;
+stage5.waitingScreen = app.stageContent;
+
+let stage6 = app.newStage('stage6');
+stage6.waitToStart = true;
+stage6.waitToEnd = true;
+stage6.duration = 0;
+stage6.activeScreen = app.stageContent;
+stage6.waitingScreen = app.stageContent;

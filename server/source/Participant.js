@@ -182,6 +182,8 @@ class Participant {
             this.finishedApps.push(this.getApp().getIdInSession());
         }
 
+        this.player = null;
+
         this.appIndex++;
 
         var nextApp = this.session.getApp(this);
@@ -283,11 +285,11 @@ class Participant {
             if (this.periodIndex < app.numPeriods - 1) {
                 return false;
             }
-            // In the last period, but still 'playing'.
-            if (this.player !== null && this.player.status === 'playing') {
+            // In the last period, but still not 'finished'.
+            if (this.player !== null && this.player.status !== 'finished') {
                 return false;
             }
-            // Finished all periods and no longer 'playing'.
+            // Finished all periods.
             return true;
         }
 

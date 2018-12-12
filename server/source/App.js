@@ -865,7 +865,7 @@ class App {
         this.end();
 
         let timeStamp = this.session.jt.settings.getConsoleTimeStamp();
-        console.log(timeStamp + ' END   - APP   : ' + this.shortId);
+        console.log(timeStamp + ' END   - APP   : ' + this.getIdInSession());
 
         this.finished = true;
 

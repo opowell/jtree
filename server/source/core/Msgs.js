@@ -293,6 +293,9 @@ class Msgs {
      * @return {type}
      */
     sessionAddApp(data, socket) {
+        if (data.appPath == null) {
+            data.appPath = data.appId;
+        }
         this.jt.data.getSession(data.sId).addApp(data.appPath, data.options);
     }
 
