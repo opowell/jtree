@@ -1,0 +1,72 @@
+﻿app.description = 'Simple tax reporting risky choice game';
+
+app.numPeriods 	= 5;
+app.groupSize 	= 1;
+app.incomes	= [1000,1500,500,900,700];
+app.taxrate 	= 0.3;
+app.auditp 	= 0.3;
+app.finefactor 	= 3;
+app.pointfactor = 0.1;
+
+// Save data for results screen.
+// Initialize variables.
+app.participantStart = function(participant) {
+	participant.numAudits = 0;
+}
+
+app.html = `
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body class='hidden'>
+		<div id='jtree'>
+			<p v-show='app.numPeriods > 1'>Periode: {{period.id}}/{{app.numPeriods}}</p>
+			<p v-show='hasTimeout'>Time left (s): {{clock.totalSeconds}}</p>
+			<span v-show='player.status=="playing"'>
+				{{stages}}
+			</span>
+			<span v-show='["waiting", "finished", "done"].includes(player.status)'>
+				{{waiting-screens}}
+			</span>
+		</div>
+		{{scripts}}
+	</body>
+</html>
+`;
+
+var decideStage = app.newStage('decide');
+decideStage.duration = 50;
+decideStage.activeScreen = `
+	<p>DECISION</p>
+	<p>Ihr Einkommen vor Steuer beträgt in dieser Runde Euro {{app.incomes[period.id-1]}}. </p>
+	<p>Geben Sie ein, wie viel Ihres Einkommens Sie den Steuerbehörden melden möchten:</p>
+	<p>Einkommen in Steuererklärung: <input name='player.contribution' required type='number' min='0' :max='app.incomes[period.id-1]' step='1'></p>
+	<button>Steuererklärung absenden</button>
+`;
+
+var resultsStage = app.newStage('results'); 
+resultsStage.duration = 50; 
+resultsStage.playerStart = function(player) {
+	player.audit = Math.random() <= app.auditp; 
+	player.auditNum = player.audit ? 1 : 0; 
+	player.auditText = player.audit ? 'eine' : 'keine';
+	player.fine = player.auditNum * app.finefactor * ((app.incomes[player.period().id-1] - player.contribution) * app.taxrate);
+	player.result = app.incomes[player.period().id-1] - (player.contribution * app.taxrate) - player.fine;
+	player.points = player.result * app.pointfactor
+}
+
+resultsStage.activeScreen = `
+    <p>RESULTS</p>
+    <p>Ihr Einkommen vor Steuern betrug <b>{{app.incomes[period.id-1]}}</b>. Sie haben Euro <b>{{player.contribution}}</b> an die Steuerbehörden gemeldet.</p>
+    <p>In dieser Runde fand <b>{{player.auditText}}</b> Steuerprüfung statt. Ihre Strafe beträgt Euro <b>{{player.fine | round(2)}}</b>.</p>
+    <p>In dieser Runde beträgt Ihr Einkommen nach Steuern Euro <b>{{player.result | round(1)}}.</b></p>
+    <p>In dieser Runde haben Sie <b>{{player.points | round(2)}}</b> Punkte verdient.</p>
+`;
+
+// Update variables.
+resultsStage.playerEnd = function(player) {
+	player.participant.numAudits += player.auditNum;
+};

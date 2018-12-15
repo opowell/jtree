@@ -242,7 +242,7 @@ class Session {
     */
     addApp(appPath, options) {
 
-        if (this.queuePath != null) {
+        if (this.queuePath != null && !appPath.startsWith(this.queuePath)) {
             appPath = path.join(this.queuePath, appPath);
         }
 

@@ -132,7 +132,15 @@ class Participant {
         if (this.player === null) {
             this.session.participantMoveToNextApp(this);
         } else {
-            this.player.attemptToEndStage(true);
+            this.player.endStage(true);
+        }
+    }
+
+    printStatus() {
+        if (this.player == null) {
+            console.log(this.id + ' - no player');
+        } else {
+            this.player.showStatus();
         }
     }
 
@@ -141,15 +149,8 @@ class Participant {
             return false;
         }
 
-        // Done previous stage.
-        if (
-            this.player.stageIndex === stage.indexInApp()-1 &&
-            this.player.status === 'done'
-        ) {
-            return true;
-        }
-
         // Ready in this stage.
+        // TODO: Check whether correct period and app.
         if (
             this.player.stageIndex === stage.indexInApp() &&
             this.player.status === 'ready'
@@ -180,6 +181,8 @@ class Participant {
             this.getApp().participantEnd(this);
             this.finishedApps.push(this.getApp().getIdInSession());
         }
+
+        this.player = null;
 
         this.appIndex++;
 
@@ -282,11 +285,11 @@ class Participant {
             if (this.periodIndex < app.numPeriods - 1) {
                 return false;
             }
-            // In the last period, but still 'playing'.
-            if (this.player !== null && this.player.status === 'playing') {
+            // In the last period, but still not 'finished'.
+            if (this.player !== null && this.player.status !== 'finished') {
                 return false;
             }
-            // Finished all periods and no longer 'playing'.
+            // Finished all periods.
             return true;
         }
 

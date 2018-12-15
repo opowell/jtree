@@ -482,8 +482,9 @@ class App {
                     }
                 }
                 /** console.log('msg: ' + JSON.stringify(data) + ', ' + client.player().roomId());*/
-                var attemptToEndForGroup = true;
-                client.player().attemptToEndStage(attemptToEndForGroup);
+                var endForGroup = true;
+                client.player().endStage(endForGroup);
+//                 client.session.checkForStuckGroups();
             };
         }
 
@@ -864,7 +865,7 @@ class App {
         this.end();
 
         let timeStamp = this.session.jt.settings.getConsoleTimeStamp();
-        console.log(timeStamp + ' END   - APP   : ' + this.shortId);
+        console.log(timeStamp + ' END   - APP   : ' + this.getIdInSession());
 
         this.finished = true;
 
@@ -968,7 +969,8 @@ class App {
             participantHeadersText += ',' + participantHeaders.join(',');
         }
         participantText.push(participantHeadersText);
-        var pIds = Object.keys(this.session.participants).sort();
+        var pIds = Object.keys(this.session.participants);
+        Utils.alphanumSort(pIds);
         for (var i in pIds) {
             var participant = this.session.participants[pIds[i]];
             var newLine = participant.id + ',' + participant.points();
@@ -1453,34 +1455,34 @@ class App {
         this.tryToEndApp();
     }
 
-    /**
-     * Move the player to their next stage.
-     *
-     * FUNCTIONALITY
-     * - if player has not finished all stages,
-     * -- set player status to 'playing'
-     * -- increment player's stage index.
-     * -- play next stage ({@link Stage#playerPlayDefault}).
-     * -- player emits update ({@link Player#emitUpdate2}).
-     * - otherwise, move participant to next period ([this.participantMoveToNextPeriod(player.participant)]{@link App#participantMoveToNextPeriod}).
-     *
-     * CALLED FROM
-     * - {@link App#groupMoveToNextStage}
-     *
-     * @param  {Player} player The player
-     * @return {type}        description
-     */
-    playerMoveToNextStage(player) {
-        if (player.stageIndex < this.stages.length - 1) {
-            player.status = 'playing';
-            player.stageIndex++;
-            player.stage = this.stages[player.stageIndex];
-            player.stage.playerPlayDefault(player);
-            player.emitUpdate2();
-        } else {
-            this.participantMoveToNextPeriod(player.participant);
-        }
-    }
+    // /**
+    //  * Move the player to their next stage.
+    //  *
+    //  * FUNCTIONALITY
+    //  * - if player has not finished all stages,
+    //  * -- set player status to 'playing'
+    //  * -- increment player's stage index.
+    //  * -- play next stage ({@link Stage#playerPlayDefault}).
+    //  * -- player emits update ({@link Player#emitUpdate2}).
+    //  * - otherwise, move participant to next period ([this.participantMoveToNextPeriod(player.participant)]{@link App#participantMoveToNextPeriod}).
+    //  *
+    //  * CALLED FROM
+    //  * - {@link App#groupMoveToNextStage}
+    //  *
+    //  * @param  {Player} player The player
+    //  * @return {type}        description
+    //  */
+    // playerMoveToNextStage(player) {
+    //     if (player.stageIndex < this.stages.length - 1) {
+    //         player.status = 'playing';
+    //         player.stageIndex++;
+    //         player.stage = this.stages[player.stageIndex];
+    //         player.stage.playerPlayDefault(player);
+    //         player.emitUpdate2();
+    //     } else {
+    //         this.participantMoveToNextPeriod(player.participant);
+    //     }
+    // }
 
     /**
      * Returns the player of the current player's participant from the previous period.

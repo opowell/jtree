@@ -65,6 +65,9 @@ class Group {
          */
         this.stageIndex = 0;
 
+
+        this.stageStartedIndex = -1;
+        this.stageEndedIndex = -1;
         /**
          * @type number
          * @default -1
@@ -173,70 +176,12 @@ class Group {
         return null;
     }
 
-    attemptToStartStage(stage) {
-        if (stage != null && stage.canGroupStart(this)) {
-            this.startStage(stage);
-        }
-    }
-
-    startStage(stage) {
-        let group = this;
-        this.stageIndex = stage.indexInApp();
-
-        if (!stage.canGroupParticipate(this)) {
-
-            return;
-        }
-
-        let groupDuration = stage.getGroupDuration(group);
-        if (groupDuration > 0) {
-            group.stageTimer = new Timer.new(
-                function() {
-                    group.session().addMessageToStartOfQueue(group, stage, 'endStage');
-                },
-                groupDuration*1000,
-                stage.indexInApp());
-        }
-
-        try {
-            console.log(this.jt().settings.getConsoleTimeStamp() + ' START - GROUP : ' + stage.id + ', ' + group.roomId());
-            stage.groupStart(group);
-        } catch (err) {
-            console.log(err.stack);
-        }
-        try {
-            group.save();
-        } catch (err) {}
-        for (var p in group.players) {
-            try {
-                var player = group.players[p];
-                if (player.participant.canStartStage(stage)) {
-                    player.stage = stage;
-                    player.status = 'ready';
-                    player.stageIndex = stage.indexInApp();
-                    player.startStage();
-                }
-            } catch (err) {}
-        }
-    }
-
     jt() {
         return this.session().jt;
     }
 
     canProcessMessage() {
         return true;
-    }
-
-    attemptToEndStage(stage) {
-        let group = this;
-        if (stage.canGroupEnd(group)) {
-            group.endStage(stage);
-        } else {
-            var canParticipate = true; // ???
-            var endPlayers = false;
-            this.checkIfWaitingToEnd(stage, endPlayers, canParticipate);
-        }
     }
 
     /**
@@ -246,88 +191,6 @@ class Group {
      */
     old() {
         return this.app().previousGroup(this);
-    }
-
-    checkIfWaitingToEnd(stage, endPlayers, canParticipate) {
-        if (canParticipate == null) {
-            canParticipate = true;
-        }
-
-        let group = this;
-        // Wait for players to submit their forms.
-        var waitingForPlayers = false;
-
-        if (!canParticipate) {
-            this.attemptToStartNextStage();
-            return;
-        }
-
-        if (stage.waitOnTimerEnd) {
-            for (var p in group.players) {
-                var player = group.players[p];
-                    // If player is not in this stage, wait.
-                    if (player.stage.id !== stage.id) {
-                        waitingForPlayers = true;
-                    } else {
-                        // If player is not finished this stage...
-                        if (!player.isFinished()) {
-                            // If any clients are connected, let player finish via call to "endStage".
-                            if (player.participant.clients.length > 0) {
-                                waitingForPlayers = true;
-                                if (endPlayers) {
-                                    player.emit('endStage', player.shellWithParent());
-                                }
-                            }
-                            // If not, end player immediately.
-                            else {
-                                if (endPlayers) {
-                                    console.log('No connected clients for ' + player.id + ', ending immediately.');
-                                    player.attemptToEndStage(false);
-                                } else {
-                                    waitingForPlayers = true;
-                                }
-                            }
-                        }
-                }
-            }
-        }
-
-        // If not waiting for any players, proceed without waiting for players to submit their forms.
-        if (!waitingForPlayers) {
-            for (var p in group.players) {
-                var player = group.players[p];
-                if (player.stage.id === stage.id && player.status !== 'done') {
-                    player.justEndStage();
-                }
-            }
-            console.log(this.jt().settings.getConsoleTimeStamp() + ' END   - GROUP : ' + stage.id + ', ' + group.roomId());
-            stage.groupEnd(group);
-            this.attemptToStartNextStage();
-        }
-
-    }
-
-    endStage(stage) {
-        let group = this;
-        group.stageFinishedIndex = stage.indexInApp();
-        group.clearStageTimer();
-        var endPlayers = true;
-        var canParticipate = true;
-        this.checkIfWaitingToEnd(stage, endPlayers, canParticipate);
-    }
-
-    attemptToStartNextStage() {
-        if (this.stageIndex < this.app().stages.length - 1) {
-            // move group (and all its players) to next stage.
-            this.stageIndex++;
-            this.attemptToStartStage(this.stage());
-        } else {
-            // move all players to next period.
-            for (var p in this.players) {
-                var nextForGroup = false;
-                this.players[p].justGoToNextStage(nextForGroup);
-            }
-        }
     }
 
     /**
@@ -490,6 +353,11 @@ class Group {
         }
     }
 
+    showStatus() {
+        console.log('Group ' + this.id + ': stageIndex=' + this.stageIndex + ', stageFinishedIndex=' + this.stageFinishedIndex);
+        this.session().printStatuses();
+    }
+
     /**
      * Returns the app this group is in.
      *
@@ -594,6 +462,257 @@ class Group {
             console.log('Error saving group ' + this.id + ': ' + err);
             console.log(err.stack);
         }
+    }
+
+    canPlayersStart(stage) {
+        
+        if (this.stageStartedIndex >= stage.indexInApp()) {
+            return true;
+        }
+
+        // If do not need to wait for all players, return true.
+        if (!stage.waitToStart) {
+            return true;
+        }
+
+        // If any player is not ready, return false.
+        for (let p in this.players) {
+            let player = this.players[p];
+            if (!player.isReady(stage.indexInApp())) {
+                return false;
+            }
+        }
+
+        return true;
+
+    }
+
+    canPlayersEnd(stage) {
+
+        // If Group has already finished, do not allow players to finish. 
+        if (this.stageFinishedIndex >= stage.indexInApp()) {
+            return false;
+        }
+
+        // If do not need to wait for all players, return true.
+        if (!stage.waitToEnd) {
+            return true;
+        }
+
+        // If any player is not finished playing, return false.
+        for (let p in this.players) {
+            let player = this.players[p];
+            if (!player.isFinished()) {
+                return false;
+            }
+        }
+
+        // Otherwise, return true.
+        return true;
+    }
+
+//     checkIfWaitingToEnd(stage, endPlayers, canParticipate) {
+//         console.log('Group.checkIfWaitingToEnd: ' + this.roomId());
+//         this.showStatus();
+//         if (canParticipate == null) {
+//             canParticipate = true;
+//         }
+
+//         let group = this;
+//         // Wait for players to submit their forms.
+//         var waitingForPlayers = false;
+
+//         if (!canParticipate) {
+//             this.attemptToStartNextStage();
+//             return;
+//         }
+
+//         if (stage.waitOnTimerEnd) {
+//             for (var p in group.players) {
+//                 var player = group.players[p];
+//                     // If player is in an earlier stage, wait.
+//                     if (player.stage.indexInApp() < stage.indexInApp()) {
+//                         waitingForPlayers = true;
+//                     } else if (player.stage.indexInApp() > stage.indexInApp()) {
+//                         // If player is past this stage, proceed.
+//                     } else {
+//                         // If player is in this stage and not finished...
+//                         if (!player.isFinished()) {
+//                             // If any clients are connected, let player finish via call to "endStage".
+//                             if (player.participant.clients.length > 0) {
+//                                 waitingForPlayers = true;
+//                                 if (endPlayers) {
+//                                     player.emit('endStage', player.shellWithParent());
+//                                 }
+//                             }
+//                             // If not, end player immediately.
+//                             else {
+//                                 if (endPlayers) {
+//                                     console.log('No connected clients for ' + player.id + ', ending immediately.');
+//                                     player.attemptToEndStage(false);
+//                                 } else {
+//                                     waitingForPlayers = true;
+//                                 }
+//                             }
+//                         }
+//                 }
+//             }
+//         }
+
+//         // If not waiting for any players, proceed without waiting for players to submit their forms.
+//         if (!waitingForPlayers) {
+//             for (var p in group.players) {
+//                 var player = group.players[p];
+//                 if (player.stage.id === stage.id && player.status !== 'done') {
+//                     player.justEndStage();
+//                 }
+//             }
+//             console.log(this.jt().settings.getConsoleTimeStamp() + ' END   - GROUP : ' + stage.id + ', ' + group.roomId());
+//             stage.groupEnd(group);
+//             this.attemptToStartNextStage();
+//         } else {
+// //             debugger;
+//         }
+
+//     }
+
+
+
+
+
+
+
+
+
+
+    startStage(stage) {
+
+        if (!stage.canGroupParticipate(this)) {
+            this.endStage();
+        }
+
+        if (!stage.canGroupStart(this)) {
+            return;
+        }
+
+        this.stageStartedIndex++;
+        this.stageIndex = stage.indexInApp();
+        let groupDuration = stage.getGroupDuration(this);
+        if (groupDuration > 0) {
+            let timeOutCB = function(stage) {
+                this.session().addMessageToStartOfQueue(this, stage, 'forceEndStage');
+            }.bind(this, stage);
+            this.stageTimer = new Timer.new(
+                timeOutCB,
+                groupDuration*1000,
+                stage.indexInApp()
+            );
+        }
+
+        try {
+            console.log(this.jt().settings.getConsoleTimeStamp() + ' START - GROUP : ' + stage.id + ', ' + this.roomId());
+            stage.groupStart(this);
+        } catch (err) {
+            console.log(err.stack);
+        }
+        try {
+            this.save();
+        } catch (err) {}
+        for (var p in this.players) {
+            try {
+                this.players[p].startStage(stage);
+            } catch (err) {}
+        }
+    }
+
+    forceEndStage(stage) {
+        console.log('Group.forceEndStage: ' + stage.id);
+        this.clearStageTimer();
+        this.endStage(stage, true);
+    }
+
+    endStage(stage, forcePlayersToEnd) {
+
+        if (forcePlayersToEnd == null) {
+            forcePlayersToEnd = false;
+        }
+
+        if (!stage.canGroupEnd(this)) {
+            return;
+        }
+
+        // If waiting for any players, stop.
+        if (this.waitingForPlayersInStage(stage, forcePlayersToEnd)) {
+            return;
+        }
+
+        this.clearStageTimer();
+
+        for (var p in this.players) {
+            var player = this.players[p];
+            if (player.stage.id === stage.id && player.status !== 'finished') {
+                player.endStage(false);
+            }
+        }
+        console.log(this.jt().settings.getConsoleTimeStamp() + ' END   - GROUP : ' + stage.id + ', ' + this.roomId());
+        this.stageEndedIndex = stage.indexInApp();
+        stage.groupEnd(this);
+
+        if (stage.waitToEnd) {
+            for (var p in this.players) {
+                let player = this.players[p];
+                if (player.stageIndex === stage.indexInApp()) {
+                    player.moveToNextStage();
+                }
+            }
+        }
+
+        this.stageIndex = stage.indexInApp() + 1;
+        if (this.stageIndex < this.app().stages.length) {
+            // move group (and all its players) to next stage.
+            this.startStage(this.stage());
+        } else {
+            // move all players to next period.
+            for (var p in this.players) {
+                this.players[p].moveToNextStage();
+            }
+        }
+
+    }
+
+    // Check if this group is waiting for players to finish playing the given stage.
+    // If it is, tell those players to end the stage.
+    // Return whether or not any player
+    waitingForPlayersInStage(stage, forcePlayersToEnd) {
+        let waitingForPlayers = false;
+        if (stage.waitOnTimerEnd) {
+            for (var p in this.players) {
+                var player = this.players[p];
+                    // If player is in an earlier stage, wait.
+                    if (player.stage.indexInApp() < stage.indexInApp()) {
+                        waitingForPlayers = true;
+                    } else if (player.stage.indexInApp() > stage.indexInApp()) {
+                        // If player is past this stage, proceed.
+                    } else {
+                        // If player is in this stage and not finished...
+                        if (!player.isFinished()) {
+                            waitingForPlayers = true;
+                            if (forcePlayersToEnd) {
+                                // If any clients are connected, let player finish via call to "endStage".
+                                if (player.participant.clients.length > 0) {
+                                    player.emit('endStage', player.shellWithParent());
+                                }
+                                // If not, end player immediately.
+                                else {
+                                    console.log('No connected clients for ' + player.id + ', ending immediately.');
+                                    player.endStage(false);
+                                }
+                            }
+                        }
+                }
+            }
+        }
+        return waitingForPlayers;
     }
 
 }

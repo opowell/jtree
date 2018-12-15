@@ -1,0 +1,299 @@
+app.numWords = 10;
+app.title = 'Implicit Association Test';
+app.description = 'Players classify two sets of items into two choices.';
+app.groupSize = 1;
+
+// TODO:
+// Record times.
+
+app.addSelectOption('type', ['real', 'practice']);
+app.addTextOption('usedLists', [0, 1], 'the lists to use');
+app.addTextOption('flip', [false, true], 'whether or not to flip the left/right assignment of each list');
+
+app.allLists = [
+    { // List 1, good vs. bad
+        'optionA': 'good',
+        'optionB': 'bad',
+        'wordsA': [
+            'good',
+            'happy',
+        ],
+        'wordsB': [
+            'sad',
+            'hurt',
+        ]
+    },
+    { // List 2, neutral, uppercase vs. lowercase
+        'optionA': 'male',
+        'optionB': 'female',
+        'wordsA': [
+            'father',
+            'uncle',
+        ],
+        'wordsB': [
+            'mother',
+            'aunt'
+        ]
+    }
+]
+
+app.origWords = [];
+app.optionAText = '';
+app.optionBText = '';
+
+app.actualLists = [];
+
+for (let i=0; i<app.usedLists.length; i++) {
+
+    let list = app.allLists[app.usedLists[i]];
+
+    let flip = app.flip[i];
+
+    app.actualLists.push(list);
+
+    app.optionAText += (i>0? " / " : "") + "'" + (flip ? list.optionB : list.optionA) + "'";
+    app.optionBText += (i>0? " / " : "") + "'" + (flip ? list.optionA : list.optionB) + "'";
+
+    for (let j=0; j<list.wordsA.length; j++) {
+        app.origWords.push({
+            word: list.wordsA[j],
+            answer: flip ? 'B' : 'A'            
+        });
+    }
+    for (let j=0; j<list.wordsB.length; j++) {
+        app.origWords.push({
+            word: list.wordsB[j],
+            answer: flip ? 'A' : 'B'            
+        });
+    }
+}
+
+// the number of "questions" to use.
+// app.numPeriods = app.words.length; // use all words
+app.numPeriods = app.numWords; // use X words.
+
+app.html = `
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+            <style>
+                body.show {
+                    max-width: none;
+                    display: flex !important;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                #jtree {
+                    width: 70%;
+                    display: flex;
+                    justify-content: center;
+                }
+
+                td, th {
+                    border: 1px solid #ddd;
+                    padding: 5px;
+                }
+
+            </style>
+        </head>
+        <body class='hidden'>
+            <div id='jtree'>
+                <span style='width: 100%; text-align: center;' v-show='player.status=="playing"'>
+                    {{stages}}
+                </span>
+                <span v-show='["waiting", "finished", "done"].includes(player.status)'>
+                    {{waiting-screens}}
+                </span>
+            </div>
+            {{scripts}}
+        </body>
+    </html>
+`;
+
+let usedWordIds = [];
+for (let i=0; i<app.usedLists.length; i++) {
+    let list = app.allLists[app.usedLists[i]];
+    let listWordsA = [];
+    for (let j=0; j<list.wordsA.length; j++) {
+        listWordsA.push(j);
+    }
+    let listWordsB = [];
+    for (let j=0; j<list.wordsB.length; j++) {
+        listWordsB.push(j);
+    }
+
+    usedWordIds.push([
+        listWordsA,
+        listWordsB
+    ]);
+}
+
+app.drawnWords = [];
+for (let i=0; i<app.numWords; i++) {
+    // Draw a random list.
+    let listIndex = Utils.randomInt(0, app.usedLists.length);
+    let listIds = usedWordIds[listIndex];
+    // List A or B
+    let ab = Math.random() < 0.5 ? 0 : 1;
+
+    // Draw a random word from the given A/B list.
+    let j = Utils.randomInt(0, listIds[ab].length);
+    let wordIndex = listIds[ab][j];
+    let ablist = ab === 0 ? 'wordsA' : 'wordsB';
+    let answer = (app.flip[listIndex] ? 1-ab : ab) === 0 ? 'A' : 'B';
+    app.drawnWords.push({
+        word: app.allLists[app.usedLists[listIndex]][ablist][wordIndex],
+        answer: answer
+    });
+    
+    // Remove the index of this word from the id list
+    listIds[ab].splice(j, 1);
+
+    // If list is empty, repopulate it.
+    if (listIds[ab].length === 0) {
+        for (let k=0; k<app.allLists[app.usedLists[listIndex]][ablist].length; k++) {
+            listIds[ab].push(k);
+        }
+    }
+    // console.log(JSON.stringify(app.drawnWords));
+    // console.log(JSON.stringify(listIds));
+}
+
+app.participantStart = function(participant) {
+    if (participant.totalErrors != null) {
+        participant.totalErrors[participant.appIndex - 1] = 0;
+    }
+
+    participant.times[participant.appIndex - 1].lists = app.usedLists;
+    participant.times[participant.appIndex - 1].flip = app.flip;
+    participant.times[participant.appIndex - 1].sumOfTimes = 0;
+    
+    // participant.words = Utils.drawRandomly(app.origWords, {
+    //     withReplacement: true, 
+    //     numDraws: app.numPeriods
+    // });
+    participant.words = app.drawnWords;
+}
+
+var generalInstructions = app.newStage('generalInstructions');
+generalInstructions.canPlayerParticipate = function(player) {
+    return player.period().id === 1 && player.participant.appIndex === 1;
+}
+generalInstructions.activeScreen = `
+<p>
+Next, you will use the 'E' and 'I' computer keys to categorize items into groups as fast as you can. These are the four groups and the items that belong to each:
+</p>
+<table style='border: 1px solid #ddd; margin: auto; font-size: 14pt;'>
+<tr style='background-color: #eee; font-weight: bold;'>
+    <td style='padding-right: 50px'>Category</td>
+    <td>Items</td>
+</tr>
+<template v-for='list in app.allLists'>
+<tr>
+<td>{{list.optionA}}</tdorder:>
+<td><span v-for="(item, index) in list.wordsA">
+    <span>{{item}}</span><span v-if="index+1 < list.wordsA.length">, </span>
+</span>
+</td>
+</tr>
+<tr>
+<td>{{list.optionB}}</td>
+<td><span v-for="(item, index) in list.wordsB">
+    <span>{{item}}</span><span v-if="index+1 < list.wordsB.length">, </span>
+</span>
+</td>
+</tr>
+</template>
+</table>
+<p>There are seven parts. The instructions change for each part. Pay attention!</p>
+`
+
+var instructions = app.newStage('instructions');
+instructions.addOKButtonIfNone = false;
+instructions.canPlayerParticipate = function(player) {
+    return player.period().id === 1; // period.ids start with 1.
+}
+instructions.activeScreen = `
+    <div>
+        <div style='color: grey'>Type: {{ app.type }}</div>
+        <br><br>
+        <div>Place your hands on the keyboard.</div>
+        <div>Press 'E' to select {{ app.optionAText }}.</div>
+        <div>Press 'I' to select {{ app.optionBText }}.</div>
+        <br><br>
+        <div>Press space bar to continue.</div>
+    </div>    
+`;
+instructions.autoplay = `
+    let key = ' ';
+    let e = jQuery.Event( "keydown", { key: key } );
+    $('body').trigger(e);
+`;
+
+// var delayStage = app.newStage('delay');
+// delayStage.clientDuration = 1; // in seconds
+// delayStage.activeScreen = `
+// <h2>+</h2>
+// `;
+// delayStage.addOKButtonIfNone = false;
+
+var decideStage = app.newStage('decide');
+decideStage.playerStart = function(player) {
+    player.keyPresses = [];
+    let question = player.participant.words[player.group.period.id-1];
+    player.word = question.word;
+    player.answer = question.answer;
+    player.errorCount = 0;
+}
+decideStage.autoplay = `
+    let key = Math.random() < 0.5 ? 'e' : 'i';
+    let e = jQuery.Event( "keydown", { key: key } );
+    $('body').trigger(e);
+`
+decideStage.activeScreen = `
+    <div style='display: flex; flex-direction: column; align-items: center'>
+        <div style='font-size: 3em'>{{ player.word }}</div>
+        <br><br>
+        <div v-show='player.errorCount > 0' style='color: red'>INCORRECT</div>
+        <div style='width:100%; display: flex; text-align: left;'>
+            <div style='flex: 1 1 auto'>{{ app.optionAText }}</div>
+            <div>{{ app.optionBText }}</div>
+        </div>
+        <input type='hidden' name='player.errorCount' :value='player.errorCount'>
+    </div>
+    <script>
+        $('body').keydown(function(ev) {
+            if (jt.vue.player.stage.id === 'instructions' && ev.key === ' ') {
+                jt.endStage();
+            }
+            if (jt.vue.player.keyPresses != null) {
+                jt.vue.player.keyPresses.push(
+                    {
+                        key: ev.key,
+                        time: jt.vue.timeElapsed
+                    }
+                )
+    
+                // If not a relevant key, ignore it.
+                if (!['e', 'i'].includes(ev.key)) {
+                    return;
+                }  
+    
+                if (ev.key == 'e' && jt.data.player.answer == 'A') jt.endStage();
+                else if (ev.key == 'i' && jt.data.player.answer == 'B') jt.endStage();
+                else jt.vue.player.errorCount++;
+            }
+        });
+
+    </script>
+`;
+decideStage.addOKButtonIfNone = false;
+decideStage.playerEnd = function(player) {
+
+    // Total errors for this participant in this instance of this app.
+    player.participant.totalErrors[player.participant.appIndex - 1] += player.errorCount;
+
+    player.participant.times[player.participant.appIndex - 1].sumOfTimes += player.msInStage_decide;
+}

@@ -202,7 +202,7 @@ class Data {
         try {
             app.appjs = fs.readFileSync(filePath) + '';
             eval(app.appjs); // jshint ignore:line
-            console.log('loaded game ' + filePath);
+            // console.log('loaded game ' + filePath);
         } catch (err) {
             this.jt.log('Error loading game: ' + filePath);
             this.jt.log(err);
@@ -371,7 +371,7 @@ class Data {
                         }
                     } catch (err) {
                         // not a valid app.
-                        console.log('Error, invalid game: ' + err);
+                        // console.log('Error, invalid game: ' + err);
                     }
 
                 } else if (curPathIsFolder) {

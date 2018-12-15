@@ -1,0 +1,51 @@
+app.description = 'Treatment (2) results.';
+
+app.propComparator = function(prop) {
+    return function(a, b) {
+        return a[prop] - b[prop];
+    }
+}
+
+var thankyouStage = app.newStage('finished');
+thankyouStage.activeScreen = `
+    <div>Your profit (in points):</div>
+    <h1>{{ participant.numPoints | round(2) }} </h1>
+
+    <h1>Tax Game</h1>
+    Number of audits: <b>{{ participant.numAudits }}</b>.
+    <br>
+
+    <h1>App 1</h1>
+    <div v-for='(participant, index) in player.parts1'>{{index + 1}}. {{ participant.text }}</div>
+
+    <h1>App 2</h1>
+    <div v-for='(participant, index) in player.parts2'>{{index + 1}}. {{ participant.text }}</div>
+    <br>
+
+`;
+thankyouStage.addOKButtonIfNone = false;
+thankyouStage.playerStart = function(player) {
+      player.parts1 = []; // list of participants from the first app
+      player.parts2 = []; // .................... from the second app.
+      let parts = player.session().participants;
+      let keys = Object.keys(parts);
+      for (let i=0; i<keys.length; i++) {
+          let part = parts[keys[i]];
+          if (part.treatment === 2) {
+            player.parts1.push(
+                {
+                    text: part.id,
+                    value: part.times[0].sumOfTimes
+                }
+            );
+            player.parts2.push(
+                {
+                    text: part.id,
+                    value: part.times[1].sumOfTimes
+                }
+            );
+          }
+    }
+    player.parts1.sort(app.propComparator('value'));
+    player.parts2.sort(app.propComparator('value'));
+}

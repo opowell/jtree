@@ -1,0 +1,78 @@
+session.addApp('1_implicit.jtt', {
+    type: 'practice',
+    usedLists: [0],
+    flip: [false]
+});
+session.addApp('1_implicit.jtt', {
+    type: 'practice',
+    usedLists: [1],
+    flip: [true]
+});
+session.addApp('1_implicit.jtt', {
+    type: 'real',
+    usedLists: [0, 1],
+    flip: [false, false]
+});
+session.addApp('2_survey.jtt');
+session.addApp('tax-game-max05.jtt');
+session.addApp('3_resultsT1.jtt'); // App 5
+session.addApp('3_resultsT2.jtt'); // App 6
+
+// Each row is a sequence of app indices for a participant.
+session.T1sequences = [
+    [0, 1, 2, 3, 4, 5],
+    [1, 0, 2, 3, 4, 5],
+];
+session.T2sequences = [
+    [0, 1, 2, 3, 4, 6],
+    [1, 0, 2, 3, 4, 6],
+];
+
+session.availableSequencesT1 = [];
+session.availableSequencesT2 = [];
+
+session.T1Ids = ['P1', 'P3', 'P5', 'P7', 'P9', 'P11'];
+session.T2Ids = ['P2', 'P4', 'P6', 'P8', 'P10', 'P12'];
+
+session.participantStart = function(participant) {
+    let session = participant.session;
+    
+    // Store data from IAT test.
+    participant.totalErrors = [];
+    participant.times = [];
+    for (let i=0; i<session.apps.length; i++) {
+        participant.times.push({
+            lists: null,
+            flip: null,
+            sumOfTimes: 0
+        });
+    }
+
+    // Assign participant to treatment.
+    if (session.T1Ids.includes(participant.id)) {
+        participant.treatment = 1;
+    }
+    if (session.T2Ids.includes(participant.id)) {
+        participant.treatment = 2;
+    }
+
+    // Assign app sequence to participant.
+    // If the list of available sequences is empty, repopulate it.
+    let availableSequences = participant.treatment === 1 ? session.availableSequencesT1 : session.availableSequencesT2;
+    if (availableSequences.length === 0) {
+        let sequences = participant.treatment === 1 ? session.T1sequences : session.T2sequences;
+        for (let i=0; i<sequences.length; i++) {
+            availableSequences.push(sequences[i]);
+        }
+    }
+    // Choose a sequence.
+    let index = Utils.randomInt(0, availableSequences.length);
+    // Set this participant's sequence.
+    participant.sequence = availableSequences[index];
+    // Remove the sequence from the list.
+    availableSequences.splice(index, 1);
+}
+
+session.getApp = function(participant) {
+    return session.apps[participant.sequence[participant.appIndex-1]];
+}
