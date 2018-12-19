@@ -869,13 +869,22 @@ class App {
 
         this.finished = true;
 
-        this.saveOutput(this.session.csvFN());
+        let fd = fs.openSync(this.session.csvFN(), 'as');
+
+        try {
+            fs.appendFileSync(fd, this.saveOutput());
+        } catch(err) {
+            console.log('error writing app: ' + this.id);
+            debugger;
+        } finally {
+            fs.closeSync(fd);
+        }   
 
     }
 
     end() {}
 
-    saveOutput(fn) {
+    saveOutput() {
 
         //Create headers
         var appsHeaders = [];
@@ -990,15 +999,16 @@ class App {
         }
 
         // WRITE OUTPUT
-        fs.appendFileSync(fn, 'APP ' + this.indexInSession() + '_' + this.id + '\n');
-        fs.appendFileSync(fn, appsText.join('\n') + '\n');
+        let fullText = '';
+        fullText += 'APP ' + this.indexInSession() + '_' + this.id + '\n';
+        fullText += appsText.join('\n') + '\n';
         if (periodHeaders.length > 0) {
-            fs.appendFileSync(fn, 'PERIODS\n');
-            fs.appendFileSync(fn, periodText.join('\n') + '\n');
+            fullText += 'PERIODS\n';
+            fullText += periodText.join('\n') + '\n';
         }
         if (groupHeaders.length > 0) {
-            fs.appendFileSync(fn, 'GROUPS\n');
-            fs.appendFileSync(fn, groupText.join('\n') + '\n');
+            fullText += 'GROUPS\n';
+            fullText += groupText.join('\n') + '\n';
         }
 
         for (var t=0; t<groupTables.length; t++) {
@@ -1019,17 +1029,19 @@ class App {
                     }
                 }
             }
-            fs.appendFileSync(fn, groupTables[t].toUpperCase() + '\n');
-            fs.appendFileSync(fn, groupTableText.join('\n') + '\n');
+            fullText += groupTables[t].toUpperCase() + '\n';
+            fullText += groupTableText.join('\n') + '\n';
         }
 
         if (playerHeaders.length > 0) {
-            fs.appendFileSync(fn, 'PLAYERS\n');
-            fs.appendFileSync(fn, playerText.join('\n') + '\n');
+            fullText += 'PLAYERS\n';
+            fullText += playerText.join('\n') + '\n';
         }
 
-        fs.appendFileSync(fn, 'PARTICIPANTS\n');
-        fs.appendFileSync(fn, participantText.join('\n') + '\n');
+        fullText += 'PARTICIPANTS\n';
+        fullText += participantText.join('\n') + '\n';
+
+        return fullText;
 
     }
 

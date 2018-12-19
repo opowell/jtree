@@ -61,7 +61,11 @@ class StaticServer {
         //////////////////////////////
         // REQUESTS
         expApp.get('/', function(req, res) {
-            self.sendParticipantPage(req, res, 'test', undefined);
+            let pId = 'test'; //TODO: change to null.
+            if (req.query.id != null) {
+                pId = req.query.id;
+            }
+            self.sendParticipantPage(req, res, pId, undefined);
         });
 
         expApp.get('/api/sessions', function(req, res) {

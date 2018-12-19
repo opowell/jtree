@@ -572,11 +572,22 @@ class Session {
         text.push(newLine);
 
         var fn = this.csvFN() + ' - manual save at ' + Utils.getDate() + '.csv';
-        fs.appendFileSync(fn, 'SESSION\n');
-        fs.appendFileSync(fn, text.join('\n') + '\n');
-        for (var i=0; i<this.apps.length; i++) {
-            this.apps[i].saveOutput(fn);
+        let fullText = '';
+        let fd = fs.openSync(fn, 'as');
+        try {
+            fullText += 'SESSION\n';
+            fullText += text.join('\n') + '\n';
+            for (var i=0; i<this.apps.length; i++) {
+                fullText += this.apps[i].saveOutput();
+            }
+            fs.appendFileSync(fd, fullText);
+        } catch(err) {
+            console.log('error writing session: ' + this.id);
+            debugger;
+        } finally {
+            fs.closeSync(fd);
         }
+
         return fs.readFileSync(fn, 'utf8');
     }
 

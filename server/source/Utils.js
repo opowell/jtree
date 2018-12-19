@@ -429,9 +429,8 @@ class Utils {
             parsedObjs = [];
         }
         try {
-            var floatVal = parseFloat(data, 10);
-            if (!isNaN(floatVal)) {
-                data = floatVal;
+            if (Utils.isNumeric(data)) {
+                data = parseFloat(data, 10);
             } else if (typeof data === 'object') {
                 parsedObjs.push(data);
                 for (var i in data) {
@@ -513,6 +512,10 @@ class Utils {
                 }
             }
         }
+    }
+
+    isNumeric(n) {
+        return !isNaN(parseFloat(n)) && isFinite(n);
     }
 }
 
