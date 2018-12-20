@@ -481,10 +481,11 @@ class App {
                         }
                     }
                 }
-                /** console.log('msg: ' + JSON.stringify(data) + ', ' + client.player().roomId());*/
                 var endForGroup = true;
                 client.player().endStage(endForGroup);
-//                 client.session.checkForStuckGroups();
+
+                this.session.emitParticipantUpdates();
+
             };
         }
 

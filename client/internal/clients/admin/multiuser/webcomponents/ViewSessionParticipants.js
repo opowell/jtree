@@ -54,7 +54,7 @@ function safePId(pId) {
 }
 
 function setParticipantPlayer(pId, player, pDiv) {
-
+try {
   var sPId = safePId(pId);
 
     // Get the set of current headers
@@ -142,6 +142,9 @@ function setParticipantPlayer(pId, player, pDiv) {
     let participant = player.participant;
     showPlayerCurApp(participant);
     $('.participant-' + safePId(participant.id) + '-periodIndex').text(participant.periodIndex+1);
+} catch (err) {
+    
+}
 
 }
 

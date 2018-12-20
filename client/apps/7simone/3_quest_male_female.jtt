@@ -71,7 +71,7 @@ stage2.activeScreen = `
 <p>1. How old are you (in years)?</p>
 <input name='player.age' type='text' required>
 <br><br>
-<p>What is you gender?</p>
+<p>What is your gender?</p>
 <input name='player.Gender' type='radio' required value='0' id='Gender0'>
 <label for='Gender0'>Female</label>
 <input name='player.Gender' type='radio' required value='1' id='Gender1'>

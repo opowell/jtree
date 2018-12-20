@@ -212,6 +212,7 @@ class Participant {
 
         this.emit('participantSetAppIndex', {appIndex: app.indexInSession()});
         this.emit('start-new-app'); // refresh clients.
+        this.updateScheduled = false;
     }
 
     startPeriod(period) {
@@ -368,13 +369,23 @@ class Participant {
         this.emit('participantSetPlayer', {player: player.shellWithParent()});
     }
 
-    emitUpdate() {
-        try {
-//            console.log(this.id + ', ' + this.player.app().indexInSession() + ', ' + this.player.period().id + ', ' + this.player.stage.id + ', ' + this.player.status);
-            this.player.emit('playerUpdate', new clPlayer.new(this.player));
-        } catch (err) {
-            debugger;
+    actuallyEmitUpdate() {
+        if (this.updateScheduled === true) {
+            try {
+                if (this.player !== null) {
+                    this.player.emit('playerUpdate', new clPlayer.new(this.player));
+                } else {
+                    this.emit('start-new-app'); // refresh clients.
+                }
+                this.updateScheduled = false;
+            } catch (err) {
+                debugger;
+            }
         }
+    }
+
+    emitUpdate() {
+        this.updateScheduled = true;
     }
 
     shell() {

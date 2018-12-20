@@ -1,9 +1,10 @@
 app.title = 'Anagram game';
 app.description = 'Players find a word in an anagram.';
 
-app.duration = 100; // total seconds to answer questions.
-
-
+app.duration = 30; // total seconds to answer questions.
+app.waitForAll = false;
+app.groupSize = 1;
+//app.waitingScreen=false;
 app.questions = [
    {
 list:'aacktt',
@@ -141,7 +142,6 @@ app.participantStart = function(participant) {
     participant.finishTime = new Date().getTime() + app.duration*1000;
 }
 
-app.groupSize = 1;
 app.html = `
 <!DOCTYPE html>
 <html>
@@ -151,7 +151,7 @@ app.html = `
     </head>
     <body class='hidden'>
         <div id='jtree'>
-            <p v-show='hasTimeout'>Time left in this period (s): {{clock.totalSeconds}}</p>
+            <p v-show='hasTimeout'>Time left in this part (in seconds): {{clock.totalSeconds}}</p>
             <span v-show='player.status=="playing"'>
                 {{stages}}
             </span>
@@ -177,10 +177,9 @@ decideStage.playerStart = function(player) {
     player.timeAway = 0;
 }
 decideStage.activeScreen = `
-    <p>DECISION</p>
-    <p>Here is the string:</p>
+    <p>Here are the letters:</p>
     <p>{{player.list}}</p>
-    <p>Enter your guess:</p>
+    <p>Please enter a word consisting of the letters you see above:</p>
     <p><input name='player.guess' required type='text'></p>
     <button>Make guess</button>
 `;
@@ -191,11 +190,4 @@ decideStage.playerEnd = function(player) {
 }
 decideStage.clientDuration = app.questionDuration;
 
-var resultsStage = app.newStage('results');
-resultsStage.canPlayerParticipate = function(player) {
-    return player.period().id === app.numPeriods;
-}
-resultsStage.activeScreen = `
-    <p>RESULTS</p>
-    <p>Number of correct guesses: {{participant.score}}.</p>
-`
+

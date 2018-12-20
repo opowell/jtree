@@ -51,7 +51,7 @@ class Group {
          * 'outputHideAuto' fields are not included in output.
          * @type {String[]}
          */
-        this.outputHideAuto = ['stage', 'status', 'outputHide', 'outputHideAuto', 'players', 'stageTimer', 'period', 'tables', 'type', 'stageIndex', 'stageFinishedIndex'];
+        this.outputHideAuto = ['stage', 'status', 'outputHide', 'outputHideAuto', 'players', 'stageTimer', 'period', 'tables', 'type', 'stageIndex', 'stageEndedIndex'];
 
         /**
          * @type array
@@ -68,11 +68,6 @@ class Group {
 
         this.stageStartedIndex = -1;
         this.stageEndedIndex = -1;
-        /**
-         * @type number
-         * @default -1
-         */
-        this.stageFinishedIndex = -1;
     }
 
     /**
@@ -354,7 +349,7 @@ class Group {
     }
 
     showStatus() {
-        console.log('Group ' + this.id + ': stageIndex=' + this.stageIndex + ', stageFinishedIndex=' + this.stageFinishedIndex);
+        console.log('Group ' + this.id + ': stageIndex=' + this.stageIndex + ', stageEndedIndex=' + this.stageEndedIndex);
         this.session().printStatuses();
     }
 
@@ -490,7 +485,7 @@ class Group {
     canPlayersEnd(stage) {
 
         // If Group has already finished, do not allow players to finish. 
-        if (this.stageFinishedIndex >= stage.indexInApp()) {
+        if (this.stageEndedIndex >= stage.indexInApp()) {
             return false;
         }
 
@@ -637,7 +632,7 @@ class Group {
             forcePlayersToEnd = false;
         }
 
-        if (!stage.canGroupEnd(this)) {
+        if (!stage.canGroupEnd(this, forcePlayersToEnd)) {
             return;
         }
 

@@ -591,6 +591,12 @@ class Session {
         return fs.readFileSync(fn, 'utf8');
     }
 
+    emitParticipantUpdates() {
+        for (let p in this.participants) {
+            this.participants[p].actuallyEmitUpdate();
+        }
+    }
+
     /**
     * Sets the number of participants in this session.
     * @param  {number} num The number of participants to have.

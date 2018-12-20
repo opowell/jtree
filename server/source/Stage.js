@@ -232,16 +232,16 @@ class Stage {
         return stage;
     }
 
-    canGroupEnd(group) {
+    canGroupEnd(group, forcePlayersToEnd) {
 
         var players = group.players;
 
         // If already finished, return false.
-        if (group.stageFinishedIndex >= this.indexInApp()) {
+        if (group.stageEndedIndex >= this.indexInApp()) {
             return false;
         }
 
-        if (this.waitToEnd) {
+        if (this.waitToEnd && !forcePlayersToEnd) {
             // PROCEED ONLY IF ALL PLAYERS ARE "finished" and in this stage.
             for (var p in players) {
                 var player = players[p];

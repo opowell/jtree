@@ -173,18 +173,20 @@ msgs.participantSetPeriodIndex = function(md) {
 }
 
 msgs.playerSetStageIndex = function(md) {
-    var participant = jt.data.session.participants[md.participantId];
-    participant.player.stageIndex = md.stageIndex;
-    var app = jt.data.session.apps[participant.appIndex-1];
-    if (app == null) {
-        return;
-    }
-    var stage = app.stages[participant.player.stageIndex];
-    var stageText = '';
-    if (stage !== undefined) {
-        stageText = stage.id;
-    }
-    $('.participant-' + safePId(md.participantId) + '-stageId').text(stageText);
+    try {
+        var participant = jt.data.session.participants[md.participantId];
+        participant.player.stageIndex = md.stageIndex;
+        var app = jt.data.session.apps[participant.appIndex-1];
+        if (app == null) {
+            return;
+        }
+        var stage = app.stages[participant.player.stageIndex];
+        var stageText = '';
+        if (stage !== undefined) {
+            stageText = stage.id;
+        }
+        $('.participant-' + safePId(md.participantId) + '-stageId').text(stageText);
+    } catch (err) {}
 }
 msgs.participantSetPlayer = function(md) {
     var participant = jt.data.session.participants[md.participantId];
