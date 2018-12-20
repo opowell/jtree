@@ -11,7 +11,7 @@ REM 4. Update README.md.
 REM 5. Update docs/README.md.
 REM 3. Commit to Github.
 
-set "vers=0.7.0"
+set "vers=0.7.1"
 
 REM ------- Prepare output folder.
 call del ".\releases\%vers%" /Q /F
@@ -25,10 +25,12 @@ REM ------- Compile docs.
 call ./build-tools/win/buildDocs.bat
 
 REM ------- Copy files to release folder.
+call xcopy ".\client\apps\1natalia" ".\releases\%vers%\apps\1natalia\" /E
 call xcopy ".\client\apps\3james" ".\releases\%vers%\apps\3james\" /E
 call xcopy ".\client\apps\6maxtom" ".\releases\%vers%\apps\6maxtom\" /E
 call xcopy ".\client\apps\7simone" ".\releases\%vers%\apps\7simone\" /E
 call xcopy ".\client\apps\8jelena" ".\releases\%vers%\apps\8jelena\" /E
+call xcopy ".\client\apps\9natalia" ".\releases\%vers%\apps\9natalia\" /E
 call xcopy ".\client\apps\random-order" ".\releases\%vers%\apps\random-order\" /E
 call xcopy ".\client\apps\4starzykowska.jtt" ".\releases\%vers%\apps\"
 call xcopy ".\client\apps\5mariana.jtt" ".\releases\%vers%\apps\"
@@ -38,14 +40,12 @@ call xcopy ".\client\apps\dictator-game.jtt" ".\releases\%vers%\apps\"
 call xcopy ".\client\apps\display-profit.jtt" ".\releases\%vers%\apps\"
 call xcopy ".\client\apps\enter-id.jtt" ".\releases\%vers%\apps\"
 call xcopy ".\client\apps\language-test.jtt" ".\releases\%vers%\apps\"
-call xcopy ".\client\apps\market-entry-game.jtt" ".\releases\%vers%\apps\"
+call xcopy ".\client\apps\market-entry.jtt" ".\releases\%vers%\apps\"
 call xcopy ".\client\apps\public-good.jtt" ".\releases\%vers%\apps\"
 call xcopy ".\client\apps\public-good-w-punish.jtt" ".\releases\%vers%\apps\"
 call xcopy ".\client\apps\questionnaire.jtt" ".\releases\%vers%\apps\"
-call xcopy ".\client\apps\stag-hunt-game.jtt" ".\releases\%vers%\apps\"
-call xcopy ".\client\apps\travellers-dilemma.jtt" ".\releases\%vers%\apps\"
-call xcopy ".\client\apps\trust-game.jtt" ".\releases\%vers%\apps\"
-call xcopy ".\client\apps\ultimatum-game.jtt" ".\releases\%vers%\apps\"
+call xcopy ".\client\apps\real-effort-sums.jtt" ".\releases\%vers%\apps\"
+call xcopy ".\client\apps\waitToStartEnd.jtt" ".\releases\%vers%\apps\"
 
 call xcopy ".\client\internal" ".\releases\%vers%\internal\" /E
 call xcopy ".\client\help.html" ".\releases\%vers%\"

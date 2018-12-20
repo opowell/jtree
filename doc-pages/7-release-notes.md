@@ -1,3 +1,8 @@
+##### 2018.12.20 - 0.7.1
+- catch errors in admin UI.
+- Fix: Groups end stages with duration correctly.
+- remove duplicate participant updates.
+
 #### 2018.12.07 - 0.7.0
 - fix stage engine
 - sort participants alphanumerically when downloading output

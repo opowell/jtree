@@ -38,12 +38,12 @@ decideStage.playerStart = function(player) {
 }
 decideStage.groupStart = function(group) {
     group.receiverIds = getAnonymousPartnerIds(group);
-    for (var i in group.players) {
+    for (var i in group.players) { // 0, 1, 2, ...
         // Match current player with their receiver.
         var player = group.players[i];
         var receiver = group.players[group.receiverIds[i]];
-        player.receiverId = group.receiverIds[i]; // who this player sent to.
-        receiver.senderId = i; // who this player received from.
+        player.receiverId = group.receiverIds[i] + 1; // who this player sent to.
+        receiver.senderId = i - 0 + 1; // who this player received from. Need -0 to force parsing as integer.
 
         if (app.names === 'receiver' || app.names === 'both') {
             player.receiverName = receiver.participant.name;
@@ -73,8 +73,8 @@ if (app.game === 'ultimatum') {
     if (app.ultPlayType === 'choice') {
         var p2choose = app.newStage('p2choose');
         p2choose.playerStart = function(player) {
-            var sender = player.group.players[player.senderId];
-            var receiver = player.group.players[player.receiverId];
+            var sender = player.group.players[player.senderId - 1];
+            var receiver = player.group.players[player.receiverId - 1];
             player.received = sender.send; // What they received as receiver in S2.
         }
         p2choose.activeScreen = `
@@ -90,8 +90,7 @@ if (app.game === 'ultimatum') {
     else if (app.ultPlayType === 'strategy') {
         var p2strategy = app.newStage('p2strategy');
         p2strategy.playerStart = function(player) {
-            var sender = player.group.players[player.senderId];
-            var receiver = player.group.players[player.receiverId];
+            var sender = player.group.players[player.senderId - 1];
             player.received = sender.send; // What they received as receiver in S2.
             player.senderEndowment = sender.endowment;
         }
@@ -112,8 +111,7 @@ Otherwise both of you will get 0 points.</p>
 else if (app.game === 'trust') {
     var p2return = app.newStage('p2return');
     p2return.playerStart = function(player) {
-        var sender = player.group.players[player.senderId];
-        var receiver = player.group.players[player.receiverId];
+        var sender = player.group.players[player.senderId - 1];
         player.received = sender.send * app.returnRate; // What they received as receiver in S2.
     }
     p2return.activeScreen = `
@@ -144,34 +142,25 @@ resultsStage.groupStart = function(group) {
 
     for (var i in group.players) {
         var player = group.players[i];
-        var sender = group.players[player.senderId];
-        var receiver = group.players[player.receiverId];
+        var sender = group.players[player.senderId - 1]; // The sender who this player received from.
+        var receiver = group.players[player.receiverId - 1]; // The receiver who this player sent to.
 
         if (app.game === 'dictator') {
             player.received = sender.send;
         }
 
-        receiver.receivedBack = player.returnAmt;
+        sender.receivedBack = player.returnAmt;
 
-        // POINTS AS PLAYER 2
         if (player.accepted) {
             player.points += player.p2Endowment + player.received - player.returnAmt;
             player.answer = 'ACCEPT';
             sender.receiverAnswer = 'ACCEPTED';
+            sender.points += sender.p1Endowment - sender.send + player.returnAmt;
         } else {
             player.answer = 'REJECT';
             sender.receiverAnswer = 'REJECTED';
         }
 
-        // POINTS AS PLAYER 1
-        if (receiver.accepted) {
-            player.points += player.p1Endowment - player.send + receiver.returnAmt;
-            receiver.answer = 'ACCEPT';
-            player.receiverAnswer = 'ACCEPTED';
-        } else {
-            receiver.answer = 'REJECT';
-            player.receiverAnswer = 'REJECTED';
-        }
     }
 }
 resultsStage.activeScreen = `
@@ -187,6 +176,7 @@ You chose to {{app.stage1VerbPresent}} {{player.send}} points to {{player.receiv
 <p>
 As Player 2, your endowment was {{player.p2Endowment}} points.
 You were {{app.stage1VerbPast}} {{player.received}} points from {{player.senderName}}.
+<span v-if='app.game === "ultimatum" && app.ultPlayType === "strategy"'> You entered a threshhold of {{player.acceptThresh}}.</span>
 <span v-if='app.game === "ultimatum"'> You chose to {{player.answer}} this offer.</span>
 <span v-if='app.game === "trust"'> You chose to return {{player.returnAmt}} points.</span>
 </p>
@@ -225,7 +215,7 @@ function getAnonymousPartnerIds(group) {
                 partnerId = idsLeft[1];
             }
         }
-        round1pairs.push(partnerId);
+        round1pairs.push(partnerId - 0);
         idsLeft.splice(idsLeft.indexOf(partnerId), 1);
     }
     return round1pairs;
