@@ -56,6 +56,8 @@ class Participant {
          */
         this.session = session;
 
+        this.indexInSession = Object.keys(session.participants).length;
+
         /**
          * @type array
          * @default []
@@ -63,6 +65,7 @@ class Participant {
         this.players = [];
 
         /**
+         * The current player of this participant.
          * @type {Player}
          * @default null
          */
@@ -90,6 +93,11 @@ class Participant {
         this.appIndex = 0;
 
         /**
+         * List of app ids that this participant has completed.
+         */
+        this.finishedApps = [];
+
+        /**
          * @type boolean
          * @default false
          */
@@ -106,7 +114,20 @@ class Participant {
          * 'outputHideAuto' fields are not included in output.
          * @type {String[]}
          */
-        this.outputHideAuto = ['this', 'session', 'players', 'clients', 'outputHide', 'outputHideAuto', 'player', 'period', 'autoplay'];
+        this.outputHideAuto = [
+            'this',
+            'session',
+            'players',
+            'clients',
+            'outputHide',
+            'outputHideAuto',
+            'player',
+            'period',
+            'autoplay',
+            'appTimer',
+            'indexInSession',
+            'finishedApps'
+        ];
     }
 
     /**
@@ -139,7 +160,15 @@ class Participant {
         if (this.player === null) {
             this.session.participantMoveToNextApp(this);
         } else {
-            this.player.attemptToEndStage(true);
+            this.player.endStage(true);
+        }
+    }
+
+    printStatus() {
+        if (this.player == null) {
+            console.log(this.id + ' - no player');
+        } else {
+            this.player.showStatus();
         }
     }
 
@@ -148,15 +177,8 @@ class Participant {
             return false;
         }
 
-        // Done previous stage.
-        if (
-            this.player.stageIndex === stage.indexInApp()-1 &amp;&amp;
-            this.player.status === 'done'
-        ) {
-            return true;
-        }
-
         // Ready in this stage.
+        // TODO: Check whether correct period and app.
         if (
             this.player.stageIndex === stage.indexInApp() &amp;&amp;
             this.player.status === 'ready'
@@ -167,13 +189,33 @@ class Participant {
         return false;
     }
 
+    finishCurrentApp() {
+        // ensure that they are in the last period and waiting
+        if (this.player.group.period.id &lt; this.getApp().numPeriods) {
+            // this.player.group.
+        }
+    }
+
+    getApp() {
+        if (this.appIndex &lt; 1) {
+            return null;
+        }
+        return this.session.getApp(this);
+    }
+
     endCurrentApp() {
-        if (this.app() !== null) {
-            this.app().participantEnd(this);
+
+        if (this.getApp() !== null) {
+            this.getApp().participantEnd(this);
+            this.finishedApps.push(this.getApp().getIdInSession());
         }
 
-        var nextApp = this.session.getNextApp(this);
-        if (nextApp !== null) {
+        this.player = null;
+
+        this.appIndex++;
+
+        var nextApp = this.session.getApp(this);
+        if (nextApp != null) {
             this.startApp(nextApp);
         } else {
             this.endSession();
@@ -185,21 +227,32 @@ class Participant {
         this.session.tryToEnd();
     }
 
+    refreshClients() {
+        this.emit('reload');
+    }
+
     startApp(app) {
 
-        this.appIndex = app.indexInSession();
+        // this.appIndex = app.indexInSession();
         this.periodIndex = -1;
         app.participantStart(this);
         this.startPeriod(app.getNextPeriod(this));
 
         this.emit('participantSetAppIndex', {appIndex: app.indexInSession()});
         this.emit('start-new-app'); // refresh clients.
+        this.updateScheduled = false;
     }
 
     startPeriod(period) {
         this.periodIndex = period.id - 1;
-        this.app().participantBeginPeriod(this);
+        this.getApp().participantBeginPeriod(this);
     }
+
+    canProcessMessage() {
+        return true;
+    }
+
+
 
     /**
      * roomId - description
@@ -220,14 +273,6 @@ class Participant {
             return null;
         } else {
             return this.player.stage.id;
-        }
-    }
-
-    app() {
-        if (this.appIndex &lt; 1 || this.appIndex > this.session.apps.length) {
-            return null;
-        } else {
-            return this.session.apps[this.appIndex-1];
         }
     }
 
@@ -257,27 +302,28 @@ class Participant {
      *
      */
     isFinishedApp(app) {
-        // In a previous app.
-        if (this.appIndex &lt; app.indexInSession()) {
-            return false;
+
+        // Already finished this app.
+        if (this.finishedApps.includes(app.getIdInSession())) {
+            return true;
         }
+
         // In this app.
-        else if (this.appIndex === app.indexInSession()) {
+        if (this.getApp().getIdInSession() === app.getIdInSession()) {
             // Not yet in the last period.
             if (this.periodIndex &lt; app.numPeriods - 1) {
                 return false;
             }
-            // In the last period, but still 'playing'.
-            if (this.player !== null &amp;&amp; this.player.status === 'playing') {
+            // In the last period, but still not 'finished'.
+            if (this.player !== null &amp;&amp; this.player.status !== 'finished') {
                 return false;
             }
-            // Finished all periods and no longer 'playing'.
+            // Finished all periods.
             return true;
         }
-        // Already past this app.
-        else {
-            return true;
-        }
+
+        // Not in this app, and not finished it already.
+        return false;
     }
 
 // TODO: Remove??
@@ -351,13 +397,23 @@ class Participant {
         this.emit('participantSetPlayer', {player: player.shellWithParent()});
     }
 
-    emitUpdate() {
-        try {
-//            console.log(this.id + ', ' + this.player.app().indexInSession() + ', ' + this.player.period().id + ', ' + this.player.stage.id + ', ' + this.player.status);
-            this.player.emit('playerUpdate', new clPlayer.new(this.player));
-        } catch (err) {
-            debugger;
+    actuallyEmitUpdate() {
+        if (this.updateScheduled === true) {
+            try {
+                if (this.player !== null) {
+                    this.player.emit('playerUpdate', new clPlayer.new(this.player));
+                } else {
+                    this.emit('start-new-app'); // refresh clients.
+                }
+                this.updateScheduled = false;
+            } catch (err) {
+                debugger;
+            }
         }
+    }
+
+    emitUpdate() {
+        this.updateScheduled = true;
     }
 
     shell() {
@@ -445,13 +501,13 @@ exports.load = Participant.load;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Game.html">Game</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jul 25 2018 15:03:33 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Dec 21 2018 07:07:24 GMT+0100 (Mitteleuropäische Zeit)
 </footer>
 
 <script> prettyPrint(); </script>

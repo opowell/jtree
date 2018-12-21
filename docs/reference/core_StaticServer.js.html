@@ -56,12 +56,19 @@ class StaticServer {
         var self = this;
         this.expApp = expApp;
 
+        //////////////////////////////
         // FILES TO SERVE
         expApp.use('', express.static(path.join(this.jt.path, jt.settings.participantUI)));
         expApp.use('/help', express.static(path.join(this.jt.path, jt.settings.helpPath)));
+        expApp.use('/source', express.static(path.join(this.jt.path, jt.settings.adminUIsSharedPath)));
         expApp.use('/admin', express.static(this.defaultAdminUIPath()));
+        // expApp.use('/adminShared', express.static(this.adminUIsSharedPath()));
         var adminUIs = fs.readdirSync(this.adminUIsPath());
         for (var i in adminUIs) {
+            // Skip shared folder.
+            // if (adminUIs[i] == 'shared') {
+            //     continue;
+            // }
             var pathToFolder = path.join(this.adminUIsPath(), adminUIs[i]);
             if (fs.lstatSync(pathToFolder).isDirectory()) {
                 expApp.use('/admin/' + adminUIs[i], express.static(pathToFolder));
@@ -69,15 +76,51 @@ class StaticServer {
         }
         expApp.use('/participant', express.static(path.join(this.jt.path, jt.settings.participantUI)));
         expApp.use('/shared', express.static(path.join(this.jt.path, jt.settings.sharedUI)));
-
-        for (var i in jt.data.appsMetaData) {
-            let metaData = jt.data.appsMetaData[i];
-            expApp.use('/' + metaData.id, express.static(path.parse(metaData.appPath).dir));
+        for (let i in jt.data.queues) {
+            let queue = jt.data.queues[i];
+            if (fs.existsSync(queue.id)) {
+                console.log('serving files from ' + queue.id + ' as /' + queue.shortId);
+                expApp.use('/' + queue.shortId, express.static(queue.id));
+            }
         }
+        // END FILE SERVING
+        //////////////////////////////
 
+        //////////////////////////////
         // REQUESTS
         expApp.get('/', function(req, res) {
-            self.sendParticipantPage(req, res, 'test', undefined);
+            let pId = 'test'; //TODO: change to null.
+            if (req.query.id != null) {
+                pId = req.query.id;
+            }
+            self.sendParticipantPage(req, res, pId, undefined);
+        });
+
+        expApp.get('/api/sessions', function(req, res) {
+            let sessions = self.jt.data.loadSessions();
+            let out = [];
+            for (let i=0; i&lt;sessions.length; i++) {
+                out.push(sessions[i].shell());
+            }
+            res.send(out);
+        });
+
+        expApp.get('/api/apps', function(req, res) {
+            let apps = self.jt.data.getApps();
+            let out = [];
+            for (let i=0; i&lt;apps.length; i++) {
+                out.push(apps[i].metaData());
+            }
+            res.send(out);
+        });
+
+        expApp.get('/api/clients', function(req, res) {
+            let clients = self.jt.data.getClients(req.params.sessionId);
+            // let out = [];
+            // for (let i=0; i&lt;clients.length; i++) {
+            //     out.push(clients[i].shell());
+            // }
+            res.send(clients);
         });
 
         expApp.get('/:pId', this.handleRequest.bind(this));
@@ -94,7 +137,9 @@ class StaticServer {
         expApp.get('/session-download/:sId', function(req, res) {
             var session = self.jt.data.session(req.params.sId);
             var out = session.saveOutput();
-            res.send(out);
+            res.setHeader('Content-disposition', 'attachment; filename=' + session.csvFN());
+            res.set('Content-Type', 'text/csv');
+            res.status(200).send(out);
         });
 
         expApp.get('/room/:rId/:pId', function(req, res) {
@@ -143,9 +188,8 @@ class StaticServer {
         });
 
         // Admin interfaces
-        var adminUIs = fs.readdirSync(this.adminUIsPath());
-        for (var i in adminUIs) {
-            var pathToFolder = path.join(this.adminUIsPath(), adminUIs[i]);
+        for (let i in adminUIs) {
+            let pathToFolder = path.join(this.adminUIsPath(), adminUIs[i]);
             if (fs.lstatSync(pathToFolder).isDirectory()) {
                 expApp.get('/admin/' + adminUIs[i], function(req, res) {
                     var ui = req.originalUrl.substring('/admin/'.length);
@@ -160,12 +204,15 @@ class StaticServer {
                 });
             }
         }
+        // END REQUESTS
+        //////////////////////////////
 
+
+        //////////////////////////////
+        // START SERVER
         this.port = jt.settings.port;
         this.ip = ip.address();
-
         this.server = http.Server(expApp);
-        var self = this;
         try {
             this.server.listen(this.port, function() {
                 console.log('###############################################');
@@ -181,14 +228,28 @@ class StaticServer {
                 });
             }
         }
+        //////////////////////////////
 
+        //////////////////////////////
+        // Generate files used by clients.
         this.generateSharedJS();
+        // If running in development mode, recompile client webpack.
+        if (process.argv[0].indexOf('node') > -1) {
+            this.generateClientModels();
+        }
+        //////////////////////////////
 
+    }
+
+    generateClientModels() {
+//        var file = babel.transformFileSync(path.join(this.jt.path, "../server/source/App.js"), {});
+//        fs.writeFileSync(path.join(this.jt.path, 'internal/clients/admin/shared/models.js'), file.code);
     }
 
     handleRequest(req, res) {
         var jt = this.jt;
-        if (req.params.pId === 'admin') {
+        let pId = req.params.pId;
+        if (pId === 'admin') {
                 var id = req.body.uId;
                 var pwd = req.body.pwd;
                 var adminUser = jt.data.isValidAdmin(id, pwd);
@@ -208,8 +269,10 @@ class StaticServer {
                         res.sendFile(jt.staticServer.defaultAdminUIPath() + '/defaultAdminLogin.html');
                     }
                 }
+        } else if (pId === 'favicon.ico') {
+            jt.log('asking for favicon.ico');
         } else {
-                this.sendParticipantPage(req, res, req.params.pId, undefined);
+            this.sendParticipantPage(req, res, req.params.pId, undefined);
         }
     }
 
@@ -219,6 +282,13 @@ class StaticServer {
 
     adminUIsPath() {
         return path.join(this.jt.path, this.jt.settings.adminUIsPath);
+    }
+
+    /**
+     * Folder containing content common to all admin UIs.
+     */
+    adminUIsSharedPath() {
+        return path.join(this.adminUIsPath(), this.jt.settings.adminUIsSharedPath);
     }
 
     /**
@@ -261,10 +331,20 @@ class StaticServer {
         } else {
             session = Utils.findByIdWOJQ(this.jt.data.sessions, sessionId);
         }
-        if (session === null) {
+
+        // If asked for a particular session, and that session:
+        // - does not exists, send invalid session page.
+        // - does exist, send participant page for that session.
+        // If did not ask for particular session,
+        // - send default start page.
+        if (sessionId != null &amp;&amp; session === null) {
             res.sendFile(path.resolve(this.jt.path, './' + this.jt.settings.participantUI + '/invalidSession.html'));
         } else {
-            session.sendParticipantPage(req, res, pId);
+            if (session != null) {
+                session.sendParticipantPage(req, res, pId);
+            } else {
+                res.sendFile(path.join(this.jt.path, this.jt.settings.participantUI + '/readyClient.html'));
+            }
         }
     }
 
@@ -282,13 +362,13 @@ exports.new = StaticServer;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Game.html">Game</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jul 25 2018 15:03:33 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Dec 21 2018 07:07:25 GMT+0100 (Mitteleuropäische Zeit)
 </footer>
 
 <script> prettyPrint(); </script>

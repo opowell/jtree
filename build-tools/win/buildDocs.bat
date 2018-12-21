@@ -4,7 +4,7 @@ set "htmlDir=.\client\internal\docs"
 call del %htmlDir% /Q /F
 call rmdir %htmlDir% /Q /S
 call jsdoc -c ".\build-tools\jsdoc-config.json"
-
+copy %htmlDir% .\docs\reference
 REM Generate JSON help content, used within the jtree editor.
 REM ---------------------------------------------------------
 set "jsonFile=.\client\internal\clients\shared\docjs.json"

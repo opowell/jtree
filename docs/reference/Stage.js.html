@@ -81,18 +81,18 @@ class Stage {
         this.clientDuration = 0;
 
         /**
-         * Wait for all players in group before players and group can start this stage.
+         * Wait for all players in group to be 'ready' before calling [Stage.groupStart(group)]{@link stage#groupStart} and [Stage.playerStart(player)]{@link stage#groupStart} are called.
          * @type boolean
          * @default true
          */
-        this.waitToStart = true;
+        this.waitToStart = app.stageWaitToStart;
 
         /**
-         * Group waits for all players to finish stage before calling [stage.groupEnd(group)]{@link stage#groupEnd}.
+         * Wait for all players in group to be 'finished' or 'done' before calling [Stage.groupEnd(group)]{@link stage#groupEnd} and [Stage.playerStart(player)]{@link stage#groupEnd} are called.
          * @type boolean
          * @default true
          */
-        this.waitToEnd = true;
+        this.waitToEnd = app.stageWaitToEnd;
 
         /**
          * when starting stage for a player, send 'player' object or not.
@@ -103,7 +103,7 @@ class Stage {
         this.onPlaySendPlayer = true;
 
         /**
-         * how far up the tree should be sent on update.
+         * how far up the tree should be sent on update. More data comes at cost of higher latency.
          * possible values: 'player', 'group'
          * @type string
          * @default 'player'
@@ -130,7 +130,7 @@ class Stage {
         this.useAppWaitingScreen = true;
 
         /**
-         *  TODO:
+         *  Wrap stage playing screens in a &lt;form> tag or not.
          */
         this.wrapPlayingScreenInFormTag = app.stageWrapPlayingScreenInFormTag;
 
@@ -140,6 +140,10 @@ class Stage {
          * @default []
          */
         this.outputHide = [];
+
+        this.addOKButtonIfNone = true;
+
+        this.waitingScreen = null;
 
         /**
          * 'outputHideAuto' fields are not included in output.
@@ -182,6 +186,10 @@ class Stage {
          */
         this.repetitions = 1;
 
+        this.autoplay = `
+            jt.defaultAutoplay();
+        `
+
     }
 
     /**
@@ -218,39 +226,33 @@ class Stage {
 
     canGroupStart(group) {
 
-        var players = group.players;
-
-        if (this.waitToStart) {
-            // PROCEED ONLY IF ALL PLAYERS ARE "ready" and in this stage.
-            for (var p in players) {
-                var player = players[p];
-
-                // Stop if player is either:
-                // 1) not in this stage, or
-                // 2) not ready.
-                if (!player.participant.canStartStage(this)) {
-                    return false;
-                }
-
-            }
-        } else {
-            // PROCEED ONLY IF NO PLAYER HAS ALREADY STARTED PLAYING this stage.
-            for (var p in players) {
-                var player = players[p];
-
-                // If other player is in this stage and not ready, or already past this stage, return false.
-                if (
-                    (player.stageIndex === this.indexInApp() &amp;&amp; player.status !== 'ready') ||
-                    (player.stageIndex > this.indexInApp())
-                ) {
-                    return false;
-                }
-
-            }
+        // If already started this stage, return false.
+        if (group.stageStartedIndex >= this.indexInApp()) {
+            return false;
         }
 
+        // If not finished a previous stage, return false.
+        if (group.stageEndedIndex &lt; this.indexInApp() - 1) {
+            return false;
+        }
+
+        if (this.waitToStart) {
+            // If any player is 1) not "ready" or 2) not in this stage, then return false.
+            for (var p in group.players) {
+                var player = group.players[p];
+                if (player.stageIndex !== this.indexInApp() || player.status !== 'ready') {
+                    return false;
+                }
+            }
+        } 
+        
+        // Otherwise, return true.
         return true;
     }
+
+    getClientDuration(player) {
+        return this.clientDuration;
+    };
 
     newStage(id) {
         var stage = new Stage.new(id, this.app, this.stages.length);
@@ -258,42 +260,32 @@ class Stage {
         return stage;
     }
 
-    canGroupEnd(group) {
+    canGroupEnd(group, forcePlayersToEnd) {
 
         var players = group.players;
 
         // If already finished, return false.
-        if (group.stageFinishedIndex >= this.indexInApp()) {
+        if (group.stageEndedIndex >= this.indexInApp()) {
             return false;
         }
 
-        if (this.waitToEnd) {
+        if (this.waitToEnd &amp;&amp; !forcePlayersToEnd) {
             // PROCEED ONLY IF ALL PLAYERS ARE "finished" and in this stage.
             for (var p in players) {
                 var player = players[p];
 
-                // If other player is not finished, return false.
-                if (player.stageIndex !== this.indexInApp() || !player.isFinished()) {
-                    return false;
+                if (player.stageIndex > this.indexInApp()) {
+                    // Player is already past this stage?!
+                } else {
+                    // If other player is not finished, return false.
+                    if (player.stageIndex &lt; this.indexInApp() || !player.isFinished()) {
+                        return false;
+                    }
                 }
-
             }
-        } else {
-            // PROCEED ONLY IF NO PLAYER HAS ALREADY FINISHED this stage.
-            for (var p in players) {
-                var player = players[p];
+        } 
 
-                // If other player is in this stage and not finished, or not even in this stage yet, return false.
-                if (
-                    (player.stageIndex === this.indexInApp() &amp;&amp; !player.isFinished()) ||
-                    (player.stageIndex &lt; this.indexInApp())
-                ) {
-                    return false;
-                }
-
-            }
-        }
-
+        // Otherwise, return true.
         return true;
 
     }
@@ -408,8 +400,13 @@ class Stage {
         out.groupEnd = this.groupEnd.toString();
         out.playerStart = this.playerStart.toString();
         out.playerEnd = this.playerEnd.toString();
+        out.getGroupDuration = this.getGroupDuration.toString();
 
         return out;
+    }
+
+    getGroupDuration(group) {
+        return this.duration;
     }
 
     getOutputDir() {
@@ -448,13 +445,13 @@ exports.load = Stage.load;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Game.html">Game</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jul 25 2018 15:03:33 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Dec 21 2018 07:07:25 GMT+0100 (Mitteleuropäische Zeit)
 </footer>
 
 <script> prettyPrint(); </script>
