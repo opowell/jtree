@@ -103,6 +103,43 @@ app.html = `
 		<head>
 			<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
 			<meta name="viewport" content="width=device-width, initial-scale=1">
+			<style>
+			body {
+                display: flex;
+                max-width: 800px;
+				margin: auto;
+                justify-content: center;
+            }
+
+            #jtree {
+                min-width: 500px;
+                min-height: 300px;
+                padding: 10px;
+                border: 1px solid #888;
+                border-radius: 4px;
+                align-self: start;
+                background-color: #efefef;
+                margin-top: 300px;
+            }
+            
+            @media screen and (max-width: 600px) {
+                body {
+                    background-color: #efefef;
+                    align-items: start;
+                    width: unset;
+                    padding-top: unset;
+                    justify-content: start;
+                }
+                #jtree {
+                    margin: 10px;
+                    border: none;
+                    min-width: unset;
+                    padding: unset;
+                    min-height: unset;
+                }
+
+            }
+			</style>
 		</head>
 		<body class='hidden'>
             <div id='jtree'>

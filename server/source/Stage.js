@@ -197,16 +197,20 @@ class Stage {
     }
 
     canGroupStart(group) {
+        return this.canGroupStartDefault(group);
+    }
+
+    canGroupStartDefault(group) {
 
         // If already started this stage, return false.
         if (group.stageStartedIndex >= this.indexInApp()) {
             return false;
         }
 
-        // If not finished a previous stage, return false.
-        if (group.stageEndedIndex < this.indexInApp() - 1) {
-            return false;
-        }
+        // // If not finished a previous stage, return false.
+        // if (group.stageEndedIndex < this.indexInApp() - 1) {
+        //     return false;
+        // }
 
         if (this.waitToStart) {
             // If any player is 1) not "ready" or 2) not in this stage, then return false.

@@ -1,140 +1,43 @@
 app.title = 'Anagram game';
-app.description = 'Players find a word in an anagram.';
+app.description = 'Players find words in anagrams.';
 
 app.duration = 30; // total seconds to answer questions.
 app.waitForAll = false;
 app.groupSize = 1;
-//app.waitingScreen=false;
+app.waitingScreen = '';
 app.questions = [
-   {
-list:'aacktt',
-answer:'attack'
-},
-{
-list:'aaeppr',
-answer:'appear'
-},
-{
-list:'aalswy',
-answer:'always'
-},
-{
-list:'abchnr',
-answer:'branch'
-},
-{
-list:'abgllo',
-answer:'global'
-},
-{
-list:'acddee',
-answer:'decade'
-},
-{
-list:'acegny',
-answer:'agency'
-},
-{
-list:'acmpsu',
-answer:'campus'
-},
-{
-list:'adhlry',
-answer:'hardly'
-},
-{
-list:'adortw',
-answer:'toward'
-},
-{
-list:'aeehnv',
-answer:'heaven'
-},
-{
-list:'aehnpp',
-answer:'happen'
-},
-{
-list:'aellvy',
-answer:'valley'
-},
-{
-list:'aenopw',
-answer:'weapon'
-},
-{
-list:'afilry',
-answer:'fairly'
-},
-{
-list:'afmosu',
-answer:'famous'
-},
-{
-list:'ahortu',
-answer:'author'
-},
-{
-list:'anorrw',
-answer:'narrow'
-},
-{
-list:'bdeeis',
-answer:'beside'
-},
-{
-list:'bdnooy',
-answer:'nobody'
-},
-{
-list:'beglno',
-answer:'belong'
-},
-{
-list:'bemnru',
-answer:'number'
-},
-{
-list:'bmoott',
-answer:'bottom'
-},
-{
-list:'cciiln',
-answer:'clinic'
-},
-{
-list:'cdeeru',
-answer:'reduce'
-},
-{
-list:'cdoort',
-answer:'doctor'
-},
-{
-list:'ceejrt',
-answer:'reject'
-},
-{
-list:'ceiktt',
-answer:'ticket'
-},
-{
-list:'cenorr',
-answer:'corner'
-},
-{
-list:'cilopy',
-answer:'policy'
-},
-{
-list:'clmnou',
-answer:'column'
-},
-{
-list:'ddeiiv',
-answer:'divide'
-},
-
+    'attack',
+    'appear',
+    'always',
+    'branch',
+    'global',
+    'decade',
+    'agency',
+    'campus',
+    'hardly',
+    'toward',
+    'heaven',
+    'happen',
+    'valley',
+    'weapon',
+    'fairly',
+    'famous',
+    'author',
+    'narrow',
+    'beside',
+    'nobody',
+    'belong',
+    'number',
+    'bottom',
+    'clinic',
+    'reduce',
+    'doctor',
+    'reject',
+    'ticket',
+    'corner',
+    'policy',
+    'column',
+    'divide'
 ];
 app.numPeriods = app.questions.length;
 app.participantStart = function(participant) {
@@ -172,9 +75,8 @@ decideStage.getGroupDuration = function(group) {
     return (group.players[0].participant.finishTime - new Date().getTime()) / 1000;
 }
 decideStage.playerStart = function(player) {
-    player.list = app.questions[player.period().id-1].list;
-    player.answer = app.questions[player.period().id-1].answer;
-    player.timeAway = 0;
+    player.answer = app.questions[player.period().id-1];
+    player.list = player.answer.split('').sort();
 }
 decideStage.activeScreen = `
     <p>Here are the letters:</p>

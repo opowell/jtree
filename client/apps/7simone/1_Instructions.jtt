@@ -1,14 +1,11 @@
-app.title = 'Instructions';
+app.title       = 'Instructions';
 app.description = 'Simone.';
-app.waitForAll = false;
-app.groupSize = 1;
-app.waitingScreen=false;
+app.waitForAll  = false;
+app.groupSize   = 1;
+app.waitingScreen ='';
 var instructions1Stage = app.newStage('instructions1');
 instructions1Stage.activeScreen = `
-
-</script>
 <h4>INSTRUCTIONS</h4>
-</script>
 <p> Thank you for your participation in our study.</p>
 <p> The study consists of two parts.</p>
 <p> The first part lasts for 5 minutes. </p>
@@ -19,5 +16,4 @@ instructions1Stage.activeScreen = `
 <p> You can skip a string by just entering a wrong word and pressing the "make a guess" button if you are not able to find the solution. However, the maximum amount of strings that will be shown to you is set to 32.</p>
 <p> In the second part we will show you several statements and ask you to give your opinion on these statements.  </p>
 <p> Please be aware that you will only receive a payment if you complete both parts of the study.</p>
-<br><br>
 `;

@@ -1,0 +1,1152 @@
+/// Gibson Survey English
+app.groupSize = 1;
+
+let page1 = app.newStage('page1');
+page1.activeScreen = `
+<h4 style="font-family:calibri;">UNUSED</h4>
+`;
+
+let page2 = app.newStage('page2');
+page2.activeScreen = `
+<h4 style="font-family:calibri;">Information on compensation</h4>
+<p style="font-family:calibri;"> In the following, you will have to put yourself in the position of a Chief Executive
+Officer (CEO). The financial payment that you receive after the experiment depends
+on the compensation of the CEO.<br>
+<br>
+A higher compensation for the CEO means higher payment to you personally.
+In addition, you will be asked some questions checking your understanding. For each
+incorrect answer, CHF 1 will be deducted from your final payment.<br>
+<br>
+By reading the instructions carefully, these questions are easy to answer.<br>
+In any case, you will receive CHF 8 at a minimum if you participate in the full study.</p>
+`;
+
+let page3 = app.newStage('page3');
+page3.activeScreen = `
+<h4 style="font-family:calibri;">Introduction</h4>
+<p style="font-family:calibri;">Please read carefully the following description.><br>
+<br>
+Imagine...<br>
+You are the Chief Executive Officer (CEO) of the company Castor AG. Castor
+AG is a publicly listed company. All shareholders are long-term investors. One
+of your tasks is to inform, each quarter, shareholders about the course of
+business and the earnings per share.<br>
+<br>
+The end of the quarter, when you will have to report to shareholders, is around
+the corner.<br>
+</p>
+`;
+
+let page4 = app.newStage('page4');
+page4.activeScreen = `
+<h4 style="font-family:calibri;">Introduction</h4>
+<p style="font-family:calibri;">Your compensation consists of a fixed and a variable salary component. The variable
+component is a bonus which depends on the announced earnings of the company.
+The higher the announced earnings, the higher will be your bonus.<br>
+<br>
+The market currently anticipates the announcement of 35 cents as earnings per share.
+This is known to shareholders.<br>
+<br>
+As the CEO, you know the true earnings of Castor AG, but the market does not. You
+know that earnings of 31 cents per share would more accurately reflect the actual
+value of the company.<br>
+<br>
+It is your decision whether you make a legally permitted accounting modification to
+announce 35 cents instead of 31 cents for the earnings per share.<br>
+<br>
+You know that the shareholders are closely following the earnings announcement of
+your company.</p>
+`;
+
+let page5 = app.newStage('page5');
+page5.activeScreen = `
+<h4 style="font-family:calibri;">Introduction</h4>
+<p style="font-family:calibri;"> Before the actual decision, the following page asks some questions of
+understanding.<br>
+<br>
+Please note that each incorrect answer will result in a deduction of CHF 1
+from your total payment. All questions need to be answered correctly before you can continue with
+the experiment.
+</p>
+`;
+
+let page6 = app.newStage('page6');
+page6.activeScreen = `
+<h4 style="font-family:calibri;">Questions checking understanding</h4>
+<p style="font-family:calibri;">How high does the market estimate the earnings per share for Castor AG?</p>
+<input name='player.radio1' type='radio' required value='30 cents' id='radio1'>
+<label for='radio1' style="font-family:calibri;">30 cents</label><br>
+<input name='player.radio1' type='radio' required value='31 cents' id='radio2'>
+<label for='radio2' style="font-family:calibri;">31 cents</label><br>
+<input name='player.radio1' type='radio' required value='35 cents' id='radio3'>
+<label for='radio3' style="font-family:calibri;">35 cents</label>
+<br>
+<p>How high are the actual earnings per share of Castor AG according to internal
+accounting?</p>   
+<input name='player.radio2' type='radio' required value='30 cents<' id='radio1'>
+<label for='radio1' style="font-family:calibri;">30 cents</label><br>
+<input name='player.radio2' type='radio' required value='31 cents' id='radio2'>
+<label for='radio2' style="font-family:calibri;">31 cents</label><br>
+<input name='player.radio2' type='radio' required value='35 cents' id='radio3'>
+<label for='radio3' style="font-family:calibri;">35 cents</label>
+<br>
+<p>With which announced earnings per share would you as the CEO receive a lower
+bonus?</p>
+<input name='player.radio3' type='radio' required value='with 31 cents of earnings per share' id='radio1'>
+<label for='radio1' style="font-family:calibri;">with 31 cents of earnings per share</label><br>
+<input name='player.radio3' type='radio' required value='with 35 cents of earnings per share' id='radio2'>
+<label for='radio2' style="font-family:calibri;">with 35 cents of earnings per share</label><br>
+<p style="font-family:calibri;">Können Sie als CEO einen Gewinn bekannt geben, der vom tatsächlichen Gewinn abweicht?       </p>
+<input name='player.radio4' type='radio' required value='yes' id='radio1'>
+<label for='radio1' style="font-family:calibri;">Ja</label><br>
+<input name='player.radio4' type='radio' required value='no' id='radio2'>
+<label for='radio2' style="font-family:calibri;">Nein</label><br>
+<p>Your compensation as CEO…</p>
+<input name='player.radio5' type='radio' value='Depends on the announced earnings per share' id='radio1'>
+<label for='radio1' style="font-family:calibri;">Depends on the announced earnings per share</label><br>
+<input name='player.radio5' type='radio' value='Does not depend on the announced earnings per share' id='radio2'>
+<label for='radio2' style="font-family:calibri;">Does not depend on the announced earnings per share</label><br>
+<br>
+`;
+
+let page7 = app.newStage('page7');  
+page7.activeScreen = `
+<p style="font-family:calibri;">A quarter has passed and today you have to publish an earnings report. The
+market estimates earnings to be 35 cents per share. You know that earnings of
+31 cents per share would more accurately reflect the actual value of the
+company.<br>
+<br>
+In the following, there will be five possible situations for each of which you have
+to make a choice.<br>
+</p>
+<p style="font-family:calibri;">Which earnings will you announce?
+(Please choose one alternative in each of the five situations.)</p>
+<br>
+<br>
+<br>
+<p style="font-family:calibri;">Which earnings will you announce?</p>
+<input name='player.radio6' type='radio' required value='31 cents pro Aktie' id='radio1'>
+<label for='radio1' style="font-family:calibri;">31 cents pro Aktie - In this case, your compensation will be EUR 60,000  (resp. 0.20 EUR)*</label><br>
+<input name='player.radio6' type='radio' required value='35 cents pro Aktie' id='radio2'>
+<label for='radio2' style="font-family:calibri;">35 cents pro Aktie - In this case, your compensation will be EUR 300,000 (resp. EUR 1.00) *</label><br>
+<br>
+<p style="font-family:calibri;">Which earnings will you announce?</p>
+<input name='player.radio7' type='radio' required value='31 cents pro Aktie' id='radio1'>
+<label for='radio1' style="font-family:calibri;">31 cents pro Aktie - In this case, your compensation will be EUR 120,000 (resp. EUR 0.40)*</label><br>
+<input name='player.radio7' type='radio' required value='35 cents pro Aktie' id='radio2'>
+<label for='radio2' style="font-family:calibri;">35 cents pro Aktie - In this case, your compensation will be EUR 300,000 (resp. EUR 1.00) *</label><br>
+<br>
+<p style="font-family:calibri;">Which earnings will you announce?</p>
+<input name='player.radio8' type='radio' required value='31 cents pro Aktie' id='radio1'>
+<label for='radio1' style="font-family:calibri;">31 cents pro Aktie - In this case, your compensation will be EUR 180,000 (resp. EUR 0.60)*</label><br>
+<input name='player.radio8' type='radio' required value='35 cents pro Aktie' id='radio2'>
+<label for='radio2' style="font-family:calibri;">35 cents pro Aktie - In this case, your compensation will be EUR 300,000 (resp. EUR 1.00) *</label><br>
+<br>
+<p style="font-family:calibri;">Which earnings will you announce?</p>
+<input name='player.radio9' type='radio' required value='31 cents pro Aktie' id='radio1'>
+<label for='radio1' style="font-family:calibri;">31 cents pro Aktie - In this case, your compensation will be EUR 240,000 (resp. EUR 0.80)*</label><br>
+<input name='player.radio9' type='radio' required value='35 cents pro Aktie' id='radio2'>
+<label for='radio2' style="font-family:calibri;">35 cents pro Aktie - In this case, your compensation will be EUR 300,000 (resp. EUR 1.00) *</label><br>
+<br>
+<p style="font-family:calibri;">Which earnings will you announce?</p>
+<input name='player.radio10' type='radio' required value='31 cents pro Aktie' id='radio1'>
+<label for='radio1' style="font-family:calibri;">31 cents pro Aktie - In this case, your compensation will be EUR 300,000 (resp. EUR 1.00) *</label><br>
+<input name='player.radio10' type='radio' required value='35 cents pro Aktie' id='radio2'>
+<label for='radio2' style="font-family:calibri;">35 cents pro Aktie - In this case, your compensation will be EUR 300,000 (resp. EUR 1.00) *</label><br>
+<br>
+<p style="font-family:calibri;">* This corresponds to the bonus payment that you receive after the experiment.</p>
+`;
+
+let page8 = app.newStage('page8');
+page8.activeScreen = `
+<p style="font-family:calibri;" >From your own point of view, how do the two choices 31 cents vs. 35 cents earnings per share differ from each other?<br>
+<br>
+To which extent do you judge the decision to announce 31 cents earnings per share as</p>
+
+<table>
+<tr>
+<th>&emsp;</th>
+<th>&ensp;-2&ensp;</th>
+<th>&ensp;-1&ensp;</th>
+<th>&ensp;0&ensp;</th>
+<th>&ensp;+1&ensp;</th>
+<th>&ensp;+2&ensp;</th>
+<th>&emsp;&emsp;</th>
+</tr>
+<tr>
+<td>dishones</td>
+<th><input name='player.radio11' type='radio' required value='honest score 1' id='radio1'></th>
+<th><input name='player.radio11' type='radio' required value='honest score 2' id='radio2'></th>
+<th><input name='player.radio11' type='radio' required value='honest score 3' id='radio3'></th>
+<th><input name='player.radio11' type='radio' required value='honest score 4' id='radio4'></th>
+<th><input name='player.radio11' type='radio' required value='honest score 5' id='radio5'></th>
+<td>&emsp;&emsp; honest</td>
+</tr>
+<tr>
+<th>&emsp;</th>
+<th>&ensp;-2&ensp;</th>
+<th>&ensp;-1&ensp;</th>
+<th>&ensp;0&ensp;</th>
+<th>&ensp;+1&ensp;</th>
+<th>&ensp;+2&ensp;</th>
+<th>&emsp;</th>
+</tr>
+<tr>
+<td>manipulative</td>
+<th><input name='player.radio12' type='radio' required value='not manipulative score 1' id='radio1'></th>
+<th><input name='player.radio12' type='radio' required value='not manipulative score 2' id='radio2'></th>
+<th><input name='player.radio12' type='radio' required value='not manipulative score 3' id='radio3'></th>
+<th><input name='player.radio12' type='radio' required value='not manipulative score 4' id='radio4'></th>
+<th><input name='player.radio12' type='radio' required value='not manipulative score 5' id='radio5'></th>
+<td>&emsp;&emsp; not manipulative</td>
+</tr>
+<tr>
+<th>&emsp;</th>
+<th>&ensp;-2&ensp;</th>
+<th>&ensp;-1&ensp;</th>
+<th>&ensp;0&ensp;</th>
+<th>&ensp;+1&ensp;</th>
+<th>&ensp;+2&ensp;</th>
+<th>&emsp;&emsp;</th>
+</tr>
+<tr>
+<td>associated with personal costs</td>
+<th><input name='player.radio13' type='radio' required value='Verlust2' id='radio1'></th>
+<th><input name='player.radio13' type='radio' required value='Verlust1' id='radio2'></th>
+<th><input name='player.radio13' type='radio' required value='0' id='radio3'></th>
+<th><input name='player.radio13' type='radio' required value='Gewinn1' id='radio4'></th>
+<th><input name='player.radio13' type='radio' required value='Gewinn2' id='radio5'></th>
+<td>&emsp;&emsp; not associated with personal costs</td>
+</tr>
+<tr>
+<th>&emsp;</th>
+<th>&ensp;-2&ensp;</th>
+<th>&ensp;-1&ensp;</th>
+<th>&ensp;0&ensp;</th>
+<th>&ensp;+1&ensp;</th>
+<th>&ensp;+2&ensp;</th>
+<th>&emsp;</th>
+</tr>
+<tr>
+<td>short-term oriented</td>
+<th><input name='player.radio14' type='radio' required value='kurzfristig2' id='radio1'></th>
+<th><input name='player.radio14' type='radio' required value='kurzfristig1' id='radio2'></th>
+<th><input name='player.radio14' type='radio' required value='0' id='radio3'></th>
+<th><input name='player.radio14' type='radio' required value='langfristig1' id='radio4'></th>
+<th><input name='player.radio14' type='radio' required value='langfristig2' id='radio5'></th>
+<td>&emsp;&emsp; long-term oriented</td>
+</tr>
+<tr>
+<th>&emsp;</th>
+<th>&ensp;-2&ensp;</th>
+<th>&ensp;-1&ensp;</th>
+<th>&ensp;0&ensp;</th>
+<th>&ensp;+1&ensp;</th>
+<th>&ensp;+2&ensp;</th>
+<th>&emsp;&emsp;</th>
+</tr>
+<tr>
+<td>long-term hurting</td>
+<th><input name='player.radio15' type='radio' required value='schädigend2' id='radio1'></th>
+<th><input name='player.radio15' type='radio' required value='schädigend1' id='radio2'></th>
+<th><input name='player.radio15' type='radio' required value='0' id='radio3'></th>
+<th><input name='player.radio15' type='radio' required value='nicht schädigend1' id='radio4'></th>
+<th><input name='player.radio15' type='radio' required value='nicht schädigend2' id='radio5'></th>
+<td>&emsp;&emsp; long-term not hurting</td>
+</tr>
+<tr>
+<td>other stakeholders</td>
+<th>&emsp;&emsp;</th>
+<th>&emsp;&emsp;</th>
+<th>&emsp;&emsp;</th>
+<th>&emsp;&emsp;</th>
+<th>&emsp;&emsp;</th>
+<td>&emsp;&emsp; other stakeholders</td>
+</tr>
+<tr>
+<td> (e.g.,shareholders, employees,</td>
+<th>&emsp;&emsp;</th>
+<th>&emsp;&emsp;</th>
+<th>&emsp;&emsp;</th>
+<th>&emsp;&emsp;</th>
+<th>&emsp;&emsp;</th>
+<td>&emsp;&emsp; ((e.g.,shareholders, employees,</td>
+</tr>
+<tr>
+<td> suppliers)</td>
+<th>&emsp;&emsp;</th>
+<th>&emsp;&emsp;</th>
+<th>&emsp;&emsp;</th>
+<th>&emsp;&emsp;</th>
+<th>&emsp;&emsp;</th>
+<td>&emsp;&emsp; suppliers)</td>
+</tr>
+</table>
+`;
+
+let page9 = app.newStage('page9');
+page9.activeScreen = `
+<p style="font-family:calibri;">To which extent do you judge the decision to announce 35 cents earnings per share as</p>
+
+<table>
+<tr>
+<th>&emsp;</th>
+<th>&ensp;-2&ensp;</th>
+<th>&ensp;-1&ensp;</th>
+<th>&ensp;0&ensp;</th>
+<th>&ensp;+1&ensp;</th>
+<th>&ensp;+2&ensp;</th>
+<th>&emsp;&emsp;</th>
+</tr>
+<tr>
+<td>dishonest</td>
+<th><input name='player.radio16' type='radio' required value='honest score 1' id='radio1'></th>
+<th><input name='player.radio16' type='radio' required value='honest score 2' id='radio2'></th>
+<th><input name='player.radio16' type='radio' required value='honest score 3' id='radio3'></th>
+<th><input name='player.radio16' type='radio' required value='honest score 4' id='radio4'></th>
+<th><input name='player.radio16' type='radio' required value='honest score 5' id='radio5'></th>
+<td>&emsp;&emsp; honest</td>
+</tr>
+<tr>
+<th>&emsp;</th>
+<th>&ensp;-2&ensp;</th>
+<th>&ensp;-1&ensp;</th>
+<th>&ensp;0&ensp;</th>
+<th>&ensp;+1&ensp;</th>
+<th>&ensp;+2&ensp;</th>
+<th>&emsp;</th>
+</tr>
+<tr>
+<td>manipulative</td>
+<th><input name='player.radio17' type='radio' required value='not manipulative score 1' id='radio1'></th>
+<th><input name='player.radio17' type='radio' required value='not manipulative score 2' id='radio2'></th>
+<th><input name='player.radio17' type='radio' required value='not manipulative score 3' id='radio3'></th>
+<th><input name='player.radio17' type='radio' required value='not manipulative score 4' id='radio4'></th>
+<th><input name='player.radio17' type='radio' required value='not manipulative score 5' id='radio5'></th>
+<td>&emsp;&emsp; not manipulative</td>
+</tr>
+<tr>
+<th>&emsp;</th>
+<th>&ensp;-2&ensp;</th>
+<th>&ensp;-1&ensp;</th>
+<th>&ensp;0&ensp;</th>
+<th>&ensp;+1&ensp;</th>
+<th>&ensp;+2&ensp;</th>
+<th>&emsp;&emsp;</th>
+</tr>
+<tr>
+<td>associated with personal costs</td>
+<th><input name='player.radio18' type='radio' required value='Verlust2' id='radio1'></th>
+<th><input name='player.radio18' type='radio' required value='Verlust1' id='radio2'></th>
+<th><input name='player.radio18' type='radio' required value='0' id='radio3'></th>
+<th><input name='player.radio18' type='radio' required value='Gewinn1' id='radio4'></th>
+<th><input name='player.radio18' type='radio' required value='Gewinn2' id='radio5'></th>
+<td>&emsp;&emsp; associated with personal gains</td>
+</tr>
+<tr>
+<th>&emsp;</th>
+<th>&ensp;-2&ensp;</th>
+<th>&ensp;-1&ensp;</th>
+<th>&ensp;0&ensp;</th>
+<th>&ensp;+1&ensp;</th>
+<th>&ensp;+2&ensp;</th>
+<th>&emsp;</th>
+</tr>
+<tr>
+<td>short-term oriented</td>
+<th><input name='player.radio19' type='radio' required value='kurzfristig2' id='radio1'></th>
+<th><input name='player.radio19' type='radio' required value='kurzfristig1' id='radio2'></th>
+<th><input name='player.radio19' type='radio' required value='0' id='radio3'></th>
+<th><input name='player.radio19' type='radio' required value='langfristig1' id='radio4'></th>
+<th><input name='player.radio19' type='radio' required value='langfristig2' id='radio5'></th>
+<td>&emsp;&emsp; long-term oriented</td>
+</tr>
+<tr>
+<th>&emsp;</th>
+<th>&ensp;-2&ensp;</th>
+<th>&ensp;-1&ensp;</th>
+<th>&ensp;0&ensp;</th>
+<th>&ensp;+1&ensp;</th>
+<th>&ensp;+2&ensp;</th>
+<th>&emsp;&emsp;</th>
+</tr>
+<tr>
+<td>long-term hurting</td>
+<th><input name='player.radio20' type='radio' required value='schädigend2' id='radio1'></th>
+<th><input name='player.radio20' type='radio' required value='schädigend1' id='radio2'></th>
+<th><input name='player.radio20' type='radio' required value='0' id='radio3'></th>
+<th><input name='player.radio20' type='radio' required value='nicht schädigend1' id='radio4'></th>
+<th><input name='player.radio20' type='radio' required value='nicht schädigend2' id='radio5'></th>
+<td>&emsp;&emsp; long-term not hurting</td>
+</tr>
+<tr>
+<td>other stakeholders</td>
+<th>&emsp;&emsp;</th>
+<th>&emsp;&emsp;</th>
+<th>&emsp;&emsp;</th>
+<th>&emsp;&emsp;</th>
+<th>&emsp;&emsp;</th>
+<td>&emsp;&emsp; other stakeholders</td>
+</tr>
+<tr>
+<td> (e.g.,shareholders, employees,</td>
+<th>&emsp;&emsp;</th>
+<th>&emsp;&emsp;</th>
+<th>&emsp;&emsp;</th>
+<th>&emsp;&emsp;</th>
+<th>&emsp;&emsp;</th>
+<td>&emsp;&emsp; ((e.g.,shareholders, employees,</td>
+</tr>
+<tr>
+<td> suppliers)</td>
+<th>&emsp;&emsp;</th>
+<th>&emsp;&emsp;</th>
+<th>&emsp;&emsp;</th>
+<th>&emsp;&emsp;</th>
+<th>&emsp;&emsp;</th>
+<td>&emsp;&emsp; suppliers)</td>
+</tr>
+</table>
+`;
+
+let page10 = app.newStage('page10');
+page10.activeScreen = `
+<h4 style="font-family:calibri;">Introduction</h4>
+<p style="font-family:calibri;"> Please read carefully the following description.<br>
+<br>
+Imagine...<br>
+You are the Chief Executive Officer (CEO) of a company. Your
+compensation consists of a fixed and a variable salary component. The
+variable component is a bonus which depends on the realized earnings
+of the company.<br>
+<br>
+You have an opportunity to affect the firm‘s earnings by your effort. The
+more you work, the more time you need to invest, and the more money
+you will receive at the end of the experiment.</p>
+`;
+
+let page11 = app.newStage('page11');
+page11.activeScreen = `
+<h4 style="font-family:calibri;">Calculations</h4>
+<p style="font-family:calibri;"> In this task, you can increase earnings per share and, therefore, your
+compensation, by working. You will work on five sets of calculations. In
+each set, you can decide whether to do 1 or 5 simple calculations.
+Doing 5 calculations takes approximately five times as long as doing 1
+calculation, and you will be paid more for this. The compensation you
+receive for 1 and for 5 calculations will vary over the five sets of
+calculations.<br>
+<br>
+Moreover, you will receive CHF 0.2 for each correct calculation.
+</p>
+`;
+
+let page12 = app.newStage('page12');
+page12.activeScreen = `
+<p>Before the actual decision, the following page asks some questions
+of understanding.<br>
+<br>
+Please note that each incorrect answer will result in a deduction of
+CHF 1 from your total payment.<br>
+<br>	
+All questions need to be answered correctly before you can
+continue with the experiment.
+</p>
+`;
+
+let page13 = app.newStage('page13');
+page13.activeScreen = `
+<h4 style="font-family:calibri;">Questions of understanding</h4>
+<p style="font-family:calibri;">Can you as the CEO influence the earnings?</p>
+<input name='player.radio21' type='radio' required value='Yes' id='radio1'>
+<label for='radio1' style="font-family:calibri;">Yes</label><br>
+<input name='player.radio21' type='radio' required value='No' id='radio2'>
+<label for='radio2' style="font-family:calibri;">No</label><br>
+<br>
+<p style="font-family:calibri;">Your compensation as CEO is higher, if you solve…</p>
+<input name='player.radio22' type='radio' required value='depends on the realized earnings per share' id='radio1'>
+<label for='radio1' style="font-family:calibri;">depends on the realized earnings per share</label><br>
+<input name='player.radio22' type='radio' required value='does not depend on the realized earnings per share' id='radio2'>
+<label for='radio2' style="font-family:calibri;">does not depend on the realized earnings per share</label><br>
+<br>
+<p style="font-family:calibri;">Your compensation as CEO...</p>
+<input name='player.radio23' type='radio' required value='1 calculation' id='radio1'>
+<label for='radio1' style="font-family:calibri;">1 calculation</label><br>
+<input name='player.radio23' type='radio' required value='5 calculation' id='radio2'>
+<label for='radio2' style="font-family:calibri;">5 calculation</label><br>
+<br>
+`;
+
+let page14 = app.newStage('page14');
+page14.activeScreen = `
+<p style="font-family:calibri;">Es folgt ein Überblick über die Belohnung der einzelnen Rechnungsblöcke.<br>
+<br>
+Here you see a sets of calculations and your compensation. You will make choices on these
+after two example calculations. You decide whether to do 1 or 5 calculations. You do not have to
+remember the payment levels now, as they will be shown in each choice situation later.</p>
+`;
+
+let page15 = app.newStage('page15');
+page15.activeScreen = `
+<h4>Calculations</h4>
+        <p style="font-family:calibri;">Block 1</p>
+        <input name='player.radio24' type='radio' required value='31 cents pro Aktie' id='radio1'>
+        <label for='radio1' style="font-family:calibri;">1 calculation - In this case, your compensation will be EUR 60,000  (EUR resp. 0.20)*</label><br>
+        <input name='player.radio24' type='radio' required value='35 cents pro Aktie' id='radio2'>
+        <label for='radio2' style="font-family:calibri;">5 calculation - In this case, your compensation will be EUR 300,000 (EUR resp 1.00)*</label><br>
+        <br>
+        <p style="font-family:calibri;">* Entspricht dem umgerechneten Bonus, den Sie am Ende des Experiments erhalten.     </p>
+`;
+
+let page16 = app.newStage('page16');
+page16.activeScreen = `
+<h4 style="font-family:calibri;">Example Calculations</h4>
+<p style="font-family:calibri;">Here are two examples of calculations. You do not have to solve them. The following calculations will have the same level of difficulty</p>
+<p style="font-family:calibri;">3 + 4 – 5 + 8 + 3 – 9 = 	Result: 4</p>
+<p style="font-family:calibri;">15 + 3 – 4 + 18 + 6 – 12 = 	Result: 26</p>
+`;
+
+let page17 = app.newStage('page17');
+page17.activeScreen = `
+<p style="font-family:calibri;">2 + 27 – 7 + 3 – 9 – 3 = &emsp;&emsp; Result:
+<input name='player.number1' type='number' required min='0' max='100' step='1' style="font-family:calibri;"></p>
+<p style="font-family:calibri;">34 – 5 + 16 – 7 – 12 – 2 = &emsp;&emsp; Result:
+<input name='player.number2' type='number'  min='0' max='100' step='1' style="font-family:calibri;"></p>
+<p style="font-family:calibri;">1 + 35 + 2 – 5 + 9 – 6 = &emsp;&emsp; Result:
+<input name='player.number3' type='number'  min='36' max='100' step='1' style="font-family:calibri;"></p>
+<p style="font-family:calibri;">11 – 7 + 26 – 2 + 4 – 5 =&emsp;&emsp; Result:
+<input name='player.number4' type='number'  min='27' max='100' step='1' style="font-family:calibri;"></p>
+<p style="font-family:calibri;">93 – 31 + 5 + 7 – 9 + 2 = &emsp;&emsp; Result:
+<input name='player.number5' type='number'  min='67' max='100' step='1' style="font-family:calibri;"></p>
+`;
+
+let page18 = app.newStage('page18');
+page18.activeScreen = `
+<p style="font-family:calibri;">In what follows, please answer a few questions on your personal attitudes.</p>
+
+<p style="font-family:calibri;">Please imagine that you find a CHF 50 bill on the street. It is impossible to identify the
+owner, and it is, therefore, completely acceptable and morally unobjectionable that you
+keep the CHF 50. Think about your average peer who earns about the same amount of
+money as you do, and is approximately equally wealthy. Would you say that, relative to
+this average peer, you benefit ... from this additional amount of money?</p>
+        
+        <input name='player.radio29' type='radio' required value='a lot more' id='radio1'>
+        <label for='radio1' style="font-family:calibri;">a lot more</label><br>
+        <input name='player.radio29' type='radio' required value='more' id='radio2'>
+        <label for='radio2' style="font-family:calibri;">more</label><br>
+        <input name='player.radio29' type='radio' required value='equally' id='radio3'>
+        <label for='radio3' style="font-family:calibri;">equally</label><br>
+        <input name='player.radio29' type='radio' required value='less' id='radio4'>
+        <label for='radio4' style="font-family:calibri;">less</label><br>
+        <input name='player.radio29' type='radio' required value='a lot less' id='radio5'>
+        <label for='radio5' style="font-family:calibri;">a lot less</label><br><br>
+`;
+
+let page19 = app.newStage('page19');
+page19.activeScreen = `
+<p style="font-family:calibri;">CEOs have an opportunity to modify information in the reports they provide to their
+shareholders. Some view such modification as a violation of truthfulness, others
+regard it as acceptable protection of personal interests. What do you think about
+the value of truthfulness in such a situation?<br>
+<br>
+Truthfulness is about something…
+</p>
+    
+<p style="font-family:calibri;">... that one should not sacrifice, no matter what the (material or other) benefits.</p>
+    <table>
+    <tr>
+    <th>&emsp;</th>
+    <th>&ensp;1&ensp;</th>
+    <th>&ensp;2&ensp;</th>
+    <th>&ensp;3&ensp;</th>
+    <th>&ensp;4&ensp;</th>
+    <th>&ensp;5&ensp;</th>
+    <th>&ensp;6&ensp;</th>
+    <th>&ensp;7&ensp;</th>
+    <th>&emsp;&emsp;</th>
+    </tr>
+    <tr>
+    <td>&emsp;strongly disagree </td>
+    <th><input name='player.radio30' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+    <th><input name='player.radio30' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+    <th><input name='player.radio30' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+    <th><input name='player.radio30' type='radio' required value='Neutral' id='radio4'></th>
+    <th><input name='player.radio30' type='radio' required value='stimme zu1' id='radio5'></th>
+    <th><input name='player.radio30' type='radio' required value='stimme zu2' id='radio6'></th>
+    <th><input name='player.radio30' type='radio' required value='stimme zu3' id='radio7'></th>
+<td>&emsp;strongly agree</td>
+    </tr>
+    </table>
+<p style="font-family:calibri;">... for which I think it is right to make a cost-benefit analysis.</p>
+    </p>
+    <table>
+    <tr>
+    <th>&emsp;</th>
+    <th>&ensp;1&ensp;</th>
+    <th>&ensp;2&ensp;</th>
+    <th>&ensp;3&ensp;</th>
+    <th>&ensp;4&ensp;</th>
+    <th>&ensp;5&ensp;</th>
+    <th>&ensp;6&ensp;</th>
+    <th>&ensp;7&ensp;</th>
+    <th>&emsp;&emsp;</th>
+    </tr>
+    <tr>
+   <td>&emsp;strongly disagree </td>
+        <th><input name='player.radio31' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+        <th><input name='player.radio31' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+        <th><input name='player.radio31' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+        <th><input name='player.radio31' type='radio' required value='Neutral' id='radio4'></th>
+        <th><input name='player.radio31' type='radio' required value='stimme zu1' id='radio5'></th>
+        <th><input name='player.radio31' type='radio' required value='stimme zu2' id='radio6'></th>
+        <th><input name='player.radio31' type='radio' required value='stimme zu3' id='radio7'></th>
+<td>&emsp;strongly agree</td>
+    </tr>
+    </table>
+<p style="font-family:calibri;">... that cannot be measured in monetary terms.</p>    </p>
+    <table>
+    <tr>
+    <th>&emsp;</th>
+    <th>&ensp;1&ensp;</th>
+    <th>&ensp;2&ensp;</th>
+    <th>&ensp;3&ensp;</th>
+    <th>&ensp;4&ensp;</th>
+    <th>&ensp;5&ensp;</th>
+    <th>&ensp;6&ensp;</th>
+    <th>&ensp;7&ensp;</th>
+    <th>&emsp;&emsp;</th>
+    </tr>
+    <tr>
+   <td>&emsp;strongly disagree </td>
+        <th><input name='player.radio32' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+        <th><input name='player.radio32' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+        <th><input name='player.radio32' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+        <th><input name='player.radio32' type='radio' required value='Neutral' id='radio4'></th>
+        <th><input name='player.radio32' type='radio' required value='stimme zu1' id='radio5'></th>
+        <th><input name='player.radio32' type='radio' required value='stimme zu2' id='radio6'></th>
+        <th><input name='player.radio32' type='radio' required value='stimme zu3' id='radio7'></th>
+<td>&emsp;strongly agree</td>
+    </tr>
+    </table>
+<p style="font-family:calibri;">... about which I can be flexible if the situation demands it.</p>
+    <table>
+    <tr>
+    <th>&emsp;</th>
+    <th>&ensp;1&ensp;</th>
+    <th>&ensp;2&ensp;</th>
+    <th>&ensp;3&ensp;</th>
+    <th>&ensp;4&ensp;</th>
+    <th>&ensp;5&ensp;</th>
+    <th>&ensp;6&ensp;</th>
+    <th>&ensp;7&ensp;</th>
+    <th>&emsp;&emsp;</th>
+    </tr>
+    <tr>
+   <td>&emsp;strongly disagree </td>
+    <th><input name='player.radio33' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+    <th><input name='player.radio33' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+    <th><input name='player.radio33' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+    <th><input name='player.radio33' type='radio' required value='Neutral' id='radio4'></th>
+    <th><input name='player.radio33' type='radio' required value='stimme zu1' id='radio5'></th>
+    <th><input name='player.radio33' type='radio' required value='stimme zu2' id='radio6'></th>
+    <th><input name='player.radio33' type='radio' required value='stimme zu3' id='radio7'></th>
+<td>&emsp;strongly agree</td>
+    </tr>
+    </table>
+    
+    <br><br>
+    <br><br>
+    <br><br>
+`;
+
+let page20 = app.newStage('page20');
+page20.activeScreen = `
+<p style="font-family:calibri;">Please answer the following questions to the best of your ability. The
+        items below represent concepts people identify with. As such, there are no
+        right or wrong answers, only personal responses.</p>
+<p style="font-family:calibri;">1. My first impression of people usually turns out to be right.</p>
+        <table>
+        <tr>
+        <td>strongly disagree &emsp;</td>
+        <th><input name='player.radio34' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+        <th><input name='player.radio34' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+        <th><input name='player.radio34' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+        <th><input name='player.radio34' type='radio' required value='Neutral' id='radio4'></th>
+        <th><input name='player.radio34' type='radio' required value='stimme zu1' id='radio5'></th>
+        <th><input name='player.radio34' type='radio' required value='stimme zu2' id='radio6'></th>
+        <th><input name='player.radio34' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>strongly agree &emsp;</td>
+        </tr>
+        </table>
+<p style="font-family:calibri;">2. I have not always been completely honest with myself.</p>
+        <table>
+        <tr>
+        <td>strongly disagree &emsp;</td>
+        <th><input name='player.radio35' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+        <th><input name='player.radio35' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+        <th><input name='player.radio35' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+        <th><input name='player.radio35' type='radio' required value='Neutral' id='radio4'></th>
+        <th><input name='player.radio35' type='radio' required value='stimme zu1' id='radio5'></th>
+        <th><input name='player.radio35' type='radio' required value='stimme zu2' id='radio6'></th>
+        <th><input name='player.radio35' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>strongly agree &emsp;</td>
+
+        </tr>
+        </table>
+<p style="font-family:calibri;">3. I always know why I like things.</p>
+        <table>
+        <tr>
+        <td>strongly disagree &emsp;</td>
+        <th><input name='player.radio36' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+        <th><input name='player.radio36' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+        <th><input name='player.radio36' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+        <th><input name='player.radio36' type='radio' required value='Neutral' id='radio4'></th>
+        <th><input name='player.radio36' type='radio' required value='stimme zu1' id='radio5'></th>
+        <th><input name='player.radio36' type='radio' required value='stimme zu2' id='radio6'></th>
+        <th><input name='player.radio36' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>strongly agree &emsp;</td>
+        </tr>
+        </table>
+<p style="font-family:calibri;">4. It‘s hard for me to shut off a disturbing thought.</p>
+        <table>
+        <tr>
+        <td>strongly disagree &emsp;</td>
+        <th><input name='player.radio37' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+        <th><input name='player.radio37' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+        <th><input name='player.radio37' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+        <th><input name='player.radio37' type='radio' required value='Neutral' id='radio4'></th>
+        <th><input name='player.radio37' type='radio' required value='stimme zu1' id='radio5'></th>
+        <th><input name='player.radio37' type='radio' required value='stimme zu2' id='radio6'></th>
+        <th><input name='player.radio37' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>strongly agree &emsp;</td>
+
+        </tr>
+        </table>
+<p style="font-family:calibri;">5. I sometimes lose out on things because I can‘t make up my mind soon enough.</p>
+        <table>
+        <tr>
+        <td>strongly disagree &emsp;</td>
+        <th><input name='player.radio38' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+        <th><input name='player.radio38' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+        <th><input name='player.radio38' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+        <th><input name='player.radio38' type='radio' required value='Neutral' id='radio4'></th>
+        <th><input name='player.radio38' type='radio' required value='stimme zu1' id='radio5'></th>
+        <th><input name='player.radio38' type='radio' required value='stimme zu2' id='radio6'></th>
+        <th><input name='player.radio38' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>strongly agree &emsp;</td>
+
+        </tr>
+        </table>
+<p style="font-family:calibri;">6. I am a completely rational person.</p>
+        <table>
+        <tr>
+        <td>strongly disagree &emsp;</td>
+        <th><input name='player.radio39' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+        <th><input name='player.radio39' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+        <th><input name='player.radio39' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+        <th><input name='player.radio39' type='radio' required value='Neutral' id='radio4'></th>
+        <th><input name='player.radio39' type='radio' required value='stimme zu1' id='radio5'></th>
+        <th><input name='player.radio39' type='radio' required value='stimme zu2' id='radio6'></th>
+        <th><input name='player.radio39' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>strongly agree &emsp;</td>
+
+        </tr>
+        </table>
+<p style="font-family:calibri;">7. I rarely appreciate criticism.</p>
+        <table>
+        <tr>
+        <td>strongly disagree &emsp;</td>
+        <th><input name='player.radio40' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+        <th><input name='player.radio40' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+        <th><input name='player.radio40' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+        <th><input name='player.radio40' type='radio' required value='Neutral' id='radio4'></th>
+        <th><input name='player.radio40' type='radio' required value='stimme zu1' id='radio5'></th>
+        <th><input name='player.radio40' type='radio' required value='stimme zu2' id='radio6'></th>
+        <th><input name='player.radio40' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>strongly agree &emsp;</td>
+
+        </tr>
+        </table>
+<p style="font-family:calibri;">8. I am very confident of my judgements.</p>
+        <table>
+        <tr>
+        <td>strongly disagree &emsp;</td>
+        <th><input name='player.radio41' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+        <th><input name='player.radio41' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+        <th><input name='player.radio41' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+        <th><input name='player.radio41' type='radio' required value='Neutral' id='radio4'></th>
+        <th><input name='player.radio41' type='radio' required value='stimme zu1' id='radio5'></th>
+        <th><input name='player.radio41' type='radio' required value='stimme zu2' id='radio6'></th>
+        <th><input name='player.radio41' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>strongly agree &emsp;</td>
+
+        </tr>
+        </table>
+<p style="font-family:calibri;">9. I have occasionally doubted my abilities as a lover.</p>
+        <table>
+        <tr>
+        <td>strongly disagree &emsp;</td>
+        <th><input name='player.radio42' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+        <th><input name='player.radio42' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+        <th><input name='player.radio42' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+        <th><input name='player.radio42' type='radio' required value='Neutral' id='radio4'></th>
+        <th><input name='player.radio42' type='radio' required value='stimme zu1' id='radio5'></th>
+        <th><input name='player.radio42' type='radio' required value='stimme zu2' id='radio6'></th>
+        <th><input name='player.radio42' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>strongly agree &emsp;</td>
+
+        </tr>
+        </table>
+<p style="font-family:calibri;">10. I don‘t always know the reasons why I do the things I do.</p>
+<table>
+<tr>
+        <td>strongly disagree &emsp;</td>
+<th><input name='player.radio43' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+<th><input name='player.radio43' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+<th><input name='player.radio43' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+<th><input name='player.radio43' type='radio' required value='Neutral' id='radio4'></th>
+<th><input name='player.radio43' type='radio' required value='stimme zu1' id='radio5'></th>
+<th><input name='player.radio43' type='radio' required value='stimme zu2' id='radio6'></th>
+<th><input name='player.radio43' type='radio' required value='stimme zu3' id='radio7'></th>
+<td>strongly agree &emsp;</td>
+</tr>
+</table><br>
+`;
+
+let page21 = app.newStage('page21');
+page21.activeScreen = `
+<p style="font-family:calibri;">11. I sometimes tell lies when I have to.</p>
+<table>
+<tr>
+        <td>strongly disagree &emsp;</td>
+<th><input name='player.radio44' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+<th><input name='player.radio44' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+<th><input name='player.radio44' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+<th><input name='player.radio44' type='radio' required value='Neutral' id='radio4'></th>
+<th><input name='player.radio44' type='radio' required value='stimme zu1' id='radio5'></th>
+<th><input name='player.radio44' type='radio' required value='stimme zu2' id='radio6'></th>
+<th><input name='player.radio44' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>strongly agree &emsp;</td>
+
+</tr>
+</table>
+<p style="font-family:calibri;">12. There have been occasions when I have taken advantage of someone.</p>
+<table>
+<tr>
+        <td>strongly disagree &emsp;</td>
+<th><input name='player.radio45' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+<th><input name='player.radio45' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+<th><input name='player.radio45' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+<th><input name='player.radio45' type='radio' required value='Neutral' id='radio4'></th>
+<th><input name='player.radio45' type='radio' required value='stimme zu1' id='radio5'></th>
+<th><input name='player.radio45' type='radio' required value='stimme zu2' id='radio6'></th>
+<th><input name='player.radio45' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>strongly agree &emsp;</td>
+
+</tr>
+</table>
+<p style="font-family:calibri;">13. I never sweat.</p>
+<table>
+<tr>
+        <td>strongly disagree &emsp;</td>
+<th><input name='player.radio46' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+<th><input name='player.radio46' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+<th><input name='player.radio46' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+<th><input name='player.radio46' type='radio' required value='Neutral' id='radio4'></th>
+<th><input name='player.radio46' type='radio' required value='stimme zu1' id='radio5'></th>
+<th><input name='player.radio46' type='radio' required value='stimme zu2' id='radio6'></th>
+<th><input name='player.radio46' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>strongly agree &emsp;</td>
+
+</tr>
+</table>
+<p style="font-family:calibri;">14. I sometimes try to get even rather than forgive and forget.</p>
+<table>
+<tr>
+        <td>strongly disagree &emsp;</td>
+<th><input name='player.radio47' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+<th><input name='player.radio47' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+<th><input name='player.radio47' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+<th><input name='player.radio47' type='radio' required value='Neutral' id='radio4'></th>
+<th><input name='player.radio47' type='radio' required value='stimme zu1' id='radio5'></th>
+<th><input name='player.radio47' type='radio' required value='stimme zu2' id='radio6'></th>
+<th><input name='player.radio47' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>strongly agree &emsp;</td>
+
+</tr>
+</table>
+<p style="font-family:calibri;">15. I have received too much change from a salesperson without telling him or her.</p>
+<table>
+<tr>
+        <td>strongly disagree &emsp;</td>
+<th><input name='player.radio48' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+<th><input name='player.radio48' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+<th><input name='player.radio48' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+<th><input name='player.radio48' type='radio' required value='Neutral' id='radio4'></th>
+<th><input name='player.radio48' type='radio' required value='stimme zu1' id='radio5'></th>
+<th><input name='player.radio48' type='radio' required value='stimme zu2' id='radio6'></th>
+<th><input name='player.radio48' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>strongly agree &emsp;</td>
+
+</tr>
+</table>
+<p style="font-family:calibri;">16. I always declare everything at customs.</p>
+<table>
+<tr>
+        <td>strongly disagree &emsp;</td>
+<th><input name='player.radio49' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+<th><input name='player.radio49' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+<th><input name='player.radio49' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+<th><input name='player.radio49' type='radio' required value='Neutral' id='radio4'></th>
+<th><input name='player.radio49' type='radio' required value='stimme zu1' id='radio5'></th>
+<th><input name='player.radio49' type='radio' required value='stimme zu2' id='radio6'></th>
+<th><input name='player.radio49' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>strongly agree &emsp;</td>
+
+</tr>
+</table>
+<p style="font-family:calibri;">17. I sometimes drive faster than the speed limit.</p>
+<table>
+<tr>
+        <td>strongly disagree &emsp;</td>
+<th><input name='player.radio50' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+<th><input name='player.radio50' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+<th><input name='player.radio50' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+<th><input name='player.radio50' type='radio' required value='Neutral' id='radio4'></th>
+<th><input name='player.radio50' type='radio' required value='stimme zu1' id='radio5'></th>
+<th><input name='player.radio50' type='radio' required value='stimme zu2' id='radio6'></th>
+<th><input name='player.radio50' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>strongly agree &emsp;</td>
+
+</tr>
+</table>
+<p style="font-family:calibri;">18. I have done things that I don‘t tell other people about.</p>
+<table>
+<tr>
+        <td>strongly disagree &emsp;</td>
+<th><input name='player.radio51' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+<th><input name='player.radio51' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+<th><input name='player.radio51' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+<th><input name='player.radio51' type='radio' required value='Neutral' id='radio4'></th>
+<th><input name='player.radio51' type='radio' required value='stimme zu1' id='radio5'></th>
+<th><input name='player.radio51' type='radio' required value='stimme zu2' id='radio6'></th>
+<th><input name='player.radio51' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>strongly agree &emsp;</td>
+
+</tr>
+</table>
+<p style="font-family:calibri;">19. I never take things that don‘t belong to me.</p>
+<table>
+<tr>
+        <td>strongly disagree &emsp;</td>
+<th><input name='player.radio52' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+<th><input name='player.radio52' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+<th><input name='player.radio52' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+<th><input name='player.radio52' type='radio' required value='Neutral' id='radio4'></th>
+<th><input name='player.radio52' type='radio' required value='stimme zu1' id='radio5'></th>
+<th><input name='player.radio52' type='radio' required value='stimme zu2' id='radio6'></th>
+<th><input name='player.radio52' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>strongly agree &emsp;</td>
+
+</tr>
+</table>
+<p style="font-family:calibri;">20. I have taken sick-leave from work or school even though I wasn‘t really sick.</p>
+<table>
+<tr>
+        <td>strongly disagree &emsp;</td>
+<th><input name='player.radio53' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+<th><input name='player.radio53' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+<th><input name='player.radio53' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+<th><input name='player.radio53' type='radio' required value='Neutral' id='radio4'></th>
+<th><input name='player.radio53' type='radio' required value='stimme zu1' id='radio5'></th>
+<th><input name='player.radio53' type='radio' required value='stimme zu2' id='radio6'></th>
+<th><input name='player.radio53' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>strongly agree &emsp;</td>
+
+</tr>
+</table><br>
+`;
+
+let page22 = app.newStage('page22');
+page22.activeScreen = `
+<p style="font-family:calibri;">Have you recently read academic papers or newspaper articles about CEOs?</p>
+<input name='player.radio54' type='radio' value='Yes' id='radio1' :checked="true">
+<label for='radio1' style="font-family:calibri;">Yes</label><br>
+<input name='player.radio54' type='radio' value='No' id='radio2' :checked="false">
+<label for='radio2' style="font-family:calibri;">No</label><br>
+<input name='player.radio54' type='radio' value='I cannot remember' id='radio2'>
+<label for='radio2' style="font-family:calibri;">I cannot remember</label><br>
+`;
+
+let page23 = app.newStage('page23');
+page23.activeScreen = `
+<p style="font-family:calibri;">If yes, how were CEOs portrayed? [Question was only displayed when the answer was “yes“]</p>
+<table>
+<tr>
+<td style="font-family:calibri;">Negative </td>
+<th><input name='player.radio55' type='radio' required value='Neg3' id='radio1'></th>
+<th><input name='player.radio55' type='radio' required value='Neg2' id='radio2'></th>
+<th><input name='player.radio55' type='radio' required value='Neg1' id='radio3'></th>
+<th><input name='player.radio55' type='radio' required value='Neutral' id='radio4'></th>
+<th><input name='player.radio55' type='radio' required value='Pos1' id='radio5'></th>
+<th><input name='player.radio55' type='radio' required value='Pos2' id='radio6'></th>
+<th><input name='player.radio55' type='radio' required value='Pos3' id='radio7'></th>
+<td style="font-family:calibri;" >Positive</td>
+</tr>
+</table><br>
+`;
+
+let page24 = app.newStage('page24');
+page24.activeScreen = `
+<p style="font-family:calibri;">A final important question:<br>
+<br> 
+Have you answered the questions in this study carefully?</p>
+<input name='player.radio56' type='radio' required value='Ja' id='radio1'>
+<label for='radio1' style="font-family:calibri;">Ja</label><br>
+<input name='player.radio56' type='radio' required value='Nein' id='radio2'>
+<label for='radio2' style="font-family:calibri;">Nein</label><br><br>
+`;
+
+let page25 = app.newStage('page25');
+page25.activeScreen = `
+<h4 style="font-family:calibri;">Thank you for your participation!</h4>
+`;
+
+let page26 = app.newStage('page26');
+page26.activeScreen = `
+<h4>RESPONSES</h4>
+<p><b>Wie hoch schätzt der Markt den Gewinn pro Aktie für die Castor AG ein?: </b>{{player.radio1}}</p>
+<p><b>Wie hoch wäre der Gewinn pro Aktie der Castor AG gemäss der internen Buchhaltung?: </b>{{player.radio2}}</p>
+<p><b>Bei welchem ausgewiesenen Gewinn pro Aktie würden Sie als CEO einen geringeren Bonus erhalten?: </b>{{player.radio3}}</p>
+<p><b>Können Sie als CEO einen Gewinn bekannt geben, der vom tatsächlichen Gewinn abweicht?: </b>{{player.radio4}}</p>
+<p><b>Ihr Gehalt als CEOs ist...</b>{{player.radio5}}</p>
+<p><b>Welchen Gewinn pro Aktie geben Sie bekannt? (Bitte entscheiden Sie sich bei jeder der fünf Situationen jeweils für eine Alternative.): </b>{{player.radio6}}</p>
+<p><b>Welchen Gewinn pro Aktie geben Sie bekannt?: </b>{{player.radio7}}</p>
+<p><b>Welchen Gewinn pro Aktie geben Sie bekannt?: </b>{{player.radio8}}</p>
+<p><b>Welchen Gewinn pro Aktie geben Sie bekannt?: </b>{{player.radio9}}</p>
+<p><b>Welchen Gewinn pro Aktie geben Sie bekannt?: </b>{{player.radio10}}</p>
+<p><b>Inwiefern bewerten Sie die Entscheidung 31 Rappen Gewinn pro Aktie bekannt zu geben als… ehrlich   </p>: </b>{{player.radio11}}</p>
+<p><b>Inwiefern bewerten Sie die Entscheidung 31 Rappen Gewinn pro Aktie bekannt zu geben als… nicht manipulativ  </p>: </b>{{player.radio12}}</p>
+<p><b>Inwiefern bewerten Sie die Entscheidung 31 Rappen Gewinn pro Aktie bekannt zu geben als… persönlich finanzieller Gewinn  </p>: </b>{{player.radio13}}</p>
+<p><b>Inwiefern bewerten Sie die Entscheidung 31 Rappen Gewinn pro Aktie bekannt zu geben als… langfristig   </p>: </b>{{player.radio14}}</p>
+<p><b>Inwiefern bewerten Sie die Entscheidung 31 Rappen Gewinn pro Aktie bekannt zu geben als… langfistig nicht schädigend für manche Interessensgruppen</p>: </b>{{player.radio15}}</p>
+<p><b>Inwiefern bewerten Sie die Entscheidung 35 Rappen Gewinn pro Aktie bekannt zu geben als… ehrlich   </p>: </b>{{player.radio16}}</p>
+<p><b>Inwiefern bewerten Sie die Entscheidung 35 Rappen Gewinn pro Aktie bekannt zu geben als… nicht manipulativ  </p>: </b>{{player.radio17}}</p>
+<p><b>Inwiefern bewerten Sie die Entscheidung 35 Rappen Gewinn pro Aktie bekannt zu geben als… persönlich finanzieller Gewinn  </p>: </b>{{player.radio18}}</p>
+<p><b>Inwiefern bewerten Sie die Entscheidung 35 Rappen Gewinn pro Aktie bekannt zu geben als… langfristig   </p>: </b>{{player.radio19}}</p>
+<p><b>Inwiefern bewerten Sie die Entscheidung 35 Rappen Gewinn pro Aktie bekannt zu geben als… langfistig nicht schädigend für manche Interessensgruppen</p>: </b>{{player.radio20}}</p>
+<p><b>Können Sie als CEO den Gewinn beeinflussen?: </b>{{player.radio21}}</p>
+<p><b>Ihr Gehalt als CEO ist höher, wenn Sie …: </b>{{player.radio22}}</p>
+<p><b>Ihr Gehalt als CEOs ist ...: </b>{{player.radio23}}</p>
+<p><b>1 oder 5 rechnungen</b>{{player.radio24}}</p>
+<p><b>Würden Sie sagen, dass Sie im Vergleich zu diesem Kollegen (dieser Kollegin) die gefundenen 50 Franken schätzen.: </b>{{player.radio29}}</p>
+<p><b>Beim Wert ‚‚Ehrlichkeit… geht es um etwas, das man nicht opfern sollte, egal wie hoch der (finanzielle oder sonstige) Nutzen ist.: </b>{{player.radio30}}</p>
+<p><b>Beim Wert ‚‚Ehrlichkeit… geht es um etwas, finde ich es richtig, Kosten-Nutzen Abwägungen zu machen.: </b>{{player.radio32}}</p>
+<p><b>Beim Wert ‚‚Ehrlichkeit… geht es um etwas, geht es um etwas, das man nicht mit einem Geldwert beziffern kann.</b>{{player.radio32}}</p>
+<p><b>Beim Wert ‚‚Ehrlichkeit… geht es um etwas, kann ich flexibel sein, wenn es die Situation verlangt.</b>{{player.radio33}}</p>
+<p><b>1.Der erste Eindruck, den ich von anderen Menschen gewinne, bewahrheitet sich meistens.   : </b>{{player.radio34}}</p>
+<p><b>2.Ich bin nicht immer mir selber gegenüber ganz ehrlich gewesen.    : </b>{{player.radio35}}</p>
+<p><b>3. Ich weiss immer, warum ich etwas mag.    : </b>{{player.radio36}}</p>
+<p><b>4. Es fällt mir schwer, einen beunruhigenden Gedanken beiseite zu drängen.    : </b>{{player.radio37}}</p>
+<p><b>5. Manchmal verpasse ich etwas, weil ich mich einfach nicht schnell genug entscheiden kann.    : </b>{{player.radio38}}</p>
+<p><b>6. Ich bin ein vollkommen rational denkender Mensch.    : </b>{{player.radio39}}</p>
+<p><b>7. Ich kann Kritik selten vertragen.    : </b>{{player.radio40}}</p>
+<p><b>8. Ich bin mir meiner Urteile sehr sicher.    : </b>{{player.radio41}}</p>
+<p><b>9. An meinen Fähigkeiten als Liebhaber/in habe ich schon gelegentlich gezweifelt.   : </b>{{player.radio42}}</p>
+<p><b>10. Ich weiss nicht immer die Gründe für meine Handlungen.     : </b>{{player.radio43}}</p>
+<p><b>11. Manchmal lüge ich, wenn ich muss.    : </b>{{player.radio44}}</p>
+<p><b>12. Es ist schon einmal vorgekommen, dass ich jemanden ausgenutzt habe.    : </b>{{player.radio45}}</p>
+<p><b>13. Ich fluche niemals.    : </b>{{player.radio46}}</p>
+<p><b>14. Manchmal zahle ich es lieber anderen heim, als dass ich vergebe und vergesse.    : </b>{{player.radio47}}</p>
+<p><b>15. Ich habe schon einmal zuviel Wechselgeld herausbekommen, ohne es der Verkäuferin zu sagen.    : </b>{{player.radio48}}</p>
+<p><b>16. Ich gebe grundsätzlich alles an, was ich zu verzollen habe.     : </b>{{player.radio49}}</p>
+<p><b>17. Manchmal fahre ich schneller, als es erlaubt ist.     : </b>{{player.radio50}}</p>
+<p><b>18. Ich habe Dinge getan, von denen ich anderen nichts erzähle. : </b>{{player.radio51}}</p>
+<p><b>19. Ich nehme niemals Dinge an mich, die mir nicht gehören.: </b>{{player.radio52}}</p>
+<p><b>20. Ich bin schon einmal wegen einer angeblichen Krankheit nicht zur Arbeit oder Schule gegangen.: </b>{{player.radio53}}</p>
+<p><b>Haben Sie kürzlich wissenschaftliche Artikel oder Zeitungsartikel über CEOs gelesen?        : </b>{{player.radio54}}</p>
+<p><b>Wenn ja, in welchem Licht wurden die CEOs dargestellt? (Question is only displayed, when the answer is „yes“) Positiv : </b>{{player.radio55}}</p>
+<p><b>Und nun noch eine letzte für uns wichtige Frage: Haben Sie die Studie sorgfältig bearbeitet?        : </b>{{player.radio56}}</p>
+`;
+
+app.description = 'Questionnaire.';
+
+// DEFINE STAGES
+var questionsStage = app.newStage('questions');
+questionsStage.activeScreen = `
+<script>
+showSliderVal = function(val) {
+    $("#sliderVal").text(val);
+}
+</script>
+
+<p><b>Total errors from Part 1:</b> {{player.participant.totalErrors}}.</p>
+
+
+ <!DOCTYPE html>
+<html>
+<head>
+<style>
+    input[type="radio"] {    
+    -ms-transform: scale(2); /* IE 9 */
+    -webkit-transform: scale(2); /* Chrome, Safari, Opera */
+    transform: scale(2);
+    margin-right: 20px;
+    font-family: calibri;
+}
+div {
+    background-color: AliceBlue;
+    width: 1500px;
+    border: 25px solid LightSteelBlue;
+    padding: 25px;
+    margin: 25px;
+}
+body {background-color: AliceBlue;}
+h1   {color: blue;}
+p    {  color: black;
+        font-family: calibri;}
+table { font-family: calibri;}
+</style>
+</head>
+<body>
+
+<input name='player.text' type='text'>
+<br><br>
+
+
+<p>2. Type in an email address:</p>
+<input name='player.email' type='email'>
+<br><br>
+
+<p>3. Type in a lot of text:</p>
+<textarea name='player.longtext' rows=5 cols=40></textarea>
+<br><br>
+
+<p>4. Select a choice from a dropdown:</p>
+<select name='player.dropdown' >
+    <option value="dropdown1">Dropdown 1</option>
+    <option value="dropdown2">Dropdown 2</option>
+    <option value="dropdown3">Dropdown 3</option>
+    <option value="dropdown4">Dropdown 4</option>
+</select>
+<br><br>
+
+<p>5. Select a choice from a list:</p>
+<select name='player.list' size=4>
+    <option value="list1">List 1</option>
+    <option value="list2">List 2</option>
+    <option value="list3">List 3</option>
+    <option value="list4">List 4</option>
+</select>
+<br><br>
+
+<p>9. Choose a number from a slider:</p>
+<b>0</b> <input id="slider" type="range" name='player.slider' min="0" max="100" step="10" oninput="showSliderVal(this.value)" onchange="showSliderVal(this.value)"> <b>100</b><br>
+<span>Current Slider Value: <span id="sliderVal">-</span></span>
+<br><br>
+`;
+
+
+app.waitingScreen = `
+
+`;
+

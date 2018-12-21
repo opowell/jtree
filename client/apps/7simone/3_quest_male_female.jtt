@@ -2,10 +2,10 @@ app.description = 'Simple questionnaire.';
 app.waitForAll = false;
 app.groupSize = 1;
 app.waitingScreen = `
-            <p>Thank you for your participation!</p>
-            <p> Please click on the link below to return to prolific.</p>
-             <a href="https://app.prolific.ac/submissions/complete?cc=5Z6R31O9">https://app.prolific.ac/submissions/complete?cc=5Z6R31O9</a> 
-        	`;
+    <p>Thank you for your participation!</p>
+    <p> Please click on the link below to return to prolific.</p>
+    <a href="https://app.prolific.ac/submissions/complete?cc=5Z6R31O9">https://app.prolific.ac/submissions/complete?cc=5Z6R31O9</a> 
+   	`;
 app.questions = [
     "New ideas and projects sometimes distract him/her from previous ones.",
     "He/She is helpful and unselfish with others.",
@@ -48,22 +48,27 @@ app.answers = [
     "Very much like a female"
 ];
 
-    var stage = app.newStage('questions');
-    stage.activeScreen = `
-    <h4>You will now see a series of statements. This survey was developed as a tool for identifying perceptions about gender. Please rate the following statements depending on whether you find it more likely to describe a male or a female. There are no right or wrong answers. This is all about what you believe.</h4>
-    `;
-    for (let j=0; j<app.questions.length; j++) {
-        let a = `<p>${j+1}. ${app.questions[j]}</p>`;
-        for (let k=0; k<app.answers.length; k++) {
-            let name = `${app.questionCodes[j]}`;
-            let id = `${name}_radio${k+1}`;
-            a += `
-            <input name='player.${name}' type='radio' required value='${k+1}' id='${id}'>
-            <label for='${id}'>${app.answers[k]}</label>
-            `;
-        }
-        stage.activeScreen += eval('`' + a + '<br><br>`');
+var stage = app.newStage('questions');
+stage.activeScreen = `
+<style>
+body {
+    max-width: unset;
+}
+</style>
+<h4>You will now see a series of statements. This survey was developed as a tool for identifying perceptions about gender. Please rate the following statements depending on whether you find it more likely to describe a male or a female. There are no right or wrong answers. This is all about what you believe.</h4>
+`;
+for (let j=0; j<app.questions.length; j++) {
+    let a = `<p>${j+1}. ${app.questions[j]}</p>`;
+    for (let k=0; k<app.answers.length; k++) {
+        let name = `${app.questionCodes[j]}`;
+        let id = `${name}_radio${k+1}`;
+        a += `
+        <input name='player.${name}' type='radio' required value='${k+1}' id='${id}'>
+        <label for='${id}'>${app.answers[k]}</label>
+        `;
     }
+    stage.activeScreen += eval('`' + a + '<br><br>`');
+}
 
 var stage2 = app.newStage('questions2');
 stage2.activeScreen = `

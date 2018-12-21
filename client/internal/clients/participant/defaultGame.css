@@ -31,14 +31,6 @@ button:hover {
   border-color: #01549b;
 }
 
-*[jt-stage] {
-    display: none;
-}
-
-.stage-active {
-    display: block;
-}
-
 input {
   font-size: 1rem;
 }

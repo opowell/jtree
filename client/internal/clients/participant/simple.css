@@ -1,23 +1,27 @@
-body {
-    /* margin: 2vh; */
-    /* min-height: 96vh; */
-    /* display: none; */
-    /* align-items: center; */
-    /* flex-direction: column; */
-    /* justify-content: center; */
-    /* max-width: 800px; */
+body, input, button {
+    font-size: 16pt;
 }
 
-*[jt-stage] {
-    max-height: 0px;
+body {
+    display: flex;
+    max-width: 800px;
+    margin: auto;
+    justify-content: center;
+}
+
+#jtree {
+    min-width: 500px;
+    min-height: 300px;
+    padding: 10px;
+    border: 1px solid #888;
+    border-radius: 4px;
+    align-self: center;
+    background-color: #efefef;
+    margin: 10px;
 }
 
 .hidden {
     display: none;
-}
-
-.stage-active {
-    max-height: none;
 }
 
 select, input, textarea {
@@ -30,36 +34,26 @@ button {
     padding: 1vh;
 }
 
-/* TABLETS */
-/* @media screen and (max-width: 992px) {
-  body {
-  }
-
-  input {
-      padding: 1vh;
-  }
-
-  button {
-      padding: 1vh;
-  }
-} */
-
-/* PHONES */
 @media screen and (max-width: 600px) {
-  body {
-      margin: 4vh;
-      min-height: 92vh;
-  }
+    body {
+        align-items: start;
+        width: unset;
+        padding-top: unset;
+        justify-content: start;
+        min-height: 92vh;
+    }
 
-  input {
-      padding: 1vh;
-  }
-
-  button {
-      padding: 1vh;
-  }
-}
-
-body, input, button {
-    font-size: 16pt;
+    #jtree {
+        margin: 10px;
+        border: none;
+        min-width: unset;
+        padding: unset;
+        min-height: unset;
+        background-color: #fff;
+    }
+  
+    input {
+        padding: 1vh;
+    }
+  
 }
