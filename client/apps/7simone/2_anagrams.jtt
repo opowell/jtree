@@ -76,7 +76,7 @@ decideStage.getGroupDuration = function(group) {
 }
 decideStage.playerStart = function(player) {
     player.answer = app.questions[player.period().id-1];
-    player.list = player.answer.split('').sort();
+    player.list = player.answer.split('').sort().join('');
 }
 decideStage.activeScreen = `
     <p>Here are the letters:</p>

@@ -92,3 +92,6 @@ stage2.activeScreen = `
 <br><br>
 `;
 
+let stage3 = app.newStage('stage3');
+stage3.activeScreen = app.waitingScreen;
+stage3.addOKButtonIfNone = false;

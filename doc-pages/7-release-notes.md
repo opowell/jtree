@@ -1,3 +1,6 @@
+##### 2018.12.20 - 0.7.2
+- Fix: Apps not ending correctly.
+
 ##### 2018.12.20 - 0.7.1
 - catch errors in admin UI.
 - Fix: Groups end stages with duration correctly.

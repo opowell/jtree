@@ -870,7 +870,7 @@ class App {
 
         this.finished = true;
 
-        let fd = fs.openSync(this.session.csvFN(), 'as');
+        let fd = fs.openSync(this.session.csvFN(), 'a');
 
         try {
             fs.appendFileSync(fd, this.saveOutput());
