@@ -573,7 +573,7 @@ class Session {
 
         var fn = this.csvFN() + ' - manual save at ' + Utils.getDate() + '.csv';
         let fullText = '';
-        let fd = fs.openSync(fn, 'as');
+        let fd = fs.openSync(fn, 'a');
         try {
             fullText += 'SESSION\n';
             fullText += text.join('\n') + '\n';

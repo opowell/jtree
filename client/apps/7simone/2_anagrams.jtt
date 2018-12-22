@@ -80,7 +80,7 @@ decideStage.playerStart = function(player) {
 }
 decideStage.activeScreen = `
     <p>Here are the letters:</p>
-    <p>{{player.list}}</p>
+    <p style='font-weight: bold; font-size: 30pt; text-align: center'>{{player.list}}</p>
     <p>Please enter a word consisting of the letters you see above:</p>
     <p><input name='player.guess' required type='text'></p>
     <button>Make guess</button>
