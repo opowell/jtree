@@ -3,12 +3,6 @@ class ViewQueues extends HTMLElement {
       this.innerHTML = `
       <div id='view-queues' class='view hidden'>
           <h2>Queues</h2>
-          <div class='card my-3'>
-              <div class='card-body'>
-                  <div class='card-text'>Queues are collections of apps, initialized with certain values. Useful when you need to run a particular sequence of apps, or have multiple variations of a single app.
-                  </div>
-              </div>
-          </div>
           <div class="input-group mb-3">
             <input type="text" class="form-control" placeholder="Queue id" id='create-queue-input' style='flex: 0 0 150px'>
             <div class="input-group-append">
@@ -17,84 +11,73 @@ class ViewQueues extends HTMLElement {
                 </a>
             </div>
           </div>
-          <table class='table table-hover'>
-              <thead>
-                  <tr>
-                      <th></th>
-                      <th>id</th>
-                      <th>name</th>
-                      <th>apps</th>
-                  </tr>
-              </thead>
-              <tbody id='view-queues-table'>
-              </tbody>
-          </table>
+          <div id='queues-table'>
+              <b-table hover
+                :items="queues"
+                :fields='fields'
+                @row-clicked='openQueue'
+                tbody-tr-class='clickable'
+              >
+                <template slot="appslist" slot-scope="data">
+                    <div>
+                        {{data.item.apps.length}}
+                    </div>
+                </template>
+                <template slot="actions" slot-scope="data">
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary btn-sm" @click.stop @click='startSessionFromQueue(data.item.id)'>
+                            <i class="fa fa-play" title="start new session with this queue"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" @click.stop @click='deleteQueueConfirm(data.item.id)'>
+                            <i class="fa fa-trash" title="delete"></i>
+                        </button>
+                    </div>
+                </template>
+              </b-table>
+          </div>
       </div>
       `;
     }
 }
 
-function showQueues() {
-    $('#view-queues-table').empty();
-    for (var i in jt.data.queues) {
-        var queue = jt.data.queues[i];
-        showQueue(queue);
-    }
-}
-
-function showQueue(queue) {
-
-    var div = $('<tr queueId="' + queue.id + '" style="cursor: pointer">');
-    try {
-        div.append($('<td>').text(queue.id));
-        div.append($('<td>').text(queue.displayName));
-        var appsText = '';
-        for (var i=0; i<queue.apps.length; i++) {
-            var app = queue.apps[i];
-            appsText += app.indexInQueue + ': ' + app.appId;
-            // if (objLength(app.options) > 0) {
-            //     appsText += '(';
-            //     for (var j in app.options) {
-            //         appsText += app.options[j] + ', ';
-            //     }
-            //     // remove last comma, replace with closing parenthesis
-            //     appsText = appsText.substring(0, appsText.length - 2);
-            //     appsText += ')';
-            // }
-            if (i < queue.apps.length - 1) {
-                appsText += '<br>';
-            }
-        }
-        div.append($('<td>').html(appsText));
-        var que = queue;
-        var qId = que.id;
-
-        var actionDiv = $('<div class="btn-group">');
-        var startBtn = $('<button class="btn btn-outline-primary btn-sm"><i class="fa fa-play" title="start new session with this queue"></i></button>');
-        startBtn.click(function(ev) {
-            ev.stopPropagation();
-            server.startSessionFromQueue(qId);
-        });
-        actionDiv.append(startBtn);
-
-        div.click(function() {
-             jt.openQueue(que);
-        });
-
-        var deleteBtn = jt.DeleteButton();
-
-        deleteBtn.click(function(ev) {
-            ev.stopPropagation();
-            jt.deleteQueueConfirm(qId);
-        });
-        actionDiv.append(deleteBtn);
-
-        div.prepend($('<td>').append(actionDiv));
-
-    } catch (err) {
-    }
-
-    $('#view-queues-table').append(div);
+showQueues = function() {
+    new Vue({
+        el: '#queues-table',
+        data: {
+            queues: jt.data.queues,
+            fields: [
+                {
+                    key: 'actions',
+                    label: '',
+                },
+                {
+                    key: 'displayName',
+                    label: 'name',
+                    sortable: true,
+                },
+                {
+                    key: 'id',
+                    label: 'id',
+                    sortable: true,
+                },
+                {
+                    key: 'appslist',
+                    label: 'apps',
+                }
+            ],
+        },
+        methods: {
+            openQueue(item, index, event) {
+                jt.openQueue(item.id);
+            },
+            deleteQueueConfirm(id) {
+                jt.deleteQueueConfirm(id);
+            },
+            startSessionFromQueue(id) {
+                server.startSessionFromQueue(id);
+            },
+        },
+      });
 }
 
 jt.createQueue = function() {

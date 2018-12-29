@@ -11,6 +11,11 @@ class MainMenu extends HTMLElement {
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
               <ul class="navbar-nav mr-auto hidden" role='tabpanel'>
                   <li class="nav-item">
+                      <span id='tab-games' class="nav-link view-tab" onclick='setView("games")'>
+                          Games
+                      </span>
+                  </li>
+                  <li class="nav-item">
                       <span id='tab-apps' class="nav-link view-tab" onclick='setView("apps")'>
                           Apps
                       </span>

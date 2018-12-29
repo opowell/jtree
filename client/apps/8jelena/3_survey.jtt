@@ -1,5 +1,5 @@
 ﻿// SETTINGS
-app.countries = ['Czech Republic', 'United Arab Emirates', 'France', 'Qatar', 'Moldova', 'Burkina Faso', 'Serbia', 'Austria', 'Bosnia and Herzegovina', 'Slovenia', 'Macedonia', 'Germany', 'Croatia', 'Montenegro', 'Bulgaria', 'Hungary', 'Romania'];
+app.countries = ['Czech Republic', 'United Arab Emirates', 'France', 'Qatar', 'Moldova', 'Burkina Faso', 'Serbia', 'Austria', 'Bosnia and Herzegovina', 'Slovenia', 'Macedonia', 'Germany', 'Croatia', 'Montenegro', 'Bulgaria', 'Hungary', 'Romania', 'The Netherlands'];
 app.matrices = [
     {
         name: 'Safety first',

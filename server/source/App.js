@@ -74,6 +74,8 @@ class App {
         /** Where the original definition of this app is stored on the server.*/
         this.appPath = appPath;
 
+        this.started = false;
+
         /**
          * The Session that this App belongs to.
          * @type {Session}
@@ -344,7 +346,7 @@ class App {
      */
     static newSansId(jt, appPath) {
         console.log('loading app with no session: ' + appPath);
-        var out = new App(null, jt, appPath);
+        var out = new App({}, jt, appPath);
         return out;
     }
 
@@ -1142,7 +1144,7 @@ class App {
             metaData.clientHTML = '';
         }
 
-        var app = new App(null, this.jt, this.id);
+        var app = new App({}, this.jt, this.id);
 
         metaData.stages = [];
         try {
@@ -1344,6 +1346,13 @@ class App {
             fields.push(prop);
         }
         return fields;
+    }
+
+    start() {
+        if (this.started) {
+            return;
+        }
+        this.started = true;
     }
 
     /**

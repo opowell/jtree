@@ -11,7 +11,7 @@ REM 4. Update README.md.
 REM 5. Update docs/README.md.
 REM 3. Commit to Github.
 
-set "vers=0.7.2"
+set "vers=0.7.3"
 
 REM ------- Prepare output folder.
 call del ".\releases\%vers%" /Q /F
@@ -48,6 +48,9 @@ call xcopy ".\client\apps\real-effort-sums.jtt" ".\releases\%vers%\apps\"
 call xcopy ".\client\apps\waitToStartEnd.jtt" ".\releases\%vers%\apps\"
 
 call xcopy ".\client\internal" ".\releases\%vers%\internal\" /E
+call del ".\releases\%vers%\internal\clients\admin" /Q /F
+call xcopy ".\client\internal\admin\multiuser" ".\releases\%vers%\internal\admin\multiuser\" /E
+call xcopy ".\client\internal\admin\shared" ".\releases\%vers%\internal\admin\shared\" /E
 call xcopy ".\client\help.html" ".\releases\%vers%\"
 call xcopy ".\server\source" ".\releases\%vers%\internal\source\" /E
 

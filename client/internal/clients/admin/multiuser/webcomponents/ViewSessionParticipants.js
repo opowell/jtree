@@ -10,10 +10,22 @@ class ViewSessionParticipants extends HTMLElement {
                 <tbody id='participants'>
                 </tbody>
             </table>
+            <div id='participants-table'>
+            </div>
         </div>
     `;
     }
 }
+
+{/* 
+<b-table
+    :items="partsArray"
+    :fields='allFields'
+>
+    <span slot='link' slot-scope='data' v-html='linkCol(data.item)'></span>
+    <span slot='group' slot-scope='data' v-html='groupCol(data.item)'></span>
+</b-table>
+*/}
 
 var playerFieldsToSkip = [
     'app',
@@ -28,6 +40,7 @@ var playerFieldsToSkip = [
     'period',
     'roomId',
     'sessionId',
+    'session',
     'stageId',
     'stage',
     'stageIndex',
@@ -156,6 +169,93 @@ closeViews = function() {
 }
 
 function showParticipants(participants) {
+
+        new Vue({
+            el: '#participants-table',
+            data: {
+                data: jt.data,
+                fields: [
+                    {
+                        key: 'id',
+                        label: 'id',
+                        sortable: true,
+                    },
+                    {
+                        key: 'link',
+                        label: 'link',
+                    },
+                    {
+                        key: 'numClients',
+                        label: 'clients',
+                    },
+                    {
+                        key: 'appIndex',
+                        label: 'app',
+                    },
+                    {
+                        key: 'periodIndex',
+                        label: 'period',
+                    },
+                    {
+                        key: 'group',
+                    },
+                    {
+                        key: 'stage',
+                    },
+                    {
+                        key: 'time',
+                    },
+                    {
+                        key: 'status',
+                    },
+                ],
+            },
+            computed: {
+                allFields() {
+                    let out = [];
+                    let outKeys = [];
+                    for (let f in this.fields) {
+                        out.push(this.fields[f]);
+                        outKeys.push(this.fields[f].key);
+                    }
+                    for (let p in this.partsArray) {
+                        let player = this.partsArray[p];
+                        for (var i in player) {
+                            if (!playerFieldsToSkip.includes(i)) {
+                                if (!outKeys.includes(i)) {
+                                    outKeys.push(i);
+                                    out.push({
+                                        key: i,
+                                        formatter: (value) => { return roundValue(value, 2); }
+                                    });
+                                }
+                            }
+                        }
+                    }
+                    return out;
+                },
+                partsArray() {
+                    let parts = [];
+                    for (let p in this.data.session.participants) {
+                        parts.push(this.data.session.participants[p]);
+                    }
+                    return parts;
+                },
+            },
+            methods: {
+                linkCol(item) {
+                    return '<a href="http://' + partLink(item.id) + '" target="_blank">' + partLink(item.id) + '</a></td>';
+                },
+                groupCol(item) {
+                    if (item.player == null) {
+                        return '-';
+                    }
+                    return item.player.group.id;
+                },
+            },
+          });
+    
+
     resetParticipantsTable();
     sessionSetAutoplay(false);
     if (participants !== undefined) {

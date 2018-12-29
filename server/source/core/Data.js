@@ -303,7 +303,7 @@ class Data {
                         id = id.substring(0, id.length - '.jtt'.length);
                     }
                     if (isApp) {
-                        let app = this.loadApp(id, null, curPath, {});
+                        let app = this.loadApp(id, {}, curPath, {});
                         if (app != null) {
                             this.apps[curPath] = app;
                             this.appsMetaData[curPath] = app.metaData();

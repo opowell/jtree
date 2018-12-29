@@ -18,11 +18,8 @@ const StaticServer  = require('./core/StaticServer.js');
  */
 var jt = {};
 
-/** The version of jtree, should match what is in buildJTree.bat
-* v.x.y.z
-* x / y / z indicates major / moderate / minor changes in stability and features.
-*/
-jt.version      = '0.7.2';
+// The version of jtree, should match what is in buildJTree.bat
+jt.version = '0.7.3';
 
 /** Location of the server executable. All files should be relative to this.
 */

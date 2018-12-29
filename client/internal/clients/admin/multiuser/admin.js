@@ -218,11 +218,6 @@ jt.connected = function() {
       $('#menu-userid').text(userId);
   }
 
-//   jt.vue = new Vue({
-//     el: 'queues-table',
-//     data: jt.data.queues,
-//   });
-
 }
 
 jt.socketConnected = function() {

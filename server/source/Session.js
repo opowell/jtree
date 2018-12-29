@@ -982,6 +982,15 @@ class Session {
         }
 
         var app = this.getApp(participant);
+
+        // If the app has not yet been started, reload it first.
+        if (!app.started) {
+            let newApp = app.reload();
+            this.apps[app.indexInSession() - 1] = newApp;
+            app = newApp;
+            app.start();
+        }
+
         app.participantBegin(participant);
     }
 

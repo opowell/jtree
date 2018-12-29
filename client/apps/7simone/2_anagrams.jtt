@@ -1,7 +1,7 @@
 app.title = 'Anagram game';
 app.description = 'Players find words in anagrams.';
 
-app.duration = 30; // total seconds to answer questions.
+app.duration = 300; // total seconds to answer questions.
 app.waitForAll = false;
 app.groupSize = 1;
 app.waitingScreen = '';

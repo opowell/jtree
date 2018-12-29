@@ -1,3 +1,8 @@
+##### 2018.12.28 - 0.7.3
+- Apps are reloaded just before first participant starts them.
+- Admin UIs must be explcitly added to build.
+- Removed unused admin UI files.
+
 ##### 2018.12.20 - 0.7.2
 - Fix: Apps not ending correctly.
 

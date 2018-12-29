@@ -7,7 +7,7 @@ const http      = require('http');
 const replace   = require("replace");
 const bodyParser = require("body-parser");
 const session   = require('express-session');
-
+// const history   = require('connect-history-api-fallback');
 
 /** Server for static files */
 class StaticServer {
@@ -16,6 +16,7 @@ class StaticServer {
         this.jt = jt;
         var expApp = express();
         expApp.use(bodyParser.urlencoded({extended : true}));
+        // expApp.use(history());
         expApp.use(session(
             {
                 secret: 'keyboard cat',
@@ -55,6 +56,8 @@ class StaticServer {
                 expApp.use('/' + queue.shortId, express.static(queue.id));
             }
         }
+        // expApp.use(history());
+
         // END FILE SERVING
         //////////////////////////////
 
@@ -221,7 +224,18 @@ class StaticServer {
     handleRequest(req, res) {
         var jt = this.jt;
         let pId = req.params.pId;
-        if (pId === 'admin') {
+        let adminCall = req.originalUrl === '/admin/' || req.originalUrl === '/admin';
+        var adminUIs = fs.readdirSync(this.adminUIsPath());
+        for (let i in adminUIs) {
+            let pathToFolder = path.join(this.adminUIsPath(), adminUIs[i]);
+            if (fs.lstatSync(pathToFolder).isDirectory()) {
+                if (req.originalUrl === '/admin/' + adminUIs[i]) {
+                    adminCall = true;
+                    break;
+                }
+            }
+        }
+        if (adminCall) {
                 var id = req.body.uId;
                 var pwd = req.body.pwd;
                 var adminUser = jt.data.isValidAdmin(id, pwd);
@@ -233,18 +247,27 @@ class StaticServer {
                         req.session.userId = adminUser.id;
                         res.cookie('userId', adminUser.id);
                     }
-                    res.sendFile(jt.staticServer.defaultAdminUIPath() + '/admin.html');
+                    res.sendFile(this.getAdminPath(req) + '/admin.html');
                 } else {
                     if (jt.settings.multipleUsers) {
-                        res.sendFile(jt.staticServer.defaultAdminUIPath() + '/adminLogin.html');
+                        res.sendFile(this.defaultAdminUIPath() + '/adminLogin.html');
                     } else {
-                        res.sendFile(jt.staticServer.defaultAdminUIPath() + '/defaultAdminLogin.html');
+                        res.sendFile(this.defaultAdminUIPath() + '/defaultAdminLogin.html');
                     }
                 }
         } else if (pId === 'favicon.ico') {
             jt.log('asking for favicon.ico');
         } else {
             this.sendParticipantPage(req, res, req.params.pId, undefined);
+        }
+    }
+
+    getAdminPath(req) {
+        let defaultUI = req.originalUrl === '/admin/' || req.originalUrl === '/admin';
+        if (defaultUI) {
+            return path.join(this.defaultAdminUIPath());
+        } else {
+            return path.join(this.adminUIsPath(), req.originalUrl);
         }
     }
 

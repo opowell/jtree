@@ -188,7 +188,9 @@ class Participant {
 
         var nextApp = this.session.getApp(this);
         if (nextApp != null) {
-            this.startApp(nextApp);
+            //nextApp.participantBegin(this);
+//            this.startApp(nextApp);
+            this.session.participantBeginApp(this);
         } else {
             this.endSession();
         }
@@ -203,17 +205,17 @@ class Participant {
         this.emit('reload');
     }
 
-    startApp(app) {
+    // startApp(app) {
 
-        // this.appIndex = app.indexInSession();
-        this.periodIndex = -1;
-        app.participantStart(this);
-        this.startPeriod(app.getNextPeriod(this));
+    //     // this.appIndex = app.indexInSession();
+    //     this.periodIndex = -1;
+    //     app.participantStart(this);
+    //     this.startPeriod(app.getNextPeriod(this));
 
-        this.emit('participantSetAppIndex', {appIndex: app.indexInSession()});
-        this.emit('start-new-app'); // refresh clients.
-        this.updateScheduled = false;
-    }
+    //     this.emit('participantSetAppIndex', {appIndex: app.indexInSession()});
+    //     this.emit('start-new-app'); // refresh clients.
+    //     this.updateScheduled = false;
+    // }
 
     startPeriod(period) {
         this.periodIndex = period.id - 1;
