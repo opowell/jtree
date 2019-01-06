@@ -1,12 +1,12 @@
 <template>
-    <jt-panel :panelId='panelId' :x='x' :y='y' :w='w' :h='h' :title='"Games"' :menus='menus'>
-        Games list
+    <jt-panel :panelId='panelId' :x='x' :y='y' :w='w' :h='h' :title='"Sessions"' :menus='menus'>
+        Sessions list
     </jt-panel>
 </template>
 <script>
   import JtPanel from './JtPanel.vue';
   export default {
-      name: 'GamesPanel',
+      name: 'SessionsPanel',
       components: {
           JtPanel,
       },
