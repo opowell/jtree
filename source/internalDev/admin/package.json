@@ -9,6 +9,7 @@
     "build-watch": "vue-cli-service build-watch --dest ..\\..\\internal\\clients\\admin\\vue"
   },
   "dependencies": {
+    "axios": "^0.18.0",
     "bootstrap-vue": "^2.0.0-rc.11",
     "jquery": "^3.3.1",
     "jquery-ui": "^1.12.1",

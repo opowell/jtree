@@ -10,7 +10,7 @@ const Settings      = require('./core/Settings.js');
 const Data          = require('./core/Data.js');
 const SocketServer  = require('./core/SocketServer.js');
 const StaticServer  = require('./core/StaticServer.js');
-require('@google-cloud/debug-agent').start();
+// require('@google-cloud/debug-agent').start();
 
 /**
  * @class jtree
@@ -20,7 +20,7 @@ require('@google-cloud/debug-agent').start();
 var jt = {};
 
 // The version of jtree, should match what is in buildJTree.bat
-jt.version = '0.7.3';
+jt.version = '0.7.4';
 
 /** Location of the server executable. All files should be relative to this. Should be a folder containing 'apps' and 'internal' folders.
 */

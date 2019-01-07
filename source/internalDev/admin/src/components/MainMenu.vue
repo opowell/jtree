@@ -6,25 +6,35 @@
 
 <script>
 
-const menusData = [
+import MenuEl from './MenuEl'
+export default {
+  name: 'MainMenu',
+  components: {
+      MenuEl,
+  },
+  data() {
+      return {
+          menus: 
+[
     {
         text: 'File',
         children: [
             {
-                text: 'Games',
+                text: this.$store.state.appName + 's',
                 shortcut: 'Ctrl+G',
+                action: this.showGames,
             },
             {
                 text: 'Sessions',
+                action: this.showSessions,
             },
             {
                 text: 'Users',
             },
+            'divider',
             {
                 text: 'Settings',
-            },
-            {
-                text: 'Window',
+                action: this.showSettings,
             },
         ]
     },
@@ -55,20 +65,7 @@ const menusData = [
         text: 'Window',
         children: [],
     },
-]
-
-import MenuEl from './MenuEl'
-export default {
-  name: 'MainMenu',
-  components: {
-      MenuEl,
-  },
-  data() {
-      menusData[0].children[0].text = this.$store.state.appName + 's';
-      menusData[0].children[0].action = this.showGames;
-      menusData[0].children[3].action = this.showSettings;
-      return {
-          menus: menusData,
+],
           panelDescs: this.$store.state.panelDescs,
           menuBGColor: "rgb(251, 251, 251)",
       }
@@ -82,7 +79,7 @@ export default {
       panelDescs: {
         handler: function(newval) {
             // Update Window menu.
-            menusData[4].children.splice(0, menusData[4].children.length);
+            this.menus[4].children.splice(0, this.menus[4].children.length);
             this.setWindowMenuChildren(newval);
         },
         deep: true,
@@ -97,8 +94,9 @@ export default {
                 panel: panel,
                 action: panel.focus,
                 icon: panel.isFocussed ? 'fas fa-check' : '',
+                showIcon: true,
             };
-            menusData[4].children.push(menuData);
+            this.menus[4].children.push(menuData);
             window.vue.$watch(
                 function() {
                     return panel.isFocussed; 
@@ -108,20 +106,29 @@ export default {
                 }
             );
         }
+        this.menus[4].children.push('divider');
+        this.menus[4].children.push(
+            {
+                text: 'Close All',
+                showIcon: true,
+            }
+        );
     },    
     showGames() {
-      this.$store.commit('showPanel', {
-        type: 'games-panel',
-        w: 500,
-        h: 300,
-      });
+        this.showPanel('games-panel');
     },
     showSettings() {
-      this.$store.commit('showPanel', {
-        type: 'settings-panel',
-        w: 500,
-        h: 300,
-      });
+        this.showPanel('settings-panel');
+    },
+    showSessions() {
+        this.showPanel('sessions-panel');
+    },
+    showPanel(type) {
+        this.$store.commit('showPanel', {
+            type: type,
+            w: 500,
+            h: 300,
+        });
     }
   },
   mounted() {

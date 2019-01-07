@@ -20,12 +20,17 @@ export default new Vuex.Store({
     isMenuOpen: false,
     activeMenu: null,
     activePanel: null,
+
+    games: [],
+
     // After panels are mounted, they register here. Order determines z-index.
     panels: [],
+
     containerHeight: 5000,
     containerWidth: 5000,
     nextPanelXIncrement: 40,
     nextPanelYIncrement: 40,
+    nextPanelId: 0,
 
     // PERSISTENT SETTINGS
     // must be added to 'paths' option.
@@ -37,7 +42,6 @@ export default new Vuex.Store({
     // Coordinates of where to open panels.
     nextPanelX: 20,
     nextPanelY: 20,
-    nextPanelId: 0,
   },
   mutations: {
     addQueues(state, queues) {
@@ -51,6 +55,14 @@ export default new Vuex.Store({
       for (let q in apps) {
         state.apps.push(apps[q]);
       }
+    },
+    setPanelFocussed(state, panel) {
+      const panels = state.panels;
+      let curPos = panel.zIndex;
+      panels.splice(curPos, 1); 
+      panels.push(panel);
+      state.activePanel = panel;
+      state.isMenuOpen = false;
     },
     removePanel(state, panel) {
       for (let i=0; i<state.panelDescs.length; i++) {
@@ -70,6 +82,12 @@ export default new Vuex.Store({
       state.activePanel = panel;
       state.panels.push(panel);
     },
+    resetPanelIds(state) {
+      for (let i=0; i<state.panelDescs.length; i++) {
+        state.panelDescs[i].id = state.nextPanelId;
+        state.nextPanelId++;
+      }
+    },
     showPanel(state, panelInfo) {
       panelInfo.id = state.nextPanelId;
       if (state.nextPanelX + panelInfo.w > state.containerWidth) {
@@ -85,14 +103,18 @@ export default new Vuex.Store({
       state.nextPanelId++;
       state.panelDescs.push(panelInfo);
     },
+    setNextPanelId(state, val) {
+      state.nextPanelId = val;
+    },
     savePanelInfo(state, panel) {
+      console.log('save panel info');
       for (let i=0; i < state.panelDescs.length; i++) {
         let panelDesc = state.panelDescs[i];
         if (panelDesc.id === panel.panelId) {
-          panelDesc.x = panel.x;
-          panelDesc.y = panel.y;
-          panelDesc.w = panel.w;
-          panelDesc.h = panel.h;
+          panelDesc.x = panel.left;
+          panelDesc.y = panel.top;
+          panelDesc.w = panel.width;
+          panelDesc.h = panel.height;
           return;
         }
       }
