@@ -150,6 +150,7 @@ export default {
       stopMove() {
         document.documentElement.removeEventListener('mousemove', this.move);
         document.documentElement.removeEventListener('mouseup', this.stopMove);
+        this.$store.commit('savePanelInfo', this);
       },
 
     startResizeTL(ev) {

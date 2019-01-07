@@ -24,6 +24,8 @@ export default new Vuex.Store({
     panels: [],
     containerHeight: 5000,
     containerWidth: 5000,
+    nextPanelXIncrement: 40,
+    nextPanelYIncrement: 40,
 
     // PERSISTENT SETTINGS
     // must be added to 'paths' option.
@@ -33,8 +35,8 @@ export default new Vuex.Store({
     // Language items.
     appName: 'Game',
     // Coordinates of where to open panels.
-    nextPanelX: 25,
-    nextPanelY: 25,
+    nextPanelX: 20,
+    nextPanelY: 20,
     nextPanelId: 0,
   },
   mutations: {
@@ -78,10 +80,22 @@ export default new Vuex.Store({
       }
       panelInfo.x = state.nextPanelX;
       panelInfo.y = state.nextPanelY;
-      state.nextPanelX += 50;
-      state.nextPanelY += 50;
+      state.nextPanelX += state.nextPanelXIncrement;
+      state.nextPanelY += state.nextPanelYIncrement;
       state.nextPanelId++;
       state.panelDescs.push(panelInfo);
+    },
+    savePanelInfo(state, panel) {
+      for (let i=0; i < state.panelDescs.length; i++) {
+        let panelDesc = state.panelDescs[i];
+        if (panelDesc.id === panel.panelId) {
+          panelDesc.x = panel.x;
+          panelDesc.y = panel.y;
+          panelDesc.w = panel.w;
+          panelDesc.h = panel.h;
+          return;
+        }
+      }
     },
     togglePanelsMaximized(state) {
       state.panelsMaximized = !state.panelsMaximized;
