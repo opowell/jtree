@@ -1,5 +1,6 @@
 <template>
-  <span class="menu" @mousedown.prevent.stop @click.stop @mouseup.prevent.stop='click' @mouseover='hover' :class='{ "active": menu.isActive !== false, open: isOpen }'>
+  <div v-if='menu === "divider"' class="divider"></div>
+  <span v-else class="menu" @mousedown.prevent.stop @click.stop @mouseup.prevent.stop='click' @mouseover='hover' :class='{ "active": menu.isActive !== false, open: isOpen }'>
     <i v-show='menu.icon || menu.showIcon' :class='"icon " + menu.icon'></i>
     <div v-show='menu.text' class='text'>
       <div class='text-first'>{{firstLetter}}</div>
@@ -39,7 +40,6 @@ export default {
   },
   methods: {
     click: function(ev) {
-      console.log('click');
       if (this.menu.action != null) {
         this.menu.action(ev);
         this.$store.state.isMenuOpen = false;
@@ -56,6 +56,11 @@ export default {
 </script>
 
 <style scoped>
+.divider {
+  border-bottom: 1px solid;
+  color: #888;
+  margin: 2px 0px;
+}
 .icon {
   flex: 0 0 auto;
   padding: 5px;

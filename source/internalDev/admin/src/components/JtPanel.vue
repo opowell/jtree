@@ -115,12 +115,7 @@ export default {
             state.activePanel = this; // the jt-panel.
         },
         click() {
-            const panels = this.$store.state.panels;
-            let curPos = this.zIndex;
-            panels.splice(curPos, 1); 
-            panels.push(this);
-            this.$store.state.activePanel = this;
-            this.$store.state.isMenuOpen = false;
+            this.$store.commit('setPanelFocussed', this);
         },
 
       startMove(ev) {

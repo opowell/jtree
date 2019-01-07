@@ -7,6 +7,7 @@ const http      = require('http');
 const replace   = require("replace");
 const bodyParser = require("body-parser");
 const session   = require('express-session');
+const apiRoutes = require("./api-routes")
 // const history   = require('connect-history-api-fallback');
 
 /** Server for static files */
@@ -60,6 +61,11 @@ class StaticServer {
 
         // END FILE SERVING
         //////////////////////////////
+
+        //////////////////////////////
+        // DATA REQUESTS
+        //////////////////////////////
+        expApp.use('/api', apiRoutes)
 
         //////////////////////////////
         // REQUESTS
