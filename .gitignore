@@ -7,7 +7,6 @@ source/internal/clients/shared/shared.js
 source/internal/logs
 source/internal/serverState.json
 source/internal/settings.js
-source/node_modules/*
 source/queues
 source/sessions
 source/users

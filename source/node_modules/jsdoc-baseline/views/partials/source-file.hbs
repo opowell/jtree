@@ -1,0 +1,5 @@
+{{#if (config 'sourceFiles.generate')}}
+    {{#all meta meta.filename meta.lineno}}
+        <p {{~cssClass '!source-link'}}>{{translate 'source'}} {{linkToLine meta}}</p>
+    {{/all}}
+{{/if}}

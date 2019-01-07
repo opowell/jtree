@@ -1,0 +1,14 @@
+{{#any items}}
+    <div {{~cssClass '!summary-callout'}}>
+        {{#if headingKey}}
+            <h {{~cssClass '!summary-callout-heading'}}>{{translateHeading headingKey items}}</h>
+        {{/if}}
+        <div {{~cssClass '!summary-content'}}>
+            {{#each (group items 3)}}
+                {{#withOnly summaryGroup=this}}
+                    {{#embed 'summary-block-column'}}{{/embed}}
+                {{/withOnly}}
+            {{/each}}
+        </div>
+    </div>
+{{/any}}

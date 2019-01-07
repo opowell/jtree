@@ -1,0 +1,13 @@
+{{#any exceptions}}
+    <dt>{{translateHeading 'throws' exceptions}}</dt>
+    {{#each exceptions}}
+        <dd>
+            {{~#markdown~}}
+                {{~#all type type.parsedType~}}
+                    <code>{{describeType type.parsedType}}</code>&nbsp;
+                {{~/all~}}
+                {{~resolveLinks description~}}
+            {{~/markdown~}}
+        </dd>
+    {{/each}}
+{{/any}}
