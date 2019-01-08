@@ -65,3 +65,8 @@ if (jt.settings.openAdminOnStart) {
 //    opn('http://' + jt.staticServer.ip + ':' + jt.staticServer.port + '/admin');
     openurl.open('http://' + jt.staticServer.ip + ':' + jt.staticServer.port + '/admin');
 }
+
+// var exports = module.exports = jt;
+// exports.new = Data;
+
+// export default jt;

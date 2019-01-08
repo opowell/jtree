@@ -113,24 +113,6 @@ class Data {
         return out;
     }
 
-    getFolderContents(pathIn) {
-        let out = [];
-        var dir = path.join(this.jt.path, pathIn);
-        if (Utils.isDirectory(dir)) {
-            var dirContents = fs.readdirSync(dir);
-            for (var i in dirContents) {
-                var curPath = path.join(dir, appDirContents[i]);
-                out.push(
-                    {
-                        name: appDirContents[i],
-                        isFolder: fs.lstatSync(curPath).isDirectory()
-                    }
-                );
-            }
-        }
-        return out;
-    }
-
     getClients(sessionId) {
         let out = [];
         let session = this.getSession(sessionId);

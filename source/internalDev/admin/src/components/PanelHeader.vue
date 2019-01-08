@@ -1,14 +1,28 @@
 <template>
     <div class='panel-header no-text-select' @dblclick='restore'>
-        <menu-el :menu='{icon: "fa fa-align-center"}'></menu-el>
+        <menu-el :menu='{
+          icon: "fa fa-align-center",
+          hasParent: false,
+        }'></menu-el>
         <span class='title'>
           {{title}}
         </span>
         <menu-el v-for='menu in menus' :key='menu.text' :menu='menu'>
         </menu-el>
-        <menu-el :menu='{icon: "far fa-window-minimize"}'></menu-el>
-        <menu-el :menu='{icon: "far fa-window-restore", action: restore}'></menu-el>
-        <menu-el :menu='{icon: "far fa-window-close", action: close}'></menu-el>
+        <menu-el :menu='{
+          icon: "far fa-window-minimize",
+          hasParent: false,
+        }'></menu-el>
+        <menu-el :menu='{
+          icon: "far fa-window-restore",
+          action: restore,
+          hasParent: false,
+        }'></menu-el>
+        <menu-el :menu='{
+          icon: "far fa-window-close",
+          action: close,
+          hasParent: false,
+        }'></menu-el>
     </div>
 </template>
 
@@ -41,6 +55,7 @@ export default {
   display: flex;
   padding: 2px 1px;
   align-items: baseline;
+  flex: 0 0 auto;
 }
 .title {
   margin-left: 3px;

@@ -12,6 +12,7 @@ export default new Vuex.Store({
       'appName',
       'nextPanelX',
       'nextPanelY',
+      'fontSize',
     ],
   })],
   state: {
@@ -42,6 +43,7 @@ export default new Vuex.Store({
     // Coordinates of where to open panels.
     nextPanelX: 20,
     nextPanelY: 20,
+    fontSize: '10pt',
   },
   mutations: {
     addQueues(state, queues) {

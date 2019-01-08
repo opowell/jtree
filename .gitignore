@@ -3,7 +3,8 @@
 build-tools/7z.dll
 build-tools/7z.exe
 desktop.ini
-source/internal/clients/admin/vue
+.\source\internal\clients\admin\vue\app.js
+source\internal\clients\admin\vue
 source/internal/clients/shared/shared.js
 source/internal/logs
 source/internal/serverState.json
