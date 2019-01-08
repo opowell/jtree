@@ -18,6 +18,7 @@
     "ip": "^1.1.5",
     "jsonfile": "^4.0.0",
     "node": "^11.4.0",
+    "nodemon": "^1.18.9",
     "object-hash": "^1.2.0",
     "openport": "^0.0.4",
     "openurl": "^1.1.1",

@@ -6,24 +6,38 @@ const Utils     = require('../Utils.js');
 // const jt        = require('../jtree.js')
 
 let router = require('express').Router();
-// Set default API response
-router.get('/test', function (req, res) {
-    res.json(
-        [      {
-            id: 'Game1',
-            description: 'this is game 1',
-          },
-          {
-            id: 'Game2',
-            description: 'this is game 2',
-          },
-          {
-            id: 'Game3',
-            description: 'this is game 3',
-          },
-    ]
-    );
+
+router.get('/files', function (req, res) {
+
+    var jt = {};
+    if (process.argv[0].indexOf('node') > -1) {
+      jt.path         = process.cwd();
+  } else {
+      jt.path         = path.dirname(process.execPath);
+  }
+  
+    var dir = path.join(jt.path, 'apps');
+    let out = getNodes(dir);
+    res.json(out);
 });
+
+function getNodes(dir) {
+    let out = [];
+    var dirContents = fs.readdirSync(dir);
+    for (var i in dirContents) {
+        var curPath = path.join(dir, dirContents[i]);
+        let node = {
+            title: dirContents[i],
+            isLeaf: fs.lstatSync(curPath).isFile(),
+            isExpanded: false,
+        };
+        if (!node.isLeaf) {
+            node.children = getNodes(curPath);
+        }
+        out.push(node);
+    }
+    return out;
+}
 
 router.get('/games', function (req, res) {
     let out = [];

@@ -17,6 +17,7 @@
 
 <script>
 import MainMenu from '@/components/MainMenu.vue'
+import FilesPanel from '@/components/FilesPanel.vue'
 import GamesPanel from '@/components/GamesPanel.vue'
 import SessionsPanel from '@/components/SessionsPanel.vue'
 import SettingsPanel from '@/components/SettingsPanel.vue'
@@ -25,6 +26,7 @@ export default {
   name: 'home',
   components: {
     MainMenu,
+    FilesPanel,
     GamesPanel,
     SessionsPanel,
     SettingsPanel,
@@ -91,6 +93,72 @@ body {
         -ms-user-select: none; /* Internet Explorer/Edge */
             user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome and Opera */
+}
+
+.sl-vue-tree {
+    position: relative;
+    cursor: default;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none;
+}
+
+.sl-vue-tree-root > .sl-vue-tree-nodes-list {
+    overflow: hidden;
+    position: relative;
+    padding-bottom: 4px;
+}
+
+.sl-vue-tree-selected > .sl-vue-tree-node-item {
+    background-color: rgba(100, 100, 255, 0.5);
+}
+
+.sl-vue-tree-node-list {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+}
+
+.sl-vue-tree-node-item {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+}
+.sl-vue-tree-node-item.sl-vue-tree-cursor-inside {
+    outline: 1px solid rgba(100, 100, 255, 0.5);
+}
+
+.sl-vue-tree-gap {
+    width: 20px;
+    min-height: 1px;
+
+}
+
+.sl-vue-tree-sidebar {
+    margin-left: auto;
+}
+
+.sl-vue-tree-cursor {
+    position: absolute;
+    border: 1px solid rgba(100, 100, 255, 0.5);
+    height: 1px;
+    width: 100%;
+}
+
+.sl-vue-tree-drag-info {
+    position: absolute;
+    background-color: rgba(0,0,0,0.5);
+    opacity: 0.5;
+    margin-left: 20px;
+    margin-bottom: 20px;
+    padding: 5px 10px;
+}
+
+.sl-vue-tree-toggle {
+  width: 50px;
 }
 
 </style>
