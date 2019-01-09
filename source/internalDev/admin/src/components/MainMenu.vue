@@ -85,12 +85,14 @@ export default {
     },
 ],
           panelDescs: this.$store.state.panelDescs,
-          menuBGColor: "rgb(251, 251, 251)",
+          menuBGColor: "rgb(90, 90, 90)",
+          menuColor: 'rgb(185, 185, 185)',
       }
   },
   computed: {
       mainMenuStyle() { return {
           'background-color': this.menuBGColor,
+          'color': this.menuColor,
       }}
   },
   watch: {
@@ -132,7 +134,28 @@ export default {
                 showIcon: true,
             }
         );
-    },  
+        this.menus[4].children.push(
+            {
+                text: 'Split horizontally',
+                action: this.splitMultiPanel,
+                clickData: 'horizontal',
+                showIcon: true,
+            }
+        );
+        this.menus[4].children.push(
+            {
+                text: 'Split vertically',
+                action: this.splitMultiPanel,
+                clickData: 'vertical',
+                showIcon: true,
+            }
+        );
+    },
+    splitMultiPanel(direction) {
+        const panel = this.$store.state.activePanel;
+        console.log(direction);
+        panel.splitOff(0);
+    },
     showMultiPanel() {
         this.showPanel('multi-panel');
     },
@@ -177,10 +200,16 @@ export default {
     padding: 0px 7px;
 }
 
-.main-menu .menu:hover {
+
+/* zTree
+ .main-menu .menu:hover {
     background-color:rgba(0, 123, 255, 0.13);
     color: #000;
     border-color: rgba(0, 123, 255, 0.26);
+} */
+
+.main-menu .menu:hover {
+    background-color:rgb(109, 109, 109);
 }
 
 </style>

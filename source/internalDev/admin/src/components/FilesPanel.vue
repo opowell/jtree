@@ -115,6 +115,7 @@ library.add(faJs, faCaretRight, faCaretDown, faTable, faImage, faFile, faCircle,
         },
         nodeDoubleClick(node, event) {
             // console.log(`nodeDoubleClick ${node.title} ${node.data.type} isLeaf ${node.isLeaf} ${util.inspect(node)}`);
+            event.preventDefault();
             if (!node.isLeaf) {
                 this.nodes[node.path].isExpanded = !this.nodes[node.path].isExpanded;
                 // this.$refs.slvuetree.onToggleHandler(event, node);

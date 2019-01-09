@@ -52,7 +52,7 @@ export default {
   methods: {
     click: function(ev) {
       if (this.menu.action != null) {
-        this.menu.action(ev);
+        this.menu.action(this.menu.clickData, ev);
         this.$store.state.isMenuOpen = false;
       } else {
         this.$store.state.activeMenu = this;
@@ -99,7 +99,6 @@ export default {
   background-color: #EEE;
 } */
 .menu.open {
-    border-color: rgb(123, 206, 153);
     box-shadow: none;
     outline: none;
 }
