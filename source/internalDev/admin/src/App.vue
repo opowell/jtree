@@ -17,6 +17,7 @@
 
 <script>
 import MainMenu from '@/components/MainMenu.vue'
+import MultiPanel from '@/components/MultiPanel.vue'
 import FilesPanel from '@/components/FilesPanel.vue'
 import GamesPanel from '@/components/GamesPanel.vue'
 import SessionsPanel from '@/components/SessionsPanel.vue'
@@ -26,6 +27,7 @@ export default {
   name: 'home',
   components: {
     MainMenu,
+    MultiPanel,
     FilesPanel,
     GamesPanel,
     SessionsPanel,

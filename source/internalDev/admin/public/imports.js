@@ -11,10 +11,10 @@ document.write('<script src="/shared/object_hash.js"></script>');
 document.write('<script src="/shared/chartjs/Chart.bundle.min.js"></script>');
 document.write('<script src="/shared/ace/ace2.js" type="text/javascript" charset="utf-8"></script>');
 document.write('<script src="/shared/js.cookie.js"></script>');
-document.write('<script src="/shared/vue.js"></script>');
+// document.write('<script src="/shared/vue.js"></script>');
 document.write('<script src="/shared/webcomponents-bundle.js"></script>');
 document.write('<script src="/shared/polyfill.min.js"></script>');
-document.write('<script src="/shared/bootstrap-vue.js"></script>');
+// document.write('<script src="/shared/bootstrap-vue.js"></script>');
 
 
 // INTERNAL LIBRARIES
