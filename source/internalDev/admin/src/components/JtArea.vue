@@ -1,29 +1,19 @@
+
 <template>
     <div v-if='areas.length < 1' class='area'>
         <div class='tabs'>
             <div style='display: flex'>
                 <menu-el :menu='{
-                    icon: "fas fa-exchange-alt",
-                    action: toggleSplitDirection,
+                    icon: "fa fa-align-center",
                     hasParent: false,
-                }' />
-                <menu-el :menu='{
-                    icon: "fas fa-times",
-                    action: closeSelf,
-                    hasParent: false,
-                }' />
-                <menu-el :menu='{
-                    icon: "fas fa-arrow-left",
-                    action: sendPanelsToPreviousSibling,
-                    hasParent: false,
-                }' />
+                }'></menu-el>
             </div>
             <span 
-                v-for='panel in panels'
-                :key='panel.id'
+                v-for='(panel, index) in panels'
+                :key='index'
                 class='tab'
                 :class='{"selected": isSelected(panel)}'
-                @click='setActivePanel(panel)'
+                @click='setActivePanelIndex(index)'
             >
                 {{panel.id}}
                 <span style='width: 20px; display: flex; margin-left: 5px;'>
@@ -35,14 +25,35 @@
                     />
                 </span>
             </span>
-            <span class='tab spacer'>
-            </span>
+            <jt-spacer
+             @mousedown.native.prevent='startMove'
+            />
+            <menu-el :menu='{
+            icon: "far fa-window-minimize",
+            hasParent: false,
+            }'></menu-el>
+            <menu-el :menu='{
+            icon: "far fa-window-restore",
+            action: restore,
+            hasParent: false,
+            }'></menu-el>
+            <menu-el :menu='{
+            icon: "far fa-window-close",
+            action: close,
+            hasParent: false,
+            }'></menu-el>
         </div>
         <div class='action-bar'>
                 <menu-el :menu='{
-                    icon: "fas fa-times",
-                    action: closeActivePanel,
-                    clickData: area,
+                    icon: "fas fa-angle-double-right",
+                    action: createChild,
+                    clickData: "horizontal",
+                    hasParent: false,
+                }' />
+                <menu-el :menu='{
+                    icon: "fas fa-angle-double-down",
+                    action: createChild,
+                    clickData: "vertical",
                     hasParent: false,
                 }' />
                 <menu-el :menu='{
@@ -65,8 +76,10 @@
         '>
         <template v-for='(area, index) in areas' >
             <jt-area
+                ref='area-{{index}}'
                 :key='"area-" + index'
                 :area='area'
+                @startmove='startMove'
             />
             <div 
                 v-if='index < areas.length - 1'
@@ -81,6 +94,11 @@
 import PanelOne from './PanelOne.vue';
 import PanelTwo from './PanelTwo.vue';
 import MenuEl from './MenuEl.vue';
+import JtSpacer from './JtSpacer.vue';
+// import FilesPanel from '@/components/FilesPanel.vue'
+// import GamesPanel from '@/components/GamesPanel.vue'
+// import SessionsPanel from '@/components/SessionsPanel.vue'
+// import SettingsPanel from '@/components/SettingsPanel.vue'
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import {
@@ -94,10 +112,15 @@ library.add(faJs, faCaretRight, faCaretDown, faTable, faImage, faFile, faCircle,
 export default {
   name: 'JtArea',
   components: {
+      JtSpacer,
       MenuEl,
       PanelOne,
       PanelTwo,
-      'font-awesome-icon': FontAwesomeIcon
+      'font-awesome-icon': FontAwesomeIcon,
+    // FilesPanel,
+    // GamesPanel,
+    // SessionsPanel,
+    // SettingsPanel,
   },
   props: [
       'area',
@@ -106,11 +129,20 @@ export default {
       return {
         areas: [],
         panels: this.area.panels,
-        activePanel: this.area.panels[0],
-        splitDirection: 'horizontal', // or "vertical"
+        activePanelInd: 0,
+        splitDirection: 'horizontal', // or "vertical",
+        headerClicks: 0,
+        headerClickDelay: 300,
       }
   },
   computed: {
+      activePanel() {
+          if (this.activePanelInd < 0 || this.panels == null || this.activePanelInd >= this.panels.length) {
+              return null;
+          } else {
+            return this.panels[this.activePanelInd];
+          }
+      },
       isSplitVertical() {
           return this.splitDirection === 'vertical';
       },
@@ -127,7 +159,7 @@ export default {
           return this === this.$store.state.activePanel;
       },
       isMaximized() {
-          return this.$store.state.panelsMaximized;
+          return this.$store.state.windowsMaximized;
       },
       zIndex() {
             const panels = this.$store.state.panels;
@@ -163,6 +195,35 @@ export default {
   },
 
   methods: {
+      startMove(ev) {
+          console.log('start move');
+          this.$emit('startmove', ev);
+      },
+        restore() {
+            this.$store.commit('toggleWindowsMaximized');
+        },
+        close() {
+
+        },
+      createChild(dir) {
+          this.splitDirection = dir;
+          let curActivePanel = this.panels.splice(this.activePanelInd, 1)[0];
+          let firstChildArea = {
+              panels: this.panels,
+              parent: this,
+          };
+          let numPanels = this.panels.length;
+          for (let i=0; i<numPanels; i++) {
+              let panel = this.panels.splice(0, 1)[0];
+              firstChildArea.panels.push(panel);
+          }
+          this.areas.push(firstChildArea);
+          this.areas.push({
+              panels: [curActivePanel],
+              parent: this,
+          });
+          this.activePanelInd = 0;
+      },
       closeActivePanel(area) {
           this.closePanel({
               area: area, 
@@ -200,8 +261,8 @@ export default {
     isSelected(panel) {
       return this.activePanel === panel;
     },
-    setActivePanel(panel) {
-      this.activePanel = panel;
+    setActivePanelIndex(index) {
+      this.activePanelInd = index;
     },
     // eslint-disable-next-line
     sendPanelsToPreviousSibling(area) {
@@ -230,7 +291,7 @@ export default {
           panel,
         ],
       });
-      this.closePanel({area, panel});
+    //   this.closePanel({area, panel});
     },
     splitOff(index) {
       let area = this.areas[index];
@@ -265,7 +326,7 @@ export default {
     },
     toggleMaximized() {
       const state = this.$store.state;
-      state.panelsMaximized = !state.panelsMaximized;
+      state.windowsMaximized = !state.windowsMaximized;
       state.activePanel = this; // the jt-panel.
     },
     click() {
@@ -276,111 +337,6 @@ export default {
 </script>
 
 <style scoped>
-.panel {
-    background-color: #d5dce8;
-    display: none; /* must be explicitly displayed using "active" class */
-    flex-direction: column;
-    position: absolute;
-    border: 1px outset #ddd;
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
-    border-bottom-left-radius: 1px;
-    border-bottom-right-radius: 1px;
-    width: 800px;
-    height: 400px;
-    top: 100px;
-    left: 100px;
-}
-
-.panel.focussed {
-    background-color: #9ec1de;
-}
-
-.handle {
-  background-color: inherit;
-  border-style: outset;
-  border-width: 0px;
-  margin: 0px;
-  display: block;
-  width: 7px;
-  height: 7px;
-  border-color: #dae1e7;
-  position: absolute;
-}
-
-.handle-tl {
-  border-top-left-radius: 5px;
-  border-top: 1px outset;
-  border-left: 1px outset;
-    top: -5px;
-    left: -5px;
-    cursor: nwse-resize;
-}
-
-.handle-tc {
-  border-top: 1px outset;
-    width: calc(100% - 4px);
-    left: 2px;
-    top: -5px;
-    cursor: ns-resize;
-}
-
-.handle-tr {
-  border-top: 1px outset;
-  border-right: 1px outset;
-  border-top-right-radius: 5px;
-    right: -5px;
-    top: -5px;
-        cursor: nesw-resize;
-
-}
-
-.handle-ml {
-    border-left: 1px outset;
-    height: calc(100% - 4px);
-    top: 2px;
-    left: -5px;
-    cursor: ew-resize;
-}
-
-.handle-mr {
-    border-right: 1px outset;
-    height: calc(100% - 4px);
-    top: 2px;
-    right: -5px;
-    cursor: ew-resize;
-}
-
-.handle-bl {
-  border-left: 1px outset;
-  border-bottom: 1px outset;
-  border-bottom-left-radius: 5px;
-  bottom: -5px;
-  left: -5px;
-  cursor: nesw-resize;
-}
-
-.handle-bc {
-    width: calc(100% - 4px);
-    left: 2px;
-  bottom: -5px;
-  border-bottom: 1px outset;
-    cursor: ns-resize;
-}
-
-.handle-br {
-  right: -5px;
-  bottom: -5px;
-  border-right: 1px outset;
-  border-bottom: 1px outset;
-  border-bottom-right-radius: 5px;
-  cursor: nwse-resize;
-}
-
-.maxed > .handle {
-    display: none;
-}
-
 .active {
     display: flex;
 }
@@ -388,11 +344,11 @@ export default {
 .tabs {
     display: flex;
     flex: 0 0 auto;
+    color: #CCC;
 }
 
 .tab {
-    background-color: #CCC;
-    border-bottom: 1px solid #888;
+    background-color: #888;
     padding-top: 5px;
     padding-bottom: 5px;
     padding-left: 25px;
@@ -403,17 +359,21 @@ export default {
 }
 
 .tab:hover {
-    background-color: #DDD;
+    color: #fff;
 }
 
 .tab.selected {
-    background-color: #FFF;
-    border-bottom-color: #FFF;
+    background-color: #AAA;
+    border-bottom-color: #AAA;
+    color: #fff;
 }
 
 .tab.spacer {
     flex: 1 1 auto;
-    background-color: #888;
+    background-color: transparent;
+    border-right-width: 0px;
+    padding: 0px;
+    margin: 0px;
 }
 
 .content {
@@ -431,19 +391,18 @@ export default {
 
 .areas {
     display: flex;
-    flex: 1 1 auto;
+    flex: 1 1 300px;
 }
 
 .area {
-    flex: 1 1 auto;
+    flex: 1 1 300px;
     display: flex;
     flex-direction: column;
-    flex-basis: 300px;
 }
 
 .adjuster {
     background-color: #dadada;
-    flex-basis: 1px;
+    flex: 0 0 1px;
 }
 
 .closeButton {

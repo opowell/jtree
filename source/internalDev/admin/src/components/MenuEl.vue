@@ -148,7 +148,7 @@ export default {
     box-shadow: none;
     display: flex;
     padding: 4px 3px;
-    flex: 1 1 auto;
+    flex: 1 0 auto;
 }
 
 .dropdown {

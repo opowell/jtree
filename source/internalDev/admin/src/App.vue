@@ -3,14 +3,19 @@
     <MainMenu/>
     <!-- <router-view/> -->
     <div class='panel-container'>
-      <component
+      <!-- <component
         v-for='el in elements'
         :is='el.type'
         :key='el.panelId'
         :panelId='el.id'
         :x='el.x' :y='el.y' :w='el.w' :h='el.h'
         >
-      </component>
+      </component> -->
+      <multi-panel
+        v-for='(window, index) in windows'
+        :window='window' :key='index'
+        >
+      </multi-panel>
     </div>
   </div>
 </template>
@@ -18,20 +23,12 @@
 <script>
 import MainMenu from '@/components/MainMenu.vue'
 import MultiPanel from '@/components/MultiPanel.vue'
-import FilesPanel from '@/components/FilesPanel.vue'
-import GamesPanel from '@/components/GamesPanel.vue'
-import SessionsPanel from '@/components/SessionsPanel.vue'
-import SettingsPanel from '@/components/SettingsPanel.vue'
 
 export default {
   name: 'home',
   components: {
     MainMenu,
     MultiPanel,
-    FilesPanel,
-    GamesPanel,
-    SessionsPanel,
-    SettingsPanel,
   },
   beforeMount() {
     this.$store.commit('resetPanelIds');
@@ -39,6 +36,7 @@ export default {
   data() {
     return {
       elements: this.$store.state.panelDescs,
+      windows: this.$store.state.windowDescs,
     }
   },
   methods: {
@@ -56,7 +54,7 @@ export default {
   mounted() {
     let container = document.querySelector('.panel-container');
     this.$store.commit('setContainerDimensions', container);
-    this.$store.commit('setNextPanelId', this.elements.length);
+    // this.$store.commit('setNextPanelId', this.elements.length);
     // this.parentElement = this.$el.parentNode.parentNode; // the panel container.
     // this.parentWidth = this.parentElement.clientWidth - 5;
     // this.parentHeight = this.parentElement.clientHeight - 5;
