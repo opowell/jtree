@@ -110,6 +110,7 @@ export default {
         text: 'Window',
         hasParent: false,
         children: [],
+        showIcon: true,
     },
 ],
           windowDescs: this.$store.state.windowDescs,
@@ -151,7 +152,6 @@ export default {
                 panel: panel,
                 action: panel.focus,
                 icon: panel.isFocussed ? 'fas fa-check' : '',
-                showIcon: true,
                 shortcut: 'Ctrl+' + (i+1),
             };
             this.menus[4].children.push(menuData);
@@ -168,7 +168,6 @@ export default {
         this.menus[4].children.push(
             {
                 text: 'Close All',
-                showIcon: true,
             }
         );
         this.menus[4].children.push(
@@ -176,7 +175,6 @@ export default {
                 text: 'Split horizontally',
                 action: this.splitMultiPanel,
                 clickData: 'horizontal',
-                showIcon: true,
             }
         );
         this.menus[4].children.push(
@@ -184,7 +182,6 @@ export default {
                 text: 'Split vertically',
                 action: this.splitMultiPanel,
                 clickData: 'vertical',
-                showIcon: true,
             }
         );
     },

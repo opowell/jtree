@@ -1,7 +1,7 @@
 <template>
   <div v-if='menu === "divider"' class="divider"></div>
   <span v-else class="menu" @mousedown.prevent.stop @click.stop @mouseup.prevent.stop='click' @mouseover='hover' :class='{ "active": menu.isActive !== false, open: isOpen }'>
-    <i v-show='menu.icon || menu.showIcon' :class='"icon " + menu.icon'></i>
+    <i v-show='menu.icon || showIcon' :class='"icon " + menu.icon'></i>
     <div v-show='menu.text' class='text'>
       <div class='text-first'>{{firstLetter}}</div>
       <div class='text-rest'>{{rest}}</div>
@@ -9,7 +9,7 @@
     <div v-show="hasParent" class="shortcut">{{menu.shortcut}}</div>
     <div v-show='showArrow' class="arrow">&lt;</div>
     <div v-show='menu.children' class="dropdown" :class='{ open: isOpen}'>
-      <menu-el v-for="item in menu.children" :menu='item' :key='item.id'></menu-el>
+      <menu-el v-for="item in menu.children" :menu='item' :showIcon='menu.showIcon' :key='item.id'></menu-el>
     </div>
   </span>
 </template>
@@ -18,7 +18,8 @@
 export default {
   name: 'MenuEl',
   props: [
-    'menu'
+    'menu',
+    'showIcon',
   ],
   computed: {
     hasParent() {
