@@ -19,7 +19,7 @@
                 <span style='width: 20px; display: flex; margin-left: 5px;'>
                     <font-awesome-icon
                         class='closeButton'
-                        @click.stop='closePanel({area, panel})'
+                        @click.stop='closePanel(index)'
                         icon="times"
                         style='width: 20px'
                     />
@@ -74,12 +74,15 @@
             "split-horizontal": isSplitHorizontal,
             "split-vertical": isSplitVertical,}
         '>
-        <template v-for='(area, index) in areas' >
+        <template v-for='(curArea, index) in areas' >
             <jt-area
-                ref='area-{{index}}'
                 :key='"area-" + index'
-                :area='area'
+                :areaProp='curArea'
+                :parent='area'
+                :window='window'
+                :indexOnParent='index'
                 @startmove='startMove'
+                :activePanelInd='curArea.activePanelInd'
             />
             <div 
                 v-if='index < areas.length - 1'
@@ -123,19 +126,39 @@ export default {
     // SettingsPanel,
   },
   props: [
-      'area',
+      'areaProp',
+      'parent',
+      'window',
+      'indexOnParent',
+      'activePanelInd',
   ],
   data() {
       return {
-        areas: [],
-        panels: this.area.panels,
-        activePanelInd: 0,
-        splitDirection: 'horizontal', // or "vertical",
-        headerClicks: 0,
-        headerClickDelay: 300,
+        area: {
+            panels: this.areaProp.panels,
+            areas: this.areaProp.areas,  
+            indexOnParent: this.indexOnParent,
+        },
       }
   },
+  mounted() {
+      this.area.parent = this.parent;
+      this.area.window = this.window;
+  },
   computed: {
+      panels() {
+          return this.area.panels;
+      },
+      areas() {
+        return this.area.areas;
+      },
+        splitDirection() {
+          if (this.area.splitDirection != null) {
+              return this.area.splitDirection;
+          } else {
+              return 'horizontal'; // or "vertical",
+          }
+      },
       activePanel() {
           if (this.activePanelInd < 0 || this.panels == null || this.activePanelInd >= this.panels.length) {
               return null;
@@ -149,48 +172,10 @@ export default {
       isSplitHorizontal() {
           return this.splitDirection === 'horizontal';
       },
-      isSplit() {
-          return this.isSplitVertical || this.isSplitHorizontal;
-      },
-      isActive() {
-          return !this.isMaximized || this === this.$store.state.activePanel;
-      },
-      isFocussed() {
-          return this === this.$store.state.activePanel;
-      },
-      isMaximized() {
-          return this.$store.state.windowsMaximized;
-      },
-      zIndex() {
-            const panels = this.$store.state.panels;
-            for (var i=0; i < panels.length; i++) { 
-                if (panels[i].panelId === this.panelId) {
-                    return i; 
-                }
-            }
-            return -1;
-      },
     style() {
-        if (this.isMaximized) {
             return {
-                position: 'unset',
-                width: 'auto',
-                height: 'auto',
-                flex: '1 1 auto',
-                'box-shadow': 'none',
-                border: 'none',
                 'flex-direction': this.flexDirection,
             }
-        } else {
-            return {
-                top: this.top + 'px',
-                left: this.left + 'px',
-                width: this.width + 'px',
-                height: this.height + 'px',
-                zIndex: this.zIndex,
-                'flex-direction': this.flexDirection,
-            }
-        }
     },
   },
 
@@ -202,47 +187,71 @@ export default {
         restore() {
             this.$store.commit('toggleWindowsMaximized');
         },
+    setActivePanelIndex(index) {
+            let areaPath = [];
+            let curArea = this.area;
+            while (curArea.parent != null) {
+                areaPath.unshift(curArea.indexOnParent);
+                curArea = curArea.parent;
+            }
+            this.$store.commit('setActivePanelIndex', {
+                index,
+                areaPath,
+                window: this.window,
+            });
+        },
         close() {
+            let areaPath = [];
+            let curArea = this.area;
+            while (curArea.parent != null) {
+                areaPath.unshift(curArea.indexOnParent);
+                curArea = curArea.parent;
+            }
 
+            this.$store.commit('closeArea', {
+                areaPath,
+                window: this.window,
+            });
         },
       createChild(dir) {
-          this.splitDirection = dir;
-          let curActivePanel = this.panels.splice(this.activePanelInd, 1)[0];
-          let firstChildArea = {
-              panels: this.panels,
-              parent: this,
-          };
-          let numPanels = this.panels.length;
-          for (let i=0; i<numPanels; i++) {
-              let panel = this.panels.splice(0, 1)[0];
-              firstChildArea.panels.push(panel);
-          }
-          this.areas.push(firstChildArea);
-          this.areas.push({
-              panels: [curActivePanel],
-              parent: this,
-          });
-          this.activePanelInd = 0;
-      },
-      closeActivePanel(area) {
-          this.closePanel({
-              area: area, 
-              panel: area.activePanel
+          let areaPath = [];
+            let curArea = this.area;
+            while (curArea.parent != null) {
+                for (let i=0; i<curArea.parent.areas.length; i++) {
+                    if (curArea.parent.areas[i] === curArea) {
+                        areaPath.unshift(i);
+                        break;
+                    }
+                }
+                curArea = curArea.parent;
+            }
+            this.$store.commit('createChild', {
+              splitDirection: dir,
+              areaPath,
+              window: this.window,
+              activePanelInd: this.activePanelInd,
           });
       },
-    closePanel({area, panel}) {
-      for (let i=0; i<area.panels.length; i++) {
-        if (area.panels[i] === panel) {
-          area.panels.splice(i, 1);
-          if (area.panels.length < 1) {
-              this.closeArea(area);
-          } else if (panel === area.activePanel) {
-            let nextIndex = Math.max(0, i-1);
-            area.activePanel = area.panels[nextIndex];
-          }
-          break;
-        }
-      }
+      closeActivePanel() {
+          this.closePanel(this.activePanelInd);
+      },
+    closePanel(index) {
+            let areaPath = [];
+            let curArea = this.area;
+            while (curArea.parent != null) {
+                for (let i=0; i<curArea.parent.areas.length; i++) {
+                    if (curArea.parent.areas[i] === curArea) {
+                        areaPath.unshift(i);
+                        break;
+                    }
+                }
+                curArea = curArea.parent;
+            }
+        this.$store.commit('closePanel', {
+            panelIndex: index,
+            areaPath: areaPath,
+            window: this.window,
+        });
     },
     closeArea(area) {
         for (let i=0; i<this.areas.length; i++) {
@@ -260,9 +269,6 @@ export default {
     },
     isSelected(panel) {
       return this.activePanel === panel;
-    },
-    setActivePanelIndex(index) {
-      this.activePanelInd = index;
     },
     // eslint-disable-next-line
     sendPanelsToPreviousSibling(area) {
