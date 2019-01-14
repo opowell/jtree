@@ -76,12 +76,12 @@
                 :class='{"selected": isSelected(panel)}'
                 @mousedown='setActivePanelIndex(index)'
                 draggable="true"
-                @dragstart='dragStart(index, $event)'
+                @dragstart='dragStart(index)'
                 @dragleave="dragLeaveTab"
                 @drop='dropOnTab(index, $event)'
                 @dragover='dragOver'
+                @dragenter="dragEnterTab(index, $event)"
             >
-                <!-- @dragenter="dragEnterTab(index, $event)" -->
                 {{panel.id}}
                 <span style='width: 20px; display: flex; margin-left: 5px;'>
                     <font-awesome-icon
@@ -93,11 +93,9 @@
                 </span>
             </span>
             <jt-spacer
-                @mousedown.native.prevent='startMove'
-                @dragenter="dragEnterTab(null, $event)"
-                @dragleave="dragLeaveTab"
-                @drop='dropOnTab(null, $event)'
-                @dragover='dragOver'
+                @mousedown.native='startMove'
+                :window='window'
+                :area='area'
             />
         </div>
         <div class='action-bar'>
@@ -239,38 +237,50 @@ export default {
   },
 
   methods: {
-        dragStart(index, ev) {
+        dragStart(index) {
             this.$store.state.dragData = {
                 windowId: this.window.id,
                 areaPath: this.areaPath,
                 index,
             }
-            ev.dataTransfer.setData("sourceWindowId", this.window.id);
-            ev.dataTransfer.setData("sourceAreaPath", this.areaPath);
-            ev.dataTransfer.setData("sourcePanelIndex", index);
-            console.log('start drag: ' + JSON.stringify(ev.dataTransfer.getData('sourceAreaPath')));
         },
         dropOnTab(index, ev) {
             ev.preventDefault();
-            this.$store.dispatch('dropOnTab', {
-                sourceWindowId: ev.dataTransfer.getData("sourceWindowId"),
-                sourceAreaPath: ev.dataTransfer.getData("sourceAreaPath").split(','),
-                sourcePanelIndex: ev.dataTransfer.getData("sourcePanelIndex"),
-                targetWindowId: this.window.id,
-                targetAreaPath: this.areaPath,
-                targetIndex: index,
-            });
+            ev.target.classList.remove('highlight');
+            let targetData = {
+                windowId: this.window.id,
+                areaPath: this.areaPath,
+                index,
+            };
+            let same = this.samePanel(this.$store.state.dragData, targetData);
+            if (same === false) {
+                this.$store.dispatch('dropOnTab', {
+                    sourceWindowId: this.$store.state.dragData.windowId,
+                    sourceAreaPath: this.$store.state.dragData.areaPath,
+                    sourcePanelIndex: this.$store.state.dragData.index,
+                    targetWindowId: this.window.id,
+                    targetAreaPath: this.areaPath,
+                    targetIndex: index,
+                });
+            }
         },
         dragOver(ev) {
             ev.preventDefault();
         },
+        samePanel(panel1Data, panel2Data) {
+            let out = (panel1Data.windowId === panel2Data.windowId &&
+                panel1Data.areaPath === panel2Data.areaPath && 
+                panel1Data.index === panel2Data.index);
+            return out;
+        },
         dragEnterTab(index, ev) {
-            console.log('drag enter');
-            let samePanel =                 
-                this.window.id === this.$store.state.dragData.windowId &&
-                this.areaPath === this.$store.state.dragData.areaPath && 
-                index === this.$store.state.dragData.index;
-            if (!samePanel) {
+            let targetData = {
+                windowId: this.window.id,
+                areaPath: this.areaPath,
+                index,
+            };
+            let samePanel = this.samePanel(this.$store.state.dragData, targetData);
+            if (samePanel === false) {
                 let el = ev.target;
                 el.classList.add('highlight');
             }
@@ -381,7 +391,7 @@ export default {
         this.$store.commit('closePanel', {
             panelIndex: index,
             areaPath: this.areaPath,
-            window: this.window.id,
+            windowId: this.window.id,
         });
     },
     closeArea(area) {
@@ -465,8 +475,8 @@ export default {
 }
 
 .tab.selected {
-    background-color: #AAA;
-    border-bottom-color: #AAA;
+    background-color: #353535;
+    border-bottom-color: #353535;
     color: #fff;
 }
 
@@ -479,9 +489,10 @@ export default {
 }
 
 .content {
-    background-color: #FFF;
+    background-color: #353535;
+    color: #CCC;
     flex: 1 1 auto;
-    overflow: scroll;
+    overflow: auto;
 }
 
 .flex-direction-column {

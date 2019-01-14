@@ -37,6 +37,7 @@ export default {
 	props: [
 		'window',
 		'activePanelInd',
+		'index',
 	],
 	data() {
 		return {
@@ -70,11 +71,15 @@ export default {
 			resizeStartY: null,
 			moveStartX: null,
 			moveStartY: null,
-			parentHeight: null,
-			parentWidth: null
 		};
 	},
 	computed: {
+		parentWidth() {
+			return this.$store.state.containerWidth;
+		},
+		parentHeight() {
+			return this.$store.state.containerHeight;
+		},
 		flex() {
 			return this.window.flex;
 		},
@@ -101,9 +106,9 @@ export default {
 		},
 		bgColor() {
 			if (this.isFocussed) {
-				return this.$store.state.panelFocussedBGColor;
+				return this.$store.state.windowFocussedBGColor;
 			} else {
-				return this.$store.state.panelBGColor;
+				return this.$store.state.windowBGColor;
 			}
 		},
 		style() {
@@ -174,7 +179,7 @@ export default {
 		stopMove() {
 			document.documentElement.removeEventListener('mousemove', this.move);
 			document.documentElement.removeEventListener('mouseup', this.stopMove);
-			this.$store.commit('savePanelInfo', this);
+			this.$store.commit('saveWindowInfo', this);
 		},
 
 		startResizeTL(ev) {
@@ -207,10 +212,8 @@ export default {
 		},
 		stopResizeTL() {
 			document.documentElement.removeEventListener('mousemove', this.resizeTL);
-			document.documentElement.removeEventListener(
-				'mouseup',
-				this.stopResizeTL
-			);
+			document.documentElement.removeEventListener('mouseup',	this.stopResizeTL);
+			this.$store.commit('saveWindowInfo', this);
 		},
 
 		startResizeT(ev) {
@@ -233,6 +236,7 @@ export default {
 		stopResizeT() {
 			document.documentElement.removeEventListener('mousemove', this.resizeT);
 			document.documentElement.removeEventListener('mouseup', this.stopResizeT);
+			this.$store.commit('saveWindowInfo', this);
 		},
 
 		startResizeTR(ev) {
@@ -266,10 +270,8 @@ export default {
 		},
 		stopResizeTR() {
 			document.documentElement.removeEventListener('mousemove', this.resizeTR);
-			document.documentElement.removeEventListener(
-				'mouseup',
-				this.stopResizeTR
-			);
+			document.documentElement.removeEventListener('mouseup',	this.stopResizeTR);
+			this.$store.commit('saveWindowInfo', this);
 		},
 
 		startResizeL(ev) {
@@ -292,6 +294,7 @@ export default {
 		stopResizeL() {
 			document.documentElement.removeEventListener('mousemove', this.resizeL);
 			document.documentElement.removeEventListener('mouseup', this.stopResizeL);
+			this.$store.commit('saveWindowInfo', this);
 		},
 
 		startResizeR(ev) {
@@ -313,6 +316,7 @@ export default {
 		stopResizeR() {
 			document.documentElement.removeEventListener('mousemove', this.resizeR);
 			document.documentElement.removeEventListener('mouseup', this.stopResizeR);
+			this.$store.commit('saveWindowInfo', this);
 		},
 
 		startResizeBL(ev) {
@@ -345,10 +349,8 @@ export default {
 		},
 		stopResizeBL() {
 			document.documentElement.removeEventListener('mousemove', this.resizeBL);
-			document.documentElement.removeEventListener(
-				'mouseup',
-				this.stopResizeBL
-			);
+			document.documentElement.removeEventListener('mouseup', this.stopResizeBL);
+			this.$store.commit('saveWindowInfo', this);
 		},
 
 		startResizeB(ev) {
@@ -370,6 +372,7 @@ export default {
 		stopResizeB() {
 			document.documentElement.removeEventListener('mousemove', this.resizeB);
 			document.documentElement.removeEventListener('mouseup', this.stopResizeB);
+			this.$store.commit('saveWindowInfo', this);
 		},
 
 		startResizeBR(ev) {
@@ -400,16 +403,11 @@ export default {
 		},
 		stopResizeBR() {
 			document.documentElement.removeEventListener('mousemove', this.resizeBR);
-			document.documentElement.removeEventListener(
-				'mouseup',
-				this.stopResizeBR
-			);
+			document.documentElement.removeEventListener('mouseup', this.stopResizeBR);
+			this.$store.commit('saveWindowInfo', this);
 		}
 	},
   mounted() {
-		this.parentElement = this.$el.parentNode.parentNode; // the panel container.
-		this.parentWidth = this.parentElement.clientWidth - 5;
-		this.parentHeight = this.parentElement.clientHeight - 5;
 		this.$store.commit('addWindow', this);
 	},
 

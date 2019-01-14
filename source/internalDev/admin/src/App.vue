@@ -25,7 +25,7 @@ export default {
     MultiPanel,
   },
   beforeMount() {
-    this.$store.commit('resetPanelIds');
+    this.$store.commit('resetWindowIds');
   },
   data() {
     return {
@@ -37,6 +37,10 @@ export default {
     click() {
       this.$store.state.isMenuOpen = false;
     },
+    setContainerDimensions() {
+      let container = document.querySelector('.panel-container');
+      this.$store.commit('setContainerDimensions', container);
+    }
   },
   computed: {
     appStyle() {
@@ -46,12 +50,10 @@ export default {
     },
   },
   mounted() {
-    let container = document.querySelector('.panel-container');
-    this.$store.commit('setContainerDimensions', container);
-    // this.$store.commit('setNextPanelId', this.elements.length);
-    // this.parentElement = this.$el.parentNode.parentNode; // the panel container.
-    // this.parentWidth = this.parentElement.clientWidth - 5;
-    // this.parentHeight = this.parentElement.clientHeight - 5;
+    this.$nextTick(function() {
+      window.addEventListener('resize', this.setContainerDimensions);
+      this.setContainerDimensions();
+    });
   }
 }
 </script>
