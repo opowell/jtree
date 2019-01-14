@@ -10,6 +10,9 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.2.5",
+    "@bosket/core": "^0.4.4",
+    "@bosket/tools": "^0.4.4",
+    "@bosket/vue": "^0.4.4",
     "@fortawesome/fontawesome-svg-core": "^1.2.12",
     "@fortawesome/free-brands-svg-icons": "^5.6.3",
     "@fortawesome/free-solid-svg-icons": "^5.6.3",

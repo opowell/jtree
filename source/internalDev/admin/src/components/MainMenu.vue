@@ -34,41 +34,48 @@ export default {
         text: 'File',
         hasParent: false,
         children: [
-            {
-                text: 'PanelOne',
-                action: this.showPanel,
-                clickData: {
-                    type: 'panel-one',
-                    title: 'Panel One',
-                    data: 13,
-                },
-            },
-            {
-                text: 'PanelTwo',
-                action: this.showPanel,
-                clickData: {
-                    type: 'panel-two',
-                    title: 'Panel Two',
-                    data: 35,
-                },
-            },
+            // {
+            //     text: 'PanelOne',
+            //     action: this.showPanel,
+            //     clickData: {
+            //         type: 'panel-one',
+            //         title: 'Panel One',
+            //         data: 13,
+            //     },
+            // },
+            // {
+            //     text: 'PanelTwo',
+            //     action: this.showPanel,
+            //     clickData: {
+            //         type: 'panel-two',
+            //         title: 'Panel Two',
+            //         data: 35,
+            //     },
+            // },
             {
                 text: 'Files',
-                action: this.showFiles,
+                action: this.showPanel,
+                clickData: {
+                    type: 'files-panel',
+                    title: 'Files',
+                },
             },
             {
                 text: this.$store.state.appName + 's',
                 shortcut: 'Ctrl+G',
-                action: this.showGames,
-            },
-            {
-                text: this.$store.state.appName + 's',
-                shortcut: 'Ctrl+G',
-                action: this.showGames,
+                action: this.showPanel,
+                clickData: {
+                    type: 'games-panel',
+                    title: 'Games',
+                },
             },
             {
                 text: 'Sessions',
-                action: this.showSessions,
+                action: this.showPanel,
+                clickData: {
+                    type: 'sessions-panel',
+                    title: 'Sessions',
+                },
             },
             {
                 text: 'Users',
@@ -76,7 +83,11 @@ export default {
             'divider',
             {
                 text: 'Settings',
-                action: this.showSettings,
+                action: this.showPanel,
+                clickData: {
+                    type: 'settings-panel',
+                    title: 'Settings',
+                },
             },
         ]
     },
@@ -185,32 +196,12 @@ export default {
             }
         );
     },
-    splitMultiPanel(direction) {
-        const panel = this.$store.state.activePanel;
-        console.log(direction);
-        panel.splitOff(0);
-    },
-    showMultiPanel() {
-        this.showPanel('multi-panel');
-    },
-    showFiles() {
-        this.showPanel('files-panel');
-    },
-    showGames() {
-        this.showPanel('games-panel');
-    },
-    showSettings() {
-        this.showPanel('settings-panel');
-    },
-    showSessions() {
-        this.showPanel('sessions-panel');
-    },
     showPanel(data) {
         if (this.$store.state.windowsMaximized && this.$store.state.windowDescs.length > 0) {
             this.$store.commit('addPanelToActiveWindow', {
                 id: data.title,
                 type: data.type,
-                data: 13,
+                data: data.data,
             });
         } else {
             this.$store.commit('showWindow', {
@@ -218,12 +209,13 @@ export default {
                     {
                         id: data.title,
                         type: data.type,
-                        data: 13,
+                        data: data.data,
                     },
                 ],
                 areas: [],
                 w: 500,
                 h: 300,
+                flex: '1 1 100px',
             });
         }
     },
