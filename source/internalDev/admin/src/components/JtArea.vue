@@ -100,7 +100,13 @@
         </div>
         <div class='action-bar'>
         </div>
-        <div v-if='activePanel != null' class='content' :is='activePanel.type' :dat='activePanel.data' /> 
+        <div 
+            v-for='(panel, index) in panels'
+            v-show='activePanelInd === index'
+            class='content'
+            :is='panel.type'
+            :dat='panel.data'
+            :key='"panel-" + index' /> 
     </div>
     <div v-else 
         class='areas'

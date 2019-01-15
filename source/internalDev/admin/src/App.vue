@@ -157,4 +157,10 @@ body {
   width: 50px;
 }
 
+.tree-anchor {
+    color: inherit;
+}
+
+
+
 </style>
