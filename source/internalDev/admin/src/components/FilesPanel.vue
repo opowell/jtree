@@ -63,7 +63,7 @@ library.add(faJs, faCaretRight, faCaretDown, faTable, faImage, faFile, faCircle,
       props: ['dat'],
       data() {
           return {
-              contextMenuIsVisible: false,
+              contextMenuIsVisible: true,
               loading: true,
               nodes: [],
               menus: [
