@@ -3,7 +3,7 @@
     <action-bar
       :menus='actions'>
     </action-bar>
-    <div style='padding-top: 10px; padding-bottom: 10px; background-color: #444; flex: 1 1 auto'>
+    <div style='padding-top: 10px; padding-bottom: 10px; background-color: rgb(37, 37, 37); flex: 1 1 auto'>
         <jt-tree
             :nodesProp='session.gameTree'
         >

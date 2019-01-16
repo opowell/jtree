@@ -34,24 +34,6 @@ export default {
         text: 'File',
         hasParent: false,
         children: [
-            // {
-            //     text: 'PanelOne',
-            //     action: this.showPanel,
-            //     clickData: {
-            //         type: 'panel-one',
-            //         title: 'Panel One',
-            //         data: 13,
-            //     },
-            // },
-            // {
-            //     text: 'PanelTwo',
-            //     action: this.showPanel,
-            //     clickData: {
-            //         type: 'panel-two',
-            //         title: 'Panel Two',
-            //         data: 35,
-            //     },
-            // },
             {
                 text: 'Files',
                 action: this.showPanel,
@@ -75,6 +57,14 @@ export default {
                 clickData: {
                     type: 'game-tree-panel',
                     title: 'Game Tree',
+                },
+            },
+            {
+                text: 'Session Info',
+                action: this.showPanel,
+                clickData: {
+                    type: 'session-info-panel',
+                    title: 'Session Info',
                 },
             },
             {

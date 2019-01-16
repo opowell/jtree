@@ -122,6 +122,7 @@ export default {
 					border: 'none',
 					'flex-direction': this.flexDirection,
 					'background-color': this.bgColor,
+					'border-radius': '0px',
 				};
 			} else {
 				return {

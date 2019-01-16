@@ -17,26 +17,25 @@ router.get('/files', function (req, res) {
   }
   
     var dir = path.join(jt.path, 'apps');
-    let out = getNodes(dir);
+    let out = getNode(dir, 'apps');
+    out.rootPath = jt.path;
     res.json(out);
 });
 
-function getNodes(dir) {
-    let out = [];
-    var dirContents = fs.readdirSync(dir);
-    for (var i in dirContents) {
-        var curPath = path.join(dir, dirContents[i]);
-        let node = {
-            title: dirContents[i],
-            isLeaf: fs.lstatSync(curPath).isFile(),
-            isExpanded: false,
-        };
-        if (!node.isLeaf) {
-            node.children = getNodes(curPath);
-        }
-        out.push(node);
+function getNode(dir, title) {
+    let node = {
+        title: title,
     }
-    return out;
+    if (fs.lstatSync(dir).isDirectory()) {
+        node.children = [];
+        var dirContents = fs.readdirSync(dir);
+        for (var i in dirContents) {
+            var curPath = path.join(dir, dirContents[i]);
+            let child = getNode(curPath, dirContents[i]);
+            node.children.push(child);
+        }
+    }
+    return node;
 }
 
 router.get('/games', function (req, res) {

@@ -149,6 +149,7 @@ import JtSpacer from './JtSpacer.vue';
 import FilesPanel from '@/components/FilesPanel.vue'
 import GamesPanel from '@/components/GamesPanel.vue'
 import GameTreePanel from '@/components/GameTreePanel.vue'
+import SessionInfoPanel from '@/components/SessionInfoPanel.vue'
 import SessionsPanel from '@/components/SessionsPanel.vue'
 import SettingsPanel from '@/components/SettingsPanel.vue'
 
@@ -170,6 +171,7 @@ export default {
     FilesPanel,
     GameTreePanel,
     GamesPanel,
+    SessionInfoPanel,
     SessionsPanel,
     SettingsPanel,
   },
@@ -296,7 +298,7 @@ export default {
       newSiblingOfParent() {
           this.$store.commit('newSiblingOfParent', {
               areaPath: this.areaPath,
-              window: this.window,
+              windowId: this.window.id,
               panelInd: this.activePanelInd,
           });
       },
@@ -350,11 +352,12 @@ export default {
             let areaPath = [];
             let parent = this.adjustData.parent;
             let curArea = this.adjustData.curArea;
-            curArea.indexOnParent = this.adjustData.indexOnParent;
+            let indexOnParent = this.adjustData.indexOnParent;
             while (parent != null) {
-                areaPath.unshift(curArea.indexOnParent);
+                areaPath.unshift(indexOnParent);
                 curArea = parent;
                 parent = curArea.parent;
+                indexOnParent = curArea.indexOnParent;
             }
           this.$store.commit('setAreaSize', {
               windowId: this.window.id,
@@ -372,19 +375,19 @@ export default {
         this.$store.commit('setActivePanelIndex', {
                 index,
                 areaPath: this.areaPath,
-                window: this.window,
+                windowId: this.window.id,
             });
         },
         close() {
             this.$store.commit('closeArea', {
                 areaPath: this.areaPath,
-                window: this.window,
+                windowId: this.window.id,
             });
         },
       createChild(rowChildren) {
             this.$store.commit('createChild', {
               areaPath: this.areaPath,
-              window: this.window,
+              windowId: this.window.id,
               panelInd: this.activePanelInd,
               rowChildren,
             });

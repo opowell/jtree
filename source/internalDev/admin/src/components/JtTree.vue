@@ -7,6 +7,8 @@
             :parentNode='node'
             :tree='tree'
             :indexOnParent='index'
+            :expandedProp='index === 0'
+            :f2Func='f2Func'
         >
         </jt-treenode>
     </div>
@@ -23,6 +25,7 @@ export default {
     },
     props: [
         'nodesProp',
+        'f2Func',
     ],
     data() {
         return {
