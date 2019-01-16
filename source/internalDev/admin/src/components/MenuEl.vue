@@ -1,6 +1,6 @@
 <template>
   <div v-if='menu === "divider"' class="divider"></div>
-  <span v-else class="menu" @mousedown.prevent.stop @click.stop @mouseup.prevent.stop='click' @mouseover='hover' :class='{ "active": menu.isActive !== false, open: isOpen }'>
+  <span v-else class="menu" @mousedown.prevent.stop @click.stop @mouseup.prevent.stop='click' @mouseover='hover' :class='{ "active": menu.isActive !== false, open: isOpen }' :title='menu.title'>
     <i v-show='menu.icon || showIcon' :class='"icon " + menu.icon'></i>
     <div v-show='menu.text' class='text'>
       <div class='text-first'>{{firstLetter}}</div>
@@ -107,7 +107,7 @@ export default {
   /* color: red; */
 }
 .dropdown {
-
+  z-index: 1000;
 }
 .dropdown.open {
   display: block;

@@ -25,6 +25,7 @@
     "sl-vue-tree": "^1.8.4",
     "vue": "^2.5.17",
     "vue-router": "^3.0.1",
+    "vuebar": "0.0.20",
     "vuex": "^3.0.1",
     "vuex-persistedstate": "^2.5.4"
   },
