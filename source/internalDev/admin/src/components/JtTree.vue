@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div style='display: flex; flex: 1 1 auto;'>
         <jt-treenode 
             v-for='(baseNode, index) in nodesProp' 
             :key='index'
@@ -33,6 +33,7 @@ export default {
             tree: {
                 selection: [],
                 activeNode: null,
+                component: this,
             },
         }
     },
@@ -43,6 +44,22 @@ export default {
                 isNode: false,
             }
         }
+    },
+    methods: {
+        clearSelection() {
+            this.tree.selection.splice(0, this.tree.selection.length);
+        },
+        setActiveNode(node) {
+            this.clearSelection();
+            this.tree.selection.push(node);
+            if (this.tree.activeNode != null) {
+                this.tree.activeNode.component.editing = false;
+            }
+            this.tree.activeNode = node;
+            if (node != null) {
+                node.titleEl.focus();
+            }
+        },
     },
 }
 </script>

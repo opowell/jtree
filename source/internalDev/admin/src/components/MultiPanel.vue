@@ -432,9 +432,9 @@ export default {
     left: 100px;
 }
 
-.panel.focussed {
+/* .panel.focussed { */
     /* background-color: #9ec1de; */
-}
+/* } */
 
 .handle {
   background-color: inherit;

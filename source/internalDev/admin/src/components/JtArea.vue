@@ -526,6 +526,7 @@ export default {
 .area {
     display: flex;
     flex-direction: column;
+    overflow: auto;
 }
 
 .adjuster {

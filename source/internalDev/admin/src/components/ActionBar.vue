@@ -33,9 +33,9 @@ export default {
     flex: 0 0 auto;
 }
 
-.main-menu .menu {
+/* .main-menu .menu {
     /* padding: 0px 7px; */
-}
+/* }  */
 
 
 .main-menu .menu:hover {
