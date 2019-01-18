@@ -5,17 +5,19 @@ const fs        = require('fs-extra');
 const Utils     = require('../Utils.js');
 // const jt        = require('../jtree.js')
 const formidable = require('formidable');
+const App = require('../App.js');
 
 let router = require('express').Router();
 
 router.get('/files', function (req, res) {
 
-    var jt = {};
-    if (process.argv[0].indexOf('node') > -1) {
-      jt.path         = process.cwd();
-  } else {
-      jt.path         = path.dirname(process.execPath);
-  }
+    // var jt = {};
+    var jt = global.jt;
+//     if (process.argv[0].indexOf('node') > -1) {
+//       jt.path         = process.cwd();
+//   } else {
+//       jt.path         = path.dirname(process.execPath);
+//   }
   
     var dir = path.join(jt.path, 'apps');
     let out = getNode(dir, 'apps');
@@ -47,6 +49,44 @@ router.post('/file/createFolder', function (req, res) {
         console.log('Folder ' + filePath + " succesfully created.");
         res.json(true);
     }); 
+});
+
+router.post('/session/addGame', function (req, res) {
+    let appPath = path.join.apply(null, req.body.filePath);
+    let options = {};
+    if (fs.lstatSync(appPath).isDirectory()) {
+    } else {
+        var app = null;
+        let session = {};
+        app = new App.new(session, global.jt, appPath);
+        app.givenOptions = options;
+     //   app.shortId = id;
+
+        // Set options before running code.
+         for (var i in options) {
+            app.setOptionValue(i, options[i]);
+        }
+
+        let filePath = appPath;
+        if (!fs.existsSync(appPath) && session.queuePath != null) {
+            filePath = path.join(session.queuePath, appPath);
+        }
+
+        try {
+            app.appjs = fs.readFileSync(filePath) + '';
+            eval(app.appjs); // jshint ignore:line
+            console.log('loaded app ' + filePath);
+        } catch (err) {
+            global.jt.log('Error loading app: ' + filePath);
+            global.jt.log(err);
+            app = null;
+        }
+        let json = {
+            success: true,
+            game: app.shellWithChildren2(),
+        }
+        res.json(json);
+    }
 });
 
 router.post('/file/delete', function (req, res) {
@@ -84,15 +124,16 @@ router.post('/file/rename', function (req, res) {
 router.post('/file/upload', function (req, res) {
     try {
         var form = new formidable.IncomingForm();
-        form.parse(req, function (err, fields, files) {
+        form.parse(req, async function (err, fields, files) {
             try {
-                var oldpath = files.file.path;
-                let filePath = path.join.apply(null, fields.folderPath.split(','));
-                filePath = path.join(filePath, files.file.name);
-                fs.rename(oldpath, filePath, function (err) {
-                    if (err) throw err;
-                    res.json(true);
-                });
+                for (let i=0; i<fields.numFiles; i++) {
+                    let file = files['files[' + i + ']'];
+                    var oldpath = file.path;
+                    let filePath = path.join.apply(null, fields.folderPath.split(','));
+                    filePath = path.join(filePath, file.name);
+                    await fs.rename(oldpath, filePath);
+                }
+                res.json(true);
             } catch (err) {
                 res.json(false);
             }

@@ -217,6 +217,7 @@ export default {
     flex-direction: column;
     padding-left: 5px;
     padding-right: 5px;
+    flex: 1 1 auto;
 }
 
 .node-title {

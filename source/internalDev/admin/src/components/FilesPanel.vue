@@ -3,11 +3,17 @@
     <action-bar
       :menus='actions'>
     </action-bar>
-    <div>
-        <input type="file" id="file" ref="file" @change="handleFileUpload()"/>
-        <button @click="uploadFile()">Submit</button>
-    </div>
     <div style='padding-top: 10px; padding-bottom: 10px; background-color: rgb(37, 37, 37); flex: 1 1 auto; align-self: stretch'>
+        <input
+            id='fileSelect'
+            type="file"
+            style='position: absolute; opacity: 0;'
+            multiple
+            class='icon'
+            ref="fileSelect"
+            @change="uploadFiles"
+        />
+
         <jt-tree ref='tree'
             :nodesProp='nodes'
             :f2Func='renameActiveNode'
@@ -33,7 +39,7 @@ export default {
                 contextMenuIsVisible: true,
                 loading: true,
                 nodes: [],
-                file: '',
+                files: [],
                 actions: [
                 {
                     title: 'New file',
@@ -51,6 +57,8 @@ export default {
                     title: 'Upload file(s)...',
                     hasParent: false,
                     icon: 'fas fa-upload',
+                    action: this.chooseFiles,
+                    ref: 'fileSelectIcon',
                 },
                 {
                     title: 'Add root folder',
@@ -71,7 +79,7 @@ export default {
                     action: this.renameActiveNode,
                 },
                 {
-                    title: 'Open',
+                    title: 'Add to Game Tree',
                     hasParent: false,
                     icon: 'fas fa-play',
                     action: this.addSelectedNodeToGameTree,
@@ -88,19 +96,50 @@ export default {
         created() {
             this.fetchData();
         },
+        mounted() {
+            this.$refs.fileSelectIcon.$el.append(this.$refs.fileSelect);
+        },
     methods: {
-        addSelectedNodeToGameTree() {
-            let selection = this.$refs.tree.tree.selection;
-            for (let i=0; i<selection.length; i++) {
-                console.log('play ' + selection[i].title);
-                let newNode = {
-                    title: selection[i].title,
-                }
-                if (selection[i].children != null) {
-                    newNode.children = selection[i].children;
-                }
-                this.$store.state.session.gameTree.push(newNode);
+        chooseFiles() {
+            document.getElementById('fileSelect').click();
+        },
+        checkIfTarget(ev) {
+            if (ev.target !== this.$refs.fileSelect) {
+                ev.preventDefault();
             }
+        },
+        addSelectedNodeToGameTree() {
+            let activeNode = this.$refs.tree.tree.activeNode;
+            let filePath = this.getParentPath(activeNode);
+            filePath.push(activeNode.title);
+
+            axios.post(
+                'http://' + window.location.host + '/api/session/addGame',
+                {
+                    filePath: filePath,
+                }
+            ).then(response => {
+                if (response.data.success === true) {
+                    let game = response.data.game;
+                    let newNode = {
+                        title: game.appFilename,
+                        children: [],
+                        data: game,
+                    }
+                    for (let i=0; i<game.functions.length; i++) {
+                        newNode.children.push({
+                            title: game.functions[i].field,
+                            data: game.functions[i].content,
+                        })
+                    }
+                    for (let i=0; i<game.stages.length; i++) {
+                        newNode.children.push({
+                            title: game.stages[i].id,
+                        })
+                    }
+                    this.$store.state.session.gameTree.push(newNode);
+                }
+            });
         },
         getClosestFolder(node) {
             let out = node;
@@ -211,19 +250,20 @@ export default {
             });
         },
 
-        handleFileUpload() {
-            this.file = this.$refs.file.files[0];
-        },
-
-        uploadFile() {
+        uploadFiles() {
+            this.files = this.$refs.fileSelect.files;
             let activeNode = this.$refs.tree.tree.activeNode;
             let closestFolder = this.getClosestFolder(activeNode);
             if (closestFolder != null) {
                 let parentPath = this.getParentPath(closestFolder);
                 parentPath.push(closestFolder.title);
                 let formData = new FormData();
-                formData.append('file', this.file);
+                for( var i = 0; i < this.files.length; i++ ){
+                    let file = this.files[i];
+                    formData.append('files[' + i + ']', file);
+                }
                 formData.append('folderPath', parentPath);
+                formData.append('numFiles', this.files.length);
                 axios.post('http://' + window.location.host + '/api/file/upload',
                 formData,
                 {
@@ -281,4 +321,11 @@ export default {
     background-color: rgba(100, 100, 255, 0.5);
   }
 
+ .input-file {
+    opacity: 0; /* invisible but it's there! */
+    width: 100%;
+    height: 200px;
+    position: absolute;
+    cursor: pointer;
+  }
 </style>
