@@ -8,7 +8,9 @@
         @dragleave="dragLeaveTab"
         @drop='dropOnTab(numPanels, $event)'
         @dragover='dragOver'
-    />
+    >
+        <slot></slot>
+    </span>
 </template>
 
 <script>

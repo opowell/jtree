@@ -3,7 +3,7 @@
     <div v-if='areas.length < 1' class='area' :style='areaStyle'>
         <div class='tabs'>
             <menu-el :menu='{
-                icon: "fa fa-align-center",
+                icon: "fas fa-align-center",
                 hasParent: false,
                 showIcon: true,
                 children: [
@@ -70,26 +70,28 @@
 
             <!-- TABS -->
             <template v-if='hideTabsWhenSinglePanel && panels.length === 1'>
-                <div
-                    class='singleTab'
+                <jt-spacer
                     @mousedown.native='startMove'
+                    :window='window'
+                    :area='area'
                 >
                     {{panels[0].id}}
-                </div>
-                <span style='width: 20px; display: flex; margin-left: 5px;'>
-                    <font-awesome-icon
-                        class='closeButton'
-                        @click.stop='closePanel(index)'
-                        icon="times"
-                        style='width: 20px'
-                    />
-                </span>
+                </jt-spacer>
+                <menu-el
+                    :menu='{
+                        icon: "fas fa-times",
+                        hasParent: false,
+                        showIcon: true,
+                        action: closeActivePanel,
+                    }'
+                    class='closeIcon'
+                />
             </template>
             <template v-else>
             <span 
                 v-for='(panel, index) in panels'
                 :key='index'
-                class='tab'
+                class='tab tabHover'
                 :class='{"selected": isSelected(panel)}'
                 @mousedown='setActivePanelIndex(index)'
                 draggable="true"
@@ -134,7 +136,6 @@
             "flex-direction-column": isRowChildren,
             "flex-direction-row": !isRowChildren,
         }'
-        :style='style'
     >
         <template v-for='(curArea, index) in areas' >
             <jt-area
@@ -482,8 +483,8 @@ export default {
     flex: 0 0 auto;
 }
 
-.tabs > span:hover {
-    color: #fff;
+.tabHover:hover {
+    background-color: var(--tabHoverBGColor);
 }
 
 .tab {
@@ -496,9 +497,6 @@ export default {
     border-right: 1px solid;
     display: flex;
     white-space: nowrap;
-}
-
-.tab:hover {
     color: var(--tabFontColor);
 }
 
@@ -508,11 +506,13 @@ export default {
     border-right-width: 0px;
     padding: 0px;
     margin: 0px;
+    color: inherit;
 }
 
 .content-vbar {
     flex: 1 1 auto;
-    display: flex;    
+    display: flex;
+    background-color: var(--panelContentBGColor);
 }
 
 .content {
@@ -585,9 +585,14 @@ export default {
 }
 
 .selected {
-    background-color: #353535;
-    border-bottom-color: #353535;
+    background-color: var(--tabBGColor);
+    /* border-bottom-color: #353535; */
     color: var(--tabSelectedFontColor);
+}
+
+.closeIcon {
+    background-color: var(--panelCloseButtonBGColor);
+    color: var(--panelCloseButtonColor);
 }
 
 </style>

@@ -5,20 +5,12 @@ const fs        = require('fs-extra');
 const Utils     = require('../Utils.js');
 // const jt        = require('../jtree.js')
 const formidable = require('formidable');
-const App = require('../App.js');
+const Game = require('../models/Game.js');
 
 let router = require('express').Router();
 
 router.get('/files', function (req, res) {
-
-    // var jt = {};
     var jt = global.jt;
-//     if (process.argv[0].indexOf('node') > -1) {
-//       jt.path         = process.cwd();
-//   } else {
-//       jt.path         = path.dirname(process.execPath);
-//   }
-  
     var dir = path.join(jt.path, 'apps');
     let out = getNode(dir, 'apps');
     out.rootPath = jt.path;
@@ -58,7 +50,7 @@ router.post('/session/addGame', function (req, res) {
     } else {
         var app = null;
         let session = {};
-        app = new App.new(session, global.jt, appPath);
+        app = new Game.new(session, global.jt, appPath);
         app.givenOptions = options;
      //   app.shortId = id;
 
@@ -83,7 +75,7 @@ router.post('/session/addGame', function (req, res) {
         }
         let json = {
             success: true,
-            game: app.shellWithChildren2(),
+            game: app.shellWithChildren(),
         }
         res.json(json);
     }

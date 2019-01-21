@@ -3,7 +3,7 @@
     <action-bar
       :menus='actions'>
     </action-bar>
-    <div style='padding-top: 10px; padding-bottom: 10px; background-color: rgb(37, 37, 37); flex: 1 1 auto; align-self: stretch'>
+    <div style='padding-top: 10px; padding-bottom: 10px; flex: 1 1 auto; align-self: stretch'>
         <input
             id='fileSelect'
             type="file"
@@ -97,7 +97,9 @@ export default {
             this.fetchData();
         },
         mounted() {
-            this.$refs.fileSelectIcon.$el.append(this.$refs.fileSelect);
+            // this.$nextTick(function() {
+            //     this.$children[0].$children[2].$el.append(this.$refs.fileSelect);
+            // });
         },
     methods: {
         chooseFiles() {

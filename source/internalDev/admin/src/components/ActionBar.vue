@@ -39,7 +39,7 @@ export default {
 
 
 .main-menu .menu:hover {
-    background-color:rgb(109, 109, 109);
+    background-color: var(--menuHoverBGColor);
 }
 
 .spacer {
