@@ -1,6 +1,22 @@
 <template>
-    <div style='padding: 10px'>
-        <b-row class="my-1" v-for="setting in settings" :key="setting.key">
+    <div>
+        <action-bar
+            :menus='actions'>
+        </action-bar>
+            <div class='content' style='padding-top: 10px; padding-bottom: 10px; flex: 1 1 auto; align-self: stretch'>
+
+        <div style='padding-left: 5px'>
+            Load preset:
+            <span v-for='(preset, index) in presets' 
+                :key='preset.name'
+                @click='setPreset(preset)'
+                style='padding: 5px 10px; border: 1px solid; margin: 5px; cursor: pointer;'
+            >
+                {{index + 1}}. {{preset.name}}
+            </span>
+        </div>
+
+        <b-row class="my-1" v-for="setting in editableSettings" :key="setting.key" style='padding: 10px'>
             <b-col style='flex: 1 1 auto'><label :for="`setting-${setting.key}`">{{ setting.name }}:</label></b-col>
             <b-col style='flex: 0 0 300px'>
                 <b-form-select v-if='setting.type == "select"'
@@ -22,69 +38,47 @@
                 />
             </b-col>
         </b-row>
+        </div>
     </div>
 </template>
 <script>
+
+import ActionBar from '@/components/ActionBar.vue'
   export default {
       name: 'SettingsPanel',
+      components: {
+            'action-bar': ActionBar,
+      },
       props: ['dat'],
       data() {
           return {
-              menus: [
+              actions: [
                 {
-                    text: 'Load',
-              hasParent: false,
+                    icon: 'far fa-folder-open',
+                    hasParent: false,
+                    title: 'Load preset...'
                 }, 
                 {
-                    text: 'Save',
-                              hasParent: false,
-
+                    icon: 'fas fa-save',
+                    hasParent: false,
+                    title: 'Save preset...'
                 },
               ],
-              settings: [
-                  {
-                      name: 'Game name',
-                      type: 'text',
-                      key: 'appName',
-                  },
-                  {
-                      name: 'Windows maximized',
-                      type: 'checkbox',
-                      key: 'windowsMaximized',
-                  },
-                  {
-                      name: 'Window, background color',
-                      type: 'text',
-                      key: 'windowBGColor',
-                  },
-                  {
-                      name: 'Focussed window, background color',
-                      type: 'text',
-                      key: 'windowFocussedBGColor',
-                  },
-                  {
-                      name: 'Allow multiple areas in a window',
-                      type: 'checkbox',
-                      key: 'allowMultipleAreasInAWindow'
-                  },
-                  {
-                      name: 'Allow multiple panels in an area',
-                      type: 'checkbox',
-                      key: 'allowMultiplePanelsInAnArea'
-                  },
-                  {
-                      name: 'Open new panels in',
-                      type: 'select',
-                      options: ['New window', 'Active window when in maximized mode, otherwise new window', 'Active window'],
-                      key: 'openNewPanelsIn',
-                  },
-                  {
-                      name: 'Hide tabs when only single panel in area',
-                      type: 'checkbox',
-                      key: 'hideTabsWhenSinglePanel'
-                  },
-
-              ]
+          }
+      },
+      computed: {
+          presets() {
+              return this.$store.state.settingsPresets;
+          },
+          editableSettings() {
+              let out = [];
+              let settings = this.$store.state.persistentSettings;
+              for (let i=0; i<settings.length; i++) {
+                  if (settings[i].editable !== false) {
+                      out.push(settings[i]);
+                  }
+              }
+              return out;
           }
       },
       methods: {
@@ -94,6 +88,18 @@
           getStateValue(key) {
               return this.$store.state[key];
           },
+          setPreset(preset) {
+              for (let i in preset.values) {
+                this.change({key: i}, preset.values[i]);   
+              }
+          },
       }
   }
 </script>
+
+<style scoped>
+.content {
+    color: var(--areaContentFontColor);
+    background-color: var(--areaContentBGColor);
+}
+</style>

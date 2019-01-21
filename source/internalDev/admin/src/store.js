@@ -4,57 +4,242 @@ import createPersistedState from 'vuex-persistedstate'
 
 Vue.use(Vuex)
 
+const persistentSettings = [
+  {
+    name: 'Font size',
+    type: 'text',
+    key: 'fontSize',
+  },
+  {
+    name: 'Main hover background color',
+    type: 'text',
+    key: 'menuHoverBGColor',
+  },
+  {
+    name: 'Container background color',
+    type: 'text',
+    key: 'containerBGColor',
+  },
+  {
+    name: 'Container border',
+    type: 'text',
+    key: 'containerBorder',
+  },
+  {
+    name: 'Menu hover border color',
+    type: 'text',
+    key: 'menuHoverBorderColor',
+  },
+  {
+    name: 'Main menu padding',
+    type: 'text',
+    key: 'mainMenuPadding',
+  },
+  {
+    name: 'Menu text padding',
+    type: 'text',
+    key: 'menuTextPadding',
+  },
+  {
+    name: 'Menu color',
+    type: 'text',
+    key: 'menuColor',
+  },
+  {
+    name: 'Menu background color',
+    type: 'text',
+    key: 'menuBGColor',
+  },
+  {
+    name: 'Window font color',
+    type: 'text',
+    key: 'windowFontColor',
+  },
+  {
+    name: 'Area action bar background color',
+    type: 'text',
+    key: 'areaActionBarBGColor',
+  },
+  {
+    name: 'Area content background color',
+    type: 'text',
+    key: 'areaContentBGColor',
+  },
+  {
+      name: 'Game name',
+      type: 'text',
+      key: 'appName',
+      default: 'Game'
+  },
+  {
+      key: 'windowDescs',
+      editable: false,
+  },
+  {
+      key: 'nextWindowX',
+      editable: false,
+  },
+  {
+    key: 'nextWindowY',
+    editable: false,
+},
+{
+      name: 'Windows maximized',
+      type: 'checkbox',
+      key: 'windowsMaximized',
+      default: true,
+  },
+  {
+      name: 'Window, background color',
+      type: 'text',
+      key: 'windowBGColor',
+  },
+  {
+      name: 'Focussed window, background color top',
+      type: 'text',
+      key: 'windowFocussedBGColorTop',
+  },
+  {
+      name: 'Focussed window, background color',
+      type: 'text',
+      key: 'windowFocussedBGColor',
+  },
+  {
+      name: 'Allow multiple areas in a window',
+      type: 'checkbox',
+      key: 'allowMultipleAreasInAWindow'
+  },
+  {
+      name: 'Allow multiple panels in an area',
+      type: 'checkbox',
+      key: 'allowMultiplePanelsInAnArea'
+  },
+  {
+      name: 'Open new panels in',
+      type: 'select',
+      options: ['New window', 'Active window when in maximized mode, otherwise new window', 'Active window'],
+      key: 'openNewPanelsIn',
+  },
+  {
+      name: 'Hide tabs when only single panel in area',
+      type: 'checkbox',
+      key: 'hideTabsWhenSinglePanel'
+  },
+  {
+      name: 'Selected tab font color',
+      type: 'text',
+      key: 'tabSelectedFontColor',
+  },
+  {
+      name: 'Tab font color',
+      type: 'text',
+      key: 'tabFontColor',
+  },
+  {
+      name: 'Tab background color',
+      type: 'text',
+      key: 'tabBGColor',
+  },
+];
+
+let persistPaths = [];
+
+let stateObj = {
+  persistentSettings: persistentSettings,
+  queues: [],
+  apps: [],
+  isMenuOpen: false,
+  activeMenu: null,
+  activeWindow: null,
+
+  games: [],
+
+  // After panels are mounted, they register here. Order determines z-index.
+  windows: [],
+
+  containerHeight: 5000,
+  containerWidth: 5000,
+  nextWindowXIncrement: 40,
+  nextWindowYIncrement: 40,
+  nextWindowId: 0,
+
+  // Meta-data for created panels.
+  windowDescs: [],
+
+  // Coordinates of where to open panels.
+  nextWindowX: 20,
+  nextWindowY: 20,
+  
+  session: {
+    gameTree: [],
+  },
+
+  settingsPresets: [
+    {
+      name: 'ztree',
+      values: {
+        appName: 'Treatment',
+        containerBGColor: 'rgb(171, 171, 171)',
+        containerBorder: '2px inset #fff',
+        fontSize: '9pt',
+        hideTabsWhenSinglePanel: true,
+        mainMenuPadding: '0px 5px',
+        menuBGColor: 'white',
+        menuColor: 'black',
+        menuHoverBGColor: 'rgb(229, 243, 255)',
+        menuHoverBorderColor: 'rgb(204, 232, 255)',
+        menuTextPadding: '2px 1px',
+        tabFontColor: 'rgb(171, 171, 171)',
+        tabSelectedFontColor: '#000',
+        windowBGColor: 'rgb(205, 219, 232)',
+        windowFocussedBGColorTop: 'rgb(153,180,209)',
+        windowFocussedBGColor: 'rgb(185,209,234)',
+        windowFocussedFontColor: '#000',
+        windowFontColor: 'rgb(171, 171, 171)',
+        areaActionBarBGColor: '#fff',
+        areaContentBGColor: '#fff',
+        areaContentFontColor: 'inherit',
+      }
+    },
+    {
+      name: 'modern',
+      values: {
+        windowFocussedBGColorTop: '#b5b5b5',
+        windowFocussedBGColor: '#b5b5b5',
+        menuBGColor: "rgb(90, 90, 90)",
+        menuColor: 'rgb(185, 185, 185)',
+        fontSize: '10pt',
+        mainMenuPadding: '0px 7px',
+        menuTextPadding: '4px 3px',
+        appName: 'Game',
+        menuHoverBGColor: 'rgb(109, 109, 109)',
+        menuHoverBorderColor: 'rgb(155, 155, 155)',
+        containerBGColor: 'rgb(71, 71, 71)',
+        containerBorder: 'none',
+        hideTabsWhenSinglePanel: false,
+        tabSelectedFontColor: '#CCC',
+        tabFontColor: '#888',
+        tabBGColor: '#666',
+        areaContentBGColor: '#353535',
+        areaContentFontColor: '#CCC',
+      }
+    }
+  ]
+
+}
+
+for (let i=0; i<persistentSettings.length; i++) {
+  let setting = persistentSettings[i];
+  persistPaths.push(setting.key);
+  stateObj[setting.key] = setting.default;
+}
+
+
 export default new Vuex.Store({
   plugins: [createPersistedState({
-    paths: [
-      'windowsMaximized',
-      'windowDescs',
-      'appName',
-      'nextWindowX',
-      'nextWindowY',
-      'fontSize',
-      'windowFocussedBGColor',
-      'windowBGColor',
-    ],
+    paths: persistPaths,
   })],
-  state: {
-    queues: [],
-    apps: [],
-    isMenuOpen: false,
-    activeMenu: null,
-    activeWindow: null,
-
-    games: [],
-
-    // After panels are mounted, they register here. Order determines z-index.
-    windows: [],
-
-    containerHeight: 5000,
-    containerWidth: 5000,
-    nextWindowXIncrement: 40,
-    nextWindowYIncrement: 40,
-    nextWindowId: 0,
-
-    // PERSISTENT SETTINGS
-    // must be added to 'paths' option.
-    windowsMaximized: true,
-    // Meta-data for created panels.
-    windowDescs: [],
-    // Language items.
-    appName: 'Game',
-    windowFocussedBGColor: '#737373',
-    windowBGColor: '#b5b5b5',
-
-    // Coordinates of where to open panels.
-    nextWindowX: 20,
-    nextWindowY: 20,
-    fontSize: '10pt',
-
-    session: {
-      gameTree: [],
-    },
-
-  },
+  state: stateObj,
   actions: {
     dropOnTab: ({commit}, {sourceWindowId, sourceAreaPath, sourcePanelIndex, targetWindowId, targetAreaPath, targetIndex}) => {
       commit('addTabToPanel', {

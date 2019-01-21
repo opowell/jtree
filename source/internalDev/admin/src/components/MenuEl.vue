@@ -38,18 +38,18 @@ export default {
     isOpen() {
       return this.$store.state.isMenuOpen && this.isActive;
     },
-    firstLetter: function() {
+    firstLetter() {
       if (this.menu.text == null) {
         return '';
       }
       return this.menu.text.substring(0, 1);
     },
-    rest: function() {
+    rest() {
       if (this.menu.text == null) {
         return '';
       }
       return this.menu.text.substring(1);
-    }
+    },
   },
   methods: {
     click: function(ev) {
@@ -153,8 +153,8 @@ export default {
     outline: none;
     box-shadow: none;
     display: flex;
-    padding: 4px 3px;
     flex: 1 0 auto;
+    padding: var(--menuTextPadding); 
 }
 
 .dropdown {

@@ -3,26 +3,26 @@
     <MainMenu/>
     <!-- <router-view/> -->
     <div class='panel-container'>
-      <multi-panel
+      <jt-window
         v-for='(window, index) in windows'
         :window='window'
         :key='index'
         :activePanelInd='window.activePanelInd'
         >
-      </multi-panel>
+      </jt-window>
     </div>
   </div>
 </template>
 
 <script>
 import MainMenu from '@/components/MainMenu.vue'
-import MultiPanel from '@/components/MultiPanel.vue'
+import JtWindow from '@/components/JtWindow.vue'
 
 export default {
   name: 'home',
   components: {
     MainMenu,
-    MultiPanel,
+    JtWindow,
   },
   beforeMount() {
     this.$store.commit('resetWindowIds');
@@ -44,9 +44,13 @@ export default {
   },
   computed: {
     appStyle() {
-      return {
-          "font-size": this.$store.state.fontSize, 
+      let s = this.$store.state;
+      let out = {};
+for (let i=0; i<s.persistentSettings.length; i++) {
+        let setting = s.persistentSettings[i]; 
+        out['--' + setting.key] = s[setting.key];
       }
+      return out;
     },
   },
   mounted() {
@@ -59,10 +63,11 @@ export default {
 </script>
 <style>
 .panel-container {
-  background-color: #b3b3b3;
+  background-color: var(--containerBGColor);
   flex: 1 1 auto;
   position: relative;
   display: flex;
+  border: var(--container-border);
 }
 
 body {
@@ -78,6 +83,7 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
+  font-size: var(--fontSize);
 }
 
 .no-text-select {

@@ -1,6 +1,6 @@
 
 <template>
-    <div v-if='areas.length < 1' class='area' :style='style'>
+    <div v-if='areas.length < 1' class='area' :style='areaStyle'>
         <div class='tabs'>
             <menu-el :menu='{
                 icon: "fa fa-align-center",
@@ -69,6 +69,23 @@
             }' />
 
             <!-- TABS -->
+            <template v-if='hideTabsWhenSinglePanel && panels.length === 1'>
+                <div
+                    class='singleTab'
+                    @mousedown.native='startMove'
+                >
+                    {{panels[0].id}}
+                </div>
+                <span style='width: 20px; display: flex; margin-left: 5px;'>
+                    <font-awesome-icon
+                        class='closeButton'
+                        @click.stop='closePanel(index)'
+                        icon="times"
+                        style='width: 20px'
+                    />
+                </span>
+            </template>
+            <template v-else>
             <span 
                 v-for='(panel, index) in panels'
                 :key='index'
@@ -97,6 +114,7 @@
                 :window='window'
                 :area='area'
             />
+            </template>
         </div>
         <div class='action-bar'>
         </div>
@@ -199,6 +217,9 @@ export default {
       this.area.window = this.window;
   },
   computed: {
+      hideTabsWhenSinglePanel() {
+          return this.$store.state.hideTabsWhenSinglePanel;
+      },
       panels() {
           return this.area.panels;
       },
@@ -215,7 +236,7 @@ export default {
             return this.panels[this.activePanelInd];
           }
       },
-    style() {
+    areaStyle() {
         if (this.isLastArea) {
             return {
                 'flex': '1 1 100px',
@@ -459,7 +480,6 @@ export default {
 .tabs {
     display: flex;
     flex: 0 0 auto;
-    color: #CCC;
 }
 
 .tabs > span:hover {
@@ -467,7 +487,7 @@ export default {
 }
 
 .tab {
-    background-color: #888;
+    background-color: var(--tabBGColor);
     padding-top: 5px;
     padding-bottom: 5px;
     padding-left: 25px;
@@ -479,13 +499,7 @@ export default {
 }
 
 .tab:hover {
-    color: #fff;
-}
-
-.tab.selected {
-    background-color: #353535;
-    border-bottom-color: #353535;
-    color: #fff;
+    color: var(--tabFontColor);
 }
 
 .tab.spacer {
@@ -502,8 +516,8 @@ export default {
 }
 
 .content {
-    background-color: #353535;
-    color: #CCC;
+    background-color: var(--areaContentBGColor);
+    color: var(--areaContentFontColor);
     flex: 1 1 auto;
     overflow: auto;
     display: flex;
@@ -558,6 +572,22 @@ export default {
 
 .tab.highlight {
     background-color: #ff00004f;
+}
+
+.singleTab {
+    padding-top: 5px;
+    padding-bottom: 6px;
+    padding-right: 5px;
+    cursor: default;
+    display: flex;
+    white-space: nowrap;
+    flex: 1 1 auto;
+}
+
+.selected {
+    background-color: #353535;
+    border-bottom-color: #353535;
+    color: var(--tabSelectedFontColor);
 }
 
 </style>
