@@ -81,11 +81,11 @@ class Game {
 
 
         /**
-         * The stages of this app.
+         * The subgames of this Game.
          * @type Array
          * @default []
          */
-        this.stages = [];
+        this.subgames = [];
 
         /**
          * timeout duration in seconds
@@ -312,8 +312,6 @@ class Game {
             'description',
             'keyComparisons',
             'screen',
-            'activeScreen',
-            'waitingScreen',
             'subgameWrapPlayingScreenInFormTag',
             'waitForAll',
             'finished',
@@ -1619,9 +1617,9 @@ class Game {
         for (var i in this.periods) {
             out.periods[i] = this.periods[i].shellWithChildren();
         }
-        out.stages = [];
-        for (var i in this.stages) {
-            out.stages[i] = this.stages[i].shell();
+        out.subgames = [];
+        for (var i in this.subgames) {
+            out.subgames[i] = this.subgames[i].shellWithChildren();
         }
         out.options = this.options;
         return out;

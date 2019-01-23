@@ -3,7 +3,7 @@
     <action-bar
       :menus='actions'>
     </action-bar>
-    <div style='padding-top: 10px; padding-bottom: 10px; flex: 1 1 auto; align-self: stretch'>
+    <div style='padding-top: 10px; padding-bottom: 10px; overflow: auto; flex: 1 1 auto; align-self: stretch'>
         <jt-tree
             :nodesProp='session.gameTree'
         >
@@ -22,8 +22,15 @@ import JtTree from '@/components/JtTree.vue'
         'jt-tree': JtTree,
         'action-bar': ActionBar,
       },
-      props: ['dat'],
-        data() {
+    props: [
+        'dat',
+        'panel',
+    ],
+        mounted() {
+            this.panel.id = 'Game Tree';
+        },
+
+data() {
             return {
               actions: [
                 {

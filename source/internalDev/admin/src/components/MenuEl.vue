@@ -1,6 +1,6 @@
 <template>
   <div v-if='menu === "divider"' class="divider"></div>
-  <span v-else :ref='menu.ref' class="menu" @mousedown.prevent.stop @click.stop @mouseup.prevent.stop='click' @mouseover='hover' :class='{ "active": menu.isActive !== false, open: isOpen }' :title='menu.title'>
+  <span v-else :ref='menu.ref' class="menu" @mousedown.prevent.stop.left @click.stop.left @mouseup.prevent.stop.left='click' @mouseover='hover' :class='{ "active": menu.isActive !== false, open: isOpen }' :title='menu.title'>
     <div v-show='menu.template != null' v-html="menu.template"></div>
     <i v-show='menu.icon || showIcon' :class='"icon " + menu.icon'></i>
     <div v-show='menu.text' class='text'>

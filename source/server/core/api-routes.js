@@ -67,6 +67,8 @@ router.post('/session/addGame', function (req, res) {
 
         try {
             app.appjs = fs.readFileSync(filePath) + '';
+            let treatment = app;
+            let game = app;
             eval(app.appjs); // jshint ignore:line
             console.log('loaded app ' + filePath);
         } catch (err) {
@@ -180,7 +182,7 @@ router.get('/sessions', function (req, res) {
 });
 
 router.get('/session', function (req, res) {
-    let sessionId = req.params.sessionId;
+    let sessionId = req.query.sessionId;
     let session = global.jt.data.getSession(sessionId);
     res.json(session.shellWithChildren());
 });

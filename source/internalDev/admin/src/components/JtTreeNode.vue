@@ -3,7 +3,7 @@
         <div 
             class='node-title'
             :class='{"selected": isSelected}'
-            @dblclick.prevent.stop='toggleExpanded'
+            @dblclick.prevent.stop="dblClick"
             @mousedown='mousedown'
             @keydown.down="moveDown"
             @keydown.up="moveUp"
@@ -14,15 +14,17 @@
             @focus="onFocus"
             ref='titleEl'
         >
-            <span v-show='hasChildren' class='expand-icon-width expand-icon' @click='toggleExpanded'>
-                {{icon}}
+            <span v-if='allowChildren' class='expand-icon-width'>
+                <span v-show='hasChildren' class='expand-icon' @click='toggleExpanded'>
+                    {{icon}}
+                </span>
             </span>
-            <span v-show='!hasChildren' class='expand-icon-width'></span>
+            <span v-else style='padding-left: 4px' />
             <input 
                 v-show='editing'
                 class='editor'
                 type='text'
-                :value='node.title'
+                :value='nodeTitle'
                 ref='editor'
                 autocomplete="off" 
                 autocorrect="off" 
@@ -33,17 +35,18 @@
                 @keydown.enter='renameNode'
                 @blur='cancelEditing'
             />
-            <span v-show='!editing' class='node-title-text no-text-select'>{{node.title}}</span>
+            <span v-show='!editing' class='node-title-text no-text-select'>{{nodeTitle}}</span>
         </div>
         <div class='children' v-show='expanded'>
             <jt-treenode
-                v-for='(child, index) in node.children'
+                v-for='(child, index) in nodeChildren'
                 :key='index'
                 :nodeProp='child'
                 :tree='tree'
                 :parentNode='nodeProp'
                 :indexOnParent='index'
                 :f2Func='f2Func'
+                :dblClickFunc='dblClickFunc'
             >
             </jt-treenode>
         </div>
@@ -67,6 +70,7 @@ export default {
             default: false
         },
         f2Func: {},
+        dblClickFunc: {},
     },
     data() { return {
         node: this.nodeProp,
@@ -75,11 +79,14 @@ export default {
         editing: this.editingProp,
     }},
     computed: {
+        allowChildren() {
+            return this.tree.allowChildren;
+        },
         isSelected() {
             return this.tree.selection.includes(this.node);
         },
         hasChildren() {
-            return this.nodeProp.children!=null;
+            return this.nodeChildren!=null && this.nodeChildren.length > 0;
         },
         icon() {
             if (this.expanded) {
@@ -87,6 +94,12 @@ export default {
             } else {
                 return '+';
             }
+        },
+        nodeTitle() {
+            return this.node[this.tree.titleField];
+        },
+        nodeChildren() {
+            return this.node[this.tree.childrenField];
         },
     },
     mounted() {
@@ -99,13 +112,20 @@ export default {
     methods: {
         lastOpenNode() {
             if (this.expanded && this.hasChildren) {
-                return this.node.children[this.node.children.length - 1].component.lastOpenNode();
+                return this.nodeChildren[this.nodeChildren.length - 1].component.lastOpenNode();
             } else {
                 return this.node;
             }
         },
         onFocus() {
 
+        },
+        dblClick() {
+            if (this.hasChildren) {
+                this.toggleExpanded();
+            } else {
+                this.dblClickFunc();
+            }
         },
         toggleExpanded() {
             this.expanded = !this.expanded;
@@ -119,20 +139,20 @@ export default {
             }
             let nextNode = null;
             if (this.expanded && this.hasChildren) {
-                nextNode = this.node.children[0];
+                nextNode = this.nodeChildren[0];
             } 
             // Last child of parent
-            else if (this.parentNode.children.length === this.indexOnParent + 1) {
+            else if (this.parentNode[this.tree.childrenField].length === this.indexOnParent + 1) {
                 let node = this;
-                while (node.parentNode != null && node.parentNode.children.length === node.indexOnParent + 1) {
+                while (node.parentNode != null && node.parentNode[this.tree.childrenField].length === node.indexOnParent + 1) {
                     node = node.parentNode;
                 }
                 if (node.parentNode == null) {
                     return;
                 }
-                nextNode = node.parentNode.children[node.indexOnParent+1];
+                nextNode = node.parentNode[this.tree.childrenField][node.indexOnParent+1];
             } else {
-               nextNode = this.parentNode.children[this.indexOnParent+1];
+               nextNode = this.parentNode[this.tree.childrenField][this.indexOnParent+1];
             }
             this.tree.component.setActiveNode(nextNode);
         },
@@ -151,7 +171,7 @@ export default {
                 }
                nextNode = this.parentNode;
             } else {
-               nextNode = this.parentNode.children[this.indexOnParent-1].component.lastOpenNode();
+               nextNode = this.parentNode[this.tree.childrenField][this.indexOnParent-1].component.lastOpenNode();
             }
             this.tree.component.setActiveNode(nextNode);
         },
@@ -201,28 +221,30 @@ export default {
 }
 
 .expand-icon-width {
-    flex: 0 0 20px;
+    flex: 0 0 16px;
     padding-top: 2px;
     padding-bottom: 2px;
+    display: flex;
 }
 
 .expand-icon {
     cursor: pointer;
     text-align: center;
+    flex: 1 1 auto;
 }
 
 .node {
     display: flex;
     flex-direction: column;
-    padding-left: 5px;
-    padding-right: 5px;
+    /* padding-left: 5px;
+    padding-right: 5px; */
     flex: 1 1 auto;
 }
 
 .node-title {
     display: flex;
-    padding-left: 2px;
-    padding-right: 2px;
+    /* padding-left: 2px;
+    padding-right: 2px; */
     cursor: pointer;
     white-space: nowrap;
 }
@@ -249,7 +271,8 @@ export default {
 }
 
 .node-title-text {
-    padding: 2px;
+    padding-top: 2px;
+    padding-bottom: 2px;
 }
 
 </style>
