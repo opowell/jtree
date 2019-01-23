@@ -213,7 +213,6 @@ export default {
 
 .node {
     display: flex;
-    font-size: 11pt;
     flex-direction: column;
     padding-left: 5px;
     padding-right: 5px;
@@ -229,15 +228,17 @@ export default {
 }
 
 .node-title:hover {
-    background-color: #424242;
+    background-color: var(--nodeTitleHoverBGColor);
 }
 
 .selected {
-    background-color: blue;
+    color: var(--nodeSelectedColor);
+    background-color: var(--nodeSelectedBGColor);
 }
 
 .selected:hover {
-    background-color: blue;
+    color: var(--nodeSelectedHoverColor);
+    background-color: var(--nodeSelectedHoverBGColor);
 }
 
 .editor {

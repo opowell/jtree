@@ -5,7 +5,7 @@ const fs        = require('fs-extra');
 const Utils     = require('../Utils.js');
 // const jt        = require('../jtree.js')
 const formidable = require('formidable');
-const App = require('../App.js');
+const Game = require('../models/Game.js');
 
 let router = require('express').Router();
 
@@ -28,7 +28,7 @@ router.post('/file/create', function (req, res) {
         }
         console.log(filePath + " succesfully created.");
         res.json(true);
-    }); 
+    });
 });
 
 router.post('/file/createFolder', function (req, res) {
@@ -41,7 +41,7 @@ router.post('/file/createFolder', function (req, res) {
         }
         console.log('Folder ' + filePath + " succesfully created.");
         res.json(true);
-    }); 
+    });
 });
 
 router.post('/session/addGame', function (req, res) {
@@ -51,7 +51,7 @@ router.post('/session/addGame', function (req, res) {
     } else {
         var app = null;
         let session = {};
-        app = new App.new(session, global.jt, appPath);
+        app = new Game.new(session, global.jt, appPath);
         app.givenOptions = options;
      //   app.shortId = id;
 
@@ -76,7 +76,7 @@ router.post('/session/addGame', function (req, res) {
         }
         let json = {
             success: true,
-            game: app.shellWithChildren2(),
+            game: app.shellWithChildren(),
         }
         res.json(json);
     }
