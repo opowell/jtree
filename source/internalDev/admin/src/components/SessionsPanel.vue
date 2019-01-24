@@ -103,6 +103,7 @@ export default {
                 type: 'session-info-panel',
                 title: 'Info',
                 data: activeNode.id,
+                checkIfAlreadyOpen: true,
             };
             // this.$store.commit('setSessionId', activeNode.id);
             this.$store.dispatch('showPanel', panelData);
