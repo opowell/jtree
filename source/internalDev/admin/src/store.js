@@ -4,6 +4,10 @@ import createPersistedState from 'vuex-persistedstate'
 
 Vue.use(Vuex)
 
+const OPEN_NEW_PANELS_IN_ACTIVE_WINDOW = 0;
+const OPEN_NEW_PANELS_IN_NEW_WINDOW = 1;
+const OPEN_NEW_PANELS_IN_ACTIVE_WINDOW_IF_MAXED = 2;
+
 const persistentSettings = [
   {
     name: 'Font size',
@@ -69,25 +73,30 @@ const persistentSettings = [
       name: 'Game name',
       type: 'text',
       key: 'appName',
-      default: 'Game'
+      default: 'Game',
+      isStyle: false,
   },
   {
       key: 'windowDescs',
       editable: false,
+      isStyle: false,
   },
   {
       key: 'nextWindowX',
       editable: false,
+      isStyle: false,
   },
   {
     key: 'nextWindowY',
     editable: false,
-},
+    isStyle: false,
+  },
 {
       name: 'Windows maximized',
       type: 'checkbox',
       key: 'windowsMaximized',
       default: true,
+      isStyle: false,
   },
   {
       name: 'Window, background color',
@@ -107,23 +116,40 @@ const persistentSettings = [
   {
       name: 'Allow multiple areas in a window',
       type: 'checkbox',
-      key: 'allowMultipleAreasInAWindow'
+      key: 'allowMultipleAreasInAWindow',
+      isStyle: false,
   },
   {
       name: 'Allow multiple panels in an area',
       type: 'checkbox',
-      key: 'allowMultiplePanelsInAnArea'
+      key: 'allowMultiplePanelsInAnArea',
+      isStyle: false,
   },
   {
       name: 'Open new panels in',
       type: 'select',
-      options: ['New window', 'Active window when in maximized mode, otherwise new window', 'Active window'],
+      options: [
+        {
+          value: OPEN_NEW_PANELS_IN_ACTIVE_WINDOW,
+          text: 'Active window',
+         },
+         {
+           value: OPEN_NEW_PANELS_IN_ACTIVE_WINDOW_IF_MAXED,
+           text: 'Active window when in maximized mode, otherwise new window',
+         },
+         {
+           value: OPEN_NEW_PANELS_IN_NEW_WINDOW,
+           text: 'New window',
+         }
+      ],
       key: 'openNewPanelsIn',
+      isStyle: false,
   },
   {
       name: 'Hide tabs when only single panel in area',
       type: 'checkbox',
-      key: 'hideTabsWhenSinglePanel'
+      key: 'hideTabsWhenSinglePanel',
+      isStyle: false,
   },
   {
       name: 'Selected tab font color',
@@ -136,6 +162,11 @@ const persistentSettings = [
       key: 'tabFontColor',
   },
   {
+    name: 'Selected tab background color',
+    type: 'text',
+    key: 'tabSelectedBGColor',
+},
+{
       name: 'Tab background color',
       type: 'text',
       key: 'tabBGColor',
@@ -269,7 +300,7 @@ let stateObj = {
         areaActionBarBGColor: '#fff',
         areaContentBGColor: '#fff',
         areaContentFontColor: '#000',
-        tabBGColor: '#eee',
+        tabBGColor: 'rgba(245, 245, 245, 0.7)',
         tabHoverBGColor: '#fff',
         panelContentBGColor: '#fff',
         nodeTitleHoverBGColor: 'unset',
@@ -282,7 +313,9 @@ let stateObj = {
         panelCloseButtonHoverBGColor: '#ff3043',
         panelCloseButtonColor: 'white',
         actionBarBGColor: '#f5f5f5',
-        nodeSelectedFocussedBGColor: 'rgb(51, 153, 255)'
+        nodeSelectedFocussedBGColor: 'rgb(51, 153, 255)',
+        openNewPanelsIn: OPEN_NEW_PANELS_IN_NEW_WINDOW,
+        tabSelectedBGColor: '#f5f5f5'
       }
     },
     {
@@ -320,6 +353,8 @@ let stateObj = {
         panelCloseButtonColor: 'inherit',
         actionBarBGColor: '#555',
         windowBGColor: '#333',
+        openNewPanelsIn: OPEN_NEW_PANELS_IN_ACTIVE_WINDOW_IF_MAXED,
+        tabSelectedBGColor: '#f5f5f5',
       }
     }
   ]
@@ -372,26 +407,36 @@ export default new Vuex.Store({
           return;
         }
       }
-      if (state.windowsMaximized && state.windowDescs.length > 0) {
+      if (
+        (
+          state.openNewPanelsIn === OPEN_NEW_PANELS_IN_ACTIVE_WINDOW &&
+          state.windowDescs.length > 0
+        ) ||
+        (
+          state.openNewPanelsIn === OPEN_NEW_PANELS_IN_ACTIVE_WINDOW_IF_MAXED &&
+          state.windowsMaximized &&
+          state.windowDescs.length > 0
+        )
+      ) {
         commit('addPanelToActiveWindow', {
-            id: data.title,
-            type: data.type,
-            data: data.data,
+          id: data.title,
+          type: data.type,
+          data: data.data,
         });
       } else {
-          commit('showWindow', {
-              panels: [
-                  {
-                      id: data.title,
-                      type: data.type,
-                      data: data.data,
-                  },
-              ],
-              areas: [],
-              w: 500,
-              h: 300,
-              flex: '1 1 100px',
-          });
+        commit('showWindow', {
+          panels: [
+              {
+                  id: data.title,
+                  type: data.type,
+                  data: data.data,
+              },
+          ],
+          areas: [],
+          w: 500,
+          h: 300,
+          flex: '1 1 100px',
+        });
       }
     },
   },

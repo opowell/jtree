@@ -47,8 +47,10 @@ export default {
       let s = this.$store.state;
       let out = {};
 for (let i=0; i<s.persistentSettings.length; i++) {
-        let setting = s.persistentSettings[i]; 
-        out['--' + setting.key] = s[setting.key];
+        let setting = s.persistentSettings[i];
+        if (setting.isStyle !== false) {
+          out['--' + setting.key] = s[setting.key];
+        }
       }
       return out;
     },

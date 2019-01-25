@@ -137,6 +137,7 @@
             "flex-direction-column": isRowChildren,
             "flex-direction-row": !isRowChildren,
         }'
+        :style='areaStyle'
     >
         <template v-for='(curArea, index) in areas' >
             <jt-area
@@ -148,8 +149,8 @@
                 @startmove='startMove'
                 :activePanelInd='curArea.activePanelInd'
                 :rowChildren='curArea.rowChildren'
-                :flex='curArea.flex'
                 :isLastArea='index === areas.length - 1'
+                :flex='curArea.flex'
             />
             <div 
                 v-if='index < areas.length - 1'
@@ -170,6 +171,9 @@ import FilesPanel from '@/components/FilesPanel.vue'
 import GamesPanel from '@/components/GamesPanel.vue'
 import GameTreePanel from '@/components/GameTreePanel.vue'
 import SessionInfoPanel from '@/components/SessionInfoPanel.vue'
+import SessionActionsPanel from '@/components/SessionActionsPanel.vue'
+import SessionParticipantsPanel from '@/components/SessionParticipantsPanel.vue'
+import SessionMonitorPanel from '@/components/SessionMonitorPanel.vue'
 import SessionsPanel from '@/components/SessionsPanel.vue'
 import SettingsPanel from '@/components/SettingsPanel.vue'
 
@@ -192,6 +196,9 @@ export default {
     GameTreePanel,
     GamesPanel,
     SessionInfoPanel,
+    SessionActionsPanel,
+    SessionMonitorPanel,
+    SessionParticipantsPanel,
     SessionsPanel,
     SettingsPanel,
   },
@@ -586,7 +593,7 @@ export default {
 }
 
 .selected {
-    background-color: var(--tabBGColor);
+    background-color: var(--tabSelectedBGColor);
     /* border-bottom-color: #353535; */
     color: var(--tabSelectedFontColor);
 }

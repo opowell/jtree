@@ -20,6 +20,7 @@
                     <b-form-select v-if='setting.type == "select"'
                         :id="`setting-${setting.key}`"
                         :options='setting.options'
+                        :value='getStateValue(setting.key)'
                         @input="change(setting, $event)"
                     />
                     <b-form-checkbox 
