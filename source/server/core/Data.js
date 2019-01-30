@@ -6,6 +6,7 @@ const App = require('../App.js');
 const Room = require('../Room.js');
 const Queue = require('../Queue.js');
 const User = require('../User.js');
+const Observer = require('micro-observer').Observer;
 // const Game = require('../Game.js');
 
 /** The data object. */
@@ -69,6 +70,17 @@ class Data {
             hello: 'world'
         }
 
+        this.proxy = Observer.create({sessions: this.sessions}, function(change) {
+            let msg = {
+                arguments: change.arguments,
+                function: change.function,
+                path: change.path,
+                property: change.property,
+                type: change.type,
+            }
+            jt.socketServer.io.to(jt.socketServer.ADMIN_TYPE).emit('objChange', msg);
+        });
+
     }
 
     /*
@@ -111,6 +123,11 @@ class Data {
             }
         }
         return out;
+    }
+
+    deleteSession(sessionId) {
+        Utils.deleteById(this.proxy.sessions, sessionId);
+        Utils.deleteById(this.sessions, sessionId);
     }
 
     getClients(sessionId) {
@@ -555,11 +572,11 @@ class Data {
     }
 
     room(id) {
-        return Utils.findByIdWOJQ(this.rooms, id);
+        return Utils.findById(this.rooms, id);
     }
 
     queue(id) {
-        return Utils.findByIdWOJQ(this.queues, id);
+        return Utils.findById(this.queues, id);
     }
 
     loadRooms() {
@@ -768,7 +785,11 @@ class Data {
     }
 
     getSession(sessionId) {
-        return Utils.findByIdWOJQ(this.sessions, sessionId);
+        return Utils.findById(this.sessions, sessionId);
+    }
+
+    getProxySession(sessionId) {
+        return Utils.findById(this.proxy.sessions, sessionId);
     }
 
     /*
@@ -788,6 +809,9 @@ class Data {
         }
         sess.save();
         this.jt.socketServer.emitToAdmins('addSession', sess.shell());
+        this.sessions.push(sess);
+        let shell = sess.shell();
+        this.proxy.sessions.push(shell);
         return sess;
     }
 
@@ -806,7 +830,7 @@ class Data {
     }
 
     session(id) {
-        return Utils.findByIdWOJQ(this.sessions, id);
+        return Utils.findById(this.sessions, id);
     }
 
     isValidAdmin(id, pwd) {

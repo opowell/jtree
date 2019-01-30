@@ -18,6 +18,7 @@
             :nodesProp='nodes'
             :f2Func='renameActiveNode'
             :dblClickFunc='addSelectedNodeToGameTree'
+            @deleteNode='deleteFile'
         >
         </jt-tree>
     </div>
@@ -169,8 +170,10 @@ export default {
             return out;
         },
         deleteFile(data, ev) {
-            ev.stopPropagation();
-            ev.preventDefault();
+            if (ev != null) {
+                ev.stopPropagation();
+                ev.preventDefault();
+            }
             let activeNode = this.$refs.tree.tree.activeNode;
             let parentPath = this.getParentPath(activeNode);
             parentPath.push(activeNode.title);
@@ -181,8 +184,7 @@ export default {
                 }
             ).then(response => {
                 if (response.data === true) {
-                    activeNode.parentNode.children.splice(activeNode.indexOnParent, 1);
-                    this.$refs.tree.setActiveNode(null);
+                    this.$refs.tree.deleteActiveNode();
                 }
             });
         },

@@ -42,15 +42,21 @@ export default {
    display: flex;
     flex: 0 0 auto;
     background-color: var(--actionBarBGColor);
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
 }
 
-/* .main-menu .menu {
-    /* padding: 0px 7px; */
-/* }  */
+/* .main-menu > .menu {
+    padding: 10px;
+    font-size: 14px;
+} */
 
+.main-menu > :first-child {
+    border-top-left-radius: 5px;
+}
 
 .main-menu .menu:hover {
-    background-color: var(--menuHoverBGColor);
+    background-color: #90cbff;
 }
 
 .spacer {

@@ -18,6 +18,7 @@
     "http": "^0.0.0",
     "ip": "^1.1.5",
     "jsonfile": "^4.0.0",
+    "micro-observer": "0.0.18",
     "node": "^11.4.0",
     "nodemon": "^1.18.9",
     "object-hash": "^1.2.0",
@@ -26,6 +27,7 @@
     "package.json": "^2.0.1",
     "path": "^0.12.7",
     "replace": "^0.3.0",
+    "rimraf": "^2.6.3",
     "socket.io": "^2.0.4",
     "syc": "^2.0.5"
   },

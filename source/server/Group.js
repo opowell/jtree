@@ -253,7 +253,7 @@ class Group {
     }
 
     player(id) {
-        return Utils.findByIdWOJQ(this.players, id);
+        return Utils.findById(this.players, id);
     }
 
     /**

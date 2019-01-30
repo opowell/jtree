@@ -22,5 +22,10 @@
     mounted() {
         this.panel.id = 'Info';
     },
+    methods: {
+        toggleDefault() {
+
+        },
+    },
   }
 </script>

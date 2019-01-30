@@ -12,7 +12,9 @@
             :f2Func='renameSession'
             :dblClickFunc='openSession'
             :titleField='"id"'
+            :keyField='"id"'
             :allowChildren='false'
+            @deleteNode='deleteSession'
         >
         </jt-tree>
     </div>
@@ -37,13 +39,12 @@ export default {
             return {
                 contextMenuIsVisible: true,
                 loading: true,
-                sessions: [],
                 actions: [
                 {
-                    title: 'New file',
+                    title: 'New session',
                     hasParent: false,
-                    icon: 'far fa-file',
-                    action: this.createNewFile,
+                    icon: 'fas fa-plus',
+                    action: this.createNewSession,
                 },
                 {
                     title: 'Rename',
@@ -78,22 +79,28 @@ export default {
         created() {
             this.fetchData();
         },
+        computed: {
+            sessions() {
+                return this.$store.state.sessions;
+            }
+        },
     methods: {
         deleteSession(data, ev) {
-            ev.stopPropagation();
-            ev.preventDefault();
-            let activeNode = this.$refs.tree.tree.activeNode;
-            let parentPath = this.getParentPath(activeNode);
-            parentPath.push(activeNode.title);
+            if (ev != null) {
+                ev.stopPropagation();
+                ev.preventDefault();
+            }
+            let activeNode = this.$refs.sessionsTree.tree.activeNode;
             axios.post(
-                'http://' + window.location.host + '/api/file/delete',
+                'http://' + window.location.host + '/api/session/delete',
                 {
-                    path: parentPath,
+                    sessionId: activeNode.id,
+                    sessionPath: activeNode.id,
                 }
             ).then(response => {
                 if (response.data === true) {
-                    activeNode.parentNode.children.splice(activeNode.indexOnParent, 1);
-                    this.$refs.tree.setActiveNode(null);
+                    console.log('success');
+                    // this.$refs.sessionsTree.deleteActiveNode();
                 }
             });
         },
@@ -111,31 +118,21 @@ export default {
         createNewSession(data, ev) {
             ev.stopPropagation();
             ev.preventDefault();
-            let activeNode = this.$refs.tree.tree.activeNode;
-            let closestFolder = this.getClosestFolder(activeNode);
-            if (closestFolder != null) {
-                let parentPath = this.getParentPath(closestFolder);
-                parentPath.push(closestFolder.title);
-                axios.post(
-                    'http://' + window.location.host + '/api/file/create',
-                    {
-                        path: parentPath,
-                        newName: 'Untitled.jtt',
-                    }
-                ).then(response => {
-                    if (response.data === true) {
-                        let newNode = {
-                            title: 'Untitled.jtt',
-                        };
-                        closestFolder.children.push(newNode);
-                        closestFolder.component.expanded = true;
-                        this.$nextTick(function() {
-                            this.$refs.tree.setActiveNode(newNode);
-                            this.renameActiveNode('', null);
-                        });
-                    }
-                });
-            }
+            axios.post(
+                'http://' + window.location.host + '/api/session/create'
+            ).then(response => {
+                // if (response.data === true) {
+                //     let newNode = {
+                //         title: 'Untitled.jtt',
+                //     };
+                //     closestFolder.children.push(newNode);
+                //     closestFolder.component.expanded = true;
+                //     this.$nextTick(function() {
+                //         this.$refs.tree.setActiveNode(newNode);
+                //         this.renameActiveNode('', null);
+                //     });
+                // }
+            });
         },
         renameSession(data, ev) {
             if (ev != null) {
@@ -152,12 +149,12 @@ export default {
 
         fetchData() {
             this.loading = true;
-            this.sessions.splice(0, this.sessions.length);
+            this.$store.state.sessions.splice(0, this.$store.state.sessions.length);
             axios
             .get('http://' + window.location.host + '/api/sessions')
             .then(response => {
                 for (let i=0; i<response.data.length; i++) {
-                    this.sessions.push(response.data[i]);
+                    this.$store.state.sessions.push(response.data[i]);
                 }
                 this.loading = false;
             });

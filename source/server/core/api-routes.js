@@ -6,6 +6,7 @@ const Utils     = require('../Utils.js');
 // const jt        = require('../jtree.js')
 const formidable = require('formidable');
 const Game = require('../models/Game.js');
+const rimraf = require("rimraf");
 
 let router = require('express').Router();
 
@@ -42,6 +43,45 @@ router.post('/file/createFolder', function (req, res) {
         console.log('Folder ' + filePath + " succesfully created.");
         res.json(true);
     });
+});
+
+router.post('/session/create', function (req, res) {
+    global.jt.data.createSession();
+});
+
+router.post('/session/delete', function (req, res) {
+    let sessionId = req.body.sessionId;
+    let session = global.jt.data.getSession(sessionId);
+    // fs.close(session.fileStream.fd, function() {
+    //     let filePath = path.join(global.jt.path, 'sessions', req.body.sessionPath);
+    //     rimraf(filePath, (err) => {
+    //         if (err) {
+    //             console.log('Error deleting session: \n' + err);
+    //             res.json(false);
+    //             return;
+    //         }
+    //         console.log('Session ' + filePath + " succesfully deleted.");
+    //         global.jt.data.deleteSession(sessionId);
+    //         res.json(true);
+    //     });
+    // });
+
+    let endFunc = function() {
+        let filePath = path.join(global.jt.path, 'sessions', req.body.sessionPath);
+        rimraf(filePath, (err) => {
+            if (err) {
+                console.log('Error deleting session: \n' + err);
+                res.json(false);
+                return;
+            }
+            console.log('Session ' + filePath + " succesfully deleted.");
+            global.jt.data.deleteSession(sessionId);
+            res.json(true);
+        });
+        session.fileStream.removeListener('finish', endFunc);
+    };
+    session.fileStream.on("finish", endFunc);
+    session.fileStream.end();
 });
 
 router.post('/session/addGame', function (req, res) {
@@ -88,7 +128,7 @@ router.post('/file/delete', function (req, res) {
     let filePath = path.join.apply(null, req.body.path);
 
     if (fs.lstatSync(filePath).isDirectory()) {
-        fs.rmdir(filePath, (err) => {
+        fs.rimraf(filePath, (err) => {
             if (err) {
                 res.json(false);
                 throw err;

@@ -4,7 +4,9 @@
     <div v-if='areas.length < 1' class='area' :style='areaStyle'>
         <!-- TABS -->
         <div class='tabs'>
-            <menu-el :menu='{
+            <menu-el
+                :dblclickFunc="close"
+                :menu='{
                 icon: "fas fa-align-center",
                 hasParent: false,
                 showIcon: true,
@@ -147,11 +149,11 @@
                 :window='window'
                 :indexOnParent='index'
                 @startmove='startMove'
-                :activePanelInd='curArea.activePanelInd'
                 :rowChildren='curArea.rowChildren'
                 :isLastArea='index === areas.length - 1'
                 :flex='curArea.flex'
             />
+                <!-- :activePanelInd='curArea.activePanelInd' -->
             <div 
                 v-if='index < areas.length - 1'
                 class='adjuster'
@@ -207,7 +209,7 @@ export default {
       'parent',
       'window',
       'indexOnParent', // Non-array fields must be listed explicitly for some reason, otherwise they do not update.
-      'activePanelInd',
+    //   'activePanelInd',
       'isLastArea',
       'flex',
       'rowChildren',
@@ -244,6 +246,9 @@ export default {
           } else {
             return this.panels[this.activePanelInd];
           }
+      },
+      activePanelInd() {
+          return this.areaProp.activePanelInd;
       },
     areaStyle() {
         if (this.isLastArea) {
@@ -530,6 +535,8 @@ export default {
     /* overflow: auto; */
     display: flex;
     flex-direction: column;
+    box-shadow: 0px 0px 7px 1px rgba(0, 0, 0, 0.4);
+    border-radius: 5px;
 }
 
 .flex-direction-column {
@@ -549,6 +556,7 @@ export default {
     display: flex;
     flex-direction: column;
     overflow: auto;
+    padding: 5px;
 }
 
 .adjuster {
@@ -596,6 +604,7 @@ export default {
     background-color: var(--tabSelectedBGColor);
     /* border-bottom-color: #353535; */
     color: var(--tabSelectedFontColor);
+    z-index: 0;
 }
 
 .title-bar-icon {

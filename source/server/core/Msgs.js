@@ -264,7 +264,7 @@ class Msgs {
     }
 
     openSession(sId, socket) {
-        var session = Utils.findByIdWOJQ(this.jt.data.sessions, sId);
+        var session = Utils.findById(this.jt.data.sessions, sId);
         if (session !== null && session !== undefined) {
             socket.join(session.roomId());
             this.jt.io.to('socket_' + socket.id).emit('openSession', session.shellWithChildren());
@@ -321,7 +321,7 @@ class Msgs {
      * @param  {string} id The id of the session.
      */
     sessionStart(id) {
-        var session = Utils.findByIdWOJQ(this.jt.data.sessions, id);
+        var session = Utils.findById(this.jt.data.sessions, id);
         if (session !== null) {
             session.start();
         }
@@ -333,7 +333,7 @@ class Msgs {
      * @param  {string} id The id of the session.
      */
     sessionAdvanceSlowest(id) {
-        var session = Utils.findByIdWOJQ(this.jt.data.sessions, id);
+        var session = Utils.findById(this.jt.data.sessions, id);
         if (session !== null) {
             session.advanceSlowest();
         }
@@ -347,21 +347,21 @@ class Msgs {
     }
 
     sessionDeleteApp(d) {
-        var session = Utils.findByIdWOJQ(this.jt.data.sessions, d.sId);
+        var session = Utils.findById(this.jt.data.sessions, d.sId);
         if (session !== null) {
             session.deleteApp(d);
         }
     }
 
     setSessionAppOption(d, socket) {
-        var session = Utils.findByIdWOJQ(this.jt.data.sessions, d.sId);
+        var session = Utils.findById(this.jt.data.sessions, d.sId);
         if (session !== null) {
             session.setAppOption(d.appId, d.i, d.name, d.value);
         }
     }
 
     setSessionAppOptions(d, socket) {
-        var session = Utils.findByIdWOJQ(this.jt.data.sessions, d.sId);
+        var session = Utils.findById(this.jt.data.sessions, d.sId);
         if (session !== null) {
             for (var i in d.options) {
                 session.setAppOption(d.appId, d.index, i, d.options[i]);
@@ -370,14 +370,14 @@ class Msgs {
     }
 
     sessionPause(id, sock) {
-        var session = Utils.findByIdWOJQ(this.jt.data.sessions, id);
+        var session = Utils.findById(this.jt.data.sessions, id);
         if (session !== null) {
             session.pause();
         }
     }
 
     sessionResume(id, sock) {
-        var session = Utils.findByIdWOJQ(this.jt.data.sessions, id);
+        var session = Utils.findById(this.jt.data.sessions, id);
         if (session !== null) {
             session.resume();
         }

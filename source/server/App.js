@@ -1532,7 +1532,7 @@ class App {
         if (prevPeriod === null) {
             return null;
         } else {
-            return Utils.findByIdWOJQ(prevPeriod.groups, group.id);
+            return Utils.findById(prevPeriod.groups, group.id);
         }
     }
 

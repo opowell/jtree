@@ -1,15 +1,16 @@
 <template>
     <div style='display: flex; flex: 1 1 auto; flex-direction: column;'>
         <jt-treenode 
-            v-for='(baseNode, index) in nodesProp' 
-            :key='index'
-            :nodeProp='baseNode'
+            v-for='(childNode, index) in nodesProp' 
+            :key='childNode[tree.keyField]'
+            :nodeProp='childNode'
             :parentNode='node'
             :tree='tree'
             :indexOnParent='index'
             :expandedProp='index === 0'
             :f2Func='f2Func'
             :dblClickFunc='dblClickFunc'
+            @deleteNode="deleteNode"
         >
         </jt-treenode>
     </div>
@@ -32,6 +33,10 @@ export default {
             type: String,
             default: 'title',
         },
+        keyField: {
+            type: String,
+            default: 'title',
+        },
         childrenField: {
             type: String,
             default: 'children',
@@ -49,6 +54,7 @@ export default {
                 activeNode: null,
                 component: this,
                 titleField: this.titleField,
+                keyField: this.keyField,
                 childrenField: this.childrenField,
                 allowChildren: this.allowChildren,
             },
@@ -63,6 +69,9 @@ export default {
         }
     },
     methods: {
+        deleteNode(ev) {
+            this.$emit('deleteNode');
+        },
         clearSelection() {
             this.tree.selection.splice(0, this.tree.selection.length);
         },
@@ -76,6 +85,20 @@ export default {
             if (node != null) {
                 node.titleEl.focus();
             }
+        },
+        deleteActiveNode() {
+            let activeNode = this.tree.activeNode;
+            activeNode.parentNode.children.splice(activeNode.indexOnParent, 1);
+            let nextNode = null;
+            let parentNode = activeNode.parentNode;
+            if (parentNode.children.length > 0) {
+                let index = activeNode.indexOnParent;
+                index = Math.min(index, parentNode.children.length - 1);
+                nextNode = parentNode.children[index];
+            } else {
+                nextNode = parentNode;
+            }
+            this.setActiveNode(nextNode);
         },
     },
 }

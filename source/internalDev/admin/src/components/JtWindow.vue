@@ -54,6 +54,7 @@ export default {
 		'window',
 		'activePanelInd',
 		'index',
+		'rowChildren',
 	],
 	data() {
 		return {
@@ -107,9 +108,6 @@ export default {
 		},
 		isMaximized() {
 			return this.$store.state.windowsMaximized;
-		},
-		rowChildren() {
-			return this.window.rowChildren;
 		},
 		zIndex() {
 			const windows = this.$store.state.windows;
@@ -601,6 +599,7 @@ export default {
 	border: 1px inset rgba(0, 0, 0, 0.3);
 	overflow: auto;
 	display: flex;
+    padding: 10px;
 }
 
 </style>
