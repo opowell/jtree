@@ -6,7 +6,7 @@ const Utils     = require('../Utils.js');
 // const jt        = require('../jtree.js')
 const formidable = require('formidable');
 const Game = require('../models/Game.js');
-const rimraf = require("rimraf");
+// const rimraf = require("rimraf");
 
 let router = require('express').Router();
 
@@ -27,7 +27,7 @@ router.post('/file/create', function (req, res) {
             res.json(false);
             throw err;
         }
-        console.log(filePath + " succesfully created.");
+        console.log('File ' + filePath + " succesfully created.");
         res.json(true);
     });
 });
@@ -66,9 +66,43 @@ router.post('/session/delete', function (req, res) {
     //     });
     // });
 
+    
+    // let endFunc = function() {
+    //     let filePath = path.join(global.jt.path, 'sessions', req.body.sessionPath);
+    //     fs.remove(filePath, (err) => {
+    //         if (err) {
+    //             console.log('Error deleting session: \n' + err);
+    //             res.json(false);
+    //             return;
+    //         }
+    //         console.log('Session ' + filePath + " succesfully deleted.");
+    //         global.jt.data.deleteSession(sessionId);
+    //         res.json(true);
+    //     });
+    //     session.fileStream.removeListener('finish', endFunc);
+    // };
+    // session.fileStream.on("finish", endFunc);
+    // session.fileStream.end();
+
+    // let endFunc = function() {
+    //     let filePath = path.join(global.jt.path, 'sessions', req.body.sessionPath, req.body.sessionPath + '.gsf');
+    //     fs.unlink(filePath, (err) => {
+    //         if (err) {
+    //             console.log(err);
+    //             res.json(false);
+    //             return;
+    //         }
+    //         console.log('File ' + filePath + " succesfully deleted.");
+    //         res.json(true);
+    //     });
+    //     session.fileStream.removeListener('finish', endFunc);
+    // };
+    // session.fileStream.on("finish", endFunc);
+    // session.fileStream.end();
+
     let endFunc = function() {
         let filePath = path.join(global.jt.path, 'sessions', req.body.sessionPath);
-        rimraf(filePath, (err) => {
+        fs.remove(filePath, (err) => {
             if (err) {
                 console.log('Error deleting session: \n' + err);
                 res.json(false);
@@ -78,10 +112,14 @@ router.post('/session/delete', function (req, res) {
             global.jt.data.deleteSession(sessionId);
             res.json(true);
         });
-        session.fileStream.removeListener('finish', endFunc);
     };
-    session.fileStream.on("finish", endFunc);
-    session.fileStream.end();
+    try {
+        session.fileStream.on("close", endFunc);
+        session.fileStream.destroy();
+    } catch (err) {
+        console.log(err);
+        endFunc();
+    }
 });
 
 router.post('/session/addGame', function (req, res) {

@@ -22,6 +22,7 @@ msgs.deleteSession = function(id) {
 msgs.objChange = function(change) {
     switch (change.type) {
         case 'function-call':
+            console.log('object change: \n' + change.function);
             window.vue.$store.state[change.path][change.function](...change.arguments);
             break;
         default:
