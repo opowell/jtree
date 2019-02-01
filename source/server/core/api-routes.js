@@ -52,6 +52,11 @@ router.post('/session/create', function (req, res) {
 router.post('/session/delete', function (req, res) {
     let sessionId = req.body.sessionId;
     let session = global.jt.data.getSession(sessionId);
+    if (session == null) {
+        console.log('Error deleting session ' + sessionId);
+        return;
+    }
+
     // fs.close(session.fileStream.fd, function() {
     //     let filePath = path.join(global.jt.path, 'sessions', req.body.sessionPath);
     //     rimraf(filePath, (err) => {
@@ -114,6 +119,7 @@ router.post('/session/delete', function (req, res) {
         });
     };
     try {
+        // session.asyncQueue.kill();
         session.fileStream.on("close", endFunc);
         session.fileStream.destroy();
     } catch (err) {

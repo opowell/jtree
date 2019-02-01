@@ -85,21 +85,22 @@ class Session {
 
         this.users = [];
 
-        this.asyncQueue = async.queue(this.processMessage, 1);
+        // this.asyncQueue = async.queue(this.processMessage, 1);
 
         // A filestream for writing to this session's object states.
         try {
+            console.log('new session!');
             fs.ensureDirSync(this.getOutputDir());
-            // var options = { 'flags': 'a'};
-            // let filename = this.getOutputDir() + '/' + this.id + '.gsf';
+            var options = { 'flags': 'a'};
+            let filename = this.getOutputDir() + '/' + this.id + '.gsf';
             // fs.ensureFileSync(filename);
-            // this.fileStream = fs.createWriteStream(filename, options)
-            // .on('open', function (fd) {
+            this.fileStream = fs.createWriteStream(filename, options)
+            .on('open', function (fd) {
  
-            //     console.log(filename + ' is open!');
-            //     console.log('fd: ' + fd);
+                console.log(filename + ' is open!');
+                console.log('fd: ' + fd);
              
-            // });
+            });
         } catch (err) {
             debugger;
             console.log(err);

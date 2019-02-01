@@ -6,6 +6,7 @@
             :nodeProp='childNode'
             :parentNode='node'
             :tree='tree'
+            :nodePath='[index]'
             :indexOnParent='index'
             :expandedProp='index === 0'
             :f2Func='f2Func'
@@ -13,6 +14,7 @@
             @deleteNode="deleteNode"
         >
         </jt-treenode>
+            <!-- :key='childNode[tree.keyField]' -->
     </div>
 </template>
 
@@ -51,7 +53,7 @@ export default {
             nodes: this.nodesProp,
             tree: {
                 selection: [],
-                activeNode: null,
+                // activeNode: null,
                 component: this,
                 titleField: this.titleField,
                 keyField: this.keyField,
@@ -67,9 +69,20 @@ export default {
                 children: this.nodesProp,
                 isNode: false,
             }
-        }
+        },
     },
     methods: {
+        activeNode() {
+            if (this.tree.activeNodePath == null || this.tree.activeNodePath.length < 1) {
+                return null;
+            }
+            let nodePath = this.tree.activeNodePath;
+            let node = this.nodesProp[nodePath[0]];
+            for (let i=1; i<this.tree.activeNodePath.length; i++) {
+                node = node[this.tree.childrenField][nodePath[i]];
+            }
+            return node;
+        },
         getParentPath(node) {
             let out = [];
             let parentNode = node.parentNode;
@@ -94,7 +107,7 @@ export default {
             if (this.tree.activeNode != null) {
                 this.tree.activeNode.component.editing = false;
             }
-            this.tree.activeNode = node;
+            this.tree.activeNodePath = node.path;
             this.$nextTick(function() {
                 if (node != null) {
                     node.titleEl.focus();
@@ -102,7 +115,12 @@ export default {
             });
         },
         getNodePath(node) {
-
+            let out = [];
+            while (node != null && node.isNode !== false) {
+                out.unshift(node.indexOnParent);
+                node = node.parentNode;
+            }
+            return out;
         },
         deleteActiveNode() {
             let activeNode = this.tree.activeNode;

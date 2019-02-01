@@ -1,109 +1,30 @@
 // CONSTANTS
-app.REPTYPE_RANDOM = 'RANDOM';
-app.REPTYPE_RECENT = 'RECENT';
-app.REPTYPE_AVERAGE = 'AVERAGE';
-app.TEXT_INVEST = 'YELLOW';
-app.TEXT_NOT_INVEST = 'BLUE';
-app.TEXT_RETURN = 'ORANGE';
-app.TEXT_NOT_RETURN = 'GREEN';
+game.REPTYPE_RANDOM = 'RANDOM';
+game.REPTYPE_RECENT = 'RECENT';
+game.REPTYPE_AVERAGE = 'AVERAGE';
+game.TEXT_INVEST = 'YELLOW';
+game.TEXT_NOT_INVEST = 'BLUE';
+game.TEXT_RETURN = 'ORANGE';
+game.TEXT_NOT_RETURN = 'GREEN';
 
-app.COLORS = {}
-app.COLORS[app.TEXT_INVEST] = 'orange';
-app.COLORS[app.TEXT_NOT_INVEST] = 'blue';
-app.COLORS[app.TEXT_RETURN] = '#ff6c00';
-app.COLORS[app.TEXT_NOT_RETURN] = 'green';
+game.COLORS = {}
+game.COLORS[game.TEXT_INVEST] = 'orange';
+game.COLORS[game.TEXT_NOT_INVEST] = 'blue';
+game.COLORS[game.TEXT_RETURN] = '#ff6c00';
+game.COLORS[game.TEXT_NOT_RETURN] = 'green';
 
 // PARAMETERS
-app.description = 'Trust game - Bednarik.';
-app.N = 10; // The length of the feedback that pA receives about pB's prior behavior.
-app.numPrdsNoFeedback = 10; // The number of periods with no feedback.
-app.numPrdsFeedback = 40; // The number of periods with feedback.
+game.description = 'Trust game - Bednarik.';
+game.N = 10; // The length of the feedback that pA receives about pB's prior behavior.
+game.numPrdsNoFeedback = 10; // The number of periods with no feedback.
+game.numPrdsFeedback = 40; // The number of periods with feedback.
 
 // See /help/tutorial-grouping.html
-app.repType = app.REPTYPE_AVERAGE;
-app.repCost = 5; // cost of purchasing reputation.
-app.periodText = 'Round';
+game.repType = game.REPTYPE_AVERAGE;
+game.repCost = 5; // cost of purchasing reputation.
+game.periodText = 'Round';
 
-// ASSUME PROJECT CREATES GAIN OF 2x INVESTMENT
-// INVESTMENT = 10
-// ENDOWMENT_pA = 10
-// ENDOWMENT_pB = 0
-// IF pB TRUSTS, HE RETURNS INVESTMENT + 1/2 OF GAIN.
-app.payoffs = function(a, b, buyInfo) {
-    let payoffA, payoffB;
-
-    // Investment
-    if (a === app.TEXT_INVEST) {
-        if (b === app.TEXT_RETURN) {
-            [payoffA, payoffB] = [80, 70];
-        } else if (b === app.TEXT_NOT_RETURN) {
-            [payoffA, payoffB] = [10, 100];
-        }
-    } else if (a === app.TEXT_NOT_INVEST) {
-        [payoffA, payoffB] = [40, 30];
-    }
-
-    // Information purchase.
-    if (buyInfo === 'YES') {
-        payoffA = payoffA - app.repCost;
-    }
-
-    return [payoffA, payoffB];
-}
-app.numPeriods = app.numPrdsNoFeedback + app.numPrdsFeedback;
-
-// FOR TRACKING HISTORY
-app.participantStart = function(participant) {
-    participant.history = []; // history of this participant's play as player B.
-}
-
-// app.playersPerGroup = 8;
-app.playersPerSubgroup = 2;
-app.groupSize = 2;
-
-app.getGroupIdsForPeriod = function(period) {
-    
-    // Roles: alternate ABAB etc.
-    // Super-groups of 8. Within a group, matched pairs of 2: 1 A and 1 B.
-    // Participants 1-8 are always in groups 1-4, participants 9-16 in groups 5-8, etc. 
-    var participants = this.session.participants;
-    var pIds = [];
-    for (var p in participants) {
-        pIds.push(p);
-    }
-    Utils.alphanumSort(pIds); // P1, P2, ..., P10, P11, ...
-    
-    // If not specified, put all players in one super-group.
-    if (app.playersPerGroup == null) {
-        app.playersPerGroup = Object.keys(app.session.participants).length; // All players in one group.
-    }
-
-    var numGroups = pIds.length / app.playersPerGroup;
-    var numPairsPerGroup = app.playersPerGroup / app.playersPerSubgroup;
-
-    var gIds = [];
-    for (var g=0; g<numGroups; g++) {
-        let idsForA = [];
-        let idsForB = [];
-        for (let k=0; k<numPairsPerGroup; k++) {
-            idsForA.push(pIds.splice(0, 1)[0]);
-            idsForB.push(pIds.splice(0, 1)[0]);
-        }
-        Utils.shuffle(idsForA);
-        Utils.shuffle(idsForB);
-        for (var sg=0; sg<numPairsPerGroup; sg++) {
-            gIds.push([
-                idsForA[sg],
-                idsForB[sg]
-            ]);
-        }
-    }
-
-    // console.log('Period ' + period.id + ': ids = ' + JSON.stringify(gIds));
-    return gIds;
-}
-
-app.html = `
+game.html = `
 	<!DOCTYPE html>
 	<html>
 		<head>
@@ -113,7 +34,7 @@ app.html = `
 		<body class='hidden'>
             <div id='jtree'>
                 <p hidden>{{ period.id }} / {{ group.id }} / {{ stage.id }} / {{ player.status }}</p>
-				<p>{{ app.periodText }}: {{period.id}}/{{app.numPeriods}}</p>
+				<p>{{ game.periodText }}: {{period.id}}/{{game.numPeriods}}</p>
 				<p v-show='hasTimeout'>Time left (s): {{clock.totalSeconds}}</p>
 				<span v-show='player.status=="playing"'>
 					{{stages}}
@@ -127,99 +48,151 @@ app.html = `
 	</html>
 `;
 
-var instructions = app.newStage('instructions');
-instructions.canPlayerParticipate = function(player) {
-    if (player.idInGroup === 1) {
-        player.label = 'A';
-		player.pALabel = 'You';
-		player.pBLabel = 'Player B';
-		player.pBLabelLowercase = 'Player B';
-    } else {
-        player.label = 'B';
-		player.pALabel = 'Player A';
-		player.pBLabel = 'You';
-		player.pBLabelLowercase = 'you';
+// ASSUME PROJECT CREATES GAIN OF 2x INVESTMENT
+// INVESTMENT = 10
+// ENDOWMENT_pA = 10
+// ENDOWMENT_pB = 0
+// IF pB TRUSTS, HE RETURNS INVESTMENT + 1/2 OF GAIN.
+game.payoffs = function(a, b, buyInfo) {
+    let payoffA, payoffB;
+
+    // Investment
+    if (a === game.TEXT_INVEST) {
+        if (b === game.TEXT_RETURN) {
+            [payoffA, payoffB] = [80, 70];
+        } else if (b === game.TEXT_NOT_RETURN) {
+            [payoffA, payoffB] = [10, 100];
+        }
+    } else if (a === game.TEXT_NOT_INVEST) {
+        [payoffA, payoffB] = [40, 30];
     }
-	return player.period().id == 1;
+
+    // Information purchase.
+    if (buyInfo === 'YES') {
+        payoffA = payoffA - game.repCost;
+    }
+
+    return [payoffA, payoffB];
+}
+
+// Super group. Default: all in same group.
+game.groupSize = 8;
+
+var instructions = game.addSubGame('instructions');
+instructions.groupStart = function(group) {
+    var players = group.players;
+    var numGroups = players.length / subgame.groupSize;
+    group.idsForA = [];
+    group.idsForB = [];
+    for (let k=0; k<numGroups; k++) {
+        group.idsForA.push(players[k].id);
+        group.idsForB.push(players[k+1].id);
+        players[k].label = 'A';
+		player[k].pALabel = 'You';
+		player[k].pBLabel = 'Player B';
+        player[k].pBLabelLowercase = 'Player B';
+        player[k+1].label = 'B';
+		player[k+1].pALabel = 'Player A';
+		player[k+1].pBLabel = 'You';
+		player[k+1].pBLabelLowercase = 'you';
+        player[k+1].history = []; // history of this participant's play as player B.
+    }
 }
 instructions.activeScreen = `
 <p>You are player {{ player.label }}.</p>
 `
 
+// Sub group.
+let subgame = game.addSubGame('subgame');
+subgame.groupSize = 2;
+subgame.numPeriods = game.numPrdsNoFeedback + game.numPrdsFeedback;
+// Do once for each super group when they start this subgame.
+
+// Called every time a super group starts the subgames of this subgame.
+subgame.getGroupIdsForPeriod = function(period) {
+    // Roles: alternate ABAB etc. based on supergroup.idInGroup
+    // Matched pairs of 2: 1 A and 1 B.
+    let superGroup = period.group;
+    Utils.shuffle(superGroup.idsForA);
+    Utils.shuffle(superGroup.idsForB);
+    var gIds = [];
+    for (var sg=0; sg<superGroup.idsForA.length; sg++) {
+        gIds.push([
+            superGroup.idsForA[sg],
+            superGroup.idsForB[sg]
+        ]);
+    }
+    return gIds;
+}
+
 // PAY FOR INFO
-var pAbuyInfo = app.newStage('pAbuyinfo');
+var pAbuyInfo = subgame.addSubGame('pAbuyinfo');
 pAbuyInfo.canPlayerParticipate = function(player) {
-    return player.label === 'A' && player.period().id > app.numPrdsNoFeedback;
+    return player.parent.label === 'A' && player.period().id > game.numPrdsNoFeedback;
 }
 pAbuyInfo.activeScreen = `
 <p>BUY INFO</p>
-<p>Do you wish to buy information about Player B's past behavior for a cost of <b> {{app.repCost}} points</b>?</p> 
+<p>Do you wish to buy information about Player B's past behavior for a cost of <b> {{game.repCost}} points</b>?</p> 
 <div>
     <button name='player.pAbuyRep' value='YES' type='submit'>Yes</button>
     <button name='player.pAbuyRep' value='NO' type='submit'>No</button>
 </div>
 `
 pAbuyInfo.groupEnd = function(group) {
-    if (group.period.id > app.numPrdsNoFeedback) {
+    if (group.period.id > game.numPrdsNoFeedback) {
         var pA = group.playerWithId(1);
         var pB = group.playerWithId(2);
-		let pBHistory = pB.participant.history; // To show output in table.
-        switch (app.repType) {
-			case app.REPTYPE_RANDOM:
+		let pBHistory = pB.parent.history; // To show output in table.
+        switch (game.repType) {
+			case game.REPTYPE_RANDOM:
 				pA.pBRep = pBHistory[Utils.randomInt(0, pBHistory.length)];	
 				if (pA.pBRep == 1) {
-					pA.pBRep = app.TEXT_RETURN;
+					pA.pBRep = game.TEXT_RETURN;
 				} else if (pA.pBRep == 0) {
-					pA.pBRep = app.TEXT_NOT_RETURN;
+					pA.pBRep = game.TEXT_NOT_RETURN;
 				} else {
 					pA.pBRep = "HAD NO DECISION TO MAKE";
 				}
 				break;
-			case app.REPTYPE_RECENT:
+			case game.REPTYPE_RECENT:
 				pA.pBRep = pBHistory[pBHistory.length-1];
 				if (pA.pBRep == 1) {
-					pA.pBRep = app.TEXT_RETURN;
+					pA.pBRep = game.TEXT_RETURN;
 				} else if (pA.pBRep == 0) {
-					pA.pBRep = app.TEXT_NOT_RETURN;
+					pA.pBRep = game.TEXT_NOT_RETURN;
 				} else {
 					pA.pBRep = "HAD NO DECISION TO MAKE";
 				}
 				break;
-			case app.REPTYPE_AVERAGE:
-				// console.log(JSON.stringify(pBHistory));
-				pA.histLength = Math.min(app.N, pBHistory.length);
-				// console.log(JSON.stringify(pA.histLength));
+			case game.REPTYPE_AVERAGE:
+				pA.histLength = Math.min(game.N, pBHistory.length);
 				pA.pBRep = 0;
 				for (var i=0; i<pA.histLength; i++) {
 					pA.pBRep += pBHistory[pBHistory.length - 1 - i];
 				}
-				// console.log(pA.pBRep);
 				pA.pBRep = pA.pBRep / pA.histLength;
-				// console.log('pBRep: ' + pA.pBRep);
 				pA.pBRepReturn = (100*pA.pBRep).toFixed(0);
-				// console.log('Return: ' + pA.pBRepReturn);
 				pA.pBRepNotReturn = 100 - pA.pBRepReturn;
-				// console.log('Not return: ' + pA.pBRepNotReturn);
 				break;
 		}
     }
 }
 
 // TRUST CHOICE
-var pApropose = app.newStage('pAinvest');
+var pApropose = subgame.addSubGame('pAinvest');
 pApropose.canPlayerParticipate = function(player) {
-    return player.label === 'A';
+    return player.parent.label === 'A';
 }
 pApropose.activeScreen = `
-<div v-show='period.id > app.numPrdsNoFeedback'>
+<div v-show='period.id > game.numPrdsNoFeedback'>
     <div v-show='player.pAbuyRep == "YES"'>
 	<h4>Information about Player B:</h4>
-    <p v-show='app.repType == app.REPTYPE_AVERAGE'>
+    <p v-show='game.repType == game.REPTYPE_AVERAGE'>
 	Player B chose
-	<span :style='"color: " + app.COLORS[app.TEXT_RETURN]'>{{app.TEXT_RETURN}}</span> in <span :style='"color: " + app.COLORS[app.TEXT_RETURN]'>{{ player.pBRepReturn }}%</span> and
-	<span :style='"color: " + app.COLORS[app.TEXT_NOT_RETURN]'>{{app.TEXT_NOT_RETURN}}</span> in <span :style='"color: " + app.COLORS[app.TEXT_NOT_RETURN]'>{{ player.pBRepNotReturn }}%</span> of their previous decisions.</p>
-    <p v-show='app.repType==app.REPTYPE_RANDOM'>One randomly picked Player B's decision out of the last {{app.N}} decisions was: {{ player.pBRep }}</p>
-    <p v-show='app.repType==app.REPTYPE_RECENT'>Most recent Player B's decision: {{ player.pBRep }}</p>
+	<span :style='"color: " + game.COLORS[game.TEXT_RETURN]'>{{game.TEXT_RETURN}}</span> in <span :style='"color: " + game.COLORS[game.TEXT_RETURN]'>{{ player.pBRepReturn }}%</span> and
+	<span :style='"color: " + game.COLORS[game.TEXT_NOT_RETURN]'>{{game.TEXT_NOT_RETURN}}</span> in <span :style='"color: " + game.COLORS[game.TEXT_NOT_RETURN]'>{{ player.pBRepNotReturn }}%</span> of their previous decisions.</p>
+    <p v-show='game.repType==game.REPTYPE_RANDOM'>One randomly picked Player B's decision out of the last {{game.N}} decisions was: {{ player.pBRep }}</p>
+    <p v-show='game.repType==game.REPTYPE_RECENT'>Most recent Player B's decision: {{ player.pBRep }}</p>
     </div>
     <p v-show='player.pAbuyRep == "NO"'>You did not buy information about Player B.</p>
 	<p>************************************</p>
@@ -227,30 +200,30 @@ pApropose.activeScreen = `
 
 <p>Choose your action.</p>
 <div>
-    <button name='player.pAaction' :style='"color: " + app.COLORS[app.TEXT_INVEST]' :value='app.TEXT_INVEST' type='submit'>{{app.TEXT_INVEST}}</button>
-    <button name='player.pAaction' :style='"color: " + app.COLORS[app.TEXT_NOT_INVEST]' :value='app.TEXT_NOT_INVEST' type='submit'>{{app.TEXT_NOT_INVEST}}</button>
+    <button name='player.pAaction' :style='"color: " + game.COLORS[game.TEXT_INVEST]' :value='game.TEXT_INVEST' type='submit'>{{game.TEXT_INVEST}}</button>
+    <button name='player.pAaction' :style='"color: " + game.COLORS[game.TEXT_NOT_INVEST]' :value='game.TEXT_NOT_INVEST' type='submit'>{{game.TEXT_NOT_INVEST}}</button>
 </div>
 `
 
 // RETURN
-var pBchoose = app.newStage('pBreturn');
+var pBchoose = subgame.addSubGame('pBreturn');
 pBchoose.groupStart = function(group) { // when a group starts this stage
     var pA = group.playerWithId(1);
     group.pAaction = pA.pAaction;
 }
 pBchoose.canPlayerParticipate = function(player) {
-    return (player.label === 'B' && player.group.pAaction === app.TEXT_INVEST);
+    return (player.parent.label === 'B' && player.group.pAaction === game.TEXT_INVEST);
 }
 pBchoose.activeScreen = `
-<p>Player A chose {{app.TEXT_INVEST}}. Choose your action.</p>
+<p>Player A chose {{game.TEXT_INVEST}}. Choose your action.</p>
 <div>
-    <button name='player.return' :style='"color: " + app.COLORS[app.TEXT_RETURN]' :value='app.TEXT_RETURN' type='submit'>{{app.TEXT_RETURN}}</button>
-    <button name='player.return' :style='"color: " + app.COLORS[app.TEXT_NOT_RETURN]' :value='app.TEXT_NOT_RETURN' type='submit'>{{app.TEXT_NOT_RETURN}}</button>
+    <button name='player.return' :style='"color: " + game.COLORS[game.TEXT_RETURN]' :value='game.TEXT_RETURN' type='submit'>{{game.TEXT_RETURN}}</button>
+    <button name='player.return' :style='"color: " + game.COLORS[game.TEXT_NOT_RETURN]' :value='game.TEXT_NOT_RETURN' type='submit'>{{game.TEXT_NOT_RETURN}}</button>
 </div>
 `
 
 // RESULTS
-var resultsStage = app.newStage('results');
+var resultsStage = subgame.addSubGame('results');
 resultsStage.groupStart = function(group) {
 
     // Get players.
@@ -259,21 +232,21 @@ resultsStage.groupStart = function(group) {
 
     // Determine payoffs
     group.return = pB.return;
-    [pA.points, pB.points] = app.payoffs(pA.pAaction, pB.return, pA.pAbuyRep);
+    [pA.points, pB.points] = game.payoffs(pA.pAaction, pB.return, pA.pAbuyRep);
     group.pApoints = pA.points;
     group.pBpoints = pB.points;
 
     // Track history, average of last N actions by pB.
-    var history = pB.participant.history;
-    if (pA.pAaction === group.period.app.TEXT_INVEST) {
-        history.push(pB.return === group.period.app.TEXT_RETURN ? 1 : 0);
+    var history = pB.parent.history;
+    if (pA.pAaction === group.period.game.TEXT_INVEST) {
+        history.push(pB.return === group.period.game.TEXT_RETURN ? 1 : 0);
     }
 }
 resultsStage.activeScreen = `
 <p>RESULTS:</p>
-<p>{{player.pALabel}} chose <b :style='"color: " + app.COLORS[group.pAaction]'> {{ group.pAaction }}</b>.</p>
-<p v-show='group.pAaction===app.TEXT_INVEST'>{{player.pBLabel}} chose <b :style='"color: " + app.COLORS[group.return]'> {{ group.return }}</b>.</p>
-<p v-show='group.pAaction===app.TEXT_NOT_INVEST'>Therefore {{player.pBLabelLowercase}} made <b>no decision</b>.</p>
+<p>{{player.pALabel}} chose <b :style='"color: " + game.COLORS[group.pAaction]'> {{ group.pAaction }}</b>.</p>
+<p v-show='group.pAaction===game.TEXT_INVEST'>{{player.pBLabel}} chose <b :style='"color: " + game.COLORS[group.return]'> {{ group.return }}</b>.</p>
+<p v-show='group.pAaction===game.TEXT_NOT_INVEST'>Therefore {{player.pBLabelLowercase}} made <b>no decision</b>.</p>
 <p>************************************</p>
 <p>Your payoff for this round is:</p>
  <p v-show="player.label === 'A'"> <b>{{ group.pApoints }} points</b></p>

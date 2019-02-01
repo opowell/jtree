@@ -2,6 +2,7 @@ const fs = require('fs-extra');
 const Utils = require('../Utils.js');
 const path = require('path');
 const Session = require('../Session.js');
+const Session2 = require('../models/Session.js');
 const App = require('../App.js');
 const Room = require('../Room.js');
 const Queue = require('../Queue.js');
@@ -813,10 +814,10 @@ class Data {
      * @return {Session}        description
      */
     createSession(userId) {
-        var sess = new Session.new(this.jt, null);
-        if (userId != null && userId.length > 0) {
-            sess.addUser(userId);
-        }
+        var sess = new Session2.new(this.jt, null);
+        // if (userId != null && userId.length > 0) {
+        //     sess.addUser(userId);
+        // }
         // sess.save();
         // this.jt.socketServer.emitToAdmins('addSession', sess.shell());
         this.sessions.push(sess);
