@@ -1,5 +1,25 @@
 <template>
-    <div class='node'>
+    <tr 
+        v-if='tree.component.headers'
+        class='node-table node-title'
+        :class='{"selected": isSelected}'
+        @dblclick.prevent.stop="dblClick"
+        @mousedown='mousedown'
+        @keydown.down.stop.prevent="moveDown"
+        @keydown.up.stop.prevent="moveUp"
+        @keydown.left.stop.prevent="moveLeft"
+        @keydown.right.stop.prevent="moveRight"
+        @keydown.f2="f2Func('', $event)"
+        @keydown.delete="deleteNode"
+        tabindex="0"
+        @focus="onFocus"
+        ref='titleEl'
+    >
+        <td v-for='header in tree.component.headers' :key='header'>
+            {{nodeProp[header]}}
+        </td>
+    </tr>
+    <div v-else class='node'>
         <div 
             class='node-title'
             :class='{"selected": isSelected}'
@@ -299,6 +319,10 @@ try {
     cursor: pointer;
     white-space: nowrap;
     padding: 2px 5px;
+}
+
+.node-table {
+    display: table-row;
 }
 
 .node-title:hover {

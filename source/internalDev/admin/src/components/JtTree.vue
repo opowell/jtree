@@ -1,20 +1,25 @@
 <template>
-    <div style='display: flex; flex: 1 1 auto; flex-direction: column;'>
-        <jt-treenode 
-            v-for='(childNode, index) in nodesProp' 
-            :key='childNode[tree.keyField]'
-            :nodeProp='childNode'
-            :parentNode='node'
-            :tree='tree'
-            :nodePath='[index]'
-            :indexOnParent='index'
-            :expandedProp='index === 0'
-            :f2Func='f2Func'
-            :dblClickFunc='dblClickFunc'
-            @deleteNode="deleteNode"
-        >
-        </jt-treenode>
-            <!-- :key='childNode[tree.keyField]' -->
+    <div :style='mainStyle'>
+        <table>
+            <tr>
+                <th v-for='header in headers' :key='header'>
+                    {{header}}
+                </th>
+            </tr>
+            <jt-treenode 
+                v-for='(childNode, index) in nodesProp' 
+                :key='childNode[tree.keyField]'
+                :nodeProp='childNode'
+                :parentNode='node'
+                :tree='tree'
+                :nodePath='[index]'
+                :indexOnParent='index'
+                :expandedProp='index === 0'
+                :f2Func='f2Func'
+                :dblClickFunc='dblClickFunc'
+                @deleteNode="deleteNode"
+            />
+        </table>
     </div>
 </template>
 
@@ -47,6 +52,7 @@ export default {
             type: Boolean,
             default: true,
         },
+        headers: {},
     },
     data() {
         return {
@@ -64,6 +70,21 @@ export default {
         }
     },
     computed: {
+        mainStyle() {
+            // if (this.headers != null) {
+            //     return {
+            //         display: 'grid',
+            //         flex: '1 1 auto',
+            //         'grid-template-columns': 'repeat(' + this.headers.length + ', auto)',
+            //     }
+            // } else {
+                return {
+                    display: 'flex',
+                    flex: '1 1 auto',
+                    'flex-direction': 'column',
+                }
+            // }
+        },
         node() {
             return {
                 children: this.nodesProp,

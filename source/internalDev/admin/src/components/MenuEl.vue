@@ -8,7 +8,11 @@
     @mouseup.prevent.stop.left='click'
     @mouseover='hover'
     @dblclick="callDblclickFunc"
-    :class='{ "active": menu.isActive !== false, open: isOpen }'
+    :class='{
+       active: menu.isActive !== false,
+       disabled: menu.isEnabled === false,
+       open: isOpen
+    }'
     :title='menu.title'
   >
     <div v-show='menu.template != null' v-html="menu.template"></div>
@@ -204,4 +208,9 @@ export default {
     background-color: rgba(0, 123, 255, 0.25);
     border-color: rgba(0, 123, 255, 0.50);
 }
+
+.disabled {
+  color: #888;
+}
+
 </style>

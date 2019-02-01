@@ -322,6 +322,11 @@ class Participant {
 
     clientRemove(clientId) {
         Utils.deleteById(this.clients, clientId);
+        this.session.jt.socketServer.sendOrQueueAdminMsg(null, 'objChange', {
+            type: 'set-value',
+            path: 'session.participants.' + this.id + '.numClients',
+            'new-value': this.clients.length,
+        });
     }
 
     clientAdd(client) {
@@ -333,6 +338,13 @@ class Participant {
             this.player.group.period.addClient(client);
             this.player.group.period.app.addClientDefault(client);
         }
+
+        this.session.jt.socketServer.sendOrQueueAdminMsg(null, 'objChange', {
+            type: 'set-value',
+            path: 'session.participants.' + this.id + '.numClients',
+            'new-value': this.clients.length,
+        });
+
     }
 
     outputFields() {
