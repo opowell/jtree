@@ -6,6 +6,10 @@
                     {{header}}
                 </th>
             </tr>
+            <!-- <slot v-for="slot in Object.keys($slots)" :name="slot" :slot="slot"/>
+            <template v-for="slot in Object.keys($scopedSlots)" :slot="slot" slot-scope="scope">
+                <slot :name="slot" v-bind="scope"/>
+            </template> -->
             <jt-treenode 
                 v-for='(childNode, index) in nodesProp' 
                 :key='childNode[tree.keyField]'
@@ -18,7 +22,13 @@
                 :f2Func='f2Func'
                 :dblClickFunc='dblClickFunc'
                 @deleteNode="deleteNode"
-            />
+            >
+                <!-- <slot name='id' :slot='$slots.id' slot-scope="scope" v-bind='scope'> -->
+                <slot v-for="slot in Object.keys($slots)" :name="slot" :slot="slot"/>
+                <template v-for="slot in Object.keys($scopedSlots)" :slot="slot" slot-scope="scope">
+                    <slot :name="slot" v-bind="scope"/>
+                </template>
+            </jt-treenode>
         </table>
     </div>
 </template>
@@ -28,6 +38,9 @@
 import JtTreeNode from '@/components/JtTreeNode.vue'
 
 export default {
+    mounted() {
+        console.log('mounted tree: ' + JSON.stringify(this.$slots));
+    },
     name: 'jt-tree',
     components: {
         'jt-treenode': JtTreeNode,
@@ -93,6 +106,10 @@ export default {
         },
     },
     methods: {
+        nodeTitle(node) {
+            return node[this.tree.titleField];
+        },
+
         activeNode() {
             if (this.tree.activeNodePath == null || this.tree.activeNodePath.length < 1) {
                 return null;

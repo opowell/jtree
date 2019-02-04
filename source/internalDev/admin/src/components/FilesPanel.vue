@@ -115,7 +115,7 @@ export default {
             }
         },
         addSelectedNodeToGameTree() {
-            let activeNode = this.$refs.tree.tree.activeNode;
+            let activeNode = this.$refs.tree.activeNode();
             let filePath = this.getParentPath(activeNode);
             filePath.push(activeNode.title);
 

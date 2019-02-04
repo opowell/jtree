@@ -340,6 +340,9 @@ class Game {
          * @default false
          */
         this.finished = false;
+
+        this.newStage = this.addSubGame;
+
     }
 
     /**

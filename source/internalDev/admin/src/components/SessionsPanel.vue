@@ -17,6 +17,9 @@
             @deleteNode='deleteSession'
             @changeSelectedNode='changeSelectedNode'
         >
+            <div slot='id' slot-scope="scope" :style='nodeStyle(scope.nodeProp)'>
+                session id {{scope.nodeProp.id}}
+            </div>
         </jt-tree>
     </div>
   </div>
@@ -90,6 +93,16 @@ export default {
             },
         },
     methods: {
+        nodeStyle(node) {
+            if (node.id === this.$store.state.sessionId) {
+                return {
+                    'font-weight': bold,
+                }
+            } else {
+                return {}
+            }
+        },
+        changeSelectedNode() {},
         deleteSession(data, ev) {
             if (ev != null) {
                 ev.stopPropagation();
