@@ -16,20 +16,5 @@ export default new Router({
       name: 'home',
       component: Home
     },
-    {
-      path: '/apps',
-      name: 'apps',
-      component: () => import(/* webpackChunkName: "apps" */ './views/Apps.vue')
-    },
-    {
-      path: '/queues',
-      name: 'queues',
-      component: () => import(/* webpackChunkName: "queues" */ './views/Queues.vue')
-    },
-    {
-      path: '/sessions',
-      name: 'sessions',
-      component: () => import(/* webpackChunkName: "sessions" */ './views/Sessions.vue')
-    },
   ],
 })
