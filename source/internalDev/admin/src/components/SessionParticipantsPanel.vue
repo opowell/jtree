@@ -3,12 +3,6 @@
         <action-bar
             :menus='actions'>
         </action-bar>
-        <!-- <div style='flex: 1 1 auto; align-self: stretch; overflow: auto'>
-            # | name | status<br>
-            <div v-for='participant in participants' :key='participant.id'>
-                {{participant.id}}
-            </div>
-        </div> -->
         <div style='flex: 1 1 auto; align-self: stretch; overflow: auto'>
             <jt-tree ref='participantsTree'
                 :nodesProp='participants'
@@ -17,7 +11,19 @@
                 :titleField='"id"'
                 :keyField='"id"'
                 :allowChildren='false'
-                :headers='["id", "numClients", "numPoints",]'
+                :headers='[
+                {
+                    label: "id",
+                    value: "id",
+                },
+                {
+                    label: "clients",
+                    value: "numClients",
+                },
+                {
+                    label: "points",
+                    value: "numPoints",
+                }]'
                 @deleteNode='deleteParticipant'
             />
         </div>
@@ -50,12 +56,33 @@ export default {
             }
             return out;
         },
+            panelTitle() {
+                if (this.participants == null) {
+                    return 'Participants';
+                }
+                return 'Participants (' + this.participants.length + ')';
+            },
     },
     methods: {
         renameParticipant() {},
         openParticipant() {},
-        deleteParticipant() {},
+        deleteParticipant(data, ev) {
+            if (ev != null) {
+                ev.stopPropagation();
+                ev.preventDefault();
+            }
+            let activeNode = this.$refs.participantsTree.activeNode();
+            global.jt.socket.emit('deleteParticipant', {
+                sId: this.$store.state.session.id,
+                pId: activeNode.id,
+            });
+        },
     },
+        watch: {
+            participants: function(newVal) {
+                this.panel.id = 'Participants (' + newVal.length + ')';
+            },
+        },
     data() { return {
                 actions: [
                 {
@@ -81,12 +108,12 @@ export default {
                     title: 'Delete',
                     hasParent: false,
                     icon: 'fas fa-trash',
-                    action: this.deleteFile,
+                    action: this.deleteParticipant,
                 },
                 ],
     }},
     mounted() {
-        this.panel.id = 'Participants';
+        this.panel.id = this.panelTitle;
     },
   }
 </script>

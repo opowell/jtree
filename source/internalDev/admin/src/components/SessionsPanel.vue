@@ -22,9 +22,6 @@
                 {{ (isSelectedSession(nodeProp) ? '*' : '') + nodeProp[tree.titleField]}}
                 </div>
             </template>
-            <!-- <div slot='test'>
-                session test
-            </div> -->
         </jt-tree>
     </div>
   </div>
@@ -93,11 +90,14 @@ export default {
             sessions() {
                 return this.$store.state.sessions;
             },
+            numSessions() {
+                return this.sessions.length;
+            },
             hasSelectedNode() {
                 return this.$refs.sessionTree.activeNode() != null;
             },
             panelTitle() {
-                return 'Sessions (' + this.sessions.length + ')';
+                return 'Sessions (' + this.numSessions + ')';
             },
         },
         watch: {

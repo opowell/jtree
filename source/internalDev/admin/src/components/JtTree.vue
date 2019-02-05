@@ -2,8 +2,8 @@
     <div :style='mainStyle'>
         <table>
             <tr>
-                <th v-for='header in headers' :key='header'>
-                    {{header}}
+                <th v-for='header in headers' :key='header.label'>
+                    {{header.label}}
                 </th>
             </tr>
             <jt-treenode 
@@ -19,16 +19,11 @@
                 :dblClickFunc='dblClickFunc'
                 @deleteNode="deleteNode"
             >
-                <template v-slot:title='{ nodeProp, tree }'>
-                    <slot name='title' :nodeProp='nodeProp' :tree='tree'>
+                <template v-for="slot in Object.keys($scopedSlots)" v-slot:[slot]='{ nodeProp, tree }'>
+                    <slot :name='slot' :nodeProp='nodeProp' :tree='tree'>
                         {{ nodeProp[tree.titleField]}}
                     </slot>
                 </template>
-                <!-- <template v-for='header in headers' v-slot:[header]='{ nodeProp, tree }'>
-                    <slot :name='header' :nodeProp='nodeProp' :tree='tree'>
-                        {{ nodeProp[tree.titleField]}}
-                    </slot>
-                </template> -->
             </jt-treenode>
         </table>
     </div>
