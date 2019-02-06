@@ -3,8 +3,8 @@ const fs        = require('fs-extra');
 const socketIO  = require('socket.io');
 // const syc       = require('syc');
 
-const Utils     = require('../Utils.js');
-const Client    = require('../Client.js');
+const Utils     = require('../models/Utils.js');
+const Client    = require('../models/Client.js');
 const Msgs      = require('./Msgs.js');
 
 /** Handles socket connections */

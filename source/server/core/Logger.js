@@ -1,6 +1,6 @@
 const fs        = require('fs-extra');
 const path      = require('path');
-const Utils     = require('../Utils.js');
+const Utils     = require('../models/Utils.js');
 
 /** Logging utility */
 class Logger {

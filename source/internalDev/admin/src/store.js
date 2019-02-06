@@ -568,6 +568,11 @@ export default new Vuex.Store({
     },
     setSession(state, session) {
       state.session = session;
+      for (let i=0; i<state.sessions.length; i++) {
+        if (state.sessions[i].id === session.id) {
+          state.sessions[i] = session;
+        }
+      }
     },
     addPanelToActiveWindow(state, panelInfo) {
       for (let i=0; i<state.windowDescs.length; i++) {
