@@ -39,6 +39,14 @@ class Msgs {
         this.jt.data.appsMetaData[d.aId] = app.metaData();
     }
 
+    testMessage(d, socket) {
+        let session = this.jt.data.getProxySession(d.sessionId);
+        session.messages.push({
+            name: 'test', 
+        });
+        // session.addTestMessage();
+    }
+
     getClients(data, socket) {
         let clients = this.jt.data.getClients(data.sessionId);
         var message = {cb: data.cb, clients: clients};

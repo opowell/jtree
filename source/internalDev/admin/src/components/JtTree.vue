@@ -94,6 +94,9 @@ export default {
                 }
             // }
         },
+        numNodes() {
+            return this.nodesProp.length;
+        },
         node() {
             return {
                 children: this.nodesProp,
