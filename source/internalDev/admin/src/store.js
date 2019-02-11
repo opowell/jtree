@@ -58,7 +58,7 @@ const persistentSettings = [
     name: 'Window font color',
     type: 'text',
     key: 'windowFontColor',
-  },
+  },// eslint-disable-next-line
   {
     name: 'Area action bar background color',
     type: 'text',
@@ -281,6 +281,7 @@ let stateObj = {
   session: {
     gameTree: [],
     messages: [],
+    messageIndex: 0,
   },
 
   settingsPresets: [
@@ -379,7 +380,7 @@ for (let i=0; i<persistentSettings.length; i++) {
   }
 }
 
-import axios from 'axios';
+// import axios from 'axios';
 
 export default new Vuex.Store({
   plugins: [createPersistedState({
@@ -407,6 +408,7 @@ export default new Vuex.Store({
         windowId: sourceWindowId
       });
     },
+// eslint-disable-next-line
     showSessionWindow: ({ commit, state}, data) => {
       commit('showWindow',
       {
@@ -567,6 +569,7 @@ export default new Vuex.Store({
       global.jt.socket.emit('openSession', sessionId);
     },
     setSession(state, session) {
+      session.messageIndex = 0;
       state.session = session;
       for (let i=0; i<state.sessions.length; i++) {
         if (state.sessions[i].id === session.id) {

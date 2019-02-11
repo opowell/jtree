@@ -19,7 +19,7 @@
         >
             <template #title="{nodeProp, tree}">
                 <div :style='nodeStyle(nodeProp)'>
-                {{ (isSelectedSession(nodeProp) ? '*' : '') + nodeProp[tree.titleField]}}
+                {{ (isSelectedSession(nodeProp) ? '*' : '') + nodeProp.id}}
                 </div>
             </template>
         </jt-tree>

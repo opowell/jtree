@@ -104,28 +104,30 @@ router.post('/session/delete', function (req, res) {
     // };
     // session.fileStream.on("finish", endFunc);
     // session.fileStream.end();
+    // let filePath = path.join(global.jt.path, 'sessions', req.body.sessionPath, req.body.sessionPath + '.gsf');
+    let filePath = path.join(global.jt.path, 'sessions', req.body.sessionPath);
+    fs.remove(filePath, (err) => {
+        if (err) {
+            console.log('Error deleting session: \n' + err);
+            res.json(false);
+            return;
+        }
+        console.log('Session ' + filePath + " succesfully deleted.");
+        global.jt.data.deleteSession(sessionId);
+        res.json(true);
+    });
 
-    let endFunc = function() {
-        let filePath = path.join(global.jt.path, 'sessions', req.body.sessionPath);
-        fs.remove(filePath, (err) => {
-            if (err) {
-                console.log('Error deleting session: \n' + err);
-                res.json(false);
-                return;
-            }
-            console.log('Session ' + filePath + " succesfully deleted.");
-            global.jt.data.deleteSession(sessionId);
-            res.json(true);
-        });
-    };
-    try {
-        session.asyncQueue.kill();
-        session.fileStream.on("close", endFunc);
-        session.fileStream.destroy();
-    } catch (err) {
-        console.log(err);
-        endFunc();
-    }
+    // let endFunc = function() {
+    //     let filePath = path.join(global.jt.path, 'sessions', req.body.sessionPath);
+    // };
+    // try {
+    //     session.asyncQueue.kill();
+    //     session.fileStream.on("close", endFunc);
+    //     session.fileStream.destroy();
+    // } catch (err) {
+    //     console.log(err);
+    //     endFunc();
+    // }
 });
 
 router.post('/session/addGame', function (req, res) {

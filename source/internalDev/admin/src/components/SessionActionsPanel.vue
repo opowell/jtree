@@ -9,7 +9,6 @@
             </div>
             <jt-tree ref='messagesTree'
                 :nodesProp='messages'
-                :titleField='"name"'
                 :keyField='"id"'
                 :allowChildren='false'
                 :headers='[
@@ -26,6 +25,11 @@
                     value: "content",
                 }]'            
             >
+                <template #id="{nodeProp, tree}">
+                    <div :style='nodeStyle(nodeProp)'>
+                        {{ (isProcessed(nodeProp) ? '*' : '') + nodeProp.id}}
+                    </div>
+                </template>
             </jt-tree>
         </div>
     </div>
@@ -89,8 +93,25 @@ import JtTree from '@/components/JtTree.vue'
             messages() {
                 return this.$store.state.session.messages;
             },
+            index() {
+                return this.$store.state.session.messageIndex;
+            },
     },
     methods: {
+        isProcessed(node) {
+            return node.id <= this.$store.state.session.messageIndex;
+        },
+        nodeStyle(node) {
+            if (this.isProcessed(node)) {
+                return {
+                    'color': 'red',
+                }
+            } else {
+                return {
+                    'color': '#888',
+                }
+            }
+        },
         test() {
             global.jt.socket.emit('testMessage', {
                 sessionId: this.$store.state.sessionId,

@@ -32,14 +32,23 @@ msgs.objChange = function(change) {
             }
             obj[change.function](...change.arguments);
             break;
-        case 'set-value':
-            console.log('set object value: \n' + change['new-value']);
+        case 'set-prop':
+            console.log('set property: \n' + JSON.stringify(change.newValue));
             paths = change.path.split('.');
             obj = window.vue.$store.state;
             for (let i=0; i<paths.length - 1; i++) {
                 obj = obj[paths[i]];
             }
-            vue.$set(obj, paths[paths.length-1], change['new-value']);
+            vue.$set(obj, paths[paths.length-1], change.newValue);
+            break;
+        case 'set-value':
+            console.log('set value: \n' + change.newValue);
+            paths = change.path.split('.');
+            obj = window.vue.$store.state;
+            for (let i=0; i<paths.length - 1; i++) {
+                obj = obj[paths[i]];
+            }
+            vue.$set(obj, paths[paths.length-1], change.newValue);
             break;
         case 'delete-prop':
             console.log('delete property: \n');
