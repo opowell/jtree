@@ -59,7 +59,7 @@ class Settings {
 
          var settings = this; // so that settings can be modified without using 'jt.' prefix.
          try {
-             var json = fs.readJSONSync(path.join(this.jt.path, 'internal/settings.js'));
+             var json = fs.readJSONSync(path.join(this.jt.path, 'internal/settings.json'));
              for (var i in json) {
                  this[i] = json[i];
              }

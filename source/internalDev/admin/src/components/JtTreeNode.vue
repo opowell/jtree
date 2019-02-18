@@ -14,9 +14,10 @@
         tabindex="0"
         @focus="onFocus"
         ref='titleEl'
+        :style='tree.component.rowStyleFunc(nodeProp, tree)'
     >
         <td v-for='header in tree.component.headers' :key='header.label'>
-            <slot :header='header' :nodeProp='nodeProp' :tree='tree'>
+            <slot :name='header.value' :nodeProp='nodeProp' :tree='tree'>
                 {{nodeProp[header.value]}}
             </slot>
         </td>

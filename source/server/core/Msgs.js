@@ -314,6 +314,17 @@ class Msgs {
         this.jt.data.getSession(data.sId).addApp(data.appPath, data.options);
     }
 
+    /**
+     * sessionAddApp - Add an app to the given session.
+     *
+     * @param  {Object} d An object containing the session ID (sId), the app id (appPath), and options for the app (options).
+     * @return {type}
+     */
+    sessionAddGame(data, socket) {
+        // this.jt.data.getSession(data.sId).addApp(data.appPath, data.options);
+        this.jt.data.getProxySession(data.sId).addGame(data.filePath, data.options);
+    }
+
     sessionAddUser(d) {
         this.jt.data.getSession(d.sId).addUser(d.uId);
     }
@@ -336,7 +347,8 @@ class Msgs {
      * @param  {string} id The id of the session.
      */
     sessionStart(id) {
-        var session = Utils.findById(this.jt.data.sessions, id);
+        // var session = Utils.findById(this.jt.data.sessions, id);
+        var session = Utils.findById(this.jt.data.proxy.sessions, id);
         if (session !== null) {
             session.start();
         }

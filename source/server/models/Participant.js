@@ -2,6 +2,7 @@ const Player    = require('./Player.js');
 const clPlayer  = require('./client/clPlayer.js');
 const Utils     = require('./Utils.js');
 const path      = require('path');
+const Observer = require('micro-observer').Observer;
 
 /**
  * A participant in the experiment.
@@ -98,8 +99,37 @@ class Participant {
             'autoplay',
             'appTimer',
             'indexInSession',
-            'finishedApps'
+            'finishedApps',
+            'proxy',
+            'clientProxies',
+            'proxyObj',
         ];
+
+        this.clientProxies = [];
+
+        this.proxyObj = {
+            clients: this.clients,
+        }
+
+        this.proxy = Observer.create(this.proxyObj, function(change) {
+            let jt = global.jt;
+            let msg = {
+                arguments: change.arguments,
+                function: change.function,
+                path: change.path,
+                property: change.property,
+                type: change.type,
+                newValue: change.newValue,
+            }
+            if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
+                return true;
+            }
+            msg.newValue = jt.data.toShell(msg.newValue);
+            msg.arguments = jt.data.toShell(msg.arguments);
+            console.log('emit message: \n' + JSON.stringify(msg));
+            jt.socketServer.io.to(jt.socketServer.ADMIN_TYPE).emit('objChange', msg);
+            return true; // to apply changes locally.
+        });
     }
 
     /**
@@ -325,12 +355,13 @@ class Participant {
         this.session.jt.socketServer.sendOrQueueAdminMsg(null, 'objChange', {
             type: 'set-value',
             path: 'session.participants.' + this.id + '.numClients',
-            'new-value': this.clients.length,
+            newValue: this.clients.length,
         });
     }
 
     clientAdd(client) {
         this.clients.push(client);
+        this.clientProxies.push(client.proxy);
         client.socket.join(this.roomId());
         if (this.player != null) {
             this.player.addClient(client);
@@ -342,7 +373,7 @@ class Participant {
         this.session.jt.socketServer.sendOrQueueAdminMsg(null, 'objChange', {
             type: 'set-value',
             path: 'session.participants.' + this.id + '.numClients',
-            'new-value': this.clients.length,
+            newValue: this.clients.length,
         });
 
     }

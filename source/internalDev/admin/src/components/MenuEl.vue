@@ -11,7 +11,8 @@
     :class='{
        active: menu.isActive !== false,
        disabled: menu.isEnabled === false,
-       open: isOpen
+       open: isOpen,
+       disabled: enabled != true,
     }'
     :title='menu.title'
   >
@@ -32,11 +33,14 @@
 <script>
 export default {
   name: 'MenuEl',
-  props: [
-    'menu',
-    'showIcon',
-    'dblclickFunc',
-  ],
+  props: {
+      'menu': {},
+      'showIcon': {},
+      'dblclickFunc': {},
+      'enabled': {
+        default: true,
+      },
+  },
   computed: {
     hasParent() {
       return this.menu.hasParent == null ? true : this.menu.hasParent;
@@ -112,6 +116,10 @@ export default {
     flex: 0 0 auto;
     margin-left: 4rem;
     padding: 4px 3px;
+}
+
+.disabled {
+  color: 'red';
 }
 
 .arrow {

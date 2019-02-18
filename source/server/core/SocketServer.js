@@ -27,29 +27,34 @@ class SocketServer {
      */
     onConnection(socket) {
 
-        var id          = socket.request._query.id; // participant or admin ID
-        var pwd         = socket.request._query.pwd;
-        var type        = socket.request._query.type; // ADMIN or PARTI
-        var sessionId   = socket.request._query.sessionId;
-        var roomId      = socket.request._query.roomId;
-
-        if (id === null || id === undefined || id === '') {
-            id = socket.request.connection._peername.address;
-            id = id.substring(id.lastIndexOf(':')+1);
-            console.log('new id = ' + id);
+        try {
+            var id          = socket.request._query.id; // participant or admin ID
+            var pwd         = socket.request._query.pwd;
+            var type        = socket.request._query.type; // ADMIN or PARTI
+            var sessionId   = socket.request._query.sessionId;
+            var roomId      = socket.request._query.roomId;
+    
+            if (id === null || id === undefined || id === '') {
+                id = socket.request.connection._peername.address;
+                id = id.substring(id.lastIndexOf(':')+1);
+                console.log('new id = ' + id);
+            }
+    
+            var admin = this.jt.data.getAdmin(id, pwd);
+    
+            this.jt.log('socket connection: ' + socket.id + ', id=' + id + ', pwd=' + pwd + ', session=' + sessionId);
+    
+            if (type === this.ADMIN_TYPE && (admin !== null || this.jt.settings.adminLoginReq === false)) {
+                this.addAdminClient(socket);
+            } else if (roomId !== 'null') {
+                this.addRoomClient(socket, id, roomId);
+            } else {
+                this.addParticipantClient(socket, id, sessionId, roomId);
+            }
+        } catch (err) {
+            this.jt.log(err);
         }
 
-        var admin = this.jt.data.getAdmin(id, pwd);
-
-        this.jt.log('socket connection: ' + socket.id + ', id=' + id + ', pwd=' + pwd + ', session=' + sessionId);
-
-        if (type === this.ADMIN_TYPE && (admin !== null || this.jt.settings.adminLoginReq === false)) {
-            this.addAdminClient(socket);
-        } else if (roomId !== 'null') {
-            this.addRoomClient(socket, id, roomId);
-        } else {
-            this.addParticipantClient(socket, id, sessionId, roomId);
-        }
     }
 
     addAdminClient(socket) {

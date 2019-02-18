@@ -23,13 +23,9 @@
                 {
                     label: "content",
                     value: "content",
-                }]'            
+                }]'
+                :rowStyleFunc='nodeStyle'           
             >
-                <template #id="{nodeProp, tree}">
-                    <div :style='nodeStyle(nodeProp)'>
-                        {{ (isProcessed(nodeProp) ? '*' : '') + nodeProp.id}}
-                    </div>
-                </template>
             </jt-tree>
         </div>
     </div>
@@ -50,80 +46,95 @@ import JtTree from '@/components/JtTree.vue'
     ],
     data() { return {
         loading: false,
-                actions: [
-                {
-                    title: 'Test',
-                    hasParent: false,
-                    icon: 'fas fa-play',
-                    action: this.test,
-                },
-                {
-                    title: 'Start',
-                    hasParent: false,
-                    icon: 'fas fa-fast-backward',
-                    action: this.fetchData,
-                },
-                {
-                    title: 'Previous',
-                    hasParent: false,
-                    icon: 'fas fa-step-backward',
-                    action: this.fetchData,
-                },
-                {
-                    title: 'Next',
-                    hasParent: false,
-                    icon: 'fas fa-step-forward',
-                    action: this.createNewParticipant,
-                },
-                {
-                    title: 'End',
-                    hasParent: false,
-                    icon: 'fas fa-fast-forward',
-                    action: this.createNewParticipant,
-                },
-                {
-                    title: 'Delete',
-                    hasParent: false,
-                    icon: 'fas fa-trash',
-                    action: this.deleteMessage,
-                },
-                ]
+        actions: [
+        {
+            title: 'Start',
+            hasParent: false,
+            icon: 'fas fa-fast-backward',
+            action: this.gotoStart,
+            enabled: !this.atStart,
+        },
+        {
+            title: 'Previous',
+            hasParent: false,
+            icon: 'fas fa-step-backward',
+            action: this.previous,
+        },
+        {
+            title: 'Next',
+            hasParent: false,
+            icon: 'fas fa-step-forward',
+            action: this.next,
+        },
+        {
+            title: 'End',
+            hasParent: false,
+            icon: 'fas fa-fast-forward',
+            action: this.gotoEnd,
+        },
+        {
+            title: 'Delete',
+            hasParent: false,
+            icon: 'fas fa-trash',
+            action: this.deleteMessage,
+        },
+        ],
     }},
     computed: {
             messages() {
                 return this.$store.state.session.messages;
             },
             index() {
-                return this.$store.state.session.messageIndex;
+                return this.$store.state.messageIndex;
+            },
+            atStart() {
+                return this.index == 0;
             },
     },
     methods: {
         isProcessed(node) {
-            return node.id <= this.$store.state.session.messageIndex;
+            return node.id <= this.index;
         },
         nodeStyle(node) {
             if (this.isProcessed(node)) {
                 return {
-                    'color': 'red',
                 }
             } else {
                 return {
-                    'color': '#888',
+                    'color': '#AAA',
                 }
             }
-        },
-        test() {
-            global.jt.socket.emit('testMessage', {
-                sessionId: this.$store.state.sessionId,
-            });
         },
         keyFunc(item, index) {
             return index;
         },
+        next() {
+            if (this.index < this.messages.length) {
+                this.setIndex(this.index+1);
+            }
+        },
+        previous() {
+            if (this.index > 0) {
+                this.setIndex(this.index-1);
+            }
+        },
+        gotoStart() {
+            this.setIndex(0);
+        },
+        gotoEnd() {
+            this.setIndex(this.messages.length);
+        },
+        setIndex(i) {
+            this.$store.commit('setActionIndex', i);
+        },
     },
         watch: {
             messages: function(newVal) {
-                this.panel.id = 'Messages (' + newVal.length + ')';
+                this.panel.id = 'Messages (' + this.index + ' / ' + newVal.length + ')';
+            },
+            index: function(newVal) {
+                this.panel.id = 'Messages (' + newVal + ' / ' + this.messages.length + ')';
+                this.$forceUpdate();
             },
         },
     mounted() {

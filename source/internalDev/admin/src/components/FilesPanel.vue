@@ -119,32 +119,39 @@ export default {
             let filePath = this.getParentPath(activeNode);
             filePath.push(activeNode.title);
 
-            axios.post(
-                'http://' + window.location.host + '/api/session/addGame',
-                {
-                    filePath: filePath,
-                }
-            ).then(response => {
-                if (response.data.success === true) {
-                    let game = response.data.game;
-                    let newNode = {
-                        title: game.appFilename,
-                        children: [],
-                        data: game,
-                    }
-                    for (let i=0; i<game.functions.length; i++) {
-                        newNode.children.push({
-                            title: game.functions[i].field,
-                            data: game.functions[i].content,
-                        })
-                    }
-                    for (let i=0; i<game.subgames.length; i++) {
-                        let subgame = game.subgames[i];
-                        newNode.children.push(this.getGameAsNode(subgame));
-                    }
-                    this.$store.state.session.gameTree.push(newNode);
-                }
-            });
+            let options = {};
+            var d = {
+                filePath: filePath,
+                sId: this.$store.state.sessionId,
+                options: options
+            };
+            global.jt.socket.emit('sessionAddGame', d);
+            // axios.post(
+            //     'http://' + window.location.host + '/api/session/addGame',
+            //     {
+            //         filePath: filePath,
+            //     }
+            // ).then(response => {
+            //     if (response.data.success === true) {
+            //         let game = response.data.game;
+            //         let newNode = {
+            //             title: game.appFilename,
+            //             children: [],
+            //             data: game,
+            //         }
+            //         for (let i=0; i<game.functions.length; i++) {
+            //             newNode.children.push({
+            //                 title: game.functions[i].field,
+            //                 data: game.functions[i].content,
+            //             })
+            //         }
+            //         for (let i=0; i<game.subgames.length; i++) {
+            //             let subgame = game.subgames[i];
+            //             newNode.children.push(this.getGameAsNode(subgame));
+            //         }
+            //         this.$store.state.session.gameTree.push(newNode);
+            //     }
+            // });
         },
         getGameAsNode(game) {
             let out = {
