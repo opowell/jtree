@@ -39,14 +39,6 @@ class Msgs {
         this.jt.data.appsMetaData[d.aId] = app.metaData();
     }
 
-    testMessage(d, socket) {
-        let session = this.jt.data.getProxySession(d.sessionId);
-        session.addMessage(
-            'test',
-            'content',
-        );
-    }
-
     getClients(data, socket) {
         let clients = this.jt.data.getClients(data.sessionId);
         var message = {cb: data.cb, clients: clients};
@@ -97,6 +89,16 @@ class Msgs {
         this.jt.io.to('socket_' + socket.id).emit('setSessionId', data);
     }
 
+    setSessionLatest(data, socket) {
+        let session = this.jt.data.getSession(data.sessionId);
+        session.setSessionLatest(data.value);
+    }
+
+    setSessionMessageIndex(data, socket) {
+        let session = this.jt.data.getSession(data.sessionId);
+        session.setMessageIndex(data.value);
+    }
+
     /*
      * setNumParticipants - Sets the specified number of participants to the session.
      *
@@ -112,10 +114,10 @@ class Msgs {
     }
 
     createParticipant(d, socket) {
-        // var session = this.jt.data.getSession(d.sId);
-        // session.createNewParticipant();
-        var sessionProxy = this.jt.data.getProxySession(d.sId);
-        sessionProxy.createNewParticipant();
+        var session = this.jt.data.getSession(d.sId);
+        session.createNewParticipant();
+        // var sessionProxy = this.jt.data.getSession(d.sId);
+        // sessionProxy.createNewParticipant();
     }
     
     appAddStage(d, socket) {
@@ -123,7 +125,7 @@ class Msgs {
     }
 
     deleteParticipant(d, socket) {
-        var sessionProxy = this.jt.data.getProxySession(d.sId);
+        var sessionProxy = this.jt.data.getSession(d.sId);
         sessionProxy.deleteParticipant(d.pId);
     }
 
@@ -322,7 +324,7 @@ class Msgs {
      */
     sessionAddGame(data, socket) {
         // this.jt.data.getSession(data.sId).addApp(data.appPath, data.options);
-        this.jt.data.getProxySession(data.sId).addGame(data.filePath, data.options);
+        this.jt.data.getSession(data.sId).addGame(data.filePath, data.options);
     }
 
     sessionAddUser(d) {

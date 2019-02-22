@@ -45,7 +45,7 @@ export default {
     ],
     computed: {
         participants() {
-            let parts = this.$store.state.session.participants;
+            let parts = this.$store.state.session.state.participants;
             if (parts == null) {
                 return null;
             }

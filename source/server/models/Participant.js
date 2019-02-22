@@ -29,7 +29,7 @@ class Participant {
          */
         this.session = session;
 
-        this.indexInSession = Object.keys(session.participants).length;
+        this.indexInSession = Object.keys(session.proxyObj.state.participants).length;
 
         /**
          * @type array

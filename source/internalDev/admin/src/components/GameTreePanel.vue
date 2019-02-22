@@ -65,7 +65,7 @@ data() {
                 return this.$store.state.session;
             },
             gameTree() {
-                return this.$store.state.session.gameTree;
+                return this.$store.state.session.state.gameTree;
             },
             panelTitle() {
                 return 'Game Tree (' + this.gameTree.length + ')';
