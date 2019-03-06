@@ -13,7 +13,7 @@ class Game {
      * @param  {Session} session description
      * @param  {String} id      description
      */
-    constructor(session, jt, appPath) {
+    constructor(session, jt, appPath, parent) {
 
         /**
          * The unique identifier of this Game. In order of precedence, the value is given by:
@@ -23,6 +23,8 @@ class Game {
          * @type {String}
          */
         this.id = appPath;
+
+        this.parent = parent;
 
         let id = appPath;
         if (id.includes('app.js') || id.includes('app.jtt') || id.includes('app.jtg')) {
@@ -72,7 +74,7 @@ class Game {
         /**
          * @type {jt}
          */
-        this.jt = jt;
+        // this.jt = jt;
 
         /** Where the original definition of this app is stored on the server.*/
         this.appPath = appPath;
@@ -455,7 +457,7 @@ class Game {
             // Process the message.
             client[subgameName + 'Process'] = function(data) {
 
-                app.jt.log('Server received auto-subgame submission: ' + JSON.stringify(data));
+                global.jt.log('Server received auto-subgame submission: ' + JSON.stringify(data));
 
                 if (client.player() === null) {
                     return false;
@@ -654,12 +656,12 @@ class Game {
         // Load content of html file, if any.
         // Try app.htmlFile, id.html, and client.html.
         var htmlFile = app.htmlFile == null ? app.id + '.html' : app.htmlFile;
-        var filename = path.join(app.jt.path, '/apps/' + app.id + '/' + htmlFile);
+        var filename = path.join(global.jt.path, '/apps/' + app.id + '/' + htmlFile);
         if (fs.existsSync(filename)) {
             html = html + Utils.readTextFile(filename);
         } else {
             htmlFile = 'client.html';
-            filename = path.join(app.jt.path, '/apps/' + app.id + '/' + htmlFile);
+            filename = path.join(global.jt.path, '/apps/' + app.id + '/' + htmlFile);
             if (fs.existsSync(filename)) {
                 html = html + Utils.readTextFile(filename);
             }
@@ -1128,7 +1130,7 @@ class Game {
      */
     initPeriod(prd) {
         var period = new Period.new(prd + 1, this);
-        period.save();
+//        period.save();
         this.periods.push(period);
     }
 
@@ -1295,6 +1297,10 @@ class Game {
         }
     }
 
+    canPlayerParticipate(player) {
+        return true;
+    }
+
     /**
      * Create a new {@link Game} and add it as a subgame of the current Game.
      *
@@ -1302,7 +1308,7 @@ class Game {
      * @return {Game} The new game.
      */
     addSubGame(id) {
-        var subgame = new Game(this, this.jt, id);
+        var subgame = new Game(this, this.jt, id, this);
         this.subgames.push(subgame);
         return subgame;
     }
@@ -1390,7 +1396,7 @@ class Game {
         }
 
         participant.periodIndex = -1;
-        participant.emit('participantSetGameIndex', {appIndex: this.indexInSession()});
+        // participant.emit('participantSetGameIndex', {appIndex: this.indexInSession()});
 
         let duration = this.getParticipantDuration(participant);
         if (duration != null) {
@@ -1407,6 +1413,10 @@ class Game {
         participant.emit('start-new-app'); /** refresh clients.*/
     }
 
+    getGroupDuration(group) {
+        return this.duration;
+    }
+
     /**
      * A participant begins its current period.
      *
@@ -1421,7 +1431,7 @@ class Game {
      */
     participantBeginPeriod(participant) {
         var prd = participant.periodIndex;
-        participant.emit('participantSetPeriodIndex', {periodIndex: participant.periodIndex});
+//        participant.emit('participantSetPeriodIndex', {periodIndex: participant.periodIndex});
 
         var period = this.getPeriod(prd);
         if (period === undefined) {
@@ -1469,7 +1479,7 @@ class Game {
 
              // Move to next period.
              participant.periodIndex++;
-             participant.save();
+            //  participant.save();
              this.participantBeginPeriod(participant);
          }
      }
@@ -1515,9 +1525,10 @@ class Game {
         if (player.stageIndex < this.stages.length - 1) {
             player.status = 'playing';
             player.stageIndex++;
-            player.stage = this.stages[player.stageIndex];
+            player.stage = this.subgames[player.stageIndex];
+            player.game = this.subgames[player.stageIndex];
             player.stage.playerPlayDefault(player);
-            player.emitUpdate2();
+            // player.emitUpdate2();
         } else {
             this.participantMoveToNextPeriod(player.participant);
         }
@@ -1559,7 +1570,7 @@ class Game {
      * @return {string}  {@link Session#roomId} + '_app_' + this.id
      */
     roomId() {
-        return this.session.roomId() + '_app_' + this.indexInSession() + '-' + this.id;
+        return 'session_' + this.session.id + '_app_' + this.indexInSession() + '-' + this.id;
     }
 
     /**
@@ -1594,6 +1605,58 @@ class Game {
         }
     }
 
+    canGroupParticipate(group) {
+        return true;
+    }
+
+    indexInApp() {
+        if (this.parent != null) {
+            for (var i in this.parent.subgames) {
+                if (this.parent.subgames[i] === this) {
+                    return parseInt(i);
+                }
+            }
+            return -1;
+        } else {
+            for (var i in this.session.gameTree) {
+                if (this.session.gameTree[i] === this) {
+                    return parseInt(i);
+                }
+            }
+            return -1;
+        }
+    }
+    
+    canGroupStart(group) {
+        return this.canGroupStartDefault(group);
+    }
+
+    canGroupStartDefault(group) {
+
+        // If already started this stage, return false.
+        if (group.stageStartedIndex > this.indexInApp()) {
+            return false;
+        }
+
+        // // If not finished a previous stage, return false.
+        // if (group.stageEndedIndex < this.indexInApp() - 1) {
+        //     return false;
+        // }
+
+        if (this.waitToStart) {
+            // If any player is 1) not "ready" or 2) not in this stage, then return false.
+            for (var p in group.players) {
+                var player = group.players[p];
+                if (player.stageIndex !== this.indexInApp() || player.status !== 'ready') {
+                    return false;
+                }
+            }
+        } 
+        
+        // Otherwise, return true.
+        return true;
+    }
+
     /**
      * A shell of this object. Excludes parent, includes child shells.
      *
@@ -1610,62 +1673,62 @@ class Game {
      *
      * @return {type}  description
      */
-    shellWithChildren() {
-        var out = {};
-        out.functions = [];
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            if (Utils.isFunction(this[field])) {
-                out.functions.push({
-                    field: field,
-                    content: this[field].toString(),
-                });
-            } else {
-                out[field] = this[field];
-            }
-        }
-        out.indexInSession = this.indexInSession();
-        out.periods = [];
-        for (var i in this.periods) {
-            out.periods[i] = this.periods[i].shellWithChildren();
-        }
-        out.subgames = [];
-        for (var i in this.subgames) {
-            out.subgames[i] = this.subgames[i].shellWithChildren();
-        }
-        out.options = this.options;
-        return out;
-    }
+    // shellWithChildren() {
+    //     var out = {};
+    //     out.functions = [];
+    //     var fields = this.outputFields();
+    //     for (var f in fields) {
+    //         var field = fields[f];
+    //         if (Utils.isFunction(this[field])) {
+    //             out.functions.push({
+    //                 field: field,
+    //                 content: this[field].toString(),
+    //             });
+    //         } else {
+    //             out[field] = this[field];
+    //         }
+    //     }
+    //     out.indexInSession = this.indexInSession();
+    //     out.periods = [];
+    //     for (var i in this.periods) {
+    //         out.periods[i] = this.periods[i].shellWithChildren();
+    //     }
+    //     out.subgames = [];
+    //     for (var i in this.subgames) {
+    //         out.subgames[i] = this.subgames[i].shellWithChildren();
+    //     }
+    //     out.options = this.options;
+    //     return out;
+    // }
     /**
      * A shell of this object. Includes parent shell, excludes child shells.
      *
      * @return {type}  description
      */
-    shellWithParent() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.session = this.session.shell();
-        out.numStages = this.stages.length;
-        out.vueComputedText = {};
-        for (let i in this.vueComputed) {
-            out.vueComputedText[i] = this.vueComputed[i].toString();
-        }
-        out.vueMethodsText = {};
-        for (let i in this.vueMethods) {
-            out.vueMethodsText[i] = this.vueMethods[i].toString();
-        }
-        for (let i in this.vueMethodsDefault) {
-            if (out.vueMethodsText[i] == null) {
-                out.vueMethodsText[i] = this.vueMethodsDefault[i].toString();
-            }
-        }
-        return out;
-    }
+    // shellWithParent() {
+    //     var out = {};
+    //     var fields = this.outputFields();
+    //     for (var f in fields) {
+    //         var field = fields[f];
+    //         out[field] = this[field];
+    //     }
+    //     out.session = this.session.shell();
+    //     out.numStages = this.stages.length;
+    //     out.vueComputedText = {};
+    //     for (let i in this.vueComputed) {
+    //         out.vueComputedText[i] = this.vueComputed[i].toString();
+    //     }
+    //     out.vueMethodsText = {};
+    //     for (let i in this.vueMethods) {
+    //         out.vueMethodsText[i] = this.vueMethods[i].toString();
+    //     }
+    //     for (let i in this.vueMethodsDefault) {
+    //         if (out.vueMethodsText[i] == null) {
+    //             out.vueMethodsText[i] = this.vueMethodsDefault[i].toString();
+    //         }
+    //     }
+    //     return out;
+    // }
 
     /**
      * A shell of this object. Excludes parent and children. The shell is a simplified version of an object and any of its fields.
@@ -1675,16 +1738,20 @@ class Game {
      *
      * @return {Object}  description
      */
-    shell() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.sessionIndex = this.indexInSession();
-        return out;
-    }
+    // shell() {
+    //     var out = {};
+    //     var fields = this.outputFields();
+    //     for (var f in fields) {
+    //         var field = fields[f];
+    //         out[field] = this[field];
+    //     }
+    //     out.sessionIndex = this.indexInSession();
+    //     out.subgames = [];
+    //     for (let i in this.subgames) {
+    //         out.subgames.push(this.subgames[i].shell());
+    //     }
+    //     return out;
+    // }
 
     /**
      * If all participants have finished the app, end the app ({@link Game#end}).

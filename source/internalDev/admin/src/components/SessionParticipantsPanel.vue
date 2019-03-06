@@ -17,6 +17,10 @@
                     value: "id",
                 },
                 {
+                    label: "game",
+                    value: "gameIndex",
+                },
+                {
                     label: "clients",
                     value: "numClients",
                 },
@@ -85,6 +89,9 @@ export default {
     },
         watch: {
             participants: function(newVal) {
+                if (newVal == null) {
+                    return;
+                }
                 this.panel.id = 'Participants (' + newVal.length + ')';
             },
         },

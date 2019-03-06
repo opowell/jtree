@@ -58,8 +58,18 @@ jt.checkIfLoaded = function() {
             jt.socketConnected();
         });
 
-        jt.socket.on('logged-in', function(participant) {
-            jt.setPId(participant.id, participant.session.id);
+        jt.socket.on('logged-in', function(partData) {
+            let partId = null;
+            let sessId = null;
+            if (partData.id != null) {
+                partId = partData.id;
+                sessId = partData.session.id;
+            } else {
+                let participant = Flatted.parse(partData);
+                partId = participant.id;
+                sessId = participant.session.id;
+            }
+            jt.setPId(partId, sessId);
         });
 
         jt.socket.on('loggedIntoRoom', function(pId) {

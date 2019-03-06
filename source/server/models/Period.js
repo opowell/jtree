@@ -133,7 +133,8 @@ class Period {
         }
 
         participant.player.stageIndex = 0;
-        participant.player.stage = this.app.stages[0];
+        participant.player.stage = this.app.subgames[0];
+        participant.player.game = this.app.subgames[0];
         participant.player.status = 'ready';
         participant.player.startStage(participant.player.stage);
     }
@@ -168,19 +169,19 @@ class Period {
 
         for (var g=this.groups.length; g<numGroups; g++) {
             var group = new Group.new(g+1, this);
-            group.save();
+            // group.save();
             this.groups.push(group);
             for (var i=0; i<gIds[g].length; i++) {
                 var pId = gIds[g][i];
                 var participant = participants[pId];
                 var player = new Player.new(pId, participant, group, i+1);
                 participant.players.push(player);
-                player.save();
-                participant.save();
+                // player.save();
+                // participant.save();
                 group.players.push(player);
             }
             group.allPlayersCreated = true;
-            group.save();
+            // group.save();
 //            if (this.app.stages[0].canGroupPlay(group)) {
             //    this.app.stages[0].groupPlayDefault(group);
 //            }
@@ -256,42 +257,42 @@ class Period {
     //     }
     // }
 
-    shellWithParent() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.app = this.app.shellWithParent();
-        return out;
-    }
+    // shellWithParent() {
+    //     var out = {};
+    //     var fields = this.outputFields();
+    //     for (var f in fields) {
+    //         var field = fields[f];
+    //         out[field] = this[field];
+    //     }
+    //     out.app = this.app.shellWithParent();
+    //     return out;
+    // }
 
-    shellWithChildren() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.app = this.app.id;
-        out.groups = [];
-        for (var i in this.groups) {
-            out.groups[i] = this.groups[i].shellWithChildren();
-        }
-        return out;
-    }
+    // shellWithChildren() {
+    //     var out = {};
+    //     var fields = this.outputFields();
+    //     for (var f in fields) {
+    //         var field = fields[f];
+    //         out[field] = this[field];
+    //     }
+    //     out.app = this.app.id;
+    //     out.groups = [];
+    //     for (var i in this.groups) {
+    //         out.groups[i] = this.groups[i].shellWithChildren();
+    //     }
+    //     return out;
+    // }
 
-    shell() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.appIndex = this.app.indexInSession();
-        return out;
-    }
+    // shell() {
+    //     var out = {};
+    //     var fields = this.outputFields();
+    //     for (var f in fields) {
+    //         var field = fields[f];
+    //         out[field] = this[field];
+    //     }
+    //     out.appIndex = this.app.indexInSession();
+    //     return out;
+    // }
 
     /**
      * save - description

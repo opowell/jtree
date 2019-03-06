@@ -65,7 +65,11 @@ data() {
                 return this.$store.state.session;
             },
             gameTree() {
-                return this.$store.state.session.state.gameTree;
+                try {
+                    return this.$store.state.session.state.gameTree;
+                } catch (err) {
+                    return [];
+                }
             },
             panelTitle() {
                 return 'Game Tree (' + this.gameTree.length + ')';
@@ -73,6 +77,9 @@ data() {
         },
         watch: {
             gameTree: function(newVal) {
+                if (newVal == null) {
+                    return;
+                }
                 this.panel.id = 'Game Tree (' + newVal.length + ')';
             },
         },

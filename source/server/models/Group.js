@@ -172,7 +172,7 @@ class Group {
     }
 
     jt() {
-        return this.session().jt;
+        return global.jt;
     }
 
     canProcessMessage() {
@@ -261,37 +261,37 @@ class Group {
      *
      * @return {type}  description
      */
-    shellWithParent() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.period = this.period.shellWithParent();
-        out.numPlayers = this.players.length;
-        if (this.stageTimer !== undefined) {
-            out.stageTimerStart = this.stageTimer.timeStarted;
-            out.stageTimerDuration = this.stageTimer.duration;
-        } else {
-            out.timer = 'none';
-        }
-        out.tables = this.tables;
-        for (var i in this.tables) {
-            var name = this.tables[i];
-            if (this[name] != null) {
-                out[name] = this[name].shell();
-            }
-        }
+    // shellWithParent() {
+    //     var out = {};
+    //     var fields = this.outputFields();
+    //     for (var f in fields) {
+    //         var field = fields[f];
+    //         out[field] = this[field];
+    //     }
+    //     out.period = this.period.shellWithParent();
+    //     out.numPlayers = this.players.length;
+    //     if (this.stageTimer !== undefined) {
+    //         out.stageTimerStart = this.stageTimer.timeStarted;
+    //         out.stageTimerDuration = this.stageTimer.duration;
+    //     } else {
+    //         out.timer = 'none';
+    //     }
+    //     out.tables = this.tables;
+    //     for (var i in this.tables) {
+    //         var name = this.tables[i];
+    //         if (this[name] != null) {
+    //             out[name] = this[name].shell();
+    //         }
+    //     }
 
-        return out;
-    }
+    //     return out;
+    // }
 
-    shellForPlayerUpdate() {
-        var out = this.shellWithChildren();
-        out.period = this.period.shellWithParent();
-        return out;
-    }
+    // shellForPlayerUpdate() {
+    //     var out = this.shellWithChildren();
+    //     out.period = this.period.shellWithParent();
+    //     return out;
+    // }
 
     timeInStage() {
         if (this.stageTimer == null) {
@@ -377,32 +377,32 @@ class Group {
      *
      * @return {type}  description
      */
-    shellWithChildren() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.period = this.period.id;
-        out.players = [];
-        for (var i in this.players) {
-            out.players[i] = this.players[i].shellWithChildren();
-        }
-        if (this.stageTimer !== undefined) {
-            out.stageTimerStart = this.stageTimer.timeStarted;
-            out.stageTimerDuration = this.stageTimer.duration;
-            out.stageTimerTimeLeft = this.stageTimer.timeLeft;
-        }
-        out.tables = this.tables;
-        for (var i in this.tables) {
-            var name = this.tables[i];
-            if (this[name] !== undefined) {
-                out[name] = this[name].shell();
-            }
-        }
-        return out;
-    }
+    // shellWithChildren() {
+    //     var out = {};
+    //     var fields = this.outputFields();
+    //     for (var f in fields) {
+    //         var field = fields[f];
+    //         out[field] = this[field];
+    //     }
+    //     out.period = this.period.id;
+    //     out.players = [];
+    //     for (var i in this.players) {
+    //         out.players[i] = this.players[i].shellWithChildren();
+    //     }
+    //     if (this.stageTimer !== undefined) {
+    //         out.stageTimerStart = this.stageTimer.timeStarted;
+    //         out.stageTimerDuration = this.stageTimer.duration;
+    //         out.stageTimerTimeLeft = this.stageTimer.timeLeft;
+    //     }
+    //     out.tables = this.tables;
+    //     for (var i in this.tables) {
+    //         var name = this.tables[i];
+    //         if (this[name] !== undefined) {
+    //             out[name] = this[name].shell();
+    //         }
+    //     }
+    //     return out;
+    // }
 
     /*
      * getOutputDir - description
@@ -611,7 +611,7 @@ class Group {
             console.log(err.stack);
         }
         try {
-            this.save();
+//            this.save();
         } catch (err) {}
         for (var p in this.players) {
             try {

@@ -9,6 +9,7 @@ const Room = require('../models/Room.js');
 const User = require('../models/User.js');
 const Observer = require('micro-observer').Observer;
 const Game = require('../models/Game.js');
+const flatted = require('flatted');
 
 /** The data object. */
 class Data {
@@ -67,15 +68,15 @@ class Data {
         // Reload them when a new session is opened.
         this.participantClients = [];
 
-        this.proxyObj = {
+        let proxyObj = {
             sessions: [],
         };
 
         for (let i=0; i<this.sessions.length; i++) {
-            this.proxyObj.sessions.push(this.sessions[i].proxy);
+            proxyObj.sessions.push(this.sessions[i].proxy);
         }
 
-        this.proxy = Observer.create(this.proxyObj, function(change) {
+        this.proxy = Observer.create(proxyObj, function(change) {
             let msg = {
                 arguments: change.arguments,
                 function: change.function,
@@ -88,9 +89,9 @@ class Data {
                 return true;
             }
             let jt = global.jt;
-            msg.newValue = jt.data.toShell(msg.newValue);
-            msg.arguments = jt.data.toShell(msg.arguments);
-            console.log('emit message: \n' + JSON.stringify(msg));
+            msg.newValue = flatted.stringify(msg.newValue);
+            msg.arguments = flatted.stringify(msg.arguments);
+            console.log('emit message: \n' + flatted.stringify(msg));
             jt.socketServer.io.to(jt.socketServer.ADMIN_TYPE).emit('objChange', msg);
             return true; // to apply changes locally.
             // return false;
@@ -98,32 +99,27 @@ class Data {
 
     }
 
-    toShell(obj) {
-        if (!(obj instanceof Array)) {
-            if (obj == null) {
-                return obj;
-            } else if (obj.shellWithChildren != null) {
-                return obj.shellWithChildren();
-            }
-            else if (obj.shell != null) {
-                return obj.shell();
-            } else {
-                return obj;
-            }
-        }
-        let out = [];
-        for (let i=0; i<obj.length; i++) {
-            if (obj[i].shellWithChildren != null) {
-                out.push(obj[i].shellWithChildren());
-            }
-            else if (obj[i].shell != null) {
-                out.push(obj[i].shell());
-            } else {
-                out.push(obj[i]);
-            }
-        }
-        return out;
-    }
+    // toShell(obj) {
+    //     let out = null;
+    //     if (obj == null) {
+    //         out = obj;
+    //     } else if (obj.shell != null) {
+    //         out = obj.shell();
+    //     } else if (obj instanceof Array) {
+    //         out = [];
+    //         for (let i=0; i<obj.length; i++) {
+    //             out.push(this.toShell(obj[i]));
+    //         }
+    //     } else if (typeof obj === 'object') {
+    //         out = {};
+    //         for (let i in obj) {
+    //             out[i] = this.toShell(obj[i]);
+    //         }
+    //     } else {
+    //         out = obj;
+    //     }
+    //     return out;
+    // }
 
     /*
      * Set a timeout to write the time info {@link Data#storeTimeInfo}. Timeout length is {@link Settings#autoSaveFreq} milliseconds.

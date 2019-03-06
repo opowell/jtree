@@ -262,7 +262,7 @@ router.get('/sessions', function (req, res) {
     let out = [];
     let sessions = global.jt.data.sessions;
     for (let i=0; i<sessions.length; i++) {
-        out.push(sessions[i].shellWithChildren());
+        out.push(sessions[i].shell());
     }
     res.json(out);
 });

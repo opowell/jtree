@@ -65,6 +65,7 @@ class Player {
          * @default null
          */
         this.stage = null;
+        this.game = null;
 
         /**
          * 'outputHide' fields are not included in output.
@@ -155,7 +156,7 @@ class Player {
     }
 
     jt() {
-        return this.session().jt;
+        return global.jt;
     }
 
     canProcessMessage() {
@@ -367,19 +368,19 @@ class Player {
         return out;
     }
 
-    shellWithParent() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.group = this.group.shellWithParent();
-        if (this.stage !== null && this.stage !== undefined) {
-            out.stage = this.stage.shellWithParent();
-        }
-        return out;
-    }
+    // shellWithParent() {
+    //     var out = {};
+    //     var fields = this.outputFields();
+    //     for (var f in fields) {
+    //         var field = fields[f];
+    //         out[field] = this[field];
+    //     }
+    //     out.group = this.group.shellWithParent();
+    //     if (this.stage !== null && this.stage !== undefined) {
+    //         out.stage = this.stage.shellWithParent();
+    //     }
+    //     return out;
+    // }
 
     /**
     * CALLED FROM
@@ -387,34 +388,34 @@ class Player {
      *
      * @return {type}  description
      */
-     shellWithChildren() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.groupId = this.group.roomId();
-        out.roomId = this.roomId();
-        if (this.stage !== null && this.stage !== undefined) {
-            out.stageId = this.stage.id;
-        } else {
-            out.stageId = null;
-        }
-        out.participantId = this.participant.id;
-        if (this.group.stageTimer !== undefined) {
-            out.stageTimerStart = this.group.stageTimer.timeStarted;
-            out.stageTimerDuration = this.group.stageTimer.duration;
-            out.stageTimerTimeLeft = this.group.stageTimer.timeLeft;
-            out.stageTimerRunning = this.group.stageTimer.running;
-        }
+    //  shellWithChildren() {
+    //     var out = {};
+    //     var fields = this.outputFields();
+    //     for (var f in fields) {
+    //         var field = fields[f];
+    //         out[field] = this[field];
+    //     }
+    //     out.groupId = this.group.roomId();
+    //     out.roomId = this.roomId();
+    //     if (this.stage !== null && this.stage !== undefined) {
+    //         out.stageId = this.stage.id;
+    //     } else {
+    //         out.stageId = null;
+    //     }
+    //     out.participantId = this.participant.id;
+    //     if (this.group.stageTimer !== undefined) {
+    //         out.stageTimerStart = this.group.stageTimer.timeStarted;
+    //         out.stageTimerDuration = this.group.stageTimer.duration;
+    //         out.stageTimerTimeLeft = this.group.stageTimer.timeLeft;
+    //         out.stageTimerRunning = this.group.stageTimer.running;
+    //     }
 
-        if (this.stage != null && this.stage.clientDuration > 0) {
-            out.stageClientDuration = this.stage.clientDuration;
-        }
+    //     if (this.stage != null && this.stage.clientDuration > 0) {
+    //         out.stageClientDuration = this.stage.clientDuration;
+    //     }
 
-        return out;
-    }
+    //     return out;
+    // }
 
     /**
      * emitUpdate - description
@@ -516,7 +517,7 @@ class Player {
      */
     save() {
         try {
-            this.session().jt.log('Player.save: ' + this.roomId());
+            global.jt.log('Player.save: ' + this.roomId());
             var toSave = this.shell();
             this.session().saveDataFS(toSave, 'PLAYER');
         } catch (err) {
@@ -614,6 +615,7 @@ class Player {
         }
         if (this.stageIndex !== stage.indexInApp()) {
             this.stage = stage;
+            this.game = stage;
             this.stageIndex = stage.indexInApp();
             this.status = 'ready';            
         }

@@ -856,31 +856,31 @@ class Session {
     *
     * @return {type}  The shell of this session.
     */
-    shellWithChildren() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.participants = {};
-        out.participantProxies = [];
-        for (var i in this.participants) {
-            out.participants[i] = this.participants[i].shellAll();
-            out.participantProxies.push(out.participants[i]);
-        }
-        out.apps = [];
-        out.gameTree = [];
-        for (var i in this.apps) {
-            out.apps[i] = this.apps[i].shellWithChildren();
-            out.gameTree[i] = this.apps[i].shellWithChildren();
-        }
-        out.clients = [];
-        for (var i in this.clients) {
-            out.clients[i] = this.clients[i].shell();
-        }
-        return out;
-    }
+    // shellWithChildren() {
+    //     var out = {};
+    //     var fields = this.outputFields();
+    //     for (var f in fields) {
+    //         var field = fields[f];
+    //         out[field] = this[field];
+    //     }
+    //     out.participants = {};
+    //     out.participantProxies = [];
+    //     for (var i in this.participants) {
+    //         out.participants[i] = this.participants[i].shellAll();
+    //         out.participantProxies.push(out.participants[i]);
+    //     }
+    //     out.apps = [];
+    //     out.gameTree = [];
+    //     for (var i in this.apps) {
+    //         out.apps[i] = this.apps[i].shellWithChildren();
+    //         out.gameTree[i] = this.apps[i].shellWithChildren();
+    //     }
+    //     out.clients = [];
+    //     for (var i in this.clients) {
+    //         out.clients[i] = this.clients[i].shell();
+    //     }
+    //     return out;
+    // }
 
     /**
     * shell - description

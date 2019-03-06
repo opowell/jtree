@@ -29,7 +29,7 @@ class Participant {
          */
         this.session = session;
 
-        this.indexInSession = Object.keys(session.proxyObj.state.participants).length;
+        // this.indexInSession = Object.keys(session.proxy.__target.state.participants).length;
 
         /**
          * @type array
@@ -56,14 +56,6 @@ class Participant {
          * @default -1
          */
         this.periodIndex = -1;
-
-        /**
-         * The current app index of this participant.
-         * 0 indicates no current app.
-         * @type number
-         * @default 0
-         */
-        this.appIndex = 0;
 
         /**
          * List of app ids that this participant has completed.
@@ -102,34 +94,39 @@ class Participant {
             'finishedApps',
             'proxy',
             'clientProxies',
-            'proxyObj',
         ];
 
         this.clientProxies = [];
 
-        this.proxyObj = {
-            clients: this.clients,
-        }
+        this.gameIndex = -1;
 
-        this.proxy = Observer.create(this.proxyObj, function(change) {
-            let jt = global.jt;
-            let msg = {
-                arguments: change.arguments,
-                function: change.function,
-                path: change.path,
-                property: change.property,
-                type: change.type,
-                newValue: change.newValue,
-            }
-            if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
-                return true;
-            }
-            msg.newValue = jt.data.toShell(msg.newValue);
-            msg.arguments = jt.data.toShell(msg.arguments);
-            console.log('emit message: \n' + JSON.stringify(msg));
-            jt.socketServer.io.to(jt.socketServer.ADMIN_TYPE).emit('objChange', msg);
-            return true; // to apply changes locally.
-        });
+        // let proxyObj = {
+        //     clients: this.clients,
+        //     id: this.id,
+        //     numClients: 0,
+        //     numPoints: 0,
+        //     gameIndex: -1,
+        // }
+
+        // this.proxy = Observer.create(proxyObj, function(change) {
+        //     let jt = global.jt;
+        //     let msg = {
+        //         arguments: change.arguments,
+        //         function: change.function,
+        //         path: change.path,
+        //         property: change.property,
+        //         type: change.type,
+        //         newValue: change.newValue,
+        //     }
+        //     if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
+        //         return true;
+        //     }
+        //     msg.newValue = jt.data.toShell(msg.newValue);
+        //     msg.arguments = jt.data.toShell(msg.arguments);
+        //     console.log('emit message: \n' + JSON.stringify(msg));
+        //     jt.socketServer.io.to(jt.socketServer.ADMIN_TYPE).emit('objChange', msg);
+        //     return true; // to apply changes locally.
+        // });
     }
 
     /**
@@ -198,11 +195,16 @@ class Participant {
         }
     }
 
-    getApp() {
-        if (this.appIndex < 1) {
+    /**
+     * Return the next app in the session for this participant, null if there are no more apps for this participant.
+     * @param {Participant} participant 
+     */
+    getGame() {
+        if (this.gameIndex < 0 || this.gameIndex >= this.session.gameTree.length) {
             return null;
+        } else {
+            return this.session.gameTree[this.gameIndex];
         }
-        return this.session.getApp(this);
     }
 
     endCurrentApp() {
@@ -264,7 +266,8 @@ class Participant {
      * @return {type}  description
      */
     roomId() {
-        return this.session.roomId() + '_participant_' + this.id;
+        // return this.session.roomId() + '_participant_' + this.id;
+        return 'session_' + this.id + '_participant_' + this.id;
     }
 
     /**
@@ -346,35 +349,34 @@ class Participant {
         }
         dta.participantId = this.id;
         dta.sessionId = this.session.id;
-        this.session.io().to(this.roomId()).emit(name, dta);
+        global.jt.socketServer.io.to(this.roomId()).emit(name, dta);
 //        this.session.io().to(this.session.roomId()).emit(name, dta);
     }
 
     clientRemove(clientId) {
         Utils.deleteById(this.clients, clientId);
-        this.session.jt.socketServer.sendOrQueueAdminMsg(null, 'objChange', {
-            type: 'set-value',
-            path: 'session.participants.' + this.id + '.numClients',
-            newValue: this.clients.length,
-        });
+        // this.session.jt.socketServer.sendOrQueueAdminMsg(null, 'objChange', {
+        //     type: 'set-value',
+        //     path: 'session.participants.' + this.id + '.numClients',
+        //     newValue: this.clients.length,
+        // });
     }
 
     clientAdd(client) {
         this.clients.push(client);
         this.clientProxies.push(client.proxy);
-        client.socket.join(this.roomId());
-        if (this.player != null) {
-            this.player.addClient(client);
-            this.player.group.addClient(client);
-            this.player.group.period.addClient(client);
-            this.player.group.period.app.addClientDefault(client);
-        }
-
-        this.session.jt.socketServer.sendOrQueueAdminMsg(null, 'objChange', {
-            type: 'set-value',
-            path: 'session.participants.' + this.id + '.numClients',
-            newValue: this.clients.length,
-        });
+        // client.socket.join(this.roomId());
+        // if (this.player != null) {
+        //     this.player.addClient(client);
+        //     this.player.group.addClient(client);
+        //     this.player.group.period.addClient(client);
+        //     this.player.group.period.app.addClientDefault(client);
+        // }
+        // global.jt.socketServer.sendOrQueueAdminMsg(null, 'objChange', {
+        //     type: 'set-value',
+        //     path: 'session.participants.' + this.id + '.numClients',
+        //     newValue: this.clients.length,
+        // });
 
     }
 
@@ -404,14 +406,13 @@ class Participant {
 
     setPlayer(player) {
         this.player = player;
-        this.save();
         for (var i=0; i<this.clients.length; i++) {
             var client = this.clients[i];
             player.addClient(client);
             player.group.addClient(client);
             player.period().addClient(client);
         }
-        this.emit('participantSetPlayer', {player: player.shellWithParent()});
+        // this.emit('participantSetPlayer', {player: player.shellWithParent()});
     }
 
     actuallyEmitUpdate() {
@@ -447,51 +448,50 @@ class Participant {
             out.player = null;
         }
         out.numPoints = this.points();
-        out.session = this.session.shell();
         return out;
     }
 
-    shellAll() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.numClients = this.clients.length;
-        if (this.player != null) {
-            out.player = this.player.shellWithChildren();
-        } else {
-            out.player = null;
-        }
-        out.numPoints = this.points();
-        out.playerIds = [];
-        out.players = [];
-        for (var i in this.players) {
-            out.playerIds[i] = this.players[i].roomId();
-            out.players.push(this.players[i].shell());
-        }
-        return out;
-    }
+    // shellAll() {
+    //     var out = {};
+    //     var fields = this.outputFields();
+    //     for (var f in fields) {
+    //         var field = fields[f];
+    //         out[field] = this[field];
+    //     }
+    //     out.numClients = this.clients.length;
+    //     if (this.player != null) {
+    //         out.player = this.player.shellWithChildren();
+    //     } else {
+    //         out.player = null;
+    //     }
+    //     out.numPoints = this.points();
+    //     out.playerIds = [];
+    //     out.players = [];
+    //     for (var i in this.players) {
+    //         out.playerIds[i] = this.players[i].roomId();
+    //         out.players.push(this.players[i].shell());
+    //     }
+    //     return out;
+    // }
 
-    shellLocal() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.playerIds = [];
-        for (var i in this.players) {
-            out.playerIds.push(this.players[i].compId());
-        }
-        out.playerIds = JSON.stringify(out.playerIds);
-        out.playerId = null;
-        if (this.player !== null) {
-            out.playerId = JSON.stringify(this.player.compId());
-        }
-        return out;
-    }
+    // shellLocal() {
+    //     var out = {};
+    //     var fields = this.outputFields();
+    //     for (var f in fields) {
+    //         var field = fields[f];
+    //         out[field] = this[field];
+    //     }
+    //     out.playerIds = [];
+    //     for (var i in this.players) {
+    //         out.playerIds.push(this.players[i].compId());
+    //     }
+    //     out.playerIds = JSON.stringify(out.playerIds);
+    //     out.playerId = null;
+    //     if (this.player !== null) {
+    //         out.playerId = JSON.stringify(this.player.compId());
+    //     }
+    //     return out;
+    // }
 
     save() {
         try {
@@ -508,3 +508,4 @@ class Participant {
 var exports = module.exports = {};
 exports.new = Participant;
 exports.load = Participant.load;
+exports.getGame = Participant.getGame;
