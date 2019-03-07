@@ -17,8 +17,11 @@ class Client {
          this.pId = null;
          this.participant = null;
          this.lastActivity = Utils.getDate(new Date());
+         this.nonObs = {
+             socket: socket,
+         }
         //  this.socket = socket;
-         this.socketId = socket.id;
+        //  this.socketId = socket.id;
          socket.join(this.getChannelName());
 
         // let proxyObj = {
@@ -82,8 +85,8 @@ class Client {
      * @return {type}         description
      */
     on(msgName, fn) {
-        let socket = jt.socketServer.getSocket(this.socketId);
-        socket.on(msgName, fn);
+        // let socket = jt.socketServer.getSocket(this.socketId);
+        this.nonObs.socket.on(msgName, fn);
     }
 
     register(msgName, msgFunc) {
