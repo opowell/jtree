@@ -147,7 +147,7 @@ class Participant {
                 newParticipant[j] = json[j];
             }
         }
-        session.participants[id] = newParticipant;
+        return newParticipant;
     }
 
     /**

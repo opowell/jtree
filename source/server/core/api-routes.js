@@ -7,6 +7,7 @@ const Utils     = require('../models/Utils.js');
 const formidable = require('formidable');
 const Game = require('../models/Game.js');
 // const rimraf = require("rimraf");
+const flatted = require('flatted');
 
 let router = require('express').Router();
 
@@ -262,7 +263,7 @@ router.get('/sessions', function (req, res) {
     let out = [];
     let sessions = global.jt.data.sessions;
     for (let i=0; i<sessions.length; i++) {
-        out.push(sessions[i].shell());
+        out.push(flatted.stringify(sessions[i].shell()));
     }
     res.json(out);
 });

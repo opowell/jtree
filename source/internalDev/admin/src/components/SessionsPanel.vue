@@ -30,6 +30,7 @@
 import axios from 'axios';
 import ActionBar from '@/components/ActionBar.vue'
 import JtTree from '@/components/JtTree.vue'
+import flatted from 'flatted';
 
 export default {
         name: 'SessionsPanel',
@@ -190,7 +191,7 @@ export default {
             .get('http://' + window.location.host + '/api/sessions')
             .then(response => {
                 for (let i=0; i<response.data.length; i++) {
-                    this.$store.state.sessions.push(response.data[i]);
+                    this.$store.state.sessions.push(flatted.parse(response.data[i]));
                 }
                 this.loading = false;
             });

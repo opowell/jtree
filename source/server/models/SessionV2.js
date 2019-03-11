@@ -5,8 +5,11 @@ const Participant   = require('./Participant.js');
 const fs            = require('fs-extra');
 const path          = require('path');
 const flatted = require('flatted');
-const clone     = require('clone');
+const clone     = require('../clone.js');
 const Client        = require('./Client.js');
+const Game        = require('./Game.js');
+const CircularJSON = require('../circularjson.js');
+const Parser = CircularJSON;
 
 class SessionV2 {
 
@@ -31,6 +34,7 @@ class SessionV2 {
             started: false,
             participants: [],
             gameTree: [],
+            potentialParticipantIds: this.jt.settings.participantIds,
         };
 
         let proxyObj = {
@@ -41,7 +45,12 @@ class SessionV2 {
             clients: [],
             state: this.initialState,
         }
+
+        this.setProxy(proxyObj);
         
+    }
+
+    setProxy(proxyObj) {
         const thisSession = this;
 
         this.proxy = Observer.create(proxyObj, function(change) {
@@ -56,8 +65,8 @@ class SessionV2 {
             if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
                 return true;
             }
-            msg.newValue = flatted.stringify(msg.newValue);
-            msg.arguments = flatted.stringify(msg.arguments);
+            msg.newValue = Parser.stringify(msg.newValue);
+            msg.arguments = Parser.stringify(msg.arguments);
             console.log('emit message: \n' + JSON.stringify(msg, null, 4));
             // jt.socketServer.io.to(jt.socketServer.ADMIN_TYPE).emit('objChange', msg);
             jt.socketServer.io.to(thisSession.roomId()).emit('objChange', msg);
@@ -67,12 +76,63 @@ class SessionV2 {
 
     }
 
+    dataReviver(key, value) {
+        if (
+            (value != null) &&
+            (typeof value.startsWith === 'function') &&
+            value.startsWith("/Function(") &&
+            value.endsWith(")/")
+        ) {
+            value = value.substring(10, value.length - 2);
+            try {
+                return eval("(" + value + ")");
+            } catch (err) {
+                console.log(err);
+            }
+        } else {
+            return value;
+        }
+    }
+
+    /**
+    * Loads a session from a .json file.
+    *
+    * FUNCTIONALITY
+    * - create a new session
+    * - load session objects from .gsf file
+    * - for each object in the .gsf file, call the appropriate object.load method.
+    * - link participants and players.
+    *
+    * @param  {Object} jt      The server
+    * @param  {type} json      The content of the session.
+    * @return {Session}        The session described by the contents of json.
+    */
+   static load(jt, folder, data) {
+        var session = new SessionV2(jt, folder);
+        var all = fs.readFileSync(path.join(jt.path, jt.settings.sessionsFolder + '/' + folder + '/' + folder + '.json')).toString();
+        let proxyObj = Parser.parse(all, session.dataReviver);
+        session.id = proxyObj.id;
+        for (let i=0; i<proxyObj.messages.length; i++) {
+            if (proxyObj.messages[i].state != null) {
+                let state = proxyObj.messages[i].state;
+                for (let j=0; j<state.participants.length; j++) {
+                    state.participants[j] = Participant.load(state.participants[j], state);
+                }
+                for (let j=0; j<state.gameTree.length; j++) {
+                    state.gameTree[j] = Game.load(state.gameTree[j], state);
+                }
+            }
+        }
+        session.setProxy(proxyObj);
+        return session;
+    }
+
     getOutputDir() {
         return this.jt.settings.sessionsFolder + '/' + this.id;
     }
 
     getGSFFile() {
-        return this.getOutputDir() + '/' + this.id + '.gsf';
+        return this.getOutputDir() + '/' + this.id + '.json';
     }
 
     addGame(state, {filePath, options}) {
@@ -95,6 +155,10 @@ class SessionV2 {
 
         // Search through the list of participantIds until one is found for which
         // no participant already exists.
+        if (this.potentialParticipantIds == null) {
+            return;
+        }
+
         for (var i=0; i<this.potentialParticipantIds.length; i++) {
             let pId = this.potentialParticipantIds[i];
             let ptcptAlreadyExists = this.participants[pId] !== undefined;
@@ -139,16 +203,20 @@ class SessionV2 {
 
             let part = parts[Object.keys(parts)[len-1]];
             let pId = part.id;
-            this.deleteParticipant(pId);
+            this.addMessage(
+                'deleteParticipant',
+                pId,
+            );
         }
     }
 
-    deleteParticipant(pId) {
-        delete this.getState().participants[pId];
-        this.addMessage(
-            'deleteParticipant',
-            pId,
-        );
+    deleteParticipant(state, pId) {
+        for (let i in state.participants) {
+            if (state.participants[i].id === pId) {
+                delete state.participants[i];
+                break;
+            }
+        }
     }
     
     createNewParticipant() {
@@ -200,7 +268,7 @@ class SessionV2 {
 
     save() {
         try {
-            var data = JSON.stringify(this.proxy.__target.data, null, 4);
+            var data = Parser.stringify(this.proxy.__target, global.jt.data.dataReplacer, 2);
             fs.writeFileSync(this.getGSFFile(), data);
         } catch (err) {
             debugger;
@@ -471,3 +539,4 @@ class SessionV2 {
 
 var exports = module.exports = {};
 exports.new         = SessionV2;
+exports.load        = SessionV2.load;
