@@ -10,21 +10,8 @@
             <jt-tree ref='messagesTree'
                 :nodesProp='messages'
                 :titleField='"name"'
-                :keyField='"id"'
+                :keyField='"name"'
                 :allowChildren='false'
-                :headers='[
-                {
-                    label: "id",
-                    value: "id",
-                },
-                {
-                    label: "name",
-                    value: "name",
-                },
-                {
-                    label: "content",
-                    value: "content",
-                }]'            
             >
             </jt-tree>
         </div>
@@ -95,10 +82,7 @@ import JtTree from '@/components/JtTree.vue'
             global.jt.socket.emit('testMessage', {
                 sessionId: this.$store.state.sessionId,
             });
-        },
-        keyFunc(item, index) {
-            return index;
-        },
+        }
     },
         watch: {
             messages: function(newVal) {

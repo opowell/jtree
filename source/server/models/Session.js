@@ -884,18 +884,6 @@ class Session {
         return participant;
     }
 
-    createNewParticipant() {
-        let i = 0;
-        let pId;
-        let participant = {};
-        while (participant != null) {
-            i++;
-            pId = 'P' + i;
-            participant = this.participants[pId];
-        }
-        this.participantCreate(pId);
-    }
-
     /**
     * participantCreate - description
     *
@@ -910,23 +898,20 @@ class Session {
         var participantId = pId;
         this.jt.log('Session.participantCreate: ' + participantId);
         var participant = new Participant.new(participantId, this);
-        // participant.save();
-        // this.save();
+        participant.save();
+        this.save();
         this.participants[participantId] = participant;
-        this.addMessage(
-            'addParticipant',
-            pId,
-        );
+        this.messages.push({
+            name: 'addParticipant',
+            data: pId,
+        });
         this.jt.socketServer.sendOrQueueAdminMsg(null, 'addParticipant', participant.shell());
         return participant;
     }
 
-    addMessage(name, content) {
-        console.log('adding message: ' + name + ', ' + content);
+    addTestMessage() {
         this.messages.push({
-            id: this.messages.length,
-            name,
-            content, 
+            name: 'test', 
         });
     }
 

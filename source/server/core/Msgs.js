@@ -1,6 +1,6 @@
 const fs        = require('fs-extra');
 const path      = require('path');
-const Utils     = require('../models/Utils.js');
+const Utils     = require('../Utils.js');
 
 /**
  * Messages that the server listens for from clients.
@@ -41,10 +41,10 @@ class Msgs {
 
     testMessage(d, socket) {
         let session = this.jt.data.getProxySession(d.sessionId);
-        session.addMessage(
-            'test',
-            'content',
-        );
+        session.messages.push({
+            name: 'test', 
+        });
+        // session.addTestMessage();
     }
 
     getClients(data, socket) {
@@ -111,13 +111,6 @@ class Msgs {
         session.setNumParticipants(num);
     }
 
-    createParticipant(d, socket) {
-        var session = this.jt.data.getSession(d.sId);
-        session.createNewParticipant();
-        var sessionProxy = this.jt.data.getProxySession(d.sId);
-        sessionProxy.createNewParticipant();
-    }
-    
     appAddStage(d, socket) {
         var session = this.jt.data.getApp(d.aId);
     }

@@ -1,19 +1,19 @@
 // INCOMING MESSAGES FROM SERVER
 var msgs = {};
 msgs.addSession = function(session) {
-  var index = findById(vue.$store.state.sessions, session.id);
+  var index = findById(jt.data.sessions, session.id);
   if (index === null) {
-      vue.$store.state.sessions.push(session);
+      jt.data.sessions.push(session);
       showSessionRow(session);
       jt.showUsersMode(jt.settings.multipleUsers);
   }
 }
 
 msgs.deleteSession = function(id) {
-    for (i in vue.$store.state.sessions) {
-        var session = vue.$store.state.sessions[i];
+    for (i in jt.data.sessions) {
+        var session = jt.data.sessions[i];
         if (id === session.id) {
-            vue.$store.state.sessions.splice(i, 1);
+            jt.data.sessions.splice(i, 1);
             i--;
             showSessions();
         }
@@ -65,7 +65,7 @@ msgs.reloadApps = function(apps) {
 }
 
 msgs.createRoom = function(room) {
-    vue.$store.state.rooms.push(room);
+    jt.data.rooms.push(room);
     showRoom(room);
 }
 
@@ -78,33 +78,33 @@ msgs.dataUpdate = function(dataChanges) {
 }
 
 msgs.createUser = function(user) {
-    vue.$store.state.users.push(user);
+    jt.data.users.push(user);
     showUser(user);
 }
 
 msgs.createApp = function(app) {
-    vue.$store.state.appInfos[app.id] = app;
+    jt.data.appInfos[app.id] = app;
     showAppInfos();
     jt.openApp(app.id);
 }
 
 msgs.createQueue = function(queue) {
-    vue.$store.state.queues.push(queue);
+    jt.data.queues.push(queue);
     showQueue(queue);
 }
 
 msgs.setSessionId = function(data) {
-    var session = findById(vue.$store.state.sessions, data.oldId);
+    var session = findById(jt.data.sessions, data.oldId);
     session.id = data.newId;
-    if (vue.$store.state.session.id === data.oldId) {
-        vue.$store.state.session.id = data.newId;
+    if (jt.data.session.id === data.oldId) {
+        jt.data.session.id = data.newId;
         jt.showSessionId(data.newId);
     }
 }
 
 msgs.appSaved = function(app) {
-    delete vue.$store.state.appInfos[app.origId];
-    vue.$store.state.appInfos[app.id] = app;
+    delete jt.data.appInfos[app.origId];
+    jt.data.appInfos[app.id] = app;
     var curId = $('#view-app-id').text();
     if (curId === app.origId) {
         jt.openApp(app.id);
@@ -147,9 +147,9 @@ msgs.openSession = function(session) {
         clearInterval(participantTimers[i]);
     }
 
-    const prevSession = vue.$store.state.session;
-    vue.$store.state.session = session;
-    if (objLength(session.participants) === 0 && prevSession != null && prevSession.participants != null) {
+    const prevSession = jt.data.session;
+    jt.data.session = session;
+    if (objLength(session.participants) === 0 && prevSession !== undefined) {
         server.setNumParticipants(objLength(prevSession.participants));
     }
 
@@ -162,12 +162,12 @@ msgs.openSession = function(session) {
 
     // if (session !== undefined) {
     //     jt.showSessionId(session.id);
-    //     var filelink = vue.$store.state.jtreeLocalPath + '/sessions/' + session.id + '.csv';
+    //     var filelink = jt.data.jtreeLocalPath + '/sessions/' + session.id + '.csv';
     //     $('#view-session-results-filelink')
     //         .text(filelink)
     //         .attr('href', 'file:///' + filelink);
     //     showPanel("#panel-session-info");
-    //     showParticipants(vue.$store.state.session.participants);
+    //     showParticipants(jt.data.session.participants);
     //     // viewAllParticipants();
     //     updateSessionApps();
     //     jt.updateSessionUsers();
@@ -184,18 +184,18 @@ msgs.openSession = function(session) {
 }
 
 msgs.updateSessionId = function(md) {
-    var session = findById(vue.$store.state.sessions, d.sId);
+    var session = findById(jt.data.sessions, d.sId);
     if (session !== null && session !== undefined) {
         session.users.push(d.uId);
         showSessions();
     }
-    if (vue.$store.state.session.id === d.sId) {
+    if (jt.data.session.id === d.sId) {
         updateSessionUsers();
     }
 }
 
 msgs.participantSetAppIndex = function(md) {
-    var participant = vue.$store.state.session.participants[md.participantId];
+    var participant = jt.data.session.participants[md.participantId];
     participant.appIndex = md.appIndex;
     showPlayerCurApp(participant);
 }
@@ -205,16 +205,16 @@ msgs.participantSetGroupId = function(md) {
 }
 
 msgs.participantSetPeriodIndex = function(md) {
-    var participant = vue.$store.state.session.participants[md.participantId];
+    var participant = jt.data.session.participants[md.participantId];
     participant.periodIndex = md.periodIndex;
     $('.participant-' + safePId(md.participantId) + '-periodIndex').text(participant.periodIndex+1);
 }
 
 msgs.playerSetStageIndex = function(md) {
     try {
-        var participant = vue.$store.state.session.participants[md.participantId];
+        var participant = jt.data.session.participants[md.participantId];
         participant.player.stageIndex = md.stageIndex;
-        var app = vue.$store.state.session.apps[participant.appIndex-1];
+        var app = jt.data.session.apps[participant.appIndex-1];
         if (app == null) {
             return;
         }
@@ -227,14 +227,14 @@ msgs.playerSetStageIndex = function(md) {
     } catch (err) {}
 }
 msgs.participantSetPlayer = function(md) {
-    var participant = vue.$store.state.session.participants[md.participantId];
+    var participant = jt.data.session.participants[md.participantId];
     participant.player = md.player;
     $('.participant-' + safePId(md.participantId) + '-groupId').text(participant.player.group.id);
 }
 msgs.playerUpdate = function(player) {
 //    var decompId = decomposeId(player.roomId);
-//    if (decompId.sessionId === vue.$store.state.session.id) {
-    if (player.group.period.app.session.id === vue.$store.state.session.id) {
+//    if (decompId.sessionId === jt.data.session.id) {
+    if (player.group.period.app.session.id === jt.data.session.id) {
                 var div = $('tr.participant-' + safePId(player.id));
 
         // Re-establish object links.
@@ -244,7 +244,7 @@ msgs.playerUpdate = function(player) {
         }
         player.participant.player = player;
 
-        vue.$store.state.session.participants[player.id] = player.participant;
+        jt.data.session.participants[player.id] = player.participant;
 
         setParticipantPlayer(player.id, player, div);
 //        $('.participant-' + player.id + '-periodIndex').text(decompId.periodId);
@@ -257,11 +257,11 @@ msgs.refreshAdmin = function(ag) {
 }
 
 msgs.sessionAddApp = function(d) {
-    if (vue.$store.state.session.id === d.sId) {
-        vue.$store.state.session.apps.push(d.app);
+    if (jt.data.session.id === d.sId) {
+        jt.data.session.apps.push(d.app);
         updateSessionApps();
     }
-    var session = findById(vue.$store.state.sessions, d.sId);
+    var session = findById(jt.data.sessions, d.sId);
     if (session !== null && session !== undefined) {
         session.appSequence.push(d.app.id);
         session.numApps++;
@@ -270,12 +270,12 @@ msgs.sessionAddApp = function(d) {
 };
 
 msgs.sessionAddUser = function(d) {
-    var session = findById(vue.$store.state.sessions, d.sId);
+    var session = findById(jt.data.sessions, d.sId);
     if (session !== null && session !== undefined) {
         session.users.push(d.uId);
         showSessions();
     }
-    if (vue.$store.state.session.id === d.sId) {
+    if (jt.data.session.id === d.sId) {
         updateSessionUsers();
     }
 }
@@ -287,9 +287,9 @@ msgs.roomAddApp = function(d) {
 };
 
 msgs.deleteQueue = function(id) {
-    for (var i=0; i<vue.$store.state.queues.length; i++) {
-        if (vue.$store.state.queues[i].id === id) {
-            vue.$store.state.queues.splice(i, 1);
+    for (var i=0; i<jt.data.queues.length; i++) {
+        if (jt.data.queues[i].id === id) {
+            jt.data.queues.splice(i, 1);
         }
     }
     $('#view-queues-table').find('[queueId="' + id + '"]').remove();
@@ -299,9 +299,9 @@ msgs.deleteQueue = function(id) {
 }
 
 msgs.deleteApp = function(id) {
-    for (var i=0; i<vue.$store.state.appInfos.length; i++) {
-        if (vue.$store.state.appInfos[i].id === id) {
-            vue.$store.state.appInfos.splice(i, 1);
+    for (var i=0; i<jt.data.appInfos.length; i++) {
+        if (jt.data.appInfos[i].id === id) {
+            jt.data.appInfos.splice(i, 1);
         }
     }
     $('#appInfos').find('[appid="' + id + '"]').remove();
@@ -317,11 +317,11 @@ msgs.queueAddApp = function(d) {
 };
 
 msgs.sessionSetActive = function(msgData) {
-    if (vue.$store.state.session.id === msgData.sId) {
-        vue.$store.state.session.active = msgData.active;
-        updateSessionActive(vue.$store.state.session);
+    if (jt.data.session.id === msgData.sId) {
+        jt.data.session.active = msgData.active;
+        updateSessionActive(jt.data.session);
     }
-    var session = findById(vue.$store.state.sessions, msgData.sId);
+    var session = findById(jt.data.sessions, msgData.sId);
     if (session !== null) {
         session.active = msgData.active;
         showSessions();
@@ -329,11 +329,11 @@ msgs.sessionSetActive = function(msgData) {
 }
 
 msgs.sessionSetRunning = function(msgData) {
-    if (vue.$store.state.session.id === msgData.sId) {
-        vue.$store.state.session.isRunning = msgData.isRunning;
-        updateSessionRunning(vue.$store.state.session);
+    if (jt.data.session.id === msgData.sId) {
+        jt.data.session.isRunning = msgData.isRunning;
+        updateSessionRunning(jt.data.session);
     }
-    var session = findById(vue.$store.state.sessions, msgData.sId);
+    var session = findById(jt.data.sessions, msgData.sId);
     if (session !== null) {
         session.canPlay = msgData.canPlay;
         showSessions();
@@ -341,36 +341,37 @@ msgs.sessionSetRunning = function(msgData) {
 }
 
 msgs.sessionDeleteApp = function(md) {
-    if (vue.$store.state.session.id === md.sId &&
-        vue.$store.state.session.apps[md.i].id === md.aId) {
-            vue.$store.state.session.apps.splice(md.i, 1);
+    if (jt.data.session.id === md.sId &&
+        jt.data.session.apps[md.i].id === md.aId) {
+            jt.data.session.apps.splice(md.i, 1);
             updateSessionApps();
     }
 }
 
 msgs.sessionDeleteParticipant = function(md) {
-    if (vue.$store.state.session.id === md.sId) {
+    if (jt.data.session.id === md.sId) {
         vue.$store.commit('deleteParticipant', md.pId);
     }
 }
 
 msgs.addParticipant = function(participant) {
-    if (vue.$store.state.session != null && participant.session.id === vue.$store.state.session.id) {
+    if (jt.data.session != null && participant.session.id === jt.data.session.id) {
         console.log('add participant: ' + participant);
+        vue.$set(jt.data.session.participants, participant.id, participant);
         vue.$set(vue.$store.state.session.participants, participant.id, participant);
     }
 }
 
 msgs.setAllowNewParts = function(md) {
-    if (vue.$store.state.session.id === md.sId) {
-        vue.$store.state.session.allowNewParts = md.value;
+    if (jt.data.session.id === md.sId) {
+        jt.data.session.allowNewParts = md.value;
         updateAllowNewParts();
     }
 };
 
 msgs.setCaseSensitiveLabels = function(md) {
-    if (vue.$store.state.session.id === md.sId) {
-        vue.$store.state.session.caseSensitiveLabels = md.value;
+    if (jt.data.session.id === md.sId) {
+        jt.data.session.caseSensitiveLabels = md.value;
         jt.updateCaseSensitiveLabels();
     }
 };

@@ -138,10 +138,9 @@ server.reloadClients = function() {
 }
 
 server.setNumParticipants = function(amt) {
-    if (vue.$store.state.session != null) {
-        var d = {};
-        d.sId = vue.$store.state.session.id;
-        d.number = amt;
-        jt.socket.emit('setNumParticipants', d);
-    }
+    var d = {};
+    d.sId = jt.data.session.id;
+    d.number = amt;
+    jt.socket.emit('setNumParticipants', d);
+    // $('#setNumParticipantsModal').modal('hide');
 }

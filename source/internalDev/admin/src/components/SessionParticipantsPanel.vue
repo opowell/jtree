@@ -64,11 +64,6 @@ export default {
             },
     },
     methods: {
-        createNewParticipant() {
-            global.jt.socket.emit('createParticipant', {
-                sId: this.$store.state.session.id,
-            });
-        },
         renameParticipant() {},
         openParticipant() {},
         deleteParticipant(data, ev) {

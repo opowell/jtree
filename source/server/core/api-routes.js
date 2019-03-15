@@ -2,7 +2,7 @@
 // Initialize express router
 const path      = require('path');
 const fs        = require('fs-extra');
-const Utils     = require('../models/Utils.js');
+const Utils     = require('../Utils.js');
 // const jt        = require('../jtree.js')
 const formidable = require('formidable');
 const Game = require('../models/Game.js');

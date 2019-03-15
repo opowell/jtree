@@ -2,7 +2,7 @@ const path      = require('path');
 const fs        = require('fs-extra');
 //const getportsync  = require('get-port-sync');
 const openport  = require('openport');
-const Utils     = require('../models/Utils.js');
+const Utils     = require('../Utils.js');
 
 /** Settings that can be set in the settings.js file */
 class Settings {
