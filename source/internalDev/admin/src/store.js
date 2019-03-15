@@ -140,56 +140,6 @@ const persistentSettings = [
       type: 'text',
       key: 'tabBGColor',
   },
-  {
-    name: 'Tab hover background color',
-    type: 'text',
-    key: 'tabHoverBGColor',
-  },
-  {
-    name: 'Panel content background color',
-    type: 'text',
-    key: 'panelContentBGColor',
-  },
-  {
-    name: 'Node title hover background color',
-    type: 'text',
-    key: 'nodeTitleHoverBGColor',
-  },
-  {
-    name: 'Node selected background color',
-    type: 'text',
-    key: 'nodeSelectedBGColor',
-  },
-  {
-    name: 'Node selected hover background color',
-    type: 'text',
-    key: 'nodeSelectedHoverBGColor',
-  },
-  {
-    name: 'Node title hover color',
-    type: 'text',
-    key: 'nodeTitleHoverColor',
-  },
-  {
-    name: 'Node selected color',
-    type: 'text',
-    key: 'nodeSelectedColor',
-  },
-  {
-    name: 'Node selected hover color',
-    type: 'text',
-    key: 'nodeSelectedHoverColor',
-  },
-  {
-    name: 'Panel close button color',
-    type: 'text',
-    key: 'panelCloseButtonColor',
-  },
-  {
-    name: 'Panel close button background color',
-    type: 'text',
-    key: 'panelCloseButtonBGColor',
-  }
 ];
 
 let persistPaths = [];
@@ -249,17 +199,6 @@ let stateObj = {
         areaActionBarBGColor: '#fff',
         areaContentBGColor: '#fff',
         areaContentFontColor: 'inherit',
-        tabBGColor: '#eee',
-        tabHoverBGColor: '#fff',
-        panelContentBGColor: '#fff',
-        nodeTitleHoverBGColor: 'unset',
-        nodeSelectedBGColor: 'rgb(51, 153, 255)',
-        nodeSelectedHoverBGColor: 'rgb(51, 153, 255)',
-        nodeTitleHoverColor: 'unset',
-        nodeSelectedColor: '#fff',
-        nodeSelectedHoverColor: '#fff',
-        panelCloseButtonBGColor: '#ec3636',
-        panelCloseButtonColor: 'white',
       }
     },
     {
@@ -281,18 +220,8 @@ let stateObj = {
         tabSelectedFontColor: '#CCC',
         tabFontColor: '#888',
         tabBGColor: '#666',
-        tabHoverBGColor: '#AAA',
         areaContentBGColor: '#353535',
         areaContentFontColor: '#CCC',
-        panelContentBGColor: 'rgb(37, 37, 37)',
-        nodeTitleHoverBGColor: '#424242',
-        nodeSelectedBGColor: 'blue',
-        nodeSelectedHoverBGColor: 'blue',
-        nodeTitleHoverColor: '#fff',
-        nodeSelectedColor: '#fff',
-        nodeSelectedHoverColor: '#fff',
-        panelCloseButtonBGColor: 'inherit',
-        panelCloseButtonColor: 'inherit',
       }
     }
   ]

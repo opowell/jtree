@@ -6,7 +6,7 @@ const App = require('../App.js');
 const Room = require('../Room.js');
 const Queue = require('../Queue.js');
 const User = require('../User.js');
-// const Game = require('../Game.js');
+const Game = require('../Game.js');
 
 /** The data object. */
 class Data {
@@ -40,13 +40,13 @@ class Data {
 
         this.apps = {};
         this.appsMetaData = {};
-        // this.games = {};
+        this.games = {};
 
         //this.queues = this.loadQueues();
         this.queues = [];
         this.loadApps();
 
-        // this.loadGames();
+        this.loadGames();
 
         /*
          * Available [Sessions]{@link Session}, loaded from the contents of the 'sessions' folder.
@@ -183,33 +183,33 @@ class Data {
         return app;
     }
 
-    // loadGame(id, session, appPath, options) {
-    //     var app = null;
-    //     app = new Game.new(session, this.jt, appPath);
-    //     app.givenOptions = options;
-    //  //   app.shortId = id;
+    loadGame(id, session, appPath, options) {
+        var app = null;
+        app = new Game.new(session, this.jt, appPath);
+        app.givenOptions = options;
+     //   app.shortId = id;
 
-    //     // Set options before running code.
-    //      for (var i in options) {
-    //         app.setOptionValue(i, options[i]);
-    //     }
+        // Set options before running code.
+         for (var i in options) {
+            app.setOptionValue(i, options[i]);
+        }
 
-    //     let filePath = appPath;
-    //     if (!fs.existsSync(appPath) && session.queuePath != null) {
-    //         filePath = path.join(session.queuePath, appPath);
-    //     }
+        let filePath = appPath;
+        if (!fs.existsSync(appPath) && session.queuePath != null) {
+            filePath = path.join(session.queuePath, appPath);
+        }
 
-    //     try {
-    //         app.appjs = fs.readFileSync(filePath) + '';
-    //         eval(app.appjs); // jshint ignore:line
-    //         // console.log('loaded game ' + filePath);
-    //     } catch (err) {
-    //         this.jt.log('Error loading game: ' + filePath);
-    //         this.jt.log(err);
-    //         app = null;
-    //     }
-    //     return app;
-    // }
+        try {
+            app.appjs = fs.readFileSync(filePath) + '';
+            eval(app.appjs); // jshint ignore:line
+            // console.log('loaded game ' + filePath);
+        } catch (err) {
+            this.jt.log('Error loading game: ' + filePath);
+            this.jt.log(err);
+            app = null;
+        }
+        return app;
+    }
 
     getAppsFromDir(dir) {
         var out = [];
@@ -331,60 +331,60 @@ class Data {
 
     // Search for *.js and *.jtt files. Load as apps.
     // Search folders.
-    // loadGamesFromDir(dir) {
-    //     if (Utils.isDirectory(dir)) {
-    //         var appDirContents = fs.readdirSync(dir);
+    loadGamesFromDir(dir) {
+        if (Utils.isDirectory(dir)) {
+            var appDirContents = fs.readdirSync(dir);
 
-    //         // Load folder as its own queue.
-    //         var folderGame = new Game.new(null, this.jt, dir);
-    //         console.log('loading folder game ' + dir);
+            // Load folder as its own queue.
+            var folderGame = new Game.new(null, this.jt, dir);
+            console.log('loading folder game ' + dir);
 
-    //         // Load individual apps and queues.
-    //         for (var i in appDirContents) {
-    //             // the current file
-    //             var curPath = path.join(dir, appDirContents[i]);
-    //             var curPathIsFile = fs.lstatSync(curPath).isFile();
-    //             var curPathIsFolder = fs.lstatSync(curPath).isDirectory();
-    //             if (curPathIsFile) {
-    //                 var id = appDirContents[i];
+            // Load individual apps and queues.
+            for (var i in appDirContents) {
+                // the current file
+                var curPath = path.join(dir, appDirContents[i]);
+                var curPathIsFile = fs.lstatSync(curPath).isFile();
+                var curPathIsFolder = fs.lstatSync(curPath).isDirectory();
+                if (curPathIsFile) {
+                    var id = appDirContents[i];
 
-    //                 // Treatment / App
-    //                 if (id == 'app.js' || id == 'app.jtt') {
-    //                     // Take id from path name.
-    //                     if (dir.lastIndexOf('/') > -1) {
-    //                         id = dir.substring(dir.lastIndexOf('/') + 1);
-    //                     } else if (dir.lastIndexOf('\\') > -1) {
-    //                         id = dir.substring(dir.lastIndexOf('\\') + 1);
-    //                     }
-    //                 }
-    //                 if (id.endsWith('.js')) {
-    //                     id = id.substring(0, id.length - '.js'.length);
-    //                 } else if (id.endsWith('.jtt')) {
-    //                     id = id.substring(0, id.length - '.jtt'.length);
-    //                 }
-    //                 try {
-    //                     let app = this.loadGame(id, null, curPath, {});
-    //                     if (app != null) {
-    //                         this.games[curPath] = app;
-    //                         this.gamesMetaData[curPath] = app.metaData();
-    //                         folderGame.addGame(curPath);
-    //                     }
-    //                 } catch (err) {
-    //                     // not a valid app.
-    //                     // console.log('Error, invalid game: ' + err);
-    //                 }
+                    // Treatment / App
+                    if (id == 'app.js' || id == 'app.jtt') {
+                        // Take id from path name.
+                        if (dir.lastIndexOf('/') > -1) {
+                            id = dir.substring(dir.lastIndexOf('/') + 1);
+                        } else if (dir.lastIndexOf('\\') > -1) {
+                            id = dir.substring(dir.lastIndexOf('\\') + 1);
+                        }
+                    }
+                    if (id.endsWith('.js')) {
+                        id = id.substring(0, id.length - '.js'.length);
+                    } else if (id.endsWith('.jtt')) {
+                        id = id.substring(0, id.length - '.jtt'.length);
+                    }
+                    try {
+                        let app = this.loadGame(id, null, curPath, {});
+                        if (app != null) {
+                            this.games[curPath] = app;
+                            this.gamesMetaData[curPath] = app.metaData();
+                            folderGame.addGame(curPath);
+                        }
+                    } catch (err) {
+                        // not a valid app.
+                        // console.log('Error, invalid game: ' + err);
+                    }
 
-    //             } else if (curPathIsFolder) {
-    //                 this.loadGamesFromDir(curPath);
-    //             }
-    //         }
+                } else if (curPathIsFolder) {
+                    this.loadGamesFromDir(curPath);
+                }
+            }
 
-    //         if (folderGame.stages.length > 0) {
-    //             folderGame.displayName = dir.substring(dir.lastIndexOf('\\')+1);
-    //             this.games[dir] = folderGame;
-    //         }
-    //     }
-    // }
+            if (folderGame.stages.length > 0) {
+                folderGame.displayName = dir.substring(dir.lastIndexOf('\\')+1);
+                this.games[dir] = folderGame;
+            }
+        }
+    }
 
     saveRoom(room) {
         this.deleteRoom(room.originalId);
@@ -468,12 +468,12 @@ class Data {
         }
     }
 
-    // loadGames() {
-    //     for (var i in this.jt.settings.appFolders) {
-    //         var folder = this.jt.settings.appFolders[i];
-    //         this.loadGamesFromDir(path.join(this.jt.path, folder));
-    //     }
-    // }
+    loadGames() {
+        for (var i in this.jt.settings.appFolders) {
+            var folder = this.jt.settings.appFolders[i];
+            this.loadGamesFromDir(path.join(this.jt.path, folder));
+        }
+    }
 
     // saveApp(appToSave) {
     //     try {

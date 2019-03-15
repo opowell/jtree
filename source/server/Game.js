@@ -235,8 +235,8 @@ class Game {
          */
         this.waitForAll = true;
 
-        this.subGameWaitToStart = true;
-        this.subGameWaitToEnd = true;
+        this.stageWaitToStart = true;
+        this.stageWaitToEnd = true;
 
         /**
          * The matching type to be used for groups in this Game.
@@ -260,7 +260,7 @@ class Game {
          * @type String
          * @default true
          */
-        this.subgameWrapPlayingScreenInFormTag = 'onlyIfNoButton';
+        this.stageWrapPlayingScreenInFormTag = 'onlyIfNoButton';
 
         /**
          * If defined, subjects are assigned randomly to groups of this size takes precedence over numGroups.
@@ -284,11 +284,12 @@ class Game {
          * Starts the stages of this Game.
          * TODO:
          * @type string
+         * @default '<span jt-stage="{{stage.id}}">'
          */
         // this.stageContentStart = '<span jt-stage="{{stage.id}}">';
 
-        this.subgameContentStart = `
-            <span :show="game.id == '{{game.id}}'">
+        this.stageContentStart = `
+            <span v-show="stage.id == '{{stage.id}}'">
         `;
 
 
@@ -298,12 +299,12 @@ class Game {
          * @type string
          * @default '</span>'
          */
-        this.subgameContentEnd = '</span>';
+        this.stageContentEnd = '</span>';
 
         //TODO:
         this.outputHideAuto = [
-            'subgameContentStart',
-            'subgameContentEnd',
+            'stageContentStart',
+            'stageContentEnd',
             'optionValues',
             'insertJtreeRefAtStartOfClientHTML',
             'textMarkerBegin',
@@ -314,13 +315,13 @@ class Game {
             'screen',
             'activeScreen',
             'waitingScreen',
-            'subgameWrapPlayingScreenInFormTag',
+            'stageWrapPlayingScreenInFormTag',
             'waitForAll',
             'finished',
             'htmlFile',
             'this',
             'session',
-            'subgames',
+            'stages',
             'outputHideAuto',
             'outputHide',
             'periods',
@@ -432,30 +433,30 @@ class Game {
 
         // Register for automatic stage messages.
         var app = this;
-        for (var s in this.subgames) {
-            var subgameName = this.subgames[s].name;
+        for (var s in this.stages) {
+            var stageName = this.stages[s].name;
 
             // Listen to message from clients.
-            client.on(subgameName, function(data) { // subgame messages are sent by default when submit button is clicked.
+            client.on(stageName, function(data) { // stage messages are sent by default when submit button is clicked.
                 app.session.pushMessage(client, data.data, data.data.fnName);
             });
 
             // Queue message.
-            client[subgameName] = function(data) {
+            client[stageName] = function(data) {
                 app.session.pushMessage(client, data, data.fnName + 'Process');
             }
 
             // Process the message.
-            client[subgameName + 'Process'] = function(data) {
+            client[stageName + 'Process'] = function(data) {
 
-                app.jt.log('Server received auto-subgame submission: ' + JSON.stringify(data));
+                app.jt.log('Server received auto-stage submission: ' + JSON.stringify(data));
 
                 if (client.player() === null) {
                     return false;
                 }
 
-                if (client.player().subgame.id !== data.fnName) {
-                    console.log('Game.js, SUBGAME NAME DOES NOT MATCH: ' + client.player().subgame.id + ' vs. ' + data.fnName + ', data=' + JSON.stringify(data));
+                if (client.player().stage.id !== data.fnName) {
+                    console.log('Game.js, STAGE NAME DOES NOT MATCH: ' + client.player().stage.id + ' vs. ' + data.fnName + ', data=' + JSON.stringify(data));
                     return false;
                 }
 
@@ -1287,36 +1288,36 @@ class Game {
     }
 
     /**
-     * Create a new {@link Game} and add it as a subgame of the current Game.
+     * Creates a new {@link Stage} and adds it to the Game.
      *
-     * @param  {string} id The identifier of the game.
-     * @return {Game} The new game.
+     * @param  {string} id The identifier of the stage.
+     * @return {Stage} The new stage.
      */
-    addSubGame(id) {
-        var subgame = new Game(this, this.jt, id);
-        this.subgames.push(subgame);
-        return subgame;
+    newStage(id) {
+        var stage = new Game(this, this.jt, id);
+        this.stages.push(stage);
+        return stage;
     }
 
     /**
-     * Returns the next subgame for a given group in a given subgame.
-     * 1. If subgame is not the last subgame of this game, return the next subgame of this app.
-     * 2. If period is not the last period of this game, return the first subgame of this app.
-     * 3. If game is not the last game of this session, return the first subgame of the next app.
+     * Returns the next stage for a given group in a given stage.
+     * 1. If stage is not the last stage of this app, return the next stage of this app.
+     * 2. If period is not the last period of this app, return the first stage of this app.
+     * 3. If app is not the last app of this session, return the first stage of the next app.
      * 4. Otherwise, return null.
      *
      * TODO: Does the next stage have Stage.waitForGroup == true?
      *
      * CALLED FROM
-     * - {@link Game#playerEnd}
+     * - {@link Stage#playerEnd}
      * - {@link Game#groupMoveToNextStage}
      *
      * @param  {Group} group The group
-     * @return {(null|Game)} The next game for this group, or null.
+     * @return {(null|Stage)} The next stage for this group, or null.
      */
     nextStageForGroup(group) {
         var slowestPlayers = group.slowestPlayers();
-        return slowestPlayers[0].nextGame();
+        return slowestPlayers[0].nextStage();
     }
 
     /**
@@ -1362,7 +1363,7 @@ class Game {
     }
 
     /**
-     * Called when a participant begins this game.
+     * Called when a participant begins this app.
      * - For each of the [Clients]{@link Client} of this participant, call {@link Game.addClientDefault}.
      * - Set the participant's periodIndex to -1.
      * - Participant notifies clients about appIndex.
@@ -1591,25 +1592,13 @@ class Game {
      *
      * @return {type}  description
      */
-    /**
-     * A shell of this object. Excludes parent, includes child shells.
-     *
-     * CALLED FROM:
-     * - {@link Session#addApp}
-     *
-     * @return {type}  description
-     */
     shellWithChildren() {
         var out = {};
-        out.functions = [];
         var fields = this.outputFields();
         for (var f in fields) {
             var field = fields[f];
             if (Utils.isFunction(this[field])) {
-                out.functions.push({
-                    field: field,
-                    content: this[field].toString(),
-                });
+                out['__func_' + field] = this[field].toString();
             } else {
                 out[field] = this[field];
             }
@@ -1626,6 +1615,7 @@ class Game {
         out.options = this.options;
         return out;
     }
+
     /**
      * A shell of this object. Includes parent shell, excludes child shells.
      *

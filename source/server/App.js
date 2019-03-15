@@ -1610,6 +1610,42 @@ class App {
     }
 
     /**
+     * A shell of this object. Excludes parent, includes child shells.
+     *
+     * CALLED FROM:
+     * - {@link Session#addApp}
+     *
+     * @return {type}  description
+     */
+    shellWithChildren2() {
+        var out = {};
+        out.functions = [];
+        var fields = this.outputFields();
+        for (var f in fields) {
+            var field = fields[f];
+            if (Utils.isFunction(this[field])) {
+                out.functions.push({
+                    field: field,
+                    content: this[field].toString(),
+                });
+            } else {
+                out[field] = this[field];
+            }
+        }
+        out.indexInSession = this.indexInSession();
+        out.periods = [];
+        for (var i in this.periods) {
+            out.periods[i] = this.periods[i].shellWithChildren();
+        }
+        out.stages = [];
+        for (var i in this.stages) {
+            out.stages[i] = this.stages[i].shell();
+        }
+        out.options = this.options;
+        return out;
+    }
+
+    /**
      * A shell of this object. Includes parent shell, excludes child shells.
      *
      * @return {type}  description
