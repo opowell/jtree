@@ -295,7 +295,9 @@ class Game {
          */
         // this.stageContentStart = '<span jt-stage="{{stage.id}}">';
 
-        this.subgameContentStart = `<span v-show="game.id == '{{game.id}}'">`;
+        this.subgameContentStart = `
+            <span :show="game.id == '{{game.id}}'">
+        `;
 
 
         /**
@@ -430,7 +432,7 @@ class Game {
     * @param  {Client} client The client who is connecting to this app.
     */
     addClientDefault(client) {
-        // client.socket().join(this.roomId());
+        client.socket.join(this.roomId());
 
         for (var i in this.messages) {
             var msg = this.messages[i];
@@ -687,11 +689,65 @@ class Game {
         // Load stage contents, if any.
         var stagesHTML = '';
         var waitingScreensHTML = '';
+        for (var i=0; i<app.subgames.length; i++) {
+            var stage = app.subgames[i];
+            var stageHTML = '';
+            var contentStart = app.parseStageTag(stage, app.subgameContentStart);
+            var contentEnd = app.parseStageTag(stage, app.subgameContentEnd);
+            if (stage.content != null) {
+                stageHTML = contentStart + '\n' + stage.content + '\n' + contentEnd;
+            }
+            if (stage.activeScreen != null) {
+                stageHTML += app.parseStageTag(stage, app.subgameContentStart)  + '\n';
+                let wrapInForm = null;
+                if (stage.wrapPlayingScreenInFormTag === 'yes') {
+                    wrapInForm = true;
+                } else if (stage.wrapPlayingScreenInFormTag === 'no') {
+                    wrapInForm = false;
+                } else if (stage.wrapPlayingScreenInFormTag === 'onlyIfNoButton') {
+                    if (
+                        !stage.activeScreen.includes('<button') ||
+                        stage.addOKButtonIfNone
+                        ) {
+                        wrapInForm = true;
+                    } else {
+                        wrapInForm = false;
+                    }
+                }
+                if (wrapInForm) {
+                    stageHTML += '<form>\n';
+                }
+                stageHTML += stage.activeScreen + '\n';
+                if (stage.addOKButtonIfNone) {
+                    if (!stageHTML.includes('<button')) {
+                        stageHTML += `<button>OK</button>`;
+                    }
+                }
+                if (wrapInForm) {
+                    stageHTML += '</form>\n';
+                }
+                stageHTML += app.parseStageTag(stage, app.subgameContentEnd);
+            }
 
-        let parseHTML = {stagesHTML, waitingScreensHTML}
-        this.parseStagesHTML(app, parseHTML);
-        stagesHTML = parseHTML.stagesHTML;
-        waitingScreensHTML = parseHTML.waitingScreensHTML;
+            if (stagesHTML.length > 0) {
+                stagesHTML += '\n';
+            }
+            stagesHTML += stageHTML;
+
+            var waitingScreenHTML = contentStart;
+            if (stage.useGameWaitingScreen) {
+                waitingScreenHTML += app.waitingScreen;
+            }
+            if (stage.waitingScreen != null) {
+                waitingScreenHTML += stage.waitingScreen;
+            }
+            waitingScreenHTML += contentEnd;
+
+            if (waitingScreensHTML.length > 0) {
+                waitingScreensHTML += '\n';
+            }
+            waitingScreensHTML += waitingScreenHTML;
+        }
 
         let [strippedScripts, stagesHTML1] = this.stripTag('script', stagesHTML);
         let [strippedStyles, stagesHTML2] = this.stripTag('style', stagesHTML1);
@@ -755,74 +811,6 @@ class Game {
         }
         // Return to client.
         res.send(html);
-    }
-
-    parseStagesHTML(app, html) {
-        for (var i=0; i<app.subgames.length; i++) {
-            var stage = app.subgames[i];
-
-            // Stage HTML
-            var stageHTML = '';
-            var contentStart = app.parseStageTag(stage, app.subgameContentStart);
-            var contentEnd = app.parseStageTag(stage, app.subgameContentEnd);
-            if (stage.content != null) {
-                stageHTML = contentStart + '\n' + stage.content + '\n' + contentEnd;
-            }
-            if (stage.activeScreen != null) {
-                stageHTML += app.parseStageTag(stage, app.subgameContentStart)  + '\n';
-                let wrapInForm = null;
-                if (stage.wrapPlayingScreenInFormTag === 'yes') {
-                    wrapInForm = true;
-                } else if (stage.wrapPlayingScreenInFormTag === 'no') {
-                    wrapInForm = false;
-                } else if (stage.wrapPlayingScreenInFormTag === 'onlyIfNoButton') {
-                    if (
-                        !stage.activeScreen.includes('<button') ||
-                        stage.addOKButtonIfNone
-                        ) {
-                        wrapInForm = true;
-                    } else {
-                        wrapInForm = false;
-                    }
-                }
-                if (wrapInForm) {
-                    stageHTML += '<form>\n';
-                }
-                stageHTML += stage.activeScreen + '\n';
-                if (stage.addOKButtonIfNone) {
-                    if (!stageHTML.includes('<button')) {
-                        stageHTML += `<button>OK</button>`;
-                    }
-                }
-                if (wrapInForm) {
-                    stageHTML += '</form>\n';
-                }
-                stageHTML += app.parseStageTag(stage, app.subgameContentEnd);
-            }
-
-            if (html.stagesHTML.length > 0) {
-                html.stagesHTML += '\n';
-            }
-            html.stagesHTML += stageHTML;
-
-            // Waiting screen HTML
-            var waitingScreenHTML = contentStart;
-            if (stage.useGameWaitingScreen) {
-                waitingScreenHTML += app.waitingScreen;
-            }
-            if (stage.waitingScreen != null) {
-                waitingScreenHTML += stage.waitingScreen;
-            }
-            waitingScreenHTML += contentEnd;
-
-            if (html.waitingScreensHTML.length > 0) {
-                html.waitingScreensHTML += '\n';
-            }
-            html.waitingScreensHTML += waitingScreenHTML;
-
-            // Subgame HTML
-            this.parseStagesHTML(stage, html);
-        }
     }
 
     stripTag(tagName, text) {

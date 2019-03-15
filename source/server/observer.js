@@ -69,10 +69,6 @@ exports.Observer = (function () {
                 }
                 // Objects
                 else if (typeof value === 'object' && value !== null && target.hasOwnProperty(prop)) {
-                    if (value === 'nonObs') {
-                        return value;
-                    }
-                    
                     // Return existing proxy if we have one, otherwise create a new one
                     var existingProxy = proxies[prop];
                     if (existingProxy && existingProxy.__target === value) {

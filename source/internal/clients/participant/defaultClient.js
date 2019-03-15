@@ -264,51 +264,51 @@ jt.getVueModels = function(player) {
 }
 
 jt.setValues = function(player) {
-    // if (player == null) {
-    //     player = jt.data.player;
-    // }
-    // let clock = jt.getClock(jt.data.timeLeft);
+    if (player == null) {
+        player = jt.data.player;
+    }
+    let clock = jt.getClock(jt.data.timeLeft);
 
-    // $('*').each(function(index) {
-    //     let atts = this.attributes;
-    //     for (var i=0; i<atts.length; i++){
-    //         var att = atts[i];
-    //         if (att.name.startsWith('jt-')) {
-    //             if (att.name === 'jt-html') {
-    //                 let val = jt.eval(att.value, player, clock);
-    //                 val = jt.formatValue(this, val);
-    //                 this.innerHTML = val;
-    //             } else if (att.name === 'jt-text') {
-    //                 let val = jt.eval(att.value, player, clock);
-    //                 val = jt.formatValue(this, val);
-    //                 $(this).text(val);
-    //             // } else if (
-    //             //     jt.specialAttrNames.includes(att.name)
-    //             // ) {
-    //                 // DO NOTHING
-    //             } else {
-    //                 try {
-    //                     let val = jt.eval(att.value, player, clock);
-    //                     var attrName = att.name.substring('jt-'.length);
-    //                     var stepSize = $(this).attr('step');
-    //                     if (stepSize != null) {
-    //                         switch (attrName) {
-    //                         case 'max':
-    //                             val = Math.floor(val/stepSize)*stepSize;
-    //                             break;
-    //                         case 'min':
-    //                             val = Math.ceil(val/stepSize)*stepSize;
-    //                             break;
-    //                         }
-    //                     }
-    //                     this.setAttribute(attrName, val);
-    //                 } catch (err) {
-    //                     console.log('ERROR in defaultClient.js: \n' + err);
-    //                 }
-    //             }
-    //         }
-    //     }
-    // });
+    $('*').each(function(index) {
+        let atts = this.attributes;
+        for (var i=0; i<atts.length; i++){
+            var att = atts[i];
+            if (att.name.startsWith('jt-')) {
+                if (att.name === 'jt-html') {
+                    let val = jt.eval(att.value, player, clock);
+                    val = jt.formatValue(this, val);
+                    this.innerHTML = val;
+                } else if (att.name === 'jt-text') {
+                    let val = jt.eval(att.value, player, clock);
+                    val = jt.formatValue(this, val);
+                    $(this).text(val);
+                // } else if (
+                //     jt.specialAttrNames.includes(att.name)
+                // ) {
+                    // DO NOTHING
+                } else {
+                    try {
+                        let val = jt.eval(att.value, player, clock);
+                        var attrName = att.name.substring('jt-'.length);
+                        var stepSize = $(this).attr('step');
+                        if (stepSize != null) {
+                            switch (attrName) {
+                            case 'max':
+                                val = Math.floor(val/stepSize)*stepSize;
+                                break;
+                            case 'min':
+                                val = Math.ceil(val/stepSize)*stepSize;
+                                break;
+                            }
+                        }
+                        this.setAttribute(attrName, val);
+                    } catch (err) {
+                        console.log('ERROR in defaultClient.js: \n' + err);
+                    }
+                }
+            }
+        }
+    });
 
 }
 
