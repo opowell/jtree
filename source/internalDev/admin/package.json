@@ -9,16 +9,10 @@
     "build-watch": "vue-cli-service build-watch --dest ..\\..\\internal\\clients\\admin\\vue"
   },
   "dependencies": {
-    "@babel/polyfill": "^7.2.5",
-    "@fortawesome/fontawesome-svg-core": "^1.2.12",
-    "@fortawesome/free-brands-svg-icons": "^5.6.3",
-    "@fortawesome/free-solid-svg-icons": "^5.6.3",
-    "@fortawesome/vue-fontawesome": "^0.1.4",
     "axios": "^0.18.0",
     "bootstrap-vue": "^2.0.0-rc.11",
     "jquery": "^3.3.1",
     "jquery-ui": "^1.12.1",
-    "sl-vue-tree": "^1.8.4",
     "vue": "^2.5.17",
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1",

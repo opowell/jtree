@@ -21,15 +21,6 @@ export default {
         hasParent: false,
         children: [
             {
-                text: 'Files',
-                action: this.showFiles,
-            },
-            {
-                text: this.$store.state.appName + 's',
-                shortcut: 'Ctrl+G',
-                action: this.showGames,
-            },
-            {
                 text: this.$store.state.appName + 's',
                 shortcut: 'Ctrl+G',
                 action: this.showGames,
@@ -129,9 +120,6 @@ export default {
             }
         );
     },    
-    showFiles() {
-        this.showPanel('files-panel');
-    },
     showGames() {
         this.showPanel('games-panel');
     },
@@ -147,7 +135,7 @@ export default {
             w: 500,
             h: 300,
         });
-    },
+    }
   },
   mounted() {
     let that = this;
