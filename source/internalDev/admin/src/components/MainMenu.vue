@@ -110,30 +110,15 @@ export default {
         text: 'Session',
         hasParent: false,
         children: [
-            {
-                text: 'Info',
-                action: this.showPanel,
-                clickData: 'session-info-panel',
-            },
-            {
+                        {
                 text: this.$store.state.appName + ' Tree',
                 action: this.showPanel,
                 clickData: 'game-tree-panel',
             },
             {
-                text: 'Actions',
+                text: 'Info',
                 action: this.showPanel,
-                clickData: 'session-actions-panel',
-            },
-            {
-                text: 'Participants',
-                action: this.showPanel,
-                clickData: 'session-participants-panel',
-            },
-            {
-                text: 'Monitor',
-                action: this.showPanel,
-                clickData: 'session-monitor-panel',
+                clickData: 'session-info-panel',
             },
         ],
     },
