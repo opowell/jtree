@@ -1,0 +1,398 @@
+.container-fluid > * {
+    padding: 0.5em;
+}
+
+.jt-row {
+    display: flex;
+    padding-bottom: 0.5em;
+}
+
+.jt-label {
+    margin-right: 0.5em;
+    margin-bottom: 0.2em;
+    margin-top: 0.2em;
+}
+
+.dropdown-toggle::after {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: .255em;
+    vertical-align: .255em;
+    content: "";
+    border-top: .3em solid;
+    border-right: .3em solid transparent;
+    border-bottom: 0;
+    border-left: .3em solid transparent;
+}
+
+.view-tab:hover {
+    border-color: transparent;
+    background-color: #9e9e9e;
+    border-radius: 0px;
+}
+
+.nav-item {
+    cursor: pointer;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.jt-value {
+    margin-top: 0.2em;
+    margin-bottom: 0.2em;
+}
+
+.nav-item {
+    margin-left: 0.1rem;
+    margin-right: 0.1rem;
+}
+
+.jt-admin-page {
+    margin-top: 1em;
+}
+
+.jt-page-title {
+    margin-bottom: 1em;
+}
+
+.truncate {
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.jt-session-page {}
+
+.jt-page-tab {
+    margin-top: 2em;
+}
+
+#sessionAppName {
+    padding-right: 1em;
+}
+
+.jt-section {
+    margin-top: 3em;
+    margin-bottom: 3em;
+}
+
+.jt-cell > * {
+    margin: 0.2em;
+}
+
+.predefqueue-app {
+}
+
+.predefqueue-app-exists {
+    color: #000;
+}
+.predefqueue-app-notexists {
+    color: #888;
+}
+
+.custom-app-folder {
+    display: flex;
+    margin: 0.2em;
+    background-color: rgb(235, 235, 235);
+    border-color: #888;
+    border-radius: 5px;
+    padding: 0.5em;
+}
+
+.custom-app-folder-location {
+    padding-right: 1em;
+    padding-left: 0.5em;
+}
+
+.jt-list-item {
+    padding: 0.5em;
+    margin: 0.5em;
+    background-color: #EEE;
+    border-radius: 5px;
+}
+
+.jt-list-item-title {
+    font-size: 2em;
+}
+
+body {
+    margin: 0px;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 1rem;
+}
+
+.tab-content {
+    padding-top: 1.5rem;
+}
+
+.no-hover-border:hover {
+    border-color: rgba(1,1,1,0) !important;
+}
+
+.btn+.btn {
+    margin-left: 0.5rem;
+}
+
+.participant-frame {
+    flex: 1 1 auto;
+    border: none;
+    height: 17rem;
+}
+
+#window {
+    position: relative;
+    /* width: 100vw; */
+    /* height: 96vh; */
+    background-color: #EEE;
+}
+
+.panel {
+    flex: 0 1 auto;
+    min-width: 20rem;
+    margin-right: 0.3rem;
+    margin-bottom: 0.2rem;
+    margin-top: 0.2rem;
+}
+
+.panel-content {
+    overflow: auto;
+    display: flex;
+    padding: 0.5em;
+}
+
+.close-icon {
+  cursor: pointer;
+}
+
+.dropdown-toggle::after {
+    display: none !important;
+}
+
+#window > .card {
+  /* position: absolute !important; */
+}
+
+.jt-card-body {
+    overflow-x: scroll;
+}
+
+#active-sessions {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#active-sessions > .card {
+    flex: 0 0 auto;
+    margin-top: 0em !important;
+    margin-bottom: 0.5em !important;
+    margin-right: 0.5em;
+}
+
+.subview-tab:hover {
+    border-color: transparent;
+    background-color: #e6e6e6;
+    border-radius: 0px;
+    color: #000;
+}
+
+.ui-selecting { background: #FECA40; }
+.ui-selected {
+    background: #F39814 !important;
+    color: white !important;
+}
+
+td {
+    white-space: nowrap;
+}
+
+.fullPageModal {
+    padding: 0px !important;
+}
+
+.ui-draggable-handle {
+    cursor: default;
+}
+
+.nav-link {
+    color: #000;
+}
+
+.subview-tab {
+    border: 0px solid transparent !important;
+    border-radius: 0px !important;
+    color: #828282;
+}
+
+.subview-tab.active {
+    border-bottom: 2px solid #fb8252 !important;
+    color: #000;
+}
+
+.disabled {
+    color: rgba(99, 108, 114, 0.5) !important;
+    cursor: default !important;
+}
+
+.player-active {
+    background-color: rgba(68, 157, 68, 0.09) !important;
+    color: #5cb85c!important;
+}
+
+.player-waiting {
+    background-color: rgba(68, 157, 68, 0.09) !important;
+    color: #5cb85c!important;
+}
+
+.headerBtn {
+    margin-right: 0.3em;
+    margin-top: 0.1em;
+    font-size: 0.8em !important;
+    padding: 0.3em !important;
+    border: 1px solid rgba(0,0,0,0) !important;
+}
+
+.headerBtn-on {
+    background-color: #fff !important;
+    color: #444 !important;
+    border-radius: 0.3em;
+    opacity: 1;
+    border: 1px solid !important;
+}
+
+#session-id {
+    justify-content: center;
+}
+
+#session-id::before {
+    content: 'Session: ';
+}
+
+#view-room-displayName::before {
+    content: 'Room: ';
+}
+
+#view-queue-displayName::before {
+    content: 'Queue: ';
+}
+
+#edit-room-displayName::before {
+    content: 'Edit Room: ';
+}
+
+#edit-app-name::before {
+    content: 'Edit App: ';
+}
+
+#view-app-displayName::before {
+    content: 'App: ';
+}
+
+#edit-app-displayName::before {
+    content: 'Edit App: ';
+}
+
+#views {
+    display: flex;
+    flex-flow: wrap;
+}
+
+.jt-section-title {
+    color: #AAA;
+    font-weight: 500;
+    padding-bottom: 0.3em;
+    margin-top: 1rem;
+}
+
+.table {
+    width: auto !important;
+}
+
+.jt-card-header {
+    display: flex;
+}
+
+.jt-card-header > * {
+    flex: 0 1 auto;
+}
+
+.jt-card-header-title {
+    flex: 1 1 auto;
+    margin-right: 2rem;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.view {
+    margin-left: 3rem;
+    margin-right: 3rem;
+}
+
+.subview {
+    margin-top: 2rem;
+}
+
+.view-room-label {
+    padding: 0.5rem;
+    background-color: #DDD;
+    border-radius: 2px;
+    margin-left: 0.2rem;
+    margin-right: 0.2rem;
+}
+
+.view-buttons {
+    margin-bottom: 1rem;
+}
+
+.view-tab {
+    border-bottom: 2px solid rgba(0,0,0,0);
+}
+
+.active-top-menu {
+    border-bottom: 2px solid #fb8252 !important;
+}
+
+.option-label {
+    flex: 0 0 120px;
+    cursor: auto;
+}
+
+.option-input {
+    flex: 0 0 120px;
+}
+
+.option-div {
+    flex: 0 0 300px;
+    display: flex;
+}
+
+.view-apps-queue-app {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    margin: 2px 1px;
+    background-color: #EEE;
+    border-radius: 5px;
+}
+
+.session-tab {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.view-apps-queue-app:hover {
+    background-color: #DDD;
+    text-decoration: line-through;
+}
+
+.tab-grid {
+    display: grid;
+    grid-template-columns: 10rem auto;
+    grid-column-gap: 1rem;
+    grid-row-gap: 2rem;
+}

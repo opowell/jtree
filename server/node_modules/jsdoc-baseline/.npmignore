@@ -1,0 +1,12 @@
+# npm-managed files
+npm-debug.log
+node_modules
+
+# bower-managed files
+bower_components
+
+# Development files
+coverage/
+
+# Dotfile detritus
+.DS_Store

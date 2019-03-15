@@ -1,0 +1,31 @@
+{
+    "id": "test2",
+    "displayName": "test2",
+    "apps": [
+        {
+            "appId": "1natalia",
+            "options": {},
+            "indexInQueue": 1
+        },
+        {
+            "appId": "1natalia",
+            "options": {},
+            "indexInQueue": 2
+        },
+        {
+            "appId": "1natalia",
+            "options": {},
+            "indexInQueue": 3
+        },
+        {
+            "appId": "1natalia",
+            "options": {},
+            "indexInQueue": 4
+        },
+        {
+            "appId": "1natalia",
+            "options": {},
+            "indexInQueue": 5
+        }
+    ]
+}
