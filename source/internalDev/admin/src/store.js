@@ -7,7 +7,9 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   plugins: [createPersistedState({
     paths: [
+      'panelsMaximized',
       'windowsMaximized',
+      'panelDescs',
       'windowDescs',
       'appName',
       'nextPanelX',
@@ -27,6 +29,7 @@ export default new Vuex.Store({
     games: [],
 
     // After panels are mounted, they register here. Order determines z-index.
+    panels: [],
     windows: [],
 
     containerHeight: 5000,
@@ -37,8 +40,10 @@ export default new Vuex.Store({
 
     // PERSISTENT SETTINGS
     // must be added to 'paths' option.
+    panelsMaximized: true,
     windowsMaximized: true,
     // Meta-data for created panels.
+    panelDescs: [],
     windowDescs: [],
     // Language items.
     appName: 'Game',
@@ -70,6 +75,20 @@ export default new Vuex.Store({
       state.windows.push(window);
       state.activePanel = window;
       state.isMenuOpen = false;
+    },
+    removePanel(state, panel) {
+      for (let i=0; i<state.panelDescs.length; i++) {
+        if (state.panelDescs[i].id === panel.panelId) {
+          state.panelDescs.splice(i, 1);
+          // New active panel, if necessary.
+          if (state.windows[state.windows.length-1] === panel) {
+            if (state.windows.length > 1) {
+              state.activePanel = state.windows[state.windows.length-2];
+            }
+          }
+          return;
+        }
+      }
     },
     setActivePanelIndex(state, {index, areaPath, window}) {
       let win = null;
@@ -125,13 +144,6 @@ export default new Vuex.Store({
       }
       if (parent != null) {
         parent.areas.splice(lastIndex, 1);
-        if (parent.areas.length < 2) {
-          for (let i=0; i<parent.areas[0].panels.length; i++) {
-            parent.panels.push(parent.areas[0].panels[i]);
-          }
-          parent.activePanelInd = parent.areas[0].activePanelInd;
-          parent.areas.splice(0, 1);
-        }
       } else {
         state.windowDescs.splice(winIndex, 1);
       }
@@ -145,6 +157,21 @@ export default new Vuex.Store({
         state.windowDescs[i].id = state.nextPanelId;
         state.nextPanelId++;
       }
+    },
+    showPanel(state, panelInfo) {
+      panelInfo.id = state.nextPanelId;
+      if (state.nextPanelX + panelInfo.w > state.containerWidth) {
+        state.nextPanelX = 25;
+      }
+      if (state.nextPanelY + panelInfo.h > state.containerHeight) {
+        state.nextPanelY = 25;
+      }
+      panelInfo.x = state.nextPanelX;
+      panelInfo.y = state.nextPanelY;
+      state.nextPanelX += state.nextPanelXIncrement;
+      state.nextPanelY += state.nextPanelYIncrement;
+      state.nextPanelId++;
+      state.panelDescs.push(panelInfo);
     },
     addPanelToActiveWindow(state, panelInfo) {
       for (let i=0; i<state.windowDescs.length; i++) {
@@ -160,6 +187,9 @@ export default new Vuex.Store({
       }
     },
     createChild(state, {splitDirection, areaPath, window, panelInd}) {
+      if (window == null) {
+        debugger;
+      }
       let win = null;
       for (let i=0; i<state.windowDescs.length; i++) {
         if (state.windowDescs[i].id === window.id) {
@@ -173,7 +203,6 @@ export default new Vuex.Store({
       }
       area.splitDirection = splitDirection;
       let curActivePanel = area.panels.splice(panelInd, 1)[0];
-
       let firstChildArea = {
           panels: [],
           areas: [],
@@ -184,13 +213,11 @@ export default new Vuex.Store({
           let panel = area.panels.splice(0, 1)[0];
           firstChildArea.panels.push(panel);
       }
-      firstChildArea.activePanelInd = Math.max(0, panelInd-1),
       area.areas.push(firstChildArea);
-
       area.areas.push({
           panels: [curActivePanel],
           areas: [],
-          activePanelInd: 0,
+          activePanelInd: Math.max(0, panelInd-1),
       });
 
     },
@@ -210,14 +237,15 @@ export default new Vuex.Store({
       state.nextPanelId++;
       state.windowDescs.push(windowInfo);
     },
-    savePanelInfo(state, windowDataIn) {
-      for (let i=0; i < state.windowDescs.length; i++) {
-        let windowData = state.windowDescs[i];
-        if (windowData.id === windowDataIn.panelId) {
-          windowData.x = windowDataIn.left;
-          windowData.y = windowDataIn.top;
-          windowData.w = windowDataIn.width;
-          windowData.h = windowDataIn.height;
+    savePanelInfo(state, panel) {
+      console.log('save panel info');
+      for (let i=0; i < state.panelDescs.length; i++) {
+        let panelDesc = state.panelDescs[i];
+        if (panelDesc.id === panel.panelId) {
+          panelDesc.x = panel.left;
+          panelDesc.y = panel.top;
+          panelDesc.w = panel.width;
+          panelDesc.h = panel.height;
           return;
         }
       }

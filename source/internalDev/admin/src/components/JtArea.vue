@@ -1,55 +1,11 @@
 
 <template>
-    <div v-if='areas.length < 1' class='area' :style='style'>
+    <div v-if='areas.length < 1' class='area'>
         <div class='tabs'>
             <div style='display: flex'>
                 <menu-el :menu='{
                     icon: "fa fa-align-center",
                     hasParent: false,
-                    showIcon: true,
-                    children: [
-                        {
-                            text: "(Next)",
-                        },
-                        {
-                            text: "(Previous)",
-                        },
-                        {
-                            icon: "fas fa-angle-double-right",
-                            action: createChild,
-                            text: "Create child (Col)",
-                            clickData: "horizontal",
-                            hasParent: false,
-                        },
-                        {
-                            icon: "fas fa-angle-double-down",
-                            action: createChild,
-                            text: "Create child (Row)",
-                            clickData: "vertical",
-                            hasParent: false,
-                        },
-                        {
-                            text: "(Create sibling)",
-                            hasParent: false,
-                        },
-                        "divider",
-                        {
-                            icon: "far fa-window-close",
-                            text: "Close Area",
-                            action: close,
-                        },
-                        "divider",
-                        {
-                            icon: "far fa-window-minimize",
-                            hasParent: false,
-                            text: "(Minimize)",
-                        },
-                        {
-                            icon: "far fa-window-restore",
-                            action: restore,
-                            text: "Restore",
-                        },
-                    ],
                 }'></menu-el>
             </div>
             <span 
@@ -72,8 +28,45 @@
             <jt-spacer
              @mousedown.native.prevent='startMove'
             />
+            <menu-el :menu='{
+            icon: "far fa-window-minimize",
+            hasParent: false,
+            }'></menu-el>
+            <menu-el :menu='{
+            icon: "far fa-window-restore",
+            action: restore,
+            hasParent: false,
+            }'></menu-el>
+            <menu-el :menu='{
+            icon: "far fa-window-close",
+            action: close,
+            hasParent: false,
+            }'></menu-el>
         </div>
         <div class='action-bar'>
+                <menu-el :menu='{
+                    icon: "fas fa-angle-double-right",
+                    action: createChild,
+                    clickData: "horizontal",
+                    hasParent: false,
+                }' />
+                <menu-el :menu='{
+                    icon: "fas fa-angle-double-down",
+                    action: createChild,
+                    clickData: "vertical",
+                    hasParent: false,
+                }' />
+                <menu-el :menu='{
+                    icon: "fas fa-columns",
+                    action: splitAsSibling,
+                    hasParent: false,
+                }' />
+                <menu-el :menu='{
+                    icon: "fas fa-arrow-left",
+                    action: sendActivePanelToPreviousSibling,
+                    clickData: area,
+                    hasParent: false,
+                }' />
         </div>
         <div v-if='activePanel != null' class='content' :is='activePanel.type' :dat='activePanel.data' /> 
     </div>
@@ -90,14 +83,11 @@
                 :indexOnParent='index'
                 @startmove='startMove'
                 :activePanelInd='curArea.activePanelInd'
-                :isLastArea='index === areas.length - 1'
             />
             <div 
                 v-if='index < areas.length - 1'
                 class='adjuster'
-                :key='index'
-                :style='adjusterStyle'
-                @mousedown.stop='startAdjust(index, curArea, $event)'
+                :key='"adjuster-" + index'
             />
         </template>
     </div>
@@ -141,7 +131,6 @@ export default {
       'window',
       'indexOnParent',
       'activePanelInd',
-      'isLastArea',
   ],
   data() {
       return {
@@ -149,7 +138,6 @@ export default {
             panels: this.areaProp.panels,
             areas: this.areaProp.areas,  
             indexOnParent: this.indexOnParent,
-            flexBasis: this.areaProp.flexBasis,
         },
       }
   },
@@ -185,29 +173,15 @@ export default {
           return this.splitDirection === 'horizontal';
       },
     style() {
-        if (this.isLastArea || this.area.flexBasis == null) {
             return {
-                'flex': '1 1 100px',
+                'flex-direction': this.flexDirection,
             }
-        } else {
-            return {
-                'flex': '0 0 ' + this.area.flexBasis,
-            }
-        }
-    },
-    adjusterStyle() {
-        let cursor = this.isSplitVertical ? 'ns-resize' : 'ew-resize';
-        return {
-            cursor: cursor,
-        }
     },
   },
 
   methods: {
-      startAdjust(index, curArea, ev) {
-          curArea.flexBasis = '600';
-      },
       startMove(ev) {
+          console.log('start move');
           this.$emit('startmove', ev);
       },
         restore() {
@@ -255,19 +229,24 @@ export default {
               splitDirection: dir,
               areaPath,
               window: this.window,
-              panelInd: this.activePanelInd,
+              activePanelInd: this.activePanelInd,
           });
       },
       closeActivePanel() {
           this.closePanel(this.activePanelInd);
       },
     closePanel(index) {
-        let areaPath = [];
-        let curArea = this.area;
-        while (curArea.parent != null) {
-            areaPath.unshift(curArea.indexOnParent);
-            curArea = curArea.parent;
-        }
+            let areaPath = [];
+            let curArea = this.area;
+            while (curArea.parent != null) {
+                for (let i=0; i<curArea.parent.areas.length; i++) {
+                    if (curArea.parent.areas[i] === curArea) {
+                        areaPath.unshift(i);
+                        break;
+                    }
+                }
+                curArea = curArea.parent;
+            }
         this.$store.commit('closePanel', {
             panelIndex: index,
             areaPath: areaPath,
@@ -383,7 +362,6 @@ export default {
     cursor: default;
     border-right: 1px solid;
     display: flex;
-    white-space: nowrap;
 }
 
 .tab:hover {
@@ -429,8 +407,8 @@ export default {
 }
 
 .adjuster {
+    background-color: #dadada;
     flex: 0 0 1px;
-    padding: 3px;
 }
 
 .closeButton {

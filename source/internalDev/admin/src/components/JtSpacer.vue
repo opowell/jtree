@@ -1,6 +1,4 @@
-
 <template>
-<!-- For some reason, needs to be its own component for click + dblclick to work. -->
     <span
         class='tab spacer'
         @dblclick='restore'
