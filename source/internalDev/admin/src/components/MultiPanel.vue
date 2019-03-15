@@ -9,101 +9,98 @@
         }' 
         :style="style"
     >
-        <jt-area :area='area'/>
-        <span class='handle handle-tl' @mousedown.prevent='startResizeTL' />
-        <span class='handle handle-tc' @mousedown.prevent='startResizeT' />
-        <span class='handle handle-tr' @mousedown.prevent='startResizeTR' />
-        <span class='handle handle-ml' @mousedown.prevent='startResizeL' />
-        <span class='handle handle-mr' @mousedown.prevent='startResizeR' />
-        <span class='handle handle-bl' @mousedown.prevent='startResizeBL' />
-        <span class='handle handle-bc' @mousedown.prevent='startResizeB' />
-        <span class='handle handle-br' @mousedown.prevent='startResizeBR' />
+        <div style='display: flex'>
+            <menu-el :menu='{
+            icon: "fas fa-minus",
+            action: splitVertical,
+            hasParent: false,
+            }'></menu-el>
+            <menu-el :menu='{
+            icon: "fas fa-columns",
+            action: splitHorizontal,
+            hasParent: false,
+            }'></menu-el>
+        </div>
+
+        <div class='areas' :class='{"split-horizontal": isSplitHorizontal,
+            "split-vertical": isSplitVertical,}'>
+            <div class='area'>
+                <div class='tabs'>
+                    <span v-for='panel in panels' :key='panel.id'
+                        class='tab' :class='{"selected": isSelected(panel)}'
+                        @click='setActivePanel(panel)'
+                    >
+                        {{panel.id}}
+                    </span>
+                    <span class='tab spacer'>
+                    </span>
+                    <menu-el :menu='{
+                        icon: "fas fa-times",
+                        action: splitHorizontal,
+                        hasParent: false,
+                    }'></menu-el>
+                </div>
+                <div v-if='activePanel != null' class='content' :is='activePanel.type' :dat='activePanel.data'>
+                </div>
+            </div>
+            <div v-if='isSplit' class='adjuster'></div>
+            <div v-if='isSplit' class='area'>
+                <div class='tabs'>
+                    <span v-for='panel in secondaryPanels' :key='panel.id'
+                        class='tab' :class='{"selected": isSecondarySelected(panel)}'
+                        @click='setActiveSecPanel(panel)'
+                    >
+                        {{panel.id}}
+                    </span>
+                    <span class='tab spacer'>
+                    </span>
+                    <menu-el :menu='{
+                        icon: "fas fa-times",
+                        action: removeSplit,
+                        hasParent: false,
+                    }'></menu-el>
+                </div>
+                <div v-if='activeSecPanel != null' class='content' :is='activeSecPanel.type' :dat='activeSecPanel.data'>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
-// import PanelOne from './PanelOne.vue';
-// import PanelTwo from './PanelTwo.vue';
-// import MenuEl from './MenuEl.vue';
-import JtArea from './JtArea.vue';
-
-import { library } from '@fortawesome/fontawesome-svg-core';
-import {
-  faCaretRight, faCaretDown, faTable, faImage, faFile, faCircle, faCode, faFolder, faFolderOpen, faTimes
-} from '@fortawesome/free-solid-svg-icons';
-import { faJs, } from '@fortawesome/free-brands-svg-icons';
-// import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-library.add(faJs, faCaretRight, faCaretDown, faTable, faImage, faFile, faCircle, faCode, faFolder, faFolderOpen, faTimes);
-
+import PanelOne from './PanelOne.vue';
+import PanelTwo from './PanelTwo.vue';
+import MenuEl from './MenuEl.vue';
 
 export default {
   name: 'MultiPanel',
   components: {
-      JtArea,
-    //   MenuEl,
-    //   PanelOne,
-    //   PanelTwo,
-    //   'font-awesome-icon': FontAwesomeIcon
+      MenuEl,
+      PanelOne,
+      PanelTwo,
   },
-  data() {
-      return {
-          area: {
-            panels: [
-                {
-                    id: 'panel1',
-                    type: 'panel-one',
-                    data: {
-                        x: 8,
-                    },
-                },
-                {
-                    id: 'panel2',
-                    type: 'panel-two',
-                    data: {
-                        y: 183,
-                    },
-                },
-                {
-                    id: 'panel3',
-                    type: 'panel-one',
-                    data: {
-                        x: 18,
-                    },
-                },
-                {
-                    id: 'sec1',
-                    type: 'panel-one',
-                    data: {
-                        x: 8324324,
-                    },
-                },
-                {
-                    id: 'sec2',
-                    type: 'panel-two',
-                    data: {
-                        y: 18434433,
-                    },
-                },
-            ],
-        },
-        dataTitle: 'Multipanel',
-        left: this.x,
-        top: this.y,
-        width: this.w,
-        height: this.h,
-        resizeStartX: null,
-        resizeStartY: null,
-        moveStartX: null,
-        moveStartY: null,
-        minHeight: 100,
-        minWidth: 200,
-        minTop: 5,
-        minLeft: 5,
-        parentHeight: null,
-        parentWidth: null,
-      }
+  props: [
+      'title',
+      'x',
+      'y',
+      'w',
+      'h',
+      'menus',
+      'panelId',
+  ],
+  created() {
+      this.activePanel = this.panels[0];
   },
-    computed: {
+  computed: {
+      isSplitVertical() {
+          return this.splitDirection === 'vertical';
+      },
+      isSplitHorizontal() {
+          return this.splitDirection === 'horizontal';
+      },
+      isSplit() {
+          return this.isSplitVertical || this.isSplitHorizontal;
+      },
       isActive() {
           return !this.isMaximized || this === this.$store.state.activePanel;
       },
@@ -145,133 +142,168 @@ export default {
         }
     },
   },
-
+  data() {
+      return {
+          activePanel: null,
+          activeSecPanel: null,
+          panels: [
+              {
+                  id: 'panel1',
+                  type: 'panel-one',
+                  data: {
+                      x: 8,
+                  },
+              },
+              {
+                  id: 'panel2',
+                  type: 'panel-two',
+                  data: {
+                      y: 183,
+                  },
+              },
+              {
+                  id: 'panel3',
+                  type: 'panel-one',
+                  data: {
+                      x: 18,
+                  },
+              },
+              {
+                  id: 'sec1',
+                  type: 'panel-one',
+                  data: {
+                      x: 8324324,
+                  },
+              },
+              {
+                  id: 'sec2',
+                  type: 'panel-two',
+                  data: {
+                      y: 18434433,
+                  },
+              },
+          ],
+          secondaryPanels: [],
+        dataTitle: this.title,
+        left: this.x,
+        top: this.y,
+        width: this.w,
+        height: this.h,
+        resizeStartX: null,
+        resizeStartY: null,
+        moveStartX: null,
+        moveStartY: null,
+        minHeight: 100,
+        minWidth: 200,
+        minTop: 5,
+        minLeft: 5,
+        parentHeight: null,
+        parentWidth: null,
+        splitDirection: null, // null = don't split, "column", or "row"
+      }
+  },
   mounted() {
     this.parentElement = this.$el.parentNode.parentNode; // the panel container.
     this.parentWidth = this.parentElement.clientWidth - 5;
     this.parentHeight = this.parentElement.clientHeight - 5;
     this.$store.commit('addActivePanel', this);
-  },
+},
 
-  methods: {
-      closeActivePanel(area) {
-          this.closePanel({
-              area: area, 
-              panel: area.activePanel
-          });
-      },
-    closePanel({area, panel}) {
-      for (let i=0; i<area.panels.length; i++) {
-        if (area.panels[i] === panel) {
-          area.panels.splice(i, 1);
-          if (area.panels.length < 1) {
-              this.closeArea(area);
-          } else if (panel === area.activePanel) {
-            let nextIndex = Math.max(0, i-1);
-            area.activePanel = area.panels[nextIndex];
-          }
-          break;
-        }
-      }
-    },
-    closeArea(area) {
-        for (let i=0; i<this.areas.length; i++) {
-            if (this.areas[i] === area) {
-                this.areas.splice(i, 1);
-                if (this.areas.length < 1) {
-                    this.closeSelf();
+    methods: {
+        isSelected(panel) {
+            return this.activePanel === panel;
+        },
+        isSecondarySelected(panel) {
+            return this.activeSecPanel === panel;
+        },
+        setActivePanel(panel) {
+            this.activePanel = panel;
+        },
+        setActiveSecPanel(panel) {
+            this.activeSecPanel = panel;
+        },
+        splitHorizontal() {
+            this.split('horizontal');
+        },
+        splitVertical() {
+            this.split('vertical');
+        },
+        removeSplit() {
+            this.split(this.splitDirection);
+        },
+    split(dir) {
+        // Disable split.
+        if (this.splitDirection === dir) {
+            this.splitDirection = null;
+            this.activeSecPanel = null;
+            while (this.secondaryPanels.length > 0) {
+                this.panels.push(this.secondaryPanels[0]);
+                this.secondaryPanels.splice(0, 1);
+            }
+        } 
+        else {
+            // Already split.
+            let originallyNotSplit = (this.splitDirection == null);
+            this.splitDirection = dir;
+            if (originallyNotSplit) {
+                this.activeSecPanel = this.activePanel;
+                for (let i=0; i<this.panels.length; i++) {
+                    if (this.panels[i] === this.activePanel) {
+                        this.secondaryPanels.push(this.panels[i]);
+                        this.panels.splice(i, 1);
+                        i = Math.min(i, this.panels.length - 1);
+                        this.activePanel = this.panels[i];
+                        break;
+                    }
                 }
-                break;
             }
         }
-    },
-    closeSelf() {
-        // Tell parent to drop this MultiPanel.
-    },
-    isSelected(area, panel) {
-      return area.activePanel === panel;
-    },
-    setActivePanel(area, panel) {
-      area.activePanel = panel;
-    },
-    sendPanelsToPreviousSibling(area) {
-        console.log(area);
-    },
-    sendPanelToPreviousSibling(area, panel) {
-        console.log(area);
-        console.log(panel);
-    },
-    sendActivePanelToPreviousSibling(area) {
-        console.log(area);
-    },
-    splitOff(index) {
-      let area = this.areas[index];
-      let panel = area.activePanel;
-      this.areas.push({
-        activePanel: panel,
-        panels: [
-          panel,
-        ],
-      });
-      this.closePanel({area, panel});
-    },
-    toggleSplitDirection() {
-      if (this.splitDirection === 'horizontal') {
-        this.splitDirection = 'vertical';
-      } else {
-        this.splitDirection = 'horizontal';
-      }
-    },
-    removeSplit(index) {
-      let panels = this.areas[index].panels;
-      let activePanel = this.areas[index].activePanel;
-      let prevIndex = Math.max(0, index - 1);
-      this.areas[prevIndex].panels.push(panels);
-      this.areas[prevIndex].activePanel = activePanel;
-    },
-    closejt() {
-      this.$store.commit('removePanel', this);
-    },
-    focus() {
-      this.click();            
-    },
-    toggleMaximized() {
-      const state = this.$store.state;
-      state.panelsMaximized = !state.panelsMaximized;
-      state.activePanel = this; // the jt-panel.
-    },
-    click() {
-      this.$store.commit('setPanelFocussed', this);
-    },
-    startMove(ev) {
-      if (this.isMaximized) {
-        return;
-      }
-      document.documentElement.addEventListener('mousemove', this.move);
-      document.documentElement.addEventListener('mouseup', this.stopMove);
-      this.moveStartX = typeof ev.pageX !== 'undefined' ? ev.pageX : ev.touches[0].pageX;
-      this.moveStartY = typeof ev.pageY !== 'undefined' ? ev.pageY : ev.touches[0].pageY;
-      this.origTop = this.top;
-      this.origLeft = this.left;
-    },
-    move(ev) {
-      const pageX = typeof ev.pageX !== 'undefined' ? ev.pageX : ev.touches[0].pageX;
-      let newLeft = this.origLeft + pageX - this.moveStartX;
-      newLeft = Math.max(newLeft, this.minLeft);
-      newLeft = Math.min(newLeft, this.parentWidth - this.width);
-      this.left = newLeft;
+      },
+        closejt() {
+            this.$store.commit('removePanel', this);
+        },
+        focus() {
+            this.click();            
+        },
 
-      const pageY = typeof ev.pageY !== 'undefined' ? ev.pageY : ev.touches[0].pageY;
-      let newTop = this.origTop + pageY - this.moveStartY;
-      newTop = Math.max(newTop, this.minTop);
-      newTop = Math.min(newTop, this.parentHeight - this.height);
-      this.top = newTop;
-    },
-    stopMove() {
+        toggleMaximized() {
+            const state = this.$store.state;
+            state.panelsMaximized = !state.panelsMaximized;
+            state.activePanel = this; // the jt-panel.
+        },
+        click() {
+            this.$store.commit('setPanelFocussed', this);
+        },
+
+      startMove(ev) {
+        if (this.isMaximized) {
+            return;
+        }
+        document.documentElement.addEventListener('mousemove', this.move);
+        document.documentElement.addEventListener('mouseup', this.stopMove);
+        this.moveStartX = typeof ev.pageX !== 'undefined' ? ev.pageX : ev.touches[0].pageX;
+        this.moveStartY = typeof ev.pageY !== 'undefined' ? ev.pageY : ev.touches[0].pageY;
+        this.origTop = this.top;
+        this.origLeft = this.left;
+      },
+      move(ev) {
+        const pageX = typeof ev.pageX !== 'undefined' ? ev.pageX : ev.touches[0].pageX;
+        let newLeft = this.origLeft + pageX - this.moveStartX;
+        newLeft = Math.max(newLeft, this.minLeft);
+        newLeft = Math.min(newLeft, this.parentWidth - this.width);
+        this.left = newLeft;
+
+        const pageY = typeof ev.pageY !== 'undefined' ? ev.pageY : ev.touches[0].pageY;
+        let newTop = this.origTop + pageY - this.moveStartY;
+        newTop = Math.max(newTop, this.minTop);
+        newTop = Math.min(newTop, this.parentHeight - this.height);
+        this.top = newTop;
+      },
+      stopMove() {
         document.documentElement.removeEventListener('mousemove', this.move);
         document.documentElement.removeEventListener('mouseup', this.stopMove);
         this.$store.commit('savePanelInfo', this);
-    },
+      },
 
     startResizeTL(ev) {
         document.documentElement.addEventListener('mousemove', this.resizeTL);
@@ -465,16 +497,9 @@ export default {
         document.documentElement.removeEventListener('mousemove', this.resizeBR);
         document.documentElement.removeEventListener('mouseup', this.stopResizeBR);
     },
-  },
-  props: [
-      'title',
-      'x',
-      'y',
-      'w',
-      'h',
-      'menus',
-      'panelId',
-  ],
+
+
+  }
 }
 </script>
 
@@ -599,10 +624,9 @@ export default {
     padding-top: 5px;
     padding-bottom: 5px;
     padding-left: 25px;
-    padding-right: 5px;
+    padding-right: 25px;
     cursor: default;
     border-right: 1px solid;
-    display: flex;
 }
 
 .tab:hover {
@@ -641,30 +665,10 @@ export default {
     flex: 1 1 auto;
     display: flex;
     flex-direction: column;
-    flex-basis: 300px;
 }
 
 .adjuster {
     background-color: #dadada;
     flex-basis: 1px;
 }
-
-.closeButton {
-    display: none;
-    align-self: center;
-}
-
-.tab:hover .closeButton {
-    display: flex;
-}
-
-.selected .closeButton {
-    display: flex;
-}
-
-.action-bar {
-    background-color: #AAA;
-    display: flex;
-}
-
 </style>
