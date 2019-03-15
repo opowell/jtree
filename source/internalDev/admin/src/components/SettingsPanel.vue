@@ -6,13 +6,10 @@
                 <b-form-select v-if='setting.type == "select"'
                     :id="`setting-${setting.key}`"
                     :options='setting.options'
-                    @input="change(setting, $event)"
                 />
                 <b-form-checkbox 
                     v-if='setting.type == "checkbox"'
                     :id="`setting-${setting.key}`"
-                    :checked='getStateValue(setting.key)'
-                    @input="change(setting, $event)"
                 />
                 <b-form-input v-else 
                     :id="`setting-${setting.key}`"
@@ -45,7 +42,7 @@
                   {
                       name: 'Game name',
                       type: 'text',
-                      key: 'appName',
+                      value: 'appName',
                   },
                   {
                       name: 'Windows maximized',
