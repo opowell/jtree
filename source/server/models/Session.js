@@ -84,7 +84,6 @@ class Session {
         * @type Array
         */
         this.apps = [];
-        this.gameTree = [];
 
         this.users = [];
 
@@ -112,7 +111,6 @@ class Session {
             'this',
             'outputHide',
             'apps',
-            'gameTree',
             'fileStream',
             'asyncQueue',
             'started',
@@ -134,7 +132,7 @@ class Session {
     * @param  {type} json      The content of the session.
     * @return {Session}        The session described by the contents of json.
     */
-    static loadOld(jt, folder, data) {
+    static load(jt, folder, data) {
         var session = new Session(jt, folder);
         var all = fs.readFileSync(path.join(jt.path, jt.settings.sessionsFolder + '/' + folder + '/' + folder + '.gsf')).toString();
         var lines = all.split('\n');
@@ -650,7 +648,6 @@ class Session {
 
     deleteParticipant(pId) {
         delete this.participants[pId];
-        this.save();
         let md = {sId: this.id, pId: pId};
         this.emit('sessionDeleteParticipant', md);
     }
@@ -790,10 +787,8 @@ class Session {
             out.participants[i] = this.participants[i].shellAll();
         }
         out.apps = [];
-        out.gameTree = [];
         for (var i in this.apps) {
             out.apps[i] = this.apps[i].shellWithChildren();
-            out.gameTree[i] = this.apps[i].shellWithChildren();
         }
         out.clients = [];
         for (var i in this.clients) {

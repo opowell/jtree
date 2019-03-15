@@ -29,21 +29,13 @@ msgs.objChange = function(change) {
             break;
         case 'set-value':
             console.log('set object value: \n' + change['new-value']);
+            // set(window.vue.$store.state, change.path, change['new-value']);
             paths = change.path.split('.');
             obj = window.vue.$store.state;
             for (let i=0; i<paths.length - 1; i++) {
                 obj = obj[paths[i]];
             }
             vue.$set(obj, paths[paths.length-1], change['new-value']);
-            break;
-        case 'delete-prop':
-            console.log('delete property: \n');
-            paths = change.path.split('.');
-            obj = window.vue.$store.state;
-            for (let i=0; i<paths.length - 1; i++) {
-                obj = obj[paths[i]];
-            }
-            vue.$delete(obj, paths[paths.length-1]);
             break;
         default:
             debugger;
@@ -345,7 +337,8 @@ msgs.sessionDeleteApp = function(md) {
 
 msgs.sessionDeleteParticipant = function(md) {
     if (jt.data.session.id === md.sId) {
-        vue.$store.commit('deleteParticipant', md.pId);
+        deleteParticipant(md.pId);
+        jt.view.updateNumParticipants();
     }
 }
 

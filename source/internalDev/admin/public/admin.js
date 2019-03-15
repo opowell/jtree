@@ -32,6 +32,12 @@ function removeCustomAppFolder(folder) {
 //     return div;
 // }
 
+function deleteParticipant(pId) {
+    $('.participant-' + pId).remove();
+    delete jt.data.session.participants[pId];
+    $('#deleteParticipantSelect option[value=' + pId + ']').remove();
+}
+
 function setQueue(event) {
     event.stopPropagation();
     console.log('set session queue: ' + event.data.id + ', name = ' + event.data.name);

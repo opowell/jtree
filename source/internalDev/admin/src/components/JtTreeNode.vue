@@ -15,9 +15,9 @@
         @focus="onFocus"
         ref='titleEl'
     >
-        <td v-for='header in tree.component.headers' :key='header.label'>
+        <td v-for='header in tree.component.headers' :key='header'>
             <slot :header='header' :nodeProp='nodeProp'>
-                {{nodeProp[header.value]}}
+                {{nodeProp[header]}}
             </slot>
         </td>
     </tr>
@@ -64,7 +64,7 @@
                 </slot>
             </span>
         </div>
-        <div class='children' v-if='expanded'>
+        <div class='children' v-show='expanded'>
             <jt-treenode
                 v-for='(child, index) in nodeChildren'
                 :key='child[tree.keyField]'
@@ -159,10 +159,15 @@ try {
         // },
     },
     watch: { 
-        // nodePath: function(newVal, oldVal) { // watch it
-        nodePath: function() {
-        //   console.log('Prop changed: ', newVal, ' | was: ', oldVal);
+        nodePath: function(newVal, oldVal) { // watch it
+          console.log('Prop changed: ', newVal, ' | was: ', oldVal);
           this.node.path = this.nodePath;
+        //   this.$nextTick(function() {
+        //     // if (this.isSelected !== (this.node.path === this.tree.activeNodePath)) {
+        //     //     this.$forceUpdate();
+        //     // };
+        //         // this.isSelected();
+        //     });
         }
       },
       mounted() {

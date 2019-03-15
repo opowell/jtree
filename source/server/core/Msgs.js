@@ -110,8 +110,6 @@ class Msgs {
     deleteParticipant(d, socket) {
         var session = this.jt.data.getSession(d.sId);
         session.deleteParticipant(d.pId);
-        var sessionProxy = this.jt.data.getProxySession(d.sId);
-        sessionProxy.deleteParticipant(d.pId);
     }
 
     saveOutput(sId, socket) {
@@ -349,6 +347,7 @@ class Msgs {
     }
 
     createSession_V2(userId, sock) {
+        // console.log('hi');
         var session = this.jt.data.createSession(userId);
     }
 

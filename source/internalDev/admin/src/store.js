@@ -551,9 +551,6 @@ export default new Vuex.Store({
     },
   },
   mutations: {
-    deleteParticipant(state, pId) {
-      Vue.delete(state.session.participants, pId);
-    },
     setSessionId(state, sessionId) {
       state.sessionId = sessionId;
       // axios.get(
