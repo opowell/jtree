@@ -297,7 +297,7 @@ let stateObj = {
         menuHoverBGColor: 'rgb(229, 243, 255)',
         menuHoverBorderColor: 'rgb(204, 232, 255)',
         menuTextPadding: '2px 1px',
-        tabFontColor: 'rgb(0, 0, 0)',
+        tabFontColor: 'rgb(171, 171, 171)',
         tabSelectedFontColor: '#000',
         windowBGColor: 'rgb(205, 219, 232)',
         windowFocussedBGColorTop: 'rgb(153,180,209)',

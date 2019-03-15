@@ -22,7 +22,7 @@ var jt = {};
 global.jt = jt;
 
 // The version of jtree, should match what is in buildJTree.bat
-jt.version = '0.8.0';
+jt.version = '0.7.4';
 
 /** Location of the server executable. All files should be relative to this. Should be a folder containing 'apps' and 'internal' folders.
 */

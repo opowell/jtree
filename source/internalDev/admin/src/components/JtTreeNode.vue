@@ -16,9 +16,7 @@
         ref='titleEl'
     >
         <td v-for='header in tree.component.headers' :key='header'>
-            <slot :header='header' :nodeProp='nodeProp'>
-                {{nodeProp[header]}}
-            </slot>
+            {{nodeProp[header]}}
         </td>
     </tr>
     <div v-else class='node'>
@@ -58,11 +56,7 @@
                 @keydown.enter='renameNode'
                 @blur='cancelEditing'
             />
-            <span v-show='!editing' class='node-title-text no-text-select'>
-                <slot name='treeTitle'>
-                    {{nodeTitle}}
-                </slot>        
-            </span>
+            <span v-show='!editing' class='node-title-text no-text-select'>{{nodeTitle}}</span>
         </div>
         <div class='children' v-show='expanded'>
             <jt-treenode
@@ -77,12 +71,6 @@
                 :dblClickFunc='dblClickFunc'
                 @deleteNode="deleteNode"
             >
-                <!-- Available slots -->
-                <slot v-for="slot in Object.keys($slots)" :name="slot" :slot="slot"/>
-                <!-- Available scoped slots -->
-                <template v-for="slot in Object.keys($scopedSlots)" :slot="slot" slot-scope="scope">
-                    <slot :name="slot" v-bind="scope"/>
-                </template>
             </jt-treenode>
         </div>
     </div>
@@ -165,7 +153,7 @@ try {
         // },
     },
     watch: { 
-        nodePath: function(newVal, oldVal) { // watch it
+      	nodePath: function(newVal, oldVal) { // watch it
         //   console.log('Prop changed: ', newVal, ' | was: ', oldVal);
           this.node.path = this.nodePath;
         //   this.$nextTick(function() {
