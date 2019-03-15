@@ -1,21 +1,7 @@
 <template>
     <div class='main-menu no-text-select' :style='mainMenuStyle'>
         <menu-el v-for='menu in menus' :key='menu.text' :menu='menu'></menu-el>
-        <div class='spacer'></div>
-        <!-- <div v-show='panelsMaxed' style='display: flex'>
-            <menu-el :menu='{
-            icon: "far fa-window-restore",
-            action: restore,
-            hasParent: false,
-            }'></menu-el>
-            <menu-el :menu='{
-            icon: "far fa-window-close",
-            action: close,
-            hasParent: false,
-            }'></menu-el>
-        </div> -->
     </div>
-
 </template>
 
 <script>
@@ -35,22 +21,8 @@ export default {
         hasParent: false,
         children: [
             {
-                text: 'PanelOne',
-                action: this.showPanel,
-                clickData: {
-                    type: 'panel-one',
-                    title: 'Panel One',
-                    data: 13,
-                },
-            },
-            {
-                text: 'PanelTwo',
-                action: this.showPanel,
-                clickData: {
-                    type: 'panel-two',
-                    title: 'Panel Two',
-                    data: 35,
-                },
+                text: 'MultiPanel',
+                action: this.showMultiPanel,
             },
             {
                 text: 'Files',
@@ -112,7 +84,7 @@ export default {
         children: [],
     },
 ],
-          windowDescs: this.$store.state.windowDescs,
+          panelDescs: this.$store.state.panelDescs,
           menuBGColor: "rgb(90, 90, 90)",
           menuColor: 'rgb(185, 185, 185)',
       }
@@ -121,13 +93,10 @@ export default {
       mainMenuStyle() { return {
           'background-color': this.menuBGColor,
           'color': this.menuColor,
-      }},
-      panelsMaxed() {
-          return this.$store.state.panelsMaximized;
-      },
+      }}
   },
   watch: {
-      windowDescs: {
+      panelDescs: {
         handler: function(newval) {
             // Update Window menu.
             this.menus[4].children.splice(0, this.menus[4].children.length);
@@ -137,17 +106,11 @@ export default {
       }
   },
   methods: {
-      restore() {
-          
-      },
-      close() {
-
-      },
     setWindowMenuChildren(newval) {
         for (let i=0; i<newval.length; i++) {
-            const panel = this.$store.state.windows[i];
+            const panel = this.$store.state.panels[i];
             const menuData = {
-                text: 'need a title',
+                text: panel.dataTitle,
                 panel: panel,
                 action: panel.focus,
                 icon: panel.isFocussed ? 'fas fa-check' : '',
@@ -208,33 +171,18 @@ export default {
     showSessions() {
         this.showPanel('sessions-panel');
     },
-    showPanel(data) {
-        if (this.$store.state.windowsMaximized) {
-            this.$store.commit('addPanelToActiveWindow', {
-                id: data.title,
-                type: data.type,
-                data: 13,
-            });
-        } else {
-            this.$store.commit('showWindow', {
-                panels: [
-                    {
-                        id: data.title,
-                        type: data.type,
-                        data: 13,
-                    },
-                ],
-                areas: [],
-                w: 500,
-                h: 300,
-            });
-        }
+    showPanel(type) {
+        this.$store.commit('showPanel', {
+            type: type,
+            w: 500,
+            h: 300,
+        });
     },
   },
   mounted() {
     let that = this;
     this.$root.$nextTick(function() {
-        that.setWindowMenuChildren(that.$store.state.windowDescs);
+        that.setWindowMenuChildren(that.$store.state.panelDescs);
     });
   },
 }
@@ -262,10 +210,6 @@ export default {
 
 .main-menu .menu:hover {
     background-color:rgb(109, 109, 109);
-}
-
-.spacer {
-    flex: 1 1 auto;
 }
 
 </style>
