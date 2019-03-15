@@ -12,7 +12,6 @@ const fs            = require('fs-extra');
 const path          = require('path');
 const async         = require('async');
 const Observer = require('micro-observer').Observer;
-const deepcopy = require('deepcopy');
 
 const PLAYER_STATUS_FINISHED = 'finished';
 const PLAYER_STATUS_PLAYING = 'playing';
@@ -64,8 +63,6 @@ class Session {
         this.caseSensitiveLabels = false;
 
         this.messages = [];
-        this.messageLatest = true;
-        this.messageIndex = 0;
 
         /**
         * A list of participants in this session.
@@ -128,17 +125,11 @@ class Session {
             'participantProxies',
             'clientProxies',
             'proxyObj',
-            'users',
         ];
-
-        this.initialState = {
-            participants: [],
-        };
 
         this.proxyObj = {
             participants: this.participantProxies,
             clients: this.clientProxies,
-            state: this.initialState,
         }
 
         this.proxy = Observer.create(this.proxyObj, function(change) {
@@ -442,10 +433,6 @@ class Session {
         //        var playerId = Player.genRoomId(da.player);
         //        var line = cl.participant.id + ', ' + cl.id + ', ' + playerId + ', ' + funcName + ', ' + JSON.stringify(da.data) + '\n';
         //        fs.appendFileSync(this.getOutputDir() + '/messages.csv', line);
-    }
-
-    setSessionLatest(value) {
-        this.messageLatest = value;
     }
 
     processMessage(msg, callback) {
@@ -985,22 +972,22 @@ class Session {
             return null;
         }
 
-        // var participantId = pId;
-        // this.jt.log('Session.participantCreate: ' + participantId);
-        // var participant = new Participant.new(participantId, this);
-        // // participant.save();
-        // // this.save();
-        // this.participants[participantId] = participant;
-        // this.participantProxies.push(participant.proxy);
+        var participantId = pId;
+        this.jt.log('Session.participantCreate: ' + participantId);
+        var participant = new Participant.new(participantId, this);
+        // participant.save();
+        // this.save();
+        this.participants[participantId] = participant;
+        this.participantProxies.push(participant.proxy);
 
         this.addMessage(
             'createParticipant',
             pId,
         );
-        // try {
-        //     // this.jt.socketServer.sendOrQueueAdminMsg(null, 'addParticipant', participant.shell());
-        // } catch (err) {}
-        // return participant;
+        try {
+            // this.jt.socketServer.sendOrQueueAdminMsg(null, 'addParticipant', participant.shell());
+        } catch (err) {}
+        return participant;
     }
 
     addMessage(name, content) {
@@ -1008,57 +995,8 @@ class Session {
         this.messages.push({
             id: this.messages.length + 1,
             name,
-            content,
+            content, 
         });
-        if (this.messageLatest) {
-            return this.setMessageIndex(this.messages.length);
-        }
-    }
-
-    setMessageIndex(index) {
-        this.messageIndex = index;
-        this.proxy.state = this.loadMessageState(index-1);
-        return this.messages[index-1].returnedValue;
-    }
-
-    loadMessageState(index) {
-
-        if (index >= this.messages.length) {
-            console.log('Error: asking for state ' + index + ' when only ' + this.messages.length + ' messages.');
-            return null;
-        }
-
-        if (index == -1) {
-            return this.initialState;
-        }
-        if (this.messages[index].state != null) {
-            return this.messages[index].state;
-        }
-
-        // Copy of previous state.
-        let newState = deepcopy(this.loadMessageState(index-1));
-        this.processMessage(newState, this.messages[index]);
-        this.messages[index] = newState;
-    }
-
-    processMessage(state, message) {
-        // obj[change.function](...change.arguments);
-        // eval('this[' + message.name + '](' + ) {
-        switch (message.name) {
-            case 'createParticipant':
-                let pId = message.content;
-                var participantId = pId;
-                this.jt.log('Session.participantCreate: ' + participantId);
-                var participant = new Participant.new(participantId, this);
-                this.participants[participantId] = participant;
-                this.participantProxies.push(participant.proxy);
-                state.participants.push(participant.shell());
-                message.returnedValue = participant;
-                break;
-            default:
-                console.log('Session.js: error, unknown message to process.');
-                break;
-        }
     }
 
     isValidPId(pId) {

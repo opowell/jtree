@@ -83,10 +83,10 @@ class SocketServer {
             })(fnI);
         }
 
-        // socket.on('refreshAdmin', function(msg) {
-        //     log('Server.refreshAdmin: socket_' + sock.id);
-        //     self.refreshAdmin(null, 'socket_' + sock.id, msg.userId);
-        // });
+        socket.on('refreshAdmin', function(msg) {
+            log('Server.refreshAdmin: socket_' + sock.id);
+            self.refreshAdmin(null, 'socket_' + sock.id, msg.userId);
+        });
 
         socket.on('get-var', function(a) {
             log('getting variable ' + a + ': ' + global[a]);

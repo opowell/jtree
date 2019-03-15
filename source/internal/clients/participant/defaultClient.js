@@ -462,8 +462,8 @@ jt.defaultConnected = function() {
     });
 
     jt.socket.on('logged-in', function(id){
-        // $('#player').text(id);
-        console.log('logged-in as ' + JSON.stringify(id));
+        $('#player').text(id);
+        console.log('logged-in as ' + id);
     });
 
     jt.socket.on('set-clock-timeleft', function(val) {

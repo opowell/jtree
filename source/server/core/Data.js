@@ -1,8 +1,8 @@
 const fs = require('fs-extra');
 const Utils = require('../models/Utils.js');
 const path = require('path');
-// const Session = require('../models/Session.js');
-const SessionV2 = require('../models/SessionV2.js');
+// const Session = require('../Session.js');
+const Session2 = require('../models/Session.js');
 // const App = require('../models/Game.js');
 const Room = require('../models/Room.js');
 // const Queue = require('../Queue.js');
@@ -72,7 +72,7 @@ class Data {
         };
 
         for (let i=0; i<this.sessions.length; i++) {
-            this.proxyObj.sessions.push(this.sessions[i].proxy);
+            this.proxyObj.sessions.push(this.sessions[i]);
         }
 
         this.proxy = Observer.create(this.proxyObj, function(change) {
@@ -794,7 +794,7 @@ class Data {
             var pathToFolder = path.join(this.jt.path, this.jt.settings.sessionsFolder + '/' + folder + '/');
             this.jt.log('loading session: ' + folder);
             if (folder !== null && fs.lstatSync(pathToFolder).isDirectory()) {
-                out = SessionV2.load(this.jt, folder, this);
+                out = Session2.load(this.jt, folder, this);
             }
         } catch (err) {
             console.log('error loading session WS: ' + folder);
@@ -847,15 +847,15 @@ class Data {
      * @return {Session}        description
      */
     createSession(userId) {
-        var sess = new SessionV2.new(this.jt, null);
+        var sess = new Session2.new(this.jt, null);
         // if (userId != null && userId.length > 0) {
         //     sess.addUser(userId);
         // }
         // sess.save();
         // this.jt.socketServer.emitToAdmins('addSession', sess.shell());
         this.sessions.push(sess);
-        // let shell = sess.shell();
-        this.proxy.sessions.push(sess.proxy);
+        let shell = sess.shell();
+        this.proxy.sessions.push(sess);
         return sess;
     }
 

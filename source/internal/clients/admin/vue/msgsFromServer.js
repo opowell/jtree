@@ -21,55 +21,47 @@ msgs.deleteSession = function(id) {
 }
 
 msgs.objChange = function(change) {
-
+    let paths, obj = null;
     console.log('object change: \n' + JSON.stringify(change));
-
-    let paths = change.path.split('.');
-    let obj = window.vue.$store.state;
-    if (obj[paths[0]] == null) {
-        obj = window.vue.$store.state.session;
-    }
-
     switch (change.type) {
-
         case 'function-call':
+            paths = change.path.split('.');
+            obj = window.vue.$store.state;
             for (let i=0; i<paths.length; i++) {
                 obj = obj[paths[i]];
             }
-            if (obj == null) return;
             obj[change.function](...change.arguments);
             break;
-
         case 'set-prop':
             // console.log('set property: \n' + JSON.stringify(change.newValue));
+            paths = change.path.split('.');
+            obj = window.vue.$store.state;
             for (let i=0; i<paths.length - 1; i++) {
                 obj = obj[paths[i]];
             }
-            if (obj == null) return;
             vue.$set(obj, paths[paths.length-1], change.newValue);
             break;
-
         case 'set-value':
             // console.log('set value: \n' + change.newValue);
+            paths = change.path.split('.');
+            obj = window.vue.$store.state;
             for (let i=0; i<paths.length - 1; i++) {
                 obj = obj[paths[i]];
             }
             if (obj == null) {
                 return;
             }
-            if (obj == null) return;
             vue.$set(obj, paths[paths.length-1], change.newValue);
             break;
-
         case 'delete-prop':
             // console.log('delete property: \n');
+            paths = change.path.split('.');
+            obj = window.vue.$store.state;
             for (let i=0; i<paths.length - 1; i++) {
                 obj = obj[paths[i]];
             }
-            if (obj == null) return;
             vue.$delete(obj, paths[paths.length-1]);
             break;
-
         default:
             debugger;
             break;
@@ -167,18 +159,10 @@ msgs.openSession = function(session) {
         clearInterval(participantTimers[i]);
     }
 
-    if (session.state == null) {
-        session.state = session.initialState;
-    }
     const prevSession = vue.$store.state.session;
     vue.$store.state.session = session;
-    if (
-        objLength(session.state.participants) === 0 && 
-        prevSession != null && 
-        prevSession.state != null && 
-        prevSession.state.participants != null
-    ) {
-        server.setNumParticipants(objLength(prevSession.state.participants));
+    if (objLength(session.participants) === 0 && prevSession != null && prevSession.participants != null) {
+        server.setNumParticipants(objLength(prevSession.participants));
     }
 
     if (prevSession !== undefined && prevSession.id !== session.id) {

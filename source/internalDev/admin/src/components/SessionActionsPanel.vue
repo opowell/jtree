@@ -73,12 +73,6 @@ import JtTree from '@/components/JtTree.vue'
             action: this.gotoEnd,
         },
         {
-            title: 'Latest',
-            hasParent: false,
-            icon: 'fas fa-play',
-            action: this.toggleLatest,
-        },
-        {
             title: 'Delete',
             hasParent: false,
             icon: 'fas fa-trash',
@@ -91,20 +85,13 @@ import JtTree from '@/components/JtTree.vue'
                 return this.$store.state.session.messages;
             },
             index() {
-                return this.$store.state.session.messageIndex;
+                return this.$store.state.messageIndex;
             },
             atStart() {
                 return this.index == 0;
             },
     },
     methods: {
-        toggleLatest() {
-            let data = {
-                value: !this.$store.state.session.messageLatest,
-                sessionId: this.$store.state.sessionId,
-            }
-            global.jt.socket.emit('setSessionLatest', data);
-        },
         isProcessed(node) {
             return node.id <= this.index;
         },
@@ -138,25 +125,20 @@ import JtTree from '@/components/JtTree.vue'
             this.setIndex(this.messages.length);
         },
         setIndex(i) {
-            let data = {
-                value: i,
-                sessionId: this.$store.state.sessionId,
-            }
-            global.jt.socket.emit('setSessionMessageIndex', data);
-            // this.$store.commit('setActionIndex', i);
+            this.$store.commit('setActionIndex', i);
         },
     },
         watch: {
             messages: function(newVal) {
-                this.panel.id = 'Events (' + this.index + ' / ' + newVal.length + ')';
+                this.panel.id = 'Messages (' + this.index + ' / ' + newVal.length + ')';
             },
             index: function(newVal) {
-                this.panel.id = 'Events (' + newVal + ' / ' + this.messages.length + ')';
+                this.panel.id = 'Messages (' + newVal + ' / ' + this.messages.length + ')';
                 this.$forceUpdate();
             },
         },
     mounted() {
-        this.panel.id = 'Events';
+        this.panel.id = 'Messages';
     },
   }
 </script>
