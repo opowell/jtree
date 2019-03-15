@@ -21,7 +21,7 @@
             >
                 <template v-for="slot in Object.keys($scopedSlots)" v-slot:[slot]='{ nodeProp, tree }'>
                     <slot :name='slot' :nodeProp='nodeProp' :tree='tree'>
-                        {{ nodeProp[slot]}}
+                        {{ nodeProp[tree.titleField]}}
                     </slot>
                 </template>
             </jt-treenode>

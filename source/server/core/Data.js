@@ -67,60 +67,27 @@ class Data {
         // Reload them when a new session is opened.
         this.participantClients = [];
 
-        this.proxyObj = {
+        let proxyObj = {
             sessions: [],
         };
 
         for (let i=0; i<this.sessions.length; i++) {
-            this.proxyObj.sessions.push(this.sessions[i]);
+            proxyObj.sessions.push(this.sessions[i]);
         }
 
-        this.proxy = Observer.create(this.proxyObj, function(change) {
+        this.proxy = Observer.create(proxyObj, function(change) {
             let msg = {
                 arguments: change.arguments,
                 function: change.function,
                 path: change.path,
                 property: change.property,
                 type: change.type,
-                newValue: change.newValue,
             }
-            if (change.type === 'function-call' && !['splice', 'push'].includes(change.function)) {
-                return true;
-            }
-            msg.newValue = jt.data.toShell(msg.newValue);
-            msg.arguments = jt.data.toShell(msg.arguments);
             console.log('emit message: \n' + JSON.stringify(msg));
             jt.socketServer.io.to(jt.socketServer.ADMIN_TYPE).emit('objChange', msg);
             return true; // to apply changes locally.
         });
 
-    }
-
-    toShell(obj) {
-        if (!(obj instanceof Array)) {
-            if (obj == null) {
-                return obj;
-            } else if (obj.shellWithChildren != null) {
-                return obj.shellWithChildren();
-            }
-            else if (obj.shell != null) {
-                return obj.shell();
-            } else {
-                return obj;
-            }
-        }
-        let out = [];
-        for (let i=0; i<obj.length; i++) {
-            if (obj[i].shellWithChildren != null) {
-                out.push(obj[i].shellWithChildren());
-            }
-            else if (obj[i].shell != null) {
-                out.push(obj[i].shell());
-            } else {
-                out.push(obj[i]);
-            }
-        }
-        return out;
     }
 
     /*
@@ -851,7 +818,7 @@ class Data {
         // this.jt.socketServer.emitToAdmins('addSession', sess.shell());
         this.sessions.push(sess);
         let shell = sess.shell();
-        this.proxy.sessions.push(sess);
+        this.proxy.sessions.push(shell);
         return sess;
     }
 

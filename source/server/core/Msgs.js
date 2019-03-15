@@ -112,8 +112,8 @@ class Msgs {
     }
 
     createParticipant(d, socket) {
-        // var session = this.jt.data.getSession(d.sId);
-        // session.createNewParticipant();
+        var session = this.jt.data.getSession(d.sId);
+        session.createNewParticipant();
         var sessionProxy = this.jt.data.getProxySession(d.sId);
         sessionProxy.createNewParticipant();
     }
@@ -123,6 +123,8 @@ class Msgs {
     }
 
     deleteParticipant(d, socket) {
+        var session = this.jt.data.getSession(d.sId);
+        session.deleteParticipant(d.pId);
         var sessionProxy = this.jt.data.getProxySession(d.sId);
         sessionProxy.deleteParticipant(d.pId);
     }

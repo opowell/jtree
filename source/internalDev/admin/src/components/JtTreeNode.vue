@@ -16,7 +16,7 @@
         ref='titleEl'
     >
         <td v-for='header in tree.component.headers' :key='header.label'>
-            <slot :header='header' :nodeProp='nodeProp' :tree='tree'>
+            <slot :header='header' :nodeProp='nodeProp'>
                 {{nodeProp[header.value]}}
             </slot>
         </td>

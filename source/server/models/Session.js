@@ -90,7 +90,7 @@ class Session {
 
         this.users = [];
 
-        // this.asyncQueue = async.queue(this.processMessage, 1);
+        this.asyncQueue = async.queue(this.processMessage, 1);
 
         // A filestream for writing to this session's object states.
         try {
@@ -98,7 +98,7 @@ class Session {
             var options = { 'flags': 'a'};
             let filename = this.getOutputDir() + '/' + this.id + '.gsf';
             // fs.ensureFileSync(filename);
-            // this.fileStream = fs.createWriteStream(filename, options);
+            this.fileStream = fs.createWriteStream(filename, options);
         } catch (err) {
             debugger;
             console.log(err);
@@ -652,13 +652,9 @@ class Session {
 
     deleteParticipant(pId) {
         delete this.participants[pId];
-        this.addMessage(
-            'deleteParticipant',
-            pId,
-        );
-        // this.save();
-        // let md = {sId: this.id, pId: pId};
-        // this.emit('sessionDeleteParticipant', md);
+        this.save();
+        let md = {sId: this.id, pId: pId};
+        this.emit('sessionDeleteParticipant', md);
     }
 
     /**
@@ -918,12 +914,10 @@ class Session {
         // this.save();
         this.participants[participantId] = participant;
         this.addMessage(
-            'createParticipant',
+            'addParticipant',
             pId,
         );
-        try {
-            // this.jt.socketServer.sendOrQueueAdminMsg(null, 'addParticipant', participant.shell());
-        } catch (err) {}
+        this.jt.socketServer.sendOrQueueAdminMsg(null, 'addParticipant', participant.shell());
         return participant;
     }
 
