@@ -26,11 +26,11 @@ export default {
 }
 </script>
 
+<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .main-menu {
    display: flex;
     flex: 0 0 auto;
-    background-color: var(--actionBarBGColor);
 }
 
 /* .main-menu .menu {

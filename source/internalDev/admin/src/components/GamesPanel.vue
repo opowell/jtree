@@ -31,10 +31,9 @@
 
   export default {
       name: 'GamesPanel',
-    props: [
-        'dat',
-        'panel',
-    ],
+      props: [
+          'dat',
+      ],
       data() {
           return {
               loading: true,
@@ -66,9 +65,6 @@
       created() {
           this.fetchData();
       },
-        mounted() {
-            this.panel.id = 'Games';
-        },
     methods: {
         fetchData() {
             this.loading = true

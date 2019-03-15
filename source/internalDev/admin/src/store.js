@@ -189,27 +189,7 @@ const persistentSettings = [
     name: 'Panel close button background color',
     type: 'text',
     key: 'panelCloseButtonBGColor',
-  },
-  {
-    name: 'Area content font color',
-    type: 'text',
-    key: 'areaContentFontColor',
-  },
-  {
-    name: 'Action bar background color',
-    type: 'text',
-    key: 'actionBarBGColor',
-  },
-  {
-    name: 'Panel close button hover background color',
-    type: 'text',
-    key: 'panelCloseButtonHoverBGColor',
-  },
-  {
-    name: 'Node selected and focussed background color',
-    type: 'text',
-    key: 'nodeSelectedFocussedBGColor',
-  },
+  }
 ];
 
 let persistPaths = [];
@@ -268,21 +248,18 @@ let stateObj = {
         windowFontColor: 'rgb(171, 171, 171)',
         areaActionBarBGColor: '#fff',
         areaContentBGColor: '#fff',
-        areaContentFontColor: '#000',
+        areaContentFontColor: 'inherit',
         tabBGColor: '#eee',
         tabHoverBGColor: '#fff',
         panelContentBGColor: '#fff',
         nodeTitleHoverBGColor: 'unset',
-        nodeSelectedBGColor: '#888',
+        nodeSelectedBGColor: 'rgb(51, 153, 255)',
         nodeSelectedHoverBGColor: 'rgb(51, 153, 255)',
         nodeTitleHoverColor: 'unset',
         nodeSelectedColor: '#fff',
         nodeSelectedHoverColor: '#fff',
-        panelCloseButtonBGColor: '#ec6666',
-        panelCloseButtonHoverBGColor: '#ff3043',
+        panelCloseButtonBGColor: '#ec3636',
         panelCloseButtonColor: 'white',
-        actionBarBGColor: '#f5f5f5',
-        nodeSelectedFocussedBGColor: 'rgb(51, 153, 255)'
       }
     },
     {
@@ -309,17 +286,13 @@ let stateObj = {
         areaContentFontColor: '#CCC',
         panelContentBGColor: 'rgb(37, 37, 37)',
         nodeTitleHoverBGColor: '#424242',
-        nodeSelectedBGColor: '#888',
-        nodeSelectedFocussedBGColor: 'blue',
+        nodeSelectedBGColor: 'blue',
         nodeSelectedHoverBGColor: 'blue',
         nodeTitleHoverColor: '#fff',
         nodeSelectedColor: '#fff',
         nodeSelectedHoverColor: '#fff',
         panelCloseButtonBGColor: 'inherit',
-        panelCloseButtonHoverBGColor: 'inherit',
         panelCloseButtonColor: 'inherit',
-        actionBarBGColor: '#555',
-        windowBGColor: '#333',
       }
     }
   ]
@@ -358,29 +331,6 @@ export default new Vuex.Store({
         areaPath: sourceAreaPath, 
         windowId: sourceWindowId
       });
-    },
-    showPanel: ({commit, state}, data) => {
-      if (state.windowsMaximized && state.windowDescs.length > 0) {
-        commit('addPanelToActiveWindow', {
-            id: data.title,
-            type: data.type,
-            data: data.data,
-        });
-      } else {
-          commit('showWindow', {
-              panels: [
-                  {
-                      id: data.title,
-                      type: data.type,
-                      data: data.data,
-                  },
-              ],
-              areas: [],
-              w: 500,
-              h: 300,
-              flex: '1 1 100px',
-          });
-      }
     },
   },
   mutations: {

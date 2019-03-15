@@ -1,8 +1,6 @@
 
 <template>
-    <!-- SINGLE AREA -->
     <div v-if='areas.length < 1' class='area' :style='areaStyle'>
-        <!-- TABS -->
         <div class='tabs'>
             <menu-el :menu='{
                 icon: "fas fa-align-center",
@@ -86,7 +84,7 @@
                         showIcon: true,
                         action: closeActivePanel,
                     }'
-                    class='closeIcon title-bar-icon'
+                    class='closeIcon'
                 />
             </template>
             <template v-else>
@@ -120,17 +118,18 @@
             />
             </template>
         </div>
-        <!-- CONTENT -->
-        <div 
-            v-for='(panel, index) in panels'
-            v-show='activePanelInd === index'
-            class='content'
-            :is='panel.type'
-            :dat='panel.data'
-            :panel='panel'
-            :key='"panel-" + index' /> 
+        <div class='action-bar'>
+        </div>
+        <div class='content-vbar elone'>
+            <div 
+                v-for='(panel, index) in panels'
+                v-show='activePanelInd === index'
+                class='content eltwo'
+                :is='panel.type'
+                :dat='panel.data'
+                :key='"panel-" + index' /> 
+        </div>
     </div>
-    <!-- MULTIPLE AREAS -->
     <div v-else 
         class='areas'
         :class='{
@@ -520,7 +519,7 @@ export default {
     background-color: var(--areaContentBGColor);
     color: var(--areaContentFontColor);
     flex: 1 1 auto;
-    /* overflow: auto; */
+    overflow: auto;
     display: flex;
     flex-direction: column;
 }
@@ -591,31 +590,9 @@ export default {
     color: var(--tabSelectedFontColor);
 }
 
-.title-bar-icon {
-    color: var(--panelCloseButtonColor);
-    border: 1px solid rgba(0,0,0,0.4);
-    border-radius: 3px;
-    align-self: center;
-}
-
-.title-bar-icon:hover {
-    background-color: #36a9fb;
-}
-
 .closeIcon {
-    margin-right: 2px;
-}
-
-</style>
-
-<style>
-.title-bar-icon > .icon {
-    padding: 0px;
-    width: 20px;
-    margin-left: 3px;
-    margin-right: 3px;
-    padding-top: 1px;
-    padding-bottom: 1px;
+    background-color: var(--panelCloseButtonBGColor);
+    color: var(--panelCloseButtonColor);
 }
 
 </style>

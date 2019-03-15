@@ -1,5 +1,5 @@
 <template>
-    <div style='display: flex; flex: 1 1 auto; flex-direction: column;'>
+    <div style='display: flex; flex: 1 1 auto;'>
         <jt-treenode 
             v-for='(baseNode, index) in nodesProp' 
             :key='index'
@@ -9,7 +9,6 @@
             :indexOnParent='index'
             :expandedProp='index === 0'
             :f2Func='f2Func'
-            :dblClickFunc='dblClickFunc'
         >
         </jt-treenode>
     </div>
@@ -24,23 +23,10 @@ export default {
     components: {
         'jt-treenode': JtTreeNode,
     },
-    props: {
-        nodesProp: {},
-        f2Func: null,
-        dblClickFunc: null,
-        titleField: {
-            type: String,
-            default: 'title',
-        },
-        childrenField: {
-            type: String,
-            default: 'children',
-        },
-        allowChildren: {
-            type: Boolean,
-            default: true,
-        },
-    },
+    props: [
+        'nodesProp',
+        'f2Func',
+    ],
     data() {
         return {
             nodes: this.nodesProp,
@@ -48,9 +34,6 @@ export default {
                 selection: [],
                 activeNode: null,
                 component: this,
-                titleField: this.titleField,
-                childrenField: this.childrenField,
-                allowChildren: this.allowChildren,
             },
         }
     },

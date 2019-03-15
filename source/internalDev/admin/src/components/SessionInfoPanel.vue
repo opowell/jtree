@@ -1,6 +1,6 @@
 <template>
     <div style='padding: 2rem;'>
-        id: {{dat}}<br>
+        id: 20190116-1200000<br>
         testing: off<br>
     </div>
 </template>

@@ -16,30 +16,14 @@
 		:rowChildren='rowChildren'
 		/>
     </div>
-    <span class="handle handle-tl" @mousedown.prevent="startResizeTL">
-		<span class='handleInside handleInside-tl'></span>
-	</span>
-    <span class="handle handle-tc" @mousedown.prevent="startResizeT">
-		<span class='handleInside handleInside-tc'></span>
-	</span>
-    <span class="handle handle-tr" @mousedown.prevent="startResizeTR">
-		<span class='handleInside handleInside-tr'></span>
-	</span>
-    <span class="handle handle-ml" @mousedown.prevent="startResizeL">
-		<span class='handleInside handleInside-ml'></span>
-	</span>
-    <span class="handle handle-mr" @mousedown.prevent="startResizeR">
-		<span class='handleInside handleInside-mr'></span>
-	</span>
-    <span class="handle handle-bl" @mousedown.prevent="startResizeBL">
-		<span class='handleInside handleInside-bl'></span>
-	</span>
-    <span class="handle handle-bc" @mousedown.prevent="startResizeB">
-		<span class='handleInside handleInside-bc'></span>
-	</span>
-    <span class="handle handle-br" @mousedown.prevent="startResizeBR">
-		<span class='handleInside handleInside-br'></span>
-	</span>
+    <span class="handle handle-tl" @mousedown.prevent="startResizeTL"></span>
+    <span class="handle handle-tc" @mousedown.prevent="startResizeT"></span>
+    <span class="handle handle-tr" @mousedown.prevent="startResizeTR"></span>
+    <span class="handle handle-ml" @mousedown.prevent="startResizeL"></span>
+    <span class="handle handle-mr" @mousedown.prevent="startResizeR"></span>
+    <span class="handle handle-bl" @mousedown.prevent="startResizeBL"></span>
+    <span class="handle handle-bc" @mousedown.prevent="startResizeB"></span>
+    <span class="handle handle-br" @mousedown.prevent="startResizeBR"></span>
   </div>
 </template>
 <script>
@@ -422,24 +406,6 @@ export default {
 };
 </script>
 
-<style>
-.window.focussed .closeIcon {
-	background-color: var(--panelCloseButtonBGColor);
-	border-color: rgba(0,0,0,0.6);
-}
-.closeIcon:hover {
-	background-color: var(--panelCloseButtonHoverBGColor);
-}
-.window.focussed .closeIcon:hover {
-	background-color: var(--panelCloseButtonHoverBGColor);
-}
-
-.window.window.focussed .node-title.selected {
-	background-color: var(--nodeSelectedFocussedBGColor);
-}
-
-</style>
-
 <style scoped>
 .window {
     background-color: var(--windowBGColor);
@@ -468,7 +434,7 @@ export default {
   border-style: outset;
   border-width: 0px;
   margin: 0px;
-  display: flex;
+  display: block;
   width: 7px;
   height: 7px;
   border-color: #dae1e7;
@@ -477,68 +443,24 @@ export default {
 
 .handle-tl {
   border-top-left-radius: 5px;
-  border-top: 1px solid #000;
-  border-left: 1px solid #000;
+  border-top: 1px outset;
+  border-left: 1px outset;
     top: -5px;
     left: -5px;
     cursor: nwse-resize;
 }
 
 .handle-tc {
-  border-top: 1px solid #000;
+  border-top: 1px outset;
     width: calc(100% - 4px);
     left: 2px;
     top: -5px;
     cursor: ns-resize;
 }
 
-.handleInside {
-    width: 100%;
-}
-
-.handleInside-tc {
-    border-top: 1px solid #fff;
-}
-
-.handleInside-tl {
-    border-top: 1px solid #fff;
-    border-left: 1px solid #fff;
-	border-top-left-radius: 5px;
-}
-
-.handleInside-tr {
-    border-top: 1px solid #fff;
-    border-right: 1px solid rgb(63, 206, 242);
-	border-top-right-radius: 5px;
-}
-
-.handleInside-ml {
-    border-left: 1px solid #fff;
-}
-
-.handleInside-mr {
-    border-right: 1px solid rgb(63, 206, 242);
-}
-
-.handleInside-bc {
-    border-bottom: 1px solid rgb(63, 206, 242);
-}
-
-.handleInside-bl {
-	border-bottom-left-radius: 5px;
-    border-bottom: 1px solid rgb(63, 206, 242);
-    border-left: 1px solid #fff;
-}
-
-.handleInside-br {
-	border-bottom-right-radius: 5px;
-    border-bottom: 1px solid rgb(63, 206, 242);
-    border-right: 1px solid rgb(63, 206, 242);
-}
-
 .handle-tr {
-  border-top: 1px solid #000;
-  border-right: 1px solid #000;
+  border-top: 1px outset;
+  border-right: 1px outset;
   border-top-right-radius: 5px;
     right: -5px;
     top: -5px;
@@ -547,7 +469,7 @@ export default {
 }
 
 .handle-ml {
-    border-left: 1px solid #000;
+    border-left: 1px outset;
     height: calc(100% - 4px);
     top: 2px;
     left: -5px;
@@ -555,7 +477,7 @@ export default {
 }
 
 .handle-mr {
-    border-right: 1px solid #000;
+    border-right: 1px outset;
     height: calc(100% - 4px);
     top: 2px;
     right: -5px;
@@ -563,8 +485,8 @@ export default {
 }
 
 .handle-bl {
-  border-left: 1px solid #000;
-  border-bottom: 1px solid #000;
+  border-left: 1px outset;
+  border-bottom: 1px outset;
   border-bottom-left-radius: 5px;
   bottom: -5px;
   left: -5px;
@@ -575,15 +497,15 @@ export default {
     width: calc(100% - 4px);
     left: 2px;
   bottom: -5px;
-  border-bottom: 1px solid #000;
+  border-bottom: 1px outset;
     cursor: ns-resize;
 }
 
 .handle-br {
   right: -5px;
   bottom: -5px;
-  border-right: 1px solid #000;
-  border-bottom: 1px solid #000;
+  border-right: 1px outset;
+  border-bottom: 1px outset;
   border-bottom-right-radius: 5px;
   cursor: nwse-resize;
 }

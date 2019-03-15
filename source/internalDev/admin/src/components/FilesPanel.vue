@@ -3,11 +3,11 @@
     <action-bar
       :menus='actions'>
     </action-bar>
-    <div style='flex: 1 1 auto; align-self: stretch; overflow: auto'>
+    <div style='padding-top: 10px; padding-bottom: 10px; flex: 1 1 auto; align-self: stretch'>
         <input
             id='fileSelect'
             type="file"
-            style='display: none;'
+            style='position: absolute; opacity: 0;'
             multiple
             class='icon'
             ref="fileSelect"
@@ -17,7 +17,6 @@
         <jt-tree ref='tree'
             :nodesProp='nodes'
             :f2Func='renameActiveNode'
-            :dblClickFunc='addSelectedNodeToGameTree'
         >
         </jt-tree>
     </div>
@@ -34,16 +33,12 @@ export default {
             'jt-tree': JtTree,
             'action-bar': ActionBar,
         },
-        props: [
-            'dat',
-            'panel',
-        ],
+        props: ['dat'],
         data() {
             return {
                 contextMenuIsVisible: true,
                 loading: true,
                 nodes: [],
-                panelTitle: 'Files',
                 files: [],
                 actions: [
                 {
@@ -102,7 +97,9 @@ export default {
             this.fetchData();
         },
         mounted() {
-            this.panel.id = 'Files';
+            // this.$nextTick(function() {
+            //     this.$children[0].$children[2].$el.append(this.$refs.fileSelect);
+            // });
         },
     methods: {
         chooseFiles() {
@@ -137,29 +134,14 @@ export default {
                             data: game.functions[i].content,
                         })
                     }
-                    for (let i=0; i<game.subgames.length; i++) {
-                        let subgame = game.subgames[i];
-                        newNode.children.push(this.getGameAsNode(subgame));
+                    for (let i=0; i<game.stages.length; i++) {
+                        newNode.children.push({
+                            title: game.stages[i].id,
+                        })
                     }
                     this.$store.state.session.gameTree.push(newNode);
                 }
             });
-        },
-        getGameAsNode(game) {
-            let out = {
-                title: game.id,
-                children: [],
-                data: game,
-            };
-            // if (game.activeScreen != null) {
-            //     out.children.push({
-            //         title: 'Active screen',
-            //     });
-            // }
-            for (let i=0; i<game.subgames.length; i++) {
-                out.children.push(this.getGameAsNode(game.subgames[i]));
-            }
-            return out;
         },
         getClosestFolder(node) {
             let out = node;

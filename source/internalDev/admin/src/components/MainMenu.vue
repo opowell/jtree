@@ -53,18 +53,27 @@ export default {
             {
                 text: 'Files',
                 action: this.showPanel,
-                clickData: 'files-panel',
+                clickData: {
+                    type: 'files-panel',
+                    title: 'Files',
+                },
             },
             {
                 text: this.$store.state.appName + 's',
                 shortcut: 'Ctrl+G',
                 action: this.showPanel,
-                clickData: 'games-panel',
+                clickData: {
+                    type: 'games-panel',
+                    title: 'Games',
+                },
             },
             {
                 text: 'Sessions',
                 action: this.showPanel,
-                clickData: 'sessions-panel',
+                clickData: {
+                    type: 'sessions-panel',
+                    title: 'Sessions',
+                },
             },
             {
                 text: 'Users',
@@ -76,7 +85,10 @@ export default {
             {
                 text: 'Settings',
                 action: this.showPanel,
-                clickData: 'settings-panel',
+                clickData: {
+                    type: 'settings-panel',
+                    title: 'Settings',
+                },
             },
         ]
     },
@@ -113,12 +125,18 @@ export default {
                         {
                 text: this.$store.state.appName + ' Tree',
                 action: this.showPanel,
-                clickData: 'game-tree-panel',
+                clickData: {
+                    type: 'game-tree-panel',
+                    title: 'Game Tree',
+                },
             },
             {
                 text: 'Info',
                 action: this.showPanel,
-                clickData: 'session-info-panel',
+                clickData: {
+                    type: 'session-info-panel',
+                    title: 'Info',
+                },
             },
         ],
     },
@@ -197,8 +215,28 @@ export default {
       },
     // setWindowMenuChildren(newval) {
     // },
-    showPanel(type) {
-        this.$store.dispatch('showPanel', {type: type});
+    showPanel(data) {
+        if (this.$store.state.windowsMaximized && this.$store.state.windowDescs.length > 0) {
+            this.$store.commit('addPanelToActiveWindow', {
+                id: data.title,
+                type: data.type,
+                data: data.data,
+            });
+        } else {
+            this.$store.commit('showWindow', {
+                panels: [
+                    {
+                        id: data.title,
+                        type: data.type,
+                        data: data.data,
+                    },
+                ],
+                areas: [],
+                w: 500,
+                h: 300,
+                flex: '1 1 100px',
+            });
+        }
     },
   },
 //   mounted() {

@@ -4,9 +4,9 @@
     <!-- <router-view/> -->
     <div class='panel-container'>
       <jt-window
-        v-for='window in windows'
+        v-for='(window, index) in windows'
         :window='window'
-        :key='window.id'
+        :key='index'
         :activePanelInd='window.activePanelInd'
         >
       </jt-window>

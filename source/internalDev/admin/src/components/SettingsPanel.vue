@@ -3,68 +3,53 @@
         <action-bar
             :menus='actions'>
         </action-bar>
-        <div style='flex: 1 1 auto; align-self: stretch; overflow: auto; padding: 5px;'>
-            <div style='padding-left: 5px'>
-                Load preset:
-                <span v-for='(preset, index) in presets' 
-                    :key='preset.name'
-                    @click='setPreset(preset)'
-                    style='padding: 5px 10px; border: 1px solid; margin: 5px; cursor: pointer;'
-                >
-                    {{index + 1}}. {{preset.name}}
-                </span>
-            </div>
-            <b-row class="my-1" v-for="setting in editableSettings" :key="setting.key" style='padding: 10px'>
-                <b-col style='flex: 1 1 auto'><label :for="`setting-${setting.key}`">{{ setting.name }}:</label></b-col>
-                <b-col style='flex: 0 0 300px'>
-                    <b-form-select v-if='setting.type == "select"'
-                        :id="`setting-${setting.key}`"
-                        :options='setting.options'
-                        @input="change(setting, $event)"
-                    />
-                    <b-form-checkbox 
-                        v-else-if='setting.type == "checkbox"'
-                        :id="`setting-${setting.key}`"
-                        :checked='getStateValue(setting.key)'
-                        @input="change(setting, $event)"
-                    />
-                    <!-- <toggle-button 
-                        v-else-if='setting.type == "checkbox"'
-                        :id="`setting-${setting.key}`"
-                        :value='getStateValue(setting.key)'
-                        @change="change(setting, $event)"
-                        :labels="true"
-                        :sync='true'
-                    /> -->
-                    <b-form-input v-else 
-                        :id="`setting-${setting.key}`"
-                        :type="setting.type"
-                        :value='getStateValue(setting.key)'
-                        @input="change(setting, $event)"
-                    />
-                </b-col>
-            </b-row>
+            <div class='content' style='padding-top: 10px; padding-bottom: 10px; flex: 1 1 auto; align-self: stretch'>
+
+        <div style='padding-left: 5px'>
+            Load preset:
+            <span v-for='(preset, index) in presets' 
+                :key='preset.name'
+                @click='setPreset(preset)'
+                style='padding: 5px 10px; border: 1px solid; margin: 5px; cursor: pointer;'
+            >
+                {{index + 1}}. {{preset.name}}
+            </span>
+        </div>
+
+        <b-row class="my-1" v-for="setting in editableSettings" :key="setting.key" style='padding: 10px'>
+            <b-col style='flex: 1 1 auto'><label :for="`setting-${setting.key}`">{{ setting.name }}:</label></b-col>
+            <b-col style='flex: 0 0 300px'>
+                <b-form-select v-if='setting.type == "select"'
+                    :id="`setting-${setting.key}`"
+                    :options='setting.options'
+                    @input="change(setting, $event)"
+                />
+                <b-form-checkbox 
+                    v-else-if='setting.type == "checkbox"'
+                    :id="`setting-${setting.key}`"
+                    :checked='getStateValue(setting.key)'
+                    @input="change(setting, $event)"
+                />
+                <b-form-input v-else 
+                    :id="`setting-${setting.key}`"
+                    :type="setting.type"
+                    :value='getStateValue(setting.key)'
+                    @input="change(setting, $event)"
+                />
+            </b-col>
+        </b-row>
         </div>
     </div>
 </template>
 <script>
 
-// import { ToggleButton } from 'vue-js-toggle-button'
-
 import ActionBar from '@/components/ActionBar.vue'
   export default {
-    name: 'SettingsPanel',
-    components: {
-        'action-bar': ActionBar,
-    // 'toggle-button': ToggleButton,
-    },
-    props: [
-        'dat',
-        'panel',
-    ],
-    mounted() {
-        this.panel.id = 'Settings';
-    },
+      name: 'SettingsPanel',
+      components: {
+            'action-bar': ActionBar,
+      },
+      props: ['dat'],
       data() {
           return {
               actions: [

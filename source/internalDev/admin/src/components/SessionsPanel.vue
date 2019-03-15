@@ -7,32 +7,27 @@
         <div class="loading" v-if="loading">
         Loading...
         </div>
-        <jt-tree ref='sessionsTree'
-            :nodesProp='sessions'
-            :f2Func='renameSession'
-            :dblClickFunc='openSession'
-            :titleField='"id"'
-            :allowChildren='false'
+        <div 
+            v-else
+            v-for='session in sessions'
+            :key='session.id'
+            @dblclick.left.prevent.stop='openSession(session.id)'
         >
-        </jt-tree>
+            {{session.id}}
+        </div>
     </div>
   </div>
 </template>
 <script>
 import axios from 'axios';
 import ActionBar from '@/components/ActionBar.vue'
-import JtTree from '@/components/JtTree.vue'
 
 export default {
         name: 'SessionsPanel',
         components: {
             'action-bar': ActionBar,
-            'jt-tree': JtTree,
         },
-    props: [
-        'dat',
-        'panel',
-    ],
+        props: ['dat'],
         data() {
             return {
                 contextMenuIsVisible: true,
@@ -72,9 +67,6 @@ export default {
                 ],
             }
         },
-        mounted() {
-            this.panel.id = 'Sessions';
-        },
         created() {
             this.fetchData();
         },
@@ -97,15 +89,12 @@ export default {
                 }
             });
         },
-        openSession() {
-            let activeNode = this.$refs.sessionsTree.tree.activeNode;
-            let panelData = {
-                type: 'session-info-panel',
-                title: 'Info',
-                data: activeNode.id,
-            };
-            // this.$store.commit('setSessionId', activeNode.id);
-            this.$store.dispatch('showPanel', panelData);
+        openSession(id) {
+            axios
+            .get('http://' + window.location.host + '/api/session')
+            .then(response => {
+                this.showPanel('session-info-panel', response.data);
+            });
         },
         createNewSession(data, ev) {
             ev.stopPropagation();
@@ -166,5 +155,15 @@ export default {
 </script>
 
 <style scoped>
+.table thead th {
+    border-bottom: none;    
+}
 
+.table td, .table th {
+    border: none;
+}
+
+.form-control {
+    font-size: inherit;
+}
 </style>
