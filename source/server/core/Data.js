@@ -70,15 +70,7 @@ class Data {
             hello: 'world'
         }
 
-        let proxyObj = {
-            sessions: [],
-        };
-
-        for (let i=0; i<this.sessions.length; i++) {
-            proxyObj.sessions.push(this.sessions[i].shell());
-        }
-
-        this.proxy = Observer.create(proxyObj, function(change) {
+        this.proxy = Observer.create({sessions: this.sessions}, function(change) {
             let msg = {
                 arguments: change.arguments,
                 function: change.function,
@@ -86,9 +78,7 @@ class Data {
                 property: change.property,
                 type: change.type,
             }
-            console.log('emit message: \n' + JSON.stringify(msg));
             jt.socketServer.io.to(jt.socketServer.ADMIN_TYPE).emit('objChange', msg);
-            return true; // to apply changes locally.
         });
 
     }
@@ -817,8 +807,8 @@ class Data {
         if (userId != null && userId.length > 0) {
             sess.addUser(userId);
         }
-        // sess.save();
-        // this.jt.socketServer.emitToAdmins('addSession', sess.shell());
+        sess.save();
+        this.jt.socketServer.emitToAdmins('addSession', sess.shell());
         this.sessions.push(sess);
         let shell = sess.shell();
         this.proxy.sessions.push(shell);

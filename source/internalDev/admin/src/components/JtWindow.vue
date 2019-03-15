@@ -151,9 +151,7 @@ export default {
 		},
 
 		click() {
-			if (!this.isFocussed) {
-				this.$store.commit('setFocussedWindow', this);
-			}
+			this.$store.commit('setFocussedWindow', this);
 		},
 
 		startMove(ev) {

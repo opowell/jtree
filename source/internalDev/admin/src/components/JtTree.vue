@@ -57,7 +57,6 @@ export default {
                 keyField: this.keyField,
                 childrenField: this.childrenField,
                 allowChildren: this.allowChildren,
-                activeNodePath: null,
             },
         }
     },
@@ -70,18 +69,6 @@ export default {
         }
     },
     methods: {
-        getParentPath(node) {
-            let out = [];
-            let parentNode = node.parentNode;
-            while (parentNode.isNode !== false) {
-                out.unshift(parentNode.title);
-                if (parentNode.rootPath != null) {
-                    out.unshift(parentNode.rootPath);
-                }
-                parentNode = parentNode.parentNode;
-            }
-            return out;
-        },
         deleteNode(ev) {
             this.$emit('deleteNode');
         },
@@ -95,14 +82,9 @@ export default {
                 this.tree.activeNode.component.editing = false;
             }
             this.tree.activeNode = node;
-            this.$nextTick(function() {
-                if (node != null) {
-                    node.titleEl.focus();
-                }
-            });
-        },
-        getNodePath(node) {
-
+            if (node != null) {
+                node.titleEl.focus();
+            }
         },
         deleteActiveNode() {
             let activeNode = this.tree.activeNode;
@@ -113,7 +95,6 @@ export default {
                 let index = activeNode.indexOnParent;
                 index = Math.min(index, parentNode.children.length - 1);
                 nextNode = parentNode.children[index];
-                nextNode.indexOnParent = activeNode.indexOnParent;
             } else {
                 nextNode = parentNode;
             }

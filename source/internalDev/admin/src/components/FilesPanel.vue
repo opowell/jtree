@@ -162,7 +162,7 @@ export default {
             }
             return out;
         },
-        getClosestFolderNode(node) {
+        getClosestFolder(node) {
             let out = node;
             while (out != null && out.children == null && out.parentNode != null) {
                 out = out.parentNode;
@@ -188,54 +188,30 @@ export default {
                 }
             });
         },
-        folderContainsFile(node, filename) {
-            for (let i=0; i<node.children.length; i++) {
-                if (node.children[i].title === filename) {
-                    return true;
-                }
-            }
-            return false;
-        },
         createNewFile(data, ev) {
             ev.stopPropagation();
             ev.preventDefault();
             let activeNode = this.$refs.tree.tree.activeNode;
-            let closestFolder = this.getClosestFolderNode(activeNode);
+            let closestFolder = this.getClosestFolder(activeNode);
             if (closestFolder != null) {
                 let parentPath = this.getParentPath(closestFolder);
-                let i = null;
                 parentPath.push(closestFolder.title);
-                let fullFilename = 'Untitled' + (i === null ? '' : '[' + i + ']') + '.jtt';
-                while (true) {
-                    fullFilename = 'Untitled' + (i === null ? '' : '[' + i + ']') + '.jtt';
-                    if (this.folderContainsFile(closestFolder, fullFilename)) {
-                        if (i === null) {
-                            i = 1;
-                        } else {
-                            i++;
-                        }
-                    } else {
-                        break;
-                    }
-                }
                 axios.post(
                     'http://' + window.location.host + '/api/file/create',
                     {
                         path: parentPath,
-                        newName: fullFilename,
+                        newName: 'Untitled.jtt',
                     }
                 ).then(response => {
                     if (response.data === true) {
                         let newNode = {
-                            title: fullFilename,
+                            title: 'Untitled.jtt',
                         };
                         closestFolder.children.push(newNode);
                         closestFolder.component.expanded = true;
                         this.$nextTick(function() {
                             this.$refs.tree.setActiveNode(newNode);
-                            this.$nextTick(function() {
-                                this.renameActiveNode('', null);
-                            });
+                            this.renameActiveNode('', null);
                         });
                     }
                 });
@@ -245,7 +221,7 @@ export default {
             ev.stopPropagation();
             ev.preventDefault();
             let activeNode = this.$refs.tree.tree.activeNode;
-            let closestFolder = this.getClosestFolderNode(activeNode);
+            let closestFolder = this.getClosestFolder(activeNode);
             if (closestFolder != null) {
                 let parentPath = this.getParentPath(closestFolder);
                 parentPath.push(closestFolder.title);
@@ -265,9 +241,7 @@ export default {
                         closestFolder.component.expanded = true;
                         this.$nextTick(function() {
                             this.$refs.tree.setActiveNode(newNode);
-                            this.$nextTick(function() {
-                                this.renameActiveNode('', null);
-                            });
+                            this.renameActiveNode('', null);
                         });
                     }
                 });
@@ -301,7 +275,7 @@ export default {
         uploadFiles() {
             this.files = this.$refs.fileSelect.files;
             let activeNode = this.$refs.tree.tree.activeNode;
-            let closestFolder = this.getClosestFolderNode(activeNode);
+            let closestFolder = this.getClosestFolder(activeNode);
             if (closestFolder != null) {
                 let parentPath = this.getParentPath(closestFolder);
                 parentPath.push(closestFolder.title);

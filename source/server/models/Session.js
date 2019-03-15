@@ -90,16 +90,8 @@ class Session {
         // A filestream for writing to this session's object states.
         try {
             fs.ensureDirSync(this.getOutputDir());
-            // var options = { 'flags': 'a'};
-            // let filename = this.getOutputDir() + '/' + this.id + '.gsf';
-            // fs.ensureFileSync(filename);
-            // this.fileStream = fs.createWriteStream(filename, options)
-            // .on('open', function (fd) {
- 
-            //     console.log(filename + ' is open!');
-            //     console.log('fd: ' + fd);
-             
-            // });
+            var options = { 'flags': 'a'};
+            this.fileStream = fs.createWriteStream(this.getOutputDir() + '/' + this.id + '.gsf', options);
         } catch (err) {
             debugger;
             console.log(err);
