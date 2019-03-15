@@ -74,6 +74,11 @@ class Msgs {
         this.jt.io.to('socket_' + socket.id).emit('dataMessage', data);
     }
 
+    getFolderContents(data, socket) {
+        let folderContents = this.jt.data.getFolderContents(data.path);
+        this.jt.io.to('socket_' + socket.id).emit('setFolderContents', folderContents);
+    }
+
     setAppContents(data, socket) {
         fs.writeFileSync(path.join(this.jt.path, data.appPath), data.content);
         var outMessage = {};

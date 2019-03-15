@@ -18,7 +18,6 @@ export default {
 [
     {
         text: 'File',
-        hasParent: false,
         children: [
             {
                 text: this.$store.state.appName + 's',
@@ -41,7 +40,6 @@ export default {
     },
     {
         text: 'Edit',
-        hasParent: false,
         children: [
             {
                 text: 'Cut',
@@ -59,15 +57,12 @@ export default {
     },
     {
         text: 'Treatment',
-        hasParent: false,
     },
     {
         text: 'Session',
-        hasParent: false,
     },
     {
         text: 'Window',
-        hasParent: false,
         children: [],
     },
 ],
@@ -100,7 +95,6 @@ export default {
                 action: panel.focus,
                 icon: panel.isFocussed ? 'fas fa-check' : '',
                 showIcon: true,
-                shortcut: 'Ctrl+' + (i+1),
             };
             this.menus[4].children.push(menuData);
             window.vue.$watch(
@@ -151,7 +145,6 @@ export default {
 .main-menu {
    display: flex;
     z-index: 10000;
-    flex: 0 0 auto;
 }
 
 .main-menu .menu {

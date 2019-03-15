@@ -6,8 +6,6 @@
       <div class='text-first'>{{firstLetter}}</div>
       <div class='text-rest'>{{rest}}</div>
     </div>
-    <div v-show="hasParent" class="shortcut">{{menu.shortcut}}</div>
-    <div v-show='showArrow' class="arrow">&lt;</div>
     <div v-show='menu.children' class="dropdown" :class='{ open: isOpen}'>
       <menu-el v-for="item in menu.children" :menu='item' :key='item.id'></menu-el>
     </div>
@@ -21,15 +19,6 @@ export default {
     'menu'
   ],
   computed: {
-    hasParent() {
-      return this.menu.hasParent == null ? true : this.menu.hasParent;
-    },
-    hasChildren() {
-      return this.menu.children != null && this.menu.children.length > 0;
-    },
-    showArrow() {
-      return this.hasParent && this.hasChildren;
-    },
     isActive() {
       return this.$store.state.activeMenu === this;
     },
@@ -82,19 +71,6 @@ export default {
   text-align: center;
 }
 
-.shortcut {
-    flex: 0 0 auto;
-    margin-left: 4rem;
-    padding: 4px 3px;
-}
-
-.arrow {
-    width: 20px;
-    position: relative;
-    padding-left: 3px;
-    padding-right: 3px;
-    text-align: center;
-}
 /* .icon:hover {
   background-color: #EEE;
 } */
@@ -149,7 +125,6 @@ export default {
     box-shadow: none;
     display: flex;
     padding: 4px 3px;
-    flex: 1 1 auto;
 }
 
 .dropdown {

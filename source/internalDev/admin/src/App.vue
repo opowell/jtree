@@ -1,5 +1,5 @@
 <template>
-  <div id="app" :style='appStyle' @click='click'>
+  <div id="app" @click='click'>
     <MainMenu/>
     <!-- <router-view/> -->
     <div class='panel-container'>
@@ -42,13 +42,6 @@ export default {
       this.$store.state.isMenuOpen = false;
     },
   },
-  computed: {
-    appStyle() {
-      return {
-          "font-size": this.$store.state.fontSize, 
-      }
-    },
-  },
   mounted() {
     let container = document.querySelector('.panel-container');
     this.$store.commit('setContainerDimensions', container);
@@ -74,6 +67,7 @@ body {
   height: 100vh;
   padding-bottom: 0px;
   font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+  font-size: 9pt;
 }
 
 #app {
