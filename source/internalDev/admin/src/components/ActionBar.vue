@@ -2,7 +2,6 @@
     <div class='main-menu no-text-select' :style='mainMenuStyle'>
         <menu-el v-for='menu in menus' :key='menu.text' :menu='menu'></menu-el>
         <div class='spacer'></div>
-        <input class="filter" type='text' size='7' v-model='filterText' @change='changeFilterText' placeholder="filter...">
     </div>
 
 </template>
@@ -18,16 +17,6 @@ export default {
   props: [
       'menus',
   ],
-  data() {
-      return {
-          filterText: '',
-      }
-  },
-  methods: {
-      changeFilterText() {
-          this.$emit('changeFilterText');
-      },
-  },
   computed: {
       mainMenuStyle() { return {
           'background-color': this.menuBGColor,
@@ -55,17 +44,6 @@ export default {
 
 .spacer {
     flex: 1 1 auto;
-}
-
-.filter {
-    flex: 0 0 70px;
-    border-radius: 5px;
-    line-height: 1rem;
-    border: 1px solid;
-    margin-right: 3px;
-    margin-top: 2px;
-    margin-bottom: 3px;
-    padding: 0px 2px;
 }
 
 </style>

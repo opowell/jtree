@@ -1,7 +1,7 @@
 <template>
     <div>
-        <action-bar @changeFilterText='changeFilterText'
-            :menus='actions' ref='actionBar'>
+        <action-bar
+            :menus='actions'>
         </action-bar>
         <div style='flex: 1 1 auto; align-self: stretch; overflow: auto; padding: 5px;'>
             <div style='padding-left: 5px'>
@@ -14,7 +14,7 @@
                     {{index + 1}}. {{preset.name}}
                 </span>
             </div>
-            <b-row class="my-1" v-for="setting in filteredSettings" :key="setting.key" style='padding: 10px'>
+            <b-row class="my-1" v-for="setting in editableSettings" :key="setting.key" style='padding: 10px'>
                 <b-col style='flex: 1 1 auto'><label :for="`setting-${setting.key}`">{{ setting.name }}:</label></b-col>
                 <b-col style='flex: 0 0 300px'>
                     <b-form-select v-if='setting.type == "select"'
@@ -79,7 +79,6 @@ import ActionBar from '@/components/ActionBar.vue'
                     title: 'Save preset...'
                 },
               ],
-              filterText: '',
           }
       },
       computed: {
@@ -95,21 +94,9 @@ import ActionBar from '@/components/ActionBar.vue'
                   }
               }
               return out;
-          },
-          filteredSettings() {
-              let out = [];
-              for (let i=0; i<this.editableSettings.length; i++) {
-                  if (this.editableSettings[i].name.includes(this.filterText)) {
-                      out.push(this.editableSettings[i]);
-                  }
-              }
-              return out;
-          },
-        },
+          }
+      },
       methods: {
-          changeFilterText() {
-              this.filterText = this.$refs.actionBar.filterText;
-          },
           change(setting, ev) {
               this.$store.commit('setSetting', {key: setting.key, value: ev});
           },

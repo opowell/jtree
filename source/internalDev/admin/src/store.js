@@ -360,17 +360,6 @@ export default new Vuex.Store({
       });
     },
     showPanel: ({commit, state}, data) => {
-      if (data.checkIfAlreadyOpen === true) {
-        let {panel, index, area, window} = findPanel(state, data.type, data.data);
-        if (panel !== null) {
-          area.activePanelInd = index;
-          let curPos = window.zIndex;
-          state.windows.splice(curPos, 1); 
-          state.windows.push(window);
-          state.activeWindow = window;
-          state.isMenuOpen = false;    
-        }
-      }
       if (state.windowsMaximized && state.windowDescs.length > 0) {
         commit('addPanelToActiveWindow', {
             id: data.title,
@@ -588,10 +577,6 @@ function getWindowDataIndex(state, windowId) {
   }
 }
 
-function findPanel(state, type, data) {
-  return null;
-}
-
 function getArea(state, windowId, areaPath) {
   let win = getWindowData(state, windowId);
   let area = win;
@@ -632,13 +617,6 @@ function closeAreaMethod(state, areaPath, windowId) {
     }
   } else {
     state.windowDescs.splice(winIndex, 1);
-    if (state.activeWindow.window.id === windowId) {
-      if (state.windows.length === 1) {
-        state.activeWindow = null;
-        return;
-      }
-      state.activeWindow = state.windows[state.windows.length - 2];
-    }
   }
 
 }
