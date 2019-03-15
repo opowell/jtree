@@ -61,8 +61,6 @@ class Session {
 
         this.caseSensitiveLabels = false;
 
-        this.messages = [];
-
         /**
         * A list of participants in this session.
         * @type Object
@@ -136,7 +134,7 @@ class Session {
     * @param  {type} json      The content of the session.
     * @return {Session}        The session described by the contents of json.
     */
-    static load(jt, folder, data) {
+    static loadOld(jt, folder, data) {
         var session = new Session(jt, folder);
         var all = fs.readFileSync(path.join(jt.path, jt.settings.sessionsFolder + '/' + folder + '/' + folder + '.gsf')).toString();
         var lines = all.split('\n');
@@ -901,18 +899,8 @@ class Session {
         participant.save();
         this.save();
         this.participants[participantId] = participant;
-        this.messages.push({
-            name: 'addParticipant',
-            data: pId,
-        });
         this.jt.socketServer.sendOrQueueAdminMsg(null, 'addParticipant', participant.shell());
         return participant;
-    }
-
-    addTestMessage() {
-        this.messages.push({
-            name: 'test', 
-        });
     }
 
     isValidPId(pId) {

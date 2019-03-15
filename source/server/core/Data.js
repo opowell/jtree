@@ -1,12 +1,12 @@
 const fs = require('fs-extra');
 const Utils = require('../Utils.js');
 const path = require('path');
-// const Session = require('../Session.js');
+const Session = require('../Session.js');
 const Session2 = require('../models/Session.js');
 const App = require('../App.js');
-const Room = require('../models/Room.js');
+const Room = require('../Room.js');
 const Queue = require('../Queue.js');
-const User = require('../models/User.js');
+const User = require('../User.js');
 const Observer = require('micro-observer').Observer;
 // const Game = require('../Game.js');
 

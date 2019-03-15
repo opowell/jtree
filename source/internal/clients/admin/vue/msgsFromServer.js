@@ -25,12 +25,7 @@ msgs.objChange = function(change) {
     switch (change.type) {
         case 'function-call':
             console.log('object change: \n' + change.function);
-            paths = change.path.split('.');
-            obj = window.vue.$store.state;
-            for (let i=0; i<paths.length; i++) {
-                obj = obj[paths[i]];
-            }
-            obj[change.function](...change.arguments);
+            window.vue.$store.state[change.path][change.function](...change.arguments);
             break;
         case 'set-value':
             console.log('set object value: \n' + change['new-value']);

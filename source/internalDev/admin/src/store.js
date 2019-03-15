@@ -280,7 +280,6 @@ let stateObj = {
   
   session: {
     gameTree: [],
-    messages: [],
   },
 
   settingsPresets: [
