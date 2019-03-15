@@ -1,11 +1,6 @@
 <template>
     <div class='main-menu no-text-select' :style='mainMenuStyle'>
-        <menu-el 
-            v-for='menu in menus'
-            :key='menu.text'
-            :menu='menu'
-            :style='menuElStyle'
-        ></menu-el>
+        <menu-el v-for='menu in menus' :key='menu.text' :menu='menu'></menu-el>
         <div class='spacer'></div>
         <!-- <div v-show='panelsMaxed' style='display: flex'>
             <menu-el :menu='{
@@ -33,18 +28,7 @@ export default {
   },
   data() {
       return {
-          windowDescs: this.$store.state.windowDescs,
-      }
-  },
-  computed: {
-          menus() {
-              let windowMenu =     {
-        text: 'Window',
-        hasParent: false,
-        children: [],
-        showIcon: true,
-    };
-              let out = 
+          menus: 
 [
     {
         text: 'File',
@@ -124,33 +108,53 @@ export default {
         ]
     },
     {
-        text: this.$store.state.appName,
-        hasParent: false,
-    },
-    {
-        text: 'Run',
-        hasParent: false,
-    },
-    {
-        text: 'Tools',
-        hasParent: false,
-    },
-    {
-        text: 'View',
-        hasParent: false,
-    },
-    {
-        text: '?',
+        text: 'Treatment',
         hasParent: false,
     },
     {
         text: 'Session',
         hasParent: false,
     },
-    windowMenu,
-];
-    let numWindows = this.$store.state.windows.length;
-        for (let i=0; i<numWindows; i++) {
+    {
+        text: 'Window',
+        hasParent: false,
+        children: [],
+        showIcon: true,
+    },
+],
+          windowDescs: this.$store.state.windowDescs,
+          menuBGColor: "rgb(90, 90, 90)",
+          menuColor: 'rgb(185, 185, 185)',
+      }
+  },
+  computed: {
+      mainMenuStyle() { return {
+          'background-color': this.menuBGColor,
+          'color': this.menuColor,
+      }},
+      panelsMaxed() {
+          return this.$store.state.panelsMaximized;
+      },
+  },
+  watch: {
+      windowDescs: {
+        handler: function(newval) {
+            // Update Window menu.
+            this.menus[4].children.splice(0, this.menus[4].children.length);
+            this.setWindowMenuChildren(newval);
+        },
+        deep: true,
+      }
+  },
+  methods: {
+      restore() {
+          
+      },
+      close() {
+
+      },
+    setWindowMenuChildren(newval) {
+        for (let i=0; i<newval.length; i++) {
             const panel = this.$store.state.windows[i];
             const menuData = {
                 text: 'need a title',
@@ -159,7 +163,7 @@ export default {
                 icon: panel.isFocussed ? 'fas fa-check' : '',
                 shortcut: 'Ctrl+' + (i+1),
             };
-            windowMenu.children.push(menuData);
+            this.menus[4].children.push(menuData);
             window.vue.$watch(
                 function() {
                     return panel.isFocussed; 
@@ -169,59 +173,27 @@ export default {
                 }
             );
         }
-        windowMenu.children.push('divider');
-        windowMenu.children.push(
+        this.menus[4].children.push('divider');
+        this.menus[4].children.push(
             {
                 text: 'Close All',
             }
         );
-        windowMenu.children.push(
+        this.menus[4].children.push(
             {
                 text: 'Split horizontally',
                 action: this.splitMultiPanel,
                 clickData: 'horizontal',
             }
         );
-        windowMenu.children.push(
+        this.menus[4].children.push(
             {
                 text: 'Split vertically',
                 action: this.splitMultiPanel,
                 clickData: 'vertical',
             }
         );
-        return out;
-
-          },
-      mainMenuStyle() { return {
-        //   'background-color': this.$store.state.menuBGColor,
-        //   'color': this.$store.state.menuColor,
-      }},
-      panelsMaxed() {
-          return this.$store.state.panelsMaximized;
-      },
-      menuElStyle() { return {
-          padding: this.$store.state.mainMenuPadding,
-      }},
-  },
-  watch: {
-    //   windowDescs: {
-    //     handler: function(newval) {
-    //         // Update Window menu.
-    //         this.menus[4].children.splice(0, this.menus[4].children.length);
-    //         this.setWindowMenuChildren(newval);
-    //     },
-    //     deep: true,
-    //   }
-  },
-  methods: {
-      restore() {
-          
-      },
-      close() {
-
-      },
-    // setWindowMenuChildren(newval) {
-    // },
+    },
     showPanel(data) {
         if (this.$store.state.windowsMaximized && this.$store.state.windowDescs.length > 0) {
             this.$store.commit('addPanelToActiveWindow', {
@@ -246,24 +218,21 @@ export default {
         }
     },
   },
-//   mounted() {
-//     let that = this;
-//     this.$root.$nextTick(function() {
-//         that.setWindowMenuChildren(that.$store.state.windowDescs);
-//     });
-//   },
+  mounted() {
+    let that = this;
+    this.$root.$nextTick(function() {
+        that.setWindowMenuChildren(that.$store.state.windowDescs);
+    });
+  },
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
 .main-menu {
    display: flex;
     z-index: 10000;
     flex: 0 0 auto;
-    background-color: var(--menuBGColor);
-    color: var(--menuColor);
 }
 
 .main-menu .menu {
@@ -279,8 +248,7 @@ export default {
 } */
 
 .main-menu .menu:hover {
-    background-color:var(--menuHoverBGColor);
-    border-color:var(--menuHoverBorderColor);
+    background-color:rgb(109, 109, 109);
 }
 
 .spacer {

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="window"
+    class="panel"
     @mousedown="click"
     :class='{"focussed": isFocussed, "maxed": isMaximized, "active": isActive}'
     :style="style"
@@ -30,7 +30,7 @@
 import JtArea from './JtArea.vue';
 
 export default {
-	name: 'JtWindow',
+	name: 'MultiPanel',
 	components: {
 		JtArea,
 	},
@@ -104,6 +104,13 @@ export default {
 			}
 			return -1;
 		},
+		bgColor() {
+			if (this.isFocussed) {
+				return this.$store.state.windowFocussedBGColor;
+			} else {
+				return this.$store.state.windowBGColor;
+			}
+		},
 		style() {
 			if (this.isMaximized) {
 				return {
@@ -114,6 +121,7 @@ export default {
 					'box-shadow': 'none',
 					border: 'none',
 					'flex-direction': this.flexDirection,
+					'background-color': this.bgColor,
 					'border-radius': '0px',
 				};
 			} else {
@@ -124,6 +132,7 @@ export default {
 					height: this.height + 'px',
 					zIndex: this.zIndex,
 					'flex-direction': this.flexDirection,
+					'background-color': this.bgColor,
 				};
 			}
 		}
@@ -407,8 +416,8 @@ export default {
 </script>
 
 <style scoped>
-.window {
-    background-color: var(--windowBGColor);
+.panel {
+    /* background-color: #d5dce8; */
     display: none;
     flex-direction: column;
     position: absolute;
@@ -421,13 +430,11 @@ export default {
     height: 400px;
     top: 100px;
     left: 100px;
-    color: var(--windowFontColor);
 }
 
-.window.focussed {
-    background-color: var(--windowFocussedBGColor);
-    color: var(--windowFocussedFontColor);
-}
+/* .panel.focussed { */
+    /* background-color: #9ec1de; */
+/* } */
 
 .handle {
   background-color: inherit;
