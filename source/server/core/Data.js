@@ -8,7 +8,7 @@ const Room = require('../models/Room.js');
 // const Queue = require('../Queue.js');
 const User = require('../models/User.js');
 const Observer = require('micro-observer').Observer;
-const Game = require('../models/Game.js');
+// const Game = require('../Game.js');
 
 /** The data object. */
 class Data {
@@ -84,16 +84,14 @@ class Data {
                 type: change.type,
                 newValue: change.newValue,
             }
-            if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
+            if (change.type === 'function-call' && !['splice', 'push'].includes(change.function)) {
                 return true;
             }
-            let jt = global.jt;
             msg.newValue = jt.data.toShell(msg.newValue);
             msg.arguments = jt.data.toShell(msg.arguments);
             console.log('emit message: \n' + JSON.stringify(msg));
             jt.socketServer.io.to(jt.socketServer.ADMIN_TYPE).emit('objChange', msg);
             return true; // to apply changes locally.
-            // return false;
         });
 
     }
@@ -242,35 +240,33 @@ class Data {
         return app;
     }
 
-    loadGame(appPath, session, options) {
-        var app = null;
-        app = new Game.new(session, this.jt, appPath);
-        app.givenOptions = options;
-     //   app.shortId = id;
+    // loadGame(id, session, appPath, options) {
+    //     var app = null;
+    //     app = new Game.new(session, this.jt, appPath);
+    //     app.givenOptions = options;
+    //  //   app.shortId = id;
 
-        // Set options before running code.
-         for (var i in options) {
-            app.setOptionValue(i, options[i]);
-        }
+    //     // Set options before running code.
+    //      for (var i in options) {
+    //         app.setOptionValue(i, options[i]);
+    //     }
 
-        let filePath = appPath;
-        if (!fs.existsSync(appPath) && session.queuePath != null) {
-            filePath = path.join(session.queuePath, appPath);
-        }
+    //     let filePath = appPath;
+    //     if (!fs.existsSync(appPath) && session.queuePath != null) {
+    //         filePath = path.join(session.queuePath, appPath);
+    //     }
 
-        try {
-            let game = app;
-            let treatment = app;
-            app.appjs = fs.readFileSync(filePath) + '';
-            eval(app.appjs); // jshint ignore:line
-            // console.log('loaded game ' + filePath);
-        } catch (err) {
-            this.jt.log('Error loading game: ' + filePath);
-            this.jt.log(err);
-            app = null;
-        }
-        return app;
-    }
+    //     try {
+    //         app.appjs = fs.readFileSync(filePath) + '';
+    //         eval(app.appjs); // jshint ignore:line
+    //         // console.log('loaded game ' + filePath);
+    //     } catch (err) {
+    //         this.jt.log('Error loading game: ' + filePath);
+    //         this.jt.log(err);
+    //         app = null;
+    //     }
+    //     return app;
+    // }
 
     getAppsFromDir(dir) {
         var out = [];

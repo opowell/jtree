@@ -5,9 +5,7 @@
     </action-bar>
     <div style='padding-top: 10px; padding-bottom: 10px; overflow: auto; flex: 1 1 auto; align-self: stretch'>
         <jt-tree
-            :nodesProp='gameTree'
-            titleField='shortId'
-            childrenField='subgames'
+            :nodesProp='session.gameTree'
         >
         </jt-tree>
     </div>
@@ -63,19 +61,8 @@ data() {
         computed: {
             session() {
                 return this.$store.state.session;
-            },
-            gameTree() {
-                return this.$store.state.session.gameTree;
-            },
-            panelTitle() {
-                return 'Game Tree (' + this.gameTree.length + ')';
-            },
-        },
-        watch: {
-            gameTree: function(newVal) {
-                this.panel.id = 'Game Tree (' + newVal.length + ')';
-            },
-        },
+            }
+        }
 }
 </script>
 

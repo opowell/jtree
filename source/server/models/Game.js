@@ -25,14 +25,12 @@ class Game {
         this.id = appPath;
 
         let id = appPath;
-        if (id.includes('app.js') || id.includes('app.jtt') || id.includes('app.jtg')) {
+        if (id.includes('app.js') || id.includes('app.jtt')) {
             let str = null;
             if (id.includes('app.js')) {
                 str = 'app.js';
             } else if (id.includes('app.jtt')) {
                 str = 'app.jtt';
-            } else if (id.includes('app.jtg')) {
-                str = 'app.jtg';
             }
             id = id.substring(0, id.lastIndexOf(str));
 
@@ -62,8 +60,6 @@ class Game {
                 id = id.substring(0, id.length - '.js'.length);
             } else if (id.endsWith('.jtt')) {
                 id = id.substring(0, id.length - '.jtt'.length);
-            } else if (id.endsWith('.jtg')) {
-                id = id.substring(0, id.length - '.jtg'.length);
             }
         }
         this.shortId = id;
@@ -98,8 +94,6 @@ class Game {
          * @default 0
          */
         this.duration 	= 0;
-
-        this.started = false;
 
         /**
          * @default null
@@ -687,16 +681,16 @@ class Game {
         // Load stage contents, if any.
         var stagesHTML = '';
         var waitingScreensHTML = '';
-        for (var i=0; i<app.subgames.length; i++) {
-            var stage = app.subgames[i];
+        for (var i=0; i<app.stages.length; i++) {
+            var stage = app.stages[i];
             var stageHTML = '';
-            var contentStart = app.parseStageTag(stage, app.subgameContentStart);
-            var contentEnd = app.parseStageTag(stage, app.subgameContentEnd);
+            var contentStart = app.parseStageTag(stage, app.stageContentStart);
+            var contentEnd = app.parseStageTag(stage, app.stageContentEnd);
             if (stage.content != null) {
                 stageHTML = contentStart + '\n' + stage.content + '\n' + contentEnd;
             }
             if (stage.activeScreen != null) {
-                stageHTML += app.parseStageTag(stage, app.subgameContentStart)  + '\n';
+                stageHTML += app.parseStageTag(stage, app.stageContentStart)  + '\n';
                 let wrapInForm = null;
                 if (stage.wrapPlayingScreenInFormTag === 'yes') {
                     wrapInForm = true;
@@ -724,7 +718,7 @@ class Game {
                 if (wrapInForm) {
                     stageHTML += '</form>\n';
                 }
-                stageHTML += app.parseStageTag(stage, app.subgameContentEnd);
+                stageHTML += app.parseStageTag(stage, app.stageContentEnd);
             }
 
             if (stagesHTML.length > 0) {
@@ -760,16 +754,16 @@ class Game {
         // }
         html = html.replace('{{waiting-screens}}', waitingScreensHTML);
 
-        // // Replace {{ }} markers.
-        // var markerStart = app.textMarkerBegin;
-        // var markerEnd = app.textMarkerEnd;
-        // while (html.indexOf(markerStart) > -1) {
-        //     var ind1 = html.indexOf(markerStart);
-        //     var ind2 = html.indexOf(markerEnd);
-        //     var text = html.substring(ind1+markerStart.length, ind2);
-        //     var span = '<i jt-text="' + text + '" style="font-style: normal"></i>';
-        //     html = html.replace(markerStart + text + markerEnd, span);
-        // }
+        // Replace {{ }} markers.
+        var markerStart = app.textMarkerBegin;
+        var markerEnd = app.textMarkerEnd;
+        while (html.indexOf(markerStart) > -1) {
+            var ind1 = html.indexOf(markerStart);
+            var ind2 = html.indexOf(markerEnd);
+            var text = html.substring(ind1+markerStart.length, ind2);
+            var span = '<i jt-text="' + text + '" style="font-style: normal"></i>';
+            html = html.replace(markerStart + text + markerEnd, span);
+        }
 
         // Insert jtree functionality.
         if (app.insertJtreeRefAtStartOfClientHTML) {
@@ -826,7 +820,7 @@ class Game {
     }
 
     // TODO
-    parseStageTag(game, text) {
+    parseStageTag(stage, text) {
         while (text.includes('{{')) {
             var start = text.indexOf('{{');
             var end = text.indexOf('}}');
@@ -1110,8 +1104,8 @@ class Game {
             return -1;
         }
 
-        for (var i in this.session.gameTree) {
-            if (this.session.gameTree[i] === this) {
+        for (var i in this.session.apps) {
+            if (this.session.apps[i] === this) {
                 return parseInt(i)+1;
             }
         }
@@ -1257,8 +1251,6 @@ class Game {
             app[opt] = app.optionValues[opt];
         }
         var appCode = Utils.readJS(this.appPath);
-        let game = app;
-        let treatment = app;
         eval(appCode);
         return app;
     }
@@ -1381,8 +1373,6 @@ class Game {
      * @param  {Participant} participant The participant.
      */
     participantBegin(participant) {
-
-        this.started = true;
 
         for (var c in participant.clients) {
             var client = participant.clients[c];

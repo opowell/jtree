@@ -282,9 +282,7 @@ let stateObj = {
     gameTree: [],
     messages: [],
     messageIndex: 0,
-    started: false
   },
-  messageIndex: 0,
 
   settingsPresets: [
     {
@@ -555,7 +553,7 @@ export default new Vuex.Store({
       }
     },
   },
-  mutations: { // called by "store.commit(mutationName, payload)";
+  mutations: {
     deleteParticipant(state, pId) {
       Vue.delete(state.session.participants, pId);
     },
@@ -570,17 +568,9 @@ export default new Vuex.Store({
       // });
       global.jt.socket.emit('openSession', sessionId);
     },
-    setActionIndex(state, index) {
-      Vue.set(state.session, 'messageIndex', index);
-      state.messageIndex = index;
-    },
     setSession(state, session) {
       session.messageIndex = 0;
       state.session = session;
-      // state.session.gameTree.splice(0, state.session.gameTree.length);
-      // for (let i=0; i<session.gameTree.length; i++) {
-      //   state.session.gameTree.push(session.gameTree)
-      // }
       for (let i=0; i<state.sessions.length; i++) {
         if (state.sessions[i].id === session.id) {
           state.sessions[i] = session;

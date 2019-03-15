@@ -22,6 +22,7 @@ decideStage.activeScreen = `
 `;
 
 var resultsStage = pgg.addSubGame('results');
+resultsStage.duration = 20;
 resultsStage.groupStart = function(group) {
     group.contributions = Utils.sum(group.players, 'contribution');
     group.production = group.contributions * game.factor;

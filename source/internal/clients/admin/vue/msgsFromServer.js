@@ -22,9 +22,9 @@ msgs.deleteSession = function(id) {
 
 msgs.objChange = function(change) {
     let paths, obj = null;
-    console.log('object change: \n' + JSON.stringify(change));
     switch (change.type) {
         case 'function-call':
+            console.log('object change: \n' + change.function);
             paths = change.path.split('.');
             obj = window.vue.$store.state;
             for (let i=0; i<paths.length; i++) {
@@ -32,29 +32,17 @@ msgs.objChange = function(change) {
             }
             obj[change.function](...change.arguments);
             break;
-        case 'set-prop':
-            // console.log('set property: \n' + JSON.stringify(change.newValue));
-            paths = change.path.split('.');
-            obj = window.vue.$store.state;
-            for (let i=0; i<paths.length - 1; i++) {
-                obj = obj[paths[i]];
-            }
-            vue.$set(obj, paths[paths.length-1], change.newValue);
-            break;
         case 'set-value':
-            // console.log('set value: \n' + change.newValue);
+            console.log('set object value: \n' + change['new-value']);
             paths = change.path.split('.');
             obj = window.vue.$store.state;
             for (let i=0; i<paths.length - 1; i++) {
                 obj = obj[paths[i]];
             }
-            if (obj == null) {
-                return;
-            }
-            vue.$set(obj, paths[paths.length-1], change.newValue);
+            vue.$set(obj, paths[paths.length-1], change['new-value']);
             break;
         case 'delete-prop':
-            // console.log('delete property: \n');
+            console.log('delete property: \n');
             paths = change.path.split('.');
             obj = window.vue.$store.state;
             for (let i=0; i<paths.length - 1; i++) {

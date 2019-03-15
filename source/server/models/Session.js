@@ -11,7 +11,6 @@ const Utils         = require('./Utils.js');
 const fs            = require('fs-extra');
 const path          = require('path');
 const async         = require('async');
-const Observer = require('micro-observer').Observer;
 
 const PLAYER_STATUS_FINISHED = 'finished';
 const PLAYER_STATUS_PLAYING = 'playing';
@@ -69,7 +68,6 @@ class Session {
         * @type Object
         */
         this.participants = {};
-        this.participantProxies = [];
 
         /**
         * The time at which this session was last started.
@@ -119,37 +117,9 @@ class Session {
             'gameTree',
             'fileStream',
             'asyncQueue',
-            // 'started',
+            'started',
             'sockets',
-            'proxy',
-            'participantProxies',
-            'clientProxies',
-            'proxyObj',
         ];
-
-        this.proxyObj = {
-            participants: this.participantProxies,
-            clients: this.clientProxies,
-        }
-
-        this.proxy = Observer.create(this.proxyObj, function(change) {
-            let msg = {
-                arguments: change.arguments,
-                function: change.function,
-                path: change.path,
-                property: change.property,
-                type: change.type,
-                newValue: change.newValue,
-            }
-            if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
-                return true;
-            }
-            msg.newValue = jt.data.toShell(msg.newValue);
-            msg.arguments = jt.data.toShell(msg.arguments);
-            console.log('emit message: \n' + JSON.stringify(msg));
-            jt.socketServer.io.to(jt.socketServer.ADMIN_TYPE).emit('objChange', msg);
-            return true; // to apply changes locally.
-        });
 
     }
 
@@ -296,35 +266,6 @@ class Session {
             // app.saveSelfAndChildren();
             this.save();
             this.emit('sessionAddApp', {sId: this.id, app: app.shellWithChildren()});
-        }
-    }
-
-    addGame(filePath, options) {
-
-        // debugger;
-
-        // if (this.queuePath != null && !appPath.startsWith(this.queuePath)) {
-        //     appPath = path.join(this.queuePath, appPath);
-        // }
-
-        let fullpath = path.join.apply(null, filePath);
-
-        var game = this.jt.data.loadGame(fullpath, this, options);
-        if (game !== null) {
-            this.gameTree.push(game);
-            // if (app.appPath.endsWith('.jtt') || app.appPath.endsWith('.js')) {
-            //     Utils.copyFile(app.appFilename, app.appDir, app.getOutputFN());
-            // } else {
-            //     Utils.copyFiles(path.parse(app.appPath).dir, app.getOutputFN());
-            // }
-            // app.saveSelfAndChildren();
-            // this.save();
-            // this.emit('sessionAddApp', {sId: this.id, app: app.shellWithChildren()});
-            this.addMessage(
-                'addGame',
-                filePath
-            );
-    
         }
     }
 
@@ -851,10 +792,8 @@ class Session {
             out[field] = this[field];
         }
         out.participants = {};
-        out.participantProxies = [];
         for (var i in this.participants) {
             out.participants[i] = this.participants[i].shellAll();
-            out.participantProxies.push(out.participants[i]);
         }
         out.apps = [];
         out.gameTree = [];
@@ -978,8 +917,6 @@ class Session {
         // participant.save();
         // this.save();
         this.participants[participantId] = participant;
-        this.participantProxies.push(participant.proxy);
-
         this.addMessage(
             'createParticipant',
             pId,
@@ -993,7 +930,7 @@ class Session {
     addMessage(name, content) {
         console.log('adding message: ' + name + ', ' + content);
         this.messages.push({
-            id: this.messages.length + 1,
+            id: this.messages.length,
             name,
             content, 
         });
@@ -1028,9 +965,9 @@ class Session {
             participant.getApp().participantEnd(participant);
         }
 
-        if (participant.appIndex < this.gameTree.length) {
+        if (participant.appIndex < this.apps.length) {
             participant.appIndex++;
-            // participant.save();
+            participant.save();
             this.participantBeginApp(participant);
         } else {
             this.participantEnd(participant);
@@ -1082,7 +1019,7 @@ class Session {
     participantBeginApp(participant) {
         this.jt.log('Session.participantBeginApp: ' + participant.appIndex);
 
-        if (participant.appIndex < 1 || participant.appIndex > this.gameTree.length) {
+        if (participant.appIndex < 1 || participant.appIndex > this.apps.length) {
             console.log('Session.participantBeginApp: INVALID appIndex');
             return false;
         }
@@ -1094,7 +1031,7 @@ class Session {
             let newApp = app.reload();
             this.apps[app.indexInSession() - 1] = newApp;
             app = newApp;
-            // app.start();
+            app.start();
         }
 
         app.participantBegin(participant);
@@ -1129,10 +1066,6 @@ class Session {
             //     value: this.started
             // }]);
             this.advanceSlowest();
-            this.addMessage(
-                'start',
-                '',
-            );
         }
     }
 
@@ -1149,10 +1082,10 @@ class Session {
      * @param {Participant} participant 
      */
     getApp(participant) {
-        if (participant.appIndex < 1 || participant.appIndex > this.gameTree.length) {
+        if (participant.appIndex < 1 || participant.appIndex > this.apps.length) {
             return null;
         } else {
-            return this.gameTree[participant.appIndex - 1];
+            return this.apps[participant.appIndex - 1];
         }
     }
 

@@ -62,12 +62,6 @@ export default {
             default: true,
         },
         headers: {},
-        rowStyleFunc: {
-            type: Function,
-            default: function() {
-                return {}
-            }
-        },
     },
     data() {
         return {
