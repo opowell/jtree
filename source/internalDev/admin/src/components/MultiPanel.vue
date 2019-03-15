@@ -5,13 +5,18 @@
     :class='{"focussed": isFocussed, "maxed": isMaximized, "active": isActive}'
     :style="style"
   >
+    <!-- <panel-header
+      v-show="panelsNotMaxed"
+      :title="dataTitle"
+      :menus="menus"
+      @jt-close="closejt"
+      @mousedown.native.prevent="startMove"
+    ></panel-header> -->
     <div class="body">
       <jt-area 
-		:areaProp="area"
-		:window="window"
-		:indexOnParent=0
+        ref='area'
+		:area="area"
 		@startmove='startMove'
-		:activePanelInd="activePanelInd"
 		/>
     </div>
     <span class="handle handle-tl" @mousedown.prevent="startResizeTL"></span>
@@ -26,20 +31,28 @@
 </template>
 <script>
 import JtArea from './JtArea.vue';
+// import PanelHeader from './PanelHeader.vue';
 
 export default {
 	name: 'MultiPanel',
 	components: {
+		// PanelHeader,
 		JtArea,
 	},
 	props: [
 		'window'
+		//     'title',
+		//   'x',
+		//   'y',
+		//   'w',
+		//   'h',
+		//   'menus',
+		//   'panelId',
 	],
 	data() {
 		return {
 			area: {
-				panels: this.window.panels,
-				areas: this.window.areas,
+				panels: this.window.panels
 			},
 			menus: [
 				{
@@ -72,9 +85,6 @@ export default {
 		};
 	},
 	computed: {
-		activePanelInd() {
-			return this.window.activePanelInd;
-		},
 		isActive() {
 			return !this.isMaximized || this === this.$store.state.activePanel;
 		},

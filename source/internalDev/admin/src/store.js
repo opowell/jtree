@@ -90,64 +90,6 @@ export default new Vuex.Store({
         }
       }
     },
-    setActivePanelIndex(state, {index, areaPath, window}) {
-      let win = null;
-      for (let i=0; i<state.windowDescs.length; i++) {
-        if (state.windowDescs[i].id === window.id) {
-          win = state.windowDescs[i];
-          break;
-        }
-      }
-      let area = win;
-      for (let i=0; i<areaPath.length; i++) {
-        area = area.areas[areaPath[i]];
-      }
-      area.activePanelInd = index;
-    },
-    closePanel(state, {panelIndex, areaPath, window}) {
-      let win = null;
-      for (let i=0; i<state.windowDescs.length; i++) {
-        if (state.windowDescs[i].id === window.id) {
-          win = state.windowDescs[i];
-          break;
-        }
-      }
-      let area = win;
-      for (let i=0; i<areaPath.length; i++) {
-        area = area.areas[areaPath[i]];
-      }
-      area.panels.splice(panelIndex, 1);
-      if (area.panels.length < 1) {
-          this.commit('closeArea', {areaPath, window});
-      } 
-      if (panelIndex === area.activePanelInd) {
-          area.activePanelInd = Math.max(0, panelIndex-1);
-      }
-    },
-    closeArea(state, {areaPath, window}) {
-      let win = null;
-      let winIndex = null;
-      for (let i=0; i<state.windowDescs.length; i++) {
-        if (state.windowDescs[i].id === window.id) {
-          win = state.windowDescs[i];
-          winIndex = i;
-          break;
-        }
-      }
-      let area = win;
-      let parent = null;
-      let lastIndex = null;
-      for (let i=0; i<areaPath.length; i++) {
-        parent = area;
-        area = area.areas[areaPath[i]];
-        lastIndex = areaPath[i];
-      }
-      if (parent != null) {
-        parent.areas.splice(lastIndex, 1);
-      } else {
-        state.windowDescs.splice(winIndex, 1);
-      }
-    },
     addActivePanel(state, panel) {
       state.activePanel = panel;
       state.windows.push(panel);
@@ -177,49 +119,17 @@ export default new Vuex.Store({
       for (let i=0; i<state.windowDescs.length; i++) {
         if (state.windowDescs[i].id === state.activePanel.panelId) {
           let area = state.windowDescs[i];
+          let jtarea = state.activePanel.$refs.area;
           while (area.areas.length > 0) {
             area = area.areas[0];
+            jtarea = jtarea.$refs['area-0'];
           }
           area.panels.push(panelInfo);
-          area.activePanelInd = area.panels.length - 1;
+          
+          jtarea.activePanelInd = area.panels.length - 1;
           break;
         }
       }
-    },
-    createChild(state, {splitDirection, areaPath, window, panelInd}) {
-      if (window == null) {
-        debugger;
-      }
-      let win = null;
-      for (let i=0; i<state.windowDescs.length; i++) {
-        if (state.windowDescs[i].id === window.id) {
-          win = state.windowDescs[i];
-          break;
-        }
-      }
-      let area = win;
-      for (let i=0; i<areaPath.length; i++) {
-        area = area.areas[areaPath[i]];
-      }
-      area.splitDirection = splitDirection;
-      let curActivePanel = area.panels.splice(panelInd, 1)[0];
-      let firstChildArea = {
-          panels: [],
-          areas: [],
-          activePanelInd: 0,
-      };
-      let numPanels = area.panels.length;
-      for (let i=0; i<numPanels; i++) {
-          let panel = area.panels.splice(0, 1)[0];
-          firstChildArea.panels.push(panel);
-      }
-      area.areas.push(firstChildArea);
-      area.areas.push({
-          panels: [curActivePanel],
-          areas: [],
-          activePanelInd: Math.max(0, panelInd-1),
-      });
-
     },
     showWindow(state, windowInfo) {
       windowInfo.id = state.nextPanelId;
@@ -231,7 +141,6 @@ export default new Vuex.Store({
       }
       windowInfo.x = state.nextPanelX;
       windowInfo.y = state.nextPanelY;
-      windowInfo.activePanelInd = 0;
       state.nextPanelX += state.nextPanelXIncrement;
       state.nextPanelY += state.nextPanelYIncrement;
       state.nextPanelId++;

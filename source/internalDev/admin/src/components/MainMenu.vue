@@ -209,7 +209,7 @@ export default {
         this.showPanel('sessions-panel');
     },
     showPanel(data) {
-        if (this.$store.state.windowsMaximized && this.$store.state.windowDescs.length > 0) {
+        if (this.$store.state.windowsMaximized) {
             this.$store.commit('addPanelToActiveWindow', {
                 id: data.title,
                 type: data.type,
