@@ -1,5 +1,5 @@
 <template>
-    <jt-panel :panelId='panelId' :x='x' :y='y' :w='w' :h='h' :title='"Games"' :menus='menus'>
+    <jt-panel :x='x' :y='y' :w='w' :h='h' :title='"Games"' :menus='menus'>
         Games list
     </jt-panel>
 </template>
@@ -26,9 +26,6 @@
           h: {
               type: Number,
               default: 100,
-          },
-          panelId: {
-              type: Number,
           },
       },
       data() {

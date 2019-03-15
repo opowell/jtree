@@ -1,6 +1,6 @@
 <template>
-    <div class='panel' @mousedown='click' :class='{"focussed": isFocussed, "maxed": isMaximized, "active": isActive}' :style="style">
-        <panel-header v-on:jt-close='closejt' :title='dataTitle' @mousedown.native.prevent='startMove' :menus='menus'></panel-header>
+    <div class='panel' @mousedown='click' @click='click' :class='{"maxed": isMaximized, "active": isActive}' :style="style">
+        <panel-header :title='dataTitle' @mousedown.native.prevent='startMove' :menus='menus'></panel-header>
         <panel-body>
             <slot></slot>
         </panel-body>
@@ -32,14 +32,10 @@ export default {
       'w',
       'h',
       'menus',
-      'panelId',
   ],
   computed: {
       isActive() {
-          return !this.isMaximized || this === this.$store.state.activePanel;
-      },
-      isFocussed() {
-          return this === this.$store.state.activePanel;
+          return !this.isMaximized || this.$el === this.$store.state.activePanel;
       },
       isMaximized() {
           return this.$store.state.panelsMaximized;
@@ -47,7 +43,7 @@ export default {
       zIndex() {
             const panels = this.$store.state.panels;
             for (var i=0; i < panels.length; i++) { 
-                if (panels[i].panelId === this.panelId) {
+                if (panels[i].innerText === this.$el.innerText) {
                     return i; 
                 }
             }
@@ -94,45 +90,31 @@ export default {
       }
   },
   mounted() {
-    this.parentElement = this.$el.parentNode.parentNode; // the panel container.
+    this.parentElement = this.$el.parentNode;
     this.parentWidth = this.parentElement.clientWidth - 5;
     this.parentHeight = this.parentElement.clientHeight - 5;
-    this.$store.commit('addActivePanel', this);
+    this.$store.state.activePanel = this.$el;
+    this.$store.state.panels.push(this.$el);
 },
 
     methods: {
-        closejt() {
-            console.log('close jtpanel');
-            this.$store.commit('removePanel', this);
-        },
-        focus() {
-            this.click();            
-        },
 
-        toggleMaximized() {
-            const state = this.$store.state;
-            state.panelsMaximized = !state.panelsMaximized;
-            state.activePanel = this; // the jt-panel.
-        },
         click() {
             const panels = this.$store.state.panels;
             let curPos = this.zIndex;
             panels.splice(curPos, 1); 
-            panels.push(this);
-            this.$store.state.activePanel = this;
-            this.$store.state.isMenuOpen = false;
+            panels.push(this.$el);
         },
 
       startMove(ev) {
-        if (this.isMaximized) {
-            return;
-        }
+        console.log('start move');
         document.documentElement.addEventListener('mousemove', this.move);
         document.documentElement.addEventListener('mouseup', this.stopMove);
         this.moveStartX = typeof ev.pageX !== 'undefined' ? ev.pageX : ev.touches[0].pageX;
         this.moveStartY = typeof ev.pageY !== 'undefined' ? ev.pageY : ev.touches[0].pageY;
         this.origTop = this.top;
         this.origLeft = this.left;
+        this.click();
       },
       move(ev) {
         const pageX = typeof ev.pageX !== 'undefined' ? ev.pageX : ev.touches[0].pageX;
@@ -352,7 +334,7 @@ export default {
 
 <style scoped>
 .panel {
-    background-color: #d5dce8;
+    background-color: #9ec1de;
     display: none; /* must be explicitly displayed using "active" class */
     flex-direction: column;
     position: absolute;
@@ -367,10 +349,6 @@ export default {
     left: 100px;
 }
 
-.panel.focussed {
-    background-color: #9ec1de;
-}
-
 .handle {
   background-color: inherit;
   border-style: outset;
@@ -379,6 +357,7 @@ export default {
   display: block;
   width: 7px;
   height: 7px;
+  /* box-shadow: 0px 1px 3px 3px #888; */
   border-color: #dae1e7;
   position: absolute;
 }

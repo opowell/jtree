@@ -1,5 +1,5 @@
 <template>
-    <div class='panel-header no-text-select' @dblclick='restore'>
+    <div class='panel-header'>
         <menu-el :menu='{icon: "fa fa-align-center"}'></menu-el>
         <span class='title'>
           {{title}}
@@ -8,12 +8,18 @@
         </menu-el>
         <menu-el :menu='{icon: "far fa-window-minimize"}'></menu-el>
         <menu-el :menu='{icon: "far fa-window-restore", action: restore}'></menu-el>
-        <menu-el :menu='{icon: "far fa-window-close", action: close}'></menu-el>
+        <menu-el :menu='{icon: "far fa-window-close"}'></menu-el>
     </div>
 </template>
 
 <script>
 import MenuEl from './MenuEl.vue'
+
+const restoreFn = function(ev) {
+  const state = window.vue.$store.state;
+  state.panelsMaximized = !state.panelsMaximized;
+  state.activePanel = ev.path[3]; // should be a "div.panel".
+}
 
 export default {
   name: 'PanelHeader',
@@ -25,13 +31,7 @@ export default {
     'title',
   ],
   methods: {
-    restore() {
-      this.$store.commit('togglePanelsMaximized');
-    },
-    close() {
-      console.log('close panelheader');
-      this.$emit('jt-close');
-    },
+    restore: restoreFn.bind(this),
   }
 }
 </script>
@@ -54,7 +54,7 @@ export default {
 
 .panel-header .menu {
   border-radius: 3px;
-  /* margin-right: 3px; */
+  margin-right: 3px;
 }
 
 </style>

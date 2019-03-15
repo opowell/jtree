@@ -1,5 +1,5 @@
 <template>
-  <span class="menu" @mousedown.prevent.stop @click.stop @mouseup.prevent.stop='click' @mouseover='hover' :class='{ "active": menu.isActive !== false, open: isOpen }'>
+  <span class="menu" @click.prevent.stop='click' @mouseover='hover' :class='{ "active": menu.isActive !== false, open: isOpen }'>
     <i v-show='menu.icon || menu.showIcon' :class='"icon " + menu.icon'></i>
     <div v-show='menu.text' class='text'>
       <div class='text-first'>{{firstLetter}}</div>
@@ -39,10 +39,8 @@ export default {
   },
   methods: {
     click: function(ev) {
-      console.log('click');
       if (this.menu.action != null) {
         this.menu.action(ev);
-        this.$store.state.isMenuOpen = false;
       } else {
         this.$store.state.activeMenu = this;
         this.$store.state.isMenuOpen = !this.$store.state.isMenuOpen;
@@ -61,9 +59,6 @@ export default {
   padding: 5px;
   cursor: default;
   margin-right: 1px;
-  width: 24px;
-  align-self: center;
-  text-align: center;
 }
 
 /* .icon:hover {
@@ -85,7 +80,7 @@ export default {
 }
 
 .dropdown .menu:hover {
-  background-color: rgba(0,123,255,.25);
+  background-color: red;
 }
 
 
@@ -136,6 +131,7 @@ export default {
     z-index: 1000;
     float: left;
     min-width: 10rem;
+    font-size: 1rem;
     color: #212529;
     text-align: left;
     list-style: none;

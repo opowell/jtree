@@ -3,6 +3,7 @@
 build-tools/7z.dll
 build-tools/7z.exe
 desktop.ini
+node_modules/*
 source/internal/clients/shared/shared.js
 source/internal/logs
 source/internal/serverState.json
@@ -11,4 +12,3 @@ source/node_modules/*
 source/queues
 source/sessions
 source/users
-source/internal/clients/admin/vue

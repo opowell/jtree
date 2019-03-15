@@ -1,10 +1,20 @@
 <template>
-    <div class='main-menu no-text-select' :style='mainMenuStyle'>
+    <div class='main-menu'>
         <menu-el v-for='menu in menus' :key='menu.text' :menu='menu'></menu-el>
     </div>
 </template>
 
 <script>
+import GamesPanel from './GamesPanel'
+import Vue from 'vue'
+
+let showGames = function() {
+    console.log('show games');
+    var ComponentClass = Vue.extend(GamesPanel)
+    var instance = new ComponentClass()
+    instance.$mount() // pass nothing
+    document.querySelector('.panel-container').appendChild(instance.$el)
+}
 
 const menusData = [
     {
@@ -12,6 +22,7 @@ const menusData = [
         children: [
             {
                 text: 'Games',
+                action: showGames,
                 shortcut: 'Ctrl+G',
             },
             {
@@ -51,10 +62,6 @@ const menusData = [
     {
         text: 'Session',
     },
-    {
-        text: 'Window',
-        children: [],
-    },
 ]
 
 import MenuEl from './MenuEl'
@@ -64,80 +71,27 @@ export default {
       MenuEl,
   },
   data() {
-      menusData[0].children[0].text = this.$store.state.appName + 's';
-      menusData[0].children[0].action = this.showGames;
-      menusData[0].children[3].action = this.showSettings;
       return {
-          menus: menusData,
-          panelDescs: this.$store.state.panelDescs,
-          menuBGColor: "rgb(251, 251, 251)",
+          menus: menusData, 
       }
-  },
-  computed: {
-      mainMenuStyle() { return {
-          'background-color': this.menuBGColor,
-      }}
-  },
-  watch: {
-      panelDescs: {
-        handler: function(newval) {
-            // Update Window menu.
-            menusData[4].children.splice(0, menusData[4].children.length);
-            this.setWindowMenuChildren(newval);
-        },
-        deep: true,
-      }
-  },
-  methods: {
-    setWindowMenuChildren(newval) {
-        for (let i=0; i<newval.length; i++) {
-            const panel = this.$store.state.panels[i];
-            const menuData = {
-                text: panel.dataTitle,
-                panel: panel,
-                action: panel.focus,
-                icon: panel.isFocussed ? 'fas fa-check' : '',
-            };
-            menusData[4].children.push(menuData);
-            window.vue.$watch(
-                function() {
-                    return panel.isFocussed; 
-                },
-                function(newval) {
-                    menuData.icon = newval ? 'fas fa-check' : '';
-                }
-            );
-        }
-    },    
-    showGames() {
-      this.$store.commit('showPanel', {
-        type: 'games-panel',
-        w: 500,
-        h: 300,
-      });
-    },
-    showSettings() {
-      this.$store.commit('showPanel', {
-        type: 'settings-panel',
-        w: 500,
-        h: 300,
-      });
-    }
-  },
-  mounted() {
-    let that = this;
-    this.$root.$nextTick(function() {
-        that.setWindowMenuChildren(that.$store.state.panelDescs);
-    });
-  },
+  }
 }
+
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .main-menu {
+    background-color: rgb(251, 251, 251);
    display: flex;
     z-index: 10000;
+ -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
 }
 
 .main-menu .menu {

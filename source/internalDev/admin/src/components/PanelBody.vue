@@ -7,11 +7,6 @@
 <script>
 export default {
   name: 'PanelBody',
-  methods: {
-    click() {
-      console.log('click panelbody');
-    }
-  }
 }
 </script>
 
