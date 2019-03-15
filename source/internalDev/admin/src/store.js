@@ -246,9 +246,7 @@ const persistentSettings = [
   },
 ];
 
-let persistPaths = [
-  'sessionId',
-];
+let persistPaths = [];
 
 let stateObj = {
   persistentSettings: persistentSettings,
@@ -258,7 +256,6 @@ let stateObj = {
   isMenuOpen: false,
   activeMenu: null,
   activeWindow: null,
-  sessionId: null,
 
   games: [],
 
@@ -378,7 +375,6 @@ for (let i=0; i<persistentSettings.length; i++) {
   }
 }
 
-import axios from 'axios';
 
 export default new Vuex.Store({
   plugins: [createPersistedState({
@@ -551,20 +547,6 @@ export default new Vuex.Store({
     },
   },
   mutations: {
-    setSessionId(state, sessionId) {
-      state.sessionId = sessionId;
-      // axios.get(
-      //     'http://' + window.location.host + '/api/session/' + sessionId
-      // ).then(response => {
-      //     if (response.data.success === true) {
-      //       state.session = response.data.session;
-      //     }
-      // });
-      global.jt.socket.emit('openSession', sessionId);
-    },
-    setSession(state, session) {
-      state.session = session;
-    },
     addPanelToActiveWindow(state, panelInfo) {
       for (let i=0; i<state.windowDescs.length; i++) {
         if (state.windowDescs[i].id === state.activeWindow.panelId) {

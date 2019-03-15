@@ -67,12 +67,16 @@ class Data {
         // Reload them when a new session is opened.
         this.participantClients = [];
 
+        this.syncData = {
+            hello: 'world'
+        }
+
         let proxyObj = {
             sessions: [],
         };
 
         for (let i=0; i<this.sessions.length; i++) {
-            proxyObj.sessions.push(this.sessions[i]);
+            proxyObj.sessions.push(this.sessions[i].shell());
         }
 
         this.proxy = Observer.create(proxyObj, function(change) {
@@ -757,7 +761,7 @@ class Data {
             var pathToFolder = path.join(this.jt.path, this.jt.settings.sessionsFolder + '/' + folder + '/');
             this.jt.log('loading session: ' + folder);
             if (folder !== null && fs.lstatSync(pathToFolder).isDirectory()) {
-                out = Session2.load(this.jt, folder, this);
+                out = Session.load(this.jt, folder, this);
             }
         } catch (err) {
             console.log('error loading session WS: ' + folder);

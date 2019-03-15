@@ -119,7 +119,7 @@ router.post('/session/delete', function (req, res) {
         });
     };
     try {
-        session.asyncQueue.kill();
+        // session.asyncQueue.kill();
         session.fileStream.on("close", endFunc);
         session.fileStream.destroy();
     } catch (err) {
@@ -265,13 +265,10 @@ router.get('/sessions', function (req, res) {
     res.json(out);
 });
 
-router.get('/session/:sessionId', function (req, res) {
-    let sessionId = req.params.sessionId;
+router.get('/session', function (req, res) {
+    let sessionId = req.query.sessionId;
     let session = global.jt.data.getSession(sessionId);
-    res.json({
-        success: true,
-        session: session.shellWithChildren(),
-    });
+    res.json(session.shellWithChildren());
 });
 
 

@@ -55,8 +55,6 @@ class Session {
         */
         this.clients = [];
 
-        this.sockets = [];
-
         this.potentialParticipantIds = this.jt.settings.participantIds;
 
         this.caseSensitiveLabels = false;
@@ -87,15 +85,22 @@ class Session {
 
         this.users = [];
 
-        this.asyncQueue = async.queue(this.processMessage, 1);
+        // this.asyncQueue = async.queue(this.processMessage, 1);
 
         // A filestream for writing to this session's object states.
         try {
+            console.log('new session!');
             fs.ensureDirSync(this.getOutputDir());
             var options = { 'flags': 'a'};
             let filename = this.getOutputDir() + '/' + this.id + '.gsf';
             // fs.ensureFileSync(filename);
-            this.fileStream = fs.createWriteStream(filename, options);
+            this.fileStream = fs.createWriteStream(filename, options)
+            .on('open', function (fd) {
+ 
+                console.log(filename + ' is open!');
+                console.log('fd: ' + fd);
+             
+            });
         } catch (err) {
             debugger;
             console.log(err);
@@ -113,8 +118,7 @@ class Session {
             'apps',
             'fileStream',
             'asyncQueue',
-            'started',
-            'sockets',
+            'started'
         ];
 
     }

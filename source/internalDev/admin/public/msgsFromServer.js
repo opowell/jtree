@@ -8,7 +8,6 @@ msgs.addSession = function(session) {
       jt.showUsersMode(jt.settings.multipleUsers);
   }
 }
-
 msgs.deleteSession = function(id) {
     for (i in jt.data.sessions) {
         var session = jt.data.sessions[i];
@@ -21,21 +20,10 @@ msgs.deleteSession = function(id) {
 }
 
 msgs.objChange = function(change) {
-    let paths, obj = null;
     switch (change.type) {
         case 'function-call':
             console.log('object change: \n' + change.function);
             window.vue.$store.state[change.path][change.function](...change.arguments);
-            break;
-        case 'set-value':
-            console.log('set object value: \n' + change['new-value']);
-            // set(window.vue.$store.state, change.path, change['new-value']);
-            paths = change.path.split('.');
-            obj = window.vue.$store.state;
-            for (let i=0; i<paths.length - 1; i++) {
-                obj = obj[paths[i]];
-            }
-            vue.$set(obj, paths[paths.length-1], change['new-value']);
             break;
         default:
             debugger;
@@ -144,30 +132,29 @@ msgs.openSession = function(session) {
         server.reloadClients();
     }
 
-    // localStorage.setItem('sessionId', session.id);
-    vue.$store.commit('setSession', session);
+    localStorage.setItem('sessionId', session.id);
 
-    // if (session !== undefined) {
-    //     jt.showSessionId(session.id);
-    //     var filelink = jt.data.jtreeLocalPath + '/sessions/' + session.id + '.csv';
-    //     $('#view-session-results-filelink')
-    //         .text(filelink)
-    //         .attr('href', 'file:///' + filelink);
-    //     showPanel("#panel-session-info");
-    //     showParticipants(jt.data.session.participants);
-    //     // viewAllParticipants();
-    //     updateSessionApps();
-    //     jt.updateSessionUsers();
-    //     updateAllowNewParts();
-    //     jt.updateChartPage();
-    //     jt.chartVar('test');
-    // }
+    if (session !== undefined) {
+        jt.showSessionId(session.id);
+        var filelink = jt.data.jtreeLocalPath + '/sessions/' + session.id + '.csv';
+        $('#view-session-results-filelink')
+            .text(filelink)
+            .attr('href', 'file:///' + filelink);
+        showPanel("#panel-session-info");
+        showParticipants(jt.data.session.participants);
+        // viewAllParticipants();
+        updateSessionApps();
+        jt.updateSessionUsers();
+        updateAllowNewParts();
+        jt.updateChartPage();
+        jt.chartVar('test');
+    }
 
     // $('#session-participants').removeAttr('hidden');
 
-    // setView('session');
-    // jt.view.updateNumParticipants();
-    // jt.setSessionView('appqueue');
+    setView('session');
+    jt.view.updateNumParticipants();
+    jt.setSessionView('appqueue');
 }
 
 msgs.updateSessionId = function(md) {
@@ -345,8 +332,10 @@ msgs.sessionDeleteParticipant = function(md) {
 msgs.addParticipant = function(participant) {
     if (jt.data.session != null && participant.session.id === jt.data.session.id) {
         console.log('add participant: ' + participant);
-        vue.$set(jt.data.session.participants, participant.id, participant);
-        vue.$set(vue.$store.state.session.participants, participant.id, participant);
+        Vue.set(jt.data.session.participants, participant.id, participant);
+        showParticipant(participant);
+        //        viewParticipant(participant.id);
+        jt.view.updateNumParticipants();
     }
 }
 

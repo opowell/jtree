@@ -3,59 +3,29 @@
         <action-bar
             :menus='actions'>
         </action-bar>
-        <!-- <div style='flex: 1 1 auto; align-self: stretch; overflow: auto'>
-            # | name | status<br>
-            <div v-for='participant in participants' :key='participant.id'>
-                {{participant.id}}
-            </div>
-        </div> -->
         <div style='flex: 1 1 auto; align-self: stretch; overflow: auto'>
-            <jt-tree ref='participantsTree'
-                :nodesProp='participants'
-                :f2Func='renameParticipant'
-                :dblClickFunc='openParticipant'
-                :titleField='"id"'
-                :keyField='"id"'
-                :allowChildren='false'
-                :headers='["id", "numClients", "numPoints",]'
-                @deleteNode='deleteParticipant'
-            />
+            # | name | status<br>
+            1 | P1   | playing<br>
+            2 | P2   | playing<br>
+            3 | P3   | waiting<br>
+            4 | P4   | playing<br>
+            5 | P5   | playing<br>
         </div>
     </div>
 </template>
 <script>
 import ActionBar from '@/components/ActionBar.vue'
-import JtTree from '@/components/JtTree.vue'
-import sort from 'alphanum-sort'
+
 export default {
-      name: 'SessionParticipantsPanel',
+      name: 'SessionActionsPanel',
         components: {
-            'jt-tree': JtTree,
+            // 'jt-tree': JtTree,
             'action-bar': ActionBar,
         },
     props: [
         'dat',
         'panel',
     ],
-    computed: {
-        participants() {
-            let parts = this.$store.state.session.participants;
-            if (parts == null) {
-                return null;
-            }
-            let keys = sort(Object.keys(parts));
-            let out = [];
-            for (let i=0; i<keys.length; i++) {
-                out.push(parts[keys[i]]);
-            }
-            return out;
-        },
-    },
-    methods: {
-        renameParticipant() {},
-        openParticipant() {},
-        deleteParticipant() {},
-    },
     data() { return {
                 actions: [
                 {

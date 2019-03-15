@@ -1,6 +1,6 @@
 <template>
     <div style='padding: 2rem;'>
-        id: {{sessionId}}<br>
+        id: {{dat}}<br>
         testing: off<br>
         <div @click='toggleDefault'>default: {{session.default}}</div>
     </div>
@@ -17,11 +17,6 @@
             session: {
                 default: false,
             }
-        }
-    },
-    computed: {
-        sessionId() {
-            return this.$store.state.sessionId;
         }
     },
     mounted() {

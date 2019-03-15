@@ -142,5 +142,5 @@ server.setNumParticipants = function(amt) {
     d.sId = jt.data.session.id;
     d.number = amt;
     jt.socket.emit('setNumParticipants', d);
-    // $('#setNumParticipantsModal').modal('hide');
+    $('#setNumParticipantsModal').modal('hide');
 }

@@ -236,10 +236,4 @@ jt.socketConnected = function() {
     // editorCH.session.setMode("ace/mode/html");
 
    // jt.editor = new Editor();
-
-   let sessionId = vue.$store.state.sessionId;
-   if (sessionId != null) {
-     global.jt.socket.emit('openSession', sessionId);
-   }
-
 }

@@ -15,7 +15,6 @@
             :keyField='"id"'
             :allowChildren='false'
             @deleteNode='deleteSession'
-            @changeSelectedNode='changeSelectedNode'
         >
         </jt-tree>
     </div>
@@ -64,7 +63,6 @@ export default {
                     hasParent: false,
                     icon: 'fas fa-play',
                     action: this.openSession,
-                    enabled: this.hasSelectedNode,
                 },
                 {
                     title: 'Delete',
@@ -84,10 +82,7 @@ export default {
         computed: {
             sessions() {
                 return this.$store.state.sessions;
-            },
-            hasSelectedNode() {
-                return this.$refs.sessionTree.activeNode() != null;
-            },
+            }
         },
     methods: {
         deleteSession(data, ev) {
@@ -110,14 +105,14 @@ export default {
             });
         },
         openSession() {
-            let activeNode = this.$refs.sessionsTree.activeNode();
+            let activeNode = this.$refs.sessionsTree.tree.activeNode;
             let panelData = {
                 type: 'session-info-panel',
                 title: 'Info',
                 data: activeNode.id,
                 checkIfAlreadyOpen: true,
             };
-            this.$store.commit('setSessionId', activeNode.id);
+            // this.$store.commit('setSessionId', activeNode.id);
             this.$store.dispatch('showPanel', panelData);
         },
         createNewSession(data, ev) {

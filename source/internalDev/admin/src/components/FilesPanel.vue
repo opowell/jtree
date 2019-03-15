@@ -206,7 +206,6 @@ export default {
                 let i = null;
                 parentPath.push(closestFolder.title);
                 let fullFilename = 'Untitled' + (i === null ? '' : '[' + i + ']') + '.jtt';
-                // eslint-disable-next-line
                 while (true) {
                     fullFilename = 'Untitled' + (i === null ? '' : '[' + i + ']') + '.jtt';
                     if (this.folderContainsFile(closestFolder, fullFilename)) {
