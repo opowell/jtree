@@ -5,7 +5,6 @@ const fs        = require('fs-extra');
 const Utils     = require('../Utils.js');
 // const jt        = require('../jtree.js')
 
-
 let router = require('express').Router();
 
 router.get('/files', function (req, res) {
@@ -21,14 +20,6 @@ router.get('/files', function (req, res) {
     let out = getNode(dir, 'apps');
     out.rootPath = jt.path;
     res.json(out);
-});
-
-router.post('/renameFile', function (req, res) {
-    let rootPath = path.join.apply(null, req.body.path);
-    let oldPath = path.join(rootPath, req.body.oldName);
-    let newPath = path.join(rootPath, req.body.newName);
-    fs.renameSync(oldPath, newPath);
-    res.json(true);
 });
 
 function getNode(dir, title) {

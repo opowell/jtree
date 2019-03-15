@@ -16,7 +16,6 @@ class StaticServer {
     constructor(jt) {
         this.jt = jt;
         var expApp = express();
-        expApp.use(bodyParser.json()); // support json encoded bodies
         expApp.use(bodyParser.urlencoded({extended : true}));
         // expApp.use(history());
         expApp.use(session(

@@ -29,7 +29,7 @@
                 autocapitalize="off" 
                 spellcheck="false"
                 @mousedown.stop=''
-                @keydown.esc='cancelEditing'
+                @keydown.esc='escFunc'
                 @keydown.enter='renameNode'
             />
             <span v-show='!editing' class='node-title-text'>{{node.title}}</span>
@@ -50,8 +50,6 @@
 </template>
 
 <script>
-import axios from 'axios';
-
 export default {
     name: 'jt-treenode',
     props: {
@@ -138,7 +136,7 @@ export default {
         clearSelection() {
             this.tree.selection.splice(0, this.tree.selection.length);
         },
-        cancelEditing() {
+        escFunc() {
             this.editing = false;
             this.setActiveNode(this.node);
         },
@@ -184,32 +182,8 @@ export default {
             }
             this.expanded = true;
         },
-        getParentPath(node) {
-            let out = [];
-            let parentNode = node.parentNode;
-            while (parentNode.isNode !== false) {
-                out.unshift(parentNode.title);
-                if (parentNode.rootPath != null) {
-                    out.unshift(parentNode.rootPath);
-                }
-                parentNode = parentNode.parentNode;
-            }
-            return out;
-        },
         renameNode() {
-            let parentPath = this.getParentPath(this.tree.activeNode);
-            axios.post(
-                'http://' + window.location.host + '/api/renameFile',
-                {
-                    oldName: this.tree.activeNode.title,
-                    path: parentPath,
-                    newName: this.$refs.editor.value,
-                }
-            ).then(response => {
-                console.log(response);
-                this.node.title = this.$refs.editor.value;
-                this.cancelEditing();
-            });
+
         },
     },
 }
