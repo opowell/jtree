@@ -18,7 +18,6 @@
 <script>
 import MainMenu from '@/components/MainMenu.vue'
 import GamesPanel from '@/components/GamesPanel.vue'
-import SessionsPanel from '@/components/SessionsPanel.vue'
 import SettingsPanel from '@/components/SettingsPanel.vue'
 
 export default {
@@ -26,11 +25,7 @@ export default {
   components: {
     MainMenu,
     GamesPanel,
-    SessionsPanel,
     SettingsPanel,
-  },
-  beforeMount() {
-    this.$store.commit('resetPanelIds');
   },
   data() {
     return {
@@ -45,7 +40,6 @@ export default {
   mounted() {
     let container = document.querySelector('.panel-container');
     this.$store.commit('setContainerDimensions', container);
-    this.$store.commit('setNextPanelId', this.elements.length);
     // this.parentElement = this.$el.parentNode.parentNode; // the panel container.
     // this.parentWidth = this.parentElement.clientWidth - 5;
     // this.parentHeight = this.parentElement.clientHeight - 5;
@@ -53,6 +47,26 @@ export default {
 }
 </script>
 <style>
+/* #app {
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+} */
+#nav {
+  /* padding: 30px; */
+}
+
+/* #nav a {
+  font-weight: bold;
+  color: #2c3e50;
+} */
+
+/* #nav a.router-link-exact-active {
+  color: #42b983;
+} */
+
 .panel-container {
   background-color: #b3b3b3;
   flex: 1 1 auto;
@@ -66,8 +80,8 @@ body {
   width: 100vw;
   height: 100vh;
   padding-bottom: 0px;
-  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
-  font-size: 9pt;
+font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+font-size: 9pt;
 }
 
 #app {

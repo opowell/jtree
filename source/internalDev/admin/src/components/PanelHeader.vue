@@ -28,8 +28,8 @@ export default {
     restore() {
       this.$store.commit('togglePanelsMaximized');
     },
-    close(ev) {
-      ev.stopPropagation();
+    close() {
+      console.log('close panelheader');
       this.$emit('jt-close');
     },
   }
