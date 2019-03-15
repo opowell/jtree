@@ -9,7 +9,7 @@
             @keydown.up="moveUp"
             @keydown.left="moveLeft"
             @keydown.right="moveRight"
-            @keydown.f2="f2Func('', $event)"
+            @keydown.f2="f2Func"
             tabindex="0"
             @focus="onFocus"
             ref='titleEl'
@@ -31,9 +31,8 @@
                 @mousedown.stop=''
                 @keydown.esc='cancelEditing'
                 @keydown.enter='renameNode'
-                @blur='cancelEditing'
             />
-            <span v-show='!editing' class='node-title-text no-text-select'>{{node.title}}</span>
+            <span v-show='!editing' class='node-title-text'>{{node.title}}</span>
         </div>
         <div class='children' v-show='expanded'>
             <jt-treenode
@@ -79,7 +78,7 @@ export default {
             return this.tree.selection.includes(this.node);
         },
         hasChildren() {
-            return this.nodeProp.children!=null;
+            return this.nodeProp.children!=null && this.nodeProp.children.length > 0;
         },
         icon() {
             if (this.expanded) {
@@ -111,7 +110,7 @@ export default {
             this.expanded = !this.expanded;
         },
         mousedown() {
-            this.tree.component.setActiveNode(this.node);
+            this.setActiveNode(this.node);
         },
         moveDown() {
             if (this.editing) {
@@ -134,11 +133,14 @@ export default {
             } else {
                nextNode = this.parentNode.children[this.indexOnParent+1];
             }
-            this.tree.component.setActiveNode(nextNode);
+            this.setActiveNode(nextNode);
+        },
+        clearSelection() {
+            this.tree.selection.splice(0, this.tree.selection.length);
         },
         cancelEditing() {
             this.editing = false;
-            this.tree.component.setActiveNode(this.node);
+            this.setActiveNode(this.node);
         },
         moveUp() {
             if (this.editing) {
@@ -153,7 +155,7 @@ export default {
             } else {
                nextNode = this.parentNode.children[this.indexOnParent-1].component.lastOpenNode();
             }
-            this.tree.component.setActiveNode(nextNode);
+            this.setActiveNode(nextNode);
         },
         moveLeft() {
             if (this.editing) {
@@ -163,9 +165,18 @@ export default {
                 this.expanded = false;
             } else {
                 if (this.parentNode != null && this.parentNode.isNode !== false) {
-                    this.tree.component.setActiveNode(this.parentNode);
+                    this.setActiveNode(this.parentNode);
                 }
             }
+        },
+        setActiveNode(node) {
+            this.clearSelection();
+            this.tree.selection.push(node);
+            if (this.tree.activeNode != null) {
+                this.tree.activeNode.component.editing = false;
+            }
+            this.tree.activeNode = node;
+            node.titleEl.focus();
         },
         moveRight() {
             if (this.editing) {
@@ -173,10 +184,22 @@ export default {
             }
             this.expanded = true;
         },
+        getParentPath(node) {
+            let out = [];
+            let parentNode = node.parentNode;
+            while (parentNode.isNode !== false) {
+                out.unshift(parentNode.title);
+                if (parentNode.rootPath != null) {
+                    out.unshift(parentNode.rootPath);
+                }
+                parentNode = parentNode.parentNode;
+            }
+            return out;
+        },
         renameNode() {
-            let parentPath = this.tree.component.$parent.getParentPath(this.tree.activeNode);
+            let parentPath = this.getParentPath(this.tree.activeNode);
             axios.post(
-                'http://' + window.location.host + '/api/file/rename',
+                'http://' + window.location.host + '/api/renameFile',
                 {
                     oldName: this.tree.activeNode.title,
                     path: parentPath,
@@ -187,9 +210,6 @@ export default {
                 this.node.title = this.$refs.editor.value;
                 this.cancelEditing();
             });
-        },
-        startEditing() {
-
         },
     },
 }
@@ -227,15 +247,7 @@ export default {
     white-space: nowrap;
 }
 
-.node-title:hover {
-    background-color: #424242;
-}
-
 .selected {
-    background-color: blue;
-}
-
-.selected:hover {
     background-color: blue;
 }
 

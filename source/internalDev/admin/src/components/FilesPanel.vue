@@ -3,11 +3,7 @@
     <action-bar
       :menus='actions'>
     </action-bar>
-    <div>
-        <input type="file" id="file" ref="file" @change="handleFileUpload()"/>
-        <button @click="uploadFile()">Submit</button>
-    </div>
-    <div style='padding-top: 10px; padding-bottom: 10px; background-color: rgb(37, 37, 37); flex: 1 1 auto; align-self: stretch'>
+    <div style='padding-top: 10px; padding-bottom: 10px; background-color: rgb(37, 37, 37); flex: 1 1 auto'>
         <jt-tree ref='tree'
             :nodesProp='nodes'
             :f2Func='renameActiveNode'
@@ -33,19 +29,16 @@ export default {
                 contextMenuIsVisible: true,
                 loading: true,
                 nodes: [],
-                file: '',
                 actions: [
                 {
                     title: 'New file',
                     hasParent: false,
                     icon: 'far fa-file',
-                    action: this.createNewFile,
-                },
+                }, 
                 {
                     title: 'New folder',
                     hasParent: false,
                     icon: 'far fa-folder',
-                    action: this.createNewFolder,
                 },
                 {
                     title: 'Upload file(s)...',
@@ -56,12 +49,6 @@ export default {
                     title: 'Add root folder',
                     hasParent: false,
                     icon: 'fas fa-plus',
-                },
-                {
-                    title: 'Refresh',
-                    hasParent: false,
-                    icon: 'fas fa-redo-alt',
-                    action: this.fetchData,
                 },
                 'divider',
                 {
@@ -80,7 +67,6 @@ export default {
                     title: 'Delete',
                     hasParent: false,
                     icon: 'fas fa-trash',
-                    action: this.deleteFile,
                 },
                 ],
             }
@@ -102,107 +88,9 @@ export default {
                 this.$store.state.session.gameTree.push(newNode);
             }
         },
-        getClosestFolder(node) {
-            let out = node;
-            while (out != null && out.children == null && out.parentNode != null) {
-                out = out.parentNode;
-            }
-            return out;
-        },
-        deleteFile(data, ev) {
+        renameActiveNode(ev) {
             ev.stopPropagation();
             ev.preventDefault();
-            let activeNode = this.$refs.tree.tree.activeNode;
-            let parentPath = this.getParentPath(activeNode);
-            parentPath.push(activeNode.title);
-            axios.post(
-                'http://' + window.location.host + '/api/file/delete',
-                {
-                    path: parentPath,
-                }
-            ).then(response => {
-                if (response.data === true) {
-                    activeNode.parentNode.children.splice(activeNode.indexOnParent, 1);
-                    this.$refs.tree.setActiveNode(null);
-                }
-            });
-        },
-        createNewFile(data, ev) {
-            ev.stopPropagation();
-            ev.preventDefault();
-            let activeNode = this.$refs.tree.tree.activeNode;
-            let closestFolder = this.getClosestFolder(activeNode);
-            if (closestFolder != null) {
-                let parentPath = this.getParentPath(closestFolder);
-                parentPath.push(closestFolder.title);
-                axios.post(
-                    'http://' + window.location.host + '/api/file/create',
-                    {
-                        path: parentPath,
-                        newName: 'Untitled.jtt',
-                    }
-                ).then(response => {
-                    if (response.data === true) {
-                        let newNode = {
-                            title: 'Untitled.jtt',
-                        };
-                        closestFolder.children.push(newNode);
-                        closestFolder.component.expanded = true;
-                        this.$nextTick(function() {
-                            this.$refs.tree.setActiveNode(newNode);
-                            this.renameActiveNode('', null);
-                        });
-                    }
-                });
-            }
-        },
-        createNewFolder(data, ev) {
-            ev.stopPropagation();
-            ev.preventDefault();
-            let activeNode = this.$refs.tree.tree.activeNode;
-            let closestFolder = this.getClosestFolder(activeNode);
-            if (closestFolder != null) {
-                let parentPath = this.getParentPath(closestFolder);
-                parentPath.push(closestFolder.title);
-                axios.post(
-                    'http://' + window.location.host + '/api/file/createFolder',
-                    {
-                        path: parentPath,
-                        newName: 'Untitled',
-                    }
-                ).then(response => {
-                    if (response.data === true) {
-                        let newNode = {
-                            title: 'Untitled',
-                            children: [],
-                        };
-                        closestFolder.children.push(newNode);
-                        closestFolder.component.expanded = true;
-                        this.$nextTick(function() {
-                            this.$refs.tree.setActiveNode(newNode);
-                            this.renameActiveNode('', null);
-                        });
-                    }
-                });
-            }
-        },
-        getParentPath(node) {
-            let out = [];
-            let parentNode = node.parentNode;
-            while (parentNode.isNode !== false) {
-                out.unshift(parentNode.title);
-                if (parentNode.rootPath != null) {
-                    out.unshift(parentNode.rootPath);
-                }
-                parentNode = parentNode.parentNode;
-            }
-            return out;
-        },
-        renameActiveNode(data, ev) {
-            if (ev != null) {
-                ev.stopPropagation();
-                ev.preventDefault();
-            }
             let activeNode = this.$refs.tree.tree.activeNode;
             activeNode.component.editing = true;
             this.$nextTick(function() {
@@ -210,39 +98,8 @@ export default {
                 activeNode.component.$refs.editor.select();
             });
         },
-
-        handleFileUpload() {
-            this.file = this.$refs.file.files[0];
-        },
-
-        uploadFile() {
-            let activeNode = this.$refs.tree.tree.activeNode;
-            let closestFolder = this.getClosestFolder(activeNode);
-            if (closestFolder != null) {
-                let parentPath = this.getParentPath(closestFolder);
-                parentPath.push(closestFolder.title);
-                let formData = new FormData();
-                formData.append('file', this.file);
-                formData.append('folderPath', parentPath);
-                axios.post('http://' + window.location.host + '/api/file/upload',
-                formData,
-                {
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
-                }
-                ).then(function(){
-                console.log('SUCCESS!!');
-                })
-                .catch(function(){
-                console.log('FAILURE!!');
-                });
-            }
-        },
-
         fetchData() {
-            this.loading = true;
-            this.nodes.splice(0, this.nodes.length);
+            this.loading = true
             axios
             .get('http://' + window.location.host + '/api/files')
             .then(response => {

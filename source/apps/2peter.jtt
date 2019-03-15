@@ -57,7 +57,7 @@ app.participantStart = function(participant) {
     participant.history = []; // history of this participant's play as player B.
 }
 
-// app.playersPerGroup = 8;
+app.playersPerGroup = 8;
 app.playersPerSubgroup = 2;
 app.groupSize = 2;
 
@@ -72,12 +72,6 @@ app.getGroupIdsForPeriod = function(period) {
         pIds.push(p);
     }
     Utils.alphanumSort(pIds); // P1, P2, ..., P10, P11, ...
-    
-    // If not specified, put all players in one super-group.
-    if (app.playersPerGroup == null) {
-        app.playersPerGroup = Object.keys(app.session.participants).length; // All players in one group.
-    }
-
     var numGroups = pIds.length / app.playersPerGroup;
     var numPairsPerGroup = app.playersPerGroup / app.playersPerSubgroup;
 
