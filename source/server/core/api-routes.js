@@ -11,7 +11,14 @@ let router = require('express').Router();
 
 router.get('/files', function (req, res) {
 
+    // var jt = {};
     var jt = global.jt;
+//     if (process.argv[0].indexOf('node') > -1) {
+//       jt.path         = process.cwd();
+//   } else {
+//       jt.path         = path.dirname(process.execPath);
+//   }
+  
     var dir = path.join(jt.path, 'apps');
     let out = getNode(dir, 'apps');
     out.rootPath = jt.path;
@@ -154,7 +161,15 @@ function getNode(dir, title) {
 
 router.get('/games', function (req, res) {
     let out = [];
-    var dir = path.join(global.jt.path, 'apps');
+
+    var jt = {};
+    if (process.argv[0].indexOf('node') > -1) {
+      jt.path         = process.cwd();
+  } else {
+      jt.path         = path.dirname(process.execPath);
+  }
+  
+    var dir = path.join(jt.path, 'apps');
     if (Utils.isDirectory(dir)) {
         var dirContents = fs.readdirSync(dir);
         for (var i in dirContents) {
@@ -169,22 +184,5 @@ router.get('/games', function (req, res) {
     }
     res.json(out);
 });
-
-router.get('/sessions', function (req, res) {
-    let out = [];
-    let sessions = global.jt.data.sessions;
-    for (let i=0; i<sessions.length; i++) {
-        out.push(sessions[i].shellWithChildren());
-    }
-    res.json(out);
-});
-
-router.get('/session', function (req, res) {
-    let sessionId = req.params.sessionId;
-    let session = global.jt.data.getSession(sessionId);
-    res.json(session.shellWithChildren());
-});
-
-
 // Export API routes
 module.exports = router;

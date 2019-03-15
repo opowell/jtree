@@ -68,6 +68,22 @@ export default {
                 },
             },
             {
+                text: this.$store.state.appName + ' Tree',
+                action: this.showPanel,
+                clickData: {
+                    type: 'game-tree-panel',
+                    title: 'Game Tree',
+                },
+            },
+            {
+                text: 'Session Info',
+                action: this.showPanel,
+                clickData: {
+                    type: 'session-info-panel',
+                    title: 'Session Info',
+                },
+            },
+            {
                 text: 'Sessions',
                 action: this.showPanel,
                 clickData: {
@@ -77,9 +93,6 @@ export default {
             },
             {
                 text: 'Users',
-            },
-            {
-                text: 'Rooms',
             },
             'divider',
             {
@@ -115,30 +128,24 @@ export default {
         hasParent: false,
     },
     {
+        text: 'Run',
+        hasParent: false,
+    },
+    {
+        text: 'Tools',
+        hasParent: false,
+    },
+    {
+        text: 'View',
+        hasParent: false,
+    },
+    {
         text: '?',
         hasParent: false,
     },
     {
         text: 'Session',
         hasParent: false,
-        children: [
-                        {
-                text: this.$store.state.appName + ' Tree',
-                action: this.showPanel,
-                clickData: {
-                    type: 'game-tree-panel',
-                    title: 'Game Tree',
-                },
-            },
-            {
-                text: 'Info',
-                action: this.showPanel,
-                clickData: {
-                    type: 'session-info-panel',
-                    title: 'Info',
-                },
-            },
-        ],
     },
     windowMenu,
 ];
