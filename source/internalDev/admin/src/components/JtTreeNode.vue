@@ -59,9 +59,9 @@
                 @blur='cancelEditing'
             />
             <span v-show='!editing' class='node-title-text no-text-select'>
-                <slot name='title' :nodeProp='nodeProp' :tree='tree'>
-                    {{nodeProp[tree.titleField]}}
-                </slot>
+                <slot name='treeTitle'>
+                    {{nodeTitle}}
+                </slot>        
             </span>
         </div>
         <div class='children' v-show='expanded'>
@@ -77,6 +77,12 @@
                 :dblClickFunc='dblClickFunc'
                 @deleteNode="deleteNode"
             >
+                <!-- Available slots -->
+                <slot v-for="slot in Object.keys($slots)" :name="slot" :slot="slot"/>
+                <!-- Available scoped slots -->
+                <template v-for="slot in Object.keys($scopedSlots)" :slot="slot" slot-scope="scope">
+                    <slot :name="slot" v-bind="scope"/>
+                </template>
             </jt-treenode>
         </div>
     </div>
@@ -160,7 +166,7 @@ try {
     },
     watch: { 
         nodePath: function(newVal, oldVal) { // watch it
-          console.log('Prop changed: ', newVal, ' | was: ', oldVal);
+        //   console.log('Prop changed: ', newVal, ' | was: ', oldVal);
           this.node.path = this.nodePath;
         //   this.$nextTick(function() {
         //     // if (this.isSelected !== (this.node.path === this.tree.activeNodePath)) {
@@ -355,10 +361,6 @@ try {
 .node-title-text {
     padding-top: 2px;
     padding-bottom: 2px;
-}
-
-td {
-    padding: 2px 5px;
 }
 
 </style>

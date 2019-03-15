@@ -17,14 +17,9 @@
             @deleteNode='deleteSession'
             @changeSelectedNode='changeSelectedNode'
         >
-            <template #title="{nodeProp, tree}">
-                <div :style='nodeStyle(nodeProp)'>
-                {{ (isSelectedSession(nodeProp) ? '*' : '') + nodeProp[tree.titleField]}}
-                </div>
-            </template>
-            <!-- <div slot='test'>
-                session test
-            </div> -->
+            <div slot='id' slot-scope="scope" :style='nodeStyle(scope.nodeProp)'>
+                session id {{scope.nodeProp.id}}
+            </div>
         </jt-tree>
     </div>
   </div>
@@ -84,7 +79,7 @@ export default {
             }
         },
         mounted() {
-            this.panel.id = this.panelTitle;
+            this.panel.id = 'Sessions';
         },
         created() {
             this.fetchData();
@@ -96,27 +91,15 @@ export default {
             hasSelectedNode() {
                 return this.$refs.sessionTree.activeNode() != null;
             },
-            panelTitle() {
-                return 'Sessions (' + this.sessions.length + ')';
-            },
-        },
-        watch: {
-            sessions: function(newVal) {
-                this.panel.id = 'Sessions (' + newVal.length + ')';
-            },
         },
     methods: {
-        isSelectedSession(node) {
-            return node.id === this.$store.state.sessionId;
-        },
         nodeStyle(node) {
-            if (this.isSelectedSession(node)) {
+            if (node.id === this.$store.state.sessionId) {
                 return {
-                    'font-weight': 'bold',
+                    'font-weight': bold,
                 }
             } else {
-                return {
-                }
+                return {}
             }
         },
         changeSelectedNode() {},
@@ -153,7 +136,7 @@ export default {
         createNewSession(data, ev) {
             ev.stopPropagation();
             ev.preventDefault();
-            global.jt.socket.emit('createSession_V2', null);
+            jt.socket.emit('createSession_V2', null);
             // axios.post(
             //     'http://' + window.location.host + '/api/session/create'
             // ).then(response => {

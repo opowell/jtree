@@ -6,6 +6,10 @@
                     {{header}}
                 </th>
             </tr>
+            <!-- <slot v-for="slot in Object.keys($slots)" :name="slot" :slot="slot"/>
+            <template v-for="slot in Object.keys($scopedSlots)" :slot="slot" slot-scope="scope">
+                <slot :name="slot" v-bind="scope"/>
+            </template> -->
             <jt-treenode 
                 v-for='(childNode, index) in nodesProp' 
                 :key='childNode[tree.keyField]'
@@ -19,16 +23,11 @@
                 :dblClickFunc='dblClickFunc'
                 @deleteNode="deleteNode"
             >
-                <template v-slot:title='{ nodeProp, tree }'>
-                    <slot name='title' :nodeProp='nodeProp' :tree='tree'>
-                        {{ nodeProp[tree.titleField]}}
-                    </slot>
+                <!-- <slot name='id' :slot='$slots.id' slot-scope="scope" v-bind='scope'> -->
+                <slot v-for="slot in Object.keys($slots)" :name="slot" :slot="slot"/>
+                <template v-for="slot in Object.keys($scopedSlots)" :slot="slot" slot-scope="scope">
+                    <slot :name="slot" v-bind="scope"/>
                 </template>
-                <!-- <template v-for='header in headers' v-slot:[header]='{ nodeProp, tree }'>
-                    <slot :name='header' :nodeProp='nodeProp' :tree='tree'>
-                        {{ nodeProp[tree.titleField]}}
-                    </slot>
-                </template> -->
             </jt-treenode>
         </table>
     </div>
@@ -134,7 +133,6 @@ export default {
             }
             return out;
         },
-        // eslint-disable-next-line
         deleteNode(ev) {
             this.$emit('deleteNode');
         },
@@ -181,16 +179,6 @@ export default {
 }
 </script>
 
-<style scoped>
-th {
-    padding: 2px 5px;
-}
+<style>
 
-td {
-    padding: 2px 5px;
-}
-
-tr:first-child {
-    border-bottom: 1px solid;
-}
 </style>
