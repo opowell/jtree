@@ -361,15 +361,14 @@ export default new Vuex.Store({
     },
     showPanel: ({commit, state}, data) => {
       if (data.checkIfAlreadyOpen === true) {
-        let x = findPanel(state, data.type, data.data);
-        if (x.panel !== null) {
-          x.area.activePanelInd = x.index;
-          let curPos = x.window.zIndex;
+        let {panel, index, area, window} = findPanel(state, data.type, data.data);
+        if (panel !== null) {
+          area.activePanelInd = index;
+          let curPos = window.zIndex;
           state.windows.splice(curPos, 1); 
-          state.windows.push(x.window);
-          state.activeWindow = x.window;
-          state.isMenuOpen = false;
-          return;
+          state.windows.push(window);
+          state.activeWindow = window;
+          state.isMenuOpen = false;    
         }
       }
       if (state.windowsMaximized && state.windowDescs.length > 0) {
@@ -541,11 +540,11 @@ export default new Vuex.Store({
       state.containerWidth = container.clientWidth - 5;
       state.containerHeight = container.clientHeight - 5;
     },
-    setFocussedWindow(state, windowPanel) {
-      let curPos = windowPanel.zIndex;
+    setFocussedWindow(state, window) {
+      let curPos = window.zIndex;
       state.windows.splice(curPos, 1); 
-      state.windows.push(windowPanel);
-      state.activeWindow = windowPanel;
+      state.windows.push(window);
+      state.activeWindow = window;
       state.isMenuOpen = false;
     },
     setAreaSize(state, {windowId, areaPath, size}) {
@@ -590,33 +589,7 @@ function getWindowDataIndex(state, windowId) {
 }
 
 function findPanel(state, type, data) {
-  for (let i=0; i<state.windows.length; i++) {
-    let win = state.windows[i];
-    let x = findPanelFromArea(state, type, data, win.area);
-    if (x.panel !== null) {
-      return {panel: x.panel, index: x.index, area: x.area, window: win};
-    }
-  }
-  return {panel: null, index: null, area: null, window: null};
-}
-
-function findPanelFromArea(state, type, data, area) {
-  if (area == null) {
-    debugger;
-  }
-  for (let i=0; i<area.areas.length; i++) {
-    let x = findPanelFromArea(state, type, data, area.areas[i]);
-    if (x.panel != null) {
-      return {panel: x.panel, index: x.index, area: x.area};
-    }
-  }
-  for (let i=0; i<area.panels.length; i++) {
-    let panel = area.panels[i];
-    if (panel.type === type && panel.data === data) {
-      return {panel, i, area};
-    }
-  }
-  return {panel: null, index: null, area: null};
+  return null;
 }
 
 function getArea(state, windowId, areaPath) {
