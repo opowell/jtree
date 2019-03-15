@@ -1,11 +1,6 @@
 <template>
     <div class='panel' @mousedown='click' :class='{"focussed": isFocussed, "maxed": isMaximized, "active": isActive}' :style="style">
-        <panel-header 
-            :title='dataTitle'
-            :menus='menus'
-            @jt-close='closejt'
-            @mousedown.native.prevent='startMove'
-        ></panel-header>
+        <panel-header v-on:jt-close='closejt' :title='dataTitle' @mousedown.native.prevent='startMove' :menus='menus'></panel-header>
         <panel-body>
             <slot></slot>
         </panel-body>
@@ -67,7 +62,6 @@ export default {
                 flex: '1 1 auto',
                 'box-shadow': 'none',
                 border: 'none',
-                'flex-direction': this.flexDirection,
             }
         } else {
             return {
@@ -75,8 +69,7 @@ export default {
                 left: this.left + 'px',
                 width: this.width + 'px',
                 height: this.height + 'px',
-                zIndex: this.zIndex,
-                'flex-direction': this.flexDirection,
+                zIndex: this.zIndex
             }
         }
     },
@@ -98,7 +91,6 @@ export default {
         minLeft: 5,
         parentHeight: null,
         parentWidth: null,
-        splitDirection: null, // null = don't split, "column", or "row"
       }
   },
   mounted() {
@@ -110,6 +102,7 @@ export default {
 
     methods: {
         closejt() {
+            console.log('close jtpanel');
             this.$store.commit('removePanel', this);
         },
         focus() {
@@ -356,7 +349,7 @@ export default {
 <style scoped>
 .panel {
     background-color: #d5dce8;
-    display: none;
+    display: none; /* must be explicitly displayed using "active" class */
     flex-direction: column;
     position: absolute;
     border: 1px outset #ddd;

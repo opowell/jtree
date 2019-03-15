@@ -10,16 +10,6 @@
         <menu-el v-for='menu in menus' :key='menu.text' :menu='menu'>
         </menu-el>
         <menu-el :menu='{
-          icon: "fas fa-minus",
-          action: splitVertical,
-          hasParent: false,
-        }'></menu-el>
-        <menu-el :menu='{
-          icon: "fas fa-columns",
-          action: splitHorizontal,
-          hasParent: false,
-        }'></menu-el>
-        <menu-el :menu='{
           icon: "far fa-window-minimize",
           hasParent: false,
         }'></menu-el>
@@ -55,12 +45,6 @@ export default {
     close(ev) {
       ev.stopPropagation();
       this.$emit('jt-close');
-    },
-    splitHorizontal() {
-      this.$emit('split-horizontal');
-    },
-    splitVertical() {
-      this.$emit('split-vertical');
     },
   }
 }

@@ -21,10 +21,6 @@ export default {
         hasParent: false,
         children: [
             {
-                text: 'MultiPanel',
-                action: this.showMultiPanel,
-            },
-            {
                 text: 'Files',
                 action: this.showFiles,
             },
@@ -132,10 +128,7 @@ export default {
                 showIcon: true,
             }
         );
-    },  
-    showMultiPanel() {
-        this.showPanel('multi-panel');
-    },
+    },    
     showFiles() {
         this.showPanel('files-panel');
     },
