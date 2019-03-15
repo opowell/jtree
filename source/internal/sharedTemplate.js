@@ -31,6 +31,24 @@ window.onload = function() {
     jt.checkIfLoaded();
 }
 
+jt.dataReviver = function(key, value) {
+    if (
+        (value != null) &&
+        (typeof value.startsWith === 'function') &&
+        value.startsWith("/Function(") &&
+        value.endsWith(")/")
+    ) {
+        value = value.substring(10, value.length - 2);
+        try {
+            return eval("(" + value + ")");
+        } catch (err) {
+            console.log(err);
+        }
+    } else {
+        return value;
+    }
+}
+
 jt.checkIfLoaded = function() {
         var pId = jt.getPId();
         var pwd = jt.getURLParameter('pwd');
@@ -65,7 +83,7 @@ jt.checkIfLoaded = function() {
                 partId = partData.id;
                 sessId = partData.session.id;
             } else {
-                let participant = Flatted.parse(partData);
+                let participant = CircularJSON.parse(partData, jt.dataReviver);
                 partId = participant.id;
                 sessId = participant.session.id;
             }

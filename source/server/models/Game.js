@@ -131,6 +131,8 @@ class Game {
 
         this.useVue = true;
 
+        this.addOKButtonIfNone = true;
+
         /**
          * The number of periods in this Game.
          * @type number
@@ -159,7 +161,7 @@ class Game {
                 </head>
                 <body class='hidden'>
                     <div id='jtree'>
-                        <p v-show='app.numPeriods > 1'>Period: {{period.id}}/{{app.numPeriods}}</p>
+                        <p v-show='game.numPeriods > 1'>Period: {{period.id}}/{{game.numPeriods}}</p>
                         <p v-show='hasTimeout'>Time left (s): {{clock.totalSeconds}}</p>
                         <span v-show='player.status=="playing"'>
                             {{stages}}
@@ -196,7 +198,6 @@ class Game {
         * @default null
         */
         this.activeScreen = null;
-
 
         /** Shown on all client waiting screens if {@link Stage.useWaitingScreen} = true.
         */
@@ -269,6 +270,8 @@ class Game {
          * @default true
          */
         this.subgameWrapPlayingScreenInFormTag = 'onlyIfNoButton';
+
+        this.wrapPlayingScreenInFormTag = 'onlyIfNoButton';
 
         /**
          * If defined, subjects are assigned randomly to groups of this size takes precedence over numGroups.
@@ -393,7 +396,7 @@ class Game {
         let keys = Object.keys(json);
         for (let i=0; i<keys.length; i++) {
             let key = keys[i];
-            console.log(i + ': ' + key);
+            // console.log(i + ': ' + key);
             app[key] = json[key];
         }
 
@@ -447,7 +450,7 @@ class Game {
         // Register for automatic stage messages.
         var app = this;
         for (var s in this.subgames) {
-            var subgameName = this.subgames[s].name;
+            var subgameName = this.subgames[s].id;
 
             // Listen to message from clients.
             client.on(subgameName, function(data) { // subgame messages are sent by default when submit button is clicked.
@@ -561,10 +564,15 @@ class Game {
         }
     }
 
+    /**
+     * Functions to overwrite.
+     *
+     * @param  {type} player description
+     */
     groupEnd(group) {}
     groupStart(group) {}
     playerEnd(player) {}
-    playerEnd(player) {}
+    playerStart(player) {}
 
     /**
      * Get next stage for player in their current period. Return null if already at last stage of period.

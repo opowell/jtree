@@ -10,7 +10,6 @@ class RoomClient {
          this.room = room;
          this.participantId = participantId;
          this.lastActivity = Utils.getDate(new Date());
-         this.socket = socket;
          socket.join(this.getChannelName());
      }
 

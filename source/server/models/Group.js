@@ -369,7 +369,7 @@ class Group {
      * @param  {type} client description
      */
     addClient(client) {
-        client.socket.join(this.roomId());
+        client.getSocket().join(this.roomId());
     }
 
     /**

@@ -254,7 +254,7 @@ class Player {
      * @param  {type} client description
      */
     addClient(client) {
-        client.socket.join(this.roomId());
+        client.getSocket().join(this.roomId());
     }
 
     /**
@@ -629,7 +629,7 @@ class Player {
                     } catch(err) {
                         console.log(err + '\n' + err.stack);
                     }
-                    this.save();
+                    // this.save();
                 }
             } else {
                 this.finishStage(true);

@@ -285,12 +285,8 @@ class Msgs {
         var session = Utils.findById(this.jt.data.sessions, sId);
         if (session !== null && session !== undefined) {
             socket.join(session.roomId());
-            this.jt.io.to('socket_' + socket.id).emit('openSession', flatted.stringify(session.shell()));
+            this.jt.io.to('socket_' + socket.id).emit('openSession', this.jt.Parser.stringify(session.shell(), global.jt.data.dataReplacer, 2));
             this.jt.data.lastOpenedSession = session;
-            // this.jt.data.syncData.hello = 'updated active session!';
-            // this.jt.data.syncData.activeSession = session;
-            // this.reloadClients();
-            // Called from client-side.
         }
     }
 

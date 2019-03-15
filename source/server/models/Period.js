@@ -54,9 +54,9 @@ class Period {
     participantEnd(participant) {
         for (var i=0; i<participant.clients.length; i++) {
             var client = participant.clients[i];
-            client.socket.leave(this.roomId());
-            client.socket.leave(participant.player.roomId());
-            client.socket.leave(participant.player.group.roomId());
+            client.getSocket().leave(this.roomId());
+            client.getSocket().leave(participant.player.roomId());
+            client.getSocket().leave(participant.player.group.roomId());
         }
         participant.period = null;
         participant.player = null;
@@ -223,7 +223,7 @@ class Period {
     }
 
     addClient(client) {
-        client.socket.join(this.roomId());
+        client.getSocket().join(this.roomId());
     }
 
     session() {

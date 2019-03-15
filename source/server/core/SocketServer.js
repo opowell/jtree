@@ -6,6 +6,9 @@ const socketIO  = require('socket.io');
 const Utils     = require('../models/Utils.js');
 const Client    = require('../models/Client.js');
 const Msgs      = require('./Msgs.js');
+const flatted = require('flatted');
+const CircularJSON = require('../circularjson.js');
+const Parser = CircularJSON;
 
 /** Handles socket connections */
 class SocketServer {
@@ -18,6 +21,15 @@ class SocketServer {
         jt.io = this.io;
         this.io.on('connection', this.onConnection.bind(this));
         // syc.sync('syncData', this.jt.data.syncData);
+        
+        // List of sockets, stored here so that Clients can refer to them.
+        // Client objects cannot contain a direct reference to a socket object, since
+        // socket objects should not be cloned when cloning the state.
+        this.sockets = {};
+    }
+
+    getSocket(socketId) {
+        return this.sockets[socketId];
     }
 
     /**
@@ -26,6 +38,8 @@ class SocketServer {
      * @param  {Socket} socket description
      */
     onConnection(socket) {
+
+        this.sockets[socket.id] = socket;
 
         try {
             var id          = socket.request._query.id; // participant or admin ID
@@ -150,8 +164,10 @@ class SocketServer {
                 let socketServer = this;
                 socket.on('disconnect', function() {
                     console.log('disconnect for ' + client);
-                    // socketServer.sendOrQueueAdminMsg(null, 'removeClient', client.shell());
                     Utils.deleteById(socketServer.jt.data.participantClients, client.id);
+                    if (socketServer.sockets[socket.id] != null) {
+                        delete socketServer.sockets[socket.id];
+                    }
                 });
             }
 
@@ -185,6 +201,35 @@ class SocketServer {
         ag.users                = Utils.shells(this.jt.data.users);
 
         this.sendOrQueueAdminMsg(msgs, 'refreshAdmin', ag, id);
+    }
+
+    replacer(key, value) {
+        if (key === 'nonObs') {
+            return undefined;
+        }
+        if (typeof value === "function") {
+          return "/Function(" + value.toString() + ")/";
+        }
+        return value;
+    }
+
+    sendMessage(channelId, change) {
+        let msg = {
+            arguments: change.arguments,
+            function: change.function,
+            path: change.path,
+            property: change.property,
+            type: change.type,
+            newValue: change.newValue,
+        }
+        if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
+            return true;
+        }
+        let jt = global.jt;
+        msg.newValue = Parser.stringify(msg.newValue, this.replacer, 2);
+        msg.arguments = Parser.stringify(msg.arguments, this.replacer, 2);
+        console.log('emit message: \n' + Parser.stringify(msg, this.replacer, 2));
+        jt.socketServer.io.to(channelId).emit('objChange', msg);
     }
 
     // If msgs is null, sends the message immediately.

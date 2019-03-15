@@ -4,7 +4,7 @@ const Utils         = require('./Utils.js');
 const Participant   = require('./Participant.js');
 const fs            = require('fs-extra');
 const path          = require('path');
-const flatted = require('flatted');
+// const flatted = require('flatted');
 const clone     = require('../clone.js');
 const Client        = require('./Client.js');
 const Game        = require('./Game.js');
@@ -50,8 +50,20 @@ class SessionV2 {
         
     }
 
+    dataReplacer(key, value) {
+        if (key === 'nonObs') {
+            return undefined;
+        }
+        if (typeof value === "function") {
+          return "/Function(" + value.toString() + ")/";
+        }
+        return value;
+    }
+
     setProxy(proxyObj) {
         const thisSession = this;
+
+        let replacer = this.dataReplacer;
 
         this.proxy = Observer.create(proxyObj, function(change) {
             let msg = {
@@ -65,9 +77,8 @@ class SessionV2 {
             if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
                 return true;
             }
-            msg.newValue = Parser.stringify(msg.newValue);
-            msg.arguments = Parser.stringify(msg.arguments);
-            console.log('emit message: \n' + JSON.stringify(msg, null, 4));
+            msg.newValue = Parser.stringify(msg.newValue, replacer, 2);
+            msg.arguments = Parser.stringify(msg.arguments, replacer, 2);
             // jt.socketServer.io.to(jt.socketServer.ADMIN_TYPE).emit('objChange', msg);
             jt.socketServer.io.to(thisSession.roomId()).emit('objChange', msg);
             thisSession.save();
@@ -497,8 +508,8 @@ class SessionV2 {
         participant.clientAdd(client);
         this.proxy.clients.push(client);
         // global.jt.socketServer.sendOrQueueAdminMsg(null, 'addClient', client.shell());
-        global.jt.socketServer.io.to(socket.id).emit('logged-in', flatted.stringify(participant.__target));
-        global.jt.socketServer.io.to(socket.id).emit('sessionUpdate', flatted.stringify(participant.session.__target));
+        global.jt.socketServer.io.to(socket.id).emit('logged-in', Parser.stringify(participant.__target, global.jt.data.dataReplacer, 2));
+        // global.jt.socketServer.io.to(socket.id).emit('sessionUpdate', Parser.stringify(participant.session.__target, global.jt.data.dataReplacer, 2));
         // if (participant.player !== null) {
         //     participant.player.sendUpdate(socket.id);
         // }

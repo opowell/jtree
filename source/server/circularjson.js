@@ -11,11 +11,6 @@ function encode (data, replacer, list, seen) {
     seen.set(data, index)
     list.push(stored)
     var keys = Object.keys(data)
-    // for (let prop in data) {
-    //     if (typeof data[prop] == 'function' && data.hasOwnProperty(prop)) {
-    //         keys.push(prop);
-    //     }
-    // }
     for (i = 0, l = keys.length; i < l; i++) {
       key = keys[i]
       value = data[key]

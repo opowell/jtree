@@ -17,37 +17,9 @@ class Client {
          this.pId = null;
          this.participant = null;
          this.lastActivity = Utils.getDate(new Date());
-         this.nonObs = {
-             socket: socket,
-         }
-        //  this.socket = socket;
-        //  this.socketId = socket.id;
+         this.socketId = socket.id;
          socket.join(this.getChannelName());
 
-        // let proxyObj = {
-        //     session: this.session.proxyObj,
-        //     participant: null,
-        // }
-
-        // this.proxy = Observer.create(proxyObj, function(change) {
-        //     let jt = global.jt;
-        //     let msg = {
-        //         arguments: change.arguments,
-        //         function: change.function,
-        //         path: change.path,
-        //         property: change.property,
-        //         type: change.type,
-        //         newValue: change.newValue,
-        //     }
-        //     if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
-        //         return true;
-        //     }
-        //     msg.newValue = jt.data.toShell(msg.newValue);
-        //     msg.arguments = jt.data.toShell(msg.arguments);
-        //     console.log('emit message: \n' + JSON.stringify(msg));
-        //     jt.socketServer.io.to(jt.socketServer.ADMIN_TYPE).emit('objChange', msg);
-        //     return true; // to apply changes locally.
-        // });
     }
 
      /**
@@ -61,22 +33,6 @@ class Client {
          return true;
      }
 
-    /**
-     *
-     * @return {type}  description
-     */
-    // shell() {
-    //     var out = {};
-    //     out.id = this.id;
-    //     out.ip = this.ip;
-    //     out.pId = this.pId;
-    //     out.lastActivity = this.lastActivity;
-    //     if (this.session != null) {
-    //         out.session = this.session.shell();
-    //     }
-    //     return out;
-    // }
-
     /*
      * Registers a handler on the socket to respond to a message.
      *
@@ -86,7 +42,7 @@ class Client {
      */
     on(msgName, fn) {
         // let socket = jt.socketServer.getSocket(this.socketId);
-        this.nonObs.socket.on(msgName, fn);
+        this.getSocket().on(msgName, fn);
     }
 
     register(msgName, msgFunc) {
@@ -141,6 +97,10 @@ class Client {
      */
     app() {
         return this.player().app();
+    }
+
+    getSocket() {
+        return global.jt.socketServer.getSocket(this.socketId);
     }
 
 }

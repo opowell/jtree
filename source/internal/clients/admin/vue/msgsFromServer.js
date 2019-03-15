@@ -171,7 +171,7 @@ msgs.removeRoomClient = function(client) {
 
 msgs.openSession = function(sessData) {
 
-    let session = Flatted.parse(sessData);
+    let session = CircularJSON.parse(sessData, jt.dataReviver);
 
     for (let i in participantTimers) {
         clearInterval(participantTimers[i]);

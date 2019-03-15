@@ -154,7 +154,7 @@ jt.vueMounted = false;
 jt.vueMethods = {};
 
 jt.mountVue = function(player) {
-    if (player.stage.app.useVue) {
+    if (player.game.useVue) {
     
         let vueComputed = {
             clock: function() {
@@ -174,11 +174,11 @@ jt.mountVue = function(player) {
                 return players;
             }
         };
-        let computed = player.stage.app.vueComputedText;
+        let computed = player.game.vueComputedText;
         for (let i in computed) {
             eval('vueComputed[i] = ' + computed[i]);
         }
-        let methods = player.stage.app.vueMethodsText;
+        let methods = player.game.vueMethodsText;
         for (let i in methods) {
             eval('vueMethods[i] = ' + methods[i]);
         }
@@ -192,13 +192,11 @@ jt.mountVue = function(player) {
             methods: jt.vueMethods,
             mounted: function() {
                 jt.setFormDefaults();
-                jt.setValues();
             }
         });
     } else {
         jt.vue = {};
         jt.setFormDefaults();
-        jt.setValues();
     }
 
     jt.vueMounted = true;
@@ -212,10 +210,8 @@ jt.getVueModels = function(player) {
         player: player,
         group: player.group,
         period: player.group.period,
-        stage: player.stage,
-        app: player.stage.app,
-        participant: player.participant,
         game: player.game,
+        participant: player.participant,
         timeLeft: 0,
         timeLeftClient: 0,
         hasTimeout: false,
@@ -226,7 +222,7 @@ jt.getVueModels = function(player) {
     if (vueModel.group.players == null) {
         vueModel.group.players = [];
     }
-    let models = player.stage.app.vueModels;
+    let models = player.game.vueModels;
     for (let i in models) {
         if (vueModel[i] == null) {
             vueModel[i] = models[i];
@@ -263,68 +259,13 @@ jt.getVueModels = function(player) {
     return vueModel;
 }
 
-jt.setValues = function(player) {
-    // if (player == null) {
-    //     player = jt.data.player;
-    // }
-    // let clock = jt.getClock(jt.data.timeLeft);
-
-    // $('*').each(function(index) {
-    //     let atts = this.attributes;
-    //     for (var i=0; i<atts.length; i++){
-    //         var att = atts[i];
-    //         if (att.name.startsWith('jt-')) {
-    //             if (att.name === 'jt-html') {
-    //                 let val = jt.eval(att.value, player, clock);
-    //                 val = jt.formatValue(this, val);
-    //                 this.innerHTML = val;
-    //             } else if (att.name === 'jt-text') {
-    //                 let val = jt.eval(att.value, player, clock);
-    //                 val = jt.formatValue(this, val);
-    //                 $(this).text(val);
-    //             // } else if (
-    //             //     jt.specialAttrNames.includes(att.name)
-    //             // ) {
-    //                 // DO NOTHING
-    //             } else {
-    //                 try {
-    //                     let val = jt.eval(att.value, player, clock);
-    //                     var attrName = att.name.substring('jt-'.length);
-    //                     var stepSize = $(this).attr('step');
-    //                     if (stepSize != null) {
-    //                         switch (attrName) {
-    //                         case 'max':
-    //                             val = Math.floor(val/stepSize)*stepSize;
-    //                             break;
-    //                         case 'min':
-    //                             val = Math.ceil(val/stepSize)*stepSize;
-    //                             break;
-    //                         }
-    //                     }
-    //                     this.setAttribute(attrName, val);
-    //                 } catch (err) {
-    //                     console.log('ERROR in defaultClient.js: \n' + err);
-    //                 }
-    //             }
-    //         }
-    //     }
-    // });
-
-}
-
 jt.updatePlayer = function(player, updateVue) {
-    // console.log('player update: ' + JSON.stringify(player));
+
     if (jt.data.player !== undefined && player.participant.id !== jt.data.player.participant.id) {
         return;
     }
 
     console.log('playerUpdate');
-
-    // Re-establish object links.
-    player.participant.session = player.group.period.app.session;
-    if (player.stage !== undefined) {
-        player.stage.app = player.group.period.app;
-    }
 
     jt.data.player = player; // TODO: Remove.
 
@@ -338,12 +279,9 @@ jt.updatePlayer = function(player, updateVue) {
             jt.vue.player = models.player;
             jt.vue.group = models.group;
             jt.vue.period = models.period;
-            jt.vue.stage = models.stage;
-            jt.vue.app = models.app;
             jt.vue.game = models.game;
             jt.vue.participant = models.participant;
             jt.vue.timeElapsed = 0;
-            jt.setValues(player);
         }
     }
 
@@ -463,27 +401,27 @@ jt.defaultConnected = function() {
         jt.updatePlayer(player, true);
     });
 
-    jt.socket.on('sessionUpdate', function(sessData) {
-        let session = Flatted.parse(sessData);
+    // jt.socket.on('sessionUpdate', function(sessData) {
+    //     let session = Flatted.parse(sessData);
 
-        let part = null;
-        for (let i in session.participants) {
-            if (session.participants[i].id === jt.getPId()) {
-                part = session.participants[i];
-                break;
-            }
-        }
+    //     let part = null;
+    //     for (let i in session.participants) {
+    //         if (session.participants[i].id === jt.getPId()) {
+    //             part = session.participants[i];
+    //             break;
+    //         }
+    //     }
 
-        if (part == null) return;
+    //     if (part == null) return;
 
-        jt.updatePlayer(part.player, true);
+    //     jt.updatePlayer(part.player, true);
+    // });
+
+    jt.socket.on('logged-in', function(partData) {
+        let participant = CircularJSON.parse(partData, jt.dataReviver);
+        jt.updatePlayer(participant.player, true);
     });
-
-    jt.socket.on('logged-in', function(id){
-        // $('#player').text(id);
-        console.log('logged-in as ' + JSON.stringify(id));
-    });
-
+    
     jt.socket.on('set-clock-timeleft', function(val) {
         console.log('set-clock-timeleft: ' + val);
         jt.data.timeLeft = val;

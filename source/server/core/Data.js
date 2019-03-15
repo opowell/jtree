@@ -29,6 +29,8 @@ class Data {
          */
         this.jt = jt;
 
+        jt.Parser = Parser;
+
         this.lastOpenedSession = null;
 
         /*
@@ -90,49 +92,11 @@ class Data {
         let replacer = this.dataReplacer;
 
         this.proxy = Observer.create(proxyObj, function(change) {
-            let msg = {
-                arguments: change.arguments,
-                function: change.function,
-                path: change.path,
-                property: change.property,
-                type: change.type,
-                newValue: change.newValue,
-            }
-            if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
-                return true;
-            }
-            let jt = global.jt;
-            msg.newValue = Parser.stringify(msg.newValue, replacer, 2);
-            msg.arguments = Parser.stringify(msg.arguments, replacer, 2);
-            console.log('emit message: \n' + Parser.stringify(msg, replacer, 2));
-            jt.socketServer.io.to(jt.socketServer.ADMIN_TYPE).emit('objChange', msg);
+            global.jt.socketServer.sendMessage(jt.socketServer.ADMIN_TYPE, change);
             return true; // to apply changes locally.
-            // return false;
         });
 
     }
-
-    // toShell(obj) {
-    //     let out = null;
-    //     if (obj == null) {
-    //         out = obj;
-    //     } else if (obj.shell != null) {
-    //         out = obj.shell();
-    //     } else if (obj instanceof Array) {
-    //         out = [];
-    //         for (let i=0; i<obj.length; i++) {
-    //             out.push(this.toShell(obj[i]));
-    //         }
-    //     } else if (typeof obj === 'object') {
-    //         out = {};
-    //         for (let i in obj) {
-    //             out[i] = this.toShell(obj[i]);
-    //         }
-    //     } else {
-    //         out = obj;
-    //     }
-    //     return out;
-    // }
 
     /*
      * Set a timeout to write the time info {@link Data#storeTimeInfo}. Timeout length is {@link Settings#autoSaveFreq} milliseconds.

@@ -100,33 +100,14 @@ class Participant {
 
         this.gameIndex = -1;
 
-        // let proxyObj = {
-        //     clients: this.clients,
-        //     id: this.id,
-        //     numClients: 0,
-        //     numPoints: 0,
-        //     gameIndex: -1,
-        // }
+        let proxyObj = {
+            player: this.player,
+        }
 
-        // this.proxy = Observer.create(proxyObj, function(change) {
-        //     let jt = global.jt;
-        //     let msg = {
-        //         arguments: change.arguments,
-        //         function: change.function,
-        //         path: change.path,
-        //         property: change.property,
-        //         type: change.type,
-        //         newValue: change.newValue,
-        //     }
-        //     if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
-        //         return true;
-        //     }
-        //     msg.newValue = jt.data.toShell(msg.newValue);
-        //     msg.arguments = jt.data.toShell(msg.arguments);
-        //     console.log('emit message: \n' + JSON.stringify(msg));
-        //     jt.socketServer.io.to(jt.socketServer.ADMIN_TYPE).emit('objChange', msg);
-        //     return true; // to apply changes locally.
-        // });
+        this.proxy = Observer.create(proxyObj, function(change) {
+            global.jt.socketServer.sendMessage(this.channel(), change);
+            return true; // to apply changes locally.
+        });
     }
 
     /**
