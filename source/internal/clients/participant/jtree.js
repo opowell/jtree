@@ -2,7 +2,6 @@ document.write('<script src="/socket.io/socket.io.js"></script>');
 //document.write('<script src="/shared/HackTimer.min.js"></script>');
 //document.write('<script src="/shared/HackTimerWorker.min.js"></script>');
 document.write('<script src="/shared/jquery-1.11.1.js"></script>');
-document.write('<script src="/shared/flatted.min.js"></script>');
 document.write('<script src="/shared/shared.js"></script>');
 document.write('<script src="/shared/utilsFns.js"></script>');
 document.write('<script src="/shared/jquery.cookie.js"></script>');

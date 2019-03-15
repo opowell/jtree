@@ -22,15 +22,7 @@ msgs.deleteSession = function(id) {
 
 msgs.objChange = function(change) {
 
-    console.log('object change: \n' + JSON.stringify(change.path) + '\n' + JSON.stringify(change, null, 4));
-
-    if (change.arguments != null) {
-        change.arguments = Flatted.parse(change.arguments);
-    }
-
-    if (change.newValue != null) {
-        change.newValue = Flatted.parse(change.newValue);
-    }
+    console.log('object change: \n' + JSON.stringify(change));
 
     let paths = change.path.split('.');
     let obj = window.vue.$store.state;
@@ -169,9 +161,7 @@ msgs.removeRoomClient = function(client) {
     }
 }
 
-msgs.openSession = function(sessData) {
-
-    let session = Flatted.parse(sessData);
+msgs.openSession = function(session) {
 
     for (let i in participantTimers) {
         clearInterval(participantTimers[i]);

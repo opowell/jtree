@@ -380,9 +380,9 @@ class Utils {
         return fields;
     }
 
-    static findById(array, id, idField='id') {
+    static findById(array, id) {
         for (let i in array) {
-            if (array[i] !== undefined && array[i][idField] === id) {
+            if (array[i] !== undefined && array[i].id === id) {
                 return array[i];
             }
         }
@@ -390,11 +390,10 @@ class Utils {
     }
 
     // http://stackoverflow.com/questions/5767325/how-to-remove-a-particular-element-from-an-array-in-javascript
-    static deleteById(array, id, idField='id') {
+    static deleteById(array, id) {
         for (var i = array.length-1; i>=0; i--) {
-            if(array[i][idField] === id) {
+            if(array[i].id === id) {
                 array.splice(i, 1);
-                return;
             }
         }
     }

@@ -1,7 +1,6 @@
 const fs        = require('fs-extra');
 const path      = require('path');
 const Utils     = require('../models/Utils.js');
-const flatted = require('flatted');
 
 /**
  * Messages that the server listens for from clients.
@@ -285,7 +284,7 @@ class Msgs {
         var session = Utils.findById(this.jt.data.sessions, sId);
         if (session !== null && session !== undefined) {
             socket.join(session.roomId());
-            this.jt.io.to('socket_' + socket.id).emit('openSession', flatted.stringify(session.shell()));
+            this.jt.io.to('socket_' + socket.id).emit('openSession', session.shellWithChildren());
             this.jt.data.lastOpenedSession = session;
             // this.jt.data.syncData.hello = 'updated active session!';
             // this.jt.data.syncData.activeSession = session;
@@ -324,12 +323,8 @@ class Msgs {
      * @return {type}
      */
     sessionAddGame(data, socket) {
-        let session = this.jt.data.getSession(data.sId);
-        session.addMessage(
-            'addGame',
-            data
-        );
-
+        // this.jt.data.getSession(data.sId).addApp(data.appPath, data.options);
+        this.jt.data.getSession(data.sId).addGame(data.filePath, data.options);
     }
 
     sessionAddUser(d) {
@@ -354,12 +349,10 @@ class Msgs {
      * @param  {string} id The id of the session.
      */
     sessionStart(id) {
-        var session = this.jt.data.getSession(id);
+        // var session = Utils.findById(this.jt.data.sessions, id);
+        var session = Utils.findById(this.jt.data.proxy.sessions, id);
         if (session !== null) {
-            session.addMessage(
-                'start',
-                '',
-            );
+            session.start();
         }
     }
 

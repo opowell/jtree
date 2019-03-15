@@ -139,7 +139,7 @@ class SocketServer {
                 // No session, so notify manually.
                 client = new Client.new(socket, null);
                 client.pId = pId;
-                // this.sendOrQueueAdminMsg(null, 'addClient', client.shell());
+                this.sendOrQueueAdminMsg(null, 'addClient', client.shell());
                 let participant = {
                     id: pId,
                     session: {
@@ -149,8 +149,8 @@ class SocketServer {
                 socket.emit('logged-in', participant);
                 let socketServer = this;
                 socket.on('disconnect', function() {
-                    console.log('disconnect for ' + client);
-                    // socketServer.sendOrQueueAdminMsg(null, 'removeClient', client.shell());
+                    console.log('disconnect for ' + JSON.stringify(client.shell()));
+                    socketServer.sendOrQueueAdminMsg(null, 'removeClient', client.shell());
                     Utils.deleteById(socketServer.jt.data.participantClients, client.id);
                 });
             }

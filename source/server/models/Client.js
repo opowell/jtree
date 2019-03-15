@@ -1,5 +1,5 @@
 const Utils     = require('./Utils.js');
-// const Observer = require('micro-observer').Observer;
+const Observer = require('micro-observer').Observer;
 
 /**
  * A client that is connected to a {@link Participant}.
@@ -17,34 +17,34 @@ class Client {
          this.pId = null;
          this.participant = null;
          this.lastActivity = Utils.getDate(new Date());
-        //  this.socket = socket;
-         this.socketId = socket.id;
+         this.socket = socket;
+         var sId = socket.id;
          socket.join(this.getChannelName());
 
-        // let proxyObj = {
-        //     session: this.session.proxyObj,
-        //     participant: null,
-        // }
+        this.proxyObj = {
+            session: this.session.proxyObj,
+            participant: null,
+        }
 
-        // this.proxy = Observer.create(proxyObj, function(change) {
-        //     let jt = global.jt;
-        //     let msg = {
-        //         arguments: change.arguments,
-        //         function: change.function,
-        //         path: change.path,
-        //         property: change.property,
-        //         type: change.type,
-        //         newValue: change.newValue,
-        //     }
-        //     if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
-        //         return true;
-        //     }
-        //     msg.newValue = jt.data.toShell(msg.newValue);
-        //     msg.arguments = jt.data.toShell(msg.arguments);
-        //     console.log('emit message: \n' + JSON.stringify(msg));
-        //     jt.socketServer.io.to(jt.socketServer.ADMIN_TYPE).emit('objChange', msg);
-        //     return true; // to apply changes locally.
-        // });
+        this.proxy = Observer.create(this.proxyObj, function(change) {
+            let jt = global.jt;
+            let msg = {
+                arguments: change.arguments,
+                function: change.function,
+                path: change.path,
+                property: change.property,
+                type: change.type,
+                newValue: change.newValue,
+            }
+            if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
+                return true;
+            }
+            msg.newValue = jt.data.toShell(msg.newValue);
+            msg.arguments = jt.data.toShell(msg.arguments);
+            console.log('emit message: \n' + JSON.stringify(msg));
+            jt.socketServer.io.to(jt.socketServer.ADMIN_TYPE).emit('objChange', msg);
+            return true; // to apply changes locally.
+        });
     }
 
      /**
@@ -62,17 +62,17 @@ class Client {
      *
      * @return {type}  description
      */
-    // shell() {
-    //     var out = {};
-    //     out.id = this.id;
-    //     out.ip = this.ip;
-    //     out.pId = this.pId;
-    //     out.lastActivity = this.lastActivity;
-    //     if (this.session != null) {
-    //         out.session = this.session.shell();
-    //     }
-    //     return out;
-    // }
+    shell() {
+        var out = {};
+        out.id = this.id;
+        out.ip = this.ip;
+        out.pId = this.pId;
+        out.lastActivity = this.lastActivity;
+        if (this.session != null) {
+            out.session = this.session.shell();
+        }
+        return out;
+    }
 
     /*
      * Registers a handler on the socket to respond to a message.
@@ -82,8 +82,7 @@ class Client {
      * @return {type}         description
      */
     on(msgName, fn) {
-        let socket = jt.socketServer.getSocket(this.socketId);
-        socket.on(msgName, fn);
+        this.socket.on(msgName, fn);
     }
 
     register(msgName, msgFunc) {
@@ -97,7 +96,7 @@ class Client {
 
     reload() {
         var dta = {};
-        global.jt.io.to(this.getChannelName()).emit('start-new-app', dta);
+        this.session.io().to(this.getChannelName()).emit('start-new-app', dta);
     }
 
     /**

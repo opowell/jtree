@@ -215,7 +215,6 @@ jt.getVueModels = function(player) {
         stage: player.stage,
         app: player.stage.app,
         participant: player.participant,
-        game: player.game,
         timeLeft: 0,
         timeLeftClient: 0,
         hasTimeout: false,
@@ -340,7 +339,6 @@ jt.updatePlayer = function(player, updateVue) {
             jt.vue.period = models.period;
             jt.vue.stage = models.stage;
             jt.vue.app = models.app;
-            jt.vue.game = models.game;
             jt.vue.participant = models.participant;
             jt.vue.timeElapsed = 0;
             jt.setValues(player);
@@ -461,22 +459,6 @@ jt.defaultConnected = function() {
 
     jt.socket.on('playerUpdate', function(player) {
         jt.updatePlayer(player, true);
-    });
-
-    jt.socket.on('sessionUpdate', function(sessData) {
-        let session = Flatted.parse(sessData);
-
-        let part = null;
-        for (let i in session.participants) {
-            if (session.participants[i].id === jt.getPId()) {
-                part = session.participants[i];
-                break;
-            }
-        }
-
-        if (part == null) return;
-
-        jt.updatePlayer(part.player, true);
     });
 
     jt.socket.on('logged-in', function(id){
