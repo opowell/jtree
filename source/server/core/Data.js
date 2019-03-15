@@ -10,8 +10,7 @@ const User = require('../models/User.js');
 const Observer = require('micro-observer').Observer;
 const Game = require('../models/Game.js');
 const flatted = require('flatted');
-const CircularJSON = require('../circularjson.js');
-const Parser = CircularJSON;
+
 /** The data object. */
 class Data {
 
@@ -77,18 +76,6 @@ class Data {
             proxyObj.sessions.push(this.sessions[i].proxy);
         }
 
-        this.dataReplacer = function(key, value) {
-            if (key === 'nonObs') {
-                return undefined;
-            }
-            if (typeof value === "function") {
-              return "/Function(" + value.toString() + ")/";
-            }
-            return value;
-        }
-
-        let replacer = this.dataReplacer;
-
         this.proxy = Observer.create(proxyObj, function(change) {
             let msg = {
                 arguments: change.arguments,
@@ -102,9 +89,9 @@ class Data {
                 return true;
             }
             let jt = global.jt;
-            msg.newValue = Parser.stringify(msg.newValue, replacer, 2);
-            msg.arguments = Parser.stringify(msg.arguments, replacer, 2);
-            console.log('emit message: \n' + Parser.stringify(msg, replacer, 2));
+            msg.newValue = flatted.stringify(msg.newValue);
+            msg.arguments = flatted.stringify(msg.arguments);
+            console.log('emit message: \n' + flatted.stringify(msg));
             jt.socketServer.io.to(jt.socketServer.ADMIN_TYPE).emit('objChange', msg);
             return true; // to apply changes locally.
             // return false;
@@ -582,15 +569,14 @@ class Data {
                     var session = this.loadSession(folder);
                     if (session !== null) {
                         out.push(session);
-                    } 
-                    // else {
-                    //     var pathToFolder = path.join(this.jt.path, this.jt.settings.sessionsFolder + '/' + folder + '/');
-                    //     var contents = fs.readdirSync(pathToFolder);
-                    //     if (contents.length === 0) {
-                    //         console.log('completing delete of session ' + folder);
-                    //         fs.removeSync(pathToFolder);
-                    //     }
-                    // }
+                    } else {
+                        var pathToFolder = path.join(this.jt.path, this.jt.settings.sessionsFolder + '/' + folder + '/');
+                        var contents = fs.readdirSync(pathToFolder);
+                        if (contents.length === 0) {
+                            console.log('completing delete of session ' + folder);
+                            fs.removeSync(pathToFolder);
+                        }
+                    }
                 } catch (err) {
                     this.jt.log(err);
                 }
@@ -808,7 +794,7 @@ class Data {
             }
         } catch (err) {
             console.log('error loading session WS: ' + folder);
-            console.log(err);
+            //        console.log(err);
         }
         return out;
     }

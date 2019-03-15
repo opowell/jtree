@@ -25,11 +25,11 @@ msgs.objChange = function(change) {
     console.log('object change: \n' + JSON.stringify(change.path) + '\n' + JSON.stringify(change, null, 4));
 
     if (change.arguments != null) {
-        change.arguments = CircularJSON.parse(change.arguments);
+        change.arguments = Flatted.parse(change.arguments);
     }
 
     if (change.newValue != null) {
-        change.newValue = CircularJSON.parse(change.newValue);
+        change.newValue = Flatted.parse(change.newValue);
     }
 
     let paths = change.path.split('.');

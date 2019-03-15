@@ -347,7 +347,7 @@ class Game {
          */
         this.finished = false;
 
-        // this.newStage = this.addSubGame;
+        this.newStage = this.addSubGame;
 
     }
 
@@ -376,32 +376,25 @@ class Game {
      */
     static load(json, session) {
         var index = json.sessionIndex;
-        var app = new Game(session, session.jt, json.id, json.parent);
+        var app = new Game(session, json.id, session.jt);
 
         // Run app code.
-        // var folder = path.join(session.jt.path, session.getOutputDir() + '/' + index + '_' + json.id);
-        // var appCode = Utils.readJS(folder + '/app.jtt');
-        // eval(appCode);
+        var folder = path.join(session.jt.path, session.getOutputDir() + '/' + index + '_' + json.id);
+        var appCode = Utils.readJS(folder + '/app.jtt');
+        eval(appCode);
 
-        // //If there is already an app in place, save its stages and periods??
-        // if (session.apps.length > index-1) {
-        //     var curGame = session.apps[index-1];
-        //     /** app.stages = curGame.stages;*/
-        //     app.periods = curGame.periods;
-        // }
-
-        let keys = Object.keys(json);
-        for (let i=0; i<keys.length; i++) {
-            let key = keys[i];
-            console.log(i + ': ' + key);
-            app[key] = json[key];
+        //If there is already an app in place, save its stages and periods??
+        if (session.apps.length > index-1) {
+            var curGame = session.apps[index-1];
+            /** app.stages = curGame.stages;*/
+            app.periods = curGame.periods;
         }
 
-        for (let i=0; i<app.subgames.length; i++) {
-            app.subgames[i] = Game.load(app.subgames[i], session);
+        for (var j in json) {
+            app[j] = json[j];
         }
 
-        return app;
+        session.apps[index-1] = app;
     }
 
     /**

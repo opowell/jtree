@@ -16,7 +16,6 @@ document.write('<script src="/shared/webcomponents-bundle.js"></script>');
 document.write('<script src="/shared/polyfill.min.js"></script>');
 // document.write('<script src="/shared/flatted.min.js"></script>');
 document.write('<script src="/shared/flatted.js"></script>');
-document.write('<script src="/shared/circularjson.js"></script>');
 // document.write('<script src="/shared/bootstrap-vue.js"></script>');
 
 
