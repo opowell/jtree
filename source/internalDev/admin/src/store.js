@@ -142,9 +142,9 @@ export default new Vuex.Store({
         area.activePanelInd--;
       }
     },
-    newSiblingOfParent(state, {areaPath, windowId, panelInd}) {
+    newSiblingOfParent(state, {areaPath, window, panelInd}) {
       let areaIndex = areaPath.splice(areaPath.length-1, 1);
-      let parent = getArea(state, windowId, areaPath);
+      let parent = getArea(state, window.id, areaPath);
       let area = parent.areas[areaIndex];
       
       // Nothing to do if not more than one panel.
@@ -162,8 +162,8 @@ export default new Vuex.Store({
       });
       area.activePanelInd = Math.max(0, panelInd-1);
     },
-    createChild(state, {areaPath, windowId, panelInd, rowChildren}) {
-      let area = getArea(state, windowId, areaPath);
+    createChild(state, {areaPath, window, panelInd, rowChildren}) {
+      let area = getArea(state, window.id, areaPath);
       area.rowChildren = rowChildren;
       let curActivePanel = area.panels.splice(panelInd, 1)[0];
 
@@ -209,8 +209,8 @@ export default new Vuex.Store({
         }
       }
     },
-    setActivePanelIndex(state, {index, areaPath, windowId}) {
-      let area = getArea(state, windowId, areaPath);
+    setActivePanelIndex(state, {index, areaPath, window}) {
+      let area = getArea(state, window.id, areaPath);
       area.activePanelInd = index;
     },
     setApps(state, apps) {

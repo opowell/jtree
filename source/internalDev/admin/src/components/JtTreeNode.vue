@@ -4,12 +4,11 @@
             class='node-title'
             :class='{"selected": isSelected}'
             @dblclick.prevent.stop='toggleExpanded'
-            @mousedown='mousedown'
+            @mousedown='select'
             @keydown.down="moveDown"
             @keydown.up="moveUp"
             @keydown.left="moveLeft"
             @keydown.right="moveRight"
-            @keydown.f2="f2Func"
             tabindex="0"
             @focus="onFocus"
             ref='titleEl'
@@ -18,21 +17,7 @@
                 {{icon}}
             </span>
             <span v-show='!hasChildren' class='expand-icon-width'></span>
-            <input 
-                v-show='editing'
-                class='editor'
-                type='text'
-                :value='node.title'
-                ref='editor'
-                autocomplete="off" 
-                autocorrect="off" 
-                autocapitalize="off" 
-                spellcheck="false"
-                @mousedown.stop=''
-                @keydown.esc='escFunc'
-                @keydown.enter='renameNode'
-            />
-            <span v-show='!editing' class='node-title-text'>{{node.title}}</span>
+            {{node.title}}
         </div>
         <div class='children' v-show='expanded'>
             <jt-treenode
@@ -42,7 +27,6 @@
                 :tree='tree'
                 :parentNode='nodeProp'
                 :indexOnParent='index'
-                :f2Func='f2Func'
             >
             </jt-treenode>
         </div>
@@ -52,24 +36,16 @@
 <script>
 export default {
     name: 'jt-treenode',
-    props: {
-        nodeProp: {},
-        tree: {},
-        parentNode: {},
-        indexOnParent: {},
-        expandedProp: {
-            default: false
-        },
-        editingProp: {
-            default: false
-        },
-        f2Func: {},
-    },
+    props: [
+        'nodeProp',
+        'tree',
+        'parentNode',
+        'indexOnParent',
+    ],
     data() { return {
         node: this.nodeProp,
         el: null,
-        expanded: this.expandedProp,
-        editing: this.editingProp,
+        expanded: false,
     }},
     computed: {
         isSelected() {
@@ -107,13 +83,11 @@ export default {
         toggleExpanded() {
             this.expanded = !this.expanded;
         },
-        mousedown() {
-            this.setActiveNode(this.node);
+        select() {
+            this.tree.selection.splice(0, this.tree.selection.length);
+            this.tree.selection.push(this.node);
         },
         moveDown() {
-            if (this.editing) {
-                return;
-            }
             let nextNode = null;
             if (this.expanded && this.hasChildren) {
                 nextNode = this.node.children[0];
@@ -136,14 +110,7 @@ export default {
         clearSelection() {
             this.tree.selection.splice(0, this.tree.selection.length);
         },
-        escFunc() {
-            this.editing = false;
-            this.setActiveNode(this.node);
-        },
         moveUp() {
-            if (this.editing) {
-                return;
-            }
             let nextNode = null;
             if (this.indexOnParent < 1) {
                 if (this.parentNode.isNode === false) {
@@ -156,34 +123,19 @@ export default {
             this.setActiveNode(nextNode);
         },
         moveLeft() {
-            if (this.editing) {
-                return;
-            }
             if (this.expanded) {
                 this.expanded = false;
             } else {
-                if (this.parentNode != null && this.parentNode.isNode !== false) {
-                    this.setActiveNode(this.parentNode);
-                }
+                this.setActiveNode(this.parentNode);
             }
         },
         setActiveNode(node) {
             this.clearSelection();
             this.tree.selection.push(node);
-            if (this.tree.activeNode != null) {
-                this.tree.activeNode.component.editing = false;
-            }
-            this.tree.activeNode = node;
             node.titleEl.focus();
         },
         moveRight() {
-            if (this.editing) {
-                return;
-            }
             this.expanded = true;
-        },
-        renameNode() {
-
         },
     },
 }
@@ -196,8 +148,6 @@ export default {
 
 .expand-icon-width {
     flex: 0 0 20px;
-    padding-top: 2px;
-    padding-bottom: 2px;
 }
 
 .expand-icon {
@@ -215,25 +165,11 @@ export default {
 
 .node-title {
     display: flex;
-    padding-left: 2px;
-    padding-right: 2px;
+    padding: 2px;
     cursor: pointer;
-    white-space: nowrap;
 }
 
 .selected {
     background-color: blue;
 }
-
-.editor {
-    padding: 0px;
-    margin: 0px;
-    border: none;
-    padding: 2px;
-}
-
-.node-title-text {
-    padding: 2px;
-}
-
 </style>
