@@ -3,11 +3,17 @@
     <MainMenu/>
     <!-- <router-view/> -->
     <div class='panel-container'>
+      <!-- <component
+        v-for='el in elements'
+        :is='el.type'
+        :key='el.panelId'
+        :panelId='el.id'
+        :x='el.x' :y='el.y' :w='el.w' :h='el.h'
+        >
+      </component> -->
       <multi-panel
         v-for='(window, index) in windows'
-        :window='window'
-        :key='index'
-        :activePanelInd='window.activePanelInd'
+        :window='window' :key='index'
         >
       </multi-panel>
     </div>

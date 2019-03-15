@@ -22,7 +22,7 @@ export default new Vuex.Store({
     apps: [],
     isMenuOpen: false,
     activeMenu: null,
-    activeWindow: null,
+    activePanel: null,
 
     games: [],
 
@@ -31,9 +31,9 @@ export default new Vuex.Store({
 
     containerHeight: 5000,
     containerWidth: 5000,
-    nextWindowXIncrement: 40,
-    nextWindowYIncrement: 40,
-    nextWindowId: 0,
+    nextPanelXIncrement: 40,
+    nextPanelYIncrement: 40,
+    nextPanelId: 0,
 
     // PERSISTENT SETTINGS
     // must be added to 'paths' option.
@@ -46,70 +46,75 @@ export default new Vuex.Store({
     panelBGColor: '#b5b5b5',
 
     // Coordinates of where to open panels.
-    nextWindowX: 20,
-    nextWindowY: 20,
+    nextPanelX: 20,
+    nextPanelY: 20,
     fontSize: '10pt',
 
   },
-  actions: {
-    dropOnTab: ({commit}, {sourceWindowId, sourceAreaPath, sourcePanelIndex, targetWindowId, targetAreaPath, targetIndex}) => {
-      sourceWindowId = sourceWindowId-0;
-      commit('addTabToPanel', {
-        sourceWindowId, sourceAreaPath, sourcePanelIndex, targetWindowId, targetAreaPath, targetIndex,
-      });
-      commit('closePanel', {
-        panelIndex: sourcePanelIndex, 
-        areaPath: sourceAreaPath, 
-        windowId: sourceWindowId
-      });
-    },
-  },
   mutations: {
-    addPanelToActiveWindow(state, panelInfo) {
-      for (let i=0; i<state.windowDescs.length; i++) {
-        if (state.windowDescs[i].id === state.activeWindow.panelId) {
-          let area = state.windowDescs[i];
-          while (area.areas.length > 0) {
-            area = area.areas[0];
-          }
-          area.panels.push(panelInfo);
-          area.activePanelInd = area.panels.length - 1;
-          break;
-        }
-      }
-    },
     addQueues(state, queues) {
       state.queues.splice(0, state.queues.length);
       for (let q in queues) {
         state.queues.push(queues[q]);
       }
     },
-    addTabToPanel(state, {
-      sourceWindowId, sourceAreaPath, sourcePanelIndex, targetWindowId, targetAreaPath, targetIndex,
-    }) {
-      let sourceArea = getArea(state, sourceWindowId, sourceAreaPath);
-      let sourcePanel = sourceArea.panels[sourcePanelIndex];
-      let targetArea = getArea(state, targetWindowId, targetAreaPath);
-      targetArea.panels.splice(targetIndex, 0, sourcePanel);
-      targetArea.activePanelInd = targetIndex;
-    },
-    addWindow(state, panel) {
-      state.activeWindow = panel;
-      state.windows.push(panel);
-    },
-    changeSelectedIndex(state, {areaPath, windowId, change}) {
-      let area = getArea(state, windowId, areaPath);
-      area.activePanelInd = area.activePanelInd + change;
-      if (area.activePanelInd < 0) {
-        area.activePanelInd = area.panels.length - 1;
-      }
-      else if (area.activePanelInd > area.panels.length - 1) {
-        area.activePanelInd = 0;
+    setApps(state, apps) {
+      state.apps.splice(0, state.apps.length);
+      for (let q in apps) {
+        state.apps.push(apps[q]);
       }
     },
-    closeArea(state, {areaPath, windowId}) {
-      let winIndex = getWindowDataIndex(state, windowId);
-      let win = state.windowDescs[winIndex];
+    setFocussedWindow(state, window) {
+      let curPos = window.zIndex;
+      state.windows.splice(curPos, 1); 
+      state.windows.push(window);
+      state.activePanel = window;
+      state.isMenuOpen = false;
+    },
+    setActivePanelIndex(state, {index, areaPath, window}) {
+      let win = null;
+      for (let i=0; i<state.windowDescs.length; i++) {
+        if (state.windowDescs[i].id === window.id) {
+          win = state.windowDescs[i];
+          break;
+        }
+      }
+      let area = win;
+      for (let i=0; i<areaPath.length; i++) {
+        area = area.areas[areaPath[i]];
+      }
+      area.activePanelInd = index;
+    },
+    closePanel(state, {panelIndex, areaPath, window}) {
+      let win = null;
+      for (let i=0; i<state.windowDescs.length; i++) {
+        if (state.windowDescs[i].id === window.id) {
+          win = state.windowDescs[i];
+          break;
+        }
+      }
+      let area = win;
+      for (let i=0; i<areaPath.length; i++) {
+        area = area.areas[areaPath[i]];
+      }
+      area.panels.splice(panelIndex, 1);
+      if (area.panels.length < 1) {
+          this.commit('closeArea', {areaPath, window});
+      } 
+      if (panelIndex === area.activePanelInd) {
+          area.activePanelInd = Math.max(0, panelIndex-1);
+      }
+    },
+    closeArea(state, {areaPath, window}) {
+      let win = null;
+      let winIndex = null;
+      for (let i=0; i<state.windowDescs.length; i++) {
+        if (state.windowDescs[i].id === window.id) {
+          win = state.windowDescs[i];
+          winIndex = i;
+          break;
+        }
+      }
       let area = win;
       let parent = null;
       let lastIndex = null;
@@ -131,47 +136,48 @@ export default new Vuex.Store({
         state.windowDescs.splice(winIndex, 1);
       }
     },
-    closePanel(state, {panelIndex, areaPath, windowId}) {
-      let area = getArea(state, windowId, areaPath);
-      area.panels.splice(panelIndex, 1);
-      if (area.panels.length < 1) {
-          this.commit('closeArea', {areaPath, windowId});
-      }
-      if (panelIndex === area.activePanelInd) {
-          area.activePanelInd = Math.max(0, panelIndex-1);
+    addActivePanel(state, panel) {
+      state.activePanel = panel;
+      state.windows.push(panel);
+    },
+    resetPanelIds(state) {
+      for (let i=0; i<state.windowDescs.length; i++) {
+        state.windowDescs[i].id = state.nextPanelId;
+        state.nextPanelId++;
       }
     },
-    newSiblingOfParent(state, {areaPath, window, panelInd}) {
-      let areaIndex = areaPath.splice(areaPath.length-1, 1);
-      let parent = getArea(state, window.id, areaPath);
-      let area = parent.areas[areaIndex];
-      
-      // Nothing to do if not more than one panel.
-      if (area.panels.length < 2) {
-        return;
+    addPanelToActiveWindow(state, panelInfo) {
+      for (let i=0; i<state.windowDescs.length; i++) {
+        if (state.windowDescs[i].id === state.activePanel.panelId) {
+          let area = state.windowDescs[i];
+          while (area.areas.length > 0) {
+            area = area.areas[0];
+          }
+          area.panels.push(panelInfo);
+          area.activePanelInd = area.panels.length - 1;
+          break;
+        }
       }
-
-      let panel = area.panels.splice(panelInd, 1)[0];
-      parent.areas.push({
-          panels: [panel],
-          areas: [],
-          activePanelInd: 0,
-          flex: '1 1 100px',
-          rowChildren: true,
-      });
-      area.activePanelInd = Math.max(0, panelInd-1);
     },
-    createChild(state, {areaPath, window, panelInd, rowChildren}) {
-      let area = getArea(state, window.id, areaPath);
-      area.rowChildren = rowChildren;
+    createChild(state, {splitDirection, areaPath, window, panelInd}) {
+      let win = null;
+      for (let i=0; i<state.windowDescs.length; i++) {
+        if (state.windowDescs[i].id === window.id) {
+          win = state.windowDescs[i];
+          break;
+        }
+      }
+      let area = win;
+      for (let i=0; i<areaPath.length; i++) {
+        area = area.areas[areaPath[i]];
+      }
+      area.splitDirection = splitDirection;
       let curActivePanel = area.panels.splice(panelInd, 1)[0];
 
       let firstChildArea = {
           panels: [],
           areas: [],
           activePanelInd: 0,
-          flex: '1 1 100px',
-          rowChildren: true,
       };
       let numPanels = area.panels.length;
       for (let i=0; i<numPanels; i++) {
@@ -185,18 +191,26 @@ export default new Vuex.Store({
           panels: [curActivePanel],
           areas: [],
           activePanelInd: 0,
-          flex: '1 1 100px',
-          rowChildren: true,
       });
 
     },
-    resetPanelIds(state) {
-      for (let i=0; i<state.windowDescs.length; i++) {
-        state.windowDescs[i].id = state.nextWindowId;
-        state.nextWindowId++;
+    showWindow(state, windowInfo) {
+      windowInfo.id = state.nextPanelId;
+      if (state.nextPanelX + windowInfo.w > state.containerWidth) {
+        state.nextPanelX = 25;
       }
+      if (state.nextPanelY + windowInfo.h > state.containerHeight) {
+        state.nextPanelY = 25;
+      }
+      windowInfo.x = state.nextPanelX;
+      windowInfo.y = state.nextPanelY;
+      windowInfo.activePanelInd = 0;
+      state.nextPanelX += state.nextPanelXIncrement;
+      state.nextPanelY += state.nextPanelYIncrement;
+      state.nextPanelId++;
+      state.windowDescs.push(windowInfo);
     },
-    saveWindowInfo(state, windowDataIn) {
+    savePanelInfo(state, windowDataIn) {
       for (let i=0; i < state.windowDescs.length; i++) {
         let windowData = state.windowDescs[i];
         if (windowData.id === windowDataIn.panelId) {
@@ -208,79 +222,16 @@ export default new Vuex.Store({
         }
       }
     },
-    setActivePanelIndex(state, {index, areaPath, window}) {
-      let area = getArea(state, window.id, areaPath);
-      area.activePanelInd = index;
-    },
-    setApps(state, apps) {
-      state.apps.splice(0, state.apps.length);
-      for (let q in apps) {
-        state.apps.push(apps[q]);
-      }
+    toggleWindowsMaximized(state) {
+      state.windowsMaximized = !state.windowsMaximized;
     },
     setContainerDimensions(state, container) {
       state.containerWidth = container.clientWidth - 5;
       state.containerHeight = container.clientHeight - 5;
     },
-    setFocussedWindow(state, window) {
-      let curPos = window.zIndex;
-      state.windows.splice(curPos, 1); 
-      state.windows.push(window);
-      state.activeWindow = window;
-      state.isMenuOpen = false;
-    },
-    setAreaSize(state, {windowId, areaPath, size}) {
-      let area = getArea(state, windowId, areaPath);
-      area.flex = '0 0 ' + size + 'px';
-    },
-    showWindow(state, windowInfo) {
-      windowInfo.id = state.nextPanelId;
-      if (state.nextWindowX + windowInfo.w > state.containerWidth) {
-        state.nextWindowX = 25;
-      }
-      if (state.nextWindowY + windowInfo.h > state.containerHeight) {
-        state.nextWindowY = 25;
-      }
-      windowInfo.x = state.nextWindowX;
-      windowInfo.y = state.nextWindowY;
-      windowInfo.activePanelInd = 0;
-      state.nextWindowX += state.nextWindowXIncrement;
-      state.nextWindowY += state.nextWindowYIncrement;
-      state.nextWindowId++;
-      state.windowDescs.push(windowInfo);
-    },
-    toggleWindowsMaximized(state) {
-      state.windowsMaximized = !state.windowsMaximized;
-    },
-    toggleRowChildren(state, {windowId, areaPath}) {
-      let area = getArea(state, windowId, areaPath);
-      area.rowChildren = !area.rowChildren;
-    },
+
   },
+  actions: {
+
+  }
 })
-
-function getWindowDataIndex(state, windowId) {
-  for (let i=0; i<state.windowDescs.length; i++) {
-    if (state.windowDescs[i].id === windowId) {
-      return i;
-    }
-  }
-}
-
-function getArea(state, windowId, areaPath) {
-  let win = getWindowData(state, windowId);
-  let area = win;
-  for (let i=0; i<areaPath.length; i++) {
-    area = area.areas[areaPath[i]];
-  }
-  return area;
-}
-
-function getWindowData(state, windowId) {
-  let win = null;
-  let index = getWindowDataIndex(state, windowId);
-  if (index > -1) {
-    win = state.windowDescs[index];
-  }
-  return win;
-}

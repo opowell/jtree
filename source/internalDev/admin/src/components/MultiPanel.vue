@@ -12,8 +12,6 @@
 		:indexOnParent=0
 		@startmove='startMove'
 		:activePanelInd="activePanelInd"
-		:flex="flex"
-		:rowChildren='rowChildren'
 		/>
     </div>
     <span class="handle handle-tl" @mousedown.prevent="startResizeTL"></span>
@@ -35,8 +33,7 @@ export default {
 		JtArea,
 	},
 	props: [
-		'window',
-		'activePanelInd',
+		'window'
 	],
 	data() {
 		return {
@@ -75,20 +72,17 @@ export default {
 		};
 	},
 	computed: {
-		flex() {
-			return this.window.flex;
+		activePanelInd() {
+			return this.window.activePanelInd;
 		},
 		isActive() {
-			return !this.isMaximized || this === this.$store.state.activeWindow;
+			return !this.isMaximized || this === this.$store.state.activePanel;
 		},
 		isFocussed() {
-			return this === this.$store.state.activeWindow;
+			return this === this.$store.state.activePanel;
 		},
 		isMaximized() {
 			return this.$store.state.windowsMaximized;
-		},
-		rowChildren() {
-			return this.window.rowChildren;
 		},
 		zIndex() {
 			const windows = this.$store.state.windows;
@@ -410,7 +404,7 @@ export default {
 		this.parentElement = this.$el.parentNode.parentNode; // the panel container.
 		this.parentWidth = this.parentElement.clientWidth - 5;
 		this.parentHeight = this.parentElement.clientHeight - 5;
-		this.$store.commit('addWindow', this);
+		this.$store.commit('addActivePanel', this);
 	},
 
 };

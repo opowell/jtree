@@ -34,48 +34,41 @@ export default {
         text: 'File',
         hasParent: false,
         children: [
-            // {
-            //     text: 'PanelOne',
-            //     action: this.showPanel,
-            //     clickData: {
-            //         type: 'panel-one',
-            //         title: 'Panel One',
-            //         data: 13,
-            //     },
-            // },
-            // {
-            //     text: 'PanelTwo',
-            //     action: this.showPanel,
-            //     clickData: {
-            //         type: 'panel-two',
-            //         title: 'Panel Two',
-            //         data: 35,
-            //     },
-            // },
             {
-                text: 'Files',
+                text: 'PanelOne',
                 action: this.showPanel,
                 clickData: {
-                    type: 'files-panel',
-                    title: 'Files',
+                    type: 'panel-one',
+                    title: 'Panel One',
+                    data: 13,
                 },
+            },
+            {
+                text: 'PanelTwo',
+                action: this.showPanel,
+                clickData: {
+                    type: 'panel-two',
+                    title: 'Panel Two',
+                    data: 35,
+                },
+            },
+            {
+                text: 'Files',
+                action: this.showFiles,
             },
             {
                 text: this.$store.state.appName + 's',
                 shortcut: 'Ctrl+G',
-                action: this.showPanel,
-                clickData: {
-                    type: 'games-panel',
-                    title: 'Games',
-                },
+                action: this.showGames,
+            },
+            {
+                text: this.$store.state.appName + 's',
+                shortcut: 'Ctrl+G',
+                action: this.showGames,
             },
             {
                 text: 'Sessions',
-                action: this.showPanel,
-                clickData: {
-                    type: 'sessions-panel',
-                    title: 'Sessions',
-                },
+                action: this.showSessions,
             },
             {
                 text: 'Users',
@@ -83,11 +76,7 @@ export default {
             'divider',
             {
                 text: 'Settings',
-                action: this.showPanel,
-                clickData: {
-                    type: 'settings-panel',
-                    title: 'Settings',
-                },
+                action: this.showSettings,
             },
         ]
     },
@@ -196,12 +185,32 @@ export default {
             }
         );
     },
+    splitMultiPanel(direction) {
+        const panel = this.$store.state.activePanel;
+        console.log(direction);
+        panel.splitOff(0);
+    },
+    showMultiPanel() {
+        this.showPanel('multi-panel');
+    },
+    showFiles() {
+        this.showPanel('files-panel');
+    },
+    showGames() {
+        this.showPanel('games-panel');
+    },
+    showSettings() {
+        this.showPanel('settings-panel');
+    },
+    showSessions() {
+        this.showPanel('sessions-panel');
+    },
     showPanel(data) {
         if (this.$store.state.windowsMaximized && this.$store.state.windowDescs.length > 0) {
             this.$store.commit('addPanelToActiveWindow', {
                 id: data.title,
                 type: data.type,
-                data: data.data,
+                data: 13,
             });
         } else {
             this.$store.commit('showWindow', {
@@ -209,13 +218,12 @@ export default {
                     {
                         id: data.title,
                         type: data.type,
-                        data: data.data,
+                        data: 13,
                     },
                 ],
                 areas: [],
                 w: 500,
                 h: 300,
-                flex: '1 1 100px',
             });
         }
     },
