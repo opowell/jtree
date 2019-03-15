@@ -80,7 +80,6 @@ const persistentSettings = [
       key: 'windowDescs',
       editable: false,
       isStyle: false,
-      default: [],
   },
   {
       key: 'nextWindowX',
@@ -145,14 +144,12 @@ const persistentSettings = [
       ],
       key: 'openNewPanelsIn',
       isStyle: false,
-      default: OPEN_NEW_PANELS_IN_ACTIVE_WINDOW,
   },
   {
       name: 'Hide tabs when only single panel in area',
       type: 'checkbox',
       key: 'hideTabsWhenSinglePanel',
       isStyle: false,
-      default: false,
   },
   {
       name: 'Selected tab font color',
@@ -252,7 +249,6 @@ let stateObj = {
   persistentSettings: persistentSettings,
   queues: [],
   apps: [],
-  sessions: [],
   isMenuOpen: false,
   activeMenu: null,
   activeWindow: null,
@@ -368,11 +364,7 @@ let stateObj = {
 for (let i=0; i<persistentSettings.length; i++) {
   let setting = persistentSettings[i];
   persistPaths.push(setting.key);
-  if (setting.default == null) {
-    stateObj[setting.key] = stateObj.settingsPresets[0].values[setting.key];
-  } else {
-    stateObj[setting.key] = setting.default;
-  }
+  stateObj[setting.key] = setting.default;
 }
 
 
@@ -400,104 +392,6 @@ export default new Vuex.Store({
         panelIndex: sourcePanelIndex, 
         areaPath: sourceAreaPath, 
         windowId: sourceWindowId
-      });
-    },
-    showSessionWindow: ({ commit, state}, data) => {
-      commit('showWindow',
-      {
-        panels: [],
-        flex: '1 1 100px',
-        areas: [
-          // LEFT
-          { 
-            flex: '1 1 100px',
-            areas: [],
-            activePanelInd: 0,
-            panels: [
-              { 
-                id: "Game Tree",
-                type: "game-tree-panel"
-              }, 
-              { 
-                id: "Files",
-                type: "files-panel"
-              },
-              { 
-                id: "Sessions",
-                type: "sessions-panel"
-              }
-            ],
-          }, 
-          // RIGHT
-          { 
-            flex: '1 1 100px',
-            rowChildren: true,
-            panels: [],
-            areas: [
-              // TOP RIGHT
-              { 
-                flex: '1 1 100px',
-                panels: [],
-                areas: [
-                  // TOP RIGHT - LEFT
-                  {
-                    activePanelInd: 0,
-                    flex: '1 1 100px',
-                    areas: [],
-                    panels: 
-                    [
-                      { 
-                        id: "Info", 
-                        type: "session-info-panel", 
-                      }
-                    ], 
-                  }, 
-                  // TOP RIGHT - RIGHT
-                  { 
-                    areas: [],
-                    flex: '1 1 100px',
-                    activePanelInd: 0,
-                    panels: [
-                      { 
-                        id: "Actions", 
-                        type: "session-actions-panel" 
-                      }
-                    ], 
-                  }
-                ], 
-              }, 
-              // BOTTOM RIGHT
-              { 
-                panels: [],
-                flex: '1 1 100px',
-                areas: [
-                  { 
-                    flex: '1 1 100px',
-                    areas: [],
-                    activePanelInd: 0,
-                    panels: [
-                      { 
-                        id: "Participants", 
-                        type: "session-participants-panel" 
-                      }
-                    ], 
-                  }, 
-                  { 
-                    flex: '1 1 100px',
-                    areas: [],
-                    activePanelInd: 0,
-                    panels: [
-                      {
-                        id: "Monitor", 
-                        type: "session-monitor-panel" 
-                      }
-                    ], 
-                  }
-                ], 
-              }
-            ], 
-          }
-        ], 
       });
     },
     showPanel: ({commit, state}, data) => {
@@ -661,9 +555,6 @@ export default new Vuex.Store({
 
     },
     resetWindowIds(state) {
-      if (state.windowDescs == null) {
-        return;
-      }
       for (let i=0; i<state.windowDescs.length; i++) {
         state.windowDescs[i].id = state.nextWindowId;
         state.nextWindowId++;
@@ -766,9 +657,8 @@ function findPanelFromArea(state, type, data, area) {
   }
   for (let i=0; i<area.panels.length; i++) {
     let panel = area.panels[i];
-    // if (panel.type === type && panel.data === data) {
-    if (panel.type === type) {
-      return {panel, index: i, area};
+    if (panel.type === type && panel.data === data) {
+      return {panel, i, area};
     }
   }
   return {panel: null, index: null, area: null};

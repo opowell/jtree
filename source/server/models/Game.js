@@ -1536,7 +1536,7 @@ class Game {
         if (prevPeriod === null) {
             return null;
         } else {
-            return Utils.findById(prevPeriod.groups, group.id);
+            return Utils.findByIdWOJQ(prevPeriod.groups, group.id);
         }
     }
 

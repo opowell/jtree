@@ -19,17 +19,6 @@ msgs.deleteSession = function(id) {
     }
 }
 
-msgs.objChange = function(change) {
-    switch (change.type) {
-        case 'function-call':
-            window.vue.$store.state[change.path][change.function](...change.arguments);
-            break;
-        default:
-            debugger;
-            break;
-    }
-}
-
 msgs.updateAppPreview = function(appPreview) {
     jt.showAppPreview(appPreview);
 }

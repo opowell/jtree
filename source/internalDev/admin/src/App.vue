@@ -8,7 +8,6 @@
         :window='window'
         :key='window.id'
         :activePanelInd='window.activePanelInd'
-        :rowChildren='window.rowChildren'
         >
       </jt-window>
     </div>

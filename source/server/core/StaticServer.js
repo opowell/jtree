@@ -346,7 +346,7 @@ class StaticServer {
         if (sessionId == null || sessionId == undefined) {
             session = this.jt.data.getMostRecentActiveSession();
         } else {
-            session = Utils.findById(this.jt.data.sessions, sessionId);
+            session = Utils.findByIdWOJQ(this.jt.data.sessions, sessionId);
         }
 
         // If asked for a particular session, and that session:

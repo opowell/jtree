@@ -10,7 +10,6 @@
             @keydown.left="moveLeft"
             @keydown.right="moveRight"
             @keydown.f2="f2Func('', $event)"
-            @keydown.delete="deleteNode"
             tabindex="0"
             @focus="onFocus"
             ref='titleEl'
@@ -41,14 +40,13 @@
         <div class='children' v-show='expanded'>
             <jt-treenode
                 v-for='(child, index) in nodeChildren'
-                :key='child[tree.keyField]'
+                :key='index'
                 :nodeProp='child'
                 :tree='tree'
                 :parentNode='nodeProp'
                 :indexOnParent='index'
                 :f2Func='f2Func'
                 :dblClickFunc='dblClickFunc'
-                @deleteNode="deleteNode"
             >
             </jt-treenode>
         </div>
@@ -112,9 +110,6 @@ export default {
         this.node.component = this;
     },
     methods: {
-        deleteNode(ev) {
-            this.$emit('deleteNode', ev);
-        },
         lastOpenNode() {
             if (this.expanded && this.hasChildren) {
                 return this.nodeChildren[this.nodeChildren.length - 1].component.lastOpenNode();
@@ -252,7 +247,6 @@ export default {
     padding-right: 2px; */
     cursor: pointer;
     white-space: nowrap;
-    padding: 2px 5px;
 }
 
 .node-title:hover {

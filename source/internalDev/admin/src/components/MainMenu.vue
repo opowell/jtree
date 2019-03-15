@@ -135,11 +135,6 @@ export default {
                 action: this.showPanel,
                 clickData: 'session-monitor-panel',
             },
-            'divider',
-            {
-                text: 'Window',
-                action: this.showSessionWindow,
-            }
         ],
     },
     windowMenu,
@@ -219,10 +214,6 @@ export default {
     // },
     showPanel(type) {
         this.$store.dispatch('showPanel', {type: type});
-    },
-
-    showSessionWindow() {
-        this.$store.dispatch('showSessionWindow');
     },
   },
 //   mounted() {

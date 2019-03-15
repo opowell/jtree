@@ -76,7 +76,7 @@ class Table {
     }
 
     getRow(id) {
-        return Utils.findById(this.rows, id);
+        return Utils.findByIdWOJQ(this.rows, id);
     }
 
     shell() {
