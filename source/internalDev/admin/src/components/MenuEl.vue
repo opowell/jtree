@@ -1,7 +1,6 @@
 <template>
   <div v-if='menu === "divider"' class="divider"></div>
-  <span v-else :ref='menu.ref' class="menu" @mousedown.prevent.stop @click.stop @mouseup.prevent.stop='click' @mouseover='hover' :class='{ "active": menu.isActive !== false, open: isOpen }' :title='menu.title'>
-    <div v-show='menu.template != null' v-html="menu.template"></div>
+  <span v-else class="menu" @mousedown.prevent.stop @click.stop @mouseup.prevent.stop='click' @mouseover='hover' :class='{ "active": menu.isActive !== false, open: isOpen }' :title='menu.title'>
     <i v-show='menu.icon || showIcon' :class='"icon " + menu.icon'></i>
     <div v-show='menu.text' class='text'>
       <div class='text-first'>{{firstLetter}}</div>
@@ -68,7 +67,12 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+.divider {
+  border-bottom: 1px solid;
+  color: #888;
+  margin: 2px 0px;
+}
 .icon {
   flex: 0 0 auto;
   padding: 5px;
@@ -77,15 +81,6 @@ export default {
   width: 24px;
   align-self: center;
   text-align: center;
-  line-height: 1;
-}
-</style>
-
-<style scoped>
-.divider {
-  border-bottom: 1px solid;
-  color: #888;
-  margin: 2px 0px;
 }
 
 .shortcut {
