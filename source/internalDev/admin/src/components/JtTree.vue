@@ -4,9 +4,8 @@
             v-for='(baseNode, index) in nodesProp' 
             :key='index'
             :nodeProp='baseNode'
-            :parentNode='node'
-            :tree='tree'
-            :indexOnParent='index'
+            :selection='selection'
+            :parentNode='null'
         >
         </jt-treenode>
     </div>
@@ -27,18 +26,7 @@ export default {
     data() {
         return {
             nodes: this.nodesProp,
-            tree: {
-                selection: [],
-                activeNode: null,
-            },
-        }
-    },
-    computed: {
-        node() {
-            return {
-                children: this.nodesProp,
-                isNode: false,
-            }
+            selection: [],
         }
     },
 }

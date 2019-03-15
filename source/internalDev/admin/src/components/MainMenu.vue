@@ -70,14 +70,6 @@ export default {
                 },
             },
             {
-                text: this.$store.state.appName + ' Tree',
-                action: this.showPanel,
-                clickData: {
-                    type: 'game-tree-panel',
-                    title: 'Game Tree',
-                },
-            },
-            {
                 text: 'Sessions',
                 action: this.showPanel,
                 clickData: {

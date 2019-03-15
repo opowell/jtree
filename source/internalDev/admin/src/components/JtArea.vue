@@ -100,15 +100,13 @@
         </div>
         <div class='action-bar'>
         </div>
-        <div class='content-vbar elone'>
-            <div 
-                v-for='(panel, index) in panels'
-                v-show='activePanelInd === index'
-                class='content eltwo'
-                :is='panel.type'
-                :dat='panel.data'
-                :key='"panel-" + index' /> 
-        </div>
+        <div 
+            v-for='(panel, index) in panels'
+            v-show='activePanelInd === index'
+            class='content'
+            :is='panel.type'
+            :dat='panel.data'
+            :key='"panel-" + index' /> 
     </div>
     <div v-else 
         class='areas'
@@ -145,10 +143,12 @@
 <script>
 import MenuEl from './MenuEl.vue';
 import JtSpacer from './JtSpacer.vue';
+
 // Panels
+import PanelOne from './PanelOne.vue';
+import PanelTwo from './PanelTwo.vue';
 import FilesPanel from '@/components/FilesPanel.vue'
 import GamesPanel from '@/components/GamesPanel.vue'
-import GameTreePanel from '@/components/GameTreePanel.vue'
 import SessionsPanel from '@/components/SessionsPanel.vue'
 import SettingsPanel from '@/components/SettingsPanel.vue'
 
@@ -166,9 +166,10 @@ export default {
   components: {
       JtSpacer,
       MenuEl,
+      PanelOne,
+      PanelTwo,
       'font-awesome-icon': FontAwesomeIcon,
     FilesPanel,
-    GameTreePanel,
     GamesPanel,
     SessionsPanel,
     SettingsPanel,
@@ -493,18 +494,11 @@ export default {
     margin: 0px;
 }
 
-.content-vbar {
-    flex: 1 1 auto;
-    display: flex;    
-}
-
 .content {
     background-color: #353535;
     color: #CCC;
     flex: 1 1 auto;
     overflow: auto;
-    display: flex;
-    flex-direction: column;
 }
 
 .flex-direction-column {

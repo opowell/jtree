@@ -9,7 +9,7 @@
                     @input="change(setting, $event)"
                 />
                 <b-form-checkbox 
-                    v-else-if='setting.type == "checkbox"'
+                    v-if='setting.type == "checkbox"'
                     :id="`setting-${setting.key}`"
                     :checked='getStateValue(setting.key)'
                     @input="change(setting, $event)"
@@ -62,28 +62,6 @@
                       type: 'text',
                       key: 'windowFocussedBGColor',
                   },
-                  {
-                      name: 'Allow multiple areas in a window',
-                      type: 'checkbox',
-                      key: 'allowMultipleAreasInAWindow'
-                  },
-                  {
-                      name: 'Allow multiple panels in an area',
-                      type: 'checkbox',
-                      key: 'allowMultiplePanelsInAnArea'
-                  },
-                  {
-                      name: 'Open new panels in',
-                      type: 'select',
-                      options: ['New window', 'Active window when in maximized mode, otherwise new window', 'Active window'],
-                      key: 'openNewPanelsIn',
-                  },
-                  {
-                      name: 'Hide tabs when only single panel in area',
-                      type: 'checkbox',
-                      key: 'hideTabsWhenSinglePanel'
-                  },
-
               ]
           }
       },

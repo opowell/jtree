@@ -50,10 +50,6 @@ export default new Vuex.Store({
     nextWindowY: 20,
     fontSize: '10pt',
 
-    session: {
-      gameTree: [],
-    },
-
   },
   actions: {
     dropOnTab: ({commit}, {sourceWindowId, sourceAreaPath, sourcePanelIndex, targetWindowId, targetAreaPath, targetIndex}) => {

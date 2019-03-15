@@ -11,12 +11,11 @@
             @keydown.right="moveRight"
             tabindex="0"
             @focus="onFocus"
-            ref='titleEl'
         >
-            <span v-show='hasChildren' class='expand-icon-width expand-icon' @click='toggleExpanded'>
+            <span v-show='hasChildren' class='expand-icon' @click='toggleExpanded'>
                 {{icon}}
             </span>
-            <span v-show='!hasChildren' class='expand-icon-width'></span>
+            <span v-show='!hasChildren' class='expand-icon'></span>
             {{node.title}}
         </div>
         <div class='children' v-show='expanded'>
@@ -24,7 +23,7 @@
                 v-for='(child, index) in node.children'
                 :key='index'
                 :nodeProp='child'
-                :tree='tree'
+                :selection='selection'
                 :parentNode='nodeProp'
                 :indexOnParent='index'
             >
@@ -38,18 +37,17 @@ export default {
     name: 'jt-treenode',
     props: [
         'nodeProp',
-        'tree',
+        'selection',
         'parentNode',
         'indexOnParent',
     ],
     data() { return {
         node: this.nodeProp,
-        el: null,
         expanded: false,
     }},
     computed: {
         isSelected() {
-            return this.tree.selection.includes(this.node);
+            return this.selection.includes(this.node);
         },
         hasChildren() {
             return this.nodeProp.children!=null && this.nodeProp.children.length > 0;
@@ -62,21 +60,7 @@ export default {
             }
         },
     },
-    mounted() {
-        this.node.el = this.$el;
-        this.node.titleEl = this.$refs.titleEl;
-        this.node.parentNode = this.parentNode;
-        this.node.indexOnParent = this.indexOnParent;
-        this.node.component = this;
-    },
     methods: {
-        lastOpenNode() {
-            if (this.expanded && this.hasChildren) {
-                return this.node.children[this.node.children.length - 1].component.lastOpenNode();
-            } else {
-                return this.node;
-            }
-        },
         onFocus() {
 
         },
@@ -84,58 +68,38 @@ export default {
             this.expanded = !this.expanded;
         },
         select() {
-            this.tree.selection.splice(0, this.tree.selection.length);
-            this.tree.selection.push(this.node);
+            this.selection.splice(0, this.selection.length);
+            this.selection.push(this.node);
+        },
+        keypress() {
+            console.log('key press');
         },
         moveDown() {
+            console.log('down');
+            this.selection.splice(0, this.selection.length);
             let nextNode = null;
-            if (this.expanded && this.hasChildren) {
-                nextNode = this.node.children[0];
-            } 
-            // Last child of parent
-            else if (this.parentNode.children.length === this.indexOnParent + 1) {
-                let node = this;
-                while (node.parentNode != null && node.parentNode.children.length === node.indexOnParent + 1) {
-                    node = node.parentNode;
-                }
-                if (node.parentNode == null) {
-                    return;
-                }
-                nextNode = node.parentNode.children[node.indexOnParent+1];
+            if (this.parentNode.children.length < this.indexOnParent+1) {
+               nextNode = this.parentNode;
             } else {
                nextNode = this.parentNode.children[this.indexOnParent+1];
             }
-            this.setActiveNode(nextNode);
-        },
-        clearSelection() {
-            this.tree.selection.splice(0, this.tree.selection.length);
+            this.selection.push(nextNode);
+            nextNode
         },
         moveUp() {
-            let nextNode = null;
+            console.log('up');
+            this.selection.splice(0, this.selection.length);
             if (this.indexOnParent < 1) {
-                if (this.parentNode.isNode === false) {
-                    return;
-                }
-               nextNode = this.parentNode;
+               this.selection.push(this.parentNode);
             } else {
-               nextNode = this.parentNode.children[this.indexOnParent-1].component.lastOpenNode();
+               this.selection.push(this.parentNode.children[this.indexOnParent-1]);
             }
-            this.setActiveNode(nextNode);
         },
         moveLeft() {
-            if (this.expanded) {
-                this.expanded = false;
-            } else {
-                this.setActiveNode(this.parentNode);
-            }
-        },
-        setActiveNode(node) {
-            this.clearSelection();
-            this.tree.selection.push(node);
-            node.titleEl.focus();
+            console.log('left');
         },
         moveRight() {
-            this.expanded = true;
+            console.log('right');
         },
     },
 }
@@ -146,13 +110,8 @@ export default {
     padding-left: 1rem;
 }
 
-.expand-icon-width {
-    flex: 0 0 20px;
-}
-
 .expand-icon {
-    cursor: pointer;
-    text-align: center;
+    flex: 0 0 14px;
 }
 
 .node {
@@ -166,7 +125,6 @@ export default {
 .node-title {
     display: flex;
     padding: 2px;
-    cursor: pointer;
 }
 
 .selected {
