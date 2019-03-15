@@ -346,11 +346,6 @@ class Msgs {
         this.openSession(session.id, sock);
     }
 
-    createSession_V2(userId, sock) {
-        // console.log('hi');
-        var session = this.jt.data.createSession(userId);
-    }
-
     sessionDeleteApp(d) {
         var session = Utils.findById(this.jt.data.sessions, d.sId);
         if (session !== null) {

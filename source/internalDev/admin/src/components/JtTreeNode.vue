@@ -5,10 +5,10 @@
             :class='{"selected": isSelected}'
             @dblclick.prevent.stop="dblClick"
             @mousedown='mousedown'
-            @keydown.down.stop.prevent="moveDown"
-            @keydown.up.stop.prevent="moveUp"
-            @keydown.left.stop.prevent="moveLeft"
-            @keydown.right.stop.prevent="moveRight"
+            @keydown.down="moveDown"
+            @keydown.up="moveUp"
+            @keydown.left="moveLeft"
+            @keydown.right="moveRight"
             @keydown.f2="f2Func('', $event)"
             @keydown.delete="deleteNode"
             tabindex="0"
@@ -45,7 +45,6 @@
                 :nodeProp='child'
                 :tree='tree'
                 :parentNode='nodeProp'
-                :nodePath='getChildPath(nodePath, index)'
                 :indexOnParent='index'
                 :f2Func='f2Func'
                 :dblClickFunc='dblClickFunc'
@@ -66,9 +65,6 @@ export default {
         tree: {},
         parentNode: {},
         indexOnParent: {},
-        nodePath: {
-            required: true,
-        },
         expandedProp: {
             default: false
         },
@@ -83,28 +79,13 @@ export default {
         el: null,
         expanded: this.expandedProp,
         editing: this.editingProp,
-        // isSelected: false,
-}},
+    }},
     computed: {
         allowChildren() {
             return this.tree.allowChildren;
         },
         isSelected() {
-            // return this.tree.selection.includes(this.node);
-            // return this.nodePath === this.tree.activeNodePath;
-try {
-    if (this.tree.activeNodePath == null || this.nodePath.length !== this.tree.activeNodePath.length) {
-        return false;
-    }
-            for (let i=0; i<this.nodePath.length; i++) {
-                if (this.nodePath[i] !== this.tree.activeNodePath[i]) {
-                    return false;
-                }
-            }
-} catch (err) {
-    return false;
-}
-            return true;
+            return this.tree.selection.includes(this.node);
         },
         hasChildren() {
             return this.nodeChildren!=null && this.nodeChildren.length > 0;
@@ -122,42 +103,15 @@ try {
         nodeChildren() {
             return this.node[this.tree.childrenField];
         },
-        // nodePath() {
-        //     let node = this.node;
-        //     let out = [];
-        //     while (node != null && node.isNode !== false) {
-        //         out.unshift(node.indexOnParent);
-        //         node = node.parentNode;
-        //     }
-        //     return out;
-        // },
     },
-    watch: { 
-      	nodePath: function(newVal, oldVal) { // watch it
-        //   console.log('Prop changed: ', newVal, ' | was: ', oldVal);
-          this.node.path = this.nodePath;
-        //   this.$nextTick(function() {
-        //     // if (this.isSelected !== (this.node.path === this.tree.activeNodePath)) {
-        //     //     this.$forceUpdate();
-        //     // };
-        //         // this.isSelected();
-        //     });
-        }
-      },
-      mounted() {
+    mounted() {
         this.node.el = this.$el;
         this.node.titleEl = this.$refs.titleEl;
         this.node.parentNode = this.parentNode;
         this.node.indexOnParent = this.indexOnParent;
         this.node.component = this;
-        this.node.path = this.nodePath;
     },
     methods: {
-        getChildPath(path, index) {
-            let out = path.slice(0);
-            out.push(index);
-            return out;
-        },
         deleteNode(ev) {
             this.$emit('deleteNode', ev);
         },

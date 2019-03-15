@@ -90,7 +90,7 @@ export default {
                 ev.stopPropagation();
                 ev.preventDefault();
             }
-            let activeNode = this.$refs.sessionsTree.activeNode();
+            let activeNode = this.$refs.sessionsTree.tree.activeNode;
             axios.post(
                 'http://' + window.location.host + '/api/session/delete',
                 {
@@ -118,22 +118,21 @@ export default {
         createNewSession(data, ev) {
             ev.stopPropagation();
             ev.preventDefault();
-            jt.socket.emit('createSession_V2', null);
-            // axios.post(
-            //     'http://' + window.location.host + '/api/session/create'
-            // ).then(response => {
-            //     // if (response.data === true) {
-            //     //     let newNode = {
-            //     //         title: 'Untitled.jtt',
-            //     //     };
-            //     //     closestFolder.children.push(newNode);
-            //     //     closestFolder.component.expanded = true;
-            //     //     this.$nextTick(function() {
-            //     //         this.$refs.tree.setActiveNode(newNode);
-            //     //         this.renameActiveNode('', null);
-            //     //     });
-            //     // }
-            // });
+            axios.post(
+                'http://' + window.location.host + '/api/session/create'
+            ).then(response => {
+                // if (response.data === true) {
+                //     let newNode = {
+                //         title: 'Untitled.jtt',
+                //     };
+                //     closestFolder.children.push(newNode);
+                //     closestFolder.component.expanded = true;
+                //     this.$nextTick(function() {
+                //         this.$refs.tree.setActiveNode(newNode);
+                //         this.renameActiveNode('', null);
+                //     });
+                // }
+            });
         },
         renameSession(data, ev) {
             if (ev != null) {
