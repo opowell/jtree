@@ -93,10 +93,10 @@ class Participant {
             'indexInSession',
             'finishedApps',
             'proxy',
-            'clientProxies',
+            // 'clientProxies',
         ];
 
-        this.clientProxies = [];
+        // this.clientProxies = [];
 
         this.gameIndex = -1;
 
@@ -345,19 +345,76 @@ class Participant {
 
     clientAdd(client) {
         this.clients.push(client);
-        this.clientProxies.push(client.proxy);
-        // client.socket.join(this.roomId());
-        // if (this.player != null) {
-        //     this.player.addClient(client);
-        //     this.player.group.addClient(client);
-        //     this.player.group.period.addClient(client);
-        //     this.player.group.period.app.addClientDefault(client);
-        // }
-        // global.jt.socketServer.sendOrQueueAdminMsg(null, 'objChange', {
-        //     type: 'set-value',
-        //     path: 'session.participants.' + this.id + '.numClients',
-        //     newValue: this.clients.length,
-        // });
+        // this.clientProxies.push(client.proxy);
+        client.getSocket().join(this.roomId());
+        if (this.player != null) {
+            // this.player.addClient(client);
+            // this.player.group.addClient(client);
+            // this.player.group.period.addClient(client);
+            this.player.group.period.app.addClientDefault(client);
+        }
+
+        let session = global.jt.data.getSession(this.session.id);
+
+        // Listen to message from clients.
+        client.on('endGame', function(data) { // subgame messages are sent by default when submit button is clicked.
+            session.pushMessage(client, data.data, 'endGame');
+        });
+
+        // Queue message.
+        client.endGame = function(data) {
+            session.pushMessage(client, data, 'endGameProcess');
+        }
+
+        // Process the message.
+        client.endGameProcess = function(data) {
+
+            global.jt.log('Server received auto-game submission: ' + JSON.stringify(data));
+
+            if (client.player() === null) {
+                return false;
+            }
+
+            if (client.player().game.id !== data.fnName) {
+                console.log('Game.js, GAME NAME DOES NOT MATCH: ' + client.player().game.id + ' vs. ' + data.fnName + ', data=' + JSON.stringify(data));
+                return false;
+            }
+
+            // TODO: Not parsing strings properly.
+            for (var property in data) {
+                var value = data[property];
+
+                if (value === 'true') {
+                    value = true;
+                } else if (value === 'false') {
+                    value = false;
+                } else if (!isNaN(value)) {
+                    value = parseFloat(value);
+                }
+
+                if (data.hasOwnProperty(property)) {
+                    if (property.startsWith('player.')) {
+                        var fieldName = property.substring('player.'.length);
+                        client.player()[fieldName] = value;
+                    } else if (property.startsWith('group.')) {
+                        var fieldName = property.substring('group.'.length);
+                        client.group()[fieldName] = value;
+                    } else if (property.startsWith('participant.')) {
+                        var fieldName = property.substring('participant.'.length);
+                        client.participant[fieldName] = value;
+                    } else if (property.startsWith('period.')) {
+                        var fieldName = property.substring('period.'.length);
+                        client.period()[fieldName] = value;
+                    } else if (property.startsWith('game.')) {
+                        var fieldName = property.substring('game.'.length);
+                        client.game()[fieldName] = value;
+                    }
+                }
+            }
+            /** console.log('msg: ' + JSON.stringify(data) + ', ' + client.player().roomId());*/
+            var endForGroup = true;
+            client.player().endStage(endForGroup);
+        };
 
     }
 

@@ -610,7 +610,7 @@ class Player {
 
     startStage(stage) {
         this.group.startStage(this.stage);
-        if (!this.participant.canStartStage(stage)) {
+        if (!stage.canPlayerStart(this)) {
             return;
         }
         if (this.stageIndex !== stage.indexInApp()) {

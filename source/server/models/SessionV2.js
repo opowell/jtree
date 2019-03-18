@@ -10,6 +10,7 @@ const Client        = require('./Client.js');
 const Game        = require('./Game.js');
 const CircularJSON = require('../circularjson.js');
 const Parser = CircularJSON;
+const async         = require('async');
 
 class SessionV2 {
 
@@ -35,6 +36,7 @@ class SessionV2 {
             participants: [],
             gameTree: [],
             potentialParticipantIds: this.jt.settings.participantIds,
+            id: this.id,
         };
 
         let proxyObj = {
@@ -45,6 +47,8 @@ class SessionV2 {
             clients: [],
             state: this.initialState,
         }
+
+        this.asyncQueue = async.queue(this.processQueueMessage, 1);
 
         this.setProxy(proxyObj);
         
@@ -325,6 +329,40 @@ class SessionV2 {
         return this.proxy.messages[index].state;
     }
 
+    processQueueMessage(msg, callback) {
+        let obj = msg.obj;
+        let data = msg.data;
+        let fn = msg.fn;
+        let jt = msg.jt;
+        try {
+
+            if (fn !== 'endStage' && fn !== 'endApp') {
+                data = Utils.parseFloatRec(data);
+            }
+            
+            if (obj.canProcessMessage()) {
+                obj[fn](data);
+                //            }
+                //            if (client.player() !== null && client.player().matchesPlayer(player) && client.player().status === 'playing') {
+                //                if (client.player() !== null) {
+                //                    client.player().save();
+                //                }
+            } else {
+                jt.log('Object cannot process message, skipping message "' + fn + '".');
+            }
+        } catch (err) {
+            jt.log(err.stack);
+            debugger;
+            try {
+                jt.log('error processing message: ' + JSON.stringify(msg.data));
+            } catch (err2) {
+                jt.log('Error printing error: ' + msg.fn + ', ' + err2.stack);
+            }
+        }
+        callback();
+        return true;
+    }
+
     processMessage(state, message) {
         // debugger;
         // let that = this.__target;
@@ -506,14 +544,19 @@ class SessionV2 {
         client.participant = participant.__target;
         socket.join(this.roomId());
         participant.clientAdd(client);
+        for (let i in this.gameTree) {
+            this.gameTree[i].addClientDefault(client);
+        }
         this.proxy.clients.push(client);
-        // global.jt.socketServer.sendOrQueueAdminMsg(null, 'addClient', client.shell());
         global.jt.socketServer.io.to(socket.id).emit('logged-in', Parser.stringify(participant.__target, global.jt.data.dataReplacer, 2));
-        // global.jt.socketServer.io.to(socket.id).emit('sessionUpdate', Parser.stringify(participant.session.__target, global.jt.data.dataReplacer, 2));
-        // if (participant.player !== null) {
-        //     participant.player.sendUpdate(socket.id);
-        // }
         return client;
+    }
+
+    messageCallback() {}
+
+    pushMessage(obj, da, funcName) {
+        var msg = {obj: obj, data: da, fn: funcName, jt: this.jt};
+        this.asyncQueue.push(msg, this.messageCallback);
     }
 
     /**

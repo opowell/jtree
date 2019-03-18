@@ -163,7 +163,9 @@ class SocketServer {
                 socket.emit('logged-in', participant);
                 let socketServer = this;
                 socket.on('disconnect', function() {
-                    console.log('disconnect for ' + client);
+                    if (client.participant != null) {
+                        console.log('disconnect for ' + client.participant.id);
+                    }
                     Utils.deleteById(socketServer.jt.data.participantClients, client.id);
                     if (socketServer.sockets[socket.id] != null) {
                         delete socketServer.sockets[socket.id];

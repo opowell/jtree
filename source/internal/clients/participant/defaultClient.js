@@ -95,7 +95,6 @@ jt.setFormDefaults = function() {
                     var values = {};
                     var stageName = jt.data.player.stage.id;
                     values.fnName = stageName;
-
                     // INPUTS (includes input, select and checkboxes, but not buttons)
                     // https://stackoverflow.com/questions/11855781/jquery-getting-data-from-form
                     var $inputs = $(this).find(':input:not(:button)');
@@ -120,7 +119,7 @@ jt.setFormDefaults = function() {
                         }
                     });
 
-                    jt.sendMessage(stageName, values);
+                    jt.sendMessage('endGame', values);
                 });
             } catch (err) {
                 console.log('error assigning submit button action');
@@ -659,7 +658,10 @@ jt.onClockUpdateClient = function() {}
 // }
 
 jt.sendMessage = function(msgName, msgData) {
-    var metaData = {player: jt.data.player, data: msgData};
+    var metaData = {player: {
+        sessionId: jt.data.player.participant.session.id,
+        participantId: jt.data.player.participant.id,
+    }, data: msgData};
     jt.socket.emit(msgName, metaData);
 }
 

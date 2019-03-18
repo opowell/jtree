@@ -440,77 +440,10 @@ class Game {
     * @param  {Client} client The client who is connecting to this app.
     */
     addClientDefault(client) {
-        // client.socket().join(this.roomId());
 
         for (var i in this.messages) {
             var msg = this.messages[i];
             client.register(i, msg);
-        }
-
-        // Register for automatic stage messages.
-        var app = this;
-        for (var s in this.subgames) {
-            var subgameName = this.subgames[s].id;
-
-            // Listen to message from clients.
-            client.on(subgameName, function(data) { // subgame messages are sent by default when submit button is clicked.
-                app.session.pushMessage(client, data.data, data.data.fnName);
-            });
-
-            // Queue message.
-            client[subgameName] = function(data) {
-                app.session.pushMessage(client, data, data.fnName + 'Process');
-            }
-
-            // Process the message.
-            client[subgameName + 'Process'] = function(data) {
-
-                global.jt.log('Server received auto-subgame submission: ' + JSON.stringify(data));
-
-                if (client.player() === null) {
-                    return false;
-                }
-
-                if (client.player().subgame.id !== data.fnName) {
-                    console.log('Game.js, SUBGAME NAME DOES NOT MATCH: ' + client.player().subgame.id + ' vs. ' + data.fnName + ', data=' + JSON.stringify(data));
-                    return false;
-                }
-
-                // TODO: Not parsing strings properly.
-                for (var property in data) {
-                    var value = data[property];
-
-                    if (value === 'true') {
-                        value = true;
-                    } else if (value === 'false') {
-                        value = false;
-                    } else if (!isNaN(value)) {
-                        value = parseFloat(value);
-                    }
-
-                    if (data.hasOwnProperty(property)) {
-                        if (property.startsWith('player.')) {
-                            var fieldName = property.substring('player.'.length);
-                            client.player()[fieldName] = value;
-                        } else if (property.startsWith('group.')) {
-                            var fieldName = property.substring('group.'.length);
-                            client.group()[fieldName] = value;
-                        } else if (property.startsWith('participant.')) {
-                            var fieldName = property.substring('participant.'.length);
-                            client.participant[fieldName] = value;
-                        } else if (property.startsWith('period.')) {
-                            var fieldName = property.substring('period.'.length);
-                            client.period()[fieldName] = value;
-                        } else if (property.startsWith('app.')) {
-                            var fieldName = property.substring('app.'.length);
-                            client.app()[fieldName] = value;
-                        }
-                    }
-                }
-                /** console.log('msg: ' + JSON.stringify(data) + ', ' + client.player().roomId());*/
-                var endForGroup = true;
-                client.player().endStage(endForGroup);
-            };
         }
 
         // Load custom code, overwrite default stage submission behavior.
@@ -518,6 +451,10 @@ class Game {
             this.addClient(client);
         } catch(err) {
             console.log(err);
+        }
+
+        for (var s in this.subgames) {
+            this.subgames[s].addClientDefault(client);
         }
 
     }
@@ -583,9 +520,13 @@ class Game {
     getNextStageForPlayer(player) {
         var stageInd = player.stageIndex;
 
+        if (player.stage.subgames.length > 0) {
+            return player.stage.subgames[0];
+        }
+
         /** If not in the last stage, return next stage.*/
-        if (stageInd < this.stages.length-1) {
-            return this.stages[stageInd+1];
+        if (stageInd < this.subgames.length-1) {
+            return this.subgames[stageInd+1];
         } else {
             return null;
         }
@@ -720,17 +661,6 @@ class Game {
         //     html = html.replace('{{waiting-screens}}', app.waitingScreen);
         // }
         html = html.replace('{{waiting-screens}}', waitingScreensHTML);
-
-        // // Replace {{ }} markers.
-        // var markerStart = app.textMarkerBegin;
-        // var markerEnd = app.textMarkerEnd;
-        // while (html.indexOf(markerStart) > -1) {
-        //     var ind1 = html.indexOf(markerStart);
-        //     var ind2 = html.indexOf(markerEnd);
-        //     var text = html.substring(ind1+markerStart.length, ind2);
-        //     var span = '<i jt-text="' + text + '" style="font-style: normal"></i>';
-        //     html = html.replace(markerStart + text + markerEnd, span);
-        // }
 
         // Insert jtree functionality.
         if (app.insertJtreeRefAtStartOfClientHTML) {
@@ -1090,7 +1020,7 @@ class Game {
             options: options, 
             indexInQueue: this.apps.length + 1
         };
-        this.stages.push(app);
+        this.subgames.push(app);
         if (this.jt.socketServer != null) {
             this.save();
             this.jt.socketServer.sendOrQueueAdminMsg(null, 'queueAddGame', {queueId: this.id, app: app});
@@ -1198,7 +1128,7 @@ class Game {
         metaData.stages = [];
         try {
             eval(metaData.appjs);
-            for (var i in app.stages) {
+            for (var i in app.subgames) {
                 metaData.stages.push(app.stages[i].id);
             }
             metaData.numPeriods = app.numPeriods;
@@ -1437,7 +1367,11 @@ class Game {
         this.participantStart(participant);
         this.participantMoveToNextPeriod(participant);
 
-        participant.emit('start-new-app'); /** refresh clients.*/
+        // participant.emit('start-new-app'); /** refresh clients.*/
+    }
+
+    canPlayerStart(player) {
+        return true;
     }
 
     getGroupDuration(group) {
@@ -1597,7 +1531,11 @@ class Game {
      * @return {string}  {@link Session#roomId} + '_app_' + this.id
      */
     roomId() {
-        return 'session_' + this.session.id + '_app_' + this.indexInSession() + '-' + this.id;
+        if (this.parent == null) {
+            return 'session_' + this.session.id + '_app_' + this.indexInSession() + '-' + this.id;
+        } else {
+            return this.parent.roomId() + '_app_' + this.indexInSession() + '-' + this.id;
+        }
     }
 
     /**
@@ -1634,6 +1572,36 @@ class Game {
 
     canGroupParticipate(group) {
         return true;
+    }
+
+    canGroupEnd(group, forcePlayersToEnd) {
+
+        var players = group.players;
+
+        // If already finished, return false.
+        if (group.stageEndedIndex >= this.indexInApp()) {
+            return false;
+        }
+
+        if (this.waitToEnd && !forcePlayersToEnd) {
+            // PROCEED ONLY IF ALL PLAYERS ARE "finished" and in this stage.
+            for (var p in players) {
+                var player = players[p];
+
+                if (player.stageIndex > this.indexInApp()) {
+                    // Player is already past this stage?!
+                } else {
+                    // If other player is not finished, return false.
+                    if (player.stageIndex < this.indexInApp() || !player.isFinished()) {
+                        return false;
+                    }
+                }
+            }
+        } 
+
+        // Otherwise, return true.
+        return true;
+
     }
 
     indexInApp() {

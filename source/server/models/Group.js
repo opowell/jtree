@@ -74,7 +74,7 @@ class Group {
      * Returns the stage that this group is currently in.
      */
     stage() {
-        return this.app().stages[this.stageIndex];
+        return this.app().subgames[this.stageIndex];
     }
 
     /**
@@ -105,7 +105,7 @@ class Group {
             if (session.isRunning) {
                 timeLeft = timeLeft - (lastTimeOn - new Date(json.stageTimerStart).getTime());
                 if (timeLeft >= 0) {
-                    var stage = app.stages[json.stageTimerStageIndex];
+                    var stage = app.subgames[json.stageTimerStageIndex];
                     var group = newGroup;
                     var callback = eval('(' + json.stageTimerCallback + ')');
                     newGroup.stageTimer = Timer.load(json.stageTimerDuration, timeLeft, json.stageTimerStageIndex, callback);
@@ -663,7 +663,7 @@ class Group {
         }
 
         this.stageIndex = stage.indexInApp() + 1;
-        if (this.stageIndex < this.app().stages.length) {
+        if (this.stageIndex < this.app().subgames.length) {
             // move group (and all its players) to next stage.
             this.startStage(this.stage());
         } else {
