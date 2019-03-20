@@ -114,6 +114,19 @@ export default {
                 ev.preventDefault();
             }
         },
+        openSelectedFileAsSession() {
+            let activeNode = this.$refs.tree.activeNode();
+            let filePath = this.getParentPath(activeNode);
+            filePath.push(activeNode.title);
+
+            let options = {};
+            var d = {
+                filePath: filePath,
+                sId: this.$store.state.sessionId,
+                options: options
+            };
+            global.jt.socket.emit('openGameAsSession', d);
+        },
         addSelectedNodeToGameTree() {
             let activeNode = this.$refs.tree.activeNode();
             let filePath = this.getParentPath(activeNode);
