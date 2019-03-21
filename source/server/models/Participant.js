@@ -151,8 +151,8 @@ class Participant {
         let gamePath = period.game.getGamePath();
         let parentPath = this.players;
         for (let i=0; i<gamePath.length; i++) {
-            if (parentPath[gamePath[i]] == null) {
-                parentPath[gamePath[i]] = [];
+            if (parentPath.subplayers[gamePath[i]] == null) {
+                parentPath.subplayers[gamePath[i]] = [];
             }
             parentPath = parentPath[gamePath[i]]; // select last game 
             parentPath = parentPath[parentPath.length-1]; // select last period in game
@@ -525,6 +525,10 @@ class Participant {
     }
 
     setPlayer(player) {
+        if (this.player != null) {
+            this.player.subplayers.push(player);
+            player.superPlayer = this.player;
+        }
         this.player = player;
         for (var i=0; i<this.clients.length; i++) {
             var client = this.clients[i];

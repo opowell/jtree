@@ -13,3 +13,7 @@ source/queues
 source/sessions
 source/users
 source/internal/clients/admin/vue
+source/server/models2/Group.js
+source/server/models2/Participant.js
+source/server/models2/Period.js
+source/server/models2/Player.js

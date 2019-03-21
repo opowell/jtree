@@ -75,6 +75,8 @@ class Player {
          */
         this.outputHide = [];
 
+        this.subPlayers = [];
+
         /**
          * 'outputHideAuto' fields are not included in output.
          * @type {String[]}

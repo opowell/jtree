@@ -75,7 +75,7 @@ class Period {
     numGroups() {
         var ng = null;
         if (this.app.groupSize !== undefined) {
-            ng = Math.floor((Object.keys(this.session().participants).length - 1) / this.app.groupSize) + 1;
+            ng = Math.floor((this.session().participants.length - 1) / this.app.groupSize) + 1;
         } else {
             ng = this.app.numGroups;
             if (ng === undefined) {
@@ -114,16 +114,16 @@ class Period {
         }
         if (gr === null) {
             gr = new Group.new(groupId, this);
-            gr.save();
+            // gr.save();
             this.groups.push(gr);
         }
         var player = gr.playerWithParticipant(participant);
         if (player === null) {
             // create player
             player = new Player.new(participant.id, participant, gr, gr.players.length+1);
-            participant.addPlayer(player, this);            
-            player.save();
-            participant.save();
+            participant.players.push(player);
+            // player.save();
+            // participant.save();
             gr.players.push(player);
             //            if (gr.players.length this.)
         }

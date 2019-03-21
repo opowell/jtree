@@ -444,14 +444,14 @@ class Group {
     save() {
         try {
             global.jt.log('Group.save: ' + this.roomId());
-            var toSave = this.shell();
+            // var toSave = this.shell();
             // this.session().saveDataFS(toSave, 'GROUP');
-            for (var i=0; i<this.tables.length; i++) {
-                var table = this[this.tables[i]];
-                if (table !== undefined) {
-                    this[this.tables[i]].save();
-                }
-            }
+            // for (var i=0; i<this.tables.length; i++) {
+            //     var table = this[this.tables[i]];
+            //     if (table !== undefined) {
+            //         this[this.tables[i]].save();
+            //     }
+            // }
 
         } catch (err) {
             console.log('Error saving group ' + this.id + ': ' + err);
