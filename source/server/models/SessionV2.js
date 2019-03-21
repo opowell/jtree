@@ -421,18 +421,22 @@ class SessionV2 {
             participant.getGame().participantEnd(participant);
         }
 
-        if (participant.gameIndex < participant.session.gameTree.length) {
-            participant.gameIndex++;
+        if (participant.gameIndices[0][0] < participant.session.gameTree.length) {
+            participant.gameIndices[0][0]++;
             this.participantBeginApp(participant);
         } else {
             this.participantEnd(participant);
         }
     }
 
-    participantBeginApp(participant) {
-        this.jt.log('Session.participantBeginApp: ' + participant.gameIndex);
+    participantEnd(participant) {
 
-        if (participant.gameIndex < 0 || participant.gameIndex >= participant.session.gameTree.length) {
+    }
+
+    participantBeginApp(participant) {
+        this.jt.log('Session.participantBeginApp: ' + participant.gameIndices);
+
+        if (participant.gameIndices[0] < 0 || participant.gameIndices[0] >= participant.session.gameTree.length) {
             console.log('Session.participantBeginApp: INVALID gameIndex');
             return false;
         }
@@ -448,6 +452,18 @@ class SessionV2 {
         // }
 
         game.participantBegin(participant);
+    }
+
+    saveDataFS(d, type) {
+        // try {
+        //     var a = JSON.stringify(d) + '\n';
+        //     var b = '"type":"' + type + '",';
+        //     var position = 1;
+        //     var output = [a.slice(0, position), b, a.slice(position)].join('');
+        //     this.fileStream.write(output);
+        // } catch (err) {
+        //     console.log('ERROR Session.saveDataFS: ' + err.stack);
+        // }
     }
 
         /**

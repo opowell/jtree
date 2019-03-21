@@ -1090,13 +1090,16 @@ class Session {
             participant.getApp().participantEnd(participant);
         }
 
-        if (participant.appIndex < this.gameTree.length) {
-            participant.appIndex++;
-            // participant.save();
+        if (participant.gameIndices[0] < this.gameTree.length) {
+            participant.gameIndices[0]++;
             this.participantBeginApp(participant);
         } else {
             this.participantEnd(participant);
         }
+    }
+
+    participantEnd(participant) {
+
     }
 
     /**

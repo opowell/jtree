@@ -25,6 +25,7 @@ class Game {
         this.id = appPath;
 
         this.parent = parent;
+        this.superGame = parent;
 
         let id = appPath;
         if (id.includes('app.js') || id.includes('app.jtt') || id.includes('app.jtg')) {
@@ -863,7 +864,7 @@ class Game {
             }
         }
         var participantHeaders = [];
-        var participantSkip = ['id', 'points', 'periodIndex', 'appIndex'];
+        var participantSkip = ['id', 'points'];
         for (var i in this.session.participants) {
             var participant = this.session.participants[i];
             var participantFields = participant.outputFields();
@@ -1336,8 +1337,6 @@ class Game {
     /**
      * Called when a participant begins this game.
      * - For each of the [Clients]{@link Client} of this participant, call {@link Game.addClientDefault}.
-     * - Set the participant's periodIndex to -1.
-     * - Participant notifies clients about appIndex.
      * - Move participant to next period {@link Game.participantMoveToNextPeriod}.
      * - Participant notified clients about starting new app.
      *
@@ -1352,9 +1351,6 @@ class Game {
             this.addClientDefault(client);
         }
 
-        participant.periodIndex = -1;
-        // participant.emit('participantSetGameIndex', {appIndex: this.indexInSession()});
-
         let duration = this.getParticipantDuration(participant);
         if (duration != null) {
             participant.appTimer = new Timer.new(
@@ -1366,8 +1362,6 @@ class Game {
         }
         this.participantStart(participant);
         this.participantMoveToNextPeriod(participant);
-
-        // participant.emit('start-new-app'); /** refresh clients.*/
     }
 
     canPlayerStart(player) {
@@ -1381,7 +1375,6 @@ class Game {
     /**
      * A participant begins its current period.
      *
-     * - Participant notifies its clients of periodIndex.
      * - If current period undefined, initialize it ({@link Game.initPeriod}).
      * - Participant begins period ({@link Period.participantBegin}).
      *
@@ -1391,14 +1384,52 @@ class Game {
      * @param  {type} participant The participant.
      */
     participantBeginPeriod(participant) {
-        var prd = participant.periodIndex;
-//        participant.emit('participantSetPeriodIndex', {periodIndex: participant.periodIndex});
+        var prd = participant.getGamePeriod(this);
 
         var period = this.getPeriod(prd);
         if (period === undefined) {
             return false;
         }
         period.participantBegin(participant);
+    }
+
+    // An array of ids, one for each game in this game's ancestry.
+    getGamePath() {
+        let out = [];
+        if (this.superGame != null) {
+            out = this.superGame.getGamePath();
+        }
+        out.push(this.roomId());
+        return out;
+    }
+
+    // An array of indices, one for each game in this game's ancestry.
+    getGameIndices() {
+        let out = [];
+        if (this.superGame != null) {
+            out = this.superGame.getGameIndices();
+        }
+        out.push(this.indexInSuperGame());
+        return out;
+    }
+
+    indexInSuperGame() {
+        let gameTree = null;
+
+        if (this.superGame == null) {
+            gameTree = this.session.gameTree;
+        } else {
+            gameTree = this.superGame.subgames;
+        }
+
+        for (let i=0; i<gameTree.length; i++) {
+            if (gameTree[i] === this) {
+                return i;
+            }
+        }
+
+        return -1;
+
     }
 
     getPeriod(index) {
@@ -1426,21 +1457,23 @@ class Game {
      * @return {type}             description
      */
      participantMoveToNextPeriod(participant) {
+
+        let periodIndex = participant.getGamePeriod(this);
+
          // If in the last period of app, move to next app.
-         if (participant.periodIndex >= this.numPeriods - 1) {
+         if (periodIndex >= this.numPeriods - 1) {
              this.session.participantMoveToNextGame(participant);
          }
 
          // Move to the next period of this app.
          else {
              // If not in the first period, end the previous period for this participant.
-             if (participant.periodIndex > -1) {
+             if (periodIndex > -1) {
                  participant.player.period().participantEnd(participant);
              }
 
              // Move to next period.
-             participant.periodIndex++;
-            //  participant.save();
+             participant.periodIndices[this.roomId()]++;
              this.participantBeginPeriod(participant);
          }
      }
@@ -1814,10 +1847,11 @@ class Game {
     participantStart(participant) {}
 
     getNextPeriod(participant) {
-        if (participant.periodIndex >= this.numPeriods - 1) {
+        let gamePeriod = participant.getGamePeriod(this);
+        if (gamePeriod >= this.numPeriods - 1) {
             return null;
         } else {
-            return this.getPeriod(participant.periodIndex+1);
+            return this.getPeriod(gamePeriod+1);
         }
     }
 

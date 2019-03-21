@@ -18,9 +18,10 @@ class Period {
         this.id = id;
 
         /**
-         * @type {App}
+         * @type {Game}
          */
         this.app = app;
+        this.game = app;
 
         /**
          * List of groups for this period.
@@ -120,7 +121,7 @@ class Period {
         if (player === null) {
             // create player
             player = new Player.new(participant.id, participant, gr, gr.players.length+1);
-            participant.players.push(player);
+            participant.addPlayer(player, this);            
             player.save();
             participant.save();
             gr.players.push(player);
@@ -133,8 +134,8 @@ class Period {
         }
 
         participant.player.stageIndex = 0;
-        participant.player.stage = this.app.subgames[0];
-        participant.player.game = this.app.subgames[0];
+        participant.player.stage = this.app;
+        participant.player.game = this.app;
         participant.player.status = 'ready';
         participant.player.startStage(participant.player.stage);
     }
@@ -175,9 +176,7 @@ class Period {
                 var pId = gIds[g][i];
                 var participant = participants[pId];
                 var player = new Player.new(pId, participant, group, i+1);
-                participant.players.push(player);
-                // player.save();
-                // participant.save();
+                participant.addPlayer(player, this);
                 group.players.push(player);
             }
             group.allPlayersCreated = true;

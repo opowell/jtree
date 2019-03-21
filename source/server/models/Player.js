@@ -282,6 +282,10 @@ class Player {
         return this.period().app;
     }
 
+    game() {
+        return this.period().game;
+    }
+
     /**
      * matchesPlayer - description
      *
@@ -519,7 +523,7 @@ class Player {
         try {
             global.jt.log('Player.save: ' + this.roomId());
             var toSave = this.shell();
-            this.session().saveDataFS(toSave, 'PLAYER');
+            // this.session().saveDataFS(toSave, 'PLAYER');
         } catch (err) {
             console.log('Error saving player ' + this.roomId() + ': ' + err + '\n' + err.stack);
         }
@@ -626,6 +630,9 @@ class Player {
                     this.recordStageStartTime(stage);
                     try {
                         stage.playerStart(this);
+                        if (stage.subgames.length > 0) {
+                            stage.subgames[0].participantBegin(this.participant);
+                        }
                     } catch(err) {
                         console.log(err + '\n' + err.stack);
                     }

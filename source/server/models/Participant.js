@@ -32,7 +32,7 @@ class Participant {
         // this.indexInSession = Object.keys(session.proxy.__target.state.participants).length;
 
         /**
-         * @type array
+         * @type array of arrays of players, one sub-array for each game, with the sub-array containing one player for each period in the game.
          * @default []
          */
         this.players = [];
@@ -51,11 +51,11 @@ class Participant {
         this.clients = [];
 
         /**
-         * Indexed at 0.
+         * Array of indices, indicating in which period of game this player is in.
          * @type number
          * @default -1
          */
-        this.periodIndex = -1;
+        this.periodIndices = {};
 
         /**
          * List of app ids that this participant has completed.
@@ -93,12 +93,15 @@ class Participant {
             'indexInSession',
             'finishedApps',
             'proxy',
-            // 'clientProxies',
         ];
 
-        // this.clientProxies = [];
-
-        this.gameIndex = -1;
+        // Index of games and periods that this participant is in.
+        // [[g1, p1], [g2, p2], ...]
+        // g1 = index of participant in session's top-level game tree.
+        // p1 = index of participant in periods of first game.
+        // g2 = index of participant in g1's subgames.
+        // p2 = index of participant in g2's periods.
+        this.gameIndices = [[-1, 0]];
 
         let proxyObj = {
             player: this.player,
@@ -144,6 +147,19 @@ class Participant {
         }
     }
 
+    addPlayer(player, period) {
+        let gamePath = period.game.getGamePath();
+        let parentPath = this.players;
+        for (let i=0; i<gamePath.length; i++) {
+            if (parentPath[gamePath[i]] == null) {
+                parentPath[gamePath[i]] = [];
+            }
+            parentPath = parentPath[gamePath[i]]; // select last game 
+            parentPath = parentPath[parentPath.length-1]; // select last period in game
+        }
+        parentPath[period.id - 1] = player; 
+    }
+
     printStatus() {
         if (this.player == null) {
             console.log(this.id + ' - no player');
@@ -177,27 +193,62 @@ class Participant {
     }
 
     /**
-     * Return the next app in the session for this participant, null if there are no more apps for this participant.
+     * Return the current game (if any) in the session for this participant. 
+     * Potentially used to start the game for the participant, therefore the player for the game might not exist yet.
+     * Must calculate using indices.
      * @param {Participant} participant 
      */
     getGame() {
-        if (this.gameIndex < 0 || this.gameIndex >= this.session.gameTree.length) {
-            return null;
-        } else {
-            return this.session.gameTree[this.gameIndex];
+        let games = this.session.gameTree;
+        for (let i=0; i<this.gameIndices.length; i++) {
+            if (this.gameIndices[i][0] < 0) {
+                return null;
+            }
+            games = games[this.gameIndices[i][0]];
+        }
+        return games;
+    }
+
+    incrementGame() {
+        let game = this.getGame();
+        // Move to next period of current game.
+        this.gameIndices[this.gameIndices.length-1][1]++;
+
+        // If any games finished, move superGame to next period.
+        for (let i=this.gameIndices.length-1; i>=0; i--) {
+            // If finished last period of this game, move to next period.
+            if (game.numPeriods === this.gameIndices[i][1]) {
+                if (i > 0) {
+                    // Last game in supergame, move to next period of supergame.
+                    if (game.indexInSuperGame() === game.superGame.subgames.length-1) {
+                        this.gameIndices[i-1][1]++;
+                        this.gameIndices.splice(i, 1);
+                    } 
+                    // Not last game of supergame, move to next subgame of supergame.
+                    else {
+                        this.gameIndices[i][0]++;
+                        this.gameIndices[i][1] = 0;
+                    }
+                }
+            }
+
+            // Move up the game tree.
+            game = game.superGame;
+
         }
     }
 
     endCurrentApp() {
 
-        if (this.getApp() !== null) {
-            this.getApp().participantEnd(this);
-            this.finishedApps.push(this.getApp().getIdInSession());
+        if (this.getGame() !== null) {
+            this.getGame().participantEnd(this);
+            this.finishedApps.push(this.getGame().getIdInSession());
         }
 
         this.player = null;
 
-        this.appIndex++;
+        // this.appIndex++;
+        this.incrementGame();
 
         var nextApp = this.session.getApp(this);
         if (nextApp != null) {
@@ -218,6 +269,13 @@ class Participant {
         this.emit('reload');
     }
 
+    getGamePeriod(game) {
+        if (this.periodIndices[game.roomId()] == null) {
+            this.periodIndices[game.roomId()] = -1;
+        }
+        return this.periodIndices[game.roomId()];
+    }
+
     // startApp(app) {
 
     //     // this.appIndex = app.indexInSession();
@@ -231,8 +289,8 @@ class Participant {
     // }
 
     startPeriod(period) {
-        this.periodIndex = period.id - 1;
-        this.getApp().participantBeginPeriod(this);
+        this.periodIndices[period.game.roomId()] = period.id - 1;
+        period.game.participantBeginPeriod(this);
     }
 
     canProcessMessage() {
@@ -312,6 +370,30 @@ class Participant {
 
         // Not in this app, and not finished it already.
         return false;
+    }
+
+    isFinishedGame(game) {
+        let gamePath = game.getGameIndices();
+        let player = this.getPlayer(gamePath);
+
+        if (player == null) {
+            return false;
+        }
+
+        if (player.status === 'done') {
+            return true;
+        }
+
+        return false;
+    }
+
+    getPlayer(gamePath) {
+        let players = this.players;
+        for (let i=0; i<gamePath.length; i++) {
+            players = players[gamePath[i]]; // select sub-array of children from this game.
+            players = players[players.length-1]; // select last period of this subgame.
+        }
+        return players;
     }
 
 // TODO: Remove??
@@ -533,9 +615,9 @@ class Participant {
 
     save() {
         try {
-            this.session.jt.log('Participant.save: ' + this.id);
-            var localData = this.shellLocal();
-            this.session.saveDataFS(localData, 'PARTICIPANT');
+            global.jt.log('Participant.save: ' + this.id);
+            // var localData = this.shellLocal();
+            // this.session.saveDataFS(localData, 'PARTICIPANT');
         } catch (err) {
             console.log('Error saving participant ' + this.id + ': ' + err + '\n' + err.stack);
         }

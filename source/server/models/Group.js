@@ -443,9 +443,9 @@ class Group {
      */
     save() {
         try {
-            this.session().jt.log('Group.save: ' + this.roomId());
+            global.jt.log('Group.save: ' + this.roomId());
             var toSave = this.shell();
-            this.session().saveDataFS(toSave, 'GROUP');
+            // this.session().saveDataFS(toSave, 'GROUP');
             for (var i=0; i<this.tables.length; i++) {
                 var table = this[this.tables[i]];
                 if (table !== undefined) {
