@@ -421,8 +421,9 @@ class SessionV2 {
             participant.getGame().participantEnd(participant);
         }
 
-        if (participant.gameIndices[0][0] < participant.session.gameTree.length) {
-            participant.gameIndices[0][0]++;
+        if (participant.gameTree.length < participant.session.gameTree.length) {
+            participant.gameIndex = participant.gameTree.length;
+            participant.gameTree.push(participant.session.gameTree[participant.gameTree.length]);
             this.participantBeginApp(participant);
         } else {
             this.participantEnd(participant);
@@ -434,9 +435,9 @@ class SessionV2 {
     }
 
     participantBeginApp(participant) {
-        this.jt.log('Session.participantBeginApp: ' + participant.gameIndices);
+        this.jt.log('Session.participantBeginApp: ' + participant.gameIndex);
 
-        if (participant.gameIndices[0] < 0 || participant.gameIndices[0] >= participant.session.gameTree.length) {
+        if (participant.gameIndex < 0 || participant.gameIndex >= participant.gameTree.length) {
             console.log('Session.participantBeginApp: INVALID gameIndex');
             return false;
         }

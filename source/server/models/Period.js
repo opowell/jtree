@@ -30,6 +30,8 @@ class Period {
          */
         this.groups = [];
 
+        this.superPeriod = null;
+
         /**
          * 'outputHide' fields are not included in output
          * @type {String[]}
@@ -153,6 +155,16 @@ class Period {
         return null;
     }
 
+    getGameTreePath() {
+        let out = [];
+        if (this.superPeriod != null) {
+            out = this.superPeriod.getGameTreePath();
+        }
+        out.push(period.id);
+        out.push(period.game.id);
+        return out;
+    }
+
     // splits players into groups.
     // participants: list of participants, player.group variable points to a list of players in the current group
     // numGroups: number of groups into which players are split
@@ -164,8 +176,8 @@ class Period {
 
         // Create groups
         var pIds = [];
-        for (var p in participants) {
-            pIds.push(p);
+        for (let i=0; i<participants.length; i++) {
+            pIds.push(participants[i].id);
         }
 
         for (var g=this.groups.length; g<numGroups; g++) {
@@ -174,7 +186,13 @@ class Period {
             this.groups.push(group);
             for (var i=0; i<gIds[g].length; i++) {
                 var pId = gIds[g][i];
-                var participant = participants[pId];
+                var participant = null;
+                for (let j=0; j<participants.length; j++) {
+                    if (participants[j].id === pId) {
+                        participant = participants[j];
+                        break;
+                    }
+                }
                 var player = new Player.new(pId, participant, group, i+1);
                 participant.addPlayer(player, this);
                 group.players.push(player);

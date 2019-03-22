@@ -98,6 +98,12 @@ class Player {
         ];
     }
 
+    getGameTreePath() {
+        let out = this.period.getGameTreePath();
+        out.push(this.id);
+        return out;
+    }
+
     timeInStage() {
         return this.group.timeInStage();
     }

@@ -542,8 +542,8 @@ class Game {
         var participants = this.session.participants;
         var numGroups = period.numGroups();
         var pIds = [];
-        for (var p in participants) {
-            pIds.push(p);
+        for (let i=0; i<participants.length; i++) {
+            pIds.push(participants[i].id);
         }
         // Group IDs.
         var gIds = [];
@@ -1266,7 +1266,7 @@ class Game {
      * @return {Game} The new game.
      */
     addSubGame(id) {
-        var subgame = new Game(this, this.jt, id, this);
+        var subgame = new Game(this.session, this.jt, id, this);
         this.subgames.push(subgame);
         return subgame;
     }

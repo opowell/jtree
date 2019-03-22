@@ -103,6 +103,10 @@ class Participant {
         // p2 = index of participant in g2's periods.
         this.gameIndices = [[-1, 0]];
 
+        this.gameIndex = -1;
+
+        this.gameTree = [];
+
         let proxyObj = {
             player: this.player,
         }
@@ -148,16 +152,31 @@ class Participant {
     }
 
     addPlayer(player, period) {
-        let gamePath = period.game.getGamePath();
+
+        // Find location of period in this.gameTree.
+        // Insert player into same location in playerTree.
+
+        let gamePath = period.getGameTreePath();
+        let gameRoot = period.game;
+        while (gameRoot.superGame != null) {
+            gameRoot = gameRoot.superGame;
+        }
+        for (let i=0; i<this.gameTree.length; i++) {
+            if (this.gameTree[i] === gameRoot) {
+                gamePath.unshift(i);
+            }
+        }
+
         let parentPath = this.players;
         for (let i=0; i<gamePath.length; i++) {
-            if (parentPath.subplayers[gamePath[i]] == null) {
-                parentPath.subplayers[gamePath[i]] = [];
+            if (parentPath[gamePath[i]] == null) {
+                parentPath[gamePath[i]] = [];
             }
-            parentPath = parentPath[gamePath[i]]; // select last game 
+            parentPath = parentPath.subplayers[gamePath[i]]; // select last game 
             parentPath = parentPath[parentPath.length-1]; // select last period in game
         }
         parentPath[period.id - 1] = player; 
+        this.players.push(player);
     }
 
     printStatus() {
@@ -199,14 +218,10 @@ class Participant {
      * @param {Participant} participant 
      */
     getGame() {
-        let games = this.session.gameTree;
-        for (let i=0; i<this.gameIndices.length; i++) {
-            if (this.gameIndices[i][0] < 0) {
-                return null;
-            }
-            games = games[this.gameIndices[i][0]];
+        if (this.gameIndex < 0 || this.gameIndex >= this.gameTree.length) {
+            return null;
         }
-        return games;
+        return this.gameTree[this.gameIndex];
     }
 
     incrementGame() {
@@ -247,7 +262,6 @@ class Participant {
 
         this.player = null;
 
-        // this.appIndex++;
         this.incrementGame();
 
         var nextApp = this.session.getApp(this);

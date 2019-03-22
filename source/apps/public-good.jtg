@@ -11,6 +11,23 @@ intro.activeScreen = `
     <p>Welcome to the experiment. You will play a repeated public goods game.</p>
 `;
 
+// [ // public-good.jtg
+//   [ // period 1
+//     P,
+//     [
+//         [P, P],
+//         [P, P],
+//         [P, P],
+//         ... x 10
+//     ],
+//     P
+//   ],
+//   [ // period 2
+//     ...
+//   ],
+//   ...
+// ]
+
 var pgg = game.addSubGame('pgg');
 pgg.numPeriods = game.numRepetitions;
 var decideStage = pgg.addSubGame('decide');
