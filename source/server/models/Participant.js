@@ -151,32 +151,43 @@ class Participant {
         }
     }
 
-    addPlayer(player, period) {
+    getFullSession() {
+        return global.jt.data.getSession(this.session.id);
+    }
+
+    addPlayer(player) {
+
+        if (this.player != null) {
+            this.player.subPlayers.push(player);
+        } else {
+            this.players.push(player);
+        }
 
         // Find location of period in this.gameTree.
         // Insert player into same location in playerTree.
+        // let period = player.group.period;
 
-        let gamePath = period.getGameTreePath();
-        let gameRoot = period.game;
-        while (gameRoot.superGame != null) {
-            gameRoot = gameRoot.superGame;
-        }
-        for (let i=0; i<this.gameTree.length; i++) {
-            if (this.gameTree[i] === gameRoot) {
-                gamePath.unshift(i);
-            }
-        }
+        // let gamePath = period.getGameTreePath();
+        // let gameRoot = period.game;
+        // while (gameRoot.superGame != null) {
+        //     gameRoot = gameRoot.superGame;
+        // }
+        // for (let i=0; i<this.gameTree.length; i++) {
+        //     if (this.gameTree[i] === gameRoot) {
+        //         gamePath.unshift(i);
+        //     }
+        // }
 
-        let parentPath = this.players;
-        for (let i=0; i<gamePath.length; i++) {
-            if (parentPath[gamePath[i]] == null) {
-                parentPath[gamePath[i]] = [];
-            }
-            parentPath = parentPath.subplayers[gamePath[i]]; // select last game 
-            parentPath = parentPath[parentPath.length-1]; // select last period in game
-        }
-        parentPath[period.id - 1] = player; 
-        this.players.push(player);
+        // let parentPath = this.players;
+        // for (let i=0; i<gamePath.length; i++) {
+        //     if (parentPath[gamePath[i]] == null) {
+        //         parentPath[gamePath[i]] = [];
+        //     }
+        //     parentPath = parentPath.subplayers[gamePath[i]]; // select last game 
+        //     parentPath = parentPath[parentPath.length-1]; // select last period in game
+        // }
+        // parentPath[period.id - 1] = player; 
+        // this.players.push(player);
     }
 
     printStatus() {
@@ -225,32 +236,34 @@ class Participant {
     }
 
     incrementGame() {
-        let game = this.getGame();
+        // let game = this.getGame();
         // Move to next period of current game.
-        this.gameIndices[this.gameIndices.length-1][1]++;
+        // this.gameIndices[this.gameIndices.length-1][1]++;
 
-        // If any games finished, move superGame to next period.
-        for (let i=this.gameIndices.length-1; i>=0; i--) {
-            // If finished last period of this game, move to next period.
-            if (game.numPeriods === this.gameIndices[i][1]) {
-                if (i > 0) {
-                    // Last game in supergame, move to next period of supergame.
-                    if (game.indexInSuperGame() === game.superGame.subgames.length-1) {
-                        this.gameIndices[i-1][1]++;
-                        this.gameIndices.splice(i, 1);
-                    } 
-                    // Not last game of supergame, move to next subgame of supergame.
-                    else {
-                        this.gameIndices[i][0]++;
-                        this.gameIndices[i][1] = 0;
-                    }
-                }
-            }
+        // // If any games finished, move superGame to next period.
+        // for (let i=this.gameIndices.length-1; i>=0; i--) {
+        //     // If finished last period of this game, move to next period.
+        //     if (game.numPeriods === this.gameIndices[i][1]) {
+        //         if (i > 0) {
+        //             // Last game in supergame, move to next period of supergame.
+        //             if (game.indexInSuperGame() === game.superGame.subgames.length-1) {
+        //                 this.gameIndices[i-1][1]++;
+        //                 this.gameIndices.splice(i, 1);
+        //             } 
+        //             // Not last game of supergame, move to next subgame of supergame.
+        //             else {
+        //                 this.gameIndices[i][0]++;
+        //                 this.gameIndices[i][1] = 0;
+        //             }
+        //         }
+        //     }
 
-            // Move up the game tree.
-            game = game.superGame;
+        //     // Move up the game tree.
+        //     game = game.superGame;
 
-        }
+        // }
+
+        this.gameIndex++;
     }
 
     endCurrentApp() {
@@ -262,16 +275,15 @@ class Participant {
 
         this.player = null;
 
-        this.incrementGame();
+        this.getFullSession().participantMoveToNextGame(this);
+        // this.incrementGame();
 
-        var nextApp = this.session.getApp(this);
-        if (nextApp != null) {
-            //nextApp.participantBegin(this);
-//            this.startApp(nextApp);
-            this.session.participantBeginApp(this);
-        } else {
-            this.endSession();
-        }
+        // var nextGame = this.getGame();
+        // if (nextGame != null) {
+        //     nextGame.participantBegin(this);
+        // } else {
+        //     this.endSession();
+        // }
     }
 
     endSession() {
@@ -539,10 +551,10 @@ class Participant {
     }
 
     setPlayer(player) {
-        if (this.player != null) {
-            this.player.subplayers.push(player);
-            player.superPlayer = this.player;
-        }
+        // if (this.player != null) {
+        //     this.player.subPlayers.push(player);
+        //     player.superPlayer = this.player;
+        // }
         this.player = player;
         for (var i=0; i<this.clients.length; i++) {
             var client = this.clients[i];

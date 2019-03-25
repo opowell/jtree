@@ -32,6 +32,11 @@ class Period {
 
         this.superPeriod = null;
 
+        // Link to parent period, if any.
+        if (app.superGame != null) {
+            this.superPeriod = app.superGame.periods[app.superGame.periods.length-1];
+        }
+
         /**
          * 'outputHide' fields are not included in output
          * @type {String[]}
@@ -160,8 +165,8 @@ class Period {
         if (this.superPeriod != null) {
             out = this.superPeriod.getGameTreePath();
         }
-        out.push(period.id);
-        out.push(period.game.id);
+        out.push(this.game.id);
+        out.push(this.id);
         return out;
     }
 
@@ -194,7 +199,7 @@ class Period {
                     }
                 }
                 var player = new Player.new(pId, participant, group, i+1);
-                participant.addPlayer(player, this);
+                participant.addPlayer(player);
                 group.players.push(player);
             }
             group.allPlayersCreated = true;

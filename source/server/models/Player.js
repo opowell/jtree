@@ -713,11 +713,12 @@ class Player {
             player.startStage(player.stage);
         } else if (nextPeriod !== null) {
             player.participant.startPeriod(nextPeriod);
+        } else if (player.superPlayer != null) {
+            player.superPlayer.endStage();
         } else {
             this.emitUpdate2();
             player.participant.endCurrentApp();
         }
-
     } 
 
 

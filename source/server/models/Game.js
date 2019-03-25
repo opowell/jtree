@@ -1088,7 +1088,6 @@ class Game {
      */
     initPeriod(prd) {
         var period = new Period.new(prd + 1, this);
-//        period.save();
         this.periods.push(period);
     }
 
@@ -1462,7 +1461,7 @@ class Game {
 
          // If in the last period of app, move to next app.
          if (periodIndex >= this.numPeriods - 1) {
-             this.session.participantMoveToNextGame(participant);
+             this.getFullSession().participantMoveToNextGame(participant);
          }
 
          // Move to the next period of this app.
@@ -1476,6 +1475,10 @@ class Game {
              participant.periodIndices[this.roomId()]++;
              this.participantBeginPeriod(participant);
          }
+     }
+
+     getFullSession() {
+         return global.jt.data.getSession(this.session.id);
      }
 
     /**

@@ -421,12 +421,13 @@ class SessionV2 {
             participant.getGame().participantEnd(participant);
         }
 
-        if (participant.gameTree.length < participant.session.gameTree.length) {
+        if (participant.gameTree.length < this.proxy.state.gameTree[0].subgames.length) {
             participant.gameIndex = participant.gameTree.length;
-            participant.gameTree.push(participant.session.gameTree[participant.gameTree.length]);
+            participant.gameTree.push(this.proxy.state.gameTree[0].subgames[participant.gameTree.length]);
             this.participantBeginApp(participant);
         } else {
             this.participantEnd(participant);
+            this.tryToEnd();
         }
     }
 
