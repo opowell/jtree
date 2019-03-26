@@ -595,6 +595,11 @@ class Game {
 
     sendParticipantPage(req, res, participant) {
 
+        if (this.superGame != null) {
+            this.superGame.sendParticipantPage(req, res, participant);
+            return;
+        }
+
         // Load dynamic version of app to allow for live editing of stage html.
         // var app = this;
         var app = this.reload();
