@@ -11,7 +11,7 @@ REM 4. Update README.md.
 REM 5. Update docs/README.md.
 REM 3. Commit to Github.
 
-set "vers=0.7.3"
+set "vers=0.7.4"
 
 REM ------- Prepare output folder.
 call del ".\releases\%vers%" /Q /F
@@ -32,6 +32,7 @@ call xcopy ".\client\apps\7simone" ".\releases\%vers%\apps\7simone\" /E
 call xcopy ".\client\apps\8jelena" ".\releases\%vers%\apps\8jelena\" /E
 call xcopy ".\client\apps\9natalia" ".\releases\%vers%\apps\9natalia\" /E
 call xcopy ".\client\apps\random-order" ".\releases\%vers%\apps\random-order\" /E
+call xcopy ".\client\apps\10ali.jtt" ".\releases\%vers%\apps\"
 call xcopy ".\client\apps\4starzykowska.jtt" ".\releases\%vers%\apps\"
 call xcopy ".\client\apps\5mariana.jtt" ".\releases\%vers%\apps\"
 call xcopy ".\client\apps\beauty-contest.jtt" ".\releases\%vers%\apps\"

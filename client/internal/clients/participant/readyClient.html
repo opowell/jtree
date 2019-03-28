@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+<head>
+    <title>Ready</title>
+    <script type="text/javascript" src="/participant/jtree.js"></script>
+    <script>
+        jt.connected = function() {
+            jt.socket.on('start-new-app', function(id) {
+                location.reload();
+            });
+            jt.socket.on('notLoggedIn', function(id) {
+                $('#notLoggedIn').attr('hidden', false);
+                $('#loggedIn').attr('hidden', true);
+            });
+            $('#notLoggedIn').attr('hidden', true);
+            $('#loggedIn').attr('hidden', false);
+            if (inIframe()) {
+                $('body').css('fontSize', '12pt');
+                $('#participantId').css('fontSize', '24pt');
+            }
+        }
+        jt.showPId = function(id) {
+            console.log('show pId');
+            $('#participantId').text(id);
+        }
+        function inIframe () {
+            try {
+                return window.self !== window.top;
+            } catch (e) {
+                return true;
+            }
+        }
+    </script>
+    <link rel="stylesheet" type="text/css" href="/participant/defaultGame.css">
+</head>
+<body style='background-color: #3d653d; color: rgba(255, 255, 255, 0.5); display: flex; justify-content: center; align-items: center; height: 100vh; font-size: 48pt; margin-bottom: 0px; margin-top: 0px'>
+    <div id='loggedIn' style='display: flex; flex-direction: column; align-items: center' hidden>
+        <div><b>READY</b></div>
+        <div>You are logged in as:</div>
+        <br>
+        <div style='font-size: 96pt; color: #fff' id='participantId'>-</div>
+    </div>
+    <div id='notLoggedIn' hidden>
+        <p>Participant id:</p>
+        <input id='pId' type='text'></input>
+        <p>Password:</p>
+        <input id='pId' type='text'></input>
+        <br>
+        <br>
+        <button>Login</button>
+    </div>
+</body>
+</html>

@@ -1,3 +1,7 @@
+##### 2019.03.28 - 0.7.4
+- Disable autocomplete on forms.
+- Stop players advancing two periods by accident.
+
 ##### 2018.12.28 - 0.7.3
 - Apps are reloaded just before first participant starts them.
 - Admin UIs must be explcitly added to build.
