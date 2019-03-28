@@ -639,7 +639,7 @@ class Player {
                     try {
                         stage.playerStart(this);
                         if (stage.subgames.length > 0) {
-                            stage.subgames[0].participantBegin(this.participant);
+                            stage.participantBegin(this.participant);
                         }
                     } catch(err) {
                         console.log(err + '\n' + err.stack);

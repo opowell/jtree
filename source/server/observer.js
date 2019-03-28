@@ -17,6 +17,9 @@ function getPath(path, prop) {
  */
 exports.Observer = (function () {
     function _create(target, validator, path, lastInPath) {
+// if (target.__isProxy) {
+//     return target;
+// }
         // Keeps track of the proxies we've already made so that we don't have to recreate any.
         var proxies = {};
         var proxyHandler = {
@@ -45,7 +48,12 @@ exports.Observer = (function () {
                                 arguments: args
                             })) {
                                 // If `this` is a proxy, be sure to apply to __target instead
-                                return value.apply(this.__isProxy ? this.__target : this, args);
+                                return value.apply(this.__target ? this.__target : this, args);
+// let thisTarget = this;
+// while (thisTarget.__target != null) {
+//     thisTarget = thisTarget.__target;
+// }
+// return value.apply(thisTarget, args);
                             }
                         };
                     } else {

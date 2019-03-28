@@ -1365,7 +1365,9 @@ class Game {
             );
         }
         this.participantStart(participant);
-        this.participantMoveToNextPeriod(participant);
+        if (this.subgames.length > 0) {
+            this.participantMoveToNextPeriod(participant);
+        }
     }
 
     canPlayerStart(player) {
@@ -1648,14 +1650,14 @@ class Game {
     indexInApp() {
         if (this.parent != null) {
             for (var i in this.parent.subgames) {
-                if (this.parent.subgames[i] === this) {
+                if (this.parent.subgames[i].id === this.id) {
                     return parseInt(i);
                 }
             }
             return -1;
         } else {
             for (var i in this.session.gameTree) {
-                if (this.session.gameTree[i] === this) {
+                if (this.session.gameTree[i].id === this.id) {
                     return parseInt(i);
                 }
             }

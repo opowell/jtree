@@ -1,20 +1,19 @@
-This tutorial describes the sequence of events that happen during an app. In particular, it points out the various functions that can be used to design an app. For more details about this procedure, see the <a href="tutorial-session-flow-details.html">advanced tutorial</a>.
+This tutorial describes the sequence of events that happen during a game. In particular, it points out the various functions that can be used to customize a game. For more details about this procedure, see the <a href="tutorial-session-flow-details.html">advanced tutorial</a>.
 
-In a jtree app, participants progress through a series of periods and stages. Within each period repeats the stages. In doing so, they take the form of players and groups. Broadly speaking, each object calls `playerStart` (or `groupStart`) and `playerEnd` (or `groupEnd`) whenever a player (or group) begins or finishes that part of the experiment.
+In a jtree game, participants progress through a series of periods and subgames. Within each period a participant repeats the subgames. In doing so, they take the form of players and groups. Broadly speaking, each object calls `playerStart` (or `groupStart`) and `playerEnd` (or `groupEnd`) whenever a player (or group) begins or finishes that part of the experiment.
 
-For example, in a simple app the sequence of events might be:
-1. stage1.groupStart(G1);
-2. stage1.playerStart(P1);
-3. stage1.playerStart(P2);
-4. stage1.playerEnd(P1);
-5. stage1.playerEnd(P2);
-6. stage1.groupEnd(G1);
+The sequence of events for a Game is:
+- groupStart
+- playerStart
+- For each period (if `numPeriods` > 1)
+  - For each subgame
+    - The events for that subgame
+- playerEnd
+- groupEnd
 
-(Note that the order of the player functions (P1, P2) depends on how quickly each player progresses through the app.)
+The `player...` functions are run once for each player. The `group...` functions are run once for each group in the period. 
 
-The logic of the app is implemented by overwriting each of these "start" and "end" methods.
-
-This is done in the app's source file. This file has access to the `{@link App}` object, from which Stages can be created via the [`App.newStage(id)`]{@link App#newStage} function. Periods can be customized by overwriting the [`App.createPeriod(id)`]{@link App#createPeriod} method.
+The logic of the app is implemented by overwriting each of these methods. This is done in the game's source file. This file has access to the `{@link Game}` object, from which subgames can be created via the [`Game.addSubGame(id)`]{@link Game#addSubGame} function. Periods can be customized by overwriting the [`Game.createPeriod(id)`]{@link Game#createPeriod} method.
 
 The rest of this tutorial describes approximately the order in which events take place within a session. Due to the option of letting participants progress through different stages without waiting for each other, the actual order of these events may differ in actual sessions.
 

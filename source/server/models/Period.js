@@ -140,11 +140,11 @@ class Period {
             console.log('APP: error assigning group for participant ' + participant.id);
         }
 
-        participant.player.stageIndex = 0;
-        participant.player.stage = this.app;
-        participant.player.game = this.app;
-        participant.player.status = 'ready';
-        participant.player.startStage(participant.player.stage);
+        player.stageIndex = 0;
+        player.stage = this.game.subgames[player.stageIndex];
+        player.game = this.game.subgames[player.stageIndex];
+        player.status = 'ready';
+        player.startStage(player.stage);
     }
 
     getParticipantGroupId(participant) {
