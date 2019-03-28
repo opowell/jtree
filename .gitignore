@@ -13,6 +13,7 @@ server/node_modules/*
 desktop.ini
 client/internal/clients/shared/shared.js
 client/internal/serverState.json
-client/internal/serverState.json
-client/internal/serverState.json
-client/internal/serverState.json
+source/internal/serverState.json
+source/internal/logs/*
+source/internal/clients/shared/shared.js
+source/sessions/*
