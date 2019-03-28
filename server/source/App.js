@@ -1724,6 +1724,9 @@ class App {
     participantStart(participant) {}
 
     getNextPeriod(participant) {
+        if (participant.player != null) {
+            participant.periodIndex = participant.player.group.period.id - 1;
+        }
         if (participant.periodIndex >= this.numPeriods - 1) {
             return null;
         } else {

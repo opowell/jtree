@@ -50,6 +50,7 @@ button {
         padding: unset;
         min-height: unset;
         background-color: #fff;
+        align-self: flex-start;
     }
   
     input {

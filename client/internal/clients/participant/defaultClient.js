@@ -60,9 +60,13 @@ jt.likertScale = function(field) {
 }
 
 jt.setFormDefaults = function() {
- //   return;
+ 
     // Set up automated form submission for stages.
     $('form').each(function() {
+
+        // Disable autocomplete.
+        $(this).attr('autocomplete', 'off');
+
         // If it only contains a single button, make this the submit button.
         let buttons = $(this).find('button');
         if (buttons.length === 1) {
