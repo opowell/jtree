@@ -25,8 +25,13 @@ exports.Observer = (function () {
         var proxyHandler = {
             get: function get(target, prop) {
                 // Special properties
-                if (prop === '__target')
-                    return target;
+                if (prop === '__target') {
+                    let out = target;
+                    while (out != null && out.__target != null) {
+                        out = out.__target;
+                    }
+                    return out;
+                }
                 if (prop === '__isProxy')
                     return true;
                 // Cache target[prop] for performance
@@ -122,6 +127,9 @@ exports.Observer = (function () {
                 return true;
             }
         };
+        if (target.__isProxy) {
+            return target;
+        }
         return new Proxy(target, proxyHandler);
     }
     return {

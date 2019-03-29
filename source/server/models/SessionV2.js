@@ -61,8 +61,8 @@ class SessionV2 {
         if (typeof value === "function") {
           return "/Function(" + value.toString() + ")/";
         }
-        if (value != null && value.__target != null) {
-            return value.__target;
+        while (value != null && value.__target != null) {
+            value = value.__target;
         }
         return value;
     }
