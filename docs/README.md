@@ -1,7 +1,7 @@
 ## jtree
 Download for your system, unzip and run.
 
-Latest version (2019.03.28): **0.7.4**
+Latest version (2019.03.29): **0.7.5**
 
 <a href='https://github.com/opowell/jtree/raw/master/releases/jtree-win.zip'>jtree for Windows</a>
 
@@ -21,7 +21,7 @@ Latest version (2019.03.28): **0.7.4**
 - session queues: save sequences of treatments (including their options) for re-use.
 
 #### Planned features
-- same look and functionality as z-Tree and oTree:
+- same look and functionality as z-Tree and oTree.
 - users: share one server among many experimenters.
 - rooms: persistent links for subjects.
 
