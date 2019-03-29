@@ -64,7 +64,7 @@ class StaticServer {
         //////////////////////////////
         // REQUESTS
         expApp.get('/', function(req, res) {
-            let pId = 'test'; //TODO: change to null.
+            let pId = null;
             if (req.query.id != null) {
                 pId = req.query.id;
             }

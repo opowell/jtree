@@ -11,11 +11,6 @@ class MainMenu extends HTMLElement {
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
               <ul class="navbar-nav mr-auto hidden" role='tabpanel'>
                   <li class="nav-item">
-                      <span id='tab-games' class="nav-link view-tab" onclick='setView("games")'>
-                          Games
-                      </span>
-                  </li>
-                  <li class="nav-item">
                       <span id='tab-apps' class="nav-link view-tab" onclick='setView("apps")'>
                           Apps
                       </span>
@@ -47,25 +42,8 @@ class MainMenu extends HTMLElement {
                       </span>
                   </li>
                   <li class="nav-item">
-                      <span id='tab-settings' class="nav-link view-tab" onclick='setView("settings")'>
-                          Settings
-                      </span>
-                  </li>
-                  <li class="nav-item">
                       <a class="nav-link" href="/help/index.html" target='_blank'>
                           Help
-                      </a>
-                  </li>
-              </ul>
-              <ul class="navbar-nav hidden" role='tabpanel'>
-                  <li users-mode=true >
-                      <span id='menu-userid' class="nav-link">
-                          userid
-                      </span>
-                  </li>
-                  <li id='logoutLink' class="nav-item" >
-                      <a href='/users/logout' class="nav-link">
-                          Logout
                       </a>
                   </li>
               </ul>
