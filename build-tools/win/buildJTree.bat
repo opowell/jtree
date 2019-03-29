@@ -5,13 +5,13 @@ REM - pkg
 
 REM PROCEDURE
 REM **************************************
-REM 1. Set version (here, jtree.js, and release-notes.md). 
+REM 1. Set version (here, jtree.js, ViewHome.js, and release-notes.md). 
 REM 2. Call this file from root folder (/jtree), which should be two levels up from this file (jtree/build-tools/win/buildJTree.bat).
 REM 4. Update README.md.
 REM 5. Update docs/README.md.
 REM 3. Commit to Github.
 
-set "vers=0.7.4"
+set "vers=0.7.5"
 
 REM ------- Prepare output folder.
 call del ".\releases\%vers%" /Q /F
