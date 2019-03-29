@@ -894,7 +894,7 @@ class Session {
     }
 
     isValidPId(pId) {
-        return this.allowNewParts || this.potentialParticipantIds.includes(pId);
+        return (pId != null && this.allowNewParts) || this.potentialParticipantIds.includes(pId);
     }
 
     /**

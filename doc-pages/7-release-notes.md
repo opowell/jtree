@@ -1,3 +1,8 @@
+##### 2019.03.29 - 0.7.5
+- Added: display version on Home tab.
+- Fix: "test" player no longer created.
+- Cleaned up menu.
+
 ##### 2019.03.28 - 0.7.4
 - Disable autocomplete on forms.
 - Stop players advancing two periods by accident.

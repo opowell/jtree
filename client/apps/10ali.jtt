@@ -12,7 +12,7 @@ app.stoppingRuleMatching_NumRequiredMatches = 1; // Number of matches required i
 app.stoppingRuleFixed_Number = 3;
 app.maxNumVotesPerRound = 50; // How many votes a single group can actually have.
 
-app.stoppingRule = 'fixed'; // or 'matching', or 'fixed'
+app.stoppingRule = 'fixed'; // or 'matching', or 'random'
 
 // Calculated variables
 app.numPeriods  = app.numRounds * app.maxNumVotesPerRound;
@@ -158,13 +158,20 @@ decideStage.activeScreen = `
     <p v-if='app.stoppingRule === "random"'>Vote: {{group.numVotes}} (stop with prob. {{app.stoppingRuleRandom_StopProb}})</p>
 
     <p>Make a choice.</p>
-    <select name='player.choice' required>
+    <select name='player.choice' required style='color: red; font-size: 14pt;' class='playerChoice'>
         <option value='a'>00</option>
         <option value='b'>01</option>
         <option value='c'>10</option>
         <option value='d'>11</option>
     </select>
     <button>Make choice</button>
+
+    <style>
+    .playerChoice {
+        color: red;
+        font-size: 14pt;
+    }
+    </style>
 `;
 
 
