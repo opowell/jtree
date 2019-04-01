@@ -54,7 +54,8 @@ class SessionV2 {
         
     }
 
-    dataReplacer(key, value) {
+    dataReplacer(data, key, value) {
+        debugger;
         if (key === 'nonObs') {
             return undefined;
         }

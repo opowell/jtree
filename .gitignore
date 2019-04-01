@@ -19,3 +19,4 @@ source/server/models2/Period.js
 source/server/models2/Player.js
 client\sessions
 client\internal\logs
+source/internal/clients/admin/vue/
