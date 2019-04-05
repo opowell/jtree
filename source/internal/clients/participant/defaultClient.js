@@ -153,6 +153,11 @@ jt.vueMounted = false;
 jt.vueMethods = {};
 
 jt.mountVue = function(player) {
+
+    if (player == null) {
+        return;
+    }
+
     if (player.game.useVue) {
     
         let vueComputed = {
@@ -210,6 +215,8 @@ jt.getVueModels = function(player) {
         group: player.group,
         period: player.group.period,
         game: player.game,
+        superGame: player.group.period.game,
+        subGame: player.game,
         participant: player.participant,
         timeLeft: 0,
         timeLeftClient: 0,
@@ -221,16 +228,19 @@ jt.getVueModels = function(player) {
     if (vueModel.group.players == null) {
         vueModel.group.players = [];
     }
-    let models = player.game.vueModels;
-    for (let i in models) {
-        if (vueModel[i] == null) {
-            vueModel[i] = models[i];
+
+    if (player.game != null) {
+        let models = player.game.vueModels;
+        for (let i in models) {
+            if (vueModel[i] == null) {
+                vueModel[i] = models[i];
+            }
         }
-    }
-    if (models.participant != null) {
-        for (let i in models.participant) {
-            if (vueModel.participant[i] == null) {
-                vueModel.participant[i] = models.participant[i];
+        if (models.participant != null) {
+            for (let i in models.participant) {
+                if (vueModel.participant[i] == null) {
+                    vueModel.participant[i] = models.participant[i];
+                }
             }
         }
     }
@@ -418,7 +428,7 @@ jt.defaultConnected = function() {
 
     jt.socket.on('logged-in', function(partData) {
         let participant = CircularJSON.parse(partData, jt.dataReviver);
-        jt.updatePlayer(participant.player, true);
+        jt.updatePlayer(participant.proxy.player, true);
     });
     
     jt.socket.on('set-clock-timeleft', function(val) {
@@ -463,6 +473,78 @@ jt.defaultConnected = function() {
         if (jt.data.player !== undefined && d.participantId === jt.data.player.id) {
             jt.setAutoplayDelay(d.val);
         }
+    });
+
+    jt.socket.on('objChange', function(change) {
+        console.log('object change: \n' + JSON.stringify(change.path) + '\n' + JSON.stringify(change, null, 4));
+
+        if (jt.vue == null) {
+            return;
+        }
+
+        if (change.arguments != null) {
+            change.arguments = CircularJSON.parse(change.arguments);
+        }
+    
+        if (change.newValue != null) {
+            change.newValue = CircularJSON.parse(change.newValue);
+        }
+    
+        let paths = change.path.split('.');
+        let obj = jt.vue;
+    
+        switch (change.type) {
+    
+            case 'function-call':
+                for (let i=0; i<paths.length; i++) {
+                    obj = obj[paths[i]];
+                }
+                if (obj == null) return;
+                obj[change.function](...change.arguments);
+                break;
+    
+            case 'set-prop':
+                // console.log('set property: \n' + JSON.stringify(change.newValue));
+                for (let i=0; i<paths.length - 1; i++) {
+                    obj = obj[paths[i]];
+                }
+                if (obj == null) return;
+                jt.vue.$set(obj, paths[paths.length-1], change.newValue);
+                break;
+    
+            case 'set-value':
+                // console.log('set value: \n' + change.newValue);
+                for (let i=0; i<paths.length - 1; i++) {
+                    obj = obj[paths[i]];
+                }
+                if (obj == null) {
+                    return;
+                }
+                if (obj == null) return;
+                jt.vue.$set(obj, paths[paths.length-1], change.newValue);
+                break;
+    
+            case 'delete-prop':
+                // console.log('delete property: \n');
+                for (let i=0; i<paths.length - 1; i++) {
+                    obj = obj[paths[i]];
+                }
+                if (obj == null) return;
+                jt.vue.$delete(obj, paths[paths.length-1]);
+                break;
+    
+            default:
+                debugger;
+                break;
+        }
+
+        let models = jt.getVueModels(jt.vue.player);
+        jt.vue.player = models.player;
+        jt.vue.group = models.group;
+        jt.vue.period = models.period;
+        jt.vue.game = models.game;
+        jt.vue.participant = models.participant;
+        jt.vue.timeElapsed = 0;
     });
 
     jt.connected();

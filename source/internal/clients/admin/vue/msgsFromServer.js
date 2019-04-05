@@ -173,6 +173,10 @@ msgs.openSession = function(sessData) {
 
     let session = CircularJSON.parse(sessData, jt.dataReviver);
 
+    if (session == null) {
+        return;
+    }
+
     for (let i in participantTimers) {
         clearInterval(participantTimers[i]);
     }

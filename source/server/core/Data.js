@@ -79,7 +79,7 @@ class Data {
             proxyObj.sessions.push(this.sessions[i].proxy);
         }
 
-        this.dataReplacer = function(data, key, value) {
+        this.dataReplacer = function(key, value) {
             if (key === 'nonObs') {
                 return undefined;
             }

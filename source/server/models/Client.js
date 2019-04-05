@@ -19,7 +19,6 @@ class Client {
          this.lastActivity = Utils.getDate(new Date());
          this.socketId = socket.id;
          socket.join(this.getChannelName());
-
     }
 
      /**
@@ -69,7 +68,7 @@ class Client {
         if (this.participant === null) {
             return null;
         } else {
-            return this.participant.player;
+            return this.participant.proxy.player;
         }
     }
 

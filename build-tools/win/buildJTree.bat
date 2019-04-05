@@ -34,6 +34,7 @@ call xcopy ".\client\apps\9natalia" ".\releases\%vers%\apps\9natalia\" /E
 call xcopy ".\client\apps\random-order" ".\releases\%vers%\apps\random-order\" /E
 call xcopy ".\client\apps\4starzykowska.jtt" ".\releases\%vers%\apps\"
 call xcopy ".\client\apps\5mariana.jtt" ".\releases\%vers%\apps\"
+call xcopy ".\client\apps\11ali.jtt" ".\releases\%vers%\apps\"
 call xcopy ".\client\apps\beauty-contest.jtt" ".\releases\%vers%\apps\"
 call xcopy ".\client\apps\centipede.jtt" ".\releases\%vers%\apps\"
 call xcopy ".\client\apps\dictator-game.jtt" ".\releases\%vers%\apps\"

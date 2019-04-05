@@ -162,7 +162,7 @@ class Game {
                 </head>
                 <body class='hidden'>
                     <div id='jtree'>
-                        <p v-show='game.numPeriods > 1'>Period: {{period.id}}/{{game.numPeriods}}</p>
+                        <p v-show='superGame.numPeriods > 1'>Period: {{period.id}}/{{superGame.numPeriods}}</p>
                         <p v-show='hasTimeout'>Time left (s): {{clock.totalSeconds}}</p>
                         <span v-show='player.status=="playing"'>
                             {{stages}}
@@ -297,9 +297,7 @@ class Game {
          * TODO:
          * @type string
          */
-        // this.stageContentStart = '<span jt-stage="{{stage.id}}">';
-
-        this.subgameContentStart = `<span v-show="game.id == '{{game.id}}'">`;
+        this.subgameContentStart = `<span v-show="subGame.id == '{{game.id}}'">`;
 
 
         /**

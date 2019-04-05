@@ -205,16 +205,6 @@ class SocketServer {
         this.sendOrQueueAdminMsg(msgs, 'refreshAdmin', ag, id);
     }
 
-    replacer(key, value) {
-        if (key === 'nonObs') {
-            return undefined;
-        }
-        if (typeof value === "function") {
-          return "/Function(" + value.toString() + ")/";
-        }
-        return value;
-    }
-
     sendMessage(channelId, change) {
         let msg = {
             arguments: change.arguments,
@@ -228,9 +218,9 @@ class SocketServer {
             return true;
         }
         let jt = global.jt;
-        msg.newValue = Parser.stringify(msg.newValue, this.replacer, 2);
-        msg.arguments = Parser.stringify(msg.arguments, this.replacer, 2);
-        console.log('emit message: \n' + Parser.stringify(msg, this.replacer, 2));
+        msg.newValue = Parser.stringify(msg.newValue, global.jt.data.dataReplacer, 2);
+        msg.arguments = Parser.stringify(msg.arguments, global.jt.data.dataReplacer, 2);
+        console.log('emit message: \n' + Parser.stringify(msg, global.jt.data.dataReplacer, 2));
         jt.socketServer.io.to(channelId).emit('objChange', msg);
     }
 

@@ -285,7 +285,7 @@ class Msgs {
         var session = Utils.findById(this.jt.data.sessions, sId);
         if (session !== null && session !== undefined) {
             socket.join(session.roomId());
-            this.jt.io.to('socket_' + socket.id).emit('openSession', this.jt.Parser.stringify(session.shell(), global.jt.data.dataReplacer, 2));
+            this.jt.io.to('socket_' + socket.id).emit('openSession', this.jt.flatten(session.shell()));
             this.jt.data.lastOpenedSession = session;
         }
     }

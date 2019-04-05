@@ -71,6 +71,11 @@ function clone(parent, circular, depth, prototype, includeNonEnumerable) {
 
   // recurse this function so we don't reset allParents and allChildren
   function _clone(parent, depth) {
+
+    while (parent != null && parent.__target != null) {
+      parent = parent.__target;
+    }
+
     // cloning null always returns null
     if (parent === null)
       return null;

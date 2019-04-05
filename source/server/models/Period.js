@@ -134,16 +134,17 @@ class Period {
             gr.players.push(player);
             //            if (gr.players.length this.)
         }
-        participant.setPlayer(player);
-
-        if (participant.player === null) {
-            console.log('APP: error assigning group for participant ' + participant.id);
-        }
-
         player.stageIndex = 0;
         player.stage = this.game.subgames[player.stageIndex];
         player.game = this.game.subgames[player.stageIndex];
         player.status = 'ready';
+        participant.setPlayer(player);
+        player = participant.proxy.player;
+
+        if (player === null) {
+            console.log('APP: error assigning group for participant ' + participant.id);
+        }
+
         player.startStage(player.stage);
     }
 

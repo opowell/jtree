@@ -68,6 +68,10 @@ if (jt.settings.openAdminOnStart) {
     openurl.open('http://' + jt.staticServer.ip + ':' + jt.staticServer.port + '/admin');
 }
 
+jt.flatten = function(data) {
+    return global.jt.Parser.stringifyStrict(data, global.jt.data.dataReplacer, 2);
+}
+
 // var exports = module.exports = jt;
 // exports.new = Data;
 

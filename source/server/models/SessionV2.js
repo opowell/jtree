@@ -1,15 +1,11 @@
 const Observer = require('micro-observer').Observer;
-// const deepcopy = require('deepcopy');
 const Utils         = require('./Utils.js');
 const Participant   = require('./Participant.js');
 const fs            = require('fs-extra');
 const path          = require('path');
-// const flatted = require('flatted');
 const clone     = require('../clone.js');
 const Client        = require('./Client.js');
 const Game        = require('./Game.js');
-const CircularJSON = require('../circularjson.js');
-const Parser = CircularJSON;
 const async         = require('async');
 
 class SessionV2 {
@@ -54,24 +50,8 @@ class SessionV2 {
         
     }
 
-    dataReplacer(data, key, value) {
-        debugger;
-        if (key === 'nonObs') {
-            return undefined;
-        }
-        if (typeof value === "function") {
-          return "/Function(" + value.toString() + ")/";
-        }
-        while (value != null && value.__target != null) {
-            value = value.__target;
-        }
-        return value;
-    }
-
     setProxy(proxyObj) {
         const thisSession = this;
-
-        let replacer = this.dataReplacer;
 
         this.proxy = Observer.create(proxyObj, function(change) {
             let msg = {
@@ -85,8 +65,8 @@ class SessionV2 {
             if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
                 return true;
             }
-            msg.newValue = Parser.stringify(msg.newValue, replacer, 2);
-            msg.arguments = Parser.stringify(msg.arguments, replacer, 2);
+            msg.newValue = global.jt.flatten(msg.newValue);
+            msg.arguments = global.jt.flatten(msg.arguments);
             // jt.socketServer.io.to(jt.socketServer.ADMIN_TYPE).emit('objChange', msg);
             jt.socketServer.io.to(thisSession.roomId()).emit('objChange', msg);
             thisSession.save();
@@ -198,6 +178,68 @@ class SessionV2 {
         }
     }
 
+   
+    endGame(state, msgData) {
+
+        debugger;
+
+        let {endForGroup, data, participantId} = msgData;
+
+        global.jt.log('Server received auto-game submission: ' + JSON.stringify(data));
+
+        // TODO: Not parsing strings properly.
+        /** console.log('msg: ' + JSON.stringify(data) + ', ' + client.player().roomId());*/
+        // var endForGroup = true;
+        // let participantId = client.participant.id;
+
+        let participant = Utils.findById(state.participants, participantId);
+        let player = participant.proxy.player;
+        let group = player.group;
+        let period = group.period;
+        let game = player.stage;
+
+        if (player === null) {
+            return false;
+        }
+
+        if (player.stage.id !== data.fnName) {
+            console.log('Game.js, GAME NAME DOES NOT MATCH: ' + client.player().game.id + ' vs. ' + data.fnName + ', data=' + JSON.stringify(data));
+            return false;
+        }
+
+        for (var property in data) {
+            var value = data[property];
+
+            if (value === 'true') {
+                value = true;
+            } else if (value === 'false') {
+                value = false;
+            } else if (!isNaN(value)) {
+                value = parseFloat(value);
+            }
+
+            if (data.hasOwnProperty(property)) {
+                if (property.startsWith('player.')) {
+                    var fieldName = property.substring('player.'.length);
+                    player[fieldName] = value;
+                } else if (property.startsWith('group.')) {
+                    var fieldName = property.substring('group.'.length);
+                    group[fieldName] = value;
+                } else if (property.startsWith('participant.')) {
+                    var fieldName = property.substring('participant.'.length);
+                    participant[fieldName] = value;
+                } else if (property.startsWith('period.')) {
+                    var fieldName = property.substring('period.'.length);
+                    period[fieldName] = value;
+                } else if (property.startsWith('game.')) {
+                    var fieldName = property.substring('game.'.length);
+                    game[fieldName] = value;
+                }
+            }
+        }
+        player.endStage(endForGroup);
+    }
+
     getState() {
         return this.loadMessageState(this.proxy.messageIndex-1);
     }
@@ -287,7 +329,7 @@ class SessionV2 {
 
     save() {
         try {
-            var data = Parser.stringify(this.proxy.__target, global.jt.data.dataReplacer, 2);
+            var data = global.jt.flatten(this.proxy.__target);
             fs.writeFileSync(this.getGSFFile(), data);
         } catch (err) {
             debugger;
@@ -298,7 +340,7 @@ class SessionV2 {
     setMessageIndex(index) {
         this.proxy.messageIndex = index;
         let state = this.loadMessageState(index-1);
-        if (state.__target != null) {
+        while (state.__target != null) {
             state = state.__target;
         }
         this.proxy.state = state;
@@ -316,16 +358,8 @@ class SessionV2 {
         }
 
         if (this.proxy.messages[index].state == null) {
-            // Copy of previous state.
-            // let newState = deepcopy(this.loadMessageState(index-1));
             let prevState = this.loadMessageState(index-1);
-            if (prevState.__target != null) {
-                prevState = prevState.__target;
-            }
-            // let flatState = flatted.stringify(prevState);
-            // let newState = flatted.parse(flatState);
             let newState = clone(prevState);
-
             this.processMessage(newState, this.proxy.messages[index]);
             this.proxy.messages[index].state = newState;
         }
@@ -337,30 +371,25 @@ class SessionV2 {
         let obj = msg.obj;
         let data = msg.data;
         let fn = msg.fn;
-        let jt = msg.jt;
         try {
 
-            if (fn !== 'endStage' && fn !== 'endApp') {
+            if (fn !== 'endGame') {
                 data = Utils.parseFloatRec(data);
             }
             
-            if (obj.canProcessMessage()) {
-                obj[fn](data);
-                //            }
-                //            if (client.player() !== null && client.player().matchesPlayer(player) && client.player().status === 'playing') {
-                //                if (client.player() !== null) {
-                //                    client.player().save();
-                //                }
-            } else {
-                jt.log('Object cannot process message, skipping message "' + fn + '".');
-            }
+            // if (obj.canProcessMessage()) {
+                obj.addMessage(fn, data);
+                // obj[fn](data);
+            // } else {
+                // jt.log('Object cannot process message, skipping message "' + fn + '".');
+            // }
         } catch (err) {
-            jt.log(err.stack);
+            global.jt.log(err.stack);
             debugger;
             try {
-                jt.log('error processing message: ' + JSON.stringify(msg.data));
+                global.jt.log('error processing message: ' + JSON.stringify(msg.data));
             } catch (err2) {
-                jt.log('Error printing error: ' + msg.fn + ', ' + err2.stack);
+                global.jt.log('Error printing error: ' + msg.fn + ', ' + err2.stack);
             }
         }
         callback();
@@ -368,8 +397,6 @@ class SessionV2 {
     }
 
     processMessage(state, message) {
-        // debugger;
-        // let that = this.__target;
         let func = eval('this["' + message.name + '"]').bind(this);
         func(state, message.content);
     }
@@ -564,20 +591,20 @@ class SessionV2 {
 
         var client = new Client.new(socket, this.proxy.state.__target);
         client.participant = participant.__target;
-        socket.join(this.roomId());
+        // socket.join(this.roomId());
         participant.clientAdd(client);
-        for (let i in this.gameTree) {
-            this.gameTree[i].addClientDefault(client);
-        }
+        // for (let i in this.gameTree) {
+        //     this.gameTree[i].addClientDefault(client);
+        // }
         this.proxy.clients.push(client);
-        global.jt.socketServer.io.to(socket.id).emit('logged-in', Parser.stringify(participant.__target, global.jt.data.dataReplacer, 2));
+        global.jt.socketServer.io.to(socket.id).emit('logged-in', global.jt.flatten(participant.__target));
         return client;
     }
 
     messageCallback() {}
 
     pushMessage(obj, da, funcName) {
-        var msg = {obj: obj, data: da, fn: funcName, jt: this.jt};
+        var msg = {obj: obj, data: da, fn: funcName};
         this.asyncQueue.push(msg, this.messageCallback);
     }
 
