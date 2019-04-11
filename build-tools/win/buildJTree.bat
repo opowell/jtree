@@ -7,11 +7,11 @@ REM PROCEDURE
 REM **************************************
 REM 1. Set version (here, jtree.js, ViewHome.js, and release-notes.md). 
 REM 2. Call this file from root folder (/jtree), which should be two levels up from this file (jtree/build-tools/win/buildJTree.bat).
-REM 4. Update README.md.
-REM 5. Update docs/README.md.
-REM 3. Commit to Github.
+REM 3. Update README.md.
+REM 4. Update docs/README.md.
+REM 5. Commit to Github.
 
-set "vers=0.7.5"
+set "vers=0.7.6"
 
 REM ------- Prepare output folder.
 call del ".\releases\%vers%" /Q /F
@@ -25,33 +25,14 @@ REM ------- Compile docs.
 call ./build-tools/win/buildDocs.bat
 
 REM ------- Copy files to release folder.
-call xcopy ".\client\apps\1natalia" ".\releases\%vers%\apps\1natalia\" /E
-call xcopy ".\client\apps\3james" ".\releases\%vers%\apps\3james\" /E
-call xcopy ".\client\apps\6maxtom" ".\releases\%vers%\apps\6maxtom\" /E
-call xcopy ".\client\apps\7simone" ".\releases\%vers%\apps\7simone\" /E
-call xcopy ".\client\apps\8jelena" ".\releases\%vers%\apps\8jelena\" /E
-call xcopy ".\client\apps\9natalia" ".\releases\%vers%\apps\9natalia\" /E
-call xcopy ".\client\apps\random-order" ".\releases\%vers%\apps\random-order\" /E
-call xcopy ".\client\apps\10ali.jtt" ".\releases\%vers%\apps\"
-call xcopy ".\client\apps\4starzykowska.jtt" ".\releases\%vers%\apps\"
-call xcopy ".\client\apps\5mariana.jtt" ".\releases\%vers%\apps\"
-call xcopy ".\client\apps\beauty-contest.jtt" ".\releases\%vers%\apps\"
-call xcopy ".\client\apps\centipede.jtt" ".\releases\%vers%\apps\"
-call xcopy ".\client\apps\dictator-game.jtt" ".\releases\%vers%\apps\"
-call xcopy ".\client\apps\display-profit.jtt" ".\releases\%vers%\apps\"
-call xcopy ".\client\apps\enter-id.jtt" ".\releases\%vers%\apps\"
-call xcopy ".\client\apps\language-test.jtt" ".\releases\%vers%\apps\"
-call xcopy ".\client\apps\market-entry.jtt" ".\releases\%vers%\apps\"
-call xcopy ".\client\apps\public-good.jtt" ".\releases\%vers%\apps\"
-call xcopy ".\client\apps\public-good-w-punish.jtt" ".\releases\%vers%\apps\"
-call xcopy ".\client\apps\questionnaire.jtt" ".\releases\%vers%\apps\"
-call xcopy ".\client\apps\real-effort-sums.jtt" ".\releases\%vers%\apps\"
-call xcopy ".\client\apps\waitToStartEnd.jtt" ".\releases\%vers%\apps\"
+call xcopy ".\client\apps" ".\releases\%vers%\apps\" /E
 
 call xcopy ".\client\internal" ".\releases\%vers%\internal\" /E
+
 call del ".\releases\%vers%\internal\clients\admin" /Q /F
-call xcopy ".\client\internal\admin\multiuser" ".\releases\%vers%\internal\admin\multiuser\" /E
-call xcopy ".\client\internal\admin\shared" ".\releases\%vers%\internal\admin\shared\" /E
+call rmdir ".\releases\%vers%\internal\clients\admin" /Q /S
+call xcopy ".\client\internal\clients\admin\multiuser" ".\releases\%vers%\internal\clients\admin\multiuser\" /E
+call xcopy ".\client\internal\clients\admin\shared" ".\releases\%vers%\internal\clients\admin\shared\" /E
 call xcopy ".\client\help.html" ".\releases\%vers%\"
 call xcopy ".\server\source" ".\releases\%vers%\internal\source\" /E
 
@@ -65,15 +46,6 @@ call .\build-tools\win\7z.exe a ".\releases\%vers%\jtree-%vers%-winxp.zip" ".\re
 call .\build-tools\win\7z.exe a ".\releases\%vers%\jtree-%vers%-win.zip" ".\releases\%vers%\jtree-win-x64.exe" ".\releases\%vers%\apps" ".\releases\%vers%\internal" ".\releases\%vers%\help.html"
 call .\build-tools\win\7z.exe a ".\releases\%vers%\jtree-%vers%-macos.zip" ".\releases\%vers%\jtree-macos-x64" ".\releases\%vers%\apps" ".\releases\%vers%\internal" ".\releases\%vers%\help.html"
 call .\build-tools\win\7z.exe a ".\releases\%vers%\jtree-%vers%-linux.zip" ".\releases\%vers%\jtree-linux-x64" ".\releases\%vers%\apps" ".\releases\%vers%\internal" ".\releases\%vers%\help.html"
-call del ".\releases\%vers%\jtree-win-x86.exe" /Q /F
-call del ".\releases\%vers%\jtree-win-x64.exe" /Q /F
-call del ".\releases\%vers%\jtree-macos-x64" /Q /F
-call del ".\releases\%vers%\jtree-linux-x64" /Q /F
-call del ".\releases\%vers%\apps" /Q /F
-call del ".\releases\%vers%\internal" /Q /F
-call del ".\releases\%vers%\help.html" /Q /F
-call rmdir ".\releases\%vers%\apps" /Q /S
-call rmdir ".\releases\%vers%\internal" /Q /S
 
 REM ------- Update latest release
 call xcopy ".\releases\%vers%\jtree-%vers%-winxp.zip" ".\releases" /i /Y
@@ -92,5 +64,16 @@ ren ".\releases\jtree-%vers%-linux.zip" "jtree-linux.zip"
 REM ------- Store version
 call del ".\releases\older\%vers%" /Q /F
 call xcopy ".\releases\%vers%" ".\releases\older\%vers%" /E /i
+
+REM ------- Clean up
+call del ".\releases\%vers%\jtree-win-x86.exe" /Q /F
+call del ".\releases\%vers%\jtree-win-x64.exe" /Q /F
+call del ".\releases\%vers%\jtree-macos-x64" /Q /F
+call del ".\releases\%vers%\jtree-linux-x64" /Q /F
+call del ".\releases\%vers%\apps" /Q /F
+call del ".\releases\%vers%\internal" /Q /F
+call del ".\releases\%vers%\help.html" /Q /F
+call rmdir ".\releases\%vers%\apps" /Q /S
+call rmdir ".\releases\%vers%\internal" /Q /S
 call del ".\releases\%vers%" /Q /F
 call rmdir ".\releases\%vers%" /Q /S

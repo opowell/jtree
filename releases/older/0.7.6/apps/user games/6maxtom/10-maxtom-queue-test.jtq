@@ -1,0 +1,135 @@
+session.addApp('1-general-instructions.jtt');   /// 0
+session.addApp('2-IAT.jtt', {                   /// 1 START IAT TAX
+    type: 'practice',
+    usedLists: [1],
+    flip: [false]
+});
+session.addApp('2-IAT.jtt', {                   /// 2
+    type: 'practice',
+    usedLists: [0],
+    flip: [false]
+});
+session.addApp('2-IAT.jtt', {                   /// 3
+    type: 'practice',
+    usedLists: [0, 1],
+    flip: [false, false]
+});
+session.addApp('2-IAT.jtt', {                   /// 4
+    type: 'real',
+    usedLists: [0, 1],
+    flip: [false, false]
+});
+session.addApp('2-IAT.jtt', {                   /// 5
+    type: 'practice',
+    usedLists: [1],
+    flip: [true]
+});
+session.addApp('2-IAT.jtt', {                   /// 6
+    type: 'practice',
+    usedLists: [0, 1],
+    flip: [false, true]
+});
+session.addApp('2-IAT.jtt', {                   /// 7 END IAT TAX
+    type: 'real',
+    usedLists: [0, 1],
+    flip: [false, true]
+});
+session.addApp('2-IAT.jtt', {                   /// 8 START IAT TRUTH
+    type: 'practice',
+    usedLists: [1],
+    flip: [false]
+});
+session.addApp('2-IAT.jtt', {                   /// 9
+    type: 'practice',
+    usedLists: [0],
+    flip: [false]
+});
+session.addApp('2-IAT.jtt', {                   /// 10
+    type: 'practice',
+    usedLists: [0, 1],
+    flip: [false, false]
+});
+session.addApp('2-IAT.jtt', {                   /// 11
+    type: 'real',
+    usedLists: [0, 1],
+    flip: [false, false]
+});
+session.addApp('2-IAT.jtt', {                   /// 12
+    type: 'practice',
+    usedLists: [1],
+    flip: [true]
+});
+session.addApp('2-IAT.jtt', {                   /// 13
+    type: 'practice',
+    usedLists: [0, 1],
+    flip: [false, true]
+});
+session.addApp('2-IAT.jtt', {                   /// 14 END IAT TRUTH
+    type: 'real',
+    usedLists: [0, 1],
+    flip: [false, true]
+});
+session.addApp('3-survey-tax.jtt');             /// 15
+session.addApp('4-survey-truth.jtt');           /// 16
+session.addApp('5-tax-game.jtt');               /// 17
+session.addApp('6-truth-game.jtt');             /// 18
+session.addApp('7-results.jtt');                /// 19
+session.addApp('8-treatment-control.jtt');      /// 20
+session.addApp('9-treatment-pressure.jtt');     /// 21
+
+// Each row is a sequence of app indices for a participant.
+session.T1sequences = [
+[1, 2, 3, 4, 5, 6, 7,8, 9, 10, 11, 12, 13, 14,15,16,17,18],
+];
+session.T2sequences = [
+[1, 2, 3, 4, 5, 6, 7,8, 9, 10, 11, 12, 13, 14,15,16,17,18],
+];
+
+session.availableSequencesT1 = [];
+session.availableSequencesT2 = [];
+
+session.T1Ids = ['P1', 'P3', 'P5', 'P7', 'P9', 'P11'];
+session.T2Ids = ['P2', 'P4', 'P6', 'P8', 'P10', 'P12'];
+
+session.participantStart = function(participant) {
+    let session = participant.session;
+    
+    // Store data from IAT test.
+    participant.totalErrors = [];
+    participant.times = [];
+    for (let i=0; i<session.apps.length; i++) {
+        participant.times.push({
+            lists: null,
+            flip: null,
+            sumOfTimes: 0
+        });
+    }
+
+    // Assign participant to treatment.
+    if (session.T1Ids.includes(participant.id)) {
+        participant.treatment = 1;
+    }
+    if (session.T2Ids.includes(participant.id)) {
+        participant.treatment = 2;
+    }
+
+    // Assign app sequence to participant.
+    // If the list of available sequences is empty, repopulate it.
+    let availableSequences = participant.treatment === 1 ? session.availableSequencesT1 : session.availableSequencesT2;
+    if (availableSequences.length === 0) {
+        let sequences = participant.treatment === 1 ? session.T1sequences : session.T2sequences;
+        for (let i=0; i<sequences.length; i++) {
+            availableSequences.push(sequences[i]);
+        }
+    }
+    // Choose a sequence.
+    let index = Utils.randomInt(0, availableSequences.length);
+    // Set this participant's sequence.
+    participant.sequence = availableSequences[index];
+    // Remove the sequence from the list.
+    availableSequences.splice(index, 1);
+}
+
+session.getApp = function(participant) {
+    return session.apps[participant.sequence[participant.appIndex-1]];
+}

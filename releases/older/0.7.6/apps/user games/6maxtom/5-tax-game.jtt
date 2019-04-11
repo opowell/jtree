@@ -1,0 +1,137 @@
+﻿app.description = 'Simple tax reporting risky choice game';
+
+app.numPeriods 	= 7;
+app.groupSize 	= 1;
+app.incomes	    = [1000,2897,975,3221,887,3017,1123];
+app.taxrate 	= 0.3;
+app.auditp 	    = 0.25;
+app.finefactor 	= 2;
+app.pointfactor = 0.1;
+
+app.html = `
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
+	<body class='hidden'>
+		<div id='jtree'>
+			<p v-show='app.numPeriods > 1'>Runde: {{period.id}}/{{app.numPeriods}}</p>
+			<p v-show='hasTimeout'>Verbleibende Zeit (s): {{clock.totalSeconds}}</p>
+			<span v-show='player.status=="playing"'>
+				{{stages}}
+			</span>
+			<span v-show='["waiting", "finished", "done"].includes(player.status)'>
+				{{waiting-screens}}
+			</span>
+		</div>
+		{{scripts}}
+	</body>
+</html>
+`;
+
+var instructions = app.newStage('instructions');
+instructions.canPlayerParticipate = function(player) {
+    return player.period().id === 1; 
+};
+instructions.activeScreen = `
+	<p><b>ANLEITUNG</b></p>
+	<p>Stellen Sie sich in den nachfolgenden Runden vor, dass Sie Einkommen aus selbstständiger Arbeit beziehen.<br>
+	Um Steuern zu bezahlen, sollen Sie dieses Einkommen an die Steuerbehörden melden.</p>
+	
+	<p>Der <b>Steuersatz</b> beträgt <b>{{app.taxrate*100}} Prozent</b>.<br>
+	Dieser Prozentsatz wird vom Einkommen abgezogen, das Sie den Steuerbehörden melden.<br>
+	Sie können in jeder Runde selbst wählen, wie viel Ihres Einkommens Sie an die Steuerbehörden melden möchten,<br>
+	es besteht jedoch in jeder Runde eine <b>{{app.auditp*100}}-prozentige Wahrscheinlichkeit einer Steuerprüfung</b></p>
+	
+	<p>Wenn Sie in einer Runde nicht Ihr vollständiges Einkommen deklariert haben und eine Steuerprüfung stattfindet,<br>
+	müssen Sie das <b>{{app.finefactor}}-fache</b> des hinterzogenen Steuerbetrages als Strafe bezahlen.<br>
+	Findet keine Steuerprüfung statt, erhöht sich Ihr finales Einkommen dementsprechend.</p>
+
+	<p>BEZAHLUNG UMRECHUNUGSFAKTOR!!!</p> 
+
+	<p>Klicken Sie auf OK, um mit einer Übungsrunde zu beginnen.</p>
+`;
+
+
+/// Berechnung fine jt.data.player.app.finefactor * ((jt.data.player.app.incomes[player.period().id-1] - contribution) * jt.data.player.app.taxrate)
+/// document.getElementById('displayNoAudit').value = income - (contribution * taxrate); document.getElementById('displayAudit').value = income - (contribution * taxrate) - fine;
+
+var trialStage = app.newStage('trialStage');
+trialStage.duration = 120;
+trialStage.canPlayerParticipate = function(player) {
+    return player.period().id === 1; 
+}
+trialStage.activeScreen = `
+	
+	<script>
+		function printResults() {
+			var contribution = document.getElementById('contField').value;
+			var income = jt.vue.player.stage.app.incomes[jt.vue.player.group.period.id-1];
+			var taxrate = jt.vue.player.stage.app.taxrate;
+			var finefactor = jt.vue.player.stage.app.finefactor;
+			var fine = finefactor * ((income - contribution) * taxrate);
+			document.getElementById('displayFine').value = fine;
+			document.getElementById('displayTax').value = contribution * taxrate;
+		}
+	</script>
+	
+	<p>ÜBUNGSRUNDE</p>
+	<p>In dieser Runde steht Ihnen ein automatischer Rechner zur Verfügung, der die Steuerzahlungen und möglichen Strafen anzeigt.<br>
+	Sie können verschiedene Werte ausprobieren, bevor Sie fortfahren.<br>
+	Diese Runde wirkt sich nicht auf Ihre Bezahlung aus.</p>
+	
+	<p>Ihr Einkommen vor Steuer beträgt in dieser Runde Euro <b>{{app.incomes[period.id-1]}}</b>.<br>
+	Geben Sie ein, wie viel Ihres Einkommens Sie den Steuerbehörden melden möchten:<br>
+	<input name='player.contribution' id='contField' required type='number' min='0' :max='app.incomes[period.id-1]' step='1' oninput='printResults()'></p>
+	
+	<p>Denken Sie daran, dass mit einer Wahrscheinlichkeit von <b>{{app.auditp*100}} Prozent</b> eine Steuerprüfung stattfindet.<br>
+    Sollte eine Prüfung stattfinden, müssen Sie das <b>{{app.finefactor}}-fache</b> des hinterzogenen Betrages als Strafe bezahlen.</p>
+	
+	<p><b>Rechner:</b><br>
+	Für den angebenen Betrag müssten Sie Euro <input id='displayTax' type='number' readonly> an Steuern bezahlen.<br>
+	Findet eine Steuerprüfung statt, müssten Sie Euro <input id='displayFine' type='number' readonly> an Strafe bezahlen.</p>
+	<button>Verstanden</button>
+`;
+
+var decideStage = app.newStage('decide');
+decideStage.duration = 60;
+decideStage.canPlayerParticipate = function(player) {
+    return player.period().id > 1; 
+}
+decideStage.activeScreen = `
+	<p>Ihr Einkommen vor Steuer beträgt in dieser Runde Euro {{app.incomes[period.id-1]}}.<br>
+	Geben Sie ein, wie viel Ihres Einkommens Sie den Steuerbehörden melden möchten:<br>
+	<input name='player.contribution' required type='number' min='0' :max='app.incomes[period.id-1]' step='1'></p>
+	
+	<p>Denken Sie daran, dass mit einer Wahrscheinlichkeit von <b>{{app.auditp*100}} Prozent</b> eine Steuerprüfung stattfindet.<br>
+	Sollte eine Prüfung stattfinden, müssen Sie das <b>{{app.finefactor}}-fache</b> des hinterzogenen Betrages als Strafe bezahlen.</p>
+	<button>Steuererklärung absenden</button>
+`;
+
+
+var resultsStage = app.newStage('results'); 
+resultsStage.duration = 60; 
+resultsStage.playerStart = function(player) {
+	player.audit = Math.random() <= app.auditp; 
+	player.auditNum = player.audit ? 1 : 0; 
+	player.auditText = player.audit ? 'eine' : 'keine';
+	player.fine = player.auditNum * app.finefactor * ((app.incomes[player.period().id-1] - player.contribution) * app.taxrate);
+	player.result = app.incomes[player.period().id-1] - (player.contribution * app.taxrate) - player.fine;
+	player.points = player.result * app.pointfactor
+}
+
+resultsStage.activeScreen = `
+    <p>Ihr Einkommen vor Steuern betrug in dieser Runde Euro <b>{{app.incomes[period.id-1]}}</b>.<br>
+	Sie haben Euro <b>{{player.contribution}}</b> an die Steuerbehörden gemeldet.<br>
+	Ob eine Steuerprüfung stattfand, erfahren Sie am Ende des Experiments.</p>
+	<button>Nächste Runde beginnen</button>
+`;
+
+/// TO DO:
+/// 
+/// BEZAHLUNG!
+/// Changes:
+/// X remaining seconds and round in german. 
+/// X do not show results before (so that the game is identical for everyone)
