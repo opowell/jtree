@@ -1,0 +1,107 @@
+app.description = 'Players simultaneously submit a claim. Lowest claim wins the prize and a payment from the loser.';
+
+app.addSelectOption('matching', ['stranger', 'partner']);
+if (app.matching == 'stranger') {
+    app.groupMatchingType = 'STRANGER';
+} else {
+    app.groupMatchingType = 'PARTNER_RANDOM';
+}
+app.groupSize = 2;
+app.numPeriods = 4;
+app.lowerBound = 10;
+app.upperBound = 50;
+app.prize      = 10;
+app.payoff = function(player) {
+    if (player.claim < player.partnerClaim) {
+        return player.claim + app.prize;
+    } else if (player.claim === player.partnerClaim) {
+        return player.claim;
+    } else {
+        return -app.prize;
+    }
+}
+
+var decideStage = app.newStage('decide');
+decideStage.activeScreen = `
+    <p>DECISION (Matching: {{app.matching}})</p>
+    <p>Choose an amount to claim between {{app.lowerBound}} and {{app.upperBound}}: <input name='player.claim' required type='number' :min='app.lowerBound' :max='app.upperBound' step='1'></p>
+    <button>Make claim</button>
+`;
+
+var resultsStage = app.newStage('results');
+resultsStage.groupStart = function(group) {
+    for (var i in group.players) { // i = 0, 1, 2, 3
+        var player = group.players[i];
+        player.partnerClaim = group.playerWithId(player.idInGroup - (player.idInGroup==2?1:-1)).claim;
+        player.points = app.payoff(player);
+    }
+}
+resultsStage.activeScreen = `
+    <p>RESULTS</p>
+    <p>Your claim was {{player.claim}}. The other player's claim was {{player.partnerClaim}}.</p>
+    <p v-if='player.claim < player.partnerClaim'>Your claim was lower than the other player's claim.</p>
+    <p v-if='player.claim == player.partnerClaim'>Your claim was the same as the other player's claim.</p>
+    <p v-if='player.claim > player.partnerClaim'>Your claim was higher than the other player's claim.</p>
+    <p>Thus, in this period your payoff was {{ player.points | round(2) }} points.</p>
+`
+
+
+// Center content, and add a nice grey box around it.
+app.html = `
+	<!DOCTYPE html>
+	<html>
+		<head>
+			<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+			<meta name="viewport" content="width=device-width, initial-scale=1">
+			<style>
+			body {
+                display: flex;
+                max-width: 800px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            #jtree {
+                min-width: 500px;
+                min-height: 300px;
+                padding: 10px;
+                border: 1px solid #888;
+                border-radius: 4px;
+                align-self: start;
+                background-color: #efefef;
+				margin: auto;
+            }
+
+            @media screen and (max-width: 600px) {
+                body {
+                    background-color: #efefef;
+                    align-items: start;
+                    width: unset;
+                    padding-top: unset;
+                    justify-content: start;
+                }
+                #jtree {
+                    margin: 10px;
+                    border: none;
+                    min-width: unset;
+                    padding: unset;
+                    min-height: unset;
+                }
+
+            }
+			</style>
+		</head>
+		<body class='hidden'>
+            <div id='jtree'>
+				<p>{{ app.periodText }}: {{period.id}}/{{app.numPeriods}}</p>
+				<span v-show='player.status=="playing"'>
+					{{stages}}
+				</span>
+				<span v-show='["ready", "waiting", "finished", "done"].includes(player.status)'>
+					{{waiting-screens}}
+				</span>
+			</div>
+			{{scripts}}
+		</body>
+	</html>
+`;

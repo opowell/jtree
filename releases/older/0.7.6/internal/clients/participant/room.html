@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<head>
+    <title>jtree - join room</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/shared/jquery-1.11.1.js"></script>
+    <script src="/shared/shared.js"></script>
+    <script src="/shared/jquery.cookie.js"></script>
+    <script src="/participant/defaultClient.js"></script>
+    <link rel="stylesheet" type="text/css" href="/participant/popups.css">
+    <link rel="stylesheet" type="text/css" href="/participant/defaultGame.css">
+</head>
+<body>
+    <h4>Join Room <span id='room-id'></span></h4>
+    <h1 id='room-displayName'></h1>
+    <p>Enter your participant id:</p>
+    <input id='pId' type='text'></input>
+    <div id='enterSecret' hidden=true>
+        <p>Enter the secret code for this participant:</p>
+        <input id='hash' type='text'></input>
+    </div>
+    <button onclick='submitId();'>OK</button>
+<script>
+    window.onload = function() {
+        $('#room-id').text($.cookie()['roomId']);
+        $('#room-displayName').text($.cookie()['roomDN']);
+        $.cookie('roomId', null);
+        $.cookie('roomDN', null);
+        if ($.cookie()['participantId'] != null) {
+            $('#pId').text($.cookie()['participantId']);
+            $.cookie('participantId', null);
+        }
+        if ($.cookie()['hasSecret'] == true) {
+            $('#enterSecret').attr('hidden', false);
+        }
+    }
+
+    submitId = function() {
+        var secret = $('#enterSecret').val().trim();
+
+        var curLoc = location.href;
+
+        // Remove trailing slash, if any.
+        if (curLoc.endsWith('/')) {
+            curLoc = curLoc.substring(0, curLoc.length-1);
+        }
+
+        // server/room/roomId/pId/secret
+        if (secret.length > 0) {
+            location.href = curLoc + '/' + $('#pId').val() + '/' + secret;
+        }
+        // server/room/roomId/pId
+        else {
+            location.href = curLoc + '/' + $('#pId').val();
+        }
+    }
+
+</script>
+</body>
+</html>

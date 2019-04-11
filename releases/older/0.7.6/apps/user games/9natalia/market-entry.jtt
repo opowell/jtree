@@ -1,0 +1,106 @@
+app.description = 'Players choose whether or not to enter a market. Payoffs for entrants depend on the number of players that chose to enter.';
+
+app.outsideOption = 1;
+app.addPositiveIntegerOption('capacity', 4);
+app.numGroups = 1;
+app.numPeriods = 1;
+app.payoff = function(player) {
+    if (player.enter) {
+            return 1 + 2*(app.capacity - player.group.numEnter);
+        } else {
+            return this.outsideOption;
+        }
+}
+
+var decideStage = app.newStage('decide');
+decideStage.activeScreen = `
+<p>DECISION</p>
+<p>Choose whether or not to enter the market (capacity, c = {{app.capacity}}).</p>
+<button name='player.enter' value='true'  type='submit'>Enter</button>
+<button name='player.enter' value='false' type='submit'>Not enter</button>
+`;
+
+var resultsStage = app.newStage('results');
+resultsStage.groupStart = function(group) { // when a group starts this stage
+    group.numEnter = 0;
+    // Find out winning number.
+    for (var i in group.players) { // i = 0, 1, 2, 3
+        var player = group.players[i];
+        if (player.enter) {
+            group.numEnter++;
+        }
+    }
+    // Assign points
+    for (var i in group.players) {
+        var player = group.players[i];
+        player.points = app.payoff(player);
+    }
+}
+resultsStage.activeScreen = `
+<p>RESULTS</p>
+<p v-if='player.enter'>You chose to <b>enter</b> the market.</p>
+<p v-else>You chose to <b>not enter</b> the market.</p>
+<p>The number of players in your group who chose to enter was {{group.numEnter}}.</p>
+<p>Thus, your payoff in this period is {{ player.points | round(2) }} points.</p>
+`;
+
+
+// Center content, and add a nice grey box around it.
+app.html = `
+	<!DOCTYPE html>
+	<html>
+		<head>
+			<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+			<meta name="viewport" content="width=device-width, initial-scale=1">
+			<style>
+			body {
+                display: flex;
+                max-width: 800px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            #jtree {
+                min-width: 500px;
+                min-height: 300px;
+                padding: 10px;
+                border: 1px solid #888;
+                border-radius: 4px;
+                align-self: start;
+                background-color: #efefef;
+				margin: auto;
+            }
+
+            @media screen and (max-width: 600px) {
+                body {
+                    background-color: #efefef;
+                    align-items: start;
+                    width: unset;
+                    padding-top: unset;
+                    justify-content: start;
+                }
+                #jtree {
+                    margin: 10px;
+                    border: none;
+                    min-width: unset;
+                    padding: unset;
+                    min-height: unset;
+                }
+
+            }
+			</style>
+		</head>
+		<body class='hidden'>
+            <div id='jtree'>
+				<p>{{ app.periodText }}: {{period.id}}/{{app.numPeriods}}</p>
+				<span v-show='player.status=="playing"'>
+					{{stages}}
+				</span>
+				<span v-show='["ready", "waiting", "finished", "done"].includes(player.status)'>
+					{{waiting-screens}}
+				</span>
+			</div>
+			{{scripts}}
+		</body>
+	</html>
+`;

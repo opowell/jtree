@@ -1,0 +1,60 @@
+.appPreview-stage {
+
+}
+
+.appPreview-stageid {
+    color: green;
+}
+
+.appPreview-stagefn {
+}
+
+.varEl:hover div {
+    border-color: #000;
+    background-color: yellow;
+    cursor: pointer;
+}
+
+.appPreview-stageContent {
+    margin-left: 2rem;
+}
+
+.toggleContentDiv {
+    margin-left: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.toggleTitleDiv {
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+}
+
+.appPreview-funcContent {
+    white-space: pre;
+}
+
+.appPreview-stage {
+    color: green;
+}
+
+.appPreview-func {
+    color: purple;
+}
+
+.view-app-screen {
+    width: 450px;
+    height: 450px;
+    padding: 0.5em;
+    border: 1px solid #888;
+}
+
+#view-app-tree {
+
+}
+
+#view-app-screen {
+
+}

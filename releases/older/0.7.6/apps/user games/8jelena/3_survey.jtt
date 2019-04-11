@@ -1,0 +1,419 @@
+﻿// SETTINGS
+app.countries = ['Czech Republic', 'United Arab Emirates', 'France', 'Qatar', 'Moldova', 'Burkina Faso', 'Serbia', 'Austria', 'Bosnia and Herzegovina', 'Slovenia', 'Macedonia', 'Germany', 'Croatia', 'Montenegro', 'Bulgaria', 'Hungary', 'Romania', 'The Netherlands'];
+app.matrices = [
+    {
+        name: 'Safety first',
+        text: 'Safety first.',
+        left: 'Totally disagree',
+        right: 'Totally agree',
+    },
+    {
+        name: 'No health risk',
+        text: 'I do not take risks with my health.',
+        left: 'Totally disagree',
+        right: 'Totally agree',
+    },
+    {
+        name: 'Avoid risk',
+        text: 'I prefer to avoid risk.',
+        left: 'Totally disagree',
+        right: 'Totally agree',
+    },
+    {
+        name: 'Take risk',
+        text: 'I take risks regularly.',
+        left: 'Totally disagree',
+        right: 'Totally agree',
+    },    {
+        name: 'Dislike ignorance',
+        text: 'I really dislike not knowing what is going to happen.',
+        left: 'Totally disagree',
+        right: 'Totally agree',
+    },
+    {
+        name: 'Risk as a challenge',
+        text: 'I usually view risks as a challenge.',
+        left: 'Totally disagree',
+        right: 'Totally agree',
+    },
+    {
+        name: 'View myself',
+        text: 'I view myself as a...',
+        left: 'Risk avoider',
+        right: 'Risk seeker',
+    }
+]
+
+// end SETTINGS
+
+app.groupSize = 1;
+app.html = `
+<!DOCTYPE html>
+<html lang='en'>
+    <head>
+        <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+        table {
+            font-size: 1em;
+        }
+        body {
+            max-width: none;
+        }
+            input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            margin: 12.75px 0;
+            }
+            input[type=range]:focus {
+            outline: none;
+            }
+            input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 9.5px;
+            cursor: pointer;
+            box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+            background: #ffffff;
+            border-radius: 1.3px;
+            border: 0.2px solid #010101;
+            }
+            input[type=range]::-webkit-slider-thumb {
+            box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+            border: 1px solid #000000;
+            height: 35px;
+            width: 31px;
+            border-radius: 6px;
+            background: #ffffff;
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -12.95px;
+            }
+            input[type=range]:focus::-webkit-slider-runnable-track {
+            background: #ffffff;
+            }
+            input[type=range]::-moz-range-track {
+            width: 100%;
+            height: 9.5px;
+            cursor: pointer;
+            box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+            background: #ffffff;
+            border-radius: 1.3px;
+            border: 0.2px solid #010101;
+            }
+            input[type=range]::-moz-range-thumb {
+            box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+            border: 1px solid #000000;
+            height: 35px;
+            width: 31px;
+            border-radius: 6px;
+            background: #ffffff;
+            cursor: pointer;
+            }
+            input[type=range]::-ms-track {
+            width: 100%;
+            height: 9.5px;
+            cursor: pointer;
+            background: transparent;
+            border-color: transparent;
+            color: transparent;
+            }
+            input[type=range]::-ms-fill-lower {
+            background: #f0f0f0;
+            border: 0.2px solid #010101;
+            border-radius: 2.6px;
+            box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+            }
+            input[type=range]::-ms-fill-upper {
+            background: #ffffff;
+            border: 0.2px solid #010101;
+            border-radius: 2.6px;
+            box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+            }
+            input[type=range]::-ms-thumb {
+            box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+            border: 1px solid #000000;
+            height: 35px;
+            width: 31px;
+            border-radius: 6px;
+            background: #ffffff;
+            cursor: pointer;
+            height: 9.5px;
+            }
+            input[type=range]:focus::-ms-fill-lower {
+            background: #ffffff;
+            }
+            input[type=range]:focus::-ms-fill-upper {
+            background: #ffffff;
+            }
+
+            @media screen and (max-width: 600px) {
+                body {
+                    font-size: 16pt;
+                }
+
+                input {
+                    font-size: 16pt;
+                    width: 100%;
+                }
+
+                button {
+                    font-size: 16pt;
+                }
+ 
+                
+                input[type=range] {
+                    -webkit-appearance: none;
+                    width: 100%;
+                    margin: 11px 0;
+                  }
+                  input[type=range]:focus {
+                    outline: none;
+                  }
+                  input[type=range]::-webkit-slider-runnable-track {
+                    width: 100%;
+                    height: 15px;
+                    cursor: pointer;
+                    box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+                    background: #ffffff;
+                    border-radius: 5.9px;
+                    border: 0.4px solid #010101;
+                  }
+                  input[type=range]::-webkit-slider-thumb {
+                    box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+                    border: 1px solid #000000;
+                    height: 37px;
+                    width: 38px;
+                    border-radius: 6px;
+                    background: #ffffff;
+                    cursor: pointer;
+                    -webkit-appearance: none;
+                    margin-top: -11.4px;
+                  }
+                  input[type=range]:focus::-webkit-slider-runnable-track {
+                    background: #ffffff;
+                  }
+                  input[type=range]::-moz-range-track {
+                    width: 100%;
+                    height: 15px;
+                    cursor: pointer;
+                    box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+                    background: #ffffff;
+                    border-radius: 5.9px;
+                    border: 0.4px solid #010101;
+                  }
+                  input[type=range]::-moz-range-thumb {
+                    box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+                    border: 1px solid #000000;
+                    height: 37px;
+                    width: 38px;
+                    border-radius: 6px;
+                    background: #ffffff;
+                    cursor: pointer;
+                  }
+                  input[type=range]::-ms-track {
+                    width: 100%;
+                    height: 15px;
+                    cursor: pointer;
+                    background: transparent;
+                    border-color: transparent;
+                    color: transparent;
+                  }
+                  input[type=range]::-ms-fill-lower {
+                    background: #f2f2f2;
+                    border: 0.4px solid #010101;
+                    border-radius: 11.8px;
+                    box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+                  }
+                  input[type=range]::-ms-fill-upper {
+                    background: #ffffff;
+                    border: 0.4px solid #010101;
+                    border-radius: 11.8px;
+                    box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+                  }
+                  input[type=range]::-ms-thumb {
+                    box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+                    border: 1px solid #000000;
+                    height: 37px;
+                    width: 38px;
+                    border-radius: 6px;
+                    background: #ffffff;
+                    cursor: pointer;
+                    height: 15px;
+                  }
+                  input[type=range]:focus::-ms-fill-lower {
+                    background: #ffffff;
+                  }
+                  input[type=range]:focus::-ms-fill-upper {
+                    background: #ffffff;
+                  }
+                  
+                  
+            }
+
+        </style>
+    </head>
+    <body>
+        <div id='jtree'>
+            <p v-show='app.numPeriods > 1'>Period: {{period.id}}/{{app.numPeriods}}</p>
+            <p v-show='hasTimeout'>Time left (s): {{clock.totalSeconds}}</p>
+            <span v-show='player.status=="playing"'>
+                {{stages}}
+            </span>
+            <span v-show='["waiting", "finished", "done"].includes(player.status)'>
+                {{waiting-screens}}
+            </span>
+        </div>
+        {{scripts}}
+    </body>
+</html>
+`
+
+app.vueComputed = {
+    sortedCountries: function() {
+        function compare(a, b) {
+          if (a.value < b.value)
+            return -1;
+          if (a.value > b.value)
+            return 1;
+          return 0;
+        }
+
+        let copy = [];
+        for (let i=0; i<this.player.countries.length; i++) {
+            copy.push(this.player.countries[i]);
+        }
+
+        return copy.sort(compare);
+    },
+    madeAllChoices: function() {
+        for (let i=0; i<this.player.countries.length; i++) {
+            if (this.player.countries[i].value === '') {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+
+let page1 = app.newStage('page1');
+page1.playerStart = function(player) {
+    let shuffled = Utils.shuffle(app.countries);
+    player.countries = [];
+    for (let i=0; i<shuffled.length; i++) {
+        player.countries.push({
+            name: shuffled[i],
+            value: ''
+        });
+    }
+}
+page1.activeScreen = `
+<p>To what extent do you perceive the following foreign countries to be close or far away, in terms of psychic distance, from your home country (country of origin)? With psychic distance we mean the sum of factors (culture, language, political system, education, colonial ties, current and historical political rivalry, differences in economic development, etc.) that affect the flow and interpretation of information to and from a foreign country.</p>
+<p>First write your home country (country of origin) below. In case that your home country is on the list below, set the distance value to ‘0’ and the distance to the country on the list that you perceive to be the most distant to ‘100’. Assign index values for the remaining countries so that they reflect your relative perceived distance from both your home country and the one you consider to be most distant. For countries that you judge to be of equal distance, assign the same score.<br>
+<p>Your home country (country of origin):
+</p>
+<input type='text' name='player.countryOfOrigin' required>
+<p>In case that you perceive yourself to belong equally to 2 different cultures (e.g. born and grew up in one country, but raised with a family and values from another country), indicate your second home country below.<br>
+</p>
+<input type='text' name='player.secondCountry'>
+<p>Now indicate your psychic distance perception for the following countries by moving the slider to your wished number. When you are moving the slider, the current value will be shown next to the name of the country. You can change these values as much as you wish until you press the OK button and move on to the next part of the questionnaire. Be aware that you have to move slider even in the case when you want to indicate 50 as a value. In this case just move the slider forward and then back to 50.</p>
+<div style='width: 100%; display: grid; grid-template-columns: min-content auto; row-gap: 0.5em;'>
+<template v-for='country in player.countries'>
+    <span>{{country.name}}: {{country.value}}</span>
+    <input type="range" :name='"player.slider" + country.name' min="0" max="100" step="1" v-model.number='country.value' value='country.value'>
+</template>
+</div>
+<h4>Sorted</h4>
+<div v-for='country in sortedCountries' :key='country.name'>
+{{country.name}}: {{country.value}}
+</div>
+<br>
+<button :disabled='!madeAllChoices'>OK</button>
+`;
+
+let page2 = app.newStage('page2');
+page2.activeScreen = `
+<p>Please indicate the extent to which you agree or disagree with the following statement. Please do not think too long before answering; usually your first inclination is also the best one.</p>
+<div v-for='(value, key, index) in app.matrices'>
+    <p>{{value.text}}</p>
+    <div style='width: 100%; padding-bottom: 1em; display: flex; align-items: center; text-align: center'>
+        <span style='flex: 1 1 auto'>{{value.left}}</span>
+        <input style='flex: 1 1 auto; height: 20pt; width: 20pt;' :name='"player.matrix" + value.name' type='radio' value='1' required>
+        <input style='flex: 1 1 auto; height: 20pt; width: 20pt;' :name='"player.matrix" + value.name' type='radio' value='2' required>
+        <input style='flex: 1 1 auto; height: 20pt; width: 20pt;' :name='"player.matrix" + value.name' type='radio' value='3' required>
+        <input style='flex: 1 1 auto; height: 20pt; width: 20pt;' :name='"player.matrix" + value.name' type='radio' value='4' required>
+        <input style='flex: 1 1 auto; height: 20pt; width: 20pt;' :name='"player.matrix" + value.name' type='radio' value='5' required>
+        <input style='flex: 1 1 auto; height: 20pt; width: 20pt;' :name='"player.matrix" + value.name' type='radio' value='6' required>
+        <input style='flex: 1 1 auto; height: 20pt; width: 20pt;' :name='"player.matrix" + value.name' type='radio' value='7' required>
+        <input style='flex: 1 1 auto; height: 20pt; width: 20pt;' :name='"player.matrix" + value.name' type='radio' value='8' required>
+        <input style='flex: 1 1 auto; height: 20pt; width: 20pt;' :name='"player.matrix" + value.name' type='radio' value='9' required>
+        <span style='flex: 1 1 auto'>{{value.right}}</span>
+    </div>
+</div>
+`;
+
+let page3 = app.newStage('page3');
+page3.activeScreen = `
+<p>How old are you?</p>
+<input name='player.age' type='number' required min='18' max='100' step='1'>
+<br><br>
+<p>What is your gender?</p>
+<input style='height: 20pt; width: 20pt;' name='player.gender' type='radio' required value='female' id='gender1'>
+<label for='gender1'>Female</label>
+<input style='height: 20pt; width: 20pt;' name='player.gender' type='radio' required value='male' id='gender2'>
+<label for='gender2'>Male</label>
+<br><br>
+`
+
+let page4 = app.newStage('page4');
+page4.activeScreen = `
+<p>Please indicate your business experience:</p>
+<p>Number of years of full-time business experience (including full-time internships):</p>
+<input name='player.yearsOfBusExp' type='number' required min='0' max='100' step='0.5'>
+<br><br>
+<p>Current position:</p>
+<input name='player.currentPosition' required type='text'>
+<br><br>
+<p>Current industry:</p>
+<input name='player.currentIndustry' required type='text'>
+<br><br>
+<p>Current city of work place:</p>
+<input name='player.currentPlace' required type='text'>
+<br><br>
+`;
+
+let page5 = app.newStage('page5');
+page5.activeScreen = `
+<p>Number of years spent abroad:</p>
+<input name='player.yearsAbroad' type='number' required min='0' max='100' step='1'>
+<br><br>
+<p>Countries in which you lived for more than 3 months (if any):</p>
+<input name='player.countriesLived' type='text'>
+<br><br>
+<p>Purposes for staying abroad for longer than 3 months (more answers possible):</p>
+
+<div style='display: grid; grid-template-columns: min-content auto; align-items: center; row-gap: 0.5em; column-gap: 0.5em'>
+<input name='player.purposes' type='checkbox' value='studying' id='purpose1'>
+<label for='purpose1'>Studying</label>
+<input name='player.purposes' type='checkbox' value='work' id='purpose2'>
+<label for='purpose2'>Work</label>
+<input name='player.purposes' type='checkbox' value='family' id='purpose3'>
+<label for='purpose3'>Accompanying family member(s)</label>
+<input name='player.purposes' type='checkbox' value='tourism' id='purpose4'>
+<label for='purpose4'>Tourism</label>
+<input name='player.purposes' type='checkbox' value='other' id='purpose5'>
+<label for='purpose5'>Others</label>
+<input name='player.purposes' type='checkbox' value='never' id='purpose6'>
+<label for='purpose6'>I have never stayed abroad for that long</label>
+</div>
+<br><br>
+`
+
+page5.useAppWaitingScreen = false;
+page5.waitingScreen = `
+<p>Thank you for participating in this experiment. You can find below the invested amount, the money your earned from your investment and the total amount that you earned through the whole experiment.</p>
+<p>Your non-invested money: {{participant.nonInvestedPoints}}</p>
+<p>Your earned money from investment: {{participant.totalInvestmentPoints | round}}</p>
+<p>Total: {{participant.numPoints | round}}</p>
+<p>Real payout: <strong>{{participant.numPoints/10000 | round }} EUR</p></strong>
+<p>Please stay at your seat and do not close this window. The draw of the price will take place soon and in case that your number is drawn, you will get the real money in the value of the virtual experiment money divided by 10.000. The experimenter will approach the desk of the chosen participant and give money according to the sum written on this screen.</p>
+`;

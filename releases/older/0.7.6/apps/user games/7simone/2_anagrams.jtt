@@ -1,0 +1,95 @@
+app.title = 'Anagram game';
+app.description = 'Players find words in anagrams.';
+
+app.duration = 300; // total seconds to answer questions.
+app.waitForAll = false;
+app.groupSize = 1;
+app.waitingScreen = '';
+app.questions = [
+    'attack',
+    'appear',
+    'always',
+    'branch',
+    'global',
+    'decade',
+    'agency',
+    'campus',
+    'hardly',
+    'toward',
+    'heaven',
+    'happen',
+    'valley',
+    'weapon',
+    'fairly',
+    'famous',
+    'author',
+    'narrow',
+    'beside',
+    'nobody',
+    'belong',
+    'number',
+    'bottom',
+    'clinic',
+    'reduce',
+    'doctor',
+    'reject',
+    'ticket',
+    'corner',
+    'policy',
+    'column',
+    'divide'
+];
+app.numPeriods = app.questions.length;
+app.participantStart = function(participant) {
+    participant.score = 0;
+    participant.finishTime = new Date().getTime() + app.duration*1000;
+}
+
+app.html = `
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body class='hidden'>
+        <div id='jtree'>
+            <p v-show='hasTimeout'>Time left in this part (in seconds): {{clock.totalSeconds}}</p>
+            <span v-show='player.status=="playing"'>
+                {{stages}}
+            </span>
+            <span v-show='["waiting", "finished", "done"].includes(player.status)'>
+                {{waiting-screens}}
+            </span>
+        </div>
+        {{scripts}}
+    </body>
+</html>
+`;
+
+var decideStage = app.newStage('decide');
+decideStage.canPlayerParticipate = function(player) {
+    return new Date().getTime() < player.participant.finishTime;
+}
+decideStage.getGroupDuration = function(group) {
+    return (group.players[0].participant.finishTime - new Date().getTime()) / 1000;
+}
+decideStage.playerStart = function(player) {
+    player.answer = app.questions[player.period().id-1];
+    player.list = player.answer.split('').sort().join('');
+}
+decideStage.activeScreen = `
+    <p>Here are the letters:</p>
+    <p style='font-weight: bold; font-size: 30pt; text-align: center'>{{player.list}}</p>
+    <p>Please enter a word consisting of the letters you see above:</p>
+    <p><input name='player.guess' required type='text'></p>
+    <button>Make guess</button>
+`;
+decideStage.playerEnd = function(player) {
+    if (player.guess == player.answer) {
+        player.participant.score++;
+    }
+}
+decideStage.clientDuration = app.questionDuration;
+
+

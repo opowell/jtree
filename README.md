@@ -1,7 +1,7 @@
 ## Getting started
 Download for your system, unzip and run.
 
-Latest version (2019.03.29): **0.7.5**
+Latest version (2019.04.10): **0.7.6**
 
 <a href='https://github.com/opowell/jtree/raw/master/releases/jtree-win.zip'>jtree for Windows</a>
 

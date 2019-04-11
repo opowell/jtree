@@ -1,3 +1,8 @@
+##### 2019.04.10 - 0.7.6
+- clean up icons.
+- fix "double auction" app.
+- re-organize apps folder.
+
 ##### 2019.03.29 - 0.7.5
 - Added: display version on Home tab.
 - Fix: "test" player no longer created.

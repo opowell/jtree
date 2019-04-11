@@ -1,0 +1,33 @@
+/* Alert boxes */
+.alert-box {
+	padding: 8px;
+	border: 1px solid #4a0029;
+	border-radius: 4px;
+	position: relative;
+	left: -50%;
+	box-shadow: 0px 0px 1px 1px;
+}
+
+.popup {
+    position: fixed;
+    left: 50%;
+    top:  0.5em;
+}
+
+.success {
+    color: #3c763d;
+    background-color: #dff0d8;
+    border-color: #3c763d;
+}
+
+.failure {
+    color: #a94442;
+    background-color: #f2dede;
+    border-color: #a94442;
+}
+
+.warning {
+    color: #8a6d3b;
+    background-color: #fcf8e3;
+    border-color: #8a6d3b;
+}
