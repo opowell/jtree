@@ -33,6 +33,7 @@ class SessionV2 {
             gameTree: [],
             potentialParticipantIds: this.jt.settings.participantIds,
             id: this.id,
+            stateId: 0,
         };
 
         let proxyObj = {
@@ -67,8 +68,11 @@ class SessionV2 {
             }
             msg.newValue = global.jt.flatten(msg.newValue);
             msg.arguments = global.jt.flatten(msg.arguments);
-            // jt.socketServer.io.to(jt.socketServer.ADMIN_TYPE).emit('objChange', msg);
             jt.socketServer.io.to(thisSession.roomId()).emit('objChange', msg);
+            // for (let p in thisSession.proxy.state.participants) {
+            //     let part = thisSession.proxy.state.participants[p];
+            //     jt.socketServer.io.to(part.roomId()).emit('objChange', msg);
+            // }
             thisSession.save();
             return true; // to apply changes locally.
         });
@@ -180,8 +184,6 @@ class SessionV2 {
 
    
     endGame(state, msgData) {
-
-        debugger;
 
         let {endForGroup, data, participantId} = msgData;
 
@@ -360,8 +362,13 @@ class SessionV2 {
         if (this.proxy.messages[index].state == null) {
             let prevState = this.loadMessageState(index-1);
             let newState = clone(prevState);
-            this.processMessage(newState, this.proxy.messages[index]);
+            newState.stateId++;
+
+            // Make new state available immediately, and create proxy object for it.
             this.proxy.messages[index].state = newState;
+
+            // Apply the message corresponding to this state.
+            this.processMessage(this.proxy.messages[index].state, this.proxy.messages[index]);
         }
 
         return this.proxy.messages[index].state;
@@ -452,9 +459,9 @@ class SessionV2 {
             participant.getGame().participantEnd(participant);
         }
 
-        if (participant.gameTree.length < this.proxy.state.gameTree.length) {
+        if (participant.gameTree.length < participant.session.gameTree.length) {
             participant.gameIndex = participant.gameTree.length;
-            participant.gameTree.push(this.proxy.state.gameTree[participant.gameIndex]);
+            participant.gameTree.push(participant.session.gameTree[participant.gameIndex]);
             this.participantBeginApp(participant);
         } else {
             this.participantEnd(participant);

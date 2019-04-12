@@ -616,10 +616,6 @@ class Player {
 
 
 
-
-
-
-
     startStage(stage) {
         this.group.startStage(this.stage);
         if (!stage.canPlayerStart(this)) {

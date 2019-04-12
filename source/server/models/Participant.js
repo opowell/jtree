@@ -114,6 +114,7 @@ class Participant {
         let thisParticipant = this;
 
         this.proxy = Observer.create(proxyObj, function(change) {
+            console.log('change participant ' + thisParticipant.roomId());
             global.jt.socketServer.sendMessage(thisParticipant.roomId(), change);
             return true; // to apply changes locally.
         });
@@ -502,20 +503,9 @@ class Participant {
     }
 
     setPlayer(player) {
-        // if (this.player != null) {
-        //     this.player.subPlayers.push(player);
-        //     player.superPlayer = this.player;
-        // }
-        this.proxy.player = player;
-        // for (var i=0; i<this.clients.length; i++) {
-        //     var client = this.clients[i];
-        //     player.addClient(client);
-        //     player.group.addClient(client);
-        //     player.period().addClient(client);
-        // }
-        // this.emit('participantSetPlayer', {player: player.shellWithParent()});
         let stageId = (player != null && player.stage != null) ? player.stage.id : 'null';
         console.log('settting participant player: ' + this.id + ', ' + stageId);
+        this.proxy.player = player;
     }
 
     actuallyEmitUpdate() {
