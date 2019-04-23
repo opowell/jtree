@@ -16,7 +16,6 @@ document.write('<script src="/shared/webcomponents-bundle.js"></script>');
 document.write('<script src="/shared/polyfill.min.js"></script>');
 document.write('<script src="/shared/bootstrap-vue.js"></script>');
 
-
 // INTERNAL LIBRARIES
 document.write('<script src="/shared/shared.js"></script>');
 document.write('<script src="/shared/utilsFns.js"></script>');
@@ -54,3 +53,5 @@ document.write('<script src="/admin/multiuser/webcomponents/ViewSession.js"></sc
 document.write('<script src="/admin/multiuser/webcomponents/ViewSessions.js"></script>');
 document.write('<script src="/admin/multiuser/webcomponents/ViewSettings.js"></script>');
 document.write('<script src="/admin/multiuser/webcomponents/ViewUsers.js"></script>');
+
+document.write('<script src="/shared/circularjson.js"></script>');

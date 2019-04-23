@@ -1,3 +1,7 @@
+##### 2019.04.22 - 0.7.7
+- send circular data in messages.
+- menu collapses at smaller width.
+
 ##### 2019.04.10 - 0.7.6
 - clean up icons.
 - fix "double auction" app.

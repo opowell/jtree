@@ -3,6 +3,7 @@
 const Utils     = require('./Utils.js');
 const path      = require('path');
 const clPlayer  = require('./client/clPlayer.js');
+const CircularJSON = require('./circularjson.js');
 
 /** Class representing a player. */
 class Player {
@@ -324,6 +325,7 @@ class Player {
     emit(name, dta) {
         dta.participantId = this.participant.id;
         dta.sessionId = this.session().id;
+        dta = CircularJSON.stringify(dta);
         this.io().to(this.roomId()).emit(name, dta);
         this.session().emitToAdmins(name, dta);
     }
@@ -422,7 +424,9 @@ class Player {
      * @return {type}  description
      */
     emitUpdate() {
-        this.emit('playerUpdate', this.shellWithChildren());
+        let data = this.shellWithChildren();
+        data = CircularJSON.stringify(data);
+        this.emit('playerUpdate', data);
     }
 
     emitUpdate2() {
@@ -440,7 +444,9 @@ class Player {
         // usually either the player themselves or an individual
         // client that is subscribed to the player.
         if (this.stage === null || this.stage.onPlaySendPlayer) {
-            this.io().to(channel).emit('playerUpdate', new clPlayer.new(this));
+            let data = new clPlayer.new(this);
+            data = CircularJSON.stringify(data);
+            this.io().to(channel).emit('playerUpdate', data);
         }
     }
 
@@ -525,7 +531,9 @@ class Player {
     }
 
     saveAndUpdate() {
-        this.io().to(this.roomId()).emit('playerUpdate', this.asClPlayer());
+        let data = this.asClPlayer();
+        data = CircularJSON.stringify(data);
+        this.io().to(this.roomId()).emit('playerUpdate', data);
         this.save();
     }
 

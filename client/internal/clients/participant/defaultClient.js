@@ -323,12 +323,6 @@ jt.updatePlayer = function(player, updateVue) {
 
     console.log('playerUpdate');
 
-    // Re-establish object links.
-    player.participant.session = player.group.period.app.session;
-    if (player.stage !== undefined) {
-        player.stage.app = player.group.period.app;
-    }
-
     jt.data.player = player; // TODO: Remove.
 
     if (!jt.vueMounted) {
@@ -462,6 +456,7 @@ jt.defaultConnected = function() {
     });
 
     jt.socket.on('playerUpdate', function(player) {
+        player = jt.parse(player);
         jt.updatePlayer(player, true);
     });
 
