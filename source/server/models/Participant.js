@@ -114,7 +114,10 @@ class Participant {
         let thisParticipant = this;
 
         this.proxy = Observer.create(proxyObj, function(change) {
-            console.log('change participant ' + thisParticipant.roomId());
+            if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
+                return true;
+            }
+            // console.log('change participant ' + thisParticipant.roomId());
             global.jt.socketServer.sendMessage(thisParticipant.roomId(), change);
             return true; // to apply changes locally.
         });

@@ -361,7 +361,8 @@ class SessionV2 {
 
         if (this.proxy.messages[index].state == null) {
             let prevState = this.loadMessageState(index-1);
-            let newState = clone(prevState);
+            // let newState = clone(prevState);
+            let newState = prevState;
             newState.stateId++;
 
             // Make new state available immediately, and create proxy object for it.
