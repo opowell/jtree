@@ -525,10 +525,10 @@ class Session {
         for (var t in timers) {
             timers[t].setRunning(b);
         }
-        for (var i in this.participants) {
-            var participant = this.participants[i];
-            participant.player.emitUpdate2();
-        }
+        // for (var i in this.participants) {
+        //     var participant = this.participants[i];
+        //     // participant.player.emitUpdate2();
+        // }
     }
 
     setId(id) {
@@ -672,11 +672,11 @@ class Session {
         return fs.readFileSync(fn, 'utf8');
     }
 
-    emitParticipantUpdates() {
-        for (let p in this.participants) {
-            this.participants[p].actuallyEmitUpdate();
-        }
-    }
+    // emitParticipantUpdates() {
+    //     for (let p in this.participants) {
+    //         this.participants[p].actuallyEmitUpdate();
+    //     }
+    // }
 
     /**
     * Sets the number of participants in this session.

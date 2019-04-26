@@ -305,9 +305,9 @@ class Group {
      *
      * @return {type}  description
      */
-    emitUpdate() {
-        this.emit('groupUpdate', this.shellWithChildren());
-    }
+    // emitUpdate() {
+    //     this.emit('groupUpdate', this.shellWithChildren());
+    // }
 
     /**
      * Emit the given message to subscriber's of this group.

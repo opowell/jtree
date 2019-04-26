@@ -152,8 +152,8 @@
                 :rowChildren='curArea.rowChildren'
                 :isLastArea='index === areas.length - 1'
                 :flex='curArea.flex'
+                :activePanelInd='curArea.activePanelInd'
             />
-                <!-- :activePanelInd='curArea.activePanelInd' -->
             <div 
                 v-if='index < areas.length - 1'
                 class='adjuster'
@@ -209,7 +209,7 @@ export default {
       'parent',
       'window',
       'indexOnParent', // Non-array fields must be listed explicitly for some reason, otherwise they do not update.
-    //   'activePanelInd',
+      'activePanelInd',
       'isLastArea',
       'flex',
       'rowChildren',
@@ -247,9 +247,9 @@ export default {
             return this.panels[this.activePanelInd];
           }
       },
-      activePanelInd() {
-          return this.areaProp.activePanelInd;
-      },
+    //   activePanelInd() {
+    //       return this.areaProp.activePanelInd;
+    //   },
     areaStyle() {
         if (this.isLastArea) {
             return {

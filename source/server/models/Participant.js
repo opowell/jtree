@@ -117,7 +117,8 @@ class Participant {
             if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
                 return true;
             }
-            // console.log('change participant ' + thisParticipant.roomId());
+            change.source = 'participant';
+            console.log('change participant: ' + change.path);
             global.jt.socketServer.sendMessage(thisParticipant.roomId(), change);
             return true; // to apply changes locally.
         });
@@ -511,24 +512,24 @@ class Participant {
         this.proxy.player = player;
     }
 
-    actuallyEmitUpdate() {
-        if (this.updateScheduled === true) {
-            try {
-                if (this.player !== null) {
-                    this.player.emit('playerUpdate', new clPlayer.new(this.player));
-                } else {
-                    this.emit('start-new-app'); // refresh clients.
-                }
-                this.updateScheduled = false;
-            } catch (err) {
-                debugger;
-            }
-        }
-    }
+    // actuallyEmitUpdate() {
+    //     if (this.updateScheduled === true) {
+    //         try {
+    //             if (this.player !== null) {
+    //                 this.player.emit('playerUpdate', new clPlayer.new(this.player));
+    //             } else {
+    //                 this.emit('start-new-app'); // refresh clients.
+    //             }
+    //             this.updateScheduled = false;
+    //         } catch (err) {
+    //             debugger;
+    //         }
+    //     }
+    // }
 
-    emitUpdate() {
-        this.updateScheduled = true;
-    }
+    // emitUpdate() {
+    //     this.updateScheduled = true;
+    // }
 
     shell() {
         var out = {};

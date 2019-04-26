@@ -11,8 +11,8 @@
 		:window="window"
 		:indexOnParent=0
 		@startmove='startMove'
-		:activePanelInd="activePanelInd"
 		:flex="flex"
+		:activePanelInd="activePanelInd"
 		:rowChildren='rowChildren'
 		/>
     </div>
@@ -61,6 +61,7 @@ export default {
 			area: {
 				panels: this.window.panels,
 				areas: this.window.areas,
+				// activePanelInd: this.activePanelInd,
 			},
 			menus: [
 				{

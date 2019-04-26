@@ -68,11 +68,9 @@ class SessionV2 {
             }
             msg.newValue = global.jt.flatten(msg.newValue);
             msg.arguments = global.jt.flatten(msg.arguments);
+            console.log('change from session: ' + msg.path);
+            msg.source = 'session';
             jt.socketServer.io.to(thisSession.roomId()).emit('objChange', msg);
-            // for (let p in thisSession.proxy.state.participants) {
-            //     let part = thisSession.proxy.state.participants[p];
-            //     jt.socketServer.io.to(part.roomId()).emit('objChange', msg);
-            // }
             thisSession.save();
             return true; // to apply changes locally.
         });
@@ -361,11 +359,17 @@ class SessionV2 {
 
         if (this.proxy.messages[index].state == null) {
             let prevState = this.loadMessageState(index-1);
+
+            // Temporarily disable state storage.
             // let newState = clone(prevState);
             let newState = prevState;
+
             newState.stateId++;
 
             // Make new state available immediately, and create proxy object for it.
+            while (newState.__target != null) {
+                newState = newState.__target;
+            }
             this.proxy.messages[index].state = newState;
 
             // Apply the message corresponding to this state.
@@ -599,11 +603,7 @@ class SessionV2 {
 
         var client = new Client.new(socket, this.proxy.state.__target);
         client.participant = participant.__target;
-        // socket.join(this.roomId());
         participant.clientAdd(client);
-        // for (let i in this.gameTree) {
-        //     this.gameTree[i].addClientDefault(client);
-        // }
         this.proxy.clients.push(client);
         global.jt.socketServer.io.to(socket.id).emit('logged-in', global.jt.flatten(participant.__target));
         return client;

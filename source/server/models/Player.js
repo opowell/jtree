@@ -434,28 +434,28 @@ class Player {
      *
      * @return {type}  description
      */
-    emitUpdate() {
-        this.emit('playerUpdate', this.shellWithChildren());
-    }
+    // emitUpdate() {
+    //     this.emit('playerUpdate', this.shellWithChildren());
+    // }
 
-    emitUpdate2() {
-        this.participant.emitUpdate();
-    }
+    // emitUpdate2() {
+    //     this.participant.emitUpdate();
+    // }
 
     /**
      * sendUpdate - description
      *
      * @param  {type} channel description
      */
-    sendUpdate(channel) {
-        // p: send this player's data
-        // channel: channel to send this player's data to,
-        // usually either the player themselves or an individual
-        // client that is subscribed to the player.
-        if (this.stage === null || this.stage.onPlaySendPlayer) {
-            this.io().to(channel).emit('playerUpdate', new clPlayer.new(this));
-        }
-    }
+    // sendUpdate(channel) {
+    //     // p: send this player's data
+    //     // channel: channel to send this player's data to,
+    //     // usually either the player themselves or an individual
+    //     // client that is subscribed to the player.
+    //     if (this.stage === null || this.stage.onPlaySendPlayer) {
+    //         this.io().to(channel).emit('playerUpdate', new clPlayer.new(this));
+    //     }
+    // }
 
     /**
      * isFinished - description
@@ -537,10 +537,10 @@ class Player {
         }
     }
 
-    saveAndUpdate() {
-        this.io().to(this.roomId()).emit('playerUpdate', this.asClPlayer());
-        this.save();
-    }
+    // saveAndUpdate() {
+    //     // this.io().to(this.roomId()).emit('playerUpdate', this.asClPlayer());
+    //     this.save();
+    // }
 
     /**
      * Is the player at least finished the given stage of the given period?
@@ -646,7 +646,7 @@ class Player {
                 this.finishStage(true);
             }
         }
-        this.emitUpdate2();
+        // this.emitUpdate2();
     }
 
     endStage(endGroup) {
@@ -660,13 +660,13 @@ class Player {
         }
 
         if (!this.group.canPlayersEnd(this.stage)) {
-            this.emitUpdate2();
+            // this.emitUpdate2();
             return;
         }
 
         console.log(this.timeStamp() + ' END   - PLAYER: ' + this.stage.id + ', ' + this.roomId());
         this.stage.playerEnd(this);
-        this.emitUpdate2();
+        // this.emitUpdate2();
         this.finishStage(endGroup);
     }
 
@@ -695,7 +695,9 @@ class Player {
         let player = this;
 
         // If this player is no longer active, do nothing.
-        if (player.participant.player == null || player.roomId() !== player.participant.player.roomId()) {
+        let bool1 = player.participant.proxy.player == null;
+        let bool2 = player.roomId() !== player.participant.proxy.player.roomId();
+        if (bool1 || bool2) {
             return;
         }
 
@@ -712,7 +714,7 @@ class Player {
         } else if (player.superPlayer != null) {
             player.superPlayer.endStage();
         } else {
-            this.emitUpdate2();
+            // this.emitUpdate2();
             player.participant.endCurrentApp();
         }
     } 

@@ -297,7 +297,7 @@ class Game {
          * TODO:
          * @type string
          */
-        this.subgameContentStart = `<span v-show="subGame.id == '{{game.id}}'">`;
+        this.subgameContentStart = `<span v-if="subGame.id == '{{game.id}}'">`;
 
 
         /**

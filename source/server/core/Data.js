@@ -95,6 +95,8 @@ class Data {
         let replacer = this.dataReplacer;
 
         this.proxy = Observer.create(proxyObj, function(change) {
+            console.log('change from data: ' + change.path);
+            change.source = 'data';
             global.jt.socketServer.sendMessage(jt.socketServer.ADMIN_TYPE, change);
             return true; // to apply changes locally.
         });
