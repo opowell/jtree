@@ -41,15 +41,10 @@ class clPlayer {
         }
 
         this.participant = new clParticipant.new(player.participant);
-    }
-
-    // This function re-establishes links between objects.
-    // Use on client after receiving object on client.
-    // *Note* function itself is not passed via JSON.
-    fixLinks() {
         this.participant.session = this.group.period.app.session;
         this.stage.app = this.group.period.app;
     }
+
 }
 
 var exports = module.exports = {};

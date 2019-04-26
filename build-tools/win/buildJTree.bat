@@ -11,7 +11,7 @@ REM 3. Update README.md.
 REM 4. Update docs/README.md.
 REM 5. Commit to Github.
 
-set "vers=0.7.6"
+set "vers=0.7.7"
 
 REM ------- Prepare output folder.
 call del ".\releases\%vers%" /Q /F
@@ -62,10 +62,6 @@ ren ".\releases\jtree-%vers%-macos.zip" "jtree-macos.zip"
 ren ".\releases\jtree-%vers%-linux.zip" "jtree-linux.zip"
 
 REM ------- Store version
-call del ".\releases\older\%vers%" /Q /F
-call xcopy ".\releases\%vers%" ".\releases\older\%vers%" /E /i
-
-REM ------- Clean up
 call del ".\releases\%vers%\jtree-win-x86.exe" /Q /F
 call del ".\releases\%vers%\jtree-win-x64.exe" /Q /F
 call del ".\releases\%vers%\jtree-macos-x64" /Q /F
@@ -75,5 +71,9 @@ call del ".\releases\%vers%\internal" /Q /F
 call del ".\releases\%vers%\help.html" /Q /F
 call rmdir ".\releases\%vers%\apps" /Q /S
 call rmdir ".\releases\%vers%\internal" /Q /S
+call del ".\releases\older\%vers%" /Q /F
+call xcopy ".\releases\%vers%" ".\releases\older\%vers%" /E /i
+
+REM ------- Clean up
 call del ".\releases\%vers%" /Q /F
 call rmdir ".\releases\%vers%" /Q /S

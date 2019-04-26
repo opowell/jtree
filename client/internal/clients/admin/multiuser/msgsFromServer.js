@@ -196,15 +196,18 @@ msgs.participantSetPlayer = function(md) {
 msgs.playerUpdate = function(player) {
 //    var decompId = decomposeId(player.roomId);
 //    if (decompId.sessionId === jt.data.session.id) {
-    if (player.group.period.app.session.id === jt.data.session.id) {
-                var div = $('tr.participant-' + safePId(player.id));
 
-        // Re-establish object links.
-        player.participant.session = player.group.period.app.session;
-        if (player.stage !== undefined) {
-            player.stage.app = player.group.period.app;
-        }
-        player.participant.player = player;
+    player = jt.parse(player);
+
+    if (player.group.period.app.session.id === jt.data.session.id) {
+        var div = $('tr.participant-' + safePId(player.id));
+
+        // // Re-establish object links.
+        // player.participant.session = player.group.period.app.session;
+        // if (player.stage !== undefined) {
+        //     player.stage.app = player.group.period.app;
+        // }
+        // player.participant.player = player;
 
         jt.data.session.participants[player.id] = player.participant;
 

@@ -1,5 +1,0 @@
-app.groupSize = 1;
-var stage = app.newStage('APP 0');
-stage.activeScreen = `
-<h1>App 0</h1>
-`
