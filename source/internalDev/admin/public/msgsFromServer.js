@@ -22,29 +22,34 @@ msgs.deleteSession = function(id) {
 
 jt.replaceLinksWithObjects = function(data) {
 
-    let type = typeof(data);
+    try {
+        let type = typeof(data);
 
-    // If not an object
-    if (type !== 'object') {
-        // If not a symbolic link, just return the original object.
-        if (data == null || !data.startsWith('__link__')) {
-            return data;
+        // If not an object
+        if (type !== 'object') {
+            // If not a symbolic link, just return the original object.
+            if (data == null || data.startsWith == null || !data.startsWith('__link__')) {
+                return data;
+            }
+    
+            // Otherwise, return linked object.
+            let path = data.substring('__link__'.length);
+            let paths = path.split('.');
+            let obj = window.vue.$store.state.session;
+            for (let i=0; i<paths.length; i++) {
+                obj = obj[paths[i]];
+            }
+            return obj;
         }
-
-        // Otherwise, return linked object.
-        let path = data.substring('__link__'.length);
-        let paths = path.split('.');
-        let obj = window.vue.$store.state.session;
-        for (let i=0; i<paths.length; i++) {
-            obj = obj[paths[i]];
+    
+        for (let i in data) {
+            data[i] = jt.replaceLinksWithObjects(data[i]);
         }
-        return obj;
+        return data;            
+    } catch (err) {
+        console.log(err);
+        debugger;
     }
-
-    for (let i in data) {
-        data[i] = jt.replaceLinksWithObjects(data[i]);
-    }
-    return data;
 
 }
 
@@ -54,12 +59,10 @@ msgs.objChange = function(change) {
 
     if (change.arguments != null) {
         change.arguments = CircularJSON.parse(change.arguments);
-        change.arguments = jt.replaceLinksWithObjects(change.arguments);
     }
 
     if (change.newValue != null) {
         change.newValue = CircularJSON.parse(change.newValue);
-        change.newValue = jt.replaceLinksWithObjects(change.newValue);
     }
 
     let paths = change.path.split('.');
@@ -78,6 +81,9 @@ try {
             }
             if (obj == null) return;
             obj[change.function](...change.arguments);
+            if (['push', 'unshift'].includes(change.function)) {
+                jt.replaceLinksWithObjects(change.arguments);
+            }
             break;
 
         case 'set-prop':
@@ -87,6 +93,7 @@ try {
             }
             if (obj == null) return;
             vue.$set(obj, paths[paths.length-1], change.newValue);
+            vue.$set(obj, paths[paths.length-1], jt.replaceLinksWithObjects(change.newValue));
             break;
 
         case 'set-value':
@@ -99,6 +106,7 @@ try {
             }
             if (obj == null) return;
             vue.$set(obj, paths[paths.length-1], change.newValue);
+            vue.$set(obj, paths[paths.length-1], jt.replaceLinksWithObjects(change.newValue));
             break;
 
         case 'delete-prop':
