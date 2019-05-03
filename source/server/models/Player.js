@@ -13,12 +13,18 @@ class Player {
          * This player's participant.
          * @type {Participant}
          */
-        this.participant = participant;
+        while (participant.__target != null) {
+            participant = participant.__target;
+        }
+         this.participant = participant;
 
         /**
          * This player's group.
          * @type {Group}
          */
+        while (group.__target != null) {
+            group = group.__target;
+        }
         this.group = group;
 
         /**

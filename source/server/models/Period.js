@@ -20,6 +20,9 @@ class Period {
         /**
          * @type {Game}
          */
+        while (app.__target != null) {
+            app = app.__target;
+        }
         this.app = app;
         this.game = app;
 

@@ -27,6 +27,9 @@ class Participant {
          *  Session for this participant.
          * @type {Session}
          */
+        while (session.__target == null) {
+            session = session.__target;
+        }
         this.session = session;
 
         // this.indexInSession = Object.keys(session.proxy.__target.state.participants).length;
@@ -38,29 +41,22 @@ class Participant {
         this.players = [];
 
         /**
-         * The current player of this participant.
-         * @type {Player}
-         * @default null
-         */
-        this.player = null;
-
-        /**
          * @type array
          * @default []
          */
         this.clients = [];
 
-        /**
-         * Array of indices, indicating in which period of game this player is in.
-         * @type number
-         * @default -1
-         */
+        // /**
+        //  * Array of indices, indicating in which period of game this player is in.
+        //  * @type number
+        //  * @default -1
+        //  */
         this.periodIndices = {};
 
-        /**
-         * List of app ids that this participant has completed.
-         */
-        this.finishedApps = [];
+        // /**
+        //  * List of app ids that this participant has completed.
+        //  */
+        // this.finishedApps = [];
 
         /**
          * @type boolean
@@ -105,10 +101,10 @@ class Participant {
 
         this.gameIndex = -1;
 
-        this.gameTree = [];
+        // this.gameTree = [];
 
         let proxyObj = {
-            player: this.player,
+            player: null,
         }
 
         let thisParticipant = this;
@@ -236,10 +232,10 @@ class Participant {
      * @param {Participant} participant 
      */
     getGame() {
-        if (this.gameIndex < 0 || this.gameIndex >= this.gameTree.length) {
+        if (this.gameIndex < 0 || this.gameIndex >= this.session.gameTree.length) {
             return null;
         }
-        return this.gameTree[this.gameIndex];
+        return this.session.gameTree[this.gameIndex];
     }
 
     incrementGame() {
@@ -509,6 +505,9 @@ class Participant {
     setPlayer(player) {
         let stageId = (player != null && player.stage != null) ? player.stage.id : 'null';
         console.log('settting participant player: ' + this.id + ', ' + stageId);
+        while (player.__target != null) {
+            player = player.__target;
+        }
         this.proxy.player = player;
     }
 

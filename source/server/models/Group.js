@@ -24,6 +24,9 @@ class Group {
          * Each Group belongs to a single Period.
          * @type {Period}
          */
+        while (period.__target != null) {
+            period = period.__target;
+        }
         this.period = period;
 
         /**

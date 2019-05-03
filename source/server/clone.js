@@ -104,7 +104,8 @@ function clone(parent, circular, depth, prototype, includeNonEnumerable) {
     } else if (clone.__isArray(parent)) {
       child = [];
     } else if (clone.__isFunction(parent)) {
-      child = eval("(" + parent.toString() + ")");;
+      // child = eval("(" + parent.toString() + ")");;
+      child = parent;
     } else if (clone.__isRegExp(parent)) {
       child = new RegExp(parent.source, __getRegExpFlags(parent));
       if (parent.lastIndex) child.lastIndex = parent.lastIndex;

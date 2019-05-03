@@ -84,6 +84,9 @@ class Game {
          * The Session that this Game belongs to.
          * @type {Session}
          */
+        while (session.__target) {
+            session = session.__target;
+        }
         this.session = session;
 
 

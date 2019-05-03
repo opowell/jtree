@@ -120,8 +120,12 @@ jt.connected = function() {
         (function(i) {
             jt.socket.on(i, function(d) {
                 // console.log('received message ' + i + ': ' + JSON.stringify(d));
-                console.log('received message ' + i);
-                eval('msgs.' + i + "(d)");
+                try { 
+                    console.log('received message ' + i);
+                    eval('msgs.' + i + "(d)");
+                } catch (err) {
+                    debugger;
+                }
             });
         })(i);
     }

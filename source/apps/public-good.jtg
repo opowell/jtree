@@ -11,23 +11,6 @@ intro.activeScreen = `
     <p>Welcome to the experiment. You will play a repeated public goods game.</p>
 `;
 
-// [ // public-good.jtg
-//   [ // period 1
-//     P,
-//     [
-//         [P, P],
-//         [P, P],
-//         [P, P],
-//         ... x 10
-//     ],
-//     P
-//   ],
-//   [ // period 2
-//     ...
-//   ],
-//   ...
-// ]
-
 var pgg = game.addSubGame('pgg');
 pgg.numPeriods = game.numRepetitions;
 var decideStage = pgg.addSubGame('decide');
@@ -43,10 +26,9 @@ resultsStage.groupStart = function(group) {
     group.contributions = Utils.sum(group.players, 'contribution');
     group.production = group.contributions * game.factor;
     group.prodPerPlayer = group.production / group.players.length;
-    for (var i in group.players) { // i = 0, 1, 2, 3
-        var player = group.players[i];
+    group.players.forEach(function(player) {
         player.points = game.endowment - player.contribution + group.prodPerPlayer;
-    }
+    });
 }
 resultsStage.activeScreen = `
     <p>RESULTS</p>

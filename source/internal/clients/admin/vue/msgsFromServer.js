@@ -20,16 +20,46 @@ msgs.deleteSession = function(id) {
     }
 }
 
+jt.replaceLinksWithObjects = function(data) {
+
+    let type = typeof(data);
+
+    // If not an object
+    if (type !== 'object') {
+        // If not a symbolic link, just return the original object.
+        if (data == null || !data.startsWith('__link__')) {
+            return data;
+        }
+
+        // Otherwise, return linked object.
+        let path = data.substring('__link__'.length);
+        let paths = path.split('.');
+        let obj = window.vue.$store.state.session;
+        for (let i=0; i<paths.length; i++) {
+            obj = obj[paths[i]];
+        }
+        return obj;
+    }
+
+    for (let i in data) {
+        data[i] = jt.replaceLinksWithObjects(data[i]);
+    }
+    return data;
+
+}
+
 msgs.objChange = function(change) {
 
     console.log('object change: \n' + JSON.stringify(change.path) + '\n' + JSON.stringify(change, null, 4));
 
     if (change.arguments != null) {
         change.arguments = CircularJSON.parse(change.arguments);
+        change.arguments = jt.replaceLinksWithObjects(change.arguments);
     }
 
     if (change.newValue != null) {
         change.newValue = CircularJSON.parse(change.newValue);
+        change.newValue = jt.replaceLinksWithObjects(change.newValue);
     }
 
     let paths = change.path.split('.');
@@ -37,6 +67,8 @@ msgs.objChange = function(change) {
     if (obj[paths[0]] == null) {
         obj = window.vue.$store.state.session;
     }
+
+try {
 
     switch (change.type) {
 
@@ -82,6 +114,13 @@ msgs.objChange = function(change) {
             debugger;
             break;
     }
+
+}
+
+catch (err) {
+    console.log(err);
+    debugger;
+}
 }
 
 msgs.updateAppPreview = function(appPreview) {

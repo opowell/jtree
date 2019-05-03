@@ -48,6 +48,8 @@ class SessionV2 {
         this.asyncQueue = async.queue(this.processQueueMessage, 1);
 
         this.setProxy(proxyObj);
+
+        this.objectList = [];
         
     }
 
@@ -66,7 +68,9 @@ class SessionV2 {
             if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
                 return true;
             }
+            msg.newValue = global.jt.replaceExistingObjectsWithLinks(msg.newValue, thisSession.objectList, msg.path);
             msg.newValue = global.jt.flatten(msg.newValue);
+            msg.arguments = global.jt.replaceExistingObjectsWithLinks(msg.arguments, thisSession.objectList, msg.path);
             msg.arguments = global.jt.flatten(msg.arguments);
             console.log('change from session: ' + msg.path);
             msg.source = 'session';
@@ -361,8 +365,8 @@ class SessionV2 {
             let prevState = this.loadMessageState(index-1);
 
             // Temporarily disable state storage.
-            // let newState = clone(prevState);
-            let newState = prevState;
+            let newState = clone(prevState);
+            // let newState = prevState;
 
             newState.stateId++;
 
@@ -464,9 +468,9 @@ class SessionV2 {
             participant.getGame().participantEnd(participant);
         }
 
-        if (participant.gameTree.length < participant.session.gameTree.length) {
-            participant.gameIndex = participant.gameTree.length;
-            participant.gameTree.push(participant.session.gameTree[participant.gameIndex]);
+        if (participant.gameIndex < participant.session.gameTree.length) {
+            participant.gameIndex++;
+            // participant.gameTree.push(participant.session.gameTree[participant.gameIndex]);
             this.participantBeginApp(participant);
         } else {
             this.participantEnd(participant);
@@ -481,7 +485,7 @@ class SessionV2 {
     participantBeginApp(participant) {
         this.jt.log('Session.participantBeginApp: ' + participant.gameIndex);
 
-        if (participant.gameIndex < 0 || participant.gameIndex >= participant.gameTree.length) {
+        if (participant.gameIndex < 0 || participant.gameIndex >= participant.session.gameTree.length) {
             console.log('Session.participantBeginApp: INVALID gameIndex');
             return false;
         }
