@@ -18,7 +18,7 @@ document.write('<script src="/shared/polyfill.min.js"></script>');
 // document.write('<script src="/shared/flatted.js"></script>');
 document.write('<script src="/shared/circularjson.js"></script>');
 // document.write('<script src="/shared/bootstrap-vue.js"></script>');
-
+document.write('<script src="/shared/queue.js"></script>');
 
 // INTERNAL LIBRARIES
 document.write('<script src="/shared/shared.js"></script>');

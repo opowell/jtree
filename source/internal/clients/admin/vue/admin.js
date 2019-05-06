@@ -121,8 +121,14 @@ jt.connected = function() {
             jt.socket.on(i, function(d) {
                 // console.log('received message ' + i + ': ' + JSON.stringify(d));
                 try { 
+                    let message = i;
+                    let data = d;
                     console.log('received message ' + i);
-                    eval('msgs.' + i + "(d)");
+                    jt.queue.place(function() {
+                        console.log('processing message ' + message);
+                        eval('msgs.' + message + "(data)");
+                        jt.queue.next();
+                    });
                 } catch (err) {
                     debugger;
                 }

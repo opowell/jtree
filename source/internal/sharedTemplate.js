@@ -69,6 +69,9 @@ jt.checkIfLoaded = function() {
             '&sessionId=' + sId +
             '&roomId=' + roomId
         };
+
+        jt.queue = queue();
+
         // jt.socket = io(jt.serverIP + ':' + jt.serverPort, query);
         jt.socket = io(window.location.host, query);
         jt.socket.on('connect', function() {

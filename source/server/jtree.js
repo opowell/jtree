@@ -79,7 +79,7 @@ jt.replaceExistingObjectsWithLinks = function(data, existingObjects, path) {
     }
 
     let type = typeof(data);
-    if (type !== 'object') {
+    if (type !== 'object' || data == null) {
         return data;
     }
 
@@ -89,6 +89,10 @@ jt.replaceExistingObjectsWithLinks = function(data, existingObjects, path) {
         let entry = existingObjects[key];
         if (data === entry.object) {
             // console.log('found object, adding path');
+            // if (path.includes('.players')) {
+            //     // debugger;
+            // }
+            console.log(`replacing "${path}" with "${entry.path}"`);
             return '__link__' + entry.path;
         }
     }
