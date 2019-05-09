@@ -51,7 +51,7 @@ class Participant {
         //  * @type number
         //  * @default -1
         //  */
-        this.periodIndices = {};
+        // this.periodIndices = {};
 
         // /**
         //  * List of app ids that this participant has completed.
@@ -299,10 +299,18 @@ class Participant {
     }
 
     getGamePeriod(game) {
-        if (this.periodIndices[game.roomId()] == null) {
-            this.periodIndices[game.roomId()] = -1;
+        let periodIndex = -1;
+
+        if (this.proxy.player != null) {
+            periodIndex = this.proxy.player.group.period.id;
         }
-        return this.periodIndices[game.roomId()];
+
+        return periodIndex;
+
+        // if (this.periodIndices[game.roomId()] == null) {
+        //     this.periodIndices[game.roomId()] = -1;
+        // }
+        // return this.periodIndices[game.roomId()];
     }
 
     // startApp(app) {
@@ -318,7 +326,7 @@ class Participant {
     // }
 
     startPeriod(period) {
-        this.periodIndices[period.game.roomId()] = period.id - 1;
+        // this.periodIndices[period.game.roomId()] = period.id - 1;
         period.game.participantBeginPeriod(this);
     }
 

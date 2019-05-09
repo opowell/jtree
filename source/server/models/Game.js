@@ -1393,6 +1393,9 @@ class Game {
     participantBeginPeriod(participant) {
         var prd = participant.getGamePeriod(this);
 
+        // Move to next period
+        prd++;
+
         var period = this.getPeriod(prd);
         if (period === undefined) {
             return false;
@@ -1476,11 +1479,11 @@ class Game {
          else {
              // If not in the first period, end the previous period for this participant.
              if (periodIndex > -1) {
-                 participant.player.period().participantEnd(participant);
+                 participant.proxy.player.period().participantEnd(participant);
              }
 
              // Move to next period.
-             participant.periodIndices[this.roomId()]++;
+            //  participant.periodIndices[this.roomId()]++;
              this.participantBeginPeriod(participant);
          }
      }

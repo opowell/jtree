@@ -66,8 +66,8 @@ class Period {
         for (var i=0; i<participant.clients.length; i++) {
             var client = participant.clients[i];
             client.getSocket().leave(this.roomId());
-            client.getSocket().leave(participant.player.roomId());
-            client.getSocket().leave(participant.player.group.roomId());
+            client.getSocket().leave(participant.proxy.player.roomId());
+            client.getSocket().leave(participant.proxy.player.group.roomId());
         }
         participant.period = null;
         participant.player = null;
@@ -126,6 +126,8 @@ class Period {
             gr = new Group.new(groupId, this);
             // gr.save();
             this.groups.push(gr);
+            // Take proxied version of group, so that changes are propogated.
+            gr = Utils.findById(this.groups, gr.id);
         }
         var player = gr.playerWithParticipant(participant);
         if (player === null) {
@@ -193,6 +195,7 @@ class Period {
             var group = new Group.new(g+1, this);
             // group.save();
             this.groups.push(group);
+            group = Utils.findById(this.groups, group.id);
             for (var i=0; i<gIds[g].length; i++) {
                 var pId = gIds[g][i];
                 var participant = null;
