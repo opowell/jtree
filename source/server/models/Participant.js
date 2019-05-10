@@ -301,8 +301,8 @@ class Participant {
     getGamePeriod(game) {
         let periodIndex = -1;
 
-        if (this.proxy.player != null) {
-            periodIndex = this.proxy.player.group.period.id;
+        if (this.proxy.player != null && this.proxy.player.group.period.app.id === game.id) {
+            periodIndex = this.proxy.player.group.period.id - 1;
         }
 
         return periodIndex;

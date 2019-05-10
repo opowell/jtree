@@ -109,13 +109,9 @@ jt.replaceExistingObjectsWithLinks = function(data, existingObjects, path, paren
             }
         }
         if (path !== newPath) {
-            console.log(`found circular reference, changing:\n${path}\nto:\n${newPath}`);
+            // console.log(`found circular reference, changing:\n${path}\nto:\n${newPath}`);
             path = newPath;
         }
-    }
-
-    if (path === 'messages.3.state.participants.0.proxy.player.group.players.0.participant.proxy.player') {
-        debugger;
     }
 
     while (data != null && data.__target != null) {
@@ -136,15 +132,11 @@ jt.replaceExistingObjectsWithLinks = function(data, existingObjects, path, paren
             // if (path.includes('.players')) {
             //     // debugger;
             // }
-            console.log(`replacing "${path}" with "${entry.path}"`);
+            // console.log(`replacing "${path}" with "${entry.path}"`);
             return '__link__' + entry.path;
         }
     }
     // Otherwise, add this object to the list, and parse its fields.
-
-    if (path === 'messages.3.state.participants.0.proxy.player.group.period.app.subgames.1.periods.0.app.session.participants.0.players.0') {
-        debugger;
-    }
 
     let thisObject = {
         object: data,

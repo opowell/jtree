@@ -1414,6 +1414,7 @@ class Game {
     }
 
     // An array of indices, one for each game in this game's ancestry.
+    // i.e. [0, 0, 1, 0]
     getGameIndices() {
         let out = [];
         if (this.superGame != null) {
