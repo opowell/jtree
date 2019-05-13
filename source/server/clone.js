@@ -72,9 +72,10 @@ function clone(parent, circular, depth, prototype, includeNonEnumerable) {
   // recurse this function so we don't reset allParents and allChildren
   function _clone(parent, depth) {
 
-    while (parent != null && parent.__target != null) {
-      parent = parent.__target;
-    }
+    // Return Proxies, not just their targets, so that Proxies relationships are maintained.
+    // while (parent != null && parent.__target != null) {
+    //   parent = parent.__target;
+    // }
 
     // cloning null always returns null
     if (parent === null)
@@ -104,6 +105,7 @@ function clone(parent, circular, depth, prototype, includeNonEnumerable) {
     } else if (clone.__isArray(parent)) {
       child = [];
     } else if (clone.__isFunction(parent)) {
+      // Return the original function, instead of a copy.
       // child = eval("(" + parent.toString() + ")");;
       child = parent;
     } else if (clone.__isRegExp(parent)) {

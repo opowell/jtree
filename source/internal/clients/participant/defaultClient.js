@@ -210,6 +210,9 @@ jt.mountVue = function(participant) {
 }
 
 jt.getVueModels = function(participant) {
+    if (participant.proxy == null) {
+        return {};
+    }
     let player = participant.proxy.player;
     let vueModel = {
         jt: jt,
@@ -218,6 +221,7 @@ jt.getVueModels = function(participant) {
         group: player.group,
         period: player.group.period,
         game: player.game,
+        session: player.game.session,
         superGame: player.group.period.game,
         subGame: player.game,
         timeLeft: 0,
@@ -272,6 +276,11 @@ jt.getVueModels = function(participant) {
 
 
 jt.updatePlayer = function(participant, updateVue) {
+    
+    // if (participant.proxy == null) {
+    //     return;
+    // }
+
     if (jt.vue != null && jt.vue.participant != null && participant.id !== jt.vue.participant.id) {
         return;
     }
@@ -374,6 +383,39 @@ jt.updatePlayer = function(participant, updateVue) {
 
 jt.postUpdatePlayer = function() {}
 
+jt.replaceLinksWithObjects = function(data) {
+
+    try {
+        let type = typeof(data);
+
+        // If not an object
+        if (type !== 'object') {
+            // If not a symbolic link, just return the original object.
+            if (data == null || data.startsWith == null || !data.startsWith('__link__')) {
+                return data;
+            }
+    
+            // Otherwise, return linked object.
+            let path = data.substring('__link__'.length);
+            let paths = path.split('.');
+            let obj = jt.vue.session;
+            for (let i=0; i<paths.length; i++) {
+                obj = obj[paths[i]];
+            }
+            return obj;
+        }
+    
+        for (let i in data) {
+            data[i] = jt.replaceLinksWithObjects(data[i]);
+        }
+        return data;            
+    } catch (err) {
+        console.log(err);
+        debugger;
+    }
+
+}
+
 // Default client functionality to be included in all (most?) apps.
 jt.defaultConnected = function() {
 
@@ -408,6 +450,8 @@ jt.defaultConnected = function() {
         location.reload();
     });
 
+    // jt.socket.on('objChange', jt.objChange);
+
     // jt.socket.on('playerUpdate', function(player) {
     //     jt.updatePlayer(player, true);
     // });
@@ -429,7 +473,10 @@ jt.defaultConnected = function() {
     // });
 
     jt.socket.on('logged-in', function(partData) {
-        let participant = CircularJSON.parse(partData, jt.dataReviver);
+        let participant = partData;
+        if (typeof(partData) === 'string') {
+            participant = CircularJSON.parse(partData, jt.dataReviver);
+        }
         jt.updatePlayer(participant, true);
     });
     
@@ -495,7 +542,7 @@ jt.defaultConnected = function() {
             }
         
             let paths = change.path.split('.');
-            let obj = jt.vue;
+            let obj = jt.vue.session;
         
             switch (change.type) {
         
@@ -505,6 +552,9 @@ jt.defaultConnected = function() {
                     }
                     if (obj == null) return;
                     obj[change.function](...change.arguments);
+                    if (['push', 'unshift'].includes(change.function)) {
+                        jt.replaceLinksWithObjects(change.arguments);
+                    }
                     break;
         
                 case 'set-prop':
@@ -514,6 +564,7 @@ jt.defaultConnected = function() {
                     }
                     if (obj == null) return;
                     jt.vue.$set(obj, paths[paths.length-1], change.newValue);
+                    jt.vue.$set(obj, paths[paths.length-1], jt.replaceLinksWithObjects(change.newValue));
                     break;
         
                 case 'set-value':
@@ -526,6 +577,7 @@ jt.defaultConnected = function() {
                     }
                     if (obj == null) return;
                     jt.vue.$set(obj, paths[paths.length-1], change.newValue);
+                    jt.vue.$set(obj, paths[paths.length-1], jt.replaceLinksWithObjects(change.newValue));
                     break;
         
                 case 'delete-prop':
@@ -548,6 +600,7 @@ jt.defaultConnected = function() {
             jt.vue.period = models.period;
             jt.vue.game = models.game;
             jt.vue.participant = models.participant;
+            jt.vue.session = models.session;
             jt.vue.timeElapsed = 0;
         } catch (err) {
             console.log(err);

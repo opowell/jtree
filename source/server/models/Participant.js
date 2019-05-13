@@ -110,11 +110,11 @@ class Participant {
         let thisParticipant = this;
 
         this.proxy = Observer.create(proxyObj, function(change) {
+            console.log('change participant: ' + change.path);
             if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
                 return true;
             }
             change.source = 'participant';
-            console.log('change participant: ' + change.path);
             global.jt.socketServer.sendMessage(thisParticipant.roomId(), change);
             return true; // to apply changes locally.
         });
@@ -458,12 +458,12 @@ class Participant {
         this.clients.push(client);
         // this.clientProxies.push(client.proxy);
         client.getSocket().join(this.roomId());
-        if (this.player != null) {
-            // this.player.addClient(client);
-            // this.player.group.addClient(client);
-            // this.player.group.period.addClient(client);
-            this.player.group.period.app.addClientDefault(client);
-        }
+        // if (this.player != null) {
+        //     // this.player.addClient(client);
+        //     // this.player.group.addClient(client);
+        //     // this.player.group.period.addClient(client);
+        //     this.player.group.period.app.addClientDefault(client);
+        // }
 
         let session = global.jt.data.getSession(this.session.id);
 
