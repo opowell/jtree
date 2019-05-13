@@ -715,7 +715,7 @@ class Player {
             player.status = 'ready';
             console.log(this.timeStamp() + ' READY - PLAYER: ' + this.stage.id + ', ' + this.roomId());
             player.startStage(player.stage);
-        } else if (nextPeriod !== null) {
+        } else if (nextPeriod != null) {
             player.participant.startPeriod(nextPeriod);
         } else if (player.superPlayer != null) {
             player.superPlayer.endStage();

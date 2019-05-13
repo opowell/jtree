@@ -68,9 +68,9 @@ class SessionV2 {
             if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
                 return true;
             }
-            msg.newValue = global.jt.replaceExistingObjectsWithLinks(msg.newValue, thisSession.objectList, msg.path);
+            msg.newValue = global.jt.replaceExistingObjectsWithLinks(msg.newValue, thisSession.objectList, msg.path, null, thisSession.proxy.__target);
             msg.newValue = global.jt.flatten(msg.newValue);
-            msg.arguments = global.jt.replaceExistingObjectsWithLinks(msg.arguments, thisSession.objectList, msg.path);
+            msg.arguments = global.jt.replaceExistingObjectsWithLinks(msg.arguments, thisSession.objectList, msg.path, null, thisSession.proxy.__target);
             msg.arguments = global.jt.flatten(msg.arguments);
             console.log('change from session: ' + msg.path);
             msg.source = 'session';

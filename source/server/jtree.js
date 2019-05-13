@@ -4,6 +4,7 @@
 // const opn           = require('opn');
 const openurl       = require('openurl');
 const path          = require('path');
+const split         = require('split-string');
 
 const Logger        = require('./core/Logger.js');
 const Settings      = require('./core/Settings.js');
@@ -11,6 +12,7 @@ const Data          = require('./core/Data.js');
 const SocketServer  = require('./core/SocketServer.js');
 const StaticServer  = require('./core/StaticServer.js');
 // require('@google-cloud/debug-agent').start();
+
 
 /**
  * @class jtree
@@ -72,8 +74,46 @@ jt.flatten = function(data) {
     return global.jt.Parser.stringifyStrict(data, global.jt.data.dataReplacer, 2);
 }
 
-jt.replaceExistingObjectsWithLinks = function(data, existingObjects, path) {
+jt.replaceExistingObjectsWithLinks = function(data, existingObjects, path, parents, session) {
     
+    if (parents == null) {
+        parents = [];
+
+        if (path.includes('.jtg')) {
+            debugger;
+        }
+
+        let paths = split(path);
+        let curParent = session;
+        let newPath = '';
+        for (let i in paths) {
+            newPath = newPath + (i>0?'.':'') + paths[i];
+            curParent = curParent[paths[i]];
+            // Check if the parent is already stored.
+            for (let key in parents) {
+                let entry = parents[key];
+                // If it is, remove the circular reference.
+                if (entry.object === curParent) {
+                    newPath = entry.path;
+                    break;
+                }
+            }
+
+            // If not, store the parent.
+            for (let key in existingObjects) {
+                let entry = existingObjects[key];
+                if (curParent === entry.object) {
+                    parents.push(entry);
+                    break;
+                }
+            }
+        }
+        if (path !== newPath) {
+            // console.log(`found circular reference, changing:\n${path}\nto:\n${newPath}`);
+            path = newPath;
+        }
+    }
+
     while (data != null && data.__target != null) {
         data = data.__target;
     }
@@ -92,19 +132,32 @@ jt.replaceExistingObjectsWithLinks = function(data, existingObjects, path) {
             // if (path.includes('.players')) {
             //     // debugger;
             // }
-            console.log(`replacing "${path}" with "${entry.path}"`);
+            // console.log(`replacing "${path}" with "${entry.path}"`);
             return '__link__' + entry.path;
         }
     }
     // Otherwise, add this object to the list, and parse its fields.
-    existingObjects.push({
+
+    let thisObject = {
         object: data,
         path: path,
-    });
+    };
+    existingObjects.push(thisObject);
     let copy = Array.isArray(data) ? [] : {};
     for (let i in data) {
         let newPath = path + '.' + i;
-        copy[i] = jt.replaceExistingObjectsWithLinks(data[i], existingObjects, newPath);
+        // Remove any circular references in the path:
+        // i.e. x.y.z.y --> x.y
+        let newParents = [];
+        for (let j=0; j<parents.length; j++) {
+            newParents.push(parents[j]);
+            if (parents[j].object === data[i]) {
+                newPath = parents[j].path;
+                break;
+            }
+        }
+        newParents.push(thisObject);
+        copy[i] = jt.replaceExistingObjectsWithLinks(data[i], existingObjects, newPath, newParents, session);
     }
     return copy;
 }

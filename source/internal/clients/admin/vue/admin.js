@@ -123,10 +123,11 @@ jt.connected = function() {
                 try { 
                     let message = i;
                     let data = d;
-                    console.log('received message ' + i);
+                    // console.log('received message ' + i);
                     jt.queue.place(function() {
-                        console.log('processing message ' + message);
+                        // console.log('processing message ' + message);
                         eval('msgs.' + message + "(data)");
+                        // console.log('finished processing ' + message);
                         jt.queue.next();
                     });
                 } catch (err) {

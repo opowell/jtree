@@ -55,7 +55,8 @@ jt.replaceLinksWithObjects = function(data) {
 
 msgs.objChange = function(change) {
 
-    console.log('object change: \n' + JSON.stringify(change.path) + '\n' + JSON.stringify(change, null, 4));
+    console.log(`object change: ${change.type}, ${change.path}`);
+    //  + '\n' + JSON.stringify(change, null, 4));
 
     if (change.arguments != null) {
         change.arguments = CircularJSON.parse(change.arguments);
@@ -80,10 +81,26 @@ try {
                 obj = obj[paths[i]];
             }
             if (obj == null) return;
-            obj[change.function](...change.arguments);
-            if (['push', 'unshift'].includes(change.function)) {
-                jt.replaceLinksWithObjects(change.arguments);
+
+            // Transform strings *before* adding the object.
+            // Track arguments to switch after.
+            let switchAfter = [];
+            for (let i=0; i<change.arguments.length; i++) {
+                if (typeof(change.arguments[i]) === 'string') {
+                    change.arguments[i] = jt.replaceLinksWithObjects(change.arguments[i]);                    
+                } else {
+                    switchAfter.push(i);
+                }
             }
+
+            // Add the object
+            obj[change.function](...change.arguments);
+
+            // Transform objects *after* adding the object.
+            for (let i=0; i<switchAfter.length; i++) {
+                jt.replaceLinksWithObjects(change.arguments[switchAfter[i]]);
+            }
+
             break;
 
         case 'set-prop':
