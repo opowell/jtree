@@ -538,11 +538,11 @@ jt.defaultConnected = function() {
             }
     
             if (change.arguments != null) {
-                change.arguments = CircularJSON.parse(change.arguments);
+                change.arguments = CircularJSON.parse(JSON.parse(change.arguments));
             }
         
             if (change.newValue != null) {
-                change.newValue = CircularJSON.parse(change.newValue);
+                change.newValue = CircularJSON.parse(JSON.parse(change.newValue));
             }
         
             let paths = change.path.split('.');
@@ -598,14 +598,14 @@ jt.defaultConnected = function() {
                     break;
             }
     
-            let models = jt.getVueModels(jt.vue.participant);
-            jt.vue.player = models.player;
-            jt.vue.group = models.group;
-            jt.vue.period = models.period;
-            jt.vue.game = models.game;
-            jt.vue.participant = models.participant;
-            jt.vue.session = models.session;
-            jt.vue.timeElapsed = 0;
+            // let models = jt.getVueModels(jt.vue.participant);
+            // jt.vue.player = models.player;
+            // jt.vue.group = models.group;
+            // jt.vue.period = models.period;
+            // jt.vue.game = models.game;
+            // jt.vue.participant = models.participant;
+            // jt.vue.session = models.session;
+            // jt.vue.timeElapsed = 0;
         } catch (err) {
             console.log(err);
             // debugger;

@@ -76,10 +76,10 @@ class SessionV2 {
             msg.source = 'session';
             jt.socketServer.io.to(thisSession.roomId()).emit('objChange', msg);
             thisSession.save();
-            for (let i in thisSession.proxy.state.participants) {
-                let participant = thisSession.proxy.state.participants[i];
-                jt.socketServer.io.to(participant.roomId()).emit('objChange', msg);
-            }
+            // for (let i in thisSession.proxy.state.participants) {
+            //     let participant = thisSession.proxy.state.participants[i];
+            //     jt.socketServer.io.to(participant.roomId()).emit('objChange', msg);
+            // }
             return true; // to apply changes locally.
         });
 

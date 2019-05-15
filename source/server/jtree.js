@@ -74,17 +74,22 @@ jt.flatten = function(data) {
     return global.jt.Parser.stringifyStrict(data, global.jt.data.dataReplacer, 2);
 }
 
-jt.replaceExistingObjectsWithLinks = function(data, existingObjects, path, parents, session) {
+/**
+* data - the object to replace
+* existingObjects - array of objects that should already be present on the client
+* path - the path to the data object
+* parents - parent objects
+* rootParent - 
+*
+**/
+jt.replaceExistingObjectsWithLinks = function(data, existingObjects, path, parents, rootParent) {
     
+    // If parents 
     if (parents == null) {
         parents = [];
 
-        if (path.includes('.jtg')) {
-            debugger;
-        }
-
         let paths = split(path);
-        let curParent = session;
+        let curParent = rootParent;
         let newPath = '';
         for (let i in paths) {
             newPath = newPath + (i>0?'.':'') + paths[i];
@@ -114,10 +119,12 @@ jt.replaceExistingObjectsWithLinks = function(data, existingObjects, path, paren
         }
     }
 
+    // Step out of proxies.
     while (data != null && data.__target != null) {
         data = data.__target;
     }
 
+    // If not an object, return original object.
     let type = typeof(data);
     if (type !== 'object' || data == null) {
         return data;
@@ -128,16 +135,11 @@ jt.replaceExistingObjectsWithLinks = function(data, existingObjects, path, paren
     for (let key in existingObjects) {
         let entry = existingObjects[key];
         if (data === entry.object) {
-            // console.log('found object, adding path');
-            // if (path.includes('.players')) {
-            //     // debugger;
-            // }
-            // console.log(`replacing "${path}" with "${entry.path}"`);
             return '__link__' + entry.path;
         }
     }
-    // Otherwise, add this object to the list, and parse its fields.
 
+    // Otherwise, add this object to the list of existing objects, and parse its fields.
     let thisObject = {
         object: data,
         path: path,
@@ -157,7 +159,7 @@ jt.replaceExistingObjectsWithLinks = function(data, existingObjects, path, paren
             }
         }
         newParents.push(thisObject);
-        copy[i] = jt.replaceExistingObjectsWithLinks(data[i], existingObjects, newPath, newParents, session);
+        copy[i] = jt.replaceExistingObjectsWithLinks(data[i], existingObjects, newPath, newParents, rootParent);
     }
     return copy;
 }

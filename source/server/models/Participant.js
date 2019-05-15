@@ -124,6 +124,12 @@ class Participant {
         }
 
         this.proxy = Observer.create(proxyObj, function(change) {
+            console.log('change participant: ' + change.path + ', ' + change.property + ', ' + change.newValue);
+            // If calling a function other than an array change, do not notify clients.
+            if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
+                return true;
+            }
+
             let msg = {
                 arguments: change.arguments,
                 function: change.function,
@@ -133,21 +139,13 @@ class Participant {
                 newValue: change.newValue,
             }
 
-            // If calling a function other than an array change, do not notify clients.
-            if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
-                return true;
-            }
             msg.newValue = global.jt.replaceExistingObjectsWithLinks(msg.newValue, thisParticipant.objectList, msg.path, null, thisParticipant.proxy.__target);
             msg.newValue = global.jt.flatten(msg.newValue);
             msg.arguments = global.jt.replaceExistingObjectsWithLinks(msg.arguments, thisParticipant.objectList, msg.path, null, thisParticipant.proxy.__target);
             msg.arguments = global.jt.flatten(msg.arguments);
-            console.log('change participant: ' + change.path + ', ' + change.property + ', ' + change.newValue);
-            if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
-                return true;
-            }
-            change.source = 'participant';
+            msg.source = 'participant';
             // TODO: Replace existing objects with links, see SessionV2 constructor.
-            global.jt.socketServer.sendMessage(thisParticipant.roomId(), change);
+            global.jt.socketServer.sendMessage(thisParticipant.roomId(), msg);
             return true; // to apply changes locally.
         });
 
