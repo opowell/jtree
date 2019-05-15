@@ -398,7 +398,7 @@ jt.replaceLinksWithObjects = function(data) {
             // Otherwise, return linked object.
             let path = data.substring('__link__'.length);
             let paths = path.split('.');
-            let obj = jt.vue.session;
+            let obj = jt.vue;
             for (let i=0; i<paths.length; i++) {
                 obj = obj[paths[i]];
             }
@@ -526,6 +526,10 @@ jt.defaultConnected = function() {
 
     jt.socket.on('objChange', function(change) {
 
+        if (change.source !== 'participant') {
+            return;
+        }
+
         console.log('object change: \n' + JSON.stringify(change.path) + '\n' + JSON.stringify(change, null, 4));
 
         try {
@@ -542,7 +546,7 @@ jt.defaultConnected = function() {
             }
         
             let paths = change.path.split('.');
-            let obj = jt.vue.session;
+            let obj = jt.vue;
         
             switch (change.type) {
         

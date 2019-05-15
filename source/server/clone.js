@@ -73,9 +73,9 @@ function clone(parent, circular, depth, prototype, includeNonEnumerable) {
   function _clone(parent, depth) {
 
     // Return Proxies, not just their targets, so that Proxies relationships are maintained.
-    // while (parent != null && parent.__target != null) {
-    //   parent = parent.__target;
-    // }
+    while (parent != null && parent.__target != null) {
+      parent = parent.__target;
+    }
 
     // cloning null always returns null
     if (parent === null)
@@ -177,6 +177,7 @@ function clone(parent, circular, depth, prototype, includeNonEnumerable) {
       if (key === 'nonObs') {
         continue;
       }
+      // console.log(`cloning ${key}`);
       child[key] = _clone(parent[key], depth - 1);
     }
 

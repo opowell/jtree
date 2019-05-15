@@ -103,21 +103,54 @@ class Participant {
 
         // this.gameTree = [];
 
+        this.objectList = [];
+
+        this.setProxy();
+    }
+
+    setProxy() {
+        let thisParticipant = this;
+
         let proxyObj = {
             player: null,
         }
 
-        let thisParticipant = this;
+        if (this.proxy != null) {
+            proxyObj = this.proxy;
+        }
+
+        while (proxyObj.__target != null) {
+            proxyObj = proxyObj.__target;
+        }
 
         this.proxy = Observer.create(proxyObj, function(change) {
-            console.log('change participant: ' + change.path);
+            let msg = {
+                arguments: change.arguments,
+                function: change.function,
+                path: change.path,
+                property: change.property,
+                type: change.type,
+                newValue: change.newValue,
+            }
+
+            // If calling a function other than an array change, do not notify clients.
+            if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
+                return true;
+            }
+            msg.newValue = global.jt.replaceExistingObjectsWithLinks(msg.newValue, thisParticipant.objectList, msg.path, null, thisParticipant.proxy.__target);
+            msg.newValue = global.jt.flatten(msg.newValue);
+            msg.arguments = global.jt.replaceExistingObjectsWithLinks(msg.arguments, thisParticipant.objectList, msg.path, null, thisParticipant.proxy.__target);
+            msg.arguments = global.jt.flatten(msg.arguments);
+            console.log('change participant: ' + change.path + ', ' + change.property + ', ' + change.newValue);
             if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
                 return true;
             }
             change.source = 'participant';
+            // TODO: Replace existing objects with links, see SessionV2 constructor.
             global.jt.socketServer.sendMessage(thisParticipant.roomId(), change);
             return true; // to apply changes locally.
         });
+
     }
 
     /**

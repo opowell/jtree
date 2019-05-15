@@ -47,10 +47,10 @@ class SessionV2 {
 
         this.asyncQueue = async.queue(this.processQueueMessage, 1);
 
-        this.setProxy(proxyObj);
-
         this.objectList = [];
         
+        this.setProxy(proxyObj);
+
     }
 
     setProxy(proxyObj) {
@@ -373,6 +373,10 @@ class SessionV2 {
             // let newState = prevState;
 
             newState.stateId++;
+            for (let i in newState.participants) {
+                let part = newState.participants[i];
+                part.setProxy();
+            }
 
             // Make new state available immediately, and create proxy object for it.
             while (newState.__target != null) {
