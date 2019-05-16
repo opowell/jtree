@@ -31,14 +31,13 @@ class Participant {
             session = session.__target;
         }
         this.session = session;
-
-        // this.indexInSession = Object.keys(session.proxy.__target.state.participants).length;
-
         /**
          * @type array of arrays of players, one sub-array for each game, with the sub-array containing one player for each period in the game.
          * @default []
          */
         this.players = [];
+
+        // this.indexInSession = Object.keys(session.proxy.__target.state.participants).length;
 
         /**
          * @type array
@@ -103,7 +102,11 @@ class Participant {
 
         // this.gameTree = [];
 
-        this.objectList = [];
+        this.nonObs = {};
+
+        this.nonObs.objectList = [];
+
+        this.player = null;
 
         this.setProxy();
     }
@@ -111,9 +114,10 @@ class Participant {
     setProxy() {
         let thisParticipant = this;
 
-        let proxyObj = {
-            player: null,
-        }
+        // let proxyObj = {
+        //     player: null,
+        // }
+        let proxyObj = this;
 
         if (this.proxy != null) {
             proxyObj = this.proxy;
@@ -139,9 +143,9 @@ class Participant {
                 newValue: change.newValue,
             }
 
-            msg.newValue = global.jt.replaceExistingObjectsWithLinks(msg.newValue, thisParticipant.objectList, msg.path, null, thisParticipant.proxy.__target);
+            msg.newValue = global.jt.replaceExistingObjectsWithLinks(msg.newValue, thisParticipant.nonObs.objectList, msg.path, null, thisParticipant.proxy.__target);
             msg.newValue = global.jt.flatten(msg.newValue);
-            msg.arguments = global.jt.replaceExistingObjectsWithLinks(msg.arguments, thisParticipant.objectList, msg.path, null, thisParticipant.proxy.__target);
+            msg.arguments = global.jt.replaceExistingObjectsWithLinks(msg.arguments, thisParticipant.nonObs.objectList, msg.path, null, thisParticipant.proxy.__target);
             msg.arguments = global.jt.flatten(msg.arguments);
             msg.source = 'participant';
             // TODO: Replace existing objects with links, see SessionV2 constructor.
@@ -191,8 +195,8 @@ class Participant {
 
     addPlayer(player) {
 
-        if (this.player != null) {
-            this.player.subPlayers.push(player);
+        if (this.proxy.player != null) {
+            this.proxy.player.subPlayers.push(player);
         } else {
             this.players.push(player);
         }

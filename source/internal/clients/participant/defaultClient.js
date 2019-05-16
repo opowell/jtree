@@ -555,10 +555,11 @@ jt.defaultConnected = function() {
                         obj = obj[paths[i]];
                     }
                     if (obj == null) return;
+                    change.arguments = jt.replaceLinksWithObjects(change.arguments);
                     obj[change.function](...change.arguments);
-                    if (['push', 'unshift'].includes(change.function)) {
-                        jt.replaceLinksWithObjects(change.arguments);
-                    }
+//                     if (['push', 'unshift'].includes(change.function)) {
+//                         jt.replaceLinksWithObjects(change.arguments);
+//                     }
                     break;
         
                 case 'set-prop':

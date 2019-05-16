@@ -79,6 +79,7 @@ exports.Observer = (function () {
                 }
                 // Objects
                 else if (typeof value === 'object' && value !== null && target.hasOwnProperty(prop)) {
+                    // Do not listen to changes to "nonObs" objects.
                     if (value === 'nonObs') {
                         return value;
                     }

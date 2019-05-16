@@ -80,6 +80,7 @@ class Data {
         }
 
         this.dataReplacer = function(key, value) {
+            // Strip out 'nonObs' objects.
             if (key === 'nonObs') {
                 return undefined;
             }

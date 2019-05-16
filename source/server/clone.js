@@ -148,9 +148,6 @@ function clone(parent, circular, depth, prototype, includeNonEnumerable) {
 
     if (_instanceof(parent, nativeMap)) {
       parent.forEach(function(value, key) {
-        if (key === 'nonObs') {
-          return;
-        }
         var keyChild = _clone(key, depth - 1);
         var valueChild = _clone(value, depth - 1);
         child.set(keyChild, valueChild);
@@ -174,9 +171,6 @@ function clone(parent, circular, depth, prototype, includeNonEnumerable) {
       if (typeof parent[key] != 'function' && attrs && attrs.set == null) {
         continue;
       }
-      if (key === 'nonObs') {
-        continue;
-      }
       // console.log(`cloning ${key}`);
       child[key] = _clone(parent[key], depth - 1);
     }
@@ -189,9 +183,6 @@ function clone(parent, circular, depth, prototype, includeNonEnumerable) {
         var symbol = symbols[i];
         var descriptor = Object.getOwnPropertyDescriptor(parent, symbol);
         if (descriptor && !descriptor.enumerable && !includeNonEnumerable) {
-          continue;
-        }
-        if (symbol === 'nonObs') {
           continue;
         }
         child[symbol] = _clone(parent[symbol], depth - 1);
