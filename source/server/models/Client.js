@@ -68,7 +68,7 @@ class Client {
         if (this.participant === null) {
             return null;
         } else {
-            return this.participant.proxy.player;
+            return this.participant.player;
         }
     }
 

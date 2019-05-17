@@ -84,7 +84,7 @@ jt.flatten = function(data) {
 **/
 jt.replaceExistingObjectsWithLinks = function(data, existingObjects, path, parents, rootParent) {
     
-    // If parents 
+    // Remove circular references from the path.
     if (parents == null) {
         parents = [];
 
@@ -145,21 +145,23 @@ jt.replaceExistingObjectsWithLinks = function(data, existingObjects, path, paren
         path: path,
     };
     existingObjects.push(thisObject);
+
     let copy = Array.isArray(data) ? [] : {};
     for (let i in data) {
+        let child = data[i];
         let newPath = path + '.' + i;
         // Remove any circular references in the path:
         // i.e. x.y.z.y --> x.y
         let newParents = [];
         for (let j=0; j<parents.length; j++) {
             newParents.push(parents[j]);
-            if (parents[j].object === data[i]) {
+            if (parents[j].object === child) {
                 newPath = parents[j].path;
                 break;
             }
         }
         newParents.push(thisObject);
-        copy[i] = jt.replaceExistingObjectsWithLinks(data[i], existingObjects, newPath, newParents, rootParent);
+        copy[i] = jt.replaceExistingObjectsWithLinks(child, existingObjects, newPath, newParents, rootParent);
     }
     return copy;
 }

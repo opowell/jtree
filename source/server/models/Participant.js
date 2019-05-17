@@ -104,14 +104,16 @@ class Participant {
 
         this.nonObs = {};
 
-        this.nonObs.objectList = [];
+        this.nonObs.objectList = [{
+            object: this,
+            path: '',
+        }];
 
         this.player = null;
 
-        this.setProxy();
     }
 
-    setProxy() {
+    getProxy() {
         let thisParticipant = this;
 
         // let proxyObj = {
@@ -119,16 +121,17 @@ class Participant {
         // }
         let proxyObj = this;
 
-        if (this.proxy != null) {
-            proxyObj = this.proxy;
-        }
+        // if (this.proxy != null) {
+        //     proxyObj = this.proxy;
+        // }
 
         while (proxyObj.__target != null) {
             proxyObj = proxyObj.__target;
         }
 
-        this.proxy = Observer.create(proxyObj, function(change) {
-            console.log('change participant: ' + change.path + ', ' + change.property + ', ' + change.newValue);
+        let proxy = Observer.create(proxyObj, function(change) {
+            console.log('change participant: ' + change.path);
+            let origPath = change.path;
             // If calling a function other than an array change, do not notify clients.
             if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
                 return true;
@@ -143,15 +146,20 @@ class Participant {
                 newValue: change.newValue,
             }
 
-            msg.newValue = global.jt.replaceExistingObjectsWithLinks(msg.newValue, thisParticipant.nonObs.objectList, msg.path, null, thisParticipant.proxy.__target);
+            msg.newValue = global.jt.replaceExistingObjectsWithLinks(msg.newValue, thisParticipant.nonObs.objectList, msg.path, null, thisParticipant);
             msg.newValue = global.jt.flatten(msg.newValue);
-            msg.arguments = global.jt.replaceExistingObjectsWithLinks(msg.arguments, thisParticipant.nonObs.objectList, msg.path, null, thisParticipant.proxy.__target);
+            msg.arguments = global.jt.replaceExistingObjectsWithLinks(msg.arguments, thisParticipant.nonObs.objectList, msg.path, null, thisParticipant);
             msg.arguments = global.jt.flatten(msg.arguments);
+            if (origPath != change.path) {
+                console.log('changed to: ' + change.path);
+            }
             msg.source = 'participant';
             // TODO: Replace existing objects with links, see SessionV2 constructor.
             global.jt.socketServer.sendMessage(thisParticipant.roomId(), msg);
             return true; // to apply changes locally.
         });
+
+        return proxy;
 
     }
 
@@ -195,8 +203,8 @@ class Participant {
 
     addPlayer(player) {
 
-        if (this.proxy.player != null) {
-            this.proxy.player.subPlayers.push(player);
+        if (this.player != null) {
+            this.player.subPlayers.push(player);
         } else {
             this.players.push(player);
         }
@@ -336,8 +344,8 @@ class Participant {
     getGamePeriod(game) {
         let periodIndex = -1;
 
-        if (this.proxy.player != null && this.proxy.player.group.period.app.id === game.id) {
-            periodIndex = this.proxy.player.group.period.id - 1;
+        if (this.player != null && this.player.group.period.app.id === game.id) {
+            periodIndex = this.player.group.period.id - 1;
         }
 
         return periodIndex;
@@ -551,7 +559,7 @@ class Participant {
         while (player.__target != null) {
             player = player.__target;
         }
-        this.proxy.player = player;
+        this.player = player;
     }
 
     // actuallyEmitUpdate() {

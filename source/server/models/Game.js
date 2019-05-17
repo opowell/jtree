@@ -1480,7 +1480,7 @@ class Game {
          else {
              // If not in the first period, end the previous period for this participant.
              if (periodIndex > -1) {
-                 participant.proxy.player.period().participantEnd(participant);
+                 participant.player.period().participantEnd(participant);
              }
 
              // Move to next period.

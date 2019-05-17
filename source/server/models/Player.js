@@ -701,8 +701,8 @@ class Player {
         let player = this;
 
         // If this player is no longer active, do nothing.
-        let bool1 = player.participant.proxy.player == null;
-        let bool2 = player.roomId() !== player.participant.proxy.player.roomId();
+        let bool1 = player.participant.player == null;
+        let bool2 = player.roomId() !== player.participant.player.roomId();
         if (bool1 || bool2) {
             return;
         }

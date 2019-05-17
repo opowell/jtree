@@ -210,10 +210,10 @@ jt.mountVue = function(participant) {
 }
 
 jt.getVueModels = function(participant) {
-    if (participant.proxy == null) {
+    if (participant == null) {
         return {};
     }
-    let player = participant.proxy.player;
+    let player = participant.player;
     let vueModel = {
         jt: jt,
         participant: participant,
@@ -305,7 +305,7 @@ jt.updatePlayer = function(participant, updateVue) {
 
     window.scrollTo(0, 0);
 
-    let player = participant.proxy.player;
+    let player = participant.player;
 
     if (player.stage !== undefined) {
         jt.setStageName(player.stage.id);
@@ -398,9 +398,11 @@ jt.replaceLinksWithObjects = function(data) {
             // Otherwise, return linked object.
             let path = data.substring('__link__'.length);
             let paths = path.split('.');
-            let obj = jt.vue;
+            let obj = jt.vue.participant;
             for (let i=0; i<paths.length; i++) {
-                obj = obj[paths[i]];
+                if (paths[i].length > 0) {
+                    obj = obj[paths[i]];
+                }
             }
             return obj;
         }
@@ -546,7 +548,7 @@ jt.defaultConnected = function() {
             }
         
             let paths = change.path.split('.');
-            let obj = jt.vue;
+            let obj = jt.vue.participant;
         
             switch (change.type) {
         

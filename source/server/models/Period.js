@@ -63,12 +63,12 @@ class Period {
      * @return {type}             description
      */
     participantEnd(participant) {
-        for (var i=0; i<participant.clients.length; i++) {
-            var client = participant.clients[i];
-            client.getSocket().leave(this.roomId());
-            client.getSocket().leave(participant.proxy.player.roomId());
-            client.getSocket().leave(participant.proxy.player.group.roomId());
-        }
+        // for (var i=0; i<participant.clients.length; i++) {
+        //     var client = participant.clients[i];
+        //     client.getSocket().leave(this.roomId());
+        //     client.getSocket().leave(participant.player.roomId());
+        //     client.getSocket().leave(participant.player.group.roomId());
+        // }
         participant.period = null;
         participant.player = null;
     }
@@ -144,7 +144,7 @@ class Period {
         player.game = this.game.subgames[player.stageIndex];
         player.status = 'ready';
         participant.setPlayer(player);
-        player = participant.proxy.player;
+        player = participant.player;
 
         if (player === null) {
             console.log('APP: error assigning group for participant ' + participant.id);

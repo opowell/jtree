@@ -201,7 +201,7 @@ class SessionV2 {
         // let participantId = client.participant.id;
 
         let participant = Utils.findById(state.participants, participantId);
-        let player = participant.proxy.player;
+        let player = participant.player;
         let group = player.group;
         let period = group.period;
         let game = player.stage;
@@ -319,7 +319,8 @@ class SessionV2 {
             return null;
         }
         var participant = new Participant.new(pId, state);
-        state.participants.push(participant);
+        let proxy = participant.getProxy();
+        state.participants.push(proxy);
     }
 
     addMessage(name, content) {
@@ -373,9 +374,10 @@ class SessionV2 {
             // let newState = prevState;
 
             newState.stateId++;
-            for (let i in newState.participants) {
+            for (let i=0; i<newState.participants.length; i++) {
                 let part = newState.participants[i];
-                part.setProxy();
+                let proxy = part.getProxy();
+                newState.participants[i] = proxy;
             }
 
             // Make new state available immediately, and create proxy object for it.
