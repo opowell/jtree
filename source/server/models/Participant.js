@@ -102,14 +102,13 @@ class Participant {
 
         // this.gameTree = [];
 
-        this.nonObs = {};
-
-        this.nonObs.objectList = [{
-            object: this,
-            path: '',
-        }];
-
         this.player = null;
+
+        this.nonObs = {
+            objectList: []
+        };
+
+        global.jt.addExistingObjects(this, this.nonObs.objectList, '');
 
     }
 
@@ -130,12 +129,16 @@ class Participant {
         }
 
         let proxy = Observer.create(proxyObj, function(change) {
-            console.log('change participant: ' + change.path);
-            let origPath = change.path;
             // If calling a function other than an array change, do not notify clients.
             if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
                 return true;
             }
+            if (change.type === 'function-call') {
+                console.log('function call: ' + change.path + '.' + change.function + '(' + change.arguments + ')');
+            } else {
+                console.log('change participant: ' + change.path + '.' + change.property + ': ' + change.newValue);
+            }
+            let origPath = change.path;
 
             let msg = {
                 arguments: change.arguments,
@@ -146,9 +149,13 @@ class Participant {
                 newValue: change.newValue,
             }
 
-            msg.newValue = global.jt.replaceExistingObjectsWithLinks(msg.newValue, thisParticipant.nonObs.objectList, msg.path, null, thisParticipant);
+            let x = global.jt.replaceExistingObjectsWithLinks(msg.newValue, thisParticipant.nonObs.objectList, msg.path, null, thisParticipant);
+            msg.newValue = x.object;
             msg.newValue = global.jt.flatten(msg.newValue);
-            msg.arguments = global.jt.replaceExistingObjectsWithLinks(msg.arguments, thisParticipant.nonObs.objectList, msg.path, null, thisParticipant);
+            msg.path = x.path;
+            x = global.jt.replaceExistingObjectsWithLinks(msg.arguments, thisParticipant.nonObs.objectList, msg.path, null, thisParticipant);
+            msg.arguments = x.object;
+            msg.path = x.path;
             msg.arguments = global.jt.flatten(msg.arguments);
             if (origPath != change.path) {
                 console.log('changed to: ' + change.path);

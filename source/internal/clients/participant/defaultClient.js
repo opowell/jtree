@@ -532,8 +532,6 @@ jt.defaultConnected = function() {
             return;
         }
 
-        console.log('object change: \n' + JSON.stringify(change.path) + '\n' + JSON.stringify(change, null, 4));
-
         try {
             if (jt.vue == null) {
                 return;
@@ -550,6 +548,8 @@ jt.defaultConnected = function() {
             let paths = change.path.split('.');
             let obj = jt.vue.participant;
         
+            console.log('object change: \n' + JSON.stringify(change.path) + '\n' + JSON.stringify(change, null, 4));
+
             switch (change.type) {
         
                 case 'function-call':

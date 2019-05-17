@@ -84,40 +84,7 @@ jt.flatten = function(data) {
 **/
 jt.replaceExistingObjectsWithLinks = function(data, existingObjects, path, parents, rootParent) {
     
-    // Remove circular references from the path.
-    if (parents == null) {
-        parents = [];
-
-        let paths = split(path);
-        let curParent = rootParent;
-        let newPath = '';
-        for (let i in paths) {
-            newPath = newPath + (i>0?'.':'') + paths[i];
-            curParent = curParent[paths[i]];
-            // Check if the parent is already stored.
-            for (let key in parents) {
-                let entry = parents[key];
-                // If it is, remove the circular reference.
-                if (entry.object === curParent) {
-                    newPath = entry.path;
-                    break;
-                }
-            }
-
-            // If not, store the parent.
-            for (let key in existingObjects) {
-                let entry = existingObjects[key];
-                if (curParent === entry.object) {
-                    parents.push(entry);
-                    break;
-                }
-            }
-        }
-        if (path !== newPath) {
-            // console.log(`found circular reference, changing:\n${path}\nto:\n${newPath}`);
-            path = newPath;
-        }
-    }
+    try {
 
     // Step out of proxies.
     while (data != null && data.__target != null) {
@@ -127,15 +94,64 @@ jt.replaceExistingObjectsWithLinks = function(data, existingObjects, path, paren
     // If not an object, return original object.
     let type = typeof(data);
     if (type !== 'object' || data == null) {
-        return data;
+        return {
+            object: data,
+            path: path
+        };
     }
 
+    // // Remove circular references from the path.
+    // // Path can be anything, i.e. x.y.z.x.
+    // // Change to just x.
+    // if (parents == null) {
+    //     parents = [];
+
+    //     let paths = split(path);
+    //     let curParent = rootParent;
+    //     let newPath = '';
+    //     for (let i in paths) {
+    //         newPath = newPath + (i>0?'.':'') + paths[i];
+    //         curParent = curParent[paths[i]];
+    //         // Check if the parent is already in the parent chain.
+    //         let alreadyInChain = false;
+    //         for (let key in parents) {
+    //             let entry = parents[key];
+    //             // If it is, remove the circular reference.
+    //             if (entry.object === curParent) {
+    //                 newPath = entry.path;
+    //                 alreadyInChain = true;
+    //                 break;
+    //             }
+    //         }
+    //         if (!alreadyInChain) {
+    //             parents.push(curParent);
+    //         }
+
+    //         // // If not, store the parent.
+    //         // for (let key in existingObjects) {
+    //         //     let entry = existingObjects[key];
+    //         //     if (curParent === entry.object) {
+    //         //         parents.push(entry);
+    //         //         break;
+    //         //     }
+    //         // }
+    //     }
+    //     if (path !== newPath) {
+    //         console.log(`found circular reference, changing:\n${path}\nto:\n${newPath}`);
+    //         path = newPath;
+    //     }
+    // }
+
     // Objects and Arrays.
-    // If existing object, return that object's path.
+    // If existing object with different path, return link to that object.
+    // If existing object with same path, return object itself.
     for (let key in existingObjects) {
         let entry = existingObjects[key];
         if (data === entry.object) {
-            return '__link__' + entry.path;
+            return {
+                object: '__link__' + entry.path,
+                path: entry.path
+            };
         }
     }
 
@@ -150,20 +166,65 @@ jt.replaceExistingObjectsWithLinks = function(data, existingObjects, path, paren
     for (let i in data) {
         let child = data[i];
         let newPath = path + '.' + i;
-        // Remove any circular references in the path:
-        // i.e. x.y.z.y --> x.y
-        let newParents = [];
-        for (let j=0; j<parents.length; j++) {
-            newParents.push(parents[j]);
-            if (parents[j].object === child) {
-                newPath = parents[j].path;
-                break;
-            }
-        }
-        newParents.push(thisObject);
-        copy[i] = jt.replaceExistingObjectsWithLinks(child, existingObjects, newPath, newParents, rootParent);
+        // parents.push({
+        //     object: child,
+        //     path: newPath
+        // });
+        let newChild = jt.replaceExistingObjectsWithLinks(child, existingObjects, newPath, parents, rootParent);
+        // parents.splice(parents.length-1, 1);
+        copy[i] = newChild.object;
     }
-    return copy;
+    return {
+        object: copy,
+        path: path
+    };
+
+} catch (err) {
+    console.log(err);
+    debugger;
+}
+
+}
+
+// If object is not already stored in objectList, add it and repeat for all of children's fields.
+jt.addExistingObjects = function(object, objectList, path) {
+
+    while (object != null && object.__target != null) {
+        object = object.__target;
+    }
+
+    // If object is not an "object", do nothing.
+    let type = typeof(object);
+    if (type !== 'object' || type == null) {
+        return;
+    }
+
+    // If object is already in list, do nothing.
+    for (let key in objectList) {
+        let entry = objectList[key];
+        if (path === entry.path) {
+            console.log('found same path, objects same?');
+        }
+        if (object === entry.object) {
+            return;
+        }
+    }
+
+    // Object is not in list. Store it and its fields.
+    console.log('Storing ' + path);
+    objectList.push({
+        object,
+        path
+    });
+    for (let i in object) {
+        // Skip "nonObs" properties.
+        if (i === 'nonObs') {
+            continue;
+        }
+        let child = object[i];
+        let newPath = path + (path.length>0 ? '.' : '') + i;
+        jt.addExistingObjects(child, objectList, newPath);
+    }
 }
 
 // var exports = module.exports = jt;
