@@ -84,9 +84,9 @@ jt.flatten = function(data) {
 **/
 jt.replaceExistingObjectsWithLinks = function(data, existingObjects, path, parents, rootParent) {
     
-    try {
+try {
 
-    // Step out of proxies.
+    // Get out of proxies.
     while (data != null && data.__target != null) {
         data = data.__target;
     }
@@ -100,51 +100,45 @@ jt.replaceExistingObjectsWithLinks = function(data, existingObjects, path, paren
         };
     }
 
-    // // Remove circular references from the path.
-    // // Path can be anything, i.e. x.y.z.x.
-    // // Change to just x.
-    // if (parents == null) {
-    //     parents = [];
+    // Load parents if necessary.
+    // Also remove any circularity in the path.
+    if (parents == null) {
+        parents = [];
+        let paths = split(path);
+        let curParent = rootParent;
+        let newPath = '';
+        nextPath: for (let i in paths) {
+            let curPath = paths[i];
+            curParent = curParent[curPath];
 
-    //     let paths = split(path);
-    //     let curParent = rootParent;
-    //     let newPath = '';
-    //     for (let i in paths) {
-    //         newPath = newPath + (i>0?'.':'') + paths[i];
-    //         curParent = curParent[paths[i]];
-    //         // Check if the parent is already in the parent chain.
-    //         let alreadyInChain = false;
-    //         for (let key in parents) {
-    //             let entry = parents[key];
-    //             // If it is, remove the circular reference.
-    //             if (entry.object === curParent) {
-    //                 newPath = entry.path;
-    //                 alreadyInChain = true;
-    //                 break;
-    //             }
-    //         }
-    //         if (!alreadyInChain) {
-    //             parents.push(curParent);
-    //         }
+            // Check for circularity
+            for (let j in parents) {
+                if (parents[j].object === curParent) {
+                    newPath = parents[j].path;
+                    continue nextPath;
+                }
+            }
 
-    //         // // If not, store the parent.
-    //         // for (let key in existingObjects) {
-    //         //     let entry = existingObjects[key];
-    //         //     if (curParent === entry.object) {
-    //         //         parents.push(entry);
-    //         //         break;
-    //         //     }
-    //         // }
-    //     }
-    //     if (path !== newPath) {
-    //         console.log(`found circular reference, changing:\n${path}\nto:\n${newPath}`);
-    //         path = newPath;
-    //     }
-    // }
+            // No circularity, add the current parent.
+            parents.push({
+                object: curParent,
+                path: newPath
+            });
+            newPath = newPath + newPath.length>0 ? '.' : '';
+        }
+        path = newPath;
+    }
 
-    // Objects and Arrays.
-    // If existing object with different path, return link to that object.
-    // If existing object with same path, return object itself.
+    // If object is its own ancestor, store path to ancestor.
+    for (let i in parents) {
+        let parent = parents[i];
+        if (data === parent.object) {
+            path = parent.path;
+            break;    
+        }
+    }
+
+    // If existing object, return link to that object.
     for (let key in existingObjects) {
         let entry = existingObjects[key];
         if (data === entry.object) {
@@ -162,18 +156,24 @@ jt.replaceExistingObjectsWithLinks = function(data, existingObjects, path, paren
     };
     existingObjects.push(thisObject);
 
+    // Create copy of object (so as to not modify original).
     let copy = Array.isArray(data) ? [] : {};
+    parents.push({
+        object: data,
+        path: path
+    });
     for (let i in data) {
+        if (i === 'nonObs') {
+            continue;
+        }
         let child = data[i];
         let newPath = path + '.' + i;
-        // parents.push({
-        //     object: child,
-        //     path: newPath
-        // });
         let newChild = jt.replaceExistingObjectsWithLinks(child, existingObjects, newPath, parents, rootParent);
-        // parents.splice(parents.length-1, 1);
         copy[i] = newChild.object;
     }
+    parents.splice(parents.length-1, 1);
+
+    // Return copy.
     return {
         object: copy,
         path: path
