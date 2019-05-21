@@ -91,15 +91,6 @@ try {
         data = data.__target;
     }
 
-    // If not an object, return original object.
-    let type = typeof(data);
-    if (type !== 'object' || data == null) {
-        return {
-            object: data,
-            path: path
-        };
-    }
-
     // Load parents if necessary.
     // Also remove any circularity in the path.
     if (parents == null) {
@@ -124,7 +115,7 @@ try {
                 object: curParent,
                 path: newPath
             });
-            newPath = newPath + newPath.length>0 ? '.' : '';
+            newPath = newPath + (newPath.length>0 ? '.' : '') + curPath;
         }
         path = newPath;
     }
@@ -138,13 +129,22 @@ try {
         }
     }
 
+    // If not an object, return original object.
+    let type = typeof(data);
+    if (type !== 'object' || data == null) {
+        return {
+            object: data,
+            path: path
+        };
+    }
+
     // If existing object, return link to that object.
     for (let key in existingObjects) {
         let entry = existingObjects[key];
         if (data === entry.object) {
             return {
                 object: '__link__' + entry.path,
-                path: entry.path
+                path: path
             };
         }
     }
