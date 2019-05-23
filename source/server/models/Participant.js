@@ -149,13 +149,17 @@ class Participant {
                 newValue: change.newValue,
             }
 
-            let x = global.jt.replaceExistingObjectsWithLinks(msg.newValue, thisParticipant.nonObs.objectList, msg.path, null, thisParticipant);
-            msg.newValue = x.object;
+            if (msg.newValue != null) {
+                let x = global.jt.replaceExistingObjectsWithLinks(msg.newValue, thisParticipant.nonObs.objectList, msg.path, null, thisParticipant);
+                msg.newValue = x.object;
+                msg.path = x.path;
+            }
+            if (msg.arguments != null) {
+                let x = global.jt.replaceExistingObjectsWithLinks(msg.arguments, thisParticipant.nonObs.objectList, msg.path, null, thisParticipant);
+                msg.arguments = x.object;
+                msg.path = x.path;
+            }
             msg.newValue = global.jt.flatten(msg.newValue);
-            msg.path = x.path;
-            x = global.jt.replaceExistingObjectsWithLinks(msg.arguments, thisParticipant.nonObs.objectList, msg.path, null, thisParticipant);
-            msg.arguments = x.object;
-            msg.path = x.path;
             msg.arguments = global.jt.flatten(msg.arguments);
             if (origPath != change.path) {
                 console.log('changed to: ' + change.path);

@@ -94,7 +94,10 @@ try {
     // Load parents if necessary.
     // Also remove any circularity in the path.
     if (parents == null) {
-        parents = [];
+        parents = [{
+            object: rootParent,
+            path: ''
+        }];
         let paths = split(path);
         let curParent = rootParent;
         let newPath = '';
@@ -106,16 +109,26 @@ try {
             for (let j in parents) {
                 if (parents[j].object === curParent) {
                     newPath = parents[j].path;
+                    parents.splice(j+1, parents.length - j - 1);
+                    continue nextPath;
+                }
+            }
+
+            // Check for existing object, which presumably has shorter path
+            for (let j in existingObjects) {
+                if (existingObjects[j].object === curParent) {
+                    newPath = existingObjects[j].path;
+                    parents = [existingObjects[j]];
                     continue nextPath;
                 }
             }
 
             // No circularity, add the current parent.
+            newPath = newPath + (newPath.length>0 ? '.' : '') + curPath;
             parents.push({
                 object: curParent,
                 path: newPath
             });
-            newPath = newPath + (newPath.length>0 ? '.' : '') + curPath;
         }
         path = newPath;
     }

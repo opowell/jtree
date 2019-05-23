@@ -16,7 +16,7 @@ class SessionV2 {
 
         // A filestream for writing to this session's object states.
         try {
-            fs.ensureDirSync(this.getOutputDir());
+            // fs.ensureDirSync(this.getOutputDir());
         } catch (err) {
             console.log(err);
         }
@@ -68,13 +68,17 @@ class SessionV2 {
             if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
                 return true;
             }
-            let x = global.jt.replaceExistingObjectsWithLinks(msg.newValue, thisSession.objectList, msg.path, null, thisSession.proxy.__target);
-            msg.newValue = x.object;
-            msg.path = x.path;
+            if (msg.newValue != null) {
+                let x = global.jt.replaceExistingObjectsWithLinks(msg.newValue, thisSession.objectList, msg.path, null, thisSession.proxy.__target);
+                msg.newValue = x.object;
+                msg.path = x.path;
+            }
+            if (msg.arguments != null) {
+                let x = global.jt.replaceExistingObjectsWithLinks(msg.arguments, thisSession.objectList, msg.path, null, thisSession.proxy.__target);
+                msg.arguments = x.object;
+                msg.path = x.path;
+            }
             msg.newValue = global.jt.flatten(msg.newValue);
-            x = global.jt.replaceExistingObjectsWithLinks(msg.arguments, thisSession.objectList, msg.path, null, thisSession.proxy.__target);
-            msg.arguments = x.object;
-            msg.path = x.path;
             msg.arguments = global.jt.flatten(msg.arguments);
             console.log('change from session: ' + msg.path);
             msg.source = 'session';
@@ -328,7 +332,7 @@ class SessionV2 {
     }
 
     addMessage(name, content) {
-        console.log('adding message: ' + name + ', ' + content);
+        console.log('adding message: ' + name + (content==null ? '' : (', ' + content)));
         this.proxy.messages.push({
             id: this.proxy.messages.length + 1,
             name,
@@ -343,7 +347,7 @@ class SessionV2 {
     save() {
         try {
             var data = global.jt.flatten(this.proxy.__target);
-            fs.writeFileSync(this.getGSFFile(), data);
+            // fs.writeFileSync(this.getGSFFile(), data);
         } catch (err) {
             debugger;
             console.log('ERROR Session.saveDataFS: ' + err.stack);
