@@ -69,14 +69,16 @@ class SessionV2 {
                 return true;
             }
             if (msg.newValue != null) {
-                let x = global.jt.replaceExistingObjectsWithLinks(msg.newValue, thisSession.objectList, msg.path, null, thisSession.proxy.__target);
+                let x = global.jt.replaceExistingObjectsWithLinks(msg.newValue, thisSession.objectList, msg.path, null, thisSession.proxy.__target, null);
                 msg.newValue = x.object;
                 msg.path = x.path;
             }
             if (msg.arguments != null) {
-                let x = global.jt.replaceExistingObjectsWithLinks(msg.arguments, thisSession.objectList, msg.path, null, thisSession.proxy.__target);
-                msg.arguments = x.object;
-                msg.path = x.path;
+                for (let i in arguments) {
+                    let x = global.jt.replaceExistingObjectsWithLinks(msg.arguments[i], thisSession.objectList, msg.path, null, thisSession.proxy.__target, msg.function);
+                    msg.arguments[i] = x.object;
+                    msg.path = x.path;
+                }
             }
             msg.newValue = global.jt.flatten(msg.newValue);
             msg.arguments = global.jt.flatten(msg.arguments);

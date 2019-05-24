@@ -82,7 +82,7 @@ jt.flatten = function(data) {
 * rootParent - 
 *
 **/
-jt.replaceExistingObjectsWithLinks = function(data, existingObjects, path, parents, rootParent) {
+jt.replaceExistingObjectsWithLinks = function(data, existingObjects, path, parents, rootParent, funcName) {
     
 try {
 
@@ -90,6 +90,8 @@ try {
     while (data != null && data.__target != null) {
         data = data.__target;
     }
+
+    let storedPath = path;
 
     // Load parents if necessary.
     // Also remove any circularity in the path.
@@ -130,7 +132,15 @@ try {
                 path: newPath
             });
         }
+
         path = newPath;
+
+        storedPath = path;
+        // If pushing to an array, add the array index to the end of the path.
+        if (funcName === 'push') {
+            storedPath = storedPath + (path.length>0 ? '.' : '') + curParent.length;
+        }
+
     }
 
     // If object is its own ancestor, store path to ancestor.
@@ -165,8 +175,11 @@ try {
     // Otherwise, add this object to the list of existing objects, and parse its fields.
     let thisObject = {
         object: data,
-        path: path,
+        path: storedPath,
     };
+    if (thisObject.path === 'messages') { 
+        debugger;
+    }
     existingObjects.push(thisObject);
 
     // Create copy of object (so as to not modify original).
@@ -181,7 +194,7 @@ try {
         }
         let child = data[i];
         let newPath = path + '.' + i;
-        let newChild = jt.replaceExistingObjectsWithLinks(child, existingObjects, newPath, parents, rootParent);
+        let newChild = jt.replaceExistingObjectsWithLinks(child, existingObjects, newPath, parents, rootParent, null);
         copy[i] = newChild.object;
     }
     parents.splice(parents.length-1, 1);
