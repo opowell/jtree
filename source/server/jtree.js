@@ -177,23 +177,21 @@ try {
         object: data,
         path: storedPath,
     };
-    if (thisObject.path === 'messages') { 
-        debugger;
-    }
+    console.log('storing ' + thisObject.path);
     existingObjects.push(thisObject);
 
     // Create copy of object (so as to not modify original).
     let copy = Array.isArray(data) ? [] : {};
     parents.push({
         object: data,
-        path: path
+        path: storedPath
     });
     for (let i in data) {
         if (i === 'nonObs') {
             continue;
         }
         let child = data[i];
-        let newPath = path + '.' + i;
+        let newPath = storedPath + '.' + i;
         let newChild = jt.replaceExistingObjectsWithLinks(child, existingObjects, newPath, parents, rootParent, null);
         copy[i] = newChild.object;
     }
@@ -202,7 +200,7 @@ try {
     // Return copy.
     return {
         object: copy,
-        path: path
+        path: storedPath
     };
 
 } catch (err) {

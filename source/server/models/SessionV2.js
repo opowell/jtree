@@ -78,6 +78,8 @@ class SessionV2 {
                     let x = global.jt.replaceExistingObjectsWithLinks(msg.arguments[i], thisSession.objectList, msg.path, null, thisSession.proxy.__target, msg.function);
                     msg.arguments[i] = x.object;
                     msg.path = x.path;
+                    // Remove index in parent array
+                    msg.path = msg.path.substr(0, msg.path.lastIndexOf('.'));
                 }
             }
             msg.newValue = global.jt.flatten(msg.newValue);
