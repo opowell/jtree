@@ -1,0 +1,420 @@
+app.description = 'Players vote in groups, votes are implemented once the result has been repeated a certain number of times.';
+
+app.stoppingRuleRandom_StopProb = 0.3;
+app.stoppingRuleMatching_NumRequiredMatches = 1; // Number of matches required in a row to trigger an outcome.
+app.stoppingRuleFixed_Number = 1;
+app.groupingType = 'FULL'; // make as many full groups as possible.
+app.groupMatchingType = 'PARTNER_RANDOM'; // match randomly in first period, then use previous matching in subsequent periods.
+
+// Set in the queue file.
+app.addTextOption('stoppingRule', 'default', 'Rule for stopping the round.');
+app.addNumberOption('groupSize', 5, 1, 10, 1, 'Number of players in a group.');
+app.addTextOption('payoffs', 'should be an array', 'The array to be used for payoffs.');
+
+app.numPeriods = 12; // How many votes a single group can actually have.
+
+app.getPayoff = function(idInGroup, R0, C0) {
+    console.log(`get payoff ${app.payoffs[idInGroup]}, ${R0}, ${C0}, ${app.payoffs[idInGroup-1][R0 ? 0 : 1][C0 ? 0 : 1]}`);
+    return app.payoffs[idInGroup-1][R0 ? 0 : 1][C0 ? 0 : 1];
+}
+
+let instrStage = app.newStage('instructions');
+instrStage.canPlayerParticipate = function(player) {
+    // If not in full group, skip.
+    if (player.group.players.length < app.groupSize) {
+        return false;
+        }
+      
+  return player.group.period.id == 1;
+}
+instrStage.playerStart = function(player) {
+    if (player.idInGroup == 1 && player.group.period.id == 1) {
+        let part = player.participant;
+        part.numMatches = 0;
+        part.numVotes = 0;
+        part.payoff = false;
+        part.groupFinished = false;
+        part.history = [];
+    }
+}
+instrStage.activeScreen = `
+    <p>INSTRUCTIONS</p>
+    <p>Round: {{participant.appIndex}}
+    <p v-show='app.stoppingRule == "fixed"'>Instructions for fixed.</p>
+    <p v-show='app.stoppingRule == "matching"'>Instructions for matching.</p>
+`;
+
+var decideStage = app.newStage('decide');
+decideStage.groupStart = function(group) {
+    let p0 = group.players[0].participant;
+    group.finished = p0.groupFinished; // Whether the group is finished.
+    group.prevOutcomeR0 = p0.prevOutcomeR0;
+    group.prevOutcomeC0 = p0.prevOutcomeC0;
+    group.round = p0.round;
+    group.numVotes = p0.numVotes + 1;
+    group.numMatches = p0.numMatches;
+    group.history = p0.history;
+    group.justFinished = false; // Whether the group just finished in the current period.
+}
+
+decideStage.playerStart = function(player) {
+    player.payoffTopLeft = app.getPayoff(player.idInGroup, true, true);
+    player.payoffTopRight = app.getPayoff(player.idInGroup, true, false);
+    player.payoffBottomLeft = app.getPayoff(player.idInGroup, false, true);
+    player.payoffBottomRight = app.getPayoff(player.idInGroup, false, false);
+}
+
+// Only play this stage if the group does not have a payoff yet.
+decideStage.canPlayerParticipate = function(player) {
+
+    // If group finished, skip.
+    if (player.group.finished) {
+      return false;
+    }
+
+    // If not in full group, skip.
+    if (player.group.players.length < app.groupSize) {
+      return false;
+    }
+
+    // Otherwise, play.
+    return true;
+}
+
+decideStage.activeScreen = `
+  <div style='display: flex; align-items: center; flex-direction: column;'>
+      <p>DECISION</p>
+      <p>Round: {{participant.appIndex}}
+      <p>Timer: <div id='timeleft'>60</div></p>
+      <p>Group: {{group.id}}</p>
+
+      <p v-if='app.stoppingRule === "matching"'>Vote: {{group.numVotes}} / max. {{app.numPeriods}}</p>
+      <p v-if='app.stoppingRule === "matching"'>Matches: {{group.numMatches}} / {{app.stoppingRuleMatching_NumRequiredMatches}}</p>
+
+      <p v-if='app.stoppingRule === "fixed"'>Vote: {{group.numVotes}} (vote #{{app.stoppingRuleFixed_Number}} will be selected)</p>
+
+      <p v-if='app.stoppingRule === "random"'>Vote: {{group.numVotes}} (stop with prob. {{app.stoppingRuleRandom_StopProb}})</p>
+  </div>
+
+  <script>
+    jt.curTime = 60;
+    jt.postUpdatePlayer = function() {
+        if (jt.data.player.stage.id === 'decide' && jt.data.player.status === 'playing') {
+            if (jt.timer != null) {
+                clearInterval(jt.timer);
+            }
+            jt.curTime = 60;
+            jt.timer = setInterval(
+              function() {
+                  jt.updateTime()
+              },
+              1000
+            );
+        }
+    }
+    jt.updateTime = function() {
+        if (jt.data.player.stage.id !== 'decide' || jt.data.player.status !== 'playing') {
+            clearInterval(jt.timer);
+            return;            
+        }
+        let el = document.getElementById('timeleft');
+        jt.curTime--;
+        if (jt.curTime == 0) {
+            $('body').css("background-color", "red");
+        }
+        if (jt.curTime < 0) {
+            $('body').css("background-color", "unset");
+        }
+        if (jt.curTime >= 0) {
+            el.innerText = jt.curTime;
+        }
+    }
+  </script>
+
+    <style>
+
+    #jtree > :first-child {
+        display: none;
+    }
+
+    .main > span {
+        border: 1px solid #888;
+        padding: 2rem;
+        margin: 1rem;
+        flex: 0 1 auto;
+    }
+
+    table.outcome td {
+        background-color: green;
+    }
+
+    .selected {
+        background-color: red !important;
+    }
+
+    .choiceTable td {
+        border: 1px solid #888;
+    }
+
+    table td {
+        width: 45px;
+        height: 45px;
+        text-align: center;
+    }
+
+    body {
+        max-width: unset;
+    }
+
+    </style>
+
+    <div class='main' style='display: flex; align-items: flex-start;'>
+        <span>
+  <table class='choiceTable'>
+  <tr>
+      <th></th>
+      <th>Left</th>
+      <th>Right</th>
+  </tr>
+  <tr>
+      <th>Top</th>
+      <td>{{player.payoffTopLeft}}</td>
+      <td>{{player.payoffTopRight}}</td>
+  </tr>
+  <tr>
+      <th>Bottom</th>
+      <td>{{player.payoffBottomLeft}}</td>
+      <td>{{player.payoffBottomRight}}</td>
+  </tr>
+  </table>
+  <p>Your payoffs based on voting outcomes.</p>
+        </span>
+        <span>
+    <p>Your vote for the column:</p>
+    <p>
+        <input name='player.colChoice' type='radio' required value='colLeft' id='colLeft'>
+        <label for='colLeft'>Left</label>
+        <input name='player.colChoice' type='radio' required value='colRight' id='colRight'>
+        <label for='colRight'>Right</label>
+    </p>
+    <p>Your vote for the row:</p>
+    <p>
+        <input name='player.rowChoice' type='radio' required value='rowTop' id='rowTop'>
+        <label for='rowTop'>Top</label>
+        <br>
+        <input name='player.rowChoice' type='radio' required value='rowBottom' id='rowBottom'>
+        <label for='rowBottom'>Bottom</label>
+    </p>
+    <button>Make choice</button>
+        </span>
+        <span>
+    <p>
+        <b>Previous outcomes</b><br>
+        <div v-for='(outcome, index) in group.history'>
+            <br>
+            {{index+1}}. <table class='outcome'>
+                <tr>
+                    <td :class='(outcome.R0 && outcome.C0) ? "selected" : ""'></td>
+                    <td :class='(outcome.R0 && !outcome.C0) ? "selected" : ""'></td>
+                </tr>
+                <tr>
+                    <td :class='(!outcome.R0 && outcome.C0) ? "selected" : ""'></td>
+                    <td :class='(!outcome.R0 && !outcome.C0) ? "selected" : ""'></td>
+                </tr>
+            </table>
+        </div>
+    </p>
+        </span>
+    </div>
+
+    <style>
+    .playerChoice {
+        color: red;
+        font-size: 14pt;
+    }
+    </style>
+`;
+
+
+var resultsStage = app.newStage('results');
+// Only play this stage if the group does not have a payoff yet.
+resultsStage.canPlayerParticipate = function(player) {
+
+  // If group finished, but not in the current period, skip.
+  if (player.group.finished && !player.group.justFinished) {
+    return false;
+  }
+
+  // If not in full group, skip.
+  if (player.group.players.length < app.groupSize) {
+    return false;
+  }
+
+  // Otherwise, play.
+  return true;
+
+}
+resultsStage.groupStart = function(group) {
+
+    if (group.finished) {
+        return;
+    }
+
+    // Groups only last a single period, use participant of first player to store group history
+    let p0 = group.players[0].participant;
+
+    // Count number of times group has voted.
+    group.numVotes = p0.numVotes;
+    group.numVotes++;
+
+    // Count votes.
+    group.voteR0 = 0; // top
+    group.voteR1 = 0; // bottom
+    group.voteC0 = 0; // left
+    group.voteC1 = 0; // right
+    for (let p in group.players) {
+        let player = group.players[p];
+        if (player.rowChoice === 'rowTop') {
+            group.voteR0++;
+        }
+        if (player.rowChoice === 'rowBottom') {
+            group.voteR1++;
+        }
+        if (player.colChoice === 'colLeft') {
+            group.voteC0++;
+        }
+        if (player.colChoice === 'colRight') {
+            group.voteC1++;
+        }
+    }
+
+    // Determine outcome.
+    group.outcomeR0 = group.voteR0 > group.voteR1;
+    group.outcomeC0 = group.voteC0 > group.voteC1;
+
+    // Compare with previous outcome.
+    group.matchesLastRound =
+        group.outcomeR0 === group.prevOutcomeR0 &&
+        group.outcomeC0 === group.prevOutcomeC0
+    ;
+
+    // Calculate number of consecutive matches
+    if (group.matchesLastRound) {
+        // Initialize variable, if necessary.
+        if (p0.numMatches == null) {
+            p0.numMatches = 0;
+        }
+        // Increment counter.
+        group.numMatches = p0.numMatches + 1;
+    }
+    // No match, reset counter.
+    else {
+        group.numMatches = 0;
+    }
+
+    let finishRound = false;
+    switch (group.period.app.stoppingRule) {
+        case 'fixed':
+            finishRound = group.numVotes >= app.stoppingRuleFixed_Number;
+            break;
+        case 'random':
+            group.randomDraw = Math.random();
+            finishRound = group.randomDraw < app.stoppingRuleRandom_StopProb;
+            break;
+        case 'matching':
+            if (group.numMatches >= app.stoppingRuleMatching_NumRequiredMatches) {
+                finishRound = true;
+            } else if (group.numVotes >= app.numPeriods) {
+                finishRound = true;
+            } else {
+                finishRound = false;
+            }
+            break;
+    }
+
+    // If sufficient number of matches, calculate payoffs and signal for rematching.
+    if (finishRound) {
+        group.justFinished = true;
+        group.finished = true;
+        for (let p in group.players) {
+            let playerP = group.players[p];
+            playerP.points = app.getPayoff(playerP.idInGroup, group.outcomeR0, group.outcomeC0);
+            playerP.participant.latestPoints = playerP.points; 
+            if (playerP.participant.scores == null) {
+                playerP.participant.scores = [];
+            }
+            playerP.participant.scores.push(playerP.points);
+        }
+    }
+
+    // Store history
+    group.history.push({R0: group.outcomeR0, C0: group.outcomeC0});
+
+    // Record values to carry over to next period.
+    p0.prevOutcomeR0 = group.outcomeR0;
+    p0.prevOutcomeC0 = group.outcomeC0;
+    p0.numMatches = group.numMatches;
+    p0.numVotes = group.numVotes;
+    p0.round = group.round;
+    p0.groupFinished = group.finished;
+    p0.history = group.history;
+
+}
+resultsStage.activeScreen = `
+    <p>RESULTS</p>
+    <p>Group: {{group.id}}</p>
+    <p>Round: {{participant.appIndex}}
+
+    <p v-if='app.stoppingRule === "matching"'>Vote: {{group.numVotes}} / max. {{app.numPeriods}}</p>
+    <p v-if='app.stoppingRule === "matching"'>Matches: {{group.numMatches}} / {{app.stoppingRuleMatching_NumRequiredMatches}}</p>
+
+    <p v-if='app.stoppingRule === "fixed"'>Vote: {{group.numVotes}} (vote #{{app.stoppingRuleFixed_Number}} will be selected)</p>
+
+    <p v-if='app.stoppingRule === "random"'>Vote: {{group.numVotes}} (stop with prob. {{app.stoppingRuleRandom_StopProb}})</p>
+
+    <p>Row Outcome: {{group.outcomeR0 ? 'Top' : 'Bottom'}}</p>
+    <p>Column Outcome: {{group.outcomeC0 ? 'Left' : 'Right'}}</p>
+
+    <p v-if='app.stoppingRule === "random"'>
+        The randomly chosen value was {{group.randomDraw | round(2) }}, which IS <span v-if='group.randomDraw > app.stoppingRuleRandom_StopProb'>NOT</span> smaller than the stopping probability ({{app.stoppingRuleRandom_StopProb}}).
+    </p>
+
+    <p v-if='app.stoppingRule === "fixed"'>
+        This vote IS <span v-if='group.numVotes < app.stoppingRuleFixed_Number'>NOT</span> the last vote.
+    </p>
+
+    <p v-if='app.stoppingRule === "matching" && group.numMatches >= app.stoppingRuleMatching_NumRequiredMatches'>
+        Enough matches.
+    </p>
+
+    <p v-if='app.stoppingRule === "matching" && group.numMatches < app.stoppingRuleMatching_NumRequiredMatches'>
+        Not enough matches.
+    </p>
+
+    <p v-if='app.stoppingRule === "matching" && group.numMatches < app.stoppingRuleMatching_NumRequiredMatches && group.numVotes >= app.numPeriods'>
+        However, this is the last vote, therefore it WILL BE USED anyway.
+    </p>
+
+    <p v-if='group.finished == true'>
+        Your payoff in this voting round is {{player.points}} E$. The next voting round will start once all other groups have finished this round.
+    </p>
+    <p v-if='group.finished != true'>
+        The round will continue.
+    </p>
+`;
+
+let finished = app.newStage('finished');
+finished.canPlayerParticipate = function(player) {
+
+    // If not in full group, skip.
+    if (player.group.players.length < app.groupSize) {
+        return false;
+    }
+
+    return player.group.period.id == app.numPeriods;
+}
+finished.activeScreen = `
+    <p>Round: {{participant.appIndex}}
+    <p>Round finished.<p>
+    <p>Points from this round: {{participant.latestPoints}}.</p>
+`;

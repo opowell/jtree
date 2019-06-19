@@ -1,0 +1,120 @@
+app.description = 'Simple questionnaire.';
+
+// DEFINE STAGES
+var questionsStage = app.newStage('questions');
+questionsStage.activeScreen = `
+<script>
+showSliderVal = function(val) {
+    $("#sliderVal").text(val);
+}
+</script>
+<h4>QUESTIONS</h4>
+<p>1. Quelle est votre profession?</p>
+<input name='player.prof' type='text'>
+<br><br>
+
+<p>2. Avez-vous des commentaires sur les méthodes, ou des suggestions sur la façon d'organiser de tels choix sur plusieurs questions?</p>
+<textarea name='player.comm' rows=5 cols=40></textarea>
+<br><br>
+
+<p>3. Quel est votre tranche d'âge?</p>
+<select name='player.age' required>
+    <option value="dropdown1">NA</option>
+    <option value="dropdown2">18-24</option>
+    <option value="dropdown3">25-34</option>
+    <option value="dropdown4">35-44</option>
+    <option value="dropdown5">45-54</option>
+    <option value="dropdown6">55-64</option>
+    <option value="dropdown7">65+</option>
+</select>
+
+<p>4. Etes-vous</p>
+<select name='player.sexe' required>
+    <option value="dropdown1">NA</option>
+    <option value="dropdown2">Une femme</option>
+    <option value="dropdown3">Un homme</option>
+    <option value="dropdown4">Autre</option>
+</select>
+<br><br>
+
+<p>5. Quel est le plus haut diplôme que vous ayez obtenu?</p>
+<select name='player.diplome' required size=8>
+    <option value="list1">NA</option>
+    <option value="list2">Diplôme de troisième cycle universitaire, doctorat, grande école, ingénieur</option>
+    <option value="list3">Diplôme de deuxième cycle universitaire</option>
+    <option value="list4">Diplôme de premier cycle universitaire, BTS, DUT, ou équivalent, niveau Bac+2</option>
+    <option value="list5">Baccalauréat général, technologique, professionnel ou équivalent</option>
+    <option value="list6">CAP, BEP ou diplôme de même niveau</option>
+    <option value="list7">Brevet des collèges, BEPC</option>
+    <option value="list8">Certificat d'études primaires, aucun diplôme</option>
+</select>
+<br><br>
+
+<p>6. Avez-vous déjà suivi un cours de sciences économiques?</p>
+<select name='player.econ' required size=4>
+    <option value="list1">NA</option>
+    <option value="list2">Oui, c'est ma formation principale</option>
+    <option value="list3">Oui, mais ce n'est pas ma formation principale</option>
+    <option value="list4">Non</option>
+</select>
+<br><br>
+
+<p>7. Avez-vous déjà participé à une enquête économique en laboratoire?</p>
+<select name='player.expe' required>
+    <option value="dropdown1">NA</option>
+    <option value="dropdown2">Oui</option>
+    <option value="dropdown3">Non, c'est la première fois</option>
+</select>
+<br><br>
+
+<p>8. Vous avez testé deux méthodes de choix sur des questions multiples : une où vous votez une seule fois pour chacune des deux questions, et une où vous votez en plusieurs étapes. Laquelle vous semble-t-elle la plus efficace?</p>
+<select name='player.efficace' required size=4>
+    <option value="list1">NA</option>
+    <option value="list2">La méthode en une seule étape</option>
+    <option value="list3">La méthode en plusieurs étapes</option>
+    <option value="list4">Les deux méthodes sont aussi efficaces l'une que l'autre</option>
+    <option value="list5">Je ne sais pas / Je préfère ne pas répondre</option>
+</select>
+<br><br>
+
+<p>9. Méthode en une seule étape vous semble faciles à comprendre et à utiliser? </p>
+<select name='player.seule' required size=6>
+    <option value="list1">NA</option>
+    <option value="list2">Facile</option>
+    <option value="list3">Plutôt facile</option>
+    <option value="list4">Plutôt difficile</option>
+    <option value="list5">Difficile</option>
+    <option value="list6">Je ne sais pas / Je préfère ne pas répondre</option>
+</select>
+<br><br>
+
+<p>10. Méthode en plusieurs étapes vous semble faciles à comprendre et à utiliser? </p>
+<select name='player.plus' required size=6>
+    <option value="list1">NA</option>
+    <option value="list2">Facile</option>
+    <option value="list3">Plutôt facile</option>
+    <option value="list4">Plutôt difficile</option>
+    <option value="list5">Difficile</option>
+    <option value="list6">Je ne sais pas / Je préfère ne pas répondre</option>
+</select>
+<br><br>
+`;
+
+let answers = app.newStage('answers');
+answers.activeScreen = `
+<h4>END OF EXPERIMENT</h4>
+<p>Your responses:</p>
+<p><b>profession: </b>{{player.prof}}</p>
+<p><b>Commentaire: </b>{{player.comm}}</p>
+<p><b>age: </b>{{player.age}}</p>
+<p><b>sexe: </b>{{player.sexe}}</p>
+<p><b>diplome: </b>{{player.diplome}}</p>
+<p><b>econ: </b>{{player.econ}}</p>
+<p><b>expe: </b>{{player.expe}}</p>
+<p><b>efficace: </b>{{player.efficace}}</p>
+<p><b>seule: </b>{{player.seule}}</p>
+<p><b>plus: </b>{{player.plus}}</p>
+<p>Your points from all rounds: {{participant.scores}}.</p>
+<p>Total points: {{participant.numPoints}}.</p>
+`;
+// answers.addOKButtonIfNone = false; // Prevent players for going past this stage.

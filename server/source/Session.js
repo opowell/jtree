@@ -77,6 +77,8 @@ class Session {
         */
         this.allowNewParts = this.jt.settings.allowClientsToCreateParticipants;
 
+        this.outputDelimiter = this.jt.settings.outputDelimiter;
+
         /**
         * The apps in this session.
         * @type Array
@@ -558,7 +560,7 @@ class Session {
         var fields = this.outputFields();
         Utils.getHeaders(fields, skip, headers);
         var text = [];
-        text.push(headers.join(','));
+        text.push(headers.join(this.outputDelimiter));
         var newLine = '';
         for (var h=0; h<headers.length; h++) {
             var header = headers[h];
@@ -566,7 +568,7 @@ class Session {
                 newLine += JSON.stringify(this[header]);
             }
             if (h<headers.length-1) {
-                newLine += ',';
+                newLine += this.outputDelimiter;
             }
         }
         text.push(newLine);
@@ -753,7 +755,7 @@ class Session {
     saveDataFS(d, type) {
         try {
             var a = JSON.stringify(d) + '\n';
-            var b = '"type":"' + type + '",';
+            var b = '"type":"' + type + '"' + this.outputDelimiter;
             var position = 1;
             var output = [a.slice(0, position), b, a.slice(position)].join('');
             this.fileStream.write(output);

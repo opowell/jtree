@@ -1,3 +1,8 @@
+##### 2019.06.19 - 0.7.8
+- added "queue" demo app.
+- added "randomizedQuest" demo app.
+- added "outputDelimiter" field to "Session", "App" and "Settings" objects.
+
 ##### 2019.04.22 - 0.7.7
 - send circular data in messages.
 - menu collapses at smaller width.
