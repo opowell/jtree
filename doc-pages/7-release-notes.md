@@ -1,4 +1,7 @@
 ##### 2019.06.19 - 0.7.8
+- script for updating version numbers.
+- remove releases from repo.
+- added "10ali" user app.
 - added "queue" demo app.
 - added "randomizedQuest" demo app.
 - added "outputDelimiter" field to "Session", "App" and "Settings" objects.

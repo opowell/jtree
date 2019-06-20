@@ -1,6 +1,6 @@
 let treatments = [
     {
-      stoppingRule: 'matching',
+      stoppingRule: 'fixed',
       groupSize: 7,
       payoffs: [
         [ // P1
@@ -171,11 +171,11 @@ let treatments = [
         ],
       ],
     },
-
   ];
 
 for (let i=0; i<treatments.length; i++) {
-    session.addApp('Vote.jtt', treatments[i]);
+  treatments[i].fullInstructions = (i < 2);
+  session.addApp('Vote.jtt', treatments[i]);
 }
 
 session.addApp('Survey.jtt');
