@@ -112,23 +112,22 @@ class Participant {
 
     }
 
-    getProxy() {
-        let thisParticipant = this;
+    static getProxy(participant) {
 
         // let proxyObj = {
         //     player: null,
         // }
-        let proxyObj = this;
 
         // if (this.proxy != null) {
         //     proxyObj = this.proxy;
         // }
 
-        while (proxyObj.__target != null) {
-            proxyObj = proxyObj.__target;
+        // Back out of proxies.
+        while (participant.__target != null) {
+            participant = participant.__target;
         }
 
-        let proxy = Observer.create(proxyObj, function(change) {
+        let proxy = Observer.create(participant, function(change) {
             // If calling a function other than an array change, do not notify clients.
             if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
                 return true;
@@ -150,12 +149,12 @@ class Participant {
             }
 
             if (msg.newValue != null) {
-                let x = global.jt.replaceExistingObjectsWithLinks(msg.newValue, thisParticipant.nonObs.objectList, msg.path, null, thisParticipant);
+                let x = global.jt.replaceExistingObjectsWithLinks(msg.newValue, participant.nonObs.objectList, msg.path, null, participant);
                 msg.newValue = x.object;
                 msg.path = x.path;
             }
             if (msg.arguments != null) {
-                let x = global.jt.replaceExistingObjectsWithLinks(msg.arguments, thisParticipant.nonObs.objectList, msg.path, null, thisParticipant);
+                let x = global.jt.replaceExistingObjectsWithLinks(msg.arguments, participant.nonObs.objectList, msg.path, null, participant);
                 msg.arguments = x.object;
                 msg.path = x.path;
             }
@@ -166,7 +165,7 @@ class Participant {
             }
             msg.source = 'participant';
             // TODO: Replace existing objects with links, see SessionV2 constructor.
-            global.jt.socketServer.sendMessage(thisParticipant.roomId(), msg);
+            global.jt.socketServer.sendMessage(participant.roomId(), msg);
             return true; // to apply changes locally.
         });
 
@@ -667,3 +666,4 @@ var exports = module.exports = {};
 exports.new = Participant;
 exports.load = Participant.load;
 exports.getGame = Participant.getGame;
+exports.getProxy = Participant.getProxy;

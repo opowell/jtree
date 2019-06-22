@@ -182,6 +182,11 @@ try {
 
     // Create copy of object (so as to not modify original).
     let copy = Array.isArray(data) ? [] : {};
+
+    // Store object prototypes.
+    if (data.__proto__ != null) {
+        copy.__proto__ = data.__proto__;
+    }
     parents.push({
         object: data,
         path: storedPath

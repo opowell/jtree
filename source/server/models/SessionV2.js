@@ -71,7 +71,13 @@ class SessionV2 {
             if (msg.newValue != null) {
                 let x = global.jt.replaceExistingObjectsWithLinks(msg.newValue, thisSession.objectList, msg.path, null, thisSession.proxy.__target, null);
                 msg.newValue = x.object;
-                msg.path = x.path;
+                // if (x.path === 'messages.0.state') {
+                //     debugger;
+                // }
+                if (msg.path !== x.path) {
+                    console.log(`not changing path: ${msg.path} -> ${x.path}`);
+                }
+                // msg.path = x.path;
             }
             if (msg.arguments != null) {
                 for (let i in arguments) {
@@ -84,6 +90,12 @@ class SessionV2 {
             }
             msg.newValue = global.jt.flatten(msg.newValue);
             msg.arguments = global.jt.flatten(msg.arguments);
+            // if (msg.path === 'messages.1.state') {
+            //     debugger;
+            // }
+            // if (msg.path === 'messages.0.state') {
+            //     debugger;
+            // }
             console.log('change from session: ' + msg.path);
             msg.source = 'session';
             jt.socketServer.io.to(thisSession.roomId()).emit('objChange', msg);
@@ -331,8 +343,16 @@ class SessionV2 {
             return null;
         }
         var participant = new Participant.new(pId, state);
-        let proxy = participant.getProxy();
+        let proxy = Participant.getProxy(participant);
+
+        // This line pushes a "shortened" version of the participant object. Need the full object.
         state.participants.push(proxy);
+
+        // Re-link to the full object.
+        while (state.__target != null) {
+            state = state.__target;
+        }
+        state.participants[state.participants.length-1] = proxy;
     }
 
     addMessage(name, content) {
@@ -386,9 +406,11 @@ class SessionV2 {
             // let newState = prevState;
 
             newState.stateId++;
+
+            // Copy participants to the new state proxy.
             for (let i=0; i<newState.participants.length; i++) {
                 let part = newState.participants[i];
-                let proxy = part.getProxy();
+                let proxy = Participant.getProxy(part);
                 newState.participants[i] = proxy;
             }
 
@@ -663,6 +685,7 @@ class SessionV2 {
         }
     }
 
+    // TODO: Check for slowest participants.
     static slowestParticipants(state) {
         var out = [];
         let parts = state.participants;
