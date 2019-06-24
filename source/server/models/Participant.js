@@ -150,13 +150,13 @@ class Participant {
 
             if (msg.newValue != null) {
                 let x = global.jt.replaceExistingObjectsWithLinks(msg.newValue, participant.nonObs.objectList, msg.path, null, participant);
-                msg.newValue = x.object;
+                // msg.newValue = x.object;
                 msg.path = x.path;
             }
             if (msg.arguments != null) {
                 let x = global.jt.replaceExistingObjectsWithLinks(msg.arguments, participant.nonObs.objectList, msg.path, null, participant);
                 msg.arguments = x.object;
-                msg.path = x.path;
+                // msg.path = x.path;
             }
             msg.newValue = global.jt.flatten(msg.newValue);
             msg.arguments = global.jt.flatten(msg.arguments);
@@ -396,7 +396,8 @@ class Participant {
      */
     roomId() {
         // return this.session.roomId() + '_participant_' + this.id;
-        return 'session_' + this.id + '_participant_' + this.id;
+        // return 'session_' + this.id + '_participant_' + this.id;
+        return 'session_' + this.session.id + '_participant_' + this.id;
     }
 
     /**

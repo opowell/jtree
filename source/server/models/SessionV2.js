@@ -21,11 +21,6 @@ class SessionV2 {
             console.log(err);
         }
 
-       /**
-        * The time at which this session was last started.
-        * @type number
-        */
-
         this.initialState = {
             timeStarted: 0,
             started: false,
@@ -76,16 +71,13 @@ class SessionV2 {
             if (msg.newValue != null) {
                 let x = global.jt.replaceExistingObjectsWithLinks(msg.newValue, thisSession.objectList, msg.path, null, thisSession.proxy.__target, null);
                 msg.newValue = x.object;
-                // if (x.path === 'messages.0.state') {
-                //     debugger;
+                // if (msg.path !== x.path) {
+                //     console.log(`not changing path: ${msg.path} -> ${x.path}`);
                 // }
-                if (msg.path !== x.path) {
-                    console.log(`not changing path: ${msg.path} -> ${x.path}`);
-                }
                 // msg.path = x.path;
             }
             if (msg.arguments != null) {
-                for (let i=0; msg.arguments.length; i++) {
+                for (let i=0; i < msg.arguments.length; i++) {
                     let x = global.jt.replaceExistingObjectsWithLinks(msg.arguments[i], thisSession.objectList, msg.path, null, thisSession.proxy.__target, msg.function);
                     msg.arguments[i] = x.object;
                     msg.path = x.path;
@@ -95,12 +87,6 @@ class SessionV2 {
             }
             msg.newValue = global.jt.flatten(msg.newValue);
             msg.arguments = global.jt.flatten(msg.arguments);
-            // if (msg.path === 'messages.1.state') {
-            //     debugger;
-            // }
-            // if (msg.path === 'messages.0.state') {
-            //     debugger;
-            // }
             console.log('change from session: ' + msg.path);
             msg.source = 'session';
             jt.socketServer.io.to(thisSession.roomId()).emit('objChange', msg);

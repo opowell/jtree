@@ -526,8 +526,7 @@ jt.defaultConnected = function() {
         }
     });
 
-    jt.socket.on('objChange', function(change) {
-
+    jt.processQueueMessage = function(change, callback) {
         if (change.source !== 'participant') {
             return;
         }
@@ -565,7 +564,6 @@ jt.defaultConnected = function() {
                     break;
         
                 case 'set-prop':
-                    // console.log('set property: \n' + JSON.stringify(change.newValue));
                     for (let i=0; i<paths.length - 1; i++) {
                         obj = obj[paths[i]];
                     }
@@ -575,7 +573,6 @@ jt.defaultConnected = function() {
                     break;
         
                 case 'set-value':
-                    // console.log('set value: \n' + change.newValue);
                     for (let i=0; i<paths.length - 1; i++) {
                         obj = obj[paths[i]];
                     }
@@ -588,7 +585,6 @@ jt.defaultConnected = function() {
                     break;
         
                 case 'delete-prop':
-                    // console.log('delete property: \n');
                     for (let i=0; i<paths.length - 1; i++) {
                         obj = obj[paths[i]];
                     }
@@ -613,6 +609,18 @@ jt.defaultConnected = function() {
             console.log(err);
             // debugger;
         }
+        callback();
+        console.log('finished processing');
+        return true;
+    }
+
+    jt.asyncQueue = async.queue(jt.processQueueMessage, 1);
+
+    jt.messageCallback = function() {};
+
+    jt.socket.on('objChange', function(change) {
+
+        jt.asyncQueue.push(change, jt.messageCallback);
 
     });
 
