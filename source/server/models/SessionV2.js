@@ -58,12 +58,17 @@ class SessionV2 {
 
         this.proxy = Observer.create(proxyObj, function(change) {
             let msg = {
-                arguments: change.arguments,
+                arguments: [],
                 function: change.function,
                 path: change.path,
                 property: change.property,
                 type: change.type,
                 newValue: change.newValue,
+            }
+            if (change.arguments != null) {
+                for (let i=0; i<change.arguments.length; i++) {
+                    msg.arguments.push(change.arguments[i]);
+                }
             }
             if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
                 return true;
@@ -80,7 +85,7 @@ class SessionV2 {
                 // msg.path = x.path;
             }
             if (msg.arguments != null) {
-                for (let i in arguments) {
+                for (let i=0; msg.arguments.length; i++) {
                     let x = global.jt.replaceExistingObjectsWithLinks(msg.arguments[i], thisSession.objectList, msg.path, null, thisSession.proxy.__target, msg.function);
                     msg.arguments[i] = x.object;
                     msg.path = x.path;
@@ -344,15 +349,7 @@ class SessionV2 {
         }
         var participant = new Participant.new(pId, state);
         let proxy = Participant.getProxy(participant);
-
-        // This line pushes a "shortened" version of the participant object. Need the full object.
         state.participants.push(proxy);
-
-        // Re-link to the full object.
-        while (state.__target != null) {
-            state = state.__target;
-        }
-        state.participants[state.participants.length-1] = proxy;
     }
 
     addMessage(name, content) {
