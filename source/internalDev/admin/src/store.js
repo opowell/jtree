@@ -286,7 +286,8 @@ let stateObj = {
     messages: [],
     messageIndex: 0,
     messageLatest: true,
-    started: false
+    started: false,
+    objectList: [],
   },
   // messageIndex: 0,
   // messageLatest: true,

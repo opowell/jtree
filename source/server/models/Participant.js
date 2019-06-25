@@ -108,21 +108,12 @@ class Participant {
             objectList: []
         };
 
-        global.jt.addExistingObjects(this, this.nonObs.objectList, '');
+        global.jt.addExistingObjects(this, this.nonObs.objectList);
 
     }
 
     static getProxy(participant) {
 
-        // let proxyObj = {
-        //     player: null,
-        // }
-
-        // if (this.proxy != null) {
-        //     proxyObj = this.proxy;
-        // }
-
-        // Back out of proxies.
         while (participant.__target != null) {
             participant = participant.__target;
         }
@@ -135,12 +126,12 @@ class Participant {
             if (change.type === 'function-call') {
                 console.log('function call: ' + change.path + '.' + change.function + '(' + change.arguments + ')');
             } else {
-                console.log('change participant: ' + change.path + '.' + change.property + ': ' + change.newValue);
+                console.log('change participant: ' + change.path + ': ' + change.newValue);
             }
             let origPath = change.path;
 
             let msg = {
-                arguments: change.arguments,
+                arguments: [],
                 function: change.function,
                 path: change.path,
                 property: change.property,
@@ -149,14 +140,14 @@ class Participant {
             }
 
             if (msg.newValue != null) {
-                let x = global.jt.replaceExistingObjectsWithLinks(msg.newValue, participant.nonObs.objectList, msg.path, null, participant);
-                // msg.newValue = x.object;
-                msg.path = x.path;
+                let x = global.jt.replaceExistingObjectsWithLinks(msg.newValue, participant.nonObs.objectList);
+                msg.newValue = x;
             }
-            if (msg.arguments != null) {
-                let x = global.jt.replaceExistingObjectsWithLinks(msg.arguments, participant.nonObs.objectList, msg.path, null, participant);
-                msg.arguments = x.object;
-                // msg.path = x.path;
+            if (change.arguments != null) {
+                for (let i=0; i<change.arguments.length; i++) {
+                    let x = global.jt.replaceExistingObjectsWithLinks(msg.arguments[i], participant.nonObs.objectList);
+                    msg.arguments.push(x);
+                }
             }
             msg.newValue = global.jt.flatten(msg.newValue);
             msg.arguments = global.jt.flatten(msg.arguments);

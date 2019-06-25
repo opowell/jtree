@@ -397,14 +397,7 @@ jt.replaceLinksWithObjects = function(data) {
     
             // Otherwise, return linked object.
             let path = data.substring('__link__'.length);
-            let paths = path.split('.');
-            let obj = jt.vue.participant;
-            for (let i=0; i<paths.length; i++) {
-                if (paths[i].length > 0) {
-                    obj = obj[paths[i]];
-                }
-            }
-            return obj;
+            return jt.vue.participant.objectList[path];
         }
     
         for (let i in data) {

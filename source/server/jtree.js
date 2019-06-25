@@ -82,7 +82,58 @@ jt.flatten = function(data) {
 * rootParent - 
 *
 **/
-jt.replaceExistingObjectsWithLinks = function(data, existingObjects, path, parents, rootParent, funcName) {
+jt.replaceExistingObjectsWithLinks = function(object, existingObjects) {
+    
+    try {
+    
+        // Get out of proxies.
+        while (object != null && object.__target != null) {
+            object = object.__target;
+        }
+    
+        // If not an object, return original object.
+        let type = typeof(object);
+        if (type !== 'object' || object == null) {
+            return object;
+        }
+    
+        // If existing object, return link to that object.
+        for (let key in existingObjects) {
+            let entry = existingObjects[key];
+            if (object === entry) {
+                return '__link__' + key;
+            }
+        }
+    
+        // Otherwise, add this object to the list of existing objects, and parse its fields.
+        // Create copy of object (so as to not modify original).
+        let copy = Array.isArray(object) ? [] : {};
+    
+        // Store object prototypes.
+        if (object.__proto__ != null) {
+            copy.__proto__ = object.__proto__;
+        }
+        for (let i in object) {
+            if (i === 'nonObs') {
+                continue;
+            }
+            let child = object[i];
+            let newChild = jt.replaceExistingObjectsWithLinks(child, existingObjects);
+            copy[i] = newChild;
+        }
+
+        console.log('storing object ' + existingObjects.length);
+        existingObjects.push(copy);
+        return '__link__' + (existingObjects.length-1);
+    
+    } catch (err) {
+        console.log(err);
+        debugger;
+    }
+    
+}
+
+jt.replaceExistingObjectsWithLinksComplex = function(data, existingObjects, path, parents, rootParent, funcName) {
     
 try {
 
@@ -164,20 +215,14 @@ try {
     // If existing object, return link to that object.
     for (let key in existingObjects) {
         let entry = existingObjects[key];
-        if (data === entry.object) {
-            return {
-                object: '__link__' + entry.path,
-                path: path
-            };
+        if (data === entry) {
+            return '__link__' + key;
         }
     }
 
     // Otherwise, add this object to the list of existing objects, and parse its fields.
-    let thisObject = {
-        object: data,
-        path: storedPath,
-    };
-    console.log('storing ' + thisObject.path);
+    let thisObject = data;
+    console.log('storing object ' + existingObjects.length);
     existingObjects.push(thisObject);
 
     // Create copy of object (so as to not modify original).
@@ -187,26 +232,23 @@ try {
     if (data.__proto__ != null) {
         copy.__proto__ = data.__proto__;
     }
-    parents.push({
-        object: data,
-        path: storedPath
-    });
+    // parents.push({
+    //     object: data,
+    //     path: storedPath
+    // });
     for (let i in data) {
         if (i === 'nonObs') {
             continue;
         }
         let child = data[i];
-        let newPath = storedPath + '.' + i;
-        let newChild = jt.replaceExistingObjectsWithLinks(child, existingObjects, newPath, parents, rootParent, null);
-        copy[i] = newChild.object;
+        // let newPath = storedPath + '.' + i;
+        let newChild = jt.replaceExistingObjectsWithLinks(child, existingObjects, null);
+        copy[i] = newChild;
     }
-    parents.splice(parents.length-1, 1);
+    // parents.splice(parents.length-1, 1);
 
     // Return copy.
-    return {
-        object: copy,
-        path: storedPath
-    };
+    return copy;
 
 } catch (err) {
     console.log(err);
@@ -216,7 +258,7 @@ try {
 }
 
 // If object is not already stored in objectList, add it and repeat for all of children's fields.
-jt.addExistingObjects = function(object, objectList, path) {
+jt.addExistingObjects = function(object, objectList) {
 
     while (object != null && object.__target != null) {
         object = object.__target;
@@ -231,32 +273,20 @@ jt.addExistingObjects = function(object, objectList, path) {
     // If object is already in list, do nothing.
     for (let key in objectList) {
         let entry = objectList[key];
-        if (path === entry.path) {
-            console.log('found same path, objects same?');
-        }
-        if (object === entry.object) {
+        if (object === entry) {
             return;
         }
     }
 
     // Object is not in list. Store it and its fields.
     console.log('Storing ' + path);
-    objectList.push({
-        object,
-        path
-    });
+    objectList.push(object);
     for (let i in object) {
         // Skip "nonObs" properties.
         if (i === 'nonObs') {
             continue;
         }
         let child = object[i];
-        let newPath = path + (path.length>0 ? '.' : '') + i;
-        jt.addExistingObjects(child, objectList, newPath);
+        jt.addExistingObjects(child, objectList);
     }
 }
-
-// var exports = module.exports = jt;
-// exports.new = Data;
-
-// export default jt;
