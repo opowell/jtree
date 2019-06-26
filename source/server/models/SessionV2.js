@@ -38,12 +38,13 @@ class SessionV2 {
             messageIndex: 0, // 0 means no messages, 1 is first message, etc.
             clients: [],
             state: this.initialState,
+            objectList: [],
         }
+
+        this.originalObjectsList = [];
 
         this.asyncQueue = async.queue(this.processQueueMessage, 1);
 
-        this.objectList = [];
-        
         this.setProxy(proxyObj);
 
     }
@@ -52,6 +53,11 @@ class SessionV2 {
         const thisSession = this;
 
         this.proxy = Observer.create(proxyObj, function(change) {
+
+            if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
+                return true;
+            }
+
             let msg = {
                 arguments: [],
                 function: change.function,
@@ -60,28 +66,38 @@ class SessionV2 {
                 type: change.type,
                 newValue: change.newValue,
             }
+
             if (change.arguments != null) {
                 for (let i=0; i<change.arguments.length; i++) {
                     msg.arguments.push(change.arguments[i]);
                 }
             }
-            if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
-                return true;
+
+            let substitute = true;
+            if (msg.path === 'objectList') { // Additions to the object list do not need modification.
+                substitute = false;
             }
-            if (msg.newValue != null) {
-                let x = global.jt.replaceExistingObjectsWithLinks(msg.newValue, thisSession.objectList);
-                msg.newValue = x;
-            }
-            if (msg.arguments != null) {
-                for (let i=0; i < msg.arguments.length; i++) {
-                    let x = global.jt.replaceExistingObjectsWithLinks(msg.arguments[i], thisSession.objectList);
-                    msg.arguments[i] = x;
+
+            if (substitute) {
+                if (msg.newValue != null) {
+                    let x = global.jt.replaceExistingObjectsWithLinks(msg.newValue, thisSession.proxy.objectList, thisSession.originalObjectsList);
+                    msg.newValue = x;
+                }
+                if (msg.arguments != null) {
+                    for (let i=0; i < msg.arguments.length; i++) {
+                        let x = global.jt.replaceExistingObjectsWithLinks(msg.arguments[i], thisSession.proxy.objectList, thisSession.originalObjectsList);
+                        msg.arguments[i] = x;
+                    }
                 }
             }
+
             msg.newValue = global.jt.flatten(msg.newValue);
             msg.arguments = global.jt.flatten(msg.arguments);
+
             console.log('change from session: ' + msg.path);
+
             msg.source = 'session';
+
             jt.socketServer.io.to(thisSession.roomId()).emit('objChange', msg);
             thisSession.save();
             // for (let i in thisSession.proxy.state.participants) {

@@ -82,7 +82,7 @@ jt.flatten = function(data) {
 * rootParent - 
 *
 **/
-jt.replaceExistingObjectsWithLinks = function(object, existingObjects) {
+jt.replaceExistingObjectsWithLinks = function(object, existingObjects, originalExistingObjects) {
     
     try {
     
@@ -98,8 +98,8 @@ jt.replaceExistingObjectsWithLinks = function(object, existingObjects) {
         }
     
         // If existing object, return link to that object.
-        for (let key in existingObjects) {
-            let entry = existingObjects[key];
+        for (let key in originalExistingObjects) {
+            let entry = originalExistingObjects[key];
             if (object === entry) {
                 return '__link__' + key;
             }
@@ -118,12 +118,13 @@ jt.replaceExistingObjectsWithLinks = function(object, existingObjects) {
                 continue;
             }
             let child = object[i];
-            let newChild = jt.replaceExistingObjectsWithLinks(child, existingObjects);
+            let newChild = jt.replaceExistingObjectsWithLinks(child, existingObjects, originalExistingObjects);
             copy[i] = newChild;
         }
 
         console.log('storing object ' + existingObjects.length);
         existingObjects.push(copy);
+        originalExistingObjects.push(object);
         return '__link__' + (existingObjects.length-1);
     
     } catch (err) {

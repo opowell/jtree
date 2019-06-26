@@ -33,12 +33,8 @@ jt.replaceLinksWithObjects = function(data) {
             }
     
             // Otherwise, return linked object.
-            let path = data.substring('__link__'.length);
-            let paths = path.split('.');
-            let obj = window.vue.$store.state.session;
-            for (let i=0; i<paths.length; i++) {
-                obj = obj[paths[i]];
-            }
+            let index = data.substring('__link__'.length);
+            let obj = window.vue.$store.state.session.objectList[index];
             return obj;
         }
     
