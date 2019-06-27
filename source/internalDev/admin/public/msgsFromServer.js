@@ -78,39 +78,24 @@ try {
             }
             if (obj == null) return;
 
-            // Transform strings *before* adding the object.
-            // Track arguments to switch after.
-            let switchAfter = [];
-            for (let i=0; i<change.arguments.length; i++) {
-                if (typeof(change.arguments[i]) === 'string') {
-                    change.arguments[i] = jt.replaceLinksWithObjects(change.arguments[i]);                    
-                } else {
-                    switchAfter.push(i);
-                }
-            }
+            // Transform arguments.
+            jt.replaceLinksWithObjects(change.arguments);
 
             // Add the object
             obj[change.function](...change.arguments);
 
-            // Transform objects *after* adding the object.
-            for (let i=0; i<switchAfter.length; i++) {
-                jt.replaceLinksWithObjects(change.arguments[switchAfter[i]]);
-            }
-
             break;
 
         case 'set-prop':
-            // console.log('set property: \n' + JSON.stringify(change.newValue));
             for (let i=0; i<paths.length - 1; i++) {
                 obj = obj[paths[i]];
             }
             if (obj == null) return;
+            change.newValue = jt.replaceLinksWithObjects(change.newValue);
             vue.$set(obj, paths[paths.length-1], change.newValue);
-            vue.$set(obj, paths[paths.length-1], jt.replaceLinksWithObjects(change.newValue));
             break;
 
         case 'set-value':
-            // console.log('set value: \n' + change.newValue);
             for (let i=0; i<paths.length - 1; i++) {
                 obj = obj[paths[i]];
             }
@@ -118,8 +103,8 @@ try {
                 return;
             }
             if (obj == null) return;
+            change.newValue = jt.replaceLinksWithObjects(change.newValue);
             vue.$set(obj, paths[paths.length-1], change.newValue);
-            vue.$set(obj, paths[paths.length-1], jt.replaceLinksWithObjects(change.newValue));
             break;
 
         case 'delete-prop':
@@ -154,7 +139,7 @@ msgs.reloadApps = function(apps) {
 
 msgs.createRoom = function(room) {
     vue.$store.state.rooms.push(room);
-    showRoom(room);
+    showRoom(room); 
 }
 
 msgs.dataUpdate = function(dataChanges) {

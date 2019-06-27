@@ -75,15 +75,19 @@ jt.flatten = function(data) {
 }
 
 /**
-* data - the object to replace
-* existingObjects - array of objects that should already be present on the client
-* path - the path to the data object
-* parents - parent objects
-* rootParent - 
+* object - the object to replace
+* existingObjects - array of objects, after processing
+* originalExistingObjects - array of objects, no processing
 *
+* Returns:
+* - The processed object.
+* - A list of objects to add to existing objects.
 **/
 jt.replaceExistingObjectsWithLinks = function(object, existingObjects, originalExistingObjects) {
     
+    let objectsToAdd = [];
+    let originalObjectsToAdd = [];
+
     try {
     
         // Get out of proxies.
@@ -109,6 +113,11 @@ jt.replaceExistingObjectsWithLinks = function(object, existingObjects, originalE
         // Create copy of object (so as to not modify original).
         let copy = Array.isArray(object) ? [] : {};
     
+        console.log('storing object ' + existingObjects.length);
+        existingObjects.push(copy);
+        originalExistingObjects.push(object);
+        let index = existingObjects.length - 1;
+
         // Store object prototypes.
         if (object.__proto__ != null) {
             copy.__proto__ = object.__proto__;
@@ -122,10 +131,7 @@ jt.replaceExistingObjectsWithLinks = function(object, existingObjects, originalE
             copy[i] = newChild;
         }
 
-        console.log('storing object ' + existingObjects.length);
-        existingObjects.push(copy);
-        originalExistingObjects.push(object);
-        return '__link__' + (existingObjects.length-1);
+        return '__link__' + index;
     
     } catch (err) {
         console.log(err);

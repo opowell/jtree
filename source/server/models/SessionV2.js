@@ -79,16 +79,30 @@ class SessionV2 {
             }
 
             if (substitute) {
+
+                // Track the number of new objects added to the list, so that all new objects can be added at once.
+                // Initially, objects are added without triggering a change event.
+                // Then after all substitutions are finished, the change event is triggered.
+                let curNumOL = thisSession.proxy.objectList.length;
+
                 if (msg.newValue != null) {
-                    let x = global.jt.replaceExistingObjectsWithLinks(msg.newValue, thisSession.proxy.objectList, thisSession.originalObjectsList);
+                    let x = global.jt.replaceExistingObjectsWithLinks(msg.newValue, thisSession.proxy.objectList.__target, thisSession.originalObjectsList);
                     msg.newValue = x;
                 }
                 if (msg.arguments != null) {
                     for (let i=0; i < msg.arguments.length; i++) {
-                        let x = global.jt.replaceExistingObjectsWithLinks(msg.arguments[i], thisSession.proxy.objectList, thisSession.originalObjectsList);
+                        let x = global.jt.replaceExistingObjectsWithLinks(msg.arguments[i], thisSession.proxy.objectList.__target, thisSession.originalObjectsList);
                         msg.arguments[i] = x;
                     }
                 }
+
+                // Trigger change.
+                let newNumOL = thisSession.proxy.objectList.length;
+                if (curNumOL < newNumOL) {
+                    let newObjectsOL = thisSession.proxy.objectList.__target.splice(curNumOL, newNumOL - curNumOL);
+                    thisSession.proxy.objectList.push(...newObjectsOL);
+                }
+
             }
 
             msg.newValue = global.jt.flatten(msg.newValue);

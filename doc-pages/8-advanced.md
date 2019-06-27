@@ -54,3 +54,12 @@ For this reason, clients store a list of all objects (including arrays) availabl
 }
 
 Which tells the client to set the value of `state.linkToSelf` to the object in the list at position 0, the actual `state` object.
+
+It is possible for an update to contain circular references within itself. For example,
+
+let x = {}
+x.y = {};
+x.y.z = x;
+state.x = x;
+
+Then 
