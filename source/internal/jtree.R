@@ -45,9 +45,6 @@ jtree = function(
 
     curTable = NULL
     curTableName = 'none'
-    curSessionId = NULL
-    curAppId = NULL
-    curGroupId = NULL
     fileObj = file(filename,"r",encoding=jtree.encoding)
     fileContent = readLines(fileObj)
     newTable = FALSE
@@ -88,6 +85,7 @@ jtree = function(
             curAppId = values[2]
           }
           if (newTableName == 'GROUPS') {
+            numExistingGroups = nrow(groups) - 1
             curTable = groups
           }
           if (newTableName == 'PLAYERS') {
@@ -152,14 +150,14 @@ jtree = function(
       
       # - Session values
       if (curTableName == 'SESSION') {
-        curSessionId = values[1]
+        curSessionId = row
       }
       # - App values
       if (curTableName == 'APP') {
         curTable[row,]$sessionId = curSessionId
         curTable[row,]$id = row
         curInd = 3
-        curAppId = values[1]
+        curAppId = row
       }
       # - Group values
       if (curTableName == 'GROUPS') {
@@ -167,13 +165,13 @@ jtree = function(
         curTable[row,]$appId = curAppId
         curTable[row,]$id = row
         curInd = 4
-        curGroupId = values[2]
       }
       # - Player values
       if (curTableName == 'PLAYERS') {
         curTable[row,]$sessionId = curSessionId
         curTable[row,]$appId = curAppId
-        curTable[row,]$groupId = curGroupId
+        x = subset(groups, (appId == curAppId) & (period.id == values[1]) & (group.id == values[2]))
+        curTable[row,]$groupId = x[1,'id']
         curTable[row,]$id = row
         curInd = 5
       }

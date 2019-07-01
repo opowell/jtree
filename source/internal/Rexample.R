@@ -2,7 +2,7 @@
 rm(list = ls())
 
 # The path to the folder containing the jtree output files (*.csv).
-WORK_DIR = "~/GitHub/jtree"
+WORK_DIR = "~/GitHub/jtree_080"
 
 # Set working directory and load jtree functions.
 setwd(WORK_DIR)
@@ -22,7 +22,7 @@ jtData = jtree()
 # $playerConstants
 # $participants
 # $participantConstants
-View(jtData$playerConstants)
+View(jtData$groups)
 View(jtData$players)
 
 ## ADDITIONAL COMMANDS
