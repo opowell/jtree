@@ -116,6 +116,7 @@ class SessionV2 {
             msg.source = 'session';
 
             jt.socketServer.io.to(thisSession.roomId()).emit('objChange', msg);
+            console.log('sending message to ' + thisSession.roomId());
             thisSession.save();
             return true; // to apply changes locally.
         });
@@ -356,7 +357,7 @@ class SessionV2 {
             return null;
         }
         var participant = new Participant.new(pId, state);
-        let proxy = Participant.getProxy(participant);
+        let proxy = participant.getProxy();
         state.participants.push(proxy);
     }
 
@@ -415,7 +416,7 @@ class SessionV2 {
             // Copy participants to the new state proxy.
             for (let i=0; i<newState.participants.length; i++) {
                 let part = newState.participants[i];
-                let proxy = Participant.getProxy(part);
+                let proxy = part.getProxy();
                 newState.participants[i] = proxy;
             }
 

@@ -397,7 +397,7 @@ jt.replaceLinksWithObjects = function(data) {
     
             // Otherwise, return linked object.
             let path = data.substring('__link__'.length);
-            return jt.vue.participant.objectList[path];
+            return jt.vue.objectList[path];
         }
     
         for (let i in data) {
@@ -520,9 +520,9 @@ jt.defaultConnected = function() {
     });
 
     jt.processQueueMessage = function(change, callback) {
-        if (change.source !== 'participant') {
-            return;
-        }
+        // if (change.source !== 'participant') {
+        //     return;
+        // }
 
         try {
             if (jt.vue == null) {
@@ -530,11 +530,11 @@ jt.defaultConnected = function() {
             }
     
             if (change.arguments != null) {
-                change.arguments = CircularJSON.parse(JSON.parse(change.arguments));
+                change.arguments = JSON.parse(change.arguments);
             }
         
             if (change.newValue != null) {
-                change.newValue = CircularJSON.parse(JSON.parse(change.newValue));
+                change.newValue = JSON.parse(change.newValue);
             }
         
             let paths = change.path.split('.');
