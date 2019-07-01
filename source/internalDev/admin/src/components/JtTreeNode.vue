@@ -163,16 +163,24 @@ try {
         // nodePath: function(newVal, oldVal) { // watch it
         nodePath: function() {
         //   console.log('Prop changed: ', newVal, ' | was: ', oldVal);
-          this.node.path = this.nodePath;
+          this.nodeLinks.path = this.nodePath;
         }
       },
       mounted() {
+          this.nodeLinks = {};
+        this.nodeLinks.el = this.$el;
+        this.nodeLinks.titleEl = this.$refs.titleEl;
+        this.nodeLinks.parentNode = this.parentNode;
+        this.nodeLinks.indexOnParent = this.indexOnParent;
+        this.nodeLinks.component = this;
+        this.nodeLinks.path = this.nodePath;
+        this.nodeLinks.node = this.node;
+
         this.node.el = this.$el;
         this.node.titleEl = this.$refs.titleEl;
         this.node.parentNode = this.parentNode;
         this.node.indexOnParent = this.indexOnParent;
         this.node.component = this;
-        this.node.path = this.nodePath;
     },
     methods: {
         getChildPath(path, index) {
@@ -204,7 +212,7 @@ try {
             this.expanded = !this.expanded;
         },
         mousedown() {
-            this.tree.component.setActiveNode(this.node);
+            this.tree.component.setActiveNode(this.nodeLinks);
         },
         moveDown() {
             if (this.editing) {
@@ -277,7 +285,7 @@ try {
                 }
             ).then(response => {
                 console.log(response);
-                this.node.title = this.$refs.editor.value;
+                this.nodeLinks.title = this.$refs.editor.value;
                 this.cancelEditing();
             });
         },

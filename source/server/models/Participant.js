@@ -104,12 +104,6 @@ class Participant {
 
         this.player = null;
 
-        this.nonObs = {
-            objectList: []
-        };
-
-        global.jt.addExistingObjects(this, this.nonObs.objectList);
-
     }
 
     static getProxy(participant) {
@@ -118,18 +112,13 @@ class Participant {
             participant = participant.__target;
         }
 
+        let thisSession = participant.session.nonObs.session;
+
         let proxy = Observer.create(participant, function(change) {
-            // If calling a function other than an array change, do not notify clients.
             if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
                 return true;
             }
-            if (change.type === 'function-call') {
-                console.log('function call: ' + change.path + '.' + change.function + '(' + change.arguments + ')');
-            } else {
-                console.log('change participant: ' + change.path + ': ' + change.newValue);
-            }
-            let origPath = change.path;
-
+    
             let msg = {
                 arguments: [],
                 function: change.function,
@@ -138,25 +127,53 @@ class Participant {
                 type: change.type,
                 newValue: change.newValue,
             }
-
-            if (msg.newValue != null) {
-                let x = global.jt.replaceExistingObjectsWithLinks(msg.newValue, participant.nonObs.objectList);
-                msg.newValue = x;
-            }
+    
             if (change.arguments != null) {
                 for (let i=0; i<change.arguments.length; i++) {
-                    let x = global.jt.replaceExistingObjectsWithLinks(msg.arguments[i], participant.nonObs.objectList);
-                    msg.arguments.push(x);
+                    msg.arguments.push(change.arguments[i]);
                 }
             }
+    
+            let substitute = true;
+            if (msg.path === 'objectList') { // Additions to the object list do not need modification.
+                substitute = false;
+            }
+    
+            if (substitute) {
+    
+                // Track the number of new objects added to the list, so that all new objects can be added at once.
+                // Initially, objects are added without triggering a change event.
+                // Then after all substitutions are finished, the change event is triggered.
+                let curNumOL = thisSession.proxy.objectList.length;
+    
+                if (msg.newValue != null) {
+                    let x = global.jt.replaceExistingObjectsWithLinks(msg.newValue, thisSession.proxy.objectList.__target, thisSession.originalObjectsList);
+                    msg.newValue = x;
+                }
+                if (msg.arguments != null) {
+                    for (let i=0; i < msg.arguments.length; i++) {
+                        let x = global.jt.replaceExistingObjectsWithLinks(msg.arguments[i], thisSession.proxy.objectList.__target, thisSession.originalObjectsList);
+                        msg.arguments[i] = x;
+                    }
+                }
+    
+                // Trigger change.
+                let newNumOL = thisSession.proxy.objectList.length;
+                if (curNumOL < newNumOL) {
+                    let newObjectsOL = thisSession.proxy.objectList.__target.splice(curNumOL, newNumOL - curNumOL);
+                    thisSession.proxy.objectList.push(...newObjectsOL);
+                }
+    
+            }
+    
             msg.newValue = global.jt.flatten(msg.newValue);
             msg.arguments = global.jt.flatten(msg.arguments);
-            if (origPath != change.path) {
-                console.log('changed to: ' + change.path);
-            }
+    
+            console.log('change from participant: ' + msg.path);
+    
             msg.source = 'participant';
-            // TODO: Replace existing objects with links, see SessionV2 constructor.
-            global.jt.socketServer.sendMessage(participant.roomId(), msg);
+    
+            jt.socketServer.io.to(thisSession.roomId()).emit('objChange', msg);
             return true; // to apply changes locally.
         });
 

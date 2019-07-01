@@ -29,6 +29,9 @@ class SessionV2 {
             potentialParticipantIds: this.jt.settings.participantIds,
             id: this.id,
             stateId: 0,
+            nonObs: {
+                session: this,
+            },
         };
 
         let proxyObj = {
@@ -114,10 +117,6 @@ class SessionV2 {
 
             jt.socketServer.io.to(thisSession.roomId()).emit('objChange', msg);
             thisSession.save();
-            // for (let i in thisSession.proxy.state.participants) {
-            //     let participant = thisSession.proxy.state.participants[i];
-            //     jt.socketServer.io.to(participant.roomId()).emit('objChange', msg);
-            // }
             return true; // to apply changes locally.
         });
 

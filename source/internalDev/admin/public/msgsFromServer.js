@@ -78,11 +78,19 @@ try {
             }
             if (obj == null) return;
 
-            // Transform arguments.
-            jt.replaceLinksWithObjects(change.arguments);
+            // If we are not storing objects for the objectlist, process links before storing objects.
+            // If we are storing objects for the objectList, do the processing after storing objects.
+            let fieldName = paths[paths.length-1];
+            let processBefore = fieldName !== 'objectList'; 
+            if (processBefore) {
+                jt.replaceLinksWithObjects(change.arguments);
+            }
 
-            // Add the object
             obj[change.function](...change.arguments);
+
+            if (!processBefore) {
+                jt.replaceLinksWithObjects(change.arguments);
+            }
 
             break;
 
