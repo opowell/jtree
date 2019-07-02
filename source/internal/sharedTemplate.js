@@ -79,7 +79,11 @@ jt.checkIfLoaded = function() {
             jt.socketConnected();
         });
 
-        jt.socket.on('logged-in', function(partData) {
+        jt.socket.on('logged-in', function(msgData) {
+            msgData = CircularJSON.parse(msgData, jt.dataReviver);
+            jt.storeObjects(msgData.objectList);
+            let partData = msgData.participant;
+            partData = jt.replaceLinksWithObjects(partData);
             let partId = null;
             let sessId = null;
             if (partData.id != null) {
@@ -103,6 +107,55 @@ jt.checkIfLoaded = function() {
         if (jt.alwaysShowAllStages) {
             jt.showAllStages();
         }
+}
+
+jt.storeObjects = function(objects) {
+    if (!jt.vueMounted) {
+        let vueComputed = {
+            clock: function() {
+                return jt.getClock(this.timeLeft);
+            },
+            clockClient: function() {
+                return jt.getClock(this.timeLeftClient);
+            },
+            groupOtherPlayers: function() {
+                let players = [];
+                let me = this.player;
+                if (this.group.players != null && this.group.players.length > 0) {
+                    players = this.group.players.filter(function (grpPlyr) {
+                        return grpPlyr.id !== me.id;
+                    })
+                }
+                return players;
+            }
+        };
+
+        // let computed = participant.session.vueComputedText;
+        // for (let i in computed) {
+        //     eval('vueComputed[i] = ' + computed[i]);
+        // }
+        // let methods = participant.session.vueMethodsText;
+        // for (let i in methods) {
+        //     eval('vueMethods[i] = ' + methods[i]);
+        // }
+    
+        let participant = {};
+        let vueModel = jt.getVueModels(participant);
+
+        jt.vue = new Vue({
+            el: '#jtree',
+            data: vueModel,
+            computed: vueComputed,
+            methods: jt.vueMethods,
+            mounted: function() {
+                jt.setFormDefaults();
+            }
+        });
+        $('body').addClass('show');
+    }
+    jt.vue.objectList = jt.vue.objectList || [];
+    jt.vue.objectList.push(...objects);
+    jt.replaceLinksWithObjects(objects);
 }
 
 // Overwrite

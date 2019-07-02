@@ -73,6 +73,10 @@ try {
     switch (change.type) {
 
         case 'function-call':
+            let fieldName = paths[paths.length-1];
+            // if (fieldName == 'objectList') {
+            //     debugger;
+            // }
             for (let i=0; i<paths.length; i++) {
                 obj = obj[paths[i]];
             }
@@ -80,8 +84,7 @@ try {
 
             // If we are not storing objects for the objectlist, process links before storing objects.
             // If we are storing objects for the objectList, do the processing after storing objects.
-            let fieldName = paths[paths.length-1];
-            let processBefore = fieldName !== 'objectList'; 
+            let processBefore = (fieldName !== 'objectList'); 
             if (processBefore) {
                 jt.replaceLinksWithObjects(change.arguments);
             }

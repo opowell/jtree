@@ -160,7 +160,7 @@ class SocketServer {
                         id: 'none'
                     }
                 };
-                socket.emit('logged-in', participant);
+                socket.emit('logged-in', {participant});
                 let socketServer = this;
                 socket.on('disconnect', function() {
                     if (client.participant != null) {

@@ -405,7 +405,7 @@ class Session {
         socket.join(this.roomId());
         participant.clientAdd(client);
         this.clients.push(client);
-        this.jt.socketServer.sendOrQueueAdminMsg(null, 'addClient', client.shell());
+        // this.jt.socketServer.sendOrQueueAdminMsg(null, 'addClient', client.shell());
         this.io().to(socket.id).emit('logged-in', participant.shell());
         if (participant.player !== null) {
             participant.player.sendUpdate(socket.id);

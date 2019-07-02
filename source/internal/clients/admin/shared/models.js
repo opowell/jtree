@@ -607,16 +607,16 @@ var App = function () {
                 Utils.getHeaders(periodFields, periodSkip, periodHeaders);
                 for (var j = 0; j < period.groups.length; j++) {
                     var group = period.groups[j];
-                    for (var k = 0; k < group.tables.length; k++) {
-                        var tableId = group.tables[k];
-                        if (!groupTables.includes(tableId)) {
-                            groupTables.push(tableId);
-                            groupTableHeaders[tableId] = [];
-                        }
-                        var tableHeaders = groupTableHeaders[tableId];
-                        var tableFields = group[tableId].outputFields();
-                        Utils.getHeaders(tableFields, [], tableHeaders);
-                    }
+                    // for (var k = 0; k < group.tables.length; k++) {
+                    //     var tableId = group.tables[k];
+                    //     if (!groupTables.includes(tableId)) {
+                    //         groupTables.push(tableId);
+                    //         groupTableHeaders[tableId] = [];
+                    //     }
+                    //     var tableHeaders = groupTableHeaders[tableId];
+                    //     var tableFields = group[tableId].outputFields();
+                    //     Utils.getHeaders(tableFields, [], tableHeaders);
+                    // }
                     var groupFields = group.outputFields();
                     Utils.getHeaders(groupFields, groupSkip, groupHeaders);
                     for (var k = 0; k < group.players.length; k++) {

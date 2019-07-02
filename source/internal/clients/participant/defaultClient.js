@@ -210,26 +210,32 @@ jt.mountVue = function(participant) {
 }
 
 jt.getVueModels = function(participant) {
-    if (participant == null) {
-        return {};
-    }
-    let player = participant.player;
     let vueModel = {
         jt: jt,
         participant: participant,
-        player: player,
-        group: player.group,
-        period: player.group.period,
-        game: player.game,
-        session: player.game.session,
-        superGame: player.group.period.game,
-        subGame: player.game,
+        player: [],
+        group: [],
+        period: [],
+        game: [],
+        session: [],
+        superGame: [],
+        subGame: [],
         timeLeft: 0,
         timeLeftClient: 0,
         hasTimeout: false,
         hasTimeoutClient: false,
         timeElapsed: 0,
         timeElapsedClient: 0,
+    }
+    let player = participant.player;
+    if (player != null) {
+        vueModel.player = player;
+        vueModel.group = player.group;
+        vueModel.period = player.group.period;
+        vueModel.game = player.game;
+        vueModel.session = player.game.session;
+        vueModel.superGame = player.group.period.game;
+        vueModel.subGame = player.game;
     }
     if (vueModel.group.players == null) {
         vueModel.group.players = [];
@@ -281,13 +287,13 @@ jt.updatePlayer = function(participant, updateVue) {
     //     return;
     // }
 
-    if (jt.vue != null && jt.vue.participant != null && participant.id !== jt.vue.participant.id) {
-        return;
-    }
+    // if (jt.vue != null && jt.vue.participant != null && participant.id !== jt.vue.participant.id) {
+    //     return;
+    // }
 
     console.log('participant update');
 
-    if (!jt.vueMounted) {
+    if (jt.vue == null) {
         jt.mountVue(participant);
         $('body').addClass('show');
         return;
@@ -307,73 +313,21 @@ jt.updatePlayer = function(participant, updateVue) {
 
     let player = participant.player;
 
-    if (player.stage !== undefined) {
-        jt.setStageName(player.stage.id);
-    }
-    if (player.stageTimerTimeLeft > 0) {
-        // Must use timer duration. Cannot use server start time, since no guarantee that client time is the same.
-        var endTime = new Date().getTime() + player.stageTimerTimeLeft;
-        jt.startClock(endTime);
-    } else {
-        jt.vue.hasTimeout = false;
-    }
-
-    if (player.stageClientDuration > 0 && player.status == 'playing') {
-        var endTime = new Date().getTime() + player.stageClientDuration*1000;
-        jt.startClockClient(endTime);
-    }
-
-    // Group tables
-    for (var i=0; i<player.group.tables.length; i++) {
-
-        var tableName = player.group.tables[i];
-
-        // Listen for tableAdd methods.
-        if (jt.socket._callbacks['$' + tableName + 'Add'] === undefined) {
-            jt.socket.on(tableName + 'Add', function(data) {
-                eval('jt.' + tableName + 'Add')(data);
-            });
+    if (player != null) {
+        if (player.stage !== undefined) {
+            jt.setStageName(player.stage.id);
         }
-
-        // Listen for tableRemove methods.
-        if (jt.socket._callbacks['$' + tableName + 'Remove'] === undefined) {
-            jt.socket.on(tableName + 'Remove', function(id) {
-                eval('jt.' + tableName + 'Remove')(id);
-            });
+        if (player.stageTimerTimeLeft > 0) {
+            // Must use timer duration. Cannot use server start time, since no guarantee that client time is the same.
+            var endTime = new Date().getTime() + player.stageTimerTimeLeft;
+            jt.startClock(endTime);
+        } else {
+            jt.vue.hasTimeout = false;
         }
-
-        if (jt.socket._callbacks['$' + tableName + 'Update'] === undefined) {
-            jt.socket.on(tableName + 'Update', function(id) {
-                eval('jt.' + tableName + 'Update')(id);
-            });
-        }
-
-        // Called automatically when row is added to server.
-        // Add row to data object.
-        if (jt[tableName + 'Add'] === undefined) {
-            jt[tableName + 'Add'] = function(newRow) {
-                jt.vue.participant.player.group[tableName].push(newRow);
-            }
-        }
-
-        if (jt[tableName + 'Update'] === undefined) {
-            jt[tableName + 'Update'] = function(row) {
-                eval('jt.' + tableName + 'Remove')(row.id);
-                eval('jt.' + tableName + 'Add')(row);
-            }
-        }
-
-        if (jt[tableName + 'Remove'] === undefined) {
-            jt[tableName + 'Remove'] = function(id) {
-                var table = jt.vue.participant.player.group[tableName];
-                for (var i=0; i<table.length; i++) {
-                    var row = table[i];
-                    if (row.id === id) {
-                        table.splice(i, 1);
-                        break;
-                    }
-                }
-            }
+    
+        if (player.stageClientDuration > 0 && player.status == 'playing') {
+            var endTime = new Date().getTime() + player.stageClientDuration*1000;
+            jt.startClockClient(endTime);
         }
     }
 
@@ -467,10 +421,16 @@ jt.defaultConnected = function() {
     //     jt.updatePlayer(part.player, true);
     // });
 
-    jt.socket.on('logged-in', function(partData) {
-        let participant = partData;
-        if (typeof(partData) === 'string') {
-            participant = CircularJSON.parse(partData, jt.dataReviver);
+    jt.socket.on('logged-in', function(data) {
+
+        let parsedData = CircularJSON.parse(data, jt.dataReviver);
+
+        // let objects = parsedData.objectList;
+        // jt.storeObjects(objects);
+
+        let participant = parsedData.participant;
+        if (typeof(participant) === 'string') {
+            participant = jt.replaceLinksWithObjects(participant);
         }
         jt.updatePlayer(participant, true);
     });
@@ -539,6 +499,9 @@ jt.defaultConnected = function() {
         
             let paths = change.path.split('.');
             let obj = jt.vue.participant;
+            if (paths[0] == 'objectList') {
+                obj = jt.vue.objectList;
+            }
         
             console.log('object change: \n' + JSON.stringify(change.path) + '\n' + JSON.stringify(change, null, 4));
 

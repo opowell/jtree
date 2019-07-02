@@ -56,11 +56,11 @@ class Group {
          */
         this.outputHideAuto = ['stage', 'status', 'outputHide', 'outputHideAuto', 'players', 'stageTimer', 'period', 'tables', 'type', 'stageIndex', 'stageEndedIndex'];
 
-        /**
-         * @type array
-         * @default []
-         */
-        this.tables = [];
+        // /**
+        //  * @type array
+        //  * @default []
+        //  */
+        // this.tables = [];
 
         /**
          * @type number
@@ -160,10 +160,10 @@ class Group {
         return out;
     }
 
-    addTable(name) {
-        this[name] = new Table.new(name, 'this.context.emit', this, this.roomId(), this.session());
-        this.tables.push(name);
-    }
+    // addTable(name) {
+    //     this[name] = new Table.new(name, 'this.context.emit', this, this.roomId(), this.session());
+    //     this.tables.push(name);
+    // }
 
     playerWithId(id) {
         for (var i=0; i<this.players.length; i++) {
@@ -247,8 +247,9 @@ class Group {
             if (
                 !Utils.isFunction(this[prop]) &&
                 !this.outputHide.includes(prop) &&
-                !this.outputHideAuto.includes(prop) &&
-                !this.tables.includes(prop)
+                !this.outputHideAuto.includes(prop)
+                //  &&
+                // !this.tables.includes(prop)
             )
             fields.push(prop);
         }
@@ -428,7 +429,7 @@ class Group {
             var field = fields[f];
             out[field] = this[field];
         }
-        out.tables = this.tables;
+        // out.tables = this.tables;
         if (this.stageTimer !== undefined) {
             out.stageTimerStart = this.stageTimer.timeStarted;
             out.stageTimerDuration = this.stageTimer.duration;

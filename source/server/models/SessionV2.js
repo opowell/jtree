@@ -659,7 +659,18 @@ class SessionV2 {
         client.participant = participant.__target;
         participant.clientAdd(client);
         this.proxy.clients.push(client);
-        global.jt.socketServer.io.to(socket.id).emit('logged-in', global.jt.flatten(participant.__target));
+
+        // Send state data.
+        let loginData = {};
+        loginData.objectList = this.proxy.objectList;
+        let partTarget = participant.__target;
+        for (let i=0; i<this.originalObjectsList.length; i++) {
+            if (this.originalObjectsList[i] === partTarget) {
+                loginData.participant = '__link__' + i;
+                break;
+            }
+        }
+        global.jt.socketServer.io.to(socket.id).emit('logged-in', global.jt.flatten(loginData));
         return client;
     }
 
