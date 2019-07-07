@@ -59698,7 +59698,7 @@
           "column": 0
         },
         "end": {
-          "line": 1051,
+          "line": 1053,
           "column": 1
         }
       },
@@ -60186,7 +60186,7 @@
         },
         "file": "C:\\Users\\opowelladmin\\Documents\\GitHub\\jtree-0.7.8\\server\\source\\Session.js",
         "sortKey": "!C:\\Users\\opowelladmin\\Documents\\GitHub\\jtree-0.7.8\\server\\source\\Session.js 00000035",
-        "code": "{\r\n\r\n    /**\r\n    * Create a Session.\r\n    *\r\n    * CALLED FROM:\r\n    * - {@link Session#load}\r\n    * - {@link Data#constructor}\r\n    * - {@link Data#createSession}\r\n    *\r\n    * @param  {Object} jt         Server object.\r\n    * @param  {type} id               The id of the new session.\r\n    */\r\n    constructor(jt, id, options) {\r\n\r\n        if (options == null) {\r\n            options = {};\r\n        }\r\n\r\n        if (options.createFolder == null) {\r\n            options.createFolder = true;\r\n        }\r\n\r\n        this.jt = jt;\r\n        this.id = id;\r\n        if (this.id === null || this.id === undefined) {\r\n            this.id = Utils.getDate();\r\n        }\r\n        this.name = this.id;\r\n\r\n        /**\r\n        * A list of the clients connected to this session.\r\n        * @type Array\r\n        */\r\n        this.clients = [];\r\n\r\n        this.potentialParticipantIds = this.jt.settings.participantIds;\r\n\r\n        this.caseSensitiveLabels = false;\r\n\r\n        /**\r\n        * A list of participants in this session.\r\n        * @type Object\r\n        */\r\n        this.participants = {};\r\n\r\n        /**\r\n        * The time at which this session was last started.\r\n        * @type number\r\n        */\r\n        this.timeStarted = 0;\r\n        this.started = false;\r\n\r\n        /**\r\n        * Whether or not clients can create a participant that does not exist yet.\r\n        */\r\n        this.allowNewParts = this.jt.settings.allowClientsToCreateParticipants;\r\n\r\n        this.outputDelimiter = this.jt.settings.outputDelimiter;\r\n\r\n        /**\r\n        * The apps in this session.\r\n        * @type Array\r\n        */\r\n        this.apps = [];\r\n\r\n        this.users = [];\r\n\r\n        this.asyncQueue = async.queue(this.processMessage, 1);\r\n\r\n        // A filestream for writing to this session's object states.\r\n        try {\r\n            fs.ensureDirSync(this.getOutputDir());\r\n            var options = { 'flags': 'a'};\r\n            this.fileStream = fs.createWriteStream(this.getOutputDir() + '/' + this.id + '.gsf', options);\r\n        } catch (err) {\r\n            debugger;\r\n            console.log(err);\r\n        }\r\n        /**\r\n        * A list of fields to hide from output.\r\n        * @type Array\r\n        */\r\n        this.outputHide = [\r\n            'jt',\r\n            'clients',\r\n            'participants',\r\n            'this',\r\n            'outputHide',\r\n            'apps',\r\n            'fileStream',\r\n            'asyncQueue',\r\n            'started'\r\n        ];\r\n\r\n    }\r\n\r\n    /**\r\n    * Loads a session from a .json file.\r\n    *\r\n    * FUNCTIONALITY\r\n    * - create a new session\r\n    * - load session objects from .gsf file\r\n    * - for each object in the .gsf file, call the appropriate object.load method.\r\n    * - link participants and players.\r\n    *\r\n    * @param  {Object} jt      The server\r\n    * @param  {type} json      The content of the session.\r\n    * @return {Session}        The session described by the contents of json.\r\n    */\r\n    static load(jt, folder, data) {\r\n        var session = new Session(jt, folder);\r\n        var all = fs.readFileSync(path.join(jt.path, jt.settings.sessionsFolder + '/' + folder + '/' + folder + '.gsf')).toString();\r\n        var lines = all.split('\\n');\r\n\r\n        // Read objects\r\n        for (var i=0; i<lines.length; i++) {\r\n            try {\r\n                if (lines[i] !== undefined && lines[i].length > 0) {\r\n                    var json = JSON.parse(lines[i]);\r\n                    switch (json.type) {\r\n                        case 'SESSION':\r\n                        var newSession = new Session(jt, folder);\r\n                        for (var j in json) {\r\n                            newSession[j] = json[j];\r\n                        }\r\n                        newSession.participants = session.participants;\r\n                        for (let p in session.participants) {\r\n                            session.participants[p].session = newSession;\r\n                        }\r\n\r\n                        newSession.apps = [];\r\n                        // var extra = 0;\r\n                        // for (var j in newSession.appSequence) {\r\n                        //     var k = j - extra;\r\n                        //     if (session.apps[k].id === newSession.appSequence) {\r\n                        //         var app = session.apps[k];\r\n                        //         app.session = newSession;\r\n                        //         newSession.apps.push(app);\r\n                        //     } else {\r\n                        //         extra++;\r\n                        //     }\r\n                        // }\r\n\r\n                        session = newSession;\r\n\r\n                        break;\r\n                        case 'APP':\r\n                        App.load(json, session);\r\n                        break;\r\n                        case 'PERIOD':\r\n                        Period.load(json, session);\r\n                        break;\r\n                        case 'GROUP':\r\n                        Group.load(json, session, data);\r\n                        break;\r\n                        case 'PLAYER':\r\n                        Player.load(json, session);\r\n                        break;\r\n                        case 'PARTICIPANT':\r\n                        Participant.load(json, session);\r\n                        break;\r\n                        case 'TABLE':\r\n                        Table.load(json, session);\r\n                        break;\r\n                    };\r\n                }\r\n            } catch (err) {\r\n//                console.log(err.stack);\r\n            }\r\n        }\r\n\r\n        // Link participants and players.\r\n        for (var a in session.apps) {\r\n            var app = session.apps[a];\r\n            for (var prd in app.periods) {\r\n                var period = app.periods[prd];\r\n                for (var gr in period.groups) {\r\n                    var group = period.groups[gr];\r\n                    for (var pl in group.players) {\r\n                        var player = group.players[pl];\r\n                        var participant = session.participants[player.participantId];\r\n                        player.participant = participant;\r\n                        participant.player = player;\r\n                        participant.players.push(player);\r\n                        if (player.stageIndex > -1) {\r\n                            player.stage = player.app().stages[player.stageIndex];\r\n                        }\r\n                    }\r\n                }\r\n            }\r\n        }\r\n\r\n        return session;\r\n    }\r\n\r\n    canUserManage(userId) {\r\n        var user = this.jt.data.user(userId);\r\n        if (!this.jt.settings.multipleUsers) {\r\n            return true;\r\n        } else {\r\n            if (user === null) {\r\n                return false;\r\n            } else if (user.isAdmin()) {\r\n                return true;\r\n            } else {\r\n                return this.users.includes(userId);\r\n            }\r\n        }\r\n    }\r\n\r\n    /**\r\n    * Add the app with the given ID to this session.\r\n    *\r\n    * FUNCTIONALITY:\r\n    * - load the given app {@link Session#loadApp}\r\n    * - add app to this session's apps field.\r\n    * - copy app source files {@link Utils#copyFiles}.\r\n    * - save app and its stages {@link App#saveSelfAndChildren}.\r\n    * - emit 'sessionAddApp' message.\r\n    *\r\n    * @param  {string} appId The ID of the app to add to this session.\r\n    */\r\n    addApp(appPath, options) {\r\n\r\n        if (this.queuePath != null && !appPath.startsWith(this.queuePath)) {\r\n            appPath = path.join(this.queuePath, appPath);\r\n        }\r\n\r\n        var app = this.jt.data.loadApp(appPath, this, appPath, options);\r\n        if (app !== null) {\r\n            this.apps.push(app);\r\n            if (app.appPath.endsWith('.jtt') || app.appPath.endsWith('.js')) {\r\n                Utils.copyFile(app.appFilename, app.appDir, app.getOutputFN());\r\n            } else {\r\n                Utils.copyFiles(path.parse(app.appPath).dir, app.getOutputFN());\r\n            }\r\n            // app.saveSelfAndChildren();\r\n            this.save();\r\n            this.emit('sessionAddApp', {sId: this.id, app: app.shellWithChildren()});\r\n        }\r\n    }\r\n\r\n    addUser(userId) {\r\n        this.users.push(userId);\r\n        this.save();\r\n        this.emit('sessionAddUser', {sId: this.id, uId: userId});\r\n    }\r\n\r\n    addQueue(qId) {\r\n        var queue = this.jt.data.queue(qId);\r\n        if (queue !== null) {\r\n            for (var i in queue.apps) {\r\n                try {\r\n                    this.addApp(queue.apps[i].appId, queue.apps[i].options);\r\n                } catch (err) {}\r\n            }\r\n        }\r\n    }\r\n\r\n    addAdminClient(socket) {\r\n        for (let i=0; i<this.participants.length; i++) {\r\n            addClient(socket, this.participants[i].id);\r\n        }\r\n    }\r\n\r\n    /**\r\n    * Connect a web socket client to a participant of this session.\r\n    * - Listen for disconnect and goto-next-stage messages.\r\n    * - Load participant.\r\n    * - Socket listens to its own channel.\r\n    * -\r\n    *\r\n    * CALLED FROM\r\n    * - {@link SocketServer#addParticipantClient}\r\n    *\r\n    * @param  {Object} socket        The web socket.\r\n    * @param  {string} participantId The id of the participant.\r\n    */\r\n    addClient(socket, participantId) {\r\n        var session = this;\r\n\r\n        socket.on('disconnect', function() {\r\n            session.clientRemove(socket);\r\n        });\r\n\r\n        socket.on('goto-next-stage', function(msg) {\r\n            var pId = msg.pId;\r\n            var stageId = msg.stageId;\r\n            var periodId = msg.periodId;\r\n            var participant = session.participant(pId);\r\n            if (participant.stageId() === stageId && participant.player.periodIndex() === periodId) {\r\n                participant.getApp().playerMoveToNextStage(participant.player);\r\n            }\r\n        });\r\n\r\n        var participant = this.participant(participantId);\r\n        if (participant === null || participant === undefined) {\r\n            if (!this.allowNewParts) {\r\n                console.log('error: tried to add new participant ' + participantId);\r\n                this.io().to(socket.id).emit('notLoggedIn');\r\n                return null;\r\n            }\r\n            participant = this.participantCreate(participantId);\r\n        }\r\n\r\n        var client = new Client.new(socket, this);\r\n        client.participant = participant;\r\n        socket.join(this.roomId());\r\n        participant.clientAdd(client);\r\n        this.clients.push(client);\r\n        this.jt.socketServer.sendOrQueueAdminMsg(null, 'addClient', client.shell());\r\n        this.io().to(socket.id).emit('logged-in', participant.shell());\r\n        if (participant.player !== null) {\r\n            participant.player.sendUpdate(socket.id);\r\n        }\r\n\r\n        return client;\r\n    }\r\n\r\n    emitToAdmins(name, data) {\r\n        this.jt.socketServer.sendOrQueueAdminMsg(null, name, data);\r\n    }\r\n\r\n    getOutputDir() {\r\n        return this.jt.settings.sessionsFolder + '/' + this.name;\r\n    }\r\n\r\n    /**\r\n    * Pushes a message to the end of the message queue.\r\n    * @param  {type} obj The client from whom the message was received.\r\n    * @param  {type} da The data received from the client.\r\n    * @param  {string} funcName The name of the function to evaluate on the client object.\r\n    */\r\n    pushMessage(obj, da, funcName) {\r\n        var msg = {obj: obj, data: da, fn: funcName, jt: this.jt};\r\n        this.asyncQueue.push(msg, this.messageCallback);\r\n        //        var playerId = Player.genRoomId(da.player);\r\n        //        var line = cl.participant.id + ', ' + cl.id + ', ' + playerId + ', ' + funcName + ', ' + JSON.stringify(da.data) + '\\n';\r\n        //        fs.appendFileSync(this.getOutputDir() + '/messages.csv', line);\r\n    }\r\n\r\n    addMessageToStartOfQueue(obj, data, funcName) {\r\n        var msg = {obj: obj, data: data, fn: funcName, jt: this.jt};\r\n        this.asyncQueue.unshift(msg, this.messageCallback);\r\n        //        var playerId = Player.genRoomId(da.player);\r\n        //        var line = cl.participant.id + ', ' + cl.id + ', ' + playerId + ', ' + funcName + ', ' + JSON.stringify(da.data) + '\\n';\r\n        //        fs.appendFileSync(this.getOutputDir() + '/messages.csv', line);\r\n    }\r\n\r\n    processMessage(msg, callback) {\r\n        let obj = msg.obj;\r\n        let data = msg.data;\r\n        let fn = msg.fn;\r\n        let jt = msg.jt;\r\n        try {\r\n\r\n            if (fn !== 'endStage' && fn !== 'endApp') {\r\n                data = Utils.parseFloatRec(data);\r\n            }\r\n            \r\n            if (obj.canProcessMessage()) {\r\n                obj[fn](data);\r\n                //            }\r\n                //            if (client.player() !== null && client.player().matchesPlayer(player) && client.player().status === 'playing') {\r\n                //                if (client.player() !== null) {\r\n                //                    client.player().save();\r\n                //                }\r\n            } else {\r\n                jt.log('Object cannot process message, skipping message \"' + fn + '\".');\r\n            }\r\n        } catch (err) {\r\n            jt.log(err.stack);\r\n            debugger;\r\n            try {\r\n                jt.log('error processing message: ' + JSON.stringify(msg.data));\r\n            } catch (err2) {\r\n                jt.log('Error printing error: ' + msg.fn + ', ' + err2.stack);\r\n            }\r\n        }\r\n        callback();\r\n        return true;\r\n    }\r\n\r\n    /**\r\n    // * Process a message from the queue.\r\n    // */\r\n    // processMessageV1(msg, callback) {\r\n    //     const client = msg.client;\r\n    //     const player = msg.data.player;\r\n    //     let data = msg.data.data;\r\n    //     const fn = msg.fn;\r\n    //     const jt = msg.jt;\r\n    //     try {\r\n    //         if (client.player() !== null && client.player().matchesPlayer(player) && client.player().status === 'playing') {\r\n    //             data = Utils.parseFloatRec(data);\r\n    //             client[fn](data);\r\n    //             //                if (client.player() !== null) {\r\n    //             //                    client.player().save();\r\n    //             //                }\r\n    //         } else {\r\n    //             jt.log('Message player does not match clients current player, skipping message.');\r\n    //         }\r\n    //     } catch (err) {\r\n    //         jt.log('error processing message: ' + JSON.stringify(msg.data));\r\n    //         jt.log(err.stack);\r\n    //     }\r\n    //     callback();\r\n    //     return true;\r\n    // }\r\n\r\n    messageCallback() {}\r\n\r\n    resume() {\r\n        this.setRunning(true);\r\n    }\r\n\r\n    pause() {\r\n        this.setRunning(false);\r\n    }\r\n\r\n    setRunning(b) {\r\n        this.isRunning = b;\r\n        var timers = this.timers();\r\n        for (var t in timers) {\r\n            timers[t].setRunning(b);\r\n        }\r\n        for (var i in this.participants) {\r\n            var participant = this.participants[i];\r\n            participant.player.emitUpdate2();\r\n        }\r\n    }\r\n\r\n    setId(id) {\r\n        this.id = id;\r\n        for (var i in this.participants) {\r\n            var participant = this.participants[i];\r\n            participant.refreshClients();\r\n        }\r\n    }\r\n\r\n    timers() {\r\n        var out = [];\r\n        for (var a in this.apps) {\r\n            var app = this.apps[a];\r\n            for (var p in app.periods) {\r\n                var period = app.periods[p];\r\n                for (var g in period.groups) {\r\n                    var group = period.groups[g];\r\n                    if (group.stageTimer !== undefined) {\r\n                        out.push(group.stageTimer);\r\n                    }\r\n                    for (var pl in group.players) {\r\n                        var player = group.players[pl];\r\n                        if (player.stageTimer !== undefined) {\r\n                            out.push(player.stageTimer);\r\n                        }\r\n                    }\r\n                }\r\n            }\r\n        }\r\n        return out;\r\n    }\r\n\r\n    /**\r\n    * Returns the {@link App} in the session app sequence that follows a reference {@link App}.\r\n    * @param  {@link App} app The reference app.\r\n    * @return {@link App}     The app in the session app sequence that follows the reference app.\r\n    */\r\n    appFollowing(app) {\r\n        for (var i=0; i<this.apps.length; i++) {\r\n            if (this.apps[i] === app) {\r\n                if (i < this.apps.length-1) {\r\n                    return this.apps[i+1];\r\n                } else {\r\n                    return null;\r\n                }\r\n            }\r\n        }\r\n    }\r\n\r\n    participantUI() {\r\n        return this.jt.settings.participantUI;\r\n    }\r\n\r\n    /**\r\n    * Sends a page to a client (via the given HTTPResponse object).\r\n    * @param  {HTTPRequest} req description\r\n    * @param  {HTTPResponse} res description\r\n    */\r\n    sendParticipantPage(req, res, participantId) {\r\n        var participant = this.participant(participantId);\r\n\r\n        // Not a participant yet\r\n        if (participant == null) {\r\n            res.sendFile(path.join(this.jt.path, this.participantUI() + '/readyClient.html'));\r\n        }\r\n        // Participant, but not in an app yet.\r\n        else if (participant.getApp() == null) {\r\n            res.sendFile(path.join(this.jt.path, this.participantUI() + '/readyClient.html'));\r\n        }\r\n        // participant in an app.\r\n        else {\r\n            const app = participant.getApp();\r\n            app.sendParticipantPage(req, res, participant);\r\n        }\r\n    }\r\n\r\n    /**\r\n    * Adds a particular number of participants to this session.\r\n    * @param  {number} num The number of participants to add.\r\n    */\r\n    addParticipants(num) {\r\n        let partsAdded = 0;\r\n\r\n        // Search through the list of participantIds until one is found for which\r\n        // no participant already exists.\r\n        for (var i=0; i<this.potentialParticipantIds.length; i++) {\r\n            let pId = this.potentialParticipantIds[i];\r\n            let ptcptAlreadyExists = this.participants[pId] !== undefined;\r\n\r\n            // No participant already exists, so create one.\r\n            if (!ptcptAlreadyExists) {\r\n                this.participantCreate(pId);\r\n                partsAdded++;\r\n\r\n                // Check if enough participants have been created. If yes, exit.\r\n                if (partsAdded >= num) {\r\n                    return;\r\n                }\r\n            }\r\n        }\r\n    }\r\n\r\n    saveOutput() {\r\n\r\n        var headers = ['id'];\r\n        var skip = [];\r\n        var fields = this.outputFields();\r\n        Utils.getHeaders(fields, skip, headers);\r\n        var text = [];\r\n        text.push(headers.join(this.outputDelimiter));\r\n        var newLine = '';\r\n        for (var h=0; h<headers.length; h++) {\r\n            var header = headers[h];\r\n            if (this[header] !== undefined) {\r\n                newLine += JSON.stringify(this[header]);\r\n            }\r\n            if (h<headers.length-1) {\r\n                newLine += this.outputDelimiter;\r\n            }\r\n        }\r\n        text.push(newLine);\r\n\r\n        var fn = this.csvFN() + ' - manual save at ' + Utils.getDate() + '.csv';\r\n        let fullText = '';\r\n        let fd = fs.openSync(fn, 'a');\r\n        try {\r\n            fullText += 'SESSION\\n';\r\n            fullText += text.join('\\n') + '\\n';\r\n            for (var i=0; i<this.apps.length; i++) {\r\n                fullText += this.apps[i].saveOutput();\r\n            }\r\n            fs.appendFileSync(fd, fullText);\r\n        } catch(err) {\r\n            console.log('error writing session: ' + this.id);\r\n            debugger;\r\n        } finally {\r\n            fs.closeSync(fd);\r\n        }\r\n\r\n        return fs.readFileSync(fn, 'utf8');\r\n    }\r\n\r\n    emitParticipantUpdates() {\r\n        for (let p in this.participants) {\r\n            this.participants[p].actuallyEmitUpdate();\r\n        }\r\n    }\r\n\r\n    /**\r\n    * Sets the number of participants in this session.\r\n    * @param  {number} num The number of participants to have.\r\n    */\r\n    setNumParticipants(num) {\r\n        let change = num - Object.keys(this.participants).length;\r\n        if (change > 0) {\r\n            this.addParticipants(change);\r\n        } else if (change < 0) {\r\n            this.removeParticipants(-change);\r\n        }\r\n    }\r\n\r\n    setAllowNewParts(b) {\r\n        this.allowNewParts = b;\r\n        var d = {sId: this.id, value: b};\r\n        this.emit('setAllowNewParts', d);\r\n    }\r\n\r\n    setCaseSensitiveLabels(b) {\r\n        this.caseSensitiveLabels = b;\r\n        var d = {sId: this.id, value: b};\r\n        this.emit('setCaseSensitiveLabels', d);\r\n    }\r\n\r\n    /**\r\n    * Remove a particular number of participants from this session.\r\n    * @param  {number} num The number of participants to remove.\r\n    */\r\n    removeParticipants(num) {\r\n        const parts = this.participants;\r\n        for (let i=0; i<num; i++) {\r\n            let len = Object.keys(parts).length;\r\n\r\n            if (len < 1) {\r\n                return;\r\n            }\r\n\r\n            let part = parts[Object.keys(parts)[len-1]];\r\n            let pId = part.id;\r\n            this.deleteParticipant(pId);\r\n        }\r\n    }\r\n\r\n    deleteParticipant(pId) {\r\n        delete this.participants[pId];\r\n        let md = {sId: this.id, pId: pId};\r\n        this.emit('sessionDeleteParticipant', md);\r\n    }\r\n\r\n    /**\r\n    * this - description\r\n    *\r\n    * @param  {type} d description\r\n    */\r\n    deleteApp(d) {\r\n        var i = parseInt(d.i);\r\n        if (i > -1 && this.apps[i].id === d.aId) {\r\n            this.apps.splice(i, 1);\r\n            var toDel = this.getOutputDir() + '/' + (i + 1) + '_' + d.aId;\r\n            if (fs.existsSync(toDel)) {\r\n                fs.removeSync(toDel);\r\n            }\r\n            for (var j=i; j<this.apps.length; j++) {\r\n                var origPath = this.getOutputDir() + '/' + (j + 2) + '_' + this.apps[j].id;\r\n                var newPath = this.getOutputDir() + '/' + (j + 1) + '_' + this.apps[j].id;\r\n                fs.renameSync(origPath, newPath);\r\n            }\r\n            this.save();\r\n            this.emit('sessionDeleteApp', d);\r\n        }\r\n    }\r\n\r\n    setAppOption(appId, appIndex, name, value) {\r\n        var i = parseInt(appIndex);\r\n        if (i > -1 && this.apps[i].id === appId) {\r\n            var app = this.apps[i];\r\n            app.setOptionValue(name, value);\r\n            this.apps[i] = app.reload();\r\n            app.saveSelfAndChildren();\r\n        }\r\n    }\r\n\r\n    /**\r\n    * Sends a message to all clients of this session.\r\n    *\r\n    * @param  {string} name The name of the message.\r\n    * @param  {Object} d    The data of the message.\r\n    */\r\n    emit(name, d) {\r\n        this.io().to(this.roomId()).emit(name, d);\r\n    }\r\n\r\n    /**\r\n    * Move slowest participants to their next stage. See {@link Participant#moveToNextStage}.\r\n    *\r\n    */\r\n    advanceSlowest() {\r\n        var parts = this.slowestParticipants();\r\n        for (var i=0; i<parts.length; i++) {\r\n            parts[i].moveToNextStage();\r\n        }\r\n    }\r\n\r\n    slowestParticipants() {\r\n        var out = [];\r\n        var minAppIndex = null;\r\n        var minPeriodIndex = null;\r\n        var minStageIndex = null;\r\n        for (var i in this.participants) {\r\n            var part = this.participants[i];\r\n            if (minAppIndex === null || part.appIndex <= minAppIndex) {\r\n                if (minPeriodIndex === null || part.periodIndex <= minPeriodIndex) {\r\n                    if (minStageIndex === null || part.stageIndex() <= minStageIndex) {\r\n                        if (minAppIndex === null || part.appIndex < minAppIndex) {\r\n                            minAppIndex = part.appIndex;\r\n                            minPeriodIndex = part.periodIndex;\r\n                            minStageIndex = part.stageIndex();\r\n                            out = [];\r\n                        } else if (minPeriodIndex === null || part.periodIndex < minPeriodIndex) {\r\n                            minPeriodIndex = part.periodIndex;\r\n                            minStageIndex = part.stageIndex();\r\n                            out = [];\r\n                        } else if (minStageIndex === null || part.stageIndex() < minStageIndex) {\r\n                            minStageIndex = part.stageIndex();\r\n                            out = [];\r\n                        }\r\n                        out.push(part);\r\n                    }\r\n                }\r\n            }\r\n        }\r\n        return out;\r\n    }\r\n\r\n    /**\r\n    * this - description\r\n    *\r\n    * @return {type}  description\r\n    */\r\n    save() {\r\n        try {\r\n            this.jt.log('Session.save: ' + this.id);\r\n            var localData = this.shell();\r\n            this.saveDataFS(localData, 'SESSION');\r\n            for (var i in this.apps) {\r\n                this.apps[i].saveSelfAndChildren();\r\n            }\r\n        } catch (err) {\r\n            console.log(err.stack);\r\n        }\r\n    }\r\n\r\n    saveDataFS(d, type) {\r\n        try {\r\n            var a = JSON.stringify(d) + '\\n';\r\n            var b = '\"type\":\"' + type + '\"' + this.outputDelimiter;\r\n            var position = 1;\r\n            var output = [a.slice(0, position), b, a.slice(position)].join('');\r\n            this.fileStream.write(output);\r\n        } catch (err) {\r\n            console.log('ERROR Session.saveDataFS: ' + err.stack);\r\n        }\r\n    }\r\n\r\n    /**\r\n    * Creates a top-down shell of this {@link Session}. This includes all fields given by {@link Session.outputFields}, the participants, the apps and the clients.\r\n    *\r\n    * CALLED FROM:\r\n    * - {@link Msgs#openSession}.\r\n    *\r\n    * @return {type}  The shell of this session.\r\n    */\r\n    shellWithChildren() {\r\n        var out = {};\r\n        var fields = this.outputFields();\r\n        for (var f in fields) {\r\n            var field = fields[f];\r\n            out[field] = this[field];\r\n        }\r\n        out.participants = {};\r\n        for (var i in this.participants) {\r\n            out.participants[i] = this.participants[i].shellAll();\r\n        }\r\n        out.apps = [];\r\n        for (var i in this.apps) {\r\n            out.apps[i] = this.apps[i].shellWithChildren();\r\n        }\r\n        out.clients = [];\r\n        for (var i in this.clients) {\r\n            out.clients[i] = this.clients[i].shell();\r\n        }\r\n        return out;\r\n    }\r\n\r\n    /**\r\n    * shell - description\r\n    *\r\n    * @return {type}  description\r\n    */\r\n    shell() {\r\n        var out = {};\r\n        var fields = this.outputFields();\r\n        for (var f in fields) {\r\n            var field = fields[f];\r\n            out[field] = this[field];\r\n        }\r\n        out.numParticipants = Utils.objLength(this.participants);\r\n        out.numApps = Utils.objLength(this.apps);\r\n        out.appSequence = [];\r\n        for (var i in this.apps) {\r\n            try {\r\n                out.appSequence.push(this.apps[i].id);\r\n            } catch (err) {}\r\n        }\r\n        out.clients = [];\r\n        out.participants = [];\r\n        return out;\r\n    }\r\n\r\n    /**\r\n    * this - description\r\n    *\r\n    * @return {type}  description\r\n    */\r\n    outputFields() {\r\n        var fields = [];\r\n        for (var prop in this) {\r\n            if (\r\n                !Utils.isFunction(this[prop]) &&\r\n                !this.outputHide.includes(prop)\r\n            )\r\n            fields.push(prop);\r\n        }\r\n        return fields;\r\n    }\r\n\r\n    /**\r\n    * clientRemove - description\r\n    *\r\n    * @param  {type} socket description\r\n    * @return {type}        description\r\n    */\r\n    clientRemove(socket) {\r\n        var socketId = socket.id;\r\n        this.jt.log('removing client: ' + socketId);\r\n        for (var i=this.clients.length - 1; i>=0; i--) {\r\n            var client = this.clients[i];\r\n            if (client.id === socketId) {\r\n                if (client.participant !== null) {\r\n                    client.participant.clientRemove(client.id);\r\n                }\r\n                this.clients.splice(i, 1);\r\n                this.jt.socketServer.sendOrQueueAdminMsg(null, 'remove-client', client.shell());\r\n            }\r\n        }\r\n    }\r\n\r\n    /**\r\n    * participant - description\r\n    *\r\n    * @param  {type} participantId description\r\n    * @return {type}               description\r\n    */\r\n    participant(participantId) {\r\n        var participant = this.participants[participantId];\r\n        if (participant == null && this.allowNewParts && this.isValidPId(participantId)) {\r\n            participant = this.participantCreate(participantId);\r\n            if (this.started) {\r\n                participant.moveToNextStage();\r\n            }\r\n        }\r\n        return participant;\r\n    }\r\n\r\n    /**\r\n    * participantCreate - description\r\n    *\r\n    * @param  {type} pId description\r\n    * @return {type}     description\r\n    */\r\n    participantCreate(pId) {\r\n        if (!this.isValidPId(pId)) {\r\n            return null;\r\n        }\r\n\r\n        var participantId = pId;\r\n        this.jt.log('Session.participantCreate: ' + participantId);\r\n        var participant = new Participant.new(participantId, this);\r\n        participant.save();\r\n        this.save();\r\n        this.participants[participantId] = participant;\r\n        this.jt.socketServer.sendOrQueueAdminMsg(null, 'addParticipant', participant.shell());\r\n        return participant;\r\n    }\r\n\r\n    isValidPId(pId) {\r\n        return (pId != null && this.allowNewParts) || this.potentialParticipantIds.includes(pId);\r\n    }\r\n\r\n    /**\r\n    * Updates client with latest stage information.\r\n    *\r\n    * @param  {type} p description\r\n    * @return {type}   description\r\n    */\r\n    playerRefresh(p) {\r\n        this.io().to(p).emit('set-stage-name', this.curStage().name);\r\n        this.curStage().onPlayerConnect(this.players[p]);\r\n    }\r\n\r\n    /**\r\n    * participantMoveToNextApp - description\r\n    *\r\n    * CALLED FROM:\r\n    * - {@link Participant#moveToNextStage}.\r\n    *\r\n    * @param  {type} participant description\r\n    * @return {type}             description\r\n    */\r\n    participantMoveToNextApp(participant) {\r\n        if (participant.getApp() != null) {\r\n            participant.getApp().participantEnd(participant);\r\n        }\r\n\r\n        if (participant.appIndex < this.apps.length) {\r\n            participant.appIndex++;\r\n            participant.save();\r\n            this.participantBeginApp(participant);\r\n        } else {\r\n            this.participantEnd(participant);\r\n        }\r\n    }\r\n\r\n    /**\r\n    * Overwrite to add custom functionality.\r\n    *\r\n    * @param  {type} participant description\r\n    * @return {type}             description\r\n    */\r\n    participantEnd(participant) {\r\n        //        console.log('Session.playerEnd: ' + participant.id);\r\n        //        this.io().to(participant.roomId()).emit('start-new-app'); // refresh clients.\r\n    }\r\n\r\n    /**\r\n    * tryToEnd - description\r\n    *\r\n    * CALLED FROM:\r\n    * - Participant.endSession()\r\n    *\r\n    * @return {type}  description\r\n    */\r\n    tryToEnd() {\r\n        var proceed = true;\r\n        var participants = this.participants;\r\n        for (var p in participants) {\r\n            var participant = participants[p];\r\n            if (!participant.isFinishedSession()) {\r\n                proceed = false;\r\n                break;\r\n            }\r\n        }\r\n        if (proceed) {\r\n            this.end();\r\n        }\r\n    }\r\n\r\n    end() {\r\n        console.log('Session.end: ' + this.id);\r\n    }\r\n\r\n    csvFN() {\r\n        return this.getOutputDir() + '/' + this.id + '.csv';\r\n    }\r\n\r\n    participantBeginApp(participant) {\r\n        this.jt.log('Session.participantBeginApp: ' + participant.appIndex);\r\n\r\n        if (participant.appIndex < 1 || participant.appIndex > this.apps.length) {\r\n            console.log('Session.participantBeginApp: INVALID appIndex');\r\n            return false;\r\n        }\r\n\r\n        var app = this.getApp(participant);\r\n\r\n        // If the app has not yet been started, reload it first.\r\n        if (!app.started) {\r\n            let newApp = app.reload();\r\n            this.apps[app.indexInSession() - 1] = newApp;\r\n            app = newApp;\r\n            app.start();\r\n        }\r\n\r\n        app.participantBegin(participant);\r\n    }\r\n\r\n    stageEndCheck(group) {\r\n        this.jt.log(\"checking to end stage for group \" + group.id);\r\n        this.clockUpdate();\r\n        if (this.timeLeft <= 0) {\r\n            this.timeLeft = 0;\r\n            this.clockStop();\r\n            this.stageEnd(group);\r\n        } else {\r\n            this.jt.log('not ending stage');\r\n            this.clockTimerStart();\r\n        }\r\n    }\r\n\r\n    participantStart(participant) {\r\n        \r\n    }\r\n\r\n    start() {\r\n        if (!this.started) {\r\n            this.started = true;\r\n            for (let p in this.participants) {\r\n                this.participantStart(this.participants[p]);\r\n            }\r\n            // this.io().to(this.roomId()).emit('dataUpdate', [{\r\n            //     roomId: this.roomId(),\r\n            //     field: 'started',\r\n            //     value: this.started\r\n            // }]);\r\n            this.advanceSlowest();\r\n        }\r\n    }\r\n\r\n    roomId() {\r\n        return 'session_' + this.id;\r\n    }\r\n\r\n    io() {\r\n        return this.jt.io;\r\n    }\r\n\r\n    /**\r\n     * Return the next app in the session for this participant, null if there are no more apps for this participant.\r\n     * @param {Participant} participant \r\n     */\r\n    getApp(participant) {\r\n        if (participant.appIndex < 1 || participant.appIndex > this.apps.length) {\r\n            return null;\r\n        } else {\r\n            return this.apps[participant.appIndex - 1];\r\n        }\r\n    }\r\n\r\n}"
+        "code": "{\r\n\r\n    /**\r\n    * Create a Session.\r\n    *\r\n    * CALLED FROM:\r\n    * - {@link Session#load}\r\n    * - {@link Data#constructor}\r\n    * - {@link Data#createSession}\r\n    *\r\n    * @param  {Object} jt         Server object.\r\n    * @param  {type} id               The id of the new session.\r\n    */\r\n    constructor(jt, id, options) {\r\n\r\n        if (options == null) {\r\n            options = {};\r\n        }\r\n\r\n        if (options.createFolder == null) {\r\n            options.createFolder = true;\r\n        }\r\n\r\n        this.jt = jt;\r\n        this.id = id;\r\n        if (this.id === null || this.id === undefined) {\r\n            this.id = Utils.getDate();\r\n        }\r\n        this.name = this.id;\r\n\r\n        /**\r\n        * A list of the clients connected to this session.\r\n        * @type Array\r\n        */\r\n        this.clients = [];\r\n\r\n        this.potentialParticipantIds = this.jt.settings.participantIds;\r\n\r\n        this.caseSensitiveLabels = false;\r\n\r\n        /**\r\n        * A list of participants in this session.\r\n        * @type Object\r\n        */\r\n        this.participants = {};\r\n\r\n        /**\r\n        * The time at which this session was last started.\r\n        * @type number\r\n        */\r\n        this.timeStarted = 0;\r\n        this.started = false;\r\n\r\n        /**\r\n        * Whether or not clients can create a participant that does not exist yet.\r\n        */\r\n        this.allowNewParts = this.jt.settings.allowClientsToCreateParticipants;\r\n\r\n        this.outputDelimiter = this.jt.settings.outputDelimiter;\r\n\r\n        /**\r\n        * The apps in this session.\r\n        * @type Array\r\n        */\r\n        this.apps = [];\r\n\r\n        this.users = [];\r\n\r\n        this.asyncQueue = async.queue(this.processMessage, 1);\r\n\r\n        // A filestream for writing to this session's object states.\r\n        try {\r\n            fs.ensureDirSync(this.getOutputDir());\r\n            var options = { 'flags': 'a'};\r\n            this.fileStream = fs.createWriteStream(this.getOutputDir() + '/' + this.id + '.gsf', options);\r\n        } catch (err) {\r\n            debugger;\r\n            console.log(err);\r\n        }\r\n        /**\r\n        * A list of fields to hide from output.\r\n        * @type Array\r\n        */\r\n        this.outputHide = [\r\n            'jt',\r\n            'clients',\r\n            'participants',\r\n            'this',\r\n            'outputHide',\r\n            'apps',\r\n            'fileStream',\r\n            'asyncQueue',\r\n            'started'\r\n        ];\r\n\r\n    }\r\n\r\n    /**\r\n    * Loads a session from a .json file.\r\n    *\r\n    * FUNCTIONALITY\r\n    * - create a new session\r\n    * - load session objects from .gsf file\r\n    * - for each object in the .gsf file, call the appropriate object.load method.\r\n    * - link participants and players.\r\n    *\r\n    * @param  {Object} jt      The server\r\n    * @param  {type} json      The content of the session.\r\n    * @return {Session}        The session described by the contents of json.\r\n    */\r\n    static load(jt, folder, data) {\r\n        var session = new Session(jt, folder);\r\n        var all = fs.readFileSync(path.join(jt.path, jt.settings.sessionsFolder + '/' + folder + '/' + folder + '.gsf')).toString();\r\n        var lines = all.split('\\n');\r\n\r\n        // Read objects\r\n        for (var i=0; i<lines.length; i++) {\r\n            try {\r\n                if (lines[i] !== undefined && lines[i].length > 0) {\r\n                    var json = JSON.parse(lines[i]);\r\n                    switch (json.type) {\r\n                        case 'SESSION':\r\n                        var newSession = new Session(jt, folder);\r\n                        for (var j in json) {\r\n                            newSession[j] = json[j];\r\n                        }\r\n                        newSession.participants = session.participants;\r\n                        for (let p in session.participants) {\r\n                            session.participants[p].session = newSession;\r\n                        }\r\n\r\n                        newSession.apps = [];\r\n                        // var extra = 0;\r\n                        // for (var j in newSession.appSequence) {\r\n                        //     var k = j - extra;\r\n                        //     if (session.apps[k].id === newSession.appSequence) {\r\n                        //         var app = session.apps[k];\r\n                        //         app.session = newSession;\r\n                        //         newSession.apps.push(app);\r\n                        //     } else {\r\n                        //         extra++;\r\n                        //     }\r\n                        // }\r\n\r\n                        session = newSession;\r\n\r\n                        break;\r\n                        case 'APP':\r\n                        App.load(json, session);\r\n                        break;\r\n                        case 'PERIOD':\r\n                        Period.load(json, session);\r\n                        break;\r\n                        case 'GROUP':\r\n                        Group.load(json, session, data);\r\n                        break;\r\n                        case 'PLAYER':\r\n                        Player.load(json, session);\r\n                        break;\r\n                        case 'PARTICIPANT':\r\n                        Participant.load(json, session);\r\n                        break;\r\n                        case 'TABLE':\r\n                        Table.load(json, session);\r\n                        break;\r\n                    };\r\n                }\r\n            } catch (err) {\r\n//                console.log(err.stack);\r\n            }\r\n        }\r\n\r\n        // Link participants and players.\r\n        for (var a in session.apps) {\r\n            var app = session.apps[a];\r\n            for (var prd in app.periods) {\r\n                var period = app.periods[prd];\r\n                for (var gr in period.groups) {\r\n                    var group = period.groups[gr];\r\n                    for (var pl in group.players) {\r\n                        var player = group.players[pl];\r\n                        var participant = session.participants[player.participantId];\r\n                        player.participant = participant;\r\n                        participant.player = player;\r\n                        participant.players.push(player);\r\n                        if (player.stageIndex > -1) {\r\n                            player.stage = player.app().stages[player.stageIndex];\r\n                        }\r\n                    }\r\n                }\r\n            }\r\n        }\r\n\r\n        return session;\r\n    }\r\n\r\n    canUserManage(userId) {\r\n        var user = this.jt.data.user(userId);\r\n        if (!this.jt.settings.multipleUsers) {\r\n            return true;\r\n        } else {\r\n            if (user === null) {\r\n                return false;\r\n            } else if (user.isAdmin()) {\r\n                return true;\r\n            } else {\r\n                return this.users.includes(userId);\r\n            }\r\n        }\r\n    }\r\n\r\n    /**\r\n    * Add the app with the given ID to this session.\r\n    *\r\n    * FUNCTIONALITY:\r\n    * - load the given app {@link Session#loadApp}\r\n    * - add app to this session's apps field.\r\n    * - copy app source files {@link Utils#copyFiles}.\r\n    * - save app and its stages {@link App#saveSelfAndChildren}.\r\n    * - emit 'sessionAddApp' message.\r\n    *\r\n    * @param  {string} appId The ID of the app to add to this session.\r\n    */\r\n    addApp(appPath, options) {\r\n\r\n        if (this.queuePath != null && !appPath.startsWith(this.queuePath)) {\r\n            appPath = path.join(this.queuePath, appPath);\r\n        }\r\n\r\n        var app = this.jt.data.loadApp(appPath, this, appPath, options);\r\n        if (app !== null) {\r\n            this.apps.push(app);\r\n            if (app.appPath.endsWith('.jtt') || app.appPath.endsWith('.js')) {\r\n                Utils.copyFile(app.appFilename, app.appDir, app.getOutputFN());\r\n            } else {\r\n                Utils.copyFiles(path.parse(app.appPath).dir, app.getOutputFN());\r\n            }\r\n            // app.saveSelfAndChildren();\r\n            this.save();\r\n            this.emit('sessionAddApp', {sId: this.id, app: app.shellWithChildren()});\r\n        }\r\n    }\r\n\r\n    addUser(userId) {\r\n        this.users.push(userId);\r\n        this.save();\r\n        this.emit('sessionAddUser', {sId: this.id, uId: userId});\r\n    }\r\n\r\n    addQueue(qId) {\r\n        var queue = this.jt.data.queue(qId);\r\n        if (queue !== null) {\r\n            for (var i in queue.apps) {\r\n                try {\r\n                    this.addApp(queue.apps[i].appId, queue.apps[i].options);\r\n                } catch (err) {}\r\n            }\r\n        }\r\n    }\r\n\r\n    addAdminClient(socket) {\r\n        for (let i=0; i<this.participants.length; i++) {\r\n            addClient(socket, this.participants[i].id);\r\n        }\r\n    }\r\n\r\n    /**\r\n    * Connect a web socket client to a participant of this session.\r\n    * - Listen for disconnect and goto-next-stage messages.\r\n    * - Load participant.\r\n    * - Socket listens to its own channel.\r\n    * -\r\n    *\r\n    * CALLED FROM\r\n    * - {@link SocketServer#addParticipantClient}\r\n    *\r\n    * @param  {Object} socket        The web socket.\r\n    * @param  {string} participantId The id of the participant.\r\n    */\r\n    addClient(socket, participantId) {\r\n        var session = this;\r\n\r\n        socket.on('disconnect', function() {\r\n            session.clientRemove(socket);\r\n        });\r\n\r\n        socket.on('goto-next-stage', function(msg) {\r\n            var pId = msg.pId;\r\n            var stageId = msg.stageId;\r\n            var periodId = msg.periodId;\r\n            var participant = session.participant(pId);\r\n            if (participant.stageId() === stageId && participant.player.periodIndex() === periodId) {\r\n                participant.getApp().playerMoveToNextStage(participant.player);\r\n            }\r\n        });\r\n\r\n        var participant = this.participant(participantId);\r\n        if (participant === null || participant === undefined) {\r\n            if (!this.allowNewParts) {\r\n                console.log('error: tried to add new participant ' + participantId);\r\n                this.io().to(socket.id).emit('notLoggedIn');\r\n                return null;\r\n            }\r\n            participant = this.participantCreate(participantId);\r\n        }\r\n\r\n        var client = new Client.new(socket, this);\r\n        client.participant = participant;\r\n        socket.join(this.roomId());\r\n        participant.clientAdd(client);\r\n        this.clients.push(client);\r\n        this.jt.socketServer.sendOrQueueAdminMsg(null, 'addClient', client.shell());\r\n        this.io().to(socket.id).emit('logged-in', participant.shell());\r\n        if (participant.player !== null) {\r\n            participant.player.sendUpdate(socket.id);\r\n        }\r\n\r\n        return client;\r\n    }\r\n\r\n    emitToAdmins(name, data) {\r\n        this.jt.socketServer.sendOrQueueAdminMsg(null, name, data);\r\n    }\r\n\r\n    getOutputDir() {\r\n        return this.jt.settings.sessionsFolder + '/' + this.name;\r\n    }\r\n\r\n    /**\r\n    * Pushes a message to the end of the message queue.\r\n    * @param  {type} obj The client from whom the message was received.\r\n    * @param  {type} da The data received from the client.\r\n    * @param  {string} funcName The name of the function to evaluate on the client object.\r\n    */\r\n    pushMessage(obj, da, funcName) {\r\n        var msg = {obj: obj, data: da, fn: funcName, jt: this.jt, session: this};\r\n        this.asyncQueue.push(msg, this.messageCallback);\r\n        //        var playerId = Player.genRoomId(da.player);\r\n        //        var line = cl.participant.id + ', ' + cl.id + ', ' + playerId + ', ' + funcName + ', ' + JSON.stringify(da.data) + '\\n';\r\n        //        fs.appendFileSync(this.getOutputDir() + '/messages.csv', line);\r\n    }\r\n\r\n    addMessageToStartOfQueue(obj, data, funcName) {\r\n        var msg = {obj: obj, data: data, fn: funcName, jt: this.jt, session: this};\r\n        this.asyncQueue.unshift(msg, this.messageCallback);\r\n        //        var playerId = Player.genRoomId(da.player);\r\n        //        var line = cl.participant.id + ', ' + cl.id + ', ' + playerId + ', ' + funcName + ', ' + JSON.stringify(da.data) + '\\n';\r\n        //        fs.appendFileSync(this.getOutputDir() + '/messages.csv', line);\r\n    }\r\n\r\n    processMessage(msg, callback) {\r\n        let obj = msg.obj;\r\n        let data = msg.data;\r\n        let fn = msg.fn;\r\n        let jt = msg.jt;\r\n        let session = msg.session;\r\n        try {\r\n\r\n            if (!['endStage', 'endApp', 'forceEndStage'].includes(fn)) {\r\n                data = Utils.parseFloatRec(data);\r\n            }\r\n            \r\n            if (obj.canProcessMessage()) {\r\n                obj[fn](data);\r\n                session.emitParticipantUpdates();\r\n                //            }\r\n                //            if (client.player() !== null && client.player().matchesPlayer(player) && client.player().status === 'playing') {\r\n                //                if (client.player() !== null) {\r\n                //                    client.player().save();\r\n                //                }\r\n            } else {\r\n                jt.log('Object cannot process message, skipping message \"' + fn + '\".');\r\n            }\r\n        } catch (err) {\r\n            jt.log(err.stack);\r\n            debugger;\r\n            try {\r\n                jt.log('error processing message: ' + JSON.stringify(msg.data));\r\n            } catch (err2) {\r\n                jt.log('Error printing error: ' + msg.fn + ', ' + err2.stack);\r\n            }\r\n        }\r\n        callback();\r\n        return true;\r\n    }\r\n\r\n    /**\r\n    // * Process a message from the queue.\r\n    // */\r\n    // processMessageV1(msg, callback) {\r\n    //     const client = msg.client;\r\n    //     const player = msg.data.player;\r\n    //     let data = msg.data.data;\r\n    //     const fn = msg.fn;\r\n    //     const jt = msg.jt;\r\n    //     try {\r\n    //         if (client.player() !== null && client.player().matchesPlayer(player) && client.player().status === 'playing') {\r\n    //             data = Utils.parseFloatRec(data);\r\n    //             client[fn](data);\r\n    //             //                if (client.player() !== null) {\r\n    //             //                    client.player().save();\r\n    //             //                }\r\n    //         } else {\r\n    //             jt.log('Message player does not match clients current player, skipping message.');\r\n    //         }\r\n    //     } catch (err) {\r\n    //         jt.log('error processing message: ' + JSON.stringify(msg.data));\r\n    //         jt.log(err.stack);\r\n    //     }\r\n    //     callback();\r\n    //     return true;\r\n    // }\r\n\r\n    messageCallback() {}\r\n\r\n    resume() {\r\n        this.setRunning(true);\r\n    }\r\n\r\n    pause() {\r\n        this.setRunning(false);\r\n    }\r\n\r\n    setRunning(b) {\r\n        this.isRunning = b;\r\n        var timers = this.timers();\r\n        for (var t in timers) {\r\n            timers[t].setRunning(b);\r\n        }\r\n        for (var i in this.participants) {\r\n            var participant = this.participants[i];\r\n            participant.player.emitUpdate2();\r\n        }\r\n    }\r\n\r\n    setId(id) {\r\n        this.id = id;\r\n        for (var i in this.participants) {\r\n            var participant = this.participants[i];\r\n            participant.refreshClients();\r\n        }\r\n    }\r\n\r\n    timers() {\r\n        var out = [];\r\n        for (var a in this.apps) {\r\n            var app = this.apps[a];\r\n            for (var p in app.periods) {\r\n                var period = app.periods[p];\r\n                for (var g in period.groups) {\r\n                    var group = period.groups[g];\r\n                    if (group.stageTimer !== undefined) {\r\n                        out.push(group.stageTimer);\r\n                    }\r\n                    for (var pl in group.players) {\r\n                        var player = group.players[pl];\r\n                        if (player.stageTimer !== undefined) {\r\n                            out.push(player.stageTimer);\r\n                        }\r\n                    }\r\n                }\r\n            }\r\n        }\r\n        return out;\r\n    }\r\n\r\n    /**\r\n    * Returns the {@link App} in the session app sequence that follows a reference {@link App}.\r\n    * @param  {@link App} app The reference app.\r\n    * @return {@link App}     The app in the session app sequence that follows the reference app.\r\n    */\r\n    appFollowing(app) {\r\n        for (var i=0; i<this.apps.length; i++) {\r\n            if (this.apps[i] === app) {\r\n                if (i < this.apps.length-1) {\r\n                    return this.apps[i+1];\r\n                } else {\r\n                    return null;\r\n                }\r\n            }\r\n        }\r\n    }\r\n\r\n    participantUI() {\r\n        return this.jt.settings.participantUI;\r\n    }\r\n\r\n    /**\r\n    * Sends a page to a client (via the given HTTPResponse object).\r\n    * @param  {HTTPRequest} req description\r\n    * @param  {HTTPResponse} res description\r\n    */\r\n    sendParticipantPage(req, res, participantId) {\r\n        var participant = this.participant(participantId);\r\n\r\n        // Not a participant yet\r\n        if (participant == null) {\r\n            res.sendFile(path.join(this.jt.path, this.participantUI() + '/readyClient.html'));\r\n        }\r\n        // Participant, but not in an app yet.\r\n        else if (participant.getApp() == null) {\r\n            res.sendFile(path.join(this.jt.path, this.participantUI() + '/readyClient.html'));\r\n        }\r\n        // participant in an app.\r\n        else {\r\n            const app = participant.getApp();\r\n            app.sendParticipantPage(req, res, participant);\r\n        }\r\n    }\r\n\r\n    /**\r\n    * Adds a particular number of participants to this session.\r\n    * @param  {number} num The number of participants to add.\r\n    */\r\n    addParticipants(num) {\r\n        let partsAdded = 0;\r\n\r\n        // Search through the list of participantIds until one is found for which\r\n        // no participant already exists.\r\n        for (var i=0; i<this.potentialParticipantIds.length; i++) {\r\n            let pId = this.potentialParticipantIds[i];\r\n            let ptcptAlreadyExists = this.participants[pId] !== undefined;\r\n\r\n            // No participant already exists, so create one.\r\n            if (!ptcptAlreadyExists) {\r\n                this.participantCreate(pId);\r\n                partsAdded++;\r\n\r\n                // Check if enough participants have been created. If yes, exit.\r\n                if (partsAdded >= num) {\r\n                    return;\r\n                }\r\n            }\r\n        }\r\n    }\r\n\r\n    saveOutput() {\r\n\r\n        var headers = ['id'];\r\n        var skip = [];\r\n        var fields = this.outputFields();\r\n        Utils.getHeaders(fields, skip, headers);\r\n        var text = [];\r\n        text.push(headers.join(this.outputDelimiter));\r\n        var newLine = '';\r\n        for (var h=0; h<headers.length; h++) {\r\n            var header = headers[h];\r\n            if (this[header] !== undefined) {\r\n                newLine += JSON.stringify(this[header]);\r\n            }\r\n            if (h<headers.length-1) {\r\n                newLine += this.outputDelimiter;\r\n            }\r\n        }\r\n        text.push(newLine);\r\n\r\n        var fn = this.csvFN() + ' - manual save at ' + Utils.getDate() + '.csv';\r\n        let fullText = '';\r\n        let fd = fs.openSync(fn, 'a');\r\n        try {\r\n            fullText += 'SESSION\\n';\r\n            fullText += text.join('\\n') + '\\n';\r\n            for (var i=0; i<this.apps.length; i++) {\r\n                fullText += this.apps[i].saveOutput();\r\n            }\r\n            fs.appendFileSync(fd, fullText);\r\n        } catch(err) {\r\n            console.log('error writing session: ' + this.id);\r\n            debugger;\r\n        } finally {\r\n            fs.closeSync(fd);\r\n        }\r\n\r\n        return fs.readFileSync(fn, 'utf8');\r\n    }\r\n\r\n    emitParticipantUpdates() {\r\n        for (let p in this.participants) {\r\n            this.participants[p].actuallyEmitUpdate();\r\n        }\r\n    }\r\n\r\n    /**\r\n    * Sets the number of participants in this session.\r\n    * @param  {number} num The number of participants to have.\r\n    */\r\n    setNumParticipants(num) {\r\n        let change = num - Object.keys(this.participants).length;\r\n        if (change > 0) {\r\n            this.addParticipants(change);\r\n        } else if (change < 0) {\r\n            this.removeParticipants(-change);\r\n        }\r\n    }\r\n\r\n    setAllowNewParts(b) {\r\n        this.allowNewParts = b;\r\n        var d = {sId: this.id, value: b};\r\n        this.emit('setAllowNewParts', d);\r\n    }\r\n\r\n    setCaseSensitiveLabels(b) {\r\n        this.caseSensitiveLabels = b;\r\n        var d = {sId: this.id, value: b};\r\n        this.emit('setCaseSensitiveLabels', d);\r\n    }\r\n\r\n    /**\r\n    * Remove a particular number of participants from this session.\r\n    * @param  {number} num The number of participants to remove.\r\n    */\r\n    removeParticipants(num) {\r\n        const parts = this.participants;\r\n        for (let i=0; i<num; i++) {\r\n            let len = Object.keys(parts).length;\r\n\r\n            if (len < 1) {\r\n                return;\r\n            }\r\n\r\n            let part = parts[Object.keys(parts)[len-1]];\r\n            let pId = part.id;\r\n            this.deleteParticipant(pId);\r\n        }\r\n    }\r\n\r\n    deleteParticipant(pId) {\r\n        delete this.participants[pId];\r\n        let md = {sId: this.id, pId: pId};\r\n        this.emit('sessionDeleteParticipant', md);\r\n    }\r\n\r\n    /**\r\n    * this - description\r\n    *\r\n    * @param  {type} d description\r\n    */\r\n    deleteApp(d) {\r\n        var i = parseInt(d.i);\r\n        if (i > -1 && this.apps[i].id === d.aId) {\r\n            this.apps.splice(i, 1);\r\n            var toDel = this.getOutputDir() + '/' + (i + 1) + '_' + d.aId;\r\n            if (fs.existsSync(toDel)) {\r\n                fs.removeSync(toDel);\r\n            }\r\n            for (var j=i; j<this.apps.length; j++) {\r\n                var origPath = this.getOutputDir() + '/' + (j + 2) + '_' + this.apps[j].id;\r\n                var newPath = this.getOutputDir() + '/' + (j + 1) + '_' + this.apps[j].id;\r\n                fs.renameSync(origPath, newPath);\r\n            }\r\n            this.save();\r\n            this.emit('sessionDeleteApp', d);\r\n        }\r\n    }\r\n\r\n    setAppOption(appId, appIndex, name, value) {\r\n        var i = parseInt(appIndex);\r\n        if (i > -1 && this.apps[i].id === appId) {\r\n            var app = this.apps[i];\r\n            app.setOptionValue(name, value);\r\n            this.apps[i] = app.reload();\r\n            app.saveSelfAndChildren();\r\n        }\r\n    }\r\n\r\n    /**\r\n    * Sends a message to all clients of this session.\r\n    *\r\n    * @param  {string} name The name of the message.\r\n    * @param  {Object} d    The data of the message.\r\n    */\r\n    emit(name, d) {\r\n        this.io().to(this.roomId()).emit(name, d);\r\n    }\r\n\r\n    /**\r\n    * Move slowest participants to their next stage. See {@link Participant#moveToNextStage}.\r\n    *\r\n    */\r\n    advanceSlowest() {\r\n        var parts = this.slowestParticipants();\r\n        for (var i=0; i<parts.length; i++) {\r\n            parts[i].moveToNextStage();\r\n        }\r\n    }\r\n\r\n    slowestParticipants() {\r\n        var out = [];\r\n        var minAppIndex = null;\r\n        var minPeriodIndex = null;\r\n        var minStageIndex = null;\r\n        for (var i in this.participants) {\r\n            var part = this.participants[i];\r\n            if (minAppIndex === null || part.appIndex <= minAppIndex) {\r\n                if (minPeriodIndex === null || part.periodIndex <= minPeriodIndex) {\r\n                    if (minStageIndex === null || part.stageIndex() <= minStageIndex) {\r\n                        if (minAppIndex === null || part.appIndex < minAppIndex) {\r\n                            minAppIndex = part.appIndex;\r\n                            minPeriodIndex = part.periodIndex;\r\n                            minStageIndex = part.stageIndex();\r\n                            out = [];\r\n                        } else if (minPeriodIndex === null || part.periodIndex < minPeriodIndex) {\r\n                            minPeriodIndex = part.periodIndex;\r\n                            minStageIndex = part.stageIndex();\r\n                            out = [];\r\n                        } else if (minStageIndex === null || part.stageIndex() < minStageIndex) {\r\n                            minStageIndex = part.stageIndex();\r\n                            out = [];\r\n                        }\r\n                        out.push(part);\r\n                    }\r\n                }\r\n            }\r\n        }\r\n        return out;\r\n    }\r\n\r\n    /**\r\n    * this - description\r\n    *\r\n    * @return {type}  description\r\n    */\r\n    save() {\r\n        try {\r\n            this.jt.log('Session.save: ' + this.id);\r\n            var localData = this.shell();\r\n            this.saveDataFS(localData, 'SESSION');\r\n            for (var i in this.apps) {\r\n                this.apps[i].saveSelfAndChildren();\r\n            }\r\n        } catch (err) {\r\n            console.log(err.stack);\r\n        }\r\n    }\r\n\r\n    saveDataFS(d, type) {\r\n        try {\r\n            var a = JSON.stringify(d) + '\\n';\r\n            var b = '\"type\":\"' + type + '\"' + this.outputDelimiter;\r\n            var position = 1;\r\n            var output = [a.slice(0, position), b, a.slice(position)].join('');\r\n            this.fileStream.write(output);\r\n        } catch (err) {\r\n            console.log('ERROR Session.saveDataFS: ' + err.stack);\r\n        }\r\n    }\r\n\r\n    /**\r\n    * Creates a top-down shell of this {@link Session}. This includes all fields given by {@link Session.outputFields}, the participants, the apps and the clients.\r\n    *\r\n    * CALLED FROM:\r\n    * - {@link Msgs#openSession}.\r\n    *\r\n    * @return {type}  The shell of this session.\r\n    */\r\n    shellWithChildren() {\r\n        var out = {};\r\n        var fields = this.outputFields();\r\n        for (var f in fields) {\r\n            var field = fields[f];\r\n            out[field] = this[field];\r\n        }\r\n        out.participants = {};\r\n        for (var i in this.participants) {\r\n            out.participants[i] = this.participants[i].shellAll();\r\n        }\r\n        out.apps = [];\r\n        for (var i in this.apps) {\r\n            out.apps[i] = this.apps[i].shellWithChildren();\r\n        }\r\n        out.clients = [];\r\n        for (var i in this.clients) {\r\n            out.clients[i] = this.clients[i].shell();\r\n        }\r\n        return out;\r\n    }\r\n\r\n    /**\r\n    * shell - description\r\n    *\r\n    * @return {type}  description\r\n    */\r\n    shell() {\r\n        var out = {};\r\n        var fields = this.outputFields();\r\n        for (var f in fields) {\r\n            var field = fields[f];\r\n            out[field] = this[field];\r\n        }\r\n        out.numParticipants = Utils.objLength(this.participants);\r\n        out.numApps = Utils.objLength(this.apps);\r\n        out.appSequence = [];\r\n        for (var i in this.apps) {\r\n            try {\r\n                out.appSequence.push(this.apps[i].id);\r\n            } catch (err) {}\r\n        }\r\n        out.clients = [];\r\n        out.participants = [];\r\n        return out;\r\n    }\r\n\r\n    /**\r\n    * this - description\r\n    *\r\n    * @return {type}  description\r\n    */\r\n    outputFields() {\r\n        var fields = [];\r\n        for (var prop in this) {\r\n            if (\r\n                !Utils.isFunction(this[prop]) &&\r\n                !this.outputHide.includes(prop)\r\n            )\r\n            fields.push(prop);\r\n        }\r\n        return fields;\r\n    }\r\n\r\n    /**\r\n    * clientRemove - description\r\n    *\r\n    * @param  {type} socket description\r\n    * @return {type}        description\r\n    */\r\n    clientRemove(socket) {\r\n        var socketId = socket.id;\r\n        this.jt.log('removing client: ' + socketId);\r\n        for (var i=this.clients.length - 1; i>=0; i--) {\r\n            var client = this.clients[i];\r\n            if (client.id === socketId) {\r\n                if (client.participant !== null) {\r\n                    client.participant.clientRemove(client.id);\r\n                }\r\n                this.clients.splice(i, 1);\r\n                this.jt.socketServer.sendOrQueueAdminMsg(null, 'remove-client', client.shell());\r\n            }\r\n        }\r\n    }\r\n\r\n    /**\r\n    * participant - description\r\n    *\r\n    * @param  {type} participantId description\r\n    * @return {type}               description\r\n    */\r\n    participant(participantId) {\r\n        var participant = this.participants[participantId];\r\n        if (participant == null && this.allowNewParts && this.isValidPId(participantId)) {\r\n            participant = this.participantCreate(participantId);\r\n            if (this.started) {\r\n                participant.moveToNextStage();\r\n            }\r\n        }\r\n        return participant;\r\n    }\r\n\r\n    /**\r\n    * participantCreate - description\r\n    *\r\n    * @param  {type} pId description\r\n    * @return {type}     description\r\n    */\r\n    participantCreate(pId) {\r\n        if (!this.isValidPId(pId)) {\r\n            return null;\r\n        }\r\n\r\n        var participantId = pId;\r\n        this.jt.log('Session.participantCreate: ' + participantId);\r\n        var participant = new Participant.new(participantId, this);\r\n        participant.save();\r\n        this.save();\r\n        this.participants[participantId] = participant;\r\n        this.jt.socketServer.sendOrQueueAdminMsg(null, 'addParticipant', participant.shell());\r\n        return participant;\r\n    }\r\n\r\n    isValidPId(pId) {\r\n        return (pId != null && this.allowNewParts) || this.potentialParticipantIds.includes(pId);\r\n    }\r\n\r\n    /**\r\n    * Updates client with latest stage information.\r\n    *\r\n    * @param  {type} p description\r\n    * @return {type}   description\r\n    */\r\n    playerRefresh(p) {\r\n        this.io().to(p).emit('set-stage-name', this.curStage().name);\r\n        this.curStage().onPlayerConnect(this.players[p]);\r\n    }\r\n\r\n    /**\r\n    * participantMoveToNextApp - description\r\n    *\r\n    * CALLED FROM:\r\n    * - {@link Participant#moveToNextStage}.\r\n    *\r\n    * @param  {type} participant description\r\n    * @return {type}             description\r\n    */\r\n    participantMoveToNextApp(participant) {\r\n        if (participant.getApp() != null) {\r\n            participant.getApp().participantEnd(participant);\r\n        }\r\n\r\n        if (participant.appIndex < this.apps.length) {\r\n            participant.appIndex++;\r\n            participant.save();\r\n            this.participantBeginApp(participant);\r\n        } else {\r\n            this.participantEnd(participant);\r\n        }\r\n    }\r\n\r\n    /**\r\n    * Overwrite to add custom functionality.\r\n    *\r\n    * @param  {type} participant description\r\n    * @return {type}             description\r\n    */\r\n    participantEnd(participant) {\r\n        //        console.log('Session.playerEnd: ' + participant.id);\r\n        //        this.io().to(participant.roomId()).emit('start-new-app'); // refresh clients.\r\n    }\r\n\r\n    /**\r\n    * tryToEnd - description\r\n    *\r\n    * CALLED FROM:\r\n    * - Participant.endSession()\r\n    *\r\n    * @return {type}  description\r\n    */\r\n    tryToEnd() {\r\n        var proceed = true;\r\n        var participants = this.participants;\r\n        for (var p in participants) {\r\n            var participant = participants[p];\r\n            if (!participant.isFinishedSession()) {\r\n                proceed = false;\r\n                break;\r\n            }\r\n        }\r\n        if (proceed) {\r\n            this.end();\r\n        }\r\n    }\r\n\r\n    end() {\r\n        console.log('Session.end: ' + this.id);\r\n    }\r\n\r\n    csvFN() {\r\n        return this.getOutputDir() + '/' + this.id + '.csv';\r\n    }\r\n\r\n    participantBeginApp(participant) {\r\n        this.jt.log('Session.participantBeginApp: ' + participant.appIndex);\r\n\r\n        if (participant.appIndex < 1 || participant.appIndex > this.apps.length) {\r\n            console.log('Session.participantBeginApp: INVALID appIndex');\r\n            return false;\r\n        }\r\n\r\n        var app = this.getApp(participant);\r\n\r\n        // If the app has not yet been started, reload it first.\r\n        if (!app.started) {\r\n            let newApp = app.reload();\r\n            this.apps[app.indexInSession() - 1] = newApp;\r\n            app = newApp;\r\n            app.start();\r\n        }\r\n\r\n        app.participantBegin(participant);\r\n    }\r\n\r\n    stageEndCheck(group) {\r\n        this.jt.log(\"checking to end stage for group \" + group.id);\r\n        this.clockUpdate();\r\n        if (this.timeLeft <= 0) {\r\n            this.timeLeft = 0;\r\n            this.clockStop();\r\n            this.stageEnd(group);\r\n        } else {\r\n            this.jt.log('not ending stage');\r\n            this.clockTimerStart();\r\n        }\r\n    }\r\n\r\n    participantStart(participant) {\r\n        \r\n    }\r\n\r\n    start() {\r\n        if (!this.started) {\r\n            this.started = true;\r\n            for (let p in this.participants) {\r\n                this.participantStart(this.participants[p]);\r\n            }\r\n            // this.io().to(this.roomId()).emit('dataUpdate', [{\r\n            //     roomId: this.roomId(),\r\n            //     field: 'started',\r\n            //     value: this.started\r\n            // }]);\r\n            this.advanceSlowest();\r\n        }\r\n    }\r\n\r\n    roomId() {\r\n        return 'session_' + this.id;\r\n    }\r\n\r\n    io() {\r\n        return this.jt.io;\r\n    }\r\n\r\n    /**\r\n     * Return the next app in the session for this participant, null if there are no more apps for this participant.\r\n     * @param {Participant} participant \r\n     */\r\n    getApp(participant) {\r\n        if (participant.appIndex < 1 || participant.appIndex > this.apps.length) {\r\n            return null;\r\n        } else {\r\n            return this.apps[participant.appIndex - 1];\r\n        }\r\n    }\r\n\r\n}"
       },
       "augments": [],
       "errors": [],
@@ -62621,22 +62621,22 @@
           "tags": [],
           "loc": {
             "start": {
-              "line": 406,
+              "line": 408,
               "column": 4
             },
             "end": {
-              "line": 408,
+              "line": 410,
               "column": 9
             }
           },
           "context": {
             "loc": {
               "start": {
-                "line": 433,
+                "line": 435,
                 "column": 4
               },
               "end": {
-                "line": 433,
+                "line": 435,
                 "column": 24
               }
             },
@@ -62834,22 +62834,22 @@
           ],
           "loc": {
             "start": {
-              "line": 486,
+              "line": 488,
               "column": 4
             },
             "end": {
-              "line": 490,
+              "line": 492,
               "column": 6
             }
           },
           "context": {
             "loc": {
               "start": {
-                "line": 491,
+                "line": 493,
                 "column": 4
               },
               "end": {
-                "line": 501,
+                "line": 503,
                 "column": 5
               }
             },
@@ -62861,7 +62861,7 @@
             {
               "title": "param",
               "name": "app",
-              "lineNumber": 491
+              "lineNumber": 493
             }
           ],
           "properties": [],
@@ -62970,22 +62970,22 @@
           ],
           "loc": {
             "start": {
-              "line": 507,
+              "line": 509,
               "column": 4
             },
             "end": {
-              "line": 511,
+              "line": 513,
               "column": 6
             }
           },
           "context": {
             "loc": {
               "start": {
-                "line": 512,
+                "line": 514,
                 "column": 4
               },
               "end": {
-                "line": 528,
+                "line": 530,
                 "column": 5
               }
             },
@@ -63119,7 +63119,7 @@
             {
               "title": "param",
               "name": "participantId",
-              "lineNumber": 512
+              "lineNumber": 514
             }
           ],
           "properties": [],
@@ -63218,22 +63218,22 @@
           ],
           "loc": {
             "start": {
-              "line": 530,
+              "line": 532,
               "column": 4
             },
             "end": {
-              "line": 533,
+              "line": 535,
               "column": 6
             }
           },
           "context": {
             "loc": {
               "start": {
-                "line": 534,
+                "line": 536,
                 "column": 4
               },
               "end": {
-                "line": 554,
+                "line": 556,
                 "column": 5
               }
             },
@@ -63400,22 +63400,22 @@
           ],
           "loc": {
             "start": {
-              "line": 602,
+              "line": 604,
               "column": 4
             },
             "end": {
-              "line": 605,
+              "line": 607,
               "column": 6
             }
           },
           "context": {
             "loc": {
               "start": {
-                "line": 606,
+                "line": 608,
                 "column": 4
               },
               "end": {
-                "line": 613,
+                "line": 615,
                 "column": 5
               }
             },
@@ -63582,22 +63582,22 @@
           ],
           "loc": {
             "start": {
-              "line": 627,
+              "line": 629,
               "column": 4
             },
             "end": {
-              "line": 630,
+              "line": 632,
               "column": 6
             }
           },
           "context": {
             "loc": {
               "start": {
-                "line": 631,
+                "line": 633,
                 "column": 4
               },
               "end": {
-                "line": 644,
+                "line": 646,
                 "column": 5
               }
             },
@@ -63764,22 +63764,22 @@
           ],
           "loc": {
             "start": {
-              "line": 652,
+              "line": 654,
               "column": 4
             },
             "end": {
-              "line": 656,
+              "line": 658,
               "column": 6
             }
           },
           "context": {
             "loc": {
               "start": {
-                "line": 657,
+                "line": 659,
                 "column": 4
               },
               "end": {
-                "line": 673,
+                "line": 675,
                 "column": 5
               }
             },
@@ -63956,22 +63956,22 @@
           ],
           "loc": {
             "start": {
-              "line": 685,
+              "line": 687,
               "column": 4
             },
             "end": {
-              "line": 690,
+              "line": 692,
               "column": 6
             }
           },
           "context": {
             "loc": {
               "start": {
-                "line": 691,
+                "line": 693,
                 "column": 4
               },
               "end": {
-                "line": 693,
+                "line": 695,
                 "column": 5
               }
             },
@@ -64230,22 +64230,22 @@
           "tags": [],
           "loc": {
             "start": {
-              "line": 695,
+              "line": 697,
               "column": 4
             },
             "end": {
-              "line": 698,
+              "line": 700,
               "column": 6
             }
           },
           "context": {
             "loc": {
               "start": {
-                "line": 699,
+                "line": 701,
                 "column": 4
               },
               "end": {
-                "line": 704,
+                "line": 706,
                 "column": 5
               }
             },
@@ -64349,22 +64349,22 @@
           ],
           "loc": {
             "start": {
-              "line": 737,
+              "line": 739,
               "column": 4
             },
             "end": {
-              "line": 741,
+              "line": 743,
               "column": 6
             }
           },
           "context": {
             "loc": {
               "start": {
-                "line": 742,
+                "line": 744,
                 "column": 4
               },
               "end": {
-                "line": 753,
+                "line": 755,
                 "column": 5
               }
             },
@@ -64748,22 +64748,22 @@
           ],
           "loc": {
             "start": {
-              "line": 767,
+              "line": 769,
               "column": 4
             },
             "end": {
-              "line": 774,
+              "line": 776,
               "column": 6
             }
           },
           "context": {
             "loc": {
               "start": {
-                "line": 775,
+                "line": 777,
                 "column": 4
               },
               "end": {
-                "line": 795,
+                "line": 797,
                 "column": 5
               }
             },
@@ -64927,22 +64927,22 @@
           ],
           "loc": {
             "start": {
-              "line": 797,
+              "line": 799,
               "column": 4
             },
             "end": {
-              "line": 801,
+              "line": 803,
               "column": 6
             }
           },
           "context": {
             "loc": {
               "start": {
-                "line": 802,
+                "line": 804,
                 "column": 4
               },
               "end": {
-                "line": 820,
+                "line": 822,
                 "column": 5
               }
             },
@@ -65106,22 +65106,22 @@
           ],
           "loc": {
             "start": {
-              "line": 822,
+              "line": 824,
               "column": 4
             },
             "end": {
-              "line": 826,
+              "line": 828,
               "column": 6
             }
           },
           "context": {
             "loc": {
               "start": {
-                "line": 827,
+                "line": 829,
                 "column": 4
               },
               "end": {
-                "line": 837,
+                "line": 839,
                 "column": 5
               }
             },
@@ -65295,22 +65295,22 @@
           ],
           "loc": {
             "start": {
-              "line": 839,
+              "line": 841,
               "column": 4
             },
             "end": {
-              "line": 844,
+              "line": 846,
               "column": 6
             }
           },
           "context": {
             "loc": {
               "start": {
-                "line": 845,
+                "line": 847,
                 "column": 4
               },
               "end": {
-                "line": 858,
+                "line": 860,
                 "column": 5
               }
             },
@@ -65546,22 +65546,22 @@
           ],
           "loc": {
             "start": {
-              "line": 860,
+              "line": 862,
               "column": 4
             },
             "end": {
-              "line": 865,
+              "line": 867,
               "column": 6
             }
           },
           "context": {
             "loc": {
               "start": {
-                "line": 866,
+                "line": 868,
                 "column": 4
               },
               "end": {
-                "line": 875,
+                "line": 877,
                 "column": 5
               }
             },
@@ -65797,22 +65797,22 @@
           ],
           "loc": {
             "start": {
-              "line": 877,
+              "line": 879,
               "column": 4
             },
             "end": {
-              "line": 882,
+              "line": 884,
               "column": 6
             }
           },
           "context": {
             "loc": {
               "start": {
-                "line": 883,
+                "line": 885,
                 "column": 4
               },
               "end": {
-                "line": 896,
+                "line": 898,
                 "column": 5
               }
             },
@@ -66048,22 +66048,22 @@
           ],
           "loc": {
             "start": {
-              "line": 902,
+              "line": 904,
               "column": 4
             },
             "end": {
-              "line": 907,
+              "line": 909,
               "column": 6
             }
           },
           "context": {
             "loc": {
               "start": {
-                "line": 908,
+                "line": 910,
                 "column": 4
               },
               "end": {
-                "line": 911,
+                "line": 913,
                 "column": 5
               }
             },
@@ -66435,22 +66435,22 @@
           ],
           "loc": {
             "start": {
-              "line": 913,
+              "line": 915,
               "column": 4
             },
             "end": {
-              "line": 921,
+              "line": 923,
               "column": 6
             }
           },
           "context": {
             "loc": {
               "start": {
-                "line": 922,
+                "line": 924,
                 "column": 4
               },
               "end": {
-                "line": 934,
+                "line": 936,
                 "column": 5
               }
             },
@@ -66686,22 +66686,22 @@
           ],
           "loc": {
             "start": {
-              "line": 936,
+              "line": 938,
               "column": 4
             },
             "end": {
-              "line": 941,
+              "line": 943,
               "column": 6
             }
           },
           "context": {
             "loc": {
               "start": {
-                "line": 942,
+                "line": 944,
                 "column": 4
               },
               "end": {
-                "line": 945,
+                "line": 947,
                 "column": 5
               }
             },
@@ -67038,22 +67038,22 @@
           ],
           "loc": {
             "start": {
-              "line": 947,
+              "line": 949,
               "column": 4
             },
             "end": {
-              "line": 954,
+              "line": 956,
               "column": 6
             }
           },
           "context": {
             "loc": {
               "start": {
-                "line": 955,
+                "line": 957,
                 "column": 4
               },
               "end": {
-                "line": 968,
+                "line": 970,
                 "column": 5
               }
             },
@@ -67218,22 +67218,22 @@
           ],
           "loc": {
             "start": {
-              "line": 1039,
+              "line": 1041,
               "column": 4
             },
             "end": {
-              "line": 1042,
+              "line": 1044,
               "column": 7
             }
           },
           "context": {
             "loc": {
               "start": {
-                "line": 1043,
+                "line": 1045,
                 "column": 4
               },
               "end": {
-                "line": 1049,
+                "line": 1051,
                 "column": 5
               }
             },
