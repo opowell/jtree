@@ -1,0 +1,103 @@
+app.description = 'Simple questionnaire.';
+app.groupSize = 1;
+
+// DEFINE STAGES
+var questionsStage = app.newStage('questions');
+questionsStage.activeScreen = `
+<h4>QUESTIONS</h4>
+<p>1. Quelle est votre profession?</p>
+<input name='player.prof' type='text'>
+<br><br>
+
+<p>2. Avez-vous des commentaires sur les méthodes, ou des suggestions sur la façon d'organiser de tels choix sur plusieurs questions?</p>
+<textarea name='player.comm' rows=5 cols=40></textarea>
+<br><br>
+
+<p>3. Quel est votre tranche d'âge?</p>
+<select name='player.age' required>
+    <option value="88">*Pas de réponse*</option>
+    <option value="2">18-24</option>
+    <option value="3">25-34</option>
+    <option value="4">35-44</option>
+    <option value="5">45-54</option>
+    <option value="6">55-64</option>
+    <option value="7">65+</option>
+</select>
+
+<p>4. Etes-vous</p>
+<select name='player.sexe' required>
+    <option value="88">*Pas de réponse*</option>
+    <option value="2">Une femme</option>
+    <option value="3">Un homme</option>
+    <option value="4">Autre</option>
+</select>
+<br><br>
+
+<p>5. Quel est le plus haut diplôme que vous ayez obtenu?</p>
+<select name='player.diplome' required size=8>
+    <option value="88">*Pas de réponse*</option>
+    <option value="2">Diplôme de troisième cycle universitaire, doctorat, grande école, ingénieur</option>
+    <option value="3">Diplôme de deuxième cycle universitaire</option>
+    <option value="4">Diplôme de premier cycle universitaire, BTS, DUT, ou équivalent, niveau Bac+2</option>
+    <option value="5">Baccalauréat général, technologique, professionnel ou équivalent</option>
+    <option value="6">CAP, BEP ou diplôme de même niveau</option>
+    <option value="7">Brevet des collèges, BEPC</option>
+    <option value="8">Certificat d'études primaires, aucun diplôme</option>
+</select>
+<br><br>
+
+<p>6. Avez-vous déjà suivi un cours de sciences économiques?</p>
+<select name='player.econ' required size=4>
+    <option value="88">*Pas de réponse*</option>
+    <option value="2">Oui, c'est ma formation principale</option>
+    <option value="3">Oui, mais ce n'est pas ma formation principale</option>
+    <option value="4">Non</option>
+</select>
+<br><br>
+
+<p>7. Avez-vous déjà participé à une enquête économique en laboratoire?</p>
+<select name='player.expe' required>
+    <option value="88">*Pas de réponse*</option>
+    <option value="2">Oui</option>
+    <option value="3">Non, c'est la première fois</option>
+</select>
+<br><br>
+
+<p>8. Vous avez testé deux méthodes de choix sur des questions multiples : une où vous votez une seule fois pour chacune des deux questions, et une où vous votez en plusieurs étapes. Laquelle vous semble-t-elle la plus efficace?</p>
+<select name='player.efficace' required size=4>
+    <option value="88">*Pas de réponse*</option>
+    <option value="2">La méthode en une seule étape</option>
+    <option value="3">La méthode en plusieurs étapes</option>
+    <option value="4">Les deux méthodes sont aussi efficaces l'une que l'autre</option>
+    <option value="5">Je ne sais pas / Je préfère ne pas répondre</option>
+</select>
+<br><br>
+
+<p>9. La méthode en une seule étape vous semble faciles à comprendre et à utiliser? </p>
+<select name='player.seule' required size=6>
+    <option value="88">*Pas de réponse*</option>
+    <option value="2">Facile</option>
+    <option value="3">Plutôt facile</option>
+    <option value="4">Plutôt difficile</option>
+    <option value="5">Difficile</option>
+    <option value="6">Je ne sais pas / Je préfère ne pas répondre</option>
+</select>
+<br><br>
+
+<p>10. La méthode en plusieurs étapes vous semble faciles à comprendre et à utiliser? </p>
+<select name='player.plus' required size=6>
+    <option value="88">*Pas de réponse*</option>
+    <option value="2">Facile</option>
+    <option value="3">Plutôt facile</option>
+    <option value="4">Plutôt difficile</option>
+    <option value="5">Difficile</option>
+    <option value="6">Je ne sais pas / Je préfère ne pas répondre</option>
+</select>
+<br><br>
+`;
+
+let recap = app.newStage('recap');
+recap.activeScreen = `
+<h4>RECAP</h4>
+<p v-for='(score, index) in participant.scores'>Election {{index+1}}: {{score}}.</p>
+`;

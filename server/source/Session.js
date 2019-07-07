@@ -77,6 +77,8 @@ class Session {
         */
         this.allowNewParts = this.jt.settings.allowClientsToCreateParticipants;
 
+        this.outputDelimiter = this.jt.settings.outputDelimiter;
+
         /**
         * The apps in this session.
         * @type Array
@@ -352,7 +354,7 @@ class Session {
     * @param  {string} funcName The name of the function to evaluate on the client object.
     */
     pushMessage(obj, da, funcName) {
-        var msg = {obj: obj, data: da, fn: funcName, jt: this.jt};
+        var msg = {obj: obj, data: da, fn: funcName, jt: this.jt, session: this};
         this.asyncQueue.push(msg, this.messageCallback);
         //        var playerId = Player.genRoomId(da.player);
         //        var line = cl.participant.id + ', ' + cl.id + ', ' + playerId + ', ' + funcName + ', ' + JSON.stringify(da.data) + '\n';
@@ -360,7 +362,7 @@ class Session {
     }
 
     addMessageToStartOfQueue(obj, data, funcName) {
-        var msg = {obj: obj, data: data, fn: funcName, jt: this.jt};
+        var msg = {obj: obj, data: data, fn: funcName, jt: this.jt, session: this};
         this.asyncQueue.unshift(msg, this.messageCallback);
         //        var playerId = Player.genRoomId(da.player);
         //        var line = cl.participant.id + ', ' + cl.id + ', ' + playerId + ', ' + funcName + ', ' + JSON.stringify(da.data) + '\n';
@@ -372,14 +374,16 @@ class Session {
         let data = msg.data;
         let fn = msg.fn;
         let jt = msg.jt;
+        let session = msg.session;
         try {
 
-            if (fn !== 'endStage' && fn !== 'endApp') {
+            if (!['endStage', 'endApp', 'forceEndStage'].includes(fn)) {
                 data = Utils.parseFloatRec(data);
             }
             
             if (obj.canProcessMessage()) {
                 obj[fn](data);
+                session.emitParticipantUpdates();
                 //            }
                 //            if (client.player() !== null && client.player().matchesPlayer(player) && client.player().status === 'playing') {
                 //                if (client.player() !== null) {
@@ -558,7 +562,7 @@ class Session {
         var fields = this.outputFields();
         Utils.getHeaders(fields, skip, headers);
         var text = [];
-        text.push(headers.join(','));
+        text.push(headers.join(this.outputDelimiter));
         var newLine = '';
         for (var h=0; h<headers.length; h++) {
             var header = headers[h];
@@ -566,7 +570,7 @@ class Session {
                 newLine += JSON.stringify(this[header]);
             }
             if (h<headers.length-1) {
-                newLine += ',';
+                newLine += this.outputDelimiter;
             }
         }
         text.push(newLine);
@@ -753,7 +757,7 @@ class Session {
     saveDataFS(d, type) {
         try {
             var a = JSON.stringify(d) + '\n';
-            var b = '"type":"' + type + '",';
+            var b = '"type":"' + type + '"' + this.outputDelimiter;
             var position = 1;
             var output = [a.slice(0, position), b, a.slice(position)].join('');
             this.fileStream.write(output);

@@ -76,6 +76,11 @@ class App {
 
         this.started = false;
 
+        this.outputDelimiter = ';';
+        if (session != null) {
+            this.outputDelimiter = session.outputDelimiter;
+        }
+
         /**
          * The Session that this App belongs to.
          * @type {Session}
@@ -938,15 +943,15 @@ class App {
 
         //Create data
         var appsText = [];
-        appsText.push('id,' + appsHeaders.join(','));
-        var newLine = this.id + ',';
+        appsText.push('id,' + appsHeaders.join(this.outputDelimiter));
+        var newLine = this.id + this.outputDelimiter;
         for (var h=0; h<appsHeaders.length; h++) {
             var header = appsHeaders[h];
             if (this[header] !== undefined) {
                 newLine += JSON.stringify(this[header]);
             }
             if (h<appsHeaders.length-1) {
-                newLine += ',';
+                newLine += this.outputDelimiter;
             }
         }
         appsText.push(newLine);
@@ -954,22 +959,22 @@ class App {
         var periodText = [];
         var groupText = [];
         var playerText = [];
-        groupText.push('period.id,group.id,' + groupHeaders.join(','));
-        playerText.push('period.id,group.id,participant.id,' + playerHeaders.join(','));
+        groupText.push('period.id,group.id' + this.outputDelimiter + groupHeaders.join(','));
+        playerText.push('period.id,group.id,participant.id' + this.outputDelimiter + playerHeaders.join(','));
         for (var i=0; i<this.periods.length; i++) {
             var period = this.periods[i];
-            var newLine = period.id + ',';
+            var newLine = period.id + this.outputDelimiter;
             newLine = this.appendValues(newLine, periodHeaders, period);
             periodText.push(newLine);
             for (var j=0; j<period.groups.length; j++) {
                 var group = period.groups[j];
-                var newLine = period.id + ',' + group.id + ',';
+                var newLine = period.id + this.outputDelimiter + group.id + this.outputDelimiter;
                 newLine = this.appendValues(newLine, groupHeaders, group);
                 groupText.push(newLine);
                 for (var k=0; k<group.players.length; k++) {
                     var player = group.players[k];
                     var participant = player.participant;
-                    var newLine = period.id + ',' + group.id + ',' + participant.id + ',';
+                    var newLine = period.id + this.outputDelimiter + group.id + this.outputDelimiter + participant.id + this.outputDelimiter;
                     newLine = this.appendValues(newLine, playerHeaders, player);
                     playerText.push(newLine);
                 }
@@ -978,16 +983,16 @@ class App {
         var participantText = [];
         var participantHeadersText = 'id,points';
         if (participantHeaders.length > 0) {
-            participantHeadersText += ',' + participantHeaders.join(',');
+            participantHeadersText += this.outputDelimiter + participantHeaders.join(this.outputDelimiter);
         }
         participantText.push(participantHeadersText);
         var pIds = Object.keys(this.session.participants);
         Utils.alphanumSort(pIds);
         for (var i in pIds) {
             var participant = this.session.participants[pIds[i]];
-            var newLine = participant.id + ',' + participant.points();
+            var newLine = participant.id + this.outputDelimiter + participant.points();
             if (participantHeaders.length > 0) {
-                newLine += ',';
+                newLine += this.outputDelimiter;
             }
             for (var h=0; h<participantHeaders.length; h++) {
                 var header = participantHeaders[h];
@@ -995,7 +1000,7 @@ class App {
                     newLine += JSON.stringify(participant[header]);
                 }
                 if (h<participantHeaders.length-1) {
-                    newLine += ',';
+                    newLine += this.outputDelimiter;
                 }
             }
             participantText.push(newLine);
@@ -1018,7 +1023,7 @@ class App {
             var groupTableText = [];
             var table = groupTables[t];
             var tableHeaders = groupTableHeaders[table];
-            groupTableText.push('period.id,group.id,id,' + tableHeaders.join(','));
+            groupTableText.push('period.id' + this.outputDelimiter + 'group.id' + this.outputDelimiter + 'id' + this.outputDelimiter + tableHeaders.join(this.outputDelimiter));
             for (var i=0; i<this.periods.length; i++) {
                 var period = this.periods[i];
                 for (var j=0; j<period.groups.length; j++) {
@@ -1026,7 +1031,7 @@ class App {
                     var tabRows = group[table].rows;
                     for (var r=0; r<tabRows.length; r++) {
                         var row = tabRows[r];
-                        var newLine = period.id + ',' + group.id + ',' + row.id + ',';
+                        var newLine = period.id + this.outputDelimiter + group.id + this.outputDelimiter + row.id + this.outputDelimiter;
                         newLine = this.appendValues(newLine, tableHeaders, row);
                         groupTableText.push(newLine);
                     }
@@ -1708,7 +1713,7 @@ class App {
             }
 
             if (i<headers.length-1) {
-                newLine += ',';
+                newLine += this.outputDelimiter;
             }
         }
         return newLine;

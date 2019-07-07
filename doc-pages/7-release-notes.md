@@ -1,3 +1,15 @@
+##### 2019.07.06 - 0.7.8
+- script for updating version numbers.
+- remove releases from repo.
+- added "10ali" user app.
+- added "queue" demo app.
+- added "randomizedQuest" demo app.
+- added "outputDelimiter" field to "Session", "App" and "Settings" objects.
+- remove “Data” Session tab.
+- fix duration timeouts.
+- remove log statements from all apps
+- re-add code to prompt during page unload
+
 ##### 2019.04.22 - 0.7.7
 - send circular data in messages.
 - menu collapses at smaller width.

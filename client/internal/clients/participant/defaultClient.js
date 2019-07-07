@@ -135,6 +135,9 @@ jt.setFormDefaults = function() {
 
 }
 
+jt.vueMounted = false;
+jt.vueMethods = {};
+
 // Disable navigation away from the page, unless password is entered.
 // Do not disable if page is in iFrame (i.e. being viewed from the admin page).
 jt.inIframe = function() {
@@ -153,9 +156,6 @@ window.onbeforeunload = function(ev) {
         return 'Want to unload?';
     }
 };
-
-jt.vueMounted = false;
-jt.vueMethods = {};
 
 jt.mountVue = function(player) {
     if (player.stage.app.useVue) {
@@ -321,6 +321,11 @@ jt.updatePlayer = function(player, updateVue) {
         return;
     }
 
+    let startingNewStage = true;
+    if (jt.data.player != null) {
+        startingNewStage = player.stage.id === jt.data.player.stage.id;
+    }
+
     console.log('playerUpdate');
 
     jt.data.player = player; // TODO: Remove.
@@ -343,7 +348,9 @@ jt.updatePlayer = function(player, updateVue) {
         }
     }
 
-    window.scrollTo(0, 0);
+    if (startingNewStage) {
+        window.scrollTo(0, 0);
+    }
 
     if (player.stage !== undefined) {
         jt.setStageName(player.stage.id);

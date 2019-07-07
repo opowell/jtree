@@ -210,8 +210,6 @@ for (let i=0; i<app.numWords; i++) {
             listIds[ab].push(k);
         }
     }
-    console.log(JSON.stringify(app.drawnWords));
-    console.log(JSON.stringify(listIds));
 }
 
 app.IATname = function() {

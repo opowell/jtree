@@ -2,12 +2,15 @@
 build-tools/7z.dll
 build-tools/7z.exe
 client/internal/serverState.json
+client/internal/docs
 client/internal/logs
 client/internal/settings.js
 client/internal/clients/shared/shared.js
 client/queues
 client/sessions
 client/users
+docs
+docs/reference
 server/node_modules/*
 .DS_Store
 desktop.ini
@@ -18,3 +21,5 @@ source/internal/logs/*
 source/internal/clients/shared/shared.js
 source/sessions/*
 client/internal/clients/shared/shared.js
+release
+docs
