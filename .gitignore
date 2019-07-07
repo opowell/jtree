@@ -2,6 +2,7 @@
 build-tools/7z.dll
 build-tools/7z.exe
 client/internal/serverState.json
+client/internal/docs
 client/internal/logs
 client/internal/settings.js
 client/internal/clients/shared/shared.js
@@ -18,3 +19,5 @@ source/internal/logs/*
 source/internal/clients/shared/shared.js
 source/sessions/*
 client/internal/clients/shared/shared.js
+release
+docs

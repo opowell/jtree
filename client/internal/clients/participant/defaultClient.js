@@ -138,6 +138,25 @@ jt.setFormDefaults = function() {
 jt.vueMounted = false;
 jt.vueMethods = {};
 
+// Disable navigation away from the page, unless password is entered.
+// Do not disable if page is in iFrame (i.e. being viewed from the admin page).
+jt.inIframe = function() {
+    try {
+        return window.self !== window.top;
+    } catch (e) {
+        return true;
+    }
+}
+
+// Setting to indicate whether server has asked for client to reload.
+jt.forcedUnload = false;
+
+window.onbeforeunload = function(ev) {
+    if (!jt.inIframe() && !jt.forcedUnload) {
+        return 'Want to unload?';
+    }
+};
+
 jt.mountVue = function(player) {
     if (player.stage.app.useVue) {
     
@@ -302,6 +321,11 @@ jt.updatePlayer = function(player, updateVue) {
         return;
     }
 
+    let startingNewStage = true;
+    if (jt.data.player != null) {
+        startingNewStage = player.stage.id === jt.data.player.stage.id;
+    }
+
     console.log('playerUpdate');
 
     jt.data.player = player; // TODO: Remove.
@@ -324,7 +348,9 @@ jt.updatePlayer = function(player, updateVue) {
         }
     }
 
-    window.scrollTo(0, 0);
+    if (startingNewStage) {
+        window.scrollTo(0, 0);
+    }
 
     if (player.stage !== undefined) {
         jt.setStageName(player.stage.id);
@@ -426,11 +452,13 @@ jt.defaultConnected = function() {
 
     // Listen for default messages from server.
     jt.socket.on('start-new-app', function(id) {
+        jt.forcedUnload = true;
         location.reload();
     });
 
     // Listen for default messages from server.
     jt.socket.on('reload', function(id) {
+        jt.forcedUnload = true;
         location.reload();
     });
 

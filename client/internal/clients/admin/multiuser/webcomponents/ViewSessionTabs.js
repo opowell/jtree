@@ -23,7 +23,7 @@ class ViewSessionTabs extends HTMLElement {
                     <i class="fa fa-eye"></i>&nbsp;&nbsp;Monitor
                 </span>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" hidden>
                 <span id='tab-session-results' class='nav-link subview-tab session-tabBtn' onclick='jt.setSessionView("results");'>
                     <i class="fa fa-chart-bar"></i>&nbsp;&nbsp;Data
                 </span>

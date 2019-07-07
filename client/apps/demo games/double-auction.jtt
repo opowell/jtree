@@ -3,7 +3,7 @@ app.description = 'Shares are traded for experimental currency in a double aucti
 const average = arr => arr.reduce( ( p, c ) => p + c, 0 ) / arr.length;
     
 app.numPeriods = 15;
-app.tradingTime = 300;
+app.tradingTime = 30;
 app.divs        = [0, 8, 28, 60];
 app.endowmentShares = 3;
 app.endowmentCash = average(app.divs)*app.numPeriods*app.endowmentShares;
@@ -106,6 +106,7 @@ resultsStage.groupStart = function(group) { // when a group starts this stage
         }
     }
 }
+resultsStage.wrapPlayingScreenInFormTag = 'yes';
 resultsStage.activeScreen = `
     <p>RESULTS</p>
     <div>The dividend draw in this period (E$/share): {{ group.dividendDraw }}.</div>
