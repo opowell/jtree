@@ -258,6 +258,8 @@ msgs.openSession = function(sessData) {
     // localStorage.setItem('sessionId', session.id);
     vue.$store.commit('setSession', session);
 
+    vue.$store.dispatch('showPanel', {type: 'game-tree-panel'});
+
     // if (session !== undefined) {
     //     jt.showSessionId(session.id);
     //     var filelink = vue.$store.state.jtreeLocalPath + '/sessions/' + session.id + '.csv';

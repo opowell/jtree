@@ -183,8 +183,11 @@ class SessionV2 {
     }
 
     addGame(state, {filePath, options}) {
-        let fullpath = path.join.apply(null, filePath);
-        var game = this.jt.data.loadGame(fullpath, state, options);
+        let fullPath = filePath;
+        if (typeof fullPath !== 'string') {
+            fullPath = path.join.apply(null, filePath);
+        }
+        var game = this.jt.data.loadGame(fullPath, state, options);
         if (game !== null) {
             state.gameTree.push(game);
         }

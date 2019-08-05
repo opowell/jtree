@@ -2,6 +2,7 @@
   <div id="app" :style='appStyle' @click='click'>
     <MainMenu/>
     <!-- <router-view/> -->
+    <WelcomeModal/>
     <div class='panel-container'>
       <jt-window
         v-for='window in windows'
@@ -18,12 +19,14 @@
 <script>
 import MainMenu from '@/components/MainMenu.vue'
 import JtWindow from '@/components/JtWindow.vue'
+import WelcomeModal from '@/components/WelcomeModal.vue'
 
 export default {
   name: 'home',
   components: {
     MainMenu,
     JtWindow,
+    WelcomeModal,
   },
   beforeMount() {
     this.$store.commit('resetWindowIds');
@@ -60,6 +63,7 @@ for (let i=0; i<s.persistentSettings.length; i++) {
     this.$nextTick(function() {
       window.addEventListener('resize', this.setContainerDimensions);
       this.setContainerDimensions();
+      this.$bvModal.show('welcomeModal');
     });
   }
 }

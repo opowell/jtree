@@ -87,6 +87,9 @@ export default {
     },
     hover: function() {
       this.$store.state.activeMenu = this;
+      if (this.hasChildren) {
+        
+      }
     }
   }
 }

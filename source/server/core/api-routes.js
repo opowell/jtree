@@ -251,7 +251,8 @@ router.get('/games', function (req, res) {
             out.push(
                 {
                     name: dirContents[i],
-                    isFolder: fs.lstatSync(curPath).isDirectory()
+                    isFolder: fs.lstatSync(curPath).isDirectory(),
+                    fullPath: curPath,
                 }
             );
         }

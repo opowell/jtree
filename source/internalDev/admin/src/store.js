@@ -395,7 +395,7 @@ export default new Vuex.Store({
     paths: persistPaths,
   })],
   state: stateObj,
-  actions: {
+  actions: { // called by $store.dispatch(methodName, options).
     dropOnTab: ({commit}, {sourceWindowId, sourceAreaPath, sourcePanelIndex, targetWindowId, targetAreaPath, targetIndex}) => {
       commit('addTabToPanel', {
         sourceWindowId, sourceAreaPath, sourcePanelIndex, targetWindowId, targetAreaPath, targetIndex,

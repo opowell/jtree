@@ -325,8 +325,18 @@ class Msgs {
             'addGame',
             data
         );
-
     }
+
+    openGameAsNewSession(data, socket) {
+        let userId = ''; // TODO
+        var session = this.jt.data.createSession(userId);
+        session.addMessage(
+            'addGame',
+            data
+        );
+        this.openSession(session.id, socket);
+    }
+
 
     sessionAddUser(d) {
         this.jt.data.getSession(d.sId).addUser(d.uId);
@@ -371,6 +381,7 @@ class Msgs {
         }
     }
 
+    // Deprecated, use createSession_V2 instead.
     sessionCreate(userId, sock) {
         var session = this.jt.data.createSession(userId);
         session.resume();

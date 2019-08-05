@@ -5,6 +5,9 @@ import store from './store'
 import BootstrapVue from 'bootstrap-vue'
 import Vuebar from 'vuebar';
 
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
+
 Vue.use(Vuebar);
 Vue.use(BootstrapVue);
 Vue.config.productionTip = false

@@ -38,12 +38,27 @@ export default {
   },
   computed: {
           menus() {
-              let windowMenu =     {
-        text: 'Window',
-        hasParent: false,
-        children: [],
-        showIcon: true,
-    };
+let windowMenu = {
+    text: 'Window',
+    hasParent: false,
+    children: [
+        {
+            text: 'New',
+            children: [
+                {
+                    text: 'Design',
+                    action: this.showDesignWindow,
+                },
+                {
+                    text: 'Run',
+                    action: this.showRunWindow,
+                },
+            ],
+        },
+        'divider',
+    ],
+    showIcon: true,
+};
               let out = 
 [
     {
@@ -142,6 +157,16 @@ export default {
             }
         ],
     },
+    {
+        text: 'Modals',
+        hasParent: false,
+        children: [
+            {
+                text: 'Welcome',
+                action: this.showWelcomeModal,
+            },
+        ],
+    },
     windowMenu,
 ];
     let numWindows = this.$store.state.windows.length;
@@ -224,6 +249,15 @@ export default {
     showSessionWindow() {
         this.$store.dispatch('showSessionWindow');
     },
+    showWelcomeModal() {
+        this.$bvModal.show('welcomeModal');
+    },
+    showDesignWindow() {
+        this.$store.dispatch('showPanel', {type: 'game-tree-panel'});
+    },
+    showRunWindow() {
+        this.$store.dispatch('showPanel', {type: 'session-actions-panel'});
+    }
   },
 //   mounted() {
 //     let that = this;

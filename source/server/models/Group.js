@@ -1,7 +1,7 @@
 const Player    = require('./Player.js');
 const Timer     = require('./Timer.js');
 const Utils     = require('./Utils.js');
-const Table     = require('./Table.js');
+// const Table     = require('./Table.js');
 const fs        = require('fs-extra');
 const path      = require('path');
 
