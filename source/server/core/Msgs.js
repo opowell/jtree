@@ -116,6 +116,8 @@ class Msgs {
 
     createParticipant(d, socket) {
         var session = this.jt.data.getSession(d.sId);
+        if (session == null)
+            return;
         session.createNewParticipant();
         // var sessionProxy = this.jt.data.getSession(d.sId);
         // sessionProxy.createNewParticipant();
@@ -281,11 +283,14 @@ class Msgs {
         }
     }
 
-    openSession(sId, socket) {
+    openSession(sId, socket, clientCommand) {
+        if (clientCommand == null) {
+            clientCommand = 'openSession';
+        }
         var session = Utils.findById(this.jt.data.sessions, sId);
         if (session !== null && session !== undefined) {
             socket.join(session.roomId());
-            this.jt.io.to('socket_' + socket.id).emit('openSession', this.jt.flatten(session.shell()));
+            this.jt.io.to('socket_' + socket.id).emit(clientCommand, this.jt.flatten(session.shell()));
             this.jt.data.lastOpenedSession = session;
         }
     }
@@ -334,7 +339,7 @@ class Msgs {
             'addGame',
             data
         );
-        this.openSession(session.id, socket);
+        this.openSession(session.id, socket, 'designApp');
     }
 
 

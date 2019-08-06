@@ -1,19 +1,26 @@
 <template>
     <div>
-        <select @change='changeView($event)'>
+        <!-- <select @change='changeView($event)'>
             <option v-for='part in participants' :key='part.id' :value='part.id'>{{part.id}}</option>
         </select>
         <div v-if='selPart != null'>
             Selected: {{selPart.id}}
-        </div>
+        </div> -->
+        <participant-view v-for='part in participants' :key='part.id' :participant='part'>
+            {{part.id}}
+        </participant-view>
     </div>
 </template>
 <script>
 
 import sort from 'alphanum-sort';
+import ParticipantView from './ParticipantView.vue';
 
   export default {
       name: 'SessionMonitorPanel',
+	components: {
+		ParticipantView,
+    },
     props: [
         'dat',
         'panel',
@@ -60,3 +67,14 @@ import sort from 'alphanum-sort';
     },
   }
 </script>
+
+<style>
+.participantView {
+    border: 1px solid #888;
+    border-radius: 5px;
+    margin: 5px;
+    padding: 4px;
+}
+
+
+</style>

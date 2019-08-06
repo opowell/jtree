@@ -19,7 +19,7 @@
     "@fortawesome/vue-fontawesome": "^0.1.6",
     "axios": "^0.18.1",
     "bootstrap-vue": "^2.0.0-rc.27",
-    "flatted": "^2.0.0",
+    "flatted": "^2.0.1",
     "jquery": "^3.4.1",
     "jquery-ui": "^1.12.1",
     "liquor-tree": "^0.2.60",

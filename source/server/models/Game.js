@@ -594,6 +594,42 @@ class Game {
         return gIds;
     }
 
+    
+    /**
+     *
+     * Code is organized as:
+     * 
+     * playingScreen
+     * waitingScreen
+     * for each subgame:
+     *  game.getHTML()
+     * 
+     * 
+     */
+    getHTML(participant) {
+        var app = this.reload();
+        var html = `
+        <span v-show='game.id == {{app.id}}'>
+            <span v-show='player.status == "playing"' class='playing-screen'>
+                ${app.activeScreen}
+            </span>
+            <span v-show='player.status == "waiting"' class='waiting-screen'>
+                ${app.waitingScreen}
+            </span>
+            {{subgames}}
+        </span>`
+        ;
+        let subgamesHTML = '';
+        if (this.subgames != null) {
+            for (let subgame in this.subgames) {
+                subgamesHTML = subgamesHTML + subgame.getHTML(participant);
+            }
+        }
+        html = html.replace('{{app.id}}', app.id);
+        html = html.replace('{{subgames}}', subgamesHTML);
+        return html;
+    }
+
     sendParticipantPage(req, res, participant) {
 
         if (this.superGame != null) {

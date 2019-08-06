@@ -599,19 +599,26 @@ class SessionV2 {
 
         // Not a participant yet
         if (participant == null) {
-            res.sendFile(path.join(global.jt.path, this.participantUI() + '/readyClient.html'));
+            res.sendFile(path.join(global.jt.path, this.participantUI() + '/login.html'));
             return;
         }
 
-        const app = participant.getGame();
+        // // Not in an app yet.
+        // if (app == null) {
+        //     res.sendFile(path.join(global.jt.path, this.participantUI() + '/readyClient.html'));
+        //     return;
+        // }
 
-        // Not in an app yet.
-        if (app == null) {
-            res.sendFile(path.join(global.jt.path, this.participantUI() + '/readyClient.html'));
-            return;
+        let html = this.getPage(participant);
+        res.send(html);
+    }
+
+    getPage(participant) {
+        let html = '';
+        for (let game in this.gameTree) {
+            html = html + game.getHTML(participant);
         }
-
-        app.sendParticipantPage(req, res, participant);
+        return html;
     }
 
     io() {

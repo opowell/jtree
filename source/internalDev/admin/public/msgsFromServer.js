@@ -225,7 +225,16 @@ msgs.removeRoomClient = function(client) {
     }
 }
 
-msgs.openSession = function(sessData) {
+msgs.designApp = function(sessData) {
+    let windowType = 'design';
+    msgs.openSession(sessData, windowType);
+}
+
+msgs.openSession = function(sessData, windowType) {
+
+    if (windowType == null) {
+        windowType = 'run';
+    }
 
     let session = CircularJSON.parse(sessData, jt.dataReviver);
 
@@ -255,32 +264,53 @@ msgs.openSession = function(sessData) {
         server.reloadClients();
     }
 
-    // localStorage.setItem('sessionId', session.id);
     vue.$store.commit('setSession', session);
+    
+    let windowData = {
+        panels: [],
+        flex: '1 1 100px',
+        areas: [
+          // LEFT
+          { 
+            flex: '1 1 100px',
+            areas: [],
+            activePanelInd: 0,
+            panels: [
+              { 
+                id: "Game Tree",
+                type: "game-tree-panel"
+              }, 
+            ],
+          }, 
+          // RIGHT
+          { 
+            flex: '1 1 100px',
+            areas: [],
+            activePanelInd: 0,
+            panels: [
+                {
+                    id: "Monitor", 
+                    type: "session-monitor-panel" 
+                },
+                { 
+                    id: "Actions", 
+                    type: "session-actions-panel" 
+                },
+                { 
+                    id: "Participants", 
+                    type: "session-participants-panel" 
+                },
+                { 
+                    id: "Info", 
+                    type: "session-info-panel", 
+                }
+            ],
+          }
+        ] 
+    };
 
-    vue.$store.dispatch('showPanel', {type: 'game-tree-panel'});
+    vue.$store.commit('showWindow', windowData);
 
-    // if (session !== undefined) {
-    //     jt.showSessionId(session.id);
-    //     var filelink = vue.$store.state.jtreeLocalPath + '/sessions/' + session.id + '.csv';
-    //     $('#view-session-results-filelink')
-    //         .text(filelink)
-    //         .attr('href', 'file:///' + filelink);
-    //     showPanel("#panel-session-info");
-    //     showParticipants(vue.$store.state.session.participants);
-    //     // viewAllParticipants();
-    //     updateSessionApps();
-    //     jt.updateSessionUsers();
-    //     updateAllowNewParts();
-    //     jt.updateChartPage();
-    //     jt.chartVar('test');
-    // }
-
-    // $('#session-participants').removeAttr('hidden');
-
-    // setView('session');
-    // jt.view.updateNumParticipants();
-    // jt.setSessionView('appqueue');
 }
 
 msgs.updateSessionId = function(md) {
