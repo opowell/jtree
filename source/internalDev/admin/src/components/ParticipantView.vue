@@ -25,7 +25,8 @@
         ],
         computed: {
             url() {
-                return 'http://' + jt.serverURL() + '/' + this.participant.id;;
+                // eslint-disable-next-line
+                return 'http://' + jt.serverURL() + '/' + this.participant.id;
             }
         }
     }

@@ -193,6 +193,7 @@ let windowMenu = {
         windowMenu.children.push(
             {
                 text: 'Close All',
+                action: this.closeAll,
             }
         );
         windowMenu.children.push(
@@ -239,6 +240,10 @@ let windowMenu = {
       },
       close() {
 
+      },
+
+      closeAll() {
+          this.$store.commit('closeAllWindows');
       },
     // setWindowMenuChildren(newval) {
     // },

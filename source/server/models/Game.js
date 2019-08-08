@@ -608,25 +608,85 @@ class Game {
      */
     getHTML(participant) {
         var app = this.reload();
-        var html = `
-        <span v-show='game.id == {{app.id}}'>
+
+        let subgamesHTML = '';
+        if (this.subgames != null) {
+            for (let sg in this.subgames) {
+                subgamesHTML = subgamesHTML + this.subgames[sg].getHTML(participant);
+            }
+        }
+
+        let screensHTML = `
+        <span v-show='game.id == "{{app.id}}"'>
             <span v-show='player.status == "playing"' class='playing-screen'>
                 ${app.activeScreen}
             </span>
             <span v-show='player.status == "waiting"' class='waiting-screen'>
                 ${app.waitingScreen}
             </span>
-            {{subgames}}
-        </span>`
-        ;
-        let subgamesHTML = '';
-        if (this.subgames != null) {
-            for (let subgame in this.subgames) {
-                subgamesHTML = subgamesHTML + subgame.getHTML(participant);
+            ${subgamesHTML}
+        </span>
+        `;
+
+        let html = `${screensHTML}`;
+        if (this.superGame == null) {
+            html = `
+            <!DOCTYPE html>
+            <html>
+                <head>
+                    <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                    <script type="text/javascript" src="/participant/jtree.js"></script>
+                </head>
+                <body class='hidden'>
+                    <div id='jtree'>
+                        <p v-show='game.numPeriods > 1'>Period: {{period.id}}/{{game.numPeriods}}</p>
+                        <p v-show='hasTimeout'>Time left (s): {{clock.totalSeconds}}</p>
+                        ${screensHTML}
+                    </div>
+                    {{scripts}}
+                </body>
+            </html>
+            `;
+        }
+        html = html.replace('{{app.id}}', app.shortId);
+
+        let [strippedScripts, strippedHTML1] = this.stripTag('script', html);
+        let [strippedStyles, strippedHTML2] = this.stripTag('style', strippedHTML1);
+        html = strippedHTML2;
+
+        let scriptsHTML = strippedStyles + '\n' + strippedScripts;
+        if (app.clientScripts != null) {
+            if (!app.clientScripts.trim().startsWith('<script')) {
+                scriptsHTML += '<script>' + app.clientScripts + '</script>';
+            } else {
+                scriptsHTML += app.clientScripts;                
             }
         }
-        html = html.replace('{{app.id}}', app.id);
-        html = html.replace('{{subgames}}', subgamesHTML);
+        
+        if (html.includes('{{scripts}}')) {
+            html = html.replace('{{scripts}}', scriptsHTML);
+        }
+
+        if (this.modifyPathsToIncludeId) {
+
+            // Temporary fix, do not change anything that starts with '/' or 'http'.
+            html = html.replace(/src="\//gmi, 'srcXXX="');
+            html = html.replace(/src='\//gmi, "srcXXX='");
+            html = html.replace(/src="http/gmi, 'srcXXXhttp="');
+            html = html.replace(/src='http/gmi, "srcXXXhttp='");
+
+            html = html.replace(/src="/gmi, 'src="./' + this.shortId + '/');
+            html = html.replace(/src='/gmi, "src='./" + this.shortId + '/');
+
+            // Revert fix.
+            html = html.replace(/srcXXX="/gmi, 'src="/');
+            html = html.replace(/srcXXX='/gmi, "src='/");
+            html = html.replace(/srcXXXhttp="/gmi, 'src="http');
+            html = html.replace(/srcXXXhttp='/gmi, "src='http");
+
+        }
+
         return html;
     }
 
@@ -1257,11 +1317,16 @@ class Game {
         for (var opt in app.optionValues) {
             app[opt] = app.optionValues[opt];
         }
-        var appCode = Utils.readJS(this.appPath);
-        let game = app;
-        let treatment = app;
-        eval(appCode);
-        return app;
+        try {
+            var appCode = Utils.readJS(this.appPath);
+            let game = app;
+            let treatment = app;
+            eval(appCode);
+            return app;
+        } catch (err) {
+            // Error parsing code, or game not defined in file.
+            return this;
+        }
     }
 
     setOptionValue(name, value) {

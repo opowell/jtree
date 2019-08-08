@@ -485,16 +485,16 @@ class SessionV2 {
     start(state) {
         if (!state.started) {
             state.started = true;
-            for (let p in state.participants) {
-                this.participantStart(state.participants[p]);
-            }
+            // for (let p in state.participants) {
+            //     this.participantStart(state.participants[p]);
+            // }
             this.advanceSlowest(state);
         }
     }
 
-    participantStart(participant) {
+    // participantStart(participant) {
         
-    }
+    // }
 
     /**
     * Move slowest participants to their next stage. See {@link Participant#moveToNextStage}.
@@ -615,8 +615,9 @@ class SessionV2 {
 
     getPage(participant) {
         let html = '';
-        for (let game in this.gameTree) {
-            html = html + game.getHTML(participant);
+        let gameTree = this.proxy.__target.state.gameTree;
+        for (let g in gameTree) {
+            html = html + gameTree[g].getHTML(participant);
         }
         return html;
     }

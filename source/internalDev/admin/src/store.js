@@ -581,6 +581,7 @@ export default new Vuex.Store({
     //   state.messageIndex = index;
     // },
     setSession(state, session) {
+      state.sessionId = session.id;
       state.session = session;
       // state.session.gameTree.splice(0, state.session.gameTree.length);
       // for (let i=0; i<session.gameTree.length; i++) {
@@ -630,6 +631,10 @@ export default new Vuex.Store({
     addWindow(state, panel) {
       state.activeWindow = panel;
       state.windows.push(panel);
+    },
+    closeAllWindows(state) {
+      state.activeWindow = null;
+      state.windowDescs.splice(0, state.windowDescs.length);
     },
     changeSelectedIndex(state, {areaPath, windowId, change}) {
       let area = getArea(state, windowId, areaPath);

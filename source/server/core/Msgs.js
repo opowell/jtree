@@ -366,12 +366,14 @@ class Msgs {
      */
     sessionStart(id) {
         var session = this.jt.data.getSession(id);
-        if (session !== null) {
-            session.addMessage(
-                'start',
-                '',
-            );
+        if (session == null) {
+            this.jt.log(`Msgs.sessionStart: session ${id} not found.`);
+            return;
         }
+        session.addMessage(
+            'start',
+            '',
+        );
     }
 
     /*
