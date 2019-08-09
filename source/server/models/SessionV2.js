@@ -130,7 +130,7 @@ class SessionV2 {
                     }
                 }
 
-                // Trigger change.
+                // Trigger change to objects list.
                 let newNumObjects = strippedObjects.length;
                 if (initialNumObjects < newNumObjects) {
                     let newObjectsOL = strippedObjects.__target.splice(initialNumObjects, newNumObjects - initialNumObjects);
@@ -149,7 +149,23 @@ class SessionV2 {
             jt.socketServer.io.to(thisSession.roomId()).emit('objChange', msg);
             console.log('sending message to ' + thisSession.roomId());
             thisSession.save();
-            return true; // to apply changes locally.
+
+            // TOTEST
+            // Apply change to stripped objects.
+            if (msg.newValue != null) {
+                // Locate original object.
+                let obj = thisSession.proxy.state;
+                for (let i=0; i<paths.length - 1; i++) {
+                    obj = obj[paths[i]];
+                }
+                if (obj == null) {
+                    return;
+                }
+                obj[paths[paths.length]-1] = msg.newValue;
+            }
+
+            // Apply changes locally.
+            return true;
         });
 
     }
