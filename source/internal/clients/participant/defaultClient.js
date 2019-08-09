@@ -430,6 +430,7 @@ jt.defaultConnected = function() {
 
         let participant = parsedData.participant;
         if (typeof(participant) === 'string') {
+            console.log('loading participant as ' + participant);
             participant = jt.replaceLinksWithObjects(participant);
         }
         jt.updatePlayer(participant, true);
@@ -498,9 +499,9 @@ jt.defaultConnected = function() {
             }
         
             let paths = change.path.split('.');
-            let obj = jt.vue.participant;
+            let targetObj = jt.vue.participant;
             if (paths[0] == 'objectList') {
-                obj = jt.vue.objectList;
+                targetObj = jt.vue.objectList;
             }
         
             console.log('object change: \n' + JSON.stringify(change.path) + '\n' + JSON.stringify(change, null, 4));
@@ -509,11 +510,11 @@ jt.defaultConnected = function() {
         
                 case 'function-call':
                     for (let i=0; i<paths.length; i++) {
-                        obj = obj[paths[i]];
+                        targetObj = targetObj[paths[i]];
                     }
-                    if (obj == null) return;
+                    if (targetObj == null) return;
                     change.arguments = jt.replaceLinksWithObjects(change.arguments);
-                    obj[change.function](...change.arguments);
+                    targetObj[change.function](...change.arguments);
 //                     if (['push', 'unshift'].includes(change.function)) {
 //                         jt.replaceLinksWithObjects(change.arguments);
 //                     }
@@ -521,31 +522,31 @@ jt.defaultConnected = function() {
         
                 case 'set-prop':
                     for (let i=0; i<paths.length - 1; i++) {
-                        obj = obj[paths[i]];
+                        targetObj = targetObj[paths[i]];
                     }
-                    if (obj == null) return;
-                    jt.vue.$set(obj, paths[paths.length-1], change.newValue);
-                    jt.vue.$set(obj, paths[paths.length-1], jt.replaceLinksWithObjects(change.newValue));
+                    if (targetObj == null) return;
+                    jt.vue.$set(targetObj, paths[paths.length-1], change.newValue);
+                    jt.vue.$set(targetObj, paths[paths.length-1], jt.replaceLinksWithObjects(change.newValue));
                     break;
         
                 case 'set-value':
                     for (let i=0; i<paths.length - 1; i++) {
-                        obj = obj[paths[i]];
+                        targetObj = targetObj[paths[i]];
                     }
-                    if (obj == null) {
+                    if (targetObj == null) {
                         return;
                     }
-                    if (obj == null) return;
-                    jt.vue.$set(obj, paths[paths.length-1], change.newValue);
-                    jt.vue.$set(obj, paths[paths.length-1], jt.replaceLinksWithObjects(change.newValue));
+                    if (targetObj == null) return;
+                    jt.vue.$set(targetObj, paths[paths.length-1], change.newValue);
+                    jt.vue.$set(targetObj, paths[paths.length-1], jt.replaceLinksWithObjects(change.newValue));
                     break;
         
                 case 'delete-prop':
                     for (let i=0; i<paths.length - 1; i++) {
-                        obj = obj[paths[i]];
+                        targetObj = targetObj[paths[i]];
                     }
-                    if (obj == null) return;
-                    jt.vue.$delete(obj, paths[paths.length-1]);
+                    if (targetObj == null) return;
+                    jt.vue.$delete(targetObj, paths[paths.length-1]);
                     break;
         
                 default:

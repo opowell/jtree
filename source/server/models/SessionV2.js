@@ -44,6 +44,13 @@ class SessionV2 {
             objectList: [],
         }
 
+        /**
+         * Objects are stored in several places.
+         * Session.originalObjectsList: contains the original objects
+         * Session.state.objectsList: contains objects, after replacement of objects.
+         * 
+         * Objects are replaced with links to their index in Session.originalObjectsList.
+         */
         this.originalObjectsList = [];
 
         this.asyncQueue = async.queue(this.processQueueMessage, 1);
@@ -55,6 +62,14 @@ class SessionV2 {
     setProxy(proxyObj) {
         const thisSession = this;
 
+        /**
+         * Listens to modifications of "proxyObj". 
+         * 
+         * 1. Notifies clients of these changes.
+         * 2. Stores new objects in:
+         * - thisSession.proxy.objectList: objects with object fields replaced as links.
+         * - thisSession.originalObjectsList: objects with object fields.
+         */
         this.proxy = Observer.create(proxyObj, function(change) {
 
             if (change.type === 'function-call' && !['splice', 'push', 'unshift'].includes(change.function)) {
@@ -77,33 +92,49 @@ class SessionV2 {
             }
 
             let substitute = true;
-            if (msg.path === 'objectList') { // Additions to the object list do not need modification.
+            if (msg.path === 'objectList') { // "objectList" contains original objects, therefore no substitution.
                 substitute = false;
             }
 
             if (substitute) {
 
+                let originalObjects = thisSession.originalObjectsList;
+                let strippedObjects = thisSession.proxy.objectList;
+
                 // Track the number of new objects added to the list, so that all new objects can be added at once.
                 // Initially, objects are added without triggering a change event.
                 // Then after all substitutions are finished, the change event is triggered.
-                let curNumOL = thisSession.proxy.objectList.length;
 
+                // The initial number of objects in the list.
+                let initialNumObjects = strippedObjects.length;
+
+                // Store new objects, without notifying listeners.
                 if (msg.newValue != null) {
-                    let x = global.jt.replaceExistingObjectsWithLinks(msg.newValue, thisSession.proxy.objectList.__target, thisSession.originalObjectsList);
+                    let x = global.jt.replaceExistingObjectsWithLinks(
+                        msg.newValue, 
+                        strippedObjects.__target, 
+                        originalObjects, 
+                        msg.path
+                    );
                     msg.newValue = x;
                 }
                 if (msg.arguments != null) {
                     for (let i=0; i < msg.arguments.length; i++) {
-                        let x = global.jt.replaceExistingObjectsWithLinks(msg.arguments[i], thisSession.proxy.objectList.__target, thisSession.originalObjectsList);
+                        let x = global.jt.replaceExistingObjectsWithLinks(
+                            msg.arguments[i], 
+                            strippedObjects.__target, 
+                            originalObjects, 
+                            msg.path
+                        );
                         msg.arguments[i] = x;
                     }
                 }
 
                 // Trigger change.
-                let newNumOL = thisSession.proxy.objectList.length;
-                if (curNumOL < newNumOL) {
-                    let newObjectsOL = thisSession.proxy.objectList.__target.splice(curNumOL, newNumOL - curNumOL);
-                    thisSession.proxy.objectList.push(...newObjectsOL);
+                let newNumObjects = strippedObjects.length;
+                if (initialNumObjects < newNumObjects) {
+                    let newObjectsOL = strippedObjects.__target.splice(initialNumObjects, newNumObjects - initialNumObjects);
+                    strippedObjects.push(...newObjectsOL);
                 }
 
             }
@@ -677,6 +708,7 @@ class SessionV2 {
         let partTarget = participant.__target;
         for (let i=0; i<this.originalObjectsList.length; i++) {
             if (this.originalObjectsList[i] === partTarget) {
+                console.log('login data is object ' + i);
                 loginData.participant = '__link__' + i;
                 break;
             }

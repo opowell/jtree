@@ -136,7 +136,7 @@ try {
 
 catch (err) {
     console.log(err);
-    debugger;
+    // debugger;
 }
 }
 
