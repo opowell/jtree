@@ -96,10 +96,10 @@ class SessionV2 {
                 substitute = false;
             }
 
-            if (substitute) {
+            let originalObjects = thisSession.originalObjectsList;
+            let strippedObjects = thisSession.proxy.objectList;
 
-                let originalObjects = thisSession.originalObjectsList;
-                let strippedObjects = thisSession.proxy.objectList;
+            if (substitute) {
 
                 // Track the number of new objects added to the list, so that all new objects can be added at once.
                 // Initially, objects are added without triggering a change event.
@@ -139,6 +139,8 @@ class SessionV2 {
 
             }
 
+            let origNewValue = msg.newValue;
+
             msg.newValue = global.jt.flatten(msg.newValue);
             msg.arguments = global.jt.flatten(msg.arguments);
 
@@ -152,16 +154,27 @@ class SessionV2 {
 
             // TOTEST
             // Apply change to stripped objects.
-            if (msg.newValue != null) {
-                // Locate original object.
-                let obj = thisSession.proxy.state;
+            let paths = msg.path.split('.');
+            if (origNewValue != null && paths[0] != 'objectList') {
+                // Locate stripped version of object.
+                let obj = thisSession.proxy;
                 for (let i=0; i<paths.length - 1; i++) {
                     obj = obj[paths[i]];
                 }
-                if (obj == null) {
+                while (obj.__target != null) {
+                    obj = obj.__target;
+                }
+                let strippedObj = null;
+                for (let i in originalObjects) {
+                    if (originalObjects[i] === obj) {
+                        strippedObj = strippedObjects[i];
+                        break;
+                    }
+                }
+                if (strippedObj == null) {
                     return;
                 }
-                obj[paths[paths.length]-1] = msg.newValue;
+                strippedObj[paths[paths.length]-1] = origNewValue;
             }
 
             // Apply changes locally.
