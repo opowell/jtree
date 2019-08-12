@@ -113,7 +113,6 @@ try {
             if (obj == null) {
                 return;
             }
-            if (obj == null) return;
             change.newValue = jt.replaceLinksWithObjects(change.newValue);
             vue.$set(obj, paths[paths.length-1], change.newValue);
             break;

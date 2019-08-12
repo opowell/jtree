@@ -144,6 +144,9 @@ class SessionV2 {
             msg.newValue = global.jt.flatten(msg.newValue);
             msg.arguments = global.jt.flatten(msg.arguments);
 
+            if (msg.path.includes("NaN")) {
+                debugger;
+            }
             console.log('change from session: ' + msg.path);
 
             msg.source = 'session';
@@ -156,11 +159,12 @@ class SessionV2 {
             // Apply change to stripped objects.
             let paths = msg.path.split('.');
             if (origNewValue != null && paths[0] != 'objectList') {
-                // Locate stripped version of object.
+                // Locate stripped version of target.
                 let obj = thisSession.proxy;
                 for (let i=0; i<paths.length - 1; i++) {
                     obj = obj[paths[i]];
                 }
+                // Step out of proxies.
                 while (obj.__target != null) {
                     obj = obj.__target;
                 }
@@ -172,7 +176,7 @@ class SessionV2 {
                     }
                 }
                 if (strippedObj == null) {
-                    return;
+                    return true;
                 }
                 strippedObj[paths[paths.length]-1] = origNewValue;
             }
