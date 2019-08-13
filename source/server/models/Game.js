@@ -165,12 +165,12 @@ class Game {
                 </head>
                 <body class='hidden'>
                     <div id='jtree'>
-                        <p v-show='superGame.numPeriods > 1'>Period: {{period.id}}/{{superGame.numPeriods}}</p>
-                        <p v-show='hasTimeout'>Time left (s): {{clock.totalSeconds}}</p>
-                        <span v-show='player.status=="playing"'>
+                        <p v-if='superGame.numPeriods > 1'>Period: {{period.id}}/{{superGame.numPeriods}}</p>
+                        <p v-if='hasTimeout'>Time left (s): {{clock.totalSeconds}}</p>
+                        <span v-if='player.status=="playing"'>
                             {{stages}}
                         </span>
-                        <span v-show='["waiting", "finished", "done"].includes(player.status)'>
+                        <span v-if='["waiting", "finished", "done"].includes(player.status)'>
                             {{waiting-screens}}
                         </span>
                     </div>
@@ -617,11 +617,11 @@ class Game {
         }
 
         let screensHTML = `
-        <span v-show='game.id == "{{app.id}}"'>
-            <span v-show='player.status == "playing"' class='playing-screen'>
+        <span v-if='player.gamePath.includes("{{app.path}}")'>
+            <span v-if='player.status == "playing"' class='playing-screen'>
                 ${app.activeScreen}
             </span>
-            <span v-show='player.status == "waiting"' class='waiting-screen'>
+            <span v-if='player.status == "waiting"' class='waiting-screen'>
                 ${app.waitingScreen}
             </span>
             ${subgamesHTML}
@@ -640,8 +640,8 @@ class Game {
                 </head>
                 <body class='hidden'>
                     <div id='jtree'>
-                        <p v-show='game.numPeriods > 1'>Period: {{period.id}}/{{game.numPeriods}}</p>
-                        <p v-show='hasTimeout'>Time left (s): {{clock.totalSeconds}}</p>
+                        <p v-if='game.numPeriods > 1'>Period: {{period.id}}/{{game.numPeriods}}</p>
+                        <p v-if='hasTimeout'>Time left (s): {{clock.totalSeconds}}</p>
                         ${screensHTML}
                     </div>
                     {{scripts}}
@@ -1953,6 +1953,14 @@ class Game {
         return newLine;
     }
 
+    getPath() {
+        let out = '';
+        if (this.superGame != null) {
+            out = this.superGame.getPath() + '.';
+        }
+        out = out + this.id;
+        return out;
+    }
 
     /**
      * Overwrite in app.jtt.

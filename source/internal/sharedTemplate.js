@@ -140,7 +140,7 @@ jt.storeObjects = function(objects) {
         // }
     
         let participant = {};
-        let vueModel = jt.getVueModels(participant);
+        let vueModel = jt.getVueModels(participant, vueComputed);
 
         jt.vue = new Vue({
             el: '#jtree',

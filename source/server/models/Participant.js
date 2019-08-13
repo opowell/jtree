@@ -582,6 +582,7 @@ class Participant {
         while (player.__target != null) {
             player = player.__target;
         }
+        player.updateGamePath();
         this.player = player;
     }
 

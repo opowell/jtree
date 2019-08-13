@@ -188,7 +188,7 @@ jt.mountVue = function(participant) {
         //     eval('vueMethods[i] = ' + methods[i]);
         // }
     
-        let vueModel = jt.getVueModels(participant);
+        let vueModel = jt.getVueModels(participant, vueComputed);
 
         jt.vue = new Vue({
             el: '#jtree',
@@ -209,17 +209,18 @@ jt.mountVue = function(participant) {
 
 }
 
-jt.getVueModels = function(participant) {
+// TODO: After upgrading to Vue 3, remove this entirely?
+jt.getVueModels = function(participant, computed) {
     let vueModel = {
         jt: jt,
         participant: participant,
-        player: [],
-        group: [],
-        period: [],
-        game: [],
-        session: [],
-        superGame: [],
-        subGame: [],
+        player: {},
+        group: {},
+        period: {},
+        game: {},
+        session: {},
+        superGame: {},
+        subGame: {},
         timeLeft: 0,
         timeLeftClient: 0,
         hasTimeout: false,
@@ -277,9 +278,102 @@ jt.getVueModels = function(participant) {
         index = page.indexOf('@input=', end);
     }
 
+    let findNextTag = function(index, page, params) {
+        if (!params.openQuote) {
+            index = page.indexOf('{{', index);
+            if (index == -1) {
+                return;
+            }
+        }
+        let end = page.indexOf('}}', index);
+        let endString = '}}';
+        params.openQuote = false;
+        
+        let end2 = page.indexOf(' ', index);
+        if (end2 < end) {
+            end = end2;
+            endString = ' ';
+            params.openQuote = true;
+        }
+        let varName = page.substring(index + '{{'.length, end).trim();
+        return {
+            index: end + endString.length, 
+            params,
+            varName
+        }
+    }
+
+    let findNextTag2 = function(startIndex, page, params) {
+        if (!params.openQuote) {
+            let index = page.indexOf('v-', startIndex);
+            if (index == -1) {
+                return;
+            }
+            params.openQuote = true;
+            let end = page.indexOf('="', startIndex);
+            let end2 = page.indexOf('=\'', startIndex);
+            params.quoteType = '"';
+            if (end2 < end) {
+                end = end2;
+                params.quoteType = '\'';
+            }
+            startIndex = end;
+        }
+
+        // Find the end of the current expression - it must end either with a quote, or a space.
+        let end = page.indexOf(params.quoteType, startIndex);
+        params.openQuote = false;
+        
+        let end2 = page.indexOf(' ', startIndex);
+        if (end2 < end) {
+            end = end2;
+            params.openQuote = true;
+        }
+        let varName = page.substring(startIndex, end).trim();
+        return {
+            index: end + endString.length, 
+            params,
+            varName
+        }
+    }
+
+    jt.findVueFields(findNextTag, page, vueModel, computed, {openQuote: false});
+    jt.findVueFields(findNextTag2, page, vueModel, computed, {openQuote: false});
+
     return vueModel;
 }
 
+jt.findVueFields = function(findNextFn, page, vueModel, computed, params) {
+    let out = findNextFn(0, page, params);
+    while (out.varName != null) {
+        let paths = out.varName.split('.');
+
+        // Check if computed property.
+        let isComputed = false;
+        for (let j in computed) {
+            if (j === paths[0]) {
+                isComputed = true;
+                break;
+            }
+        }
+
+        // Ensure all models exist.
+        if (!isComputed) {
+            let obj = vueModel;
+            for (let i in paths) {
+                if (obj[paths[i]] == null) {
+                    obj[paths[i]] = {};
+                }
+                if (i < paths.length - 1) {
+                    obj = obj[paths[i]];
+                }
+            }
+        }
+
+        // Search for next occurrence.
+        out = findNextFn(out.index, page, params);
+    }
+}
 
 jt.updatePlayer = function(participant, updateVue) {
     
@@ -299,7 +393,25 @@ jt.updatePlayer = function(participant, updateVue) {
         return;
     } else {
         if (updateVue) {
-            let models = jt.getVueModels(participant);
+            let vueComputed = {
+                clock: function() {
+                    return jt.getClock(this.timeLeft);
+                },
+                clockClient: function() {
+                    return jt.getClock(this.timeLeftClient);
+                },
+                groupOtherPlayers: function() {
+                    let players = [];
+                    let me = this.player;
+                    if (this.group.players != null && this.group.players.length > 0) {
+                        players = this.group.players.filter(function (grpPlyr) {
+                            return grpPlyr.id !== me.id;
+                        })
+                    }
+                    return players;
+                }
+            };
+            let models = jt.getVueModels(participant, vueComputed);
             jt.vue.player = models.player;
             jt.vue.group = models.group;
             jt.vue.period = models.period;

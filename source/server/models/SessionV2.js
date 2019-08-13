@@ -144,9 +144,6 @@ class SessionV2 {
             msg.newValue = global.jt.flatten(msg.newValue);
             msg.arguments = global.jt.flatten(msg.arguments);
 
-            if (msg.path.includes("NaN")) {
-                debugger;
-            }
             console.log('change from session: ' + msg.path);
 
             msg.source = 'session';
@@ -178,7 +175,7 @@ class SessionV2 {
                 if (strippedObj == null) {
                     return true;
                 }
-                strippedObj[paths[paths.length]-1] = origNewValue;
+                strippedObj[paths[paths.length-1]] = origNewValue;
             }
 
             // Apply changes locally.

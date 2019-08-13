@@ -102,6 +102,20 @@ class Player {
             'this',
             'type'
         ];
+
+        this.gamePath = '';
+    
+    }
+
+    updateGamePath() {
+        let out = '';
+        if (this.game != null) {
+            out = this.game.getPath();
+        }
+        if (this.stage != null) {
+            out = out + '.' + this.stage.id;
+        }
+        this.gamePath = out;
     }
 
     getGameTreePath() {
@@ -711,6 +725,7 @@ class Player {
         var nextPeriod = this.app().getNextPeriod(player.participant);
         if (nextStage !== null) {
             player.stage = nextStage;
+            player.updateGamePath();
             player.stageIndex++;
             player.status = 'ready';
             console.log(this.timeStamp() + ' READY - PLAYER: ' + this.stage.id + ', ' + this.roomId());
@@ -724,16 +739,6 @@ class Player {
             player.participant.endCurrentApp();
         }
     } 
-
-
-
-
-
-
-
-
-
-
 
 }
 

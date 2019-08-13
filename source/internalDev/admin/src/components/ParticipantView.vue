@@ -5,7 +5,7 @@
                 <button type="button" class="headerBtn close float-right">
                     <i title="close" class="fa fa-times"></i>
                 </button>
-                <button type="button" class="headerBtn close float-right">
+                <button type="button" class="headerBtn close float-right" @click='openInNewTab'>
                     <i title="open in new window" class="fa fa-external-link-alt"></i>
                 </button>
                 <button title="toggle autoplay" id="P1-autoplay" type="button" class="headerBtn close float-right">A</button>
@@ -27,6 +27,11 @@
             url() {
                 // eslint-disable-next-line
                 return 'http://' + jt.serverURL() + '/' + this.participant.id;
+            }
+        },
+        methods: {
+            openInNewTab() {
+               window.open(this.url);
             }
         }
     }
