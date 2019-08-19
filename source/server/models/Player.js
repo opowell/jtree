@@ -109,11 +109,8 @@ class Player {
 
     updateGamePath() {
         let out = '';
-        if (this.game != null) {
-            out = this.game.getPath();
-        }
-        if (this.stage != null) {
-            out = out + '.' + this.stage.id;
+        if (this.subGame != null) {
+            out = this.subGame.getPath();
         }
         this.gamePath = out;
     }

@@ -140,8 +140,10 @@ class Period {
             //            if (gr.players.length this.)
         }
         player.stageIndex = 0;
-        player.stage = this.game.subgames[player.stageIndex];
-        player.game = this.game.subgames[player.stageIndex];
+        player.subGame = this.game.subgames[player.stageIndex];
+        player.superGame = this.game.subgames[player.stageIndex];
+        player.stage = player.subGame;
+        player.game = player.superGame;
         player.status = 'ready';
         participant.setPlayer(player);
         player = participant.player;

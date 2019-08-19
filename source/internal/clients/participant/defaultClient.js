@@ -234,12 +234,21 @@ jt.getVueModels = function(participant, computed) {
         vueModel.group = player.group;
         vueModel.period = player.group.period;
         vueModel.game = player.game;
-        vueModel.session = player.game.session;
+        if (player.game != null) {
+            vueModel.session = player.game.session;
+        }
         vueModel.superGame = player.group.period.game;
         vueModel.subGame = player.game;
     }
     if (vueModel.group.players == null) {
         vueModel.group.players = [];
+    }
+
+    if (vueModel.player.gamePath == null) {
+        vueModel.player.gamePath = {};
+    }
+    if (vueModel.player.gamePath.includes == null) {
+        vueModel.player.gamePath.includes = function() { return false; };
     }
 
     if (player != null && player.game != null) {

@@ -579,10 +579,10 @@ class Participant {
     setPlayer(player) {
         let stageId = (player != null && player.stage != null) ? player.stage.id : 'null';
         console.log('settting participant player: ' + this.id + ', ' + stageId);
-        while (player.__target != null) {
-            player = player.__target;
-        }
         player.updateGamePath();
+        // while (player.__target != null) {
+        //     player = player.__target;
+        // }
         this.player = player;
     }
 
