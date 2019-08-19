@@ -87,11 +87,13 @@ jt.setFormDefaults = function() {
             }
         }
 
-        if ($(this).attr('action')===undefined) {
+        if (!this.hasAttribute('onclick')) {
             try {
-                $(this).submit(function(event) {
-                    event.preventDefault();
-                    event.stopPropagation();
+                this.removeAttr('type');
+
+                this.addEventListener('click', function(event) {
+                    // event.preventDefault();
+                    // event.stopPropagation();
                     var values = {};
                     var stageName = jt.vue.player.stage.id;
                     values.fnName = stageName;

@@ -110,7 +110,7 @@ class Player {
     updateGamePath() {
         let out = '';
         if (this.subGame != null) {
-            out = this.subGame.getPath();
+            out = this.subGame.getFullGamePath();
         }
         this.gamePath = out;
     }

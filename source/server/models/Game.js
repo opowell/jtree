@@ -110,7 +110,7 @@ class Game {
         /**
          * @default null
          */
-        this.activeScreen = null;
+        this.activeScreen = '';
 
         /**
          * The options of this app.
@@ -197,11 +197,6 @@ class Game {
 
         /** TODO:   */
         this.screen = '';
-
-        /** Shown on all client playing screens if {@link Stage.useGameActiveScreen} = true.
-        * @default null
-        */
-        this.activeScreen = null;
 
         /** Shown on all client waiting screens if {@link Stage.useWaitingScreen} = true.
         */
@@ -616,10 +611,28 @@ class Game {
             }
         }
 
+        let buttonCode = '';
+        let formStart = '';
+        let formEnd = '';
+        let wrapInForm = false;
+        if (
+            app.addOKButtonIfNone &&
+            app.subgames.length == 0 &&
+            !app.activeScreen.includes('<button>')
+        ) {
+            wrapInForm = true;
+            formStart += '<form>';
+            formEnd = '</form>';
+            buttonCode = '<button>OK</button>';
+        }
+
         let screensHTML = `
         <span v-if='player.gamePath.includes("{{app.path}}")'>
             <span v-if='player.status == "playing"' class='playing-screen'>
-                ${app.activeScreen}
+                ${formStart}
+                    ${app.activeScreen}
+                    ${buttonCode}
+                ${formEnd}
             </span>
             <span v-if='player.status == "waiting"' class='waiting-screen'>
                 ${app.waitingScreen}
@@ -649,7 +662,7 @@ class Game {
             </html>
             `;
         }
-        html = html.replace('{{app.id}}', app.shortId);
+        html = html.replace('{{app.path}}', app.getFullGamePath());
 
         let [strippedScripts, strippedHTML1] = this.stripTag('script', html);
         let [strippedStyles, strippedHTML2] = this.stripTag('style', strippedHTML1);
@@ -690,120 +703,133 @@ class Game {
         return html;
     }
 
-    sendParticipantPage(req, res, participant) {
+    // sendParticipantPage(req, res, participant) {
 
-        if (this.superGame != null) {
-            this.superGame.sendParticipantPage(req, res, participant);
-            return;
-        }
+    //     if (this.superGame != null) {
+    //         this.superGame.sendParticipantPage(req, res, participant);
+    //         return;
+    //     }
 
-        // Load dynamic version of app to allow for live editing of stage html.
-        // var app = this;
-        var app = this.reload();
+    //     // Load dynamic version of app to allow for live editing of stage html.
+    //     // var app = this;
+    //     var app = this.reload();
 
-        // Start with hard-coded html, if any.
-        var html = '';
-        if (app.html != null) {
-            html = html + app.html;
-        }
-        if (app.screen != null) {
-            html = html + app.screen;
-        }
+    //     // Start with hard-coded html, if any.
+    //     var html = '';
+    //     if (app.html != null) {
+    //         html = html + app.html;
+    //     }
+    //     if (app.screen != null) {
+    //         html = html + app.screen;
+    //     }
 
-        // Load content of html file, if any.
-        // Try app.htmlFile, id.html, and client.html.
-        var htmlFile = app.htmlFile == null ? app.id + '.html' : app.htmlFile;
-        var filename = path.join(global.jt.path, '/apps/' + app.id + '/' + htmlFile);
-        if (fs.existsSync(filename)) {
-            html = html + Utils.readTextFile(filename);
-        } else {
-            htmlFile = 'client.html';
-            filename = path.join(global.jt.path, '/apps/' + app.id + '/' + htmlFile);
-            if (fs.existsSync(filename)) {
-                html = html + Utils.readTextFile(filename);
-            }
-        }
+    //     // Load content of html file, if any.
+    //     // Try app.htmlFile, id.html, and client.html.
+    //     var htmlFile = app.htmlFile == null ? app.id + '.html' : app.htmlFile;
+    //     var filename = path.join(global.jt.path, '/apps/' + app.id + '/' + htmlFile);
+    //     if (fs.existsSync(filename)) {
+    //         html = html + Utils.readTextFile(filename);
+    //     } else {
+    //         htmlFile = 'client.html';
+    //         filename = path.join(global.jt.path, '/apps/' + app.id + '/' + htmlFile);
+    //         if (fs.existsSync(filename)) {
+    //             html = html + Utils.readTextFile(filename);
+    //         }
+    //     }
 
-        if (app.activeScreen != null) {
-            html += `
-            <span v-show='player.status == "playing"' class='playing-screen'>
-                ${app.activeScreen}
-                <div>
-                {{stages}}
-                </div>
-            </span>
-            `;
-        }
+    //     let buttonCode = '';
+    //     let wrapInForm = false;
+    //     if (app.addOKButtonIfNone && app.subgames.length == 0) {
+    //         wrapInForm = true;
+    //         html += '<form>\n';
+    //         buttonCode = '<button>OK</button>';
+    //     }
 
-        if (!html.includes('{{stages}}')) {
-            html += `
-            <span v-show='player.status == "playing"' class='playing-screen'>
-                {{stages}}
-            </span>
-            `;
-        }
+    //     html += `
+    //     <span v-show='player.status == "playing"' class='playing-screen'>
+            
+    //     hi
+    //     ${app.activeScreen}
+    //         <div>
+    //         {{stages}}
+    //         </div>
+    //         ${buttonCode}
+    //     </span>
+    //     `;
 
-        // Load stage contents, if any.
-        var stagesHTML = '';
-        var waitingScreensHTML = '';
+    //     if (wrapInForm) {
+    //         html += '<\form>\n';
+    //     }
 
-        let parseHTML = {stagesHTML, waitingScreensHTML}
-        this.parseStagesHTML(app, parseHTML);
-        stagesHTML = parseHTML.stagesHTML;
-        waitingScreensHTML = parseHTML.waitingScreensHTML;
+    //     if (!html.includes('{{stages}}')) {
+    //         html += `
+    //         <span v-show='player.status == "playing"' class='playing-screen'>
+    //             {{stages}}
+    //         </span>
+    //         `;
+    //     }
 
-        let [strippedScripts, stagesHTML1] = this.stripTag('script', stagesHTML);
-        let [strippedStyles, stagesHTML2] = this.stripTag('style', stagesHTML1);
-        stagesHTML = stagesHTML2;
+    //     // Load stage contents, if any.
+    //     var stagesHTML = '';
+    //     var waitingScreensHTML = '';
 
-        if (html.includes('{{stages}}')) {
-            html = html.replace('{{stages}}', stagesHTML);
-        }
+    //     let parseHTML = {stagesHTML, waitingScreensHTML}
+    //     this.parseStagesHTML(app, parseHTML);
+    //     stagesHTML = parseHTML.stagesHTML;
+    //     waitingScreensHTML = parseHTML.waitingScreensHTML;
 
-        // if (html.includes('{{waiting-screens}}') && app.waitingScreen != null) {
-        //     html = html.replace('{{waiting-screens}}', app.waitingScreen);
-        // }
-        html = html.replace('{{waiting-screens}}', waitingScreensHTML);
+    //     let [strippedScripts, stagesHTML1] = this.stripTag('script', stagesHTML);
+    //     let [strippedStyles, stagesHTML2] = this.stripTag('style', stagesHTML1);
+    //     stagesHTML = stagesHTML2;
 
-        // Insert jtree functionality.
-        if (app.insertJtreeRefAtStartOfClientHTML) {
-            html = '<script type="text/javascript" src="/participant/jtree.js"></script>\n' + html;
-        }
+    //     if (html.includes('{{stages}}')) {
+    //         html = html.replace('{{stages}}', stagesHTML);
+    //     }
 
-        let scriptsHTML = strippedStyles + '\n' + strippedScripts;
-        if (app.clientScripts != null) {
-            if (!app.clientScripts.trim().startsWith('<script')) {
-                scriptsHTML = '<script>' + app.clientScripts + '</script>';
-            } else {
-                scriptsHTML = app.clientScripts;                
-            }
-        }
+    //     // if (html.includes('{{waiting-screens}}') && app.waitingScreen != null) {
+    //     //     html = html.replace('{{waiting-screens}}', app.waitingScreen);
+    //     // }
+    //     html = html.replace('{{waiting-screens}}', waitingScreensHTML);
+
+    //     // Insert jtree functionality.
+    //     if (app.insertJtreeRefAtStartOfClientHTML) {
+    //         html = '<script type="text/javascript" src="/participant/jtree.js"></script>\n' + html;
+    //     }
+
+    //     let scriptsHTML = strippedStyles + '\n' + strippedScripts;
+    //     if (app.clientScripts != null) {
+    //         if (!app.clientScripts.trim().startsWith('<script')) {
+    //             scriptsHTML = '<script>' + app.clientScripts + '</script>';
+    //         } else {
+    //             scriptsHTML = app.clientScripts;                
+    //         }
+    //     }
         
-        if (html.includes('{{scripts}}')) {
-            html = html.replace('{{scripts}}', scriptsHTML);
-        }
+    //     if (html.includes('{{scripts}}')) {
+    //         html = html.replace('{{scripts}}', scriptsHTML);
+    //     }
 
-        if (this.modifyPathsToIncludeId) {
+    //     if (this.modifyPathsToIncludeId) {
 
-            // Temporary fix, do not change anything that starts with '/' or 'http'.
-            html = html.replace(/src="\//gmi, 'srcXXX="');
-            html = html.replace(/src='\//gmi, "srcXXX='");
-            html = html.replace(/src="http/gmi, 'srcXXXhttp="');
-            html = html.replace(/src='http/gmi, "srcXXXhttp='");
+    //         // Temporary fix, do not change anything that starts with '/' or 'http'.
+    //         html = html.replace(/src="\//gmi, 'srcXXX="');
+    //         html = html.replace(/src='\//gmi, "srcXXX='");
+    //         html = html.replace(/src="http/gmi, 'srcXXXhttp="');
+    //         html = html.replace(/src='http/gmi, "srcXXXhttp='");
 
-            html = html.replace(/src="/gmi, 'src="./' + this.shortId + '/');
-            html = html.replace(/src='/gmi, "src='./" + this.shortId + '/');
+    //         html = html.replace(/src="/gmi, 'src="./' + this.shortId + '/');
+    //         html = html.replace(/src='/gmi, "src='./" + this.shortId + '/');
 
-            // Revert fix.
-            html = html.replace(/srcXXX="/gmi, 'src="/');
-            html = html.replace(/srcXXX='/gmi, "src='/");
-            html = html.replace(/srcXXXhttp="/gmi, 'src="http');
-            html = html.replace(/srcXXXhttp='/gmi, "src='http");
+    //         // Revert fix.
+    //         html = html.replace(/srcXXX="/gmi, 'src="/');
+    //         html = html.replace(/srcXXX='/gmi, "src='/");
+    //         html = html.replace(/srcXXXhttp="/gmi, 'src="http');
+    //         html = html.replace(/srcXXXhttp='/gmi, "src='http");
 
-        }
-        // Return to client.
-        res.send(html);
-    }
+    //     }
+    //     // Return to client.
+    //     res.send(html);
+    // }
 
     parseStagesHTML(app, html) {
         for (var i=0; i<app.subgames.length; i++) {
@@ -1164,6 +1190,17 @@ class Game {
         return this.indexInSession() + '_' + this.shortId;
     }
 
+    getFullGamePath() {
+        let out = '';
+        if (this.superGame != null) {
+            out = out + this.superGame.getFullGamePath() + '_';
+            out = out + this.indexInSuperGame();
+        } else {
+            out = out + this.shortId;
+        }
+        return out;
+    }
+
     /**
      * @return {number} The index of this app in its session's list of apps (first position = 1).
      */
@@ -1177,6 +1214,21 @@ class Game {
                 return parseInt(i)+1;
             }
         }
+        return -1;
+    }
+
+    indexInSuperGame() {
+
+        if (this.superGame == null) {
+            return -1;
+        }
+
+        for (let i in this.superGame.subgames) {
+            if (this.superGame.subgames[i] === this) {
+                return parseInt(i) + 1;
+            }
+        }
+
         return -1;
     }
 
@@ -1534,8 +1586,17 @@ class Game {
             gameTree = this.superGame.subgames;
         }
 
+        let thisTarget = this;
+        while (thisTarget.__target != null) {
+            thisTarget = thisTarget.__target;
+        }
+
         for (let i=0; i<gameTree.length; i++) {
-            if (gameTree[i] === this) {
+            let gameTarget = gameTree[i];
+            while (gameTarget.__target != null) {
+                gameTarget = gameTarget.__target;
+            }
+            if (gameTarget === thisTarget) {
                 return i;
             }
         }
