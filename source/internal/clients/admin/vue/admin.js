@@ -116,7 +116,7 @@ jt.connected = function() {
     // Register to listen for messages defined in msgs object.
     // https://stackoverflow.com/questions/29917977/get-event-name-in-events-callback-function-in-socket-io
     for (var i in msgs) {
-        console.log('listening for message ' + i);
+        // console.log('listening for message ' + i);
         (function(i) {
             jt.socket.on(i, function(d) {
                 // console.log('received message ' + i + ': ' + JSON.stringify(d));
@@ -241,9 +241,10 @@ jt.socketConnected = function() {
 
    // jt.editor = new Editor();
 
-   let sessionId = vue.$store.state.sessionId;
-   if (sessionId != null) {
-     global.jt.socket.emit('openSession', sessionId);
-   }
+   // Reload previously open session.
+//    let sessionId = vue.$store.state.sessionId;
+//    if (sessionId != null) {
+//      global.jt.socket.emit('openSession', sessionId);
+//    }
 
 }

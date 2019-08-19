@@ -339,6 +339,10 @@ class Msgs {
             'addGame',
             data
         );
+        // session.addMessage(
+        //     'addParticipant',
+        //     1
+        // );
         this.openSession(session.id, socket, 'designApp');
     }
 

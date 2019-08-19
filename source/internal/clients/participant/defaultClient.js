@@ -188,11 +188,11 @@ jt.mountVue = function(participant) {
         //     eval('vueMethods[i] = ' + methods[i]);
         // }
     
-        let vueModel = jt.getVueModels(participant, vueComputed);
+        jt.vueModels = jt.getVueModels(participant, vueComputed);
 
         jt.vue = new Vue({
             el: '#jtree',
-            data: vueModel,
+            data: jt.vueModels,
             computed: vueComputed,
             methods: jt.vueMethods,
             mounted: function() {
@@ -279,7 +279,10 @@ jt.getVueModels = function(participant, computed) {
     }
 
     let findNextTag = function(index, page, params) {
+        console.log('check at ' + index + ', ' + page.substring(index, index + 20));
+        let startString = '';
         if (!params.openQuote) {
+            startString = '{{';
             index = page.indexOf('{{', index);
             if (index == -1) {
                 return;
@@ -290,50 +293,65 @@ jt.getVueModels = function(participant, computed) {
         params.openQuote = false;
         
         let end2 = page.indexOf(' ', index);
-        if (end2 < end) {
+        if (end2 > -1 && end2 < end) {
             end = end2;
             endString = ' ';
             params.openQuote = true;
         }
-        let varName = page.substring(index + '{{'.length, end).trim();
+        let varName = page.substring(index + startString.length, end).trim();
         return {
             index: end + endString.length, 
             params,
-            varName
+            varName,
+            isFunctionCall: false
         }
     }
 
-    let findNextTag2 = function(startIndex, page, params) {
+    let findNextTag2 = function(index, page, params) {
+        let startName = index;
         if (!params.openQuote) {
-            let index = page.indexOf('v-', startIndex);
+            index = page.indexOf('v-', index);
             if (index == -1) {
                 return;
             }
             params.openQuote = true;
-            let end = page.indexOf('="', startIndex);
-            let end2 = page.indexOf('=\'', startIndex);
+            startName = page.indexOf('="', index);
+            let startName2 = page.indexOf('=\'', index);
             params.quoteType = '"';
-            if (end2 < end) {
-                end = end2;
+            if (startName2 > -1 && startName2 < startName) {
+                startName = startName2;
                 params.quoteType = '\'';
             }
-            startIndex = end;
+            startName = startName + 2;
         }
 
-        // Find the end of the current expression - it must end either with a quote, or a space.
-        let end = page.indexOf(params.quoteType, startIndex);
+        // Find the end of the current expression - it must end either with:
+        // - a quote, or
+        // - a space, or
+        // - a parenthesis.
+        let end = page.indexOf(params.quoteType, startName);
         params.openQuote = false;
-        
-        let end2 = page.indexOf(' ', startIndex);
-        if (end2 < end) {
+        let endString = params.quoteType;
+        let end2 = page.indexOf(' ', startName);
+        if (end2 > -1 && end2 < end) {
             end = end2;
             params.openQuote = true;
+            endString = ' ';
         }
-        let varName = page.substring(startIndex, end).trim();
+
+        let end3 = page.indexOf('(', startName);
+        if (end3 > -1 && end3 < end) {
+            end = end3;
+            params.openQuote = true;
+            endString = '(';
+        }
+
+        let varName = page.substring(startName, end).trim();
         return {
             index: end + endString.length, 
             params,
-            varName
+            varName,
+            isFunctionCall: endString === '('
         }
     }
 
@@ -345,7 +363,8 @@ jt.getVueModels = function(participant, computed) {
 
 jt.findVueFields = function(findNextFn, page, vueModel, computed, params) {
     let out = findNextFn(0, page, params);
-    while (out.varName != null) {
+    while (out != null && out.varName != null) {
+        console.log('found ' + out.varName);
         let paths = out.varName.split('.');
 
         // Check if computed property.
@@ -362,7 +381,11 @@ jt.findVueFields = function(findNextFn, page, vueModel, computed, params) {
             let obj = vueModel;
             for (let i in paths) {
                 if (obj[paths[i]] == null) {
-                    obj[paths[i]] = {};
+                    if (out.isFunctionCall && i == paths.length - 1) {
+                        obj[paths[i]] = function() { console.log('should be overwritten!'); };
+                    } else {
+                        obj[paths[i]] = {};
+                    }
                 }
                 if (i < paths.length - 1) {
                     obj = obj[paths[i]];
@@ -411,12 +434,12 @@ jt.updatePlayer = function(participant, updateVue) {
                     return players;
                 }
             };
-            let models = jt.getVueModels(participant, vueComputed);
-            jt.vue.player = models.player;
-            jt.vue.group = models.group;
-            jt.vue.period = models.period;
-            jt.vue.game = models.game;
-            jt.vue.participant = models.participant;
+            jt.vueModels = jt.getVueModels(participant, vueComputed);
+            jt.vue.player = jt.vueModels.player;
+            jt.vue.group = jt.vueModels.group;
+            jt.vue.period = jt.vueModels.period;
+            jt.vue.game = jt.vueModels.game;
+            jt.vue.participant = jt.vueModels.participant;
             jt.vue.timeElapsed = 0;
         }
     }

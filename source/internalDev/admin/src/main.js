@@ -14,6 +14,8 @@ Vue.config.productionTip = false
 
 window.$ = window.jQuery = require('jquery');
 
+store.commit('closeAllWindows', {});
+
 window.vue = new Vue({
   router,
   store,
