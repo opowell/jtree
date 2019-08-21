@@ -136,6 +136,7 @@ class Game {
         this.useVue = true;
 
         this.addOKButtonIfNone = true;
+        this.addFormIfNone = true;
 
         /**
          * The number of periods in this Game.
@@ -614,15 +615,20 @@ class Game {
         let buttonCode = '';
         let formStart = '';
         let formEnd = '';
-        let wrapInForm = false;
+
+        if (
+            app.addFormIfNone &&
+            !app.activeScreen.includes('<form>')
+        ) {
+            formStart += '<form>';
+            formEnd = '</form>';
+        }
+
         if (
             app.addOKButtonIfNone &&
             app.subgames.length == 0 &&
             !app.activeScreen.includes('<button>')
         ) {
-            wrapInForm = true;
-            formStart += '<form>';
-            formEnd = '</form>';
             buttonCode = '<button>OK</button>';
         }
 
@@ -831,73 +837,73 @@ class Game {
     //     res.send(html);
     // }
 
-    parseStagesHTML(app, html) {
-        for (var i=0; i<app.subgames.length; i++) {
-            var stage = app.subgames[i];
+    // parseStagesHTML(app, html) {
+    //     for (var i=0; i<app.subgames.length; i++) {
+    //         var stage = app.subgames[i];
 
-            // Stage HTML
-            var stageHTML = '';
-            var contentStart = app.parseStageTag(stage, app.subgameContentStart);
-            var contentEnd = app.parseStageTag(stage, app.subgameContentEnd);
-            if (stage.content != null) {
-                stageHTML = contentStart + '\n' + stage.content + '\n' + contentEnd;
-            }
-            if (stage.activeScreen != null) {
-                stageHTML += app.parseStageTag(stage, app.subgameContentStart)  + '\n';
-                let wrapInForm = null;
-                if (stage.wrapPlayingScreenInFormTag === 'yes') {
-                    wrapInForm = true;
-                } else if (stage.wrapPlayingScreenInFormTag === 'no') {
-                    wrapInForm = false;
-                } else if (stage.wrapPlayingScreenInFormTag === 'onlyIfNoButton') {
-                    if (
-                        !stage.activeScreen.includes('<button') ||
-                        stage.addOKButtonIfNone
-                        ) {
-                        wrapInForm = true;
-                    } else {
-                        wrapInForm = false;
-                    }
-                }
-                if (wrapInForm) {
-                    stageHTML += '<form>\n';
-                }
-                stageHTML += stage.activeScreen + '\n';
-                if (stage.addOKButtonIfNone) {
-                    if (!stageHTML.includes('<button')) {
-                        stageHTML += `<button>OK</button>`;
-                    }
-                }
-                if (wrapInForm) {
-                    stageHTML += '</form>\n';
-                }
-                stageHTML += app.parseStageTag(stage, app.subgameContentEnd);
-            }
+    //         // Stage HTML
+    //         var stageHTML = '';
+    //         var contentStart = app.parseStageTag(stage, app.subgameContentStart);
+    //         var contentEnd = app.parseStageTag(stage, app.subgameContentEnd);
+    //         if (stage.content != null) {
+    //             stageHTML = contentStart + '\n' + stage.content + '\n' + contentEnd;
+    //         }
+    //         if (stage.activeScreen != null) {
+    //             stageHTML += app.parseStageTag(stage, app.subgameContentStart)  + '\n';
+    //             let wrapInForm = null;
+    //             if (stage.wrapPlayingScreenInFormTag === 'yes') {
+    //                 wrapInForm = true;
+    //             } else if (stage.wrapPlayingScreenInFormTag === 'no') {
+    //                 wrapInForm = false;
+    //             } else if (stage.wrapPlayingScreenInFormTag === 'onlyIfNoButton') {
+    //                 if (
+    //                     !stage.activeScreen.includes('<button') ||
+    //                     stage.addOKButtonIfNone
+    //                     ) {
+    //                     wrapInForm = true;
+    //                 } else {
+    //                     wrapInForm = false;
+    //                 }
+    //             }
+    //             if (wrapInForm) {
+    //                 stageHTML += '<form>\n';
+    //             }
+    //             stageHTML += stage.activeScreen + '\n';
+    //             if (stage.addOKButtonIfNone) {
+    //                 if (!stageHTML.includes('<button')) {
+    //                     stageHTML += `<button>OK</button>`;
+    //                 }
+    //             }
+    //             if (wrapInForm) {
+    //                 stageHTML += '</form>\n';
+    //             }
+    //             stageHTML += app.parseStageTag(stage, app.subgameContentEnd);
+    //         }
 
-            if (html.stagesHTML.length > 0) {
-                html.stagesHTML += '\n';
-            }
-            html.stagesHTML += stageHTML;
+    //         if (html.stagesHTML.length > 0) {
+    //             html.stagesHTML += '\n';
+    //         }
+    //         html.stagesHTML += stageHTML;
 
-            // Waiting screen HTML
-            var waitingScreenHTML = contentStart;
-            if (stage.useGameWaitingScreen) {
-                waitingScreenHTML += app.waitingScreen;
-            }
-            if (stage.waitingScreen != null) {
-                waitingScreenHTML += stage.waitingScreen;
-            }
-            waitingScreenHTML += contentEnd;
+    //         // Waiting screen HTML
+    //         var waitingScreenHTML = contentStart;
+    //         if (stage.useGameWaitingScreen) {
+    //             waitingScreenHTML += app.waitingScreen;
+    //         }
+    //         if (stage.waitingScreen != null) {
+    //             waitingScreenHTML += stage.waitingScreen;
+    //         }
+    //         waitingScreenHTML += contentEnd;
 
-            if (html.waitingScreensHTML.length > 0) {
-                html.waitingScreensHTML += '\n';
-            }
-            html.waitingScreensHTML += waitingScreenHTML;
+    //         if (html.waitingScreensHTML.length > 0) {
+    //             html.waitingScreensHTML += '\n';
+    //         }
+    //         html.waitingScreensHTML += waitingScreenHTML;
 
-            // Subgame HTML
-            this.parseStagesHTML(stage, html);
-        }
-    }
+    //         // Subgame HTML
+    //         this.parseStagesHTML(stage, html);
+    //     }
+    // }
 
     stripTag(tagName, text) {
         let strippedText = '';

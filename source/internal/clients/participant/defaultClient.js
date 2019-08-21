@@ -60,9 +60,13 @@ jt.likertScale = function(field) {
 }
 
 jt.setFormDefaults = function() {
- //   return;
-    // Set up automated form submission for stages.
+
+    // Set up automated form submission for forms.
     $('form').each(function() {
+
+        // Disable autocomplete.
+        $(this).attr('autocomplete', 'off');
+
         // If it only contains a single button, make this the submit button.
         let buttons = $(this).find('button');
         if (buttons.length === 1) {
@@ -87,13 +91,10 @@ jt.setFormDefaults = function() {
             }
         }
 
-        if (!this.hasAttribute('onclick')) {
+        if (this.action == null || this.action == document.location.href) {
+            this.action = null;
             try {
-                this.removeAttr('type');
-
-                this.addEventListener('click', function(event) {
-                    // event.preventDefault();
-                    // event.stopPropagation();
+                this.onsubmit = function(event) {
                     var values = {};
                     var stageName = jt.vue.player.stage.id;
                     values.fnName = stageName;
@@ -120,9 +121,9 @@ jt.setFormDefaults = function() {
                             }
                         }
                     });
-
                     jt.sendMessage('endGame', values);
-                });
+                    return false;
+                };
             } catch (err) {
                 console.log('error assigning submit button action');
                 console.log(JSON.stringify(err));
