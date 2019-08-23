@@ -34,6 +34,9 @@ class SessionV2 {
             },
         };
 
+        /**
+         * Fields initially existing on "proxyObj" are not monitored.
+         */
         let proxyObj = {
             id: this.id,
             messages: [],
@@ -140,34 +143,29 @@ class SessionV2 {
             }
 
             let origNewValue = msg.newValue;
+            let origArguments = [];
+            for (let i in msg.arguments) {
+                origArguments.push(msg.arguments[i]);
+            }
 
             msg.newValue = global.jt.flatten(msg.newValue);
             msg.arguments = global.jt.flatten(msg.arguments);
 
-            console.log('change from session: ' + msg.path);
+            // console.log('change from session: ' + msg.path);
 
             msg.source = 'session';
 
             jt.socketServer.io.to(thisSession.roomId()).emit('objChange', msg);
-            console.log('sending message to ' + thisSession.roomId());
+            // console.log('sending message to ' + thisSession.roomId());
             thisSession.save();
 
             // TOTEST
             // Apply change to stripped objects.
             let paths = msg.path.split('.');
             if (origNewValue != null && paths[0] != 'objectList') {
-                // Locate stripped version of target.
-                let obj = thisSession.proxy;
-                for (let i=0; i<paths.length - 1; i++) {
-                    obj = obj[paths[i]];
-                }
-                // Step out of proxies.
-                while (obj.__target != null) {
-                    obj = obj.__target;
-                }
                 let strippedObj = null;
                 for (let i in originalObjects) {
-                    if (originalObjects[i] === obj) {
+                    if (originalObjects[i] === change.target) {
                         strippedObj = strippedObjects[i];
                         break;
                     }
@@ -176,6 +174,20 @@ class SessionV2 {
                     return true;
                 }
                 strippedObj[paths[paths.length-1]] = origNewValue;
+            }
+
+            if (origArguments.length > 0 && paths[0] != 'objectList') {
+                let strippedObj = null;
+                for (let i in originalObjects) {
+                    if (originalObjects[i] === change.target) {
+                        strippedObj = strippedObjects[i];
+                        break;
+                    }
+                }
+                if (strippedObj == null) {
+                    return true;
+                }
+                strippedObj[msg.function](...origArguments);
             }
 
             // Apply changes locally.
@@ -313,7 +325,7 @@ class SessionV2 {
         }
 
         if (player.stage.id !== data.fnName) {
-            console.log('Game.js, GAME NAME DOES NOT MATCH: ' + client.player().game.id + ' vs. ' + data.fnName + ', data=' + JSON.stringify(data));
+            console.log('Game.js, GAME NAME DOES NOT MATCH: ' + participant.player.game.id + ' vs. ' + data.fnName + ', data=' + JSON.stringify(data));
             return false;
         }
 
@@ -426,7 +438,7 @@ class SessionV2 {
     }
 
     addMessage(name, content) {
-        console.log('adding message: ' + name + (content==null ? '' : (', ' + content)));
+        // console.log('adding message: ' + name + (content==null ? '' : (', ' + content)));
         this.proxy.messages.push({
             id: this.proxy.messages.length + 1,
             name,
@@ -738,7 +750,7 @@ class SessionV2 {
         let partTarget = participant.__target;
         for (let i=0; i<this.originalObjectsList.length; i++) {
             if (this.originalObjectsList[i] === partTarget) {
-                console.log('login data is object ' + i);
+                // console.log('login data is object ' + i);
                 loginData.participant = '__link__' + i;
                 break;
             }

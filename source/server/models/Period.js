@@ -114,14 +114,7 @@ class Period {
             console.log('Error: no group defined for ' + participant.id + ' in ' + this.roomId());
         }
 
-        var gr = null;
-        for (var g in this.groups) {
-            var group = this.groups[g];
-            if (group.id === groupId) {
-                gr = group;
-                break;
-            }
-        }
+        var gr = Utils.findById(this.groups, groupId)
         if (gr === null) {
             gr = new Group.new(groupId, this);
             // gr.save();
@@ -134,6 +127,7 @@ class Period {
             // create player
             player = new Player.new(participant.id, participant, gr, gr.players.length+1);
             participant.players.push(player);
+            player = participant.players[participant.players.length-1];
             // player.save();
             // participant.save();
             gr.players.push(player);
@@ -141,12 +135,12 @@ class Period {
         }
         player.stageIndex = 0;
         player.subGame = this.game.subgames[player.stageIndex];
-        player.superGame = this.game.subgames[player.stageIndex];
+        player.superGame = this.game;
         player.stage = player.subGame;
         player.game = player.superGame;
         player.status = 'ready';
         participant.setPlayer(player);
-        player = participant.player;
+        // player = participant.player;
 
         if (player === null) {
             console.log('APP: error assigning group for participant ' + participant.id);
@@ -286,43 +280,6 @@ class Period {
     //     for (var i in this.groups) {
     //         this.groups[i].autoSave();
     //     }
-    // }
-
-    // shellWithParent() {
-    //     var out = {};
-    //     var fields = this.outputFields();
-    //     for (var f in fields) {
-    //         var field = fields[f];
-    //         out[field] = this[field];
-    //     }
-    //     out.app = this.app.shellWithParent();
-    //     return out;
-    // }
-
-    // shellWithChildren() {
-    //     var out = {};
-    //     var fields = this.outputFields();
-    //     for (var f in fields) {
-    //         var field = fields[f];
-    //         out[field] = this[field];
-    //     }
-    //     out.app = this.app.id;
-    //     out.groups = [];
-    //     for (var i in this.groups) {
-    //         out.groups[i] = this.groups[i].shellWithChildren();
-    //     }
-    //     return out;
-    // }
-
-    // shell() {
-    //     var out = {};
-    //     var fields = this.outputFields();
-    //     for (var f in fields) {
-    //         var field = fields[f];
-    //         out[field] = this[field];
-    //     }
-    //     out.appIndex = this.app.indexInSession();
-    //     return out;
     // }
 
     /**

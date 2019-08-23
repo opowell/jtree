@@ -82,6 +82,7 @@ class Player {
         this.outputHide = [];
 
         this.subPlayers = [];
+        this.superPlayer = null;
 
         /**
          * 'outputHideAuto' fields are not included in output.
@@ -634,7 +635,7 @@ class Player {
 
 
     startStage(stage) {
-        this.group.startStage(this.stage);
+        this.group.startStage(stage);
         if (!stage.canPlayerStart(this)) {
             return;
         }

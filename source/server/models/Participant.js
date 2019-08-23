@@ -222,9 +222,10 @@ class Participant {
     }
 
     addPlayer(player) {
-
+        // If there is a current player, the new player is a child of the current one.
         if (this.player != null) {
             this.player.subPlayers.push(player);
+            player.superPlayer = this.player;
         } else {
             this.players.push(player);
         }
@@ -519,11 +520,6 @@ class Participant {
 
     clientRemove(clientId) {
         Utils.deleteById(this.clients, clientId);
-        // this.session.jt.socketServer.sendOrQueueAdminMsg(null, 'objChange', {
-        //     type: 'set-value',
-        //     path: 'session.participants.' + this.id + '.numClients',
-        //     newValue: this.clients.length,
-        // });
     }
 
     clientAdd(client) {
@@ -531,7 +527,7 @@ class Participant {
         // this.clientProxies.push(client.proxy);
         client.getSocket().join(this.roomId());
         client.getSocket().join(this.session.nonObs.session.roomId());
-        console.log('subscribing to ' + this.session.nonObs.session.roomId());
+        // console.log('subscribing to ' + this.session.nonObs.session.roomId());
         // if (this.player != null) {
         //     // this.player.addClient(client);
         //     // this.player.group.addClient(client);
@@ -580,10 +576,10 @@ class Participant {
         let stageId = (player != null && player.stage != null) ? player.stage.id : 'null';
         console.log('settting participant player: ' + this.id + ', ' + stageId);
         player.updateGamePath();
-        // while (player.__target != null) {
-        //     player = player.__target;
-        // }
         this.player = player;
+        // if (player.superPlayer == null) {
+        //     this.players.push(player);
+        // }
     }
 
     // actuallyEmitUpdate() {
@@ -621,48 +617,6 @@ class Participant {
         out.numPoints = this.points();
         return out;
     }
-
-    // shellAll() {
-    //     var out = {};
-    //     var fields = this.outputFields();
-    //     for (var f in fields) {
-    //         var field = fields[f];
-    //         out[field] = this[field];
-    //     }
-    //     out.numClients = this.clients.length;
-    //     if (this.player != null) {
-    //         out.player = this.player.shellWithChildren();
-    //     } else {
-    //         out.player = null;
-    //     }
-    //     out.numPoints = this.points();
-    //     out.playerIds = [];
-    //     out.players = [];
-    //     for (var i in this.players) {
-    //         out.playerIds[i] = this.players[i].roomId();
-    //         out.players.push(this.players[i].shell());
-    //     }
-    //     return out;
-    // }
-
-    // shellLocal() {
-    //     var out = {};
-    //     var fields = this.outputFields();
-    //     for (var f in fields) {
-    //         var field = fields[f];
-    //         out[field] = this[field];
-    //     }
-    //     out.playerIds = [];
-    //     for (var i in this.players) {
-    //         out.playerIds.push(this.players[i].compId());
-    //     }
-    //     out.playerIds = JSON.stringify(out.playerIds);
-    //     out.playerId = null;
-    //     if (this.player !== null) {
-    //         out.playerId = JSON.stringify(this.player.compId());
-    //     }
-    //     return out;
-    // }
 
     save() {
         try {

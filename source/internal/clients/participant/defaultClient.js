@@ -94,36 +94,7 @@ jt.setFormDefaults = function() {
         if (this.action == null || this.action == document.location.href) {
             this.action = null;
             try {
-                this.onsubmit = function(event) {
-                    var values = {};
-                    var stageName = jt.vue.player.stage.id;
-                    values.fnName = stageName;
-                    // INPUTS (includes input, select and checkboxes, but not buttons)
-                    // https://stackoverflow.com/questions/11855781/jquery-getting-data-from-form
-                    var $inputs = $(this).find(':input:not(:button)');
-                    $inputs.each(function() {
-                        // Skip blank inputs.
-                        var fieldName = $(this).attr('name');
-                        if (fieldName !== '' && fieldName !== undefined) {
-                            if (this.type === 'checkbox') {
-                                if (this.checked === true) {
-                                    if (values[fieldName] === undefined) {
-                                        values[fieldName] = [];
-                                    }
-                                    values[fieldName].push(this.value);
-                                }
-                            } else if (this.type === 'radio') {
-                                if (this.checked) {
-                                    values[fieldName] = this.value;
-                                }
-                            } else {
-                                values[fieldName] = this.value;
-                            }
-                        }
-                    });
-                    jt.sendMessage('endGame', values);
-                    return false;
-                };
+                $(this).attr('onsubmit', 'return jt.submitForm();');
             } catch (err) {
                 console.log('error assigning submit button action');
                 console.log(JSON.stringify(err));
@@ -131,6 +102,37 @@ jt.setFormDefaults = function() {
         }
     });
 
+}
+
+jt.submitForm = function() {
+    var values = {};
+    var stageName = jt.vue.player.stage.id;
+    values.fnName = stageName;
+    // INPUTS (includes input, select and checkboxes, but not buttons)
+    // https://stackoverflow.com/questions/11855781/jquery-getting-data-from-form
+    var $inputs = $(this).find(':input:not(:button)');
+    $inputs.each(function() {
+        // Skip blank inputs.
+        var fieldName = $(this).attr('name');
+        if (fieldName !== '' && fieldName !== undefined) {
+            if (this.type === 'checkbox') {
+                if (this.checked === true) {
+                    if (values[fieldName] === undefined) {
+                        values[fieldName] = [];
+                    }
+                    values[fieldName].push(this.value);
+                }
+            } else if (this.type === 'radio') {
+                if (this.checked) {
+                    values[fieldName] = this.value;
+                }
+            } else {
+                values[fieldName] = this.value;
+            }
+        }
+    });
+    jt.sendMessage('endGame', values);
+    return false;
 }
 
 // Disable navigation away from the page, unless password is entered.

@@ -113,7 +113,7 @@ jt.replaceExistingObjectsWithLinks = function(object, existingObjects, originalE
         // Create copy of object (so as to not modify original).
         let copy = Array.isArray(object) ? [] : {};
     
-        console.log('storing object ' + existingObjects.length);
+        // console.log('storing object ' + existingObjects.length);
         existingObjects.push(copy);
         originalExistingObjects.push(object);
         let index = existingObjects.length - 1;
@@ -140,129 +140,129 @@ jt.replaceExistingObjectsWithLinks = function(object, existingObjects, originalE
     
 }
 
-jt.replaceExistingObjectsWithLinksComplex = function(data, existingObjects, path, parents, rootParent, funcName) {
+// jt.replaceExistingObjectsWithLinksComplex = function(data, existingObjects, path, parents, rootParent, funcName) {
     
-try {
+// try {
 
-    // Get out of proxies.
-    while (data != null && data.__target != null) {
-        data = data.__target;
-    }
+//     // Get out of proxies.
+//     while (data != null && data.__target != null) {
+//         data = data.__target;
+//     }
 
-    let storedPath = path;
+//     let storedPath = path;
 
-    // Load parents if necessary.
-    // Also remove any circularity in the path.
-    if (parents == null) {
-        parents = [{
-            object: rootParent,
-            path: ''
-        }];
-        let paths = split(path);
-        let curParent = rootParent;
-        let newPath = '';
-        nextPath: for (let i in paths) {
-            let curPath = paths[i];
-            curParent = curParent[curPath];
+//     // Load parents if necessary.
+//     // Also remove any circularity in the path.
+//     if (parents == null) {
+//         parents = [{
+//             object: rootParent,
+//             path: ''
+//         }];
+//         let paths = split(path);
+//         let curParent = rootParent;
+//         let newPath = '';
+//         nextPath: for (let i in paths) {
+//             let curPath = paths[i];
+//             curParent = curParent[curPath];
 
-            // Check for circularity
-            for (let j in parents) {
-                if (parents[j].object === curParent) {
-                    newPath = parents[j].path;
-                    parents.splice(j+1, parents.length - j - 1);
-                    continue nextPath;
-                }
-            }
+//             // Check for circularity
+//             for (let j in parents) {
+//                 if (parents[j].object === curParent) {
+//                     newPath = parents[j].path;
+//                     parents.splice(j+1, parents.length - j - 1);
+//                     continue nextPath;
+//                 }
+//             }
 
-            // Check for existing object, which presumably has shorter path
-            for (let j in existingObjects) {
-                if (existingObjects[j].object === curParent) {
-                    newPath = existingObjects[j].path;
-                    parents = [existingObjects[j]];
-                    continue nextPath;
-                }
-            }
+//             // Check for existing object, which presumably has shorter path
+//             for (let j in existingObjects) {
+//                 if (existingObjects[j].object === curParent) {
+//                     newPath = existingObjects[j].path;
+//                     parents = [existingObjects[j]];
+//                     continue nextPath;
+//                 }
+//             }
 
-            // No circularity, add the current parent.
-            newPath = newPath + (newPath.length>0 ? '.' : '') + curPath;
-            parents.push({
-                object: curParent,
-                path: newPath
-            });
-        }
+//             // No circularity, add the current parent.
+//             newPath = newPath + (newPath.length>0 ? '.' : '') + curPath;
+//             parents.push({
+//                 object: curParent,
+//                 path: newPath
+//             });
+//         }
 
-        path = newPath;
+//         path = newPath;
 
-        storedPath = path;
-        // If pushing to an array, add the array index to the end of the path.
-        if (funcName === 'push') {
-            storedPath = storedPath + (path.length>0 ? '.' : '') + curParent.length;
-        }
+//         storedPath = path;
+//         // If pushing to an array, add the array index to the end of the path.
+//         if (funcName === 'push') {
+//             storedPath = storedPath + (path.length>0 ? '.' : '') + curParent.length;
+//         }
 
-    }
+//     }
 
-    // If object is its own ancestor, store path to ancestor.
-    for (let i in parents) {
-        let parent = parents[i];
-        if (data === parent.object) {
-            path = parent.path;
-            break;    
-        }
-    }
+//     // If object is its own ancestor, store path to ancestor.
+//     for (let i in parents) {
+//         let parent = parents[i];
+//         if (data === parent.object) {
+//             path = parent.path;
+//             break;    
+//         }
+//     }
 
-    // If not an object, return original object.
-    let type = typeof(data);
-    if (type !== 'object' || data == null) {
-        return {
-            object: data,
-            path: path
-        };
-    }
+//     // If not an object, return original object.
+//     let type = typeof(data);
+//     if (type !== 'object' || data == null) {
+//         return {
+//             object: data,
+//             path: path
+//         };
+//     }
 
-    // If existing object, return link to that object.
-    for (let key in existingObjects) {
-        let entry = existingObjects[key];
-        if (data === entry) {
-            return '__link__' + key;
-        }
-    }
+//     // If existing object, return link to that object.
+//     for (let key in existingObjects) {
+//         let entry = existingObjects[key];
+//         if (data === entry) {
+//             return '__link__' + key;
+//         }
+//     }
 
-    // Otherwise, add this object to the list of existing objects, and parse its fields.
-    let thisObject = data;
-    console.log('storing object ' + existingObjects.length);
-    existingObjects.push(thisObject);
+//     // Otherwise, add this object to the list of existing objects, and parse its fields.
+//     let thisObject = data;
+//     // console.log('storing object ' + existingObjects.length);
+//     existingObjects.push(thisObject);
 
-    // Create copy of object (so as to not modify original).
-    let copy = Array.isArray(data) ? [] : {};
+//     // Create copy of object (so as to not modify original).
+//     let copy = Array.isArray(data) ? [] : {};
 
-    // Store object prototypes.
-    if (data.__proto__ != null) {
-        copy.__proto__ = data.__proto__;
-    }
-    // parents.push({
-    //     object: data,
-    //     path: storedPath
-    // });
-    for (let i in data) {
-        if (i === 'nonObs') {
-            continue;
-        }
-        let child = data[i];
-        // let newPath = storedPath + '.' + i;
-        let newChild = jt.replaceExistingObjectsWithLinks(child, existingObjects, null);
-        copy[i] = newChild;
-    }
-    // parents.splice(parents.length-1, 1);
+//     // Store object prototypes.
+//     if (data.__proto__ != null) {
+//         copy.__proto__ = data.__proto__;
+//     }
+//     // parents.push({
+//     //     object: data,
+//     //     path: storedPath
+//     // });
+//     for (let i in data) {
+//         if (i === 'nonObs') {
+//             continue;
+//         }
+//         let child = data[i];
+//         // let newPath = storedPath + '.' + i;
+//         let newChild = jt.replaceExistingObjectsWithLinks(child, existingObjects, null);
+//         copy[i] = newChild;
+//     }
+//     // parents.splice(parents.length-1, 1);
 
-    // Return copy.
-    return copy;
+//     // Return copy.
+//     return copy;
 
-} catch (err) {
-    console.log(err);
-    debugger;
-}
+// } catch (err) {
+//     console.log(err);
+//     debugger;
+// }
 
-}
+// }
 
 // If object is not already stored in objectList, add it and repeat for all of children's fields.
 jt.addExistingObjects = function(object, objectList) {

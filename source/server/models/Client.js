@@ -41,7 +41,7 @@ class Client {
      */
     on(msgName, fn) {
         // let socket = jt.socketServer.getSocket(this.socketId);
-        console.log('listening to ' + msgName);
+        // console.log('listening to ' + msgName);
         this.getSocket().on(msgName, fn);
     }
 
