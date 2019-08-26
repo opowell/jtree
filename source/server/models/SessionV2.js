@@ -29,10 +29,16 @@ class SessionV2 {
             potentialParticipantIds: this.jt.settings.participantIds,
             id: this.id,
             stateId: 0,
-            nonObs: {
-                session: this,
-            },
         };
+
+        if (this.initialState.nonObs == null) {
+            Object.defineProperty(this.initialState, "nonObs", {
+                enumerable: false,
+                value: {}
+            });
+        }
+
+        this.initialState.nonObs.session = this;
 
         /**
          * Fields initially existing on "proxyObj" are not monitored.
@@ -148,8 +154,8 @@ class SessionV2 {
                 origArguments.push(msg.arguments[i]);
             }
 
-            msg.newValue = global.jt.flatten(msg.newValue);
-            msg.arguments = global.jt.flatten(msg.arguments);
+            // msg.newValue = global.jt.flatten(msg.newValue);
+            // msg.arguments = global.jt.flatten(msg.arguments);
 
             // console.log('change from session: ' + msg.path);
 
@@ -162,32 +168,22 @@ class SessionV2 {
             // TOTEST
             // Apply change to stripped objects.
             let paths = msg.path.split('.');
-            if (origNewValue != null && paths[0] != 'objectList') {
-                let strippedObj = null;
-                for (let i in originalObjects) {
-                    if (originalObjects[i] === change.target) {
-                        strippedObj = strippedObjects[i];
-                        break;
-                    }
-                }
-                if (strippedObj == null) {
-                    return true;
-                }
-                strippedObj[paths[paths.length-1]] = origNewValue;
+            if (
+                origNewValue != null &&
+                paths[0] != 'objectList'&&
+                change.target.nonObs != null &&
+                change.target.nonObs.storageIndex != null
+            ) {
+                strippedObjects[change.target.nonObs.storageIndex] = origNewValue;
             }
 
-            if (origArguments.length > 0 && paths[0] != 'objectList') {
-                let strippedObj = null;
-                for (let i in originalObjects) {
-                    if (originalObjects[i] === change.target) {
-                        strippedObj = strippedObjects[i];
-                        break;
-                    }
-                }
-                if (strippedObj == null) {
-                    return true;
-                }
-                strippedObj[msg.function](...origArguments);
+            if (
+                origArguments.length > 0 &&
+                paths[0] != 'objectList' &&
+                change.target.nonObs != null &&
+                change.target.nonObs.storageIndex != null
+            ) {
+                strippedObjects[change.target.nonObs.storageIndex][msg.function](...origArguments);
             }
 
             // Apply changes locally.
@@ -485,6 +481,10 @@ class SessionV2 {
 
             // Temporarily disable state storage.
             let newState = clone(prevState);
+            Object.defineProperty(newState, "nonObs", {
+                enumerable: false,
+                value: clone(prevState.nonObs)
+            });
             // let newState = prevState;
 
             newState.stateId++;
@@ -689,7 +689,7 @@ class SessionV2 {
     getPage(participant) {
         let html = '';
         let gameTree = this.proxy.__target.state.gameTree;
-        for (let g in gameTree) {
+        for (let g=0; g<gameTree.length; g++) {
             html = html + gameTree[g].getHTML(participant);
         }
         return html;
@@ -755,7 +755,8 @@ class SessionV2 {
                 break;
             }
         }
-        global.jt.socketServer.io.to(socket.id).emit('logged-in', global.jt.flatten(loginData));
+        // global.jt.socketServer.io.to(socket.id).emit('logged-in', global.jt.flatten(loginData));
+        global.jt.socketServer.io.to(socket.id).emit('logged-in', loginData);
         return client;
     }
 

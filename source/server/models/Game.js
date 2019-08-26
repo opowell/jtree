@@ -606,8 +606,8 @@ class Game {
         var app = this.reload();
 
         let subgamesHTML = '';
-        if (this.subgames != null) {
-            for (let sg in this.subgames) {
+        if (this.subgames.length > 0) {
+            for (let sg=0; sg< this.subgames.length; sg++) {
                 subgamesHTML = subgamesHTML + this.subgames[sg].getHTML(participant);
             }
         }

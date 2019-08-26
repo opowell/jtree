@@ -14,6 +14,7 @@ intro.activeScreen = `
 var pgg = game.addSubGame('pgg');
 pgg.numPeriods = game.numRepetitions;
 var decideStage = pgg.addSubGame('decide');
+// TODO: "game" should refer to the current game, i.e. here it refers to "decide".
 decideStage.activeScreen = `
     <p>DECISION</p>
     <p>Your endowment is {{game.superGame.endowment}} E$.</p>

@@ -293,7 +293,7 @@ jt.getVueModels = function(participant, computed) {
     }
 
     let findNextTag = function(index, page, params) {
-        console.log('check at ' + index + ', ' + page.substring(index, index + 20));
+        // console.log('check at ' + index + ', ' + page.substring(index, index + 20));
         let startString = '';
         if (!params.openQuote) {
             startString = '{{';
@@ -378,7 +378,7 @@ jt.getVueModels = function(participant, computed) {
 jt.findVueFields = function(findNextFn, page, vueModel, computed, params) {
     let out = findNextFn(0, page, params);
     while (out != null && out.varName != null) {
-        console.log('found ' + out.varName);
+        // console.log('found ' + out.varName);
         let paths = out.varName.split('.');
 
         // Check if computed property.
