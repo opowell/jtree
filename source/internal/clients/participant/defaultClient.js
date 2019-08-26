@@ -572,7 +572,12 @@ jt.defaultConnected = function() {
 
     jt.socket.on('logged-in', function(data) {
 
-        let parsedData = CircularJSON.parse(data, jt.dataReviver);
+        let parsedData = data.participant;
+        try {
+            parsedData = CircularJSON.parse(data, jt.dataReviver);
+        } catch (err) {
+            
+        }
 
         // let objects = parsedData.objectList;
         // jt.storeObjects(objects);

@@ -54,12 +54,20 @@ msgs.objChange = function(change) {
     console.log(`object change: ${change.type}, ${change.path}`);
     //  + '\n' + JSON.stringify(change, null, 4));
 
-    if (change.arguments != null) {
-        change.arguments = CircularJSON.parse(change.arguments);
+    if (typeof(change.arguments) === 'string') {
+        try {
+            change.arguments = CircularJSON.parse(change.arguments);
+        } catch (err) {
+            
+        }
     }
 
-    if (change.newValue != null) {
-        change.newValue = CircularJSON.parse(change.newValue);
+    if (typeof(change.newValue) === 'string') {
+        try {
+            change.newValue = CircularJSON.parse(change.newValue);
+        } catch (err) {
+
+        }
     }
 
     let paths = change.path.split('.');
@@ -250,6 +258,7 @@ msgs.openSession = function(sessData, windowType) {
     }
     const prevSession = vue.$store.state.session;
     vue.$store.state.session = session;
+    jt.replaceLinksWithObjects(session.objectList);
     if (
         objLength(session.state.participants) === 0 && 
         prevSession != null && 

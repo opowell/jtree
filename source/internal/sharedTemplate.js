@@ -49,6 +49,36 @@ jt.dataReviver = function(key, value) {
     }
 }
 
+jt.parseJSON = function(value) {
+
+    if (value == null) {
+        return value;
+    }
+
+    let type = typeof(value);
+
+    if (
+        (type.startsWith === 'function') &&
+        value.startsWith("/Function(") &&
+        value.endsWith(")/")
+    ) {
+        value = value.substring(10, value.length - 2);
+        try {
+            return eval("(" + value + ")");
+        } catch (err) {
+            console.log(err);
+        }
+    } 
+    
+    if (typeof value === 'object') {
+        for (let i in value) {
+            value[i] = jt.parseJSON(value[i]);
+        }
+    }
+
+    return value;
+}
+
 jt.checkIfLoaded = function() {
         var pId = jt.getPId();
         var pwd = jt.getURLParameter('pwd');
@@ -80,7 +110,11 @@ jt.checkIfLoaded = function() {
         });
 
         jt.socket.on('logged-in', function(msgData) {
-            msgData = CircularJSON.parse(msgData, jt.dataReviver);
+            try {
+                msgData = CircularJSON.parse(msgData, jt.dataReviver);
+            } catch (err) {
+                
+            }
             jt.storeObjects(msgData.objectList);
             let partData = msgData.participant;
             partData = jt.replaceLinksWithObjects(partData);
