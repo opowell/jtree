@@ -56,7 +56,7 @@ msgs.objChange = function(change) {
 
     if (typeof(change.arguments) === 'string') {
         try {
-            change.arguments = CircularJSON.parse(change.arguments);
+            change.arguments = JSON.parse(change.arguments);
         } catch (err) {
             
         }
@@ -64,7 +64,7 @@ msgs.objChange = function(change) {
 
     if (typeof(change.newValue) === 'string') {
         try {
-            change.newValue = CircularJSON.parse(change.newValue);
+            change.newValue = JSON.parse(change.newValue);
         } catch (err) {
 
         }
@@ -243,7 +243,7 @@ msgs.openSession = function(sessData, windowType) {
         windowType = 'run';
     }
 
-    let session = CircularJSON.parse(sessData, jt.dataReviver);
+    let session = JSON.parse(sessData, jt.dataReviver);
 
     if (session == null) {
         return;

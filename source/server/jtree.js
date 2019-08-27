@@ -71,7 +71,8 @@ if (jt.settings.openAdminOnStart) {
 }
 
 jt.flatten = function(data) {
-    return global.jt.Parser.stringifyStrict(data, global.jt.data.dataReplacer, 2);
+    return JSON.stringify(data, global.jt.data.dataReplacer, 2);
+    // return global.jt.Parser.stringifyStrict(data, global.jt.data.dataReplacer, 2);
 }
 
 /**

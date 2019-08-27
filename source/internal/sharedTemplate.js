@@ -111,7 +111,7 @@ jt.checkIfLoaded = function() {
 
         jt.socket.on('logged-in', function(msgData) {
             try {
-                msgData = CircularJSON.parse(msgData, jt.dataReviver);
+                msgData = JSON.parse(msgData, jt.dataReviver);
             } catch (err) {
                 
             }
@@ -124,7 +124,7 @@ jt.checkIfLoaded = function() {
                 partId = partData.id;
                 sessId = partData.session.id;
             } else {
-                let participant = CircularJSON.parse(partData, jt.dataReviver);
+                let participant = JSON.parse(partData, jt.dataReviver);
                 partId = participant.id;
                 sessId = participant.session.id;
             }

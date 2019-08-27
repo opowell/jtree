@@ -9,9 +9,9 @@ const Room = require('../models/Room.js');
 const User = require('../models/User.js');
 const Observer = require('micro-observer').Observer;
 const Game = require('../models/Game.js');
-const flatted = require('flatted');
-const CircularJSON = require('../circularjson.js');
-const Parser = CircularJSON;
+// const flatted = require('flatted');
+// const CircularJSON = require('../circularjson.js');
+// const Parser = CircularJSON;
 /** The data object. */
 class Data {
 
@@ -29,7 +29,7 @@ class Data {
          */
         this.jt = jt;
 
-        jt.Parser = Parser;
+        // jt.Parser = Parser;
 
         this.lastOpenedSession = null;
 

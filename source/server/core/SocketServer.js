@@ -7,8 +7,8 @@ const Utils     = require('../models/Utils.js');
 const Client    = require('../models/Client.js');
 const Msgs      = require('./Msgs.js');
 const flatted = require('flatted');
-const CircularJSON = require('../circularjson.js');
-const Parser = CircularJSON;
+// const CircularJSON = require('../circularjson.js');
+// const Parser = CircularJSON;
 
 /** Handles socket connections */
 class SocketServer {
@@ -219,8 +219,8 @@ class SocketServer {
             return true;
         }
         let jt = global.jt;
-        msg.newValue = Parser.stringify(msg.newValue, global.jt.data.dataReplacer, 2);
-        msg.arguments = Parser.stringify(msg.arguments, global.jt.data.dataReplacer, 2);
+        msg.newValue = JSON.stringify(msg.newValue, global.jt.data.dataReplacer, 2);
+        msg.arguments = JSON.stringify(msg.arguments, global.jt.data.dataReplacer, 2);
         // console.log('emit message: \n' + Parser.stringify(msg, global.jt.data.dataReplacer, 2));
         jt.socketServer.io.to(channelId).emit('objChange', msg);
     }

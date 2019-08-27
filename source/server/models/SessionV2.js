@@ -122,8 +122,7 @@ class SessionV2 {
                     let x = global.jt.replaceExistingObjectsWithLinks(
                         msg.newValue, 
                         strippedObjects.__target, 
-                        originalObjects, 
-                        msg.path
+                        originalObjects,
                     );
                     msg.newValue = x;
                 }
@@ -132,8 +131,7 @@ class SessionV2 {
                         let x = global.jt.replaceExistingObjectsWithLinks(
                             msg.arguments[i], 
                             strippedObjects.__target, 
-                            originalObjects, 
-                            msg.path
+                            originalObjects,
                         );
                         msg.arguments[i] = x;
                     }
@@ -153,9 +151,6 @@ class SessionV2 {
             for (let i in msg.arguments) {
                 origArguments.push(msg.arguments[i]);
             }
-
-            // msg.newValue = global.jt.flatten(msg.newValue);
-            // msg.arguments = global.jt.flatten(msg.arguments);
 
             // console.log('change from session: ' + msg.path);
 
@@ -448,7 +443,7 @@ class SessionV2 {
 
     save() {
         try {
-            var data = global.jt.flatten(this.proxy.__target);
+            // var data = global.jt.flatten(this.proxy.__target);
             // fs.writeFileSync(this.getGSFFile(), data);
         } catch (err) {
             debugger;
@@ -544,7 +539,14 @@ class SessionV2 {
     }
 
     shell() {
-        return this.proxy.__target;
+
+        // Store new objects, without notifying listeners.
+        let out = global.jt.replaceExistingObjectsWithLinks(
+            this.proxy.__target, 
+            this.proxy.objectList,
+            this.originalObjectsList,
+        );
+        return out;
     }
 
     // shellWithChildren() {

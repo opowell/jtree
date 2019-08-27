@@ -574,7 +574,7 @@ jt.defaultConnected = function() {
 
         let parsedData = data.participant;
         try {
-            parsedData = CircularJSON.parse(data, jt.dataReviver);
+            parsedData = JSON.parse(data, jt.dataReviver);
         } catch (err) {
             
         }
