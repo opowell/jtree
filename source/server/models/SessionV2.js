@@ -110,18 +110,11 @@ class SessionV2 {
 
             if (substitute) {
 
-                // Track the number of new objects added to the list, so that all new objects can be added at once.
-                // Initially, objects are added without triggering a change event.
-                // Then after all substitutions are finished, the change event is triggered.
-
-                // The initial number of objects in the list.
-                let initialNumObjects = strippedObjects.length;
-
                 // Store new objects, without notifying listeners.
                 if (msg.newValue != null) {
                     let x = global.jt.replaceExistingObjectsWithLinks(
                         msg.newValue, 
-                        strippedObjects.__target, 
+                        strippedObjects, 
                         originalObjects,
                     );
                     msg.newValue = x;
@@ -130,18 +123,11 @@ class SessionV2 {
                     for (let i=0; i < msg.arguments.length; i++) {
                         let x = global.jt.replaceExistingObjectsWithLinks(
                             msg.arguments[i], 
-                            strippedObjects.__target, 
+                            strippedObjects, 
                             originalObjects,
                         );
                         msg.arguments[i] = x;
                     }
-                }
-
-                // Trigger change to objects list.
-                let newNumObjects = strippedObjects.length;
-                if (initialNumObjects < newNumObjects) {
-                    let newObjectsOL = strippedObjects.__target.splice(initialNumObjects, newNumObjects - initialNumObjects);
-                    strippedObjects.push(...newObjectsOL);
                 }
 
             }
@@ -546,6 +532,7 @@ class SessionV2 {
             this.proxy.objectList,
             this.originalObjectsList,
         );
+        console.log('session is ' + out);
         return out;
     }
 

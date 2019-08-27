@@ -100,6 +100,7 @@ try {
             obj[change.function](...change.arguments);
 
             if (!processBefore) {
+                console.log('processed ' + change.arguments.length + ' objects.');
                 jt.replaceLinksWithObjects(change.arguments);
             }
 
@@ -259,14 +260,14 @@ msgs.openSession = function(sessData, windowType) {
     const prevSession = vue.$store.state.session;
     vue.$store.state.session = session;
     jt.replaceLinksWithObjects(session.objectList);
-    if (
-        objLength(session.state.participants) === 0 && 
-        prevSession != null && 
-        prevSession.state != null && 
-        prevSession.state.participants != null
-    ) {
-        server.setNumParticipants(objLength(prevSession.state.participants));
-    }
+    // if (
+    //     objLength(session.state.participants) === 0 && 
+    //     prevSession != null && 
+    //     prevSession.state != null && 
+    //     prevSession.state.participants != null
+    // ) {
+    //     server.setNumParticipants(objLength(prevSession.state.participants));
+    // }
 
     if (prevSession !== undefined && prevSession.id !== session.id) {
         server.reloadClients();

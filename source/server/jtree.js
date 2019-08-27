@@ -76,9 +76,15 @@ jt.flatten = function(data) {
 }
 
 /**
+ * Adds 'object' to list of existing objects, both with and without object references.
+ * 
 * object - the object to replace
 * existingObjects - array of objects, after processing
 * originalExistingObjects - array of objects, no processing
+*
+* Proxied lists emit a single change event with all the new objects. This is achieved by operating in two steps
+* when the object lists are proxies. First, adds all objects to the proxy targets,
+* then after all objects have been added, it adds them to the proxy object.
 *
 * Returns:
 * - The processed object.
@@ -86,8 +92,14 @@ jt.flatten = function(data) {
 **/
 jt.replaceExistingObjectsWithLinks = function(object, existingObjects, originalExistingObjects) {
     
-    let objectsToAdd = [];
-    let originalObjectsToAdd = [];
+    let twoStep = false;
+    let initialNumObjects = existingObjects.length;
+    let existingObjectsTarget = existingObjects;
+
+    if (existingObjects.__target != null) {
+        twoStep = true;
+        existingObjectsTarget = existingObjects.__target;
+    }
 
     try {
     
@@ -129,9 +141,19 @@ jt.replaceExistingObjectsWithLinks = function(object, existingObjects, originalE
         }
         for (let i in object) {
             let child = object[i];
-            let newChild = jt.replaceExistingObjectsWithLinks(child, existingObjects, originalExistingObjects);
+            let newChild = jt.replaceExistingObjectsWithLinks(child, existingObjectsTarget, originalExistingObjects);
             copy[i] = newChild;
         }
+
+        if (twoStep) {
+            // Trigger change to objects list.
+            let newNumObjects = existingObjects.length;
+            if (initialNumObjects < newNumObjects) {
+                let newObjectsOL = existingObjectsTarget.splice(initialNumObjects, newNumObjects - initialNumObjects);
+                existingObjects.push(...newObjectsOL);
+            }
+        }
+        
 
         return '__link__' + index;
     
