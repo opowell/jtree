@@ -1,0 +1,14 @@
+app.numPeriods = 2;
+app.groupSize = 1;
+
+let choiceStage = app.newStage('choice');
+choiceStage.activeScreen = `
+    <p>
+    MAIN IMAGE
+    </p>
+    <img :src='images/{{period.id}}_main.jpg' width='300' height='300'>
+    <button v-for='i in 2' :name='player.choice{{i}}'>
+        {{i}}
+        <img :src='images/{{period.id}}_{{i}}.jpg' width='100' height='100'>
+    </button>
+`;

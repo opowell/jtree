@@ -1,0 +1,46 @@
+app.questions = [
+    'Ich erledige meine Aufgaben ordentlich.',
+    'Ich arbeite viel für die Schule und habe Spaß daran.',
+]
+
+app.answers = [
+    'Stimmt gar nicht',
+    'Stimmt eher nicht',
+    'Stimmt manchmal',
+    'Stimmt eher',
+    'Stimmt total',
+];
+
+let questionsStage = add.newStage('questions');
+questionsStage.activeScreen = `
+<p>FRAGEBOGEN</p>
+<div v-for='(question, index) in app.questions'>
+{{index}}. {{question}}
+<div>
+<label>
+    <input v-for='(answer, j) in answers' type='radio'>
+    <img :src='images/survey_{{j}}.png'>
+    {{answer}}
+</label>
+
+<style>
+// https://stackoverflow.com/questions/17541614/use-images-instead-of-radio-buttons
+/* HIDE RADIO */
+[type=radio] { 
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* IMAGE STYLES */
+[type=radio] + img {
+  cursor: pointer;
+}
+
+/* CHECKED STYLES */
+[type=radio]:checked + img {
+  outline: 2px solid #f00;
+}
+</style>
+`
