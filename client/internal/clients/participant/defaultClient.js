@@ -321,15 +321,6 @@ jt.updatePlayer = function(player, updateVue) {
         return;
     }
 
-    let startingNewStage = true;
-    if (jt.data.player != null) {
-        startingNewStage = player.stage.id === jt.data.player.stage.id;
-    }
-
-    console.log('playerUpdate');
-
-    jt.data.player = player; // TODO: Remove.
-
     if (!jt.vueMounted) {
         jt.mountVue(player);
         $('body').addClass('show');
@@ -348,13 +339,24 @@ jt.updatePlayer = function(player, updateVue) {
         }
     }
 
-    if (startingNewStage) {
-        window.scrollTo(0, 0);
+    let startingNewStage = true;
+    if (jt.data.player != null) {
+        startingNewStage = player.stage.id !== jt.data.player.stage.id;
     }
 
-    if (player.stage !== undefined) {
+    jt.data.player = player;
+
+    if (startingNewStage) {
+        window.scrollTo(0, 0);
         jt.setStageName(player.stage.id);
+        $('body').find(':input')
+            .removeAttr('checked')
+            .removeAttr('selected')
+            .not(':button, :submit, :reset, :hidden, :radio, :checkbox')
+            .val('');
+        $('body').removeClass('hidden');
     }
+
     if (player.stageTimerTimeLeft > 0) {
         // Must use timer duration. Cannot use server start time, since no guarantee that client time is the same.
         var endTime = new Date().getTime() + player.stageTimerTimeLeft;
@@ -548,12 +550,6 @@ jt.endStage = function(player) {
 
 jt.setStageName = function(name) {
     document.title = name;
-    $('body').find(':input')
-        .removeAttr('checked')
-        .removeAttr('selected')
-        .not(':button, :submit, :reset, :hidden, :radio, :checkbox')
-        .val('');
-    $('body').removeClass('hidden');
 }
 
 jt.clockStop = function(timeLeft) {

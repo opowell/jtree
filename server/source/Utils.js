@@ -237,11 +237,16 @@ class Utils {
 
     static drawRandomly(data, options) {
         let out = [];
+        let elementsLeft = [];
+        for (let i in data) {
+            elementsLeft.push(data[i]);
+        }
         for (let i=0; i<options.numDraws; i++) {
             if (options.withReplacement) {
                 out.push(this.randomEl(data));
             } else {
-                // Todo.
+                // let el = this.ran
+                // TODO.
             }
         }
         return out;
