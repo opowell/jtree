@@ -487,7 +487,8 @@ jt.defaultConnected = function() {
         jt.startClock(endTime);
     });
 
-    jt.socket.on('endStage', function(player) {
+    jt.socket.on('endStage', function(playerJSON) {
+        let player = jt.parse(playerJSON);
         jt.endStage(player);
     });
 
@@ -530,17 +531,18 @@ jt.endStage = function(player) {
         jt.data.player.id === player.id &&
         jt.data.player.group.period.id === player.group.period.id &&
         jt.data.player.stage.id === player.stage.id
-    )
-    var forms2 = $('form').filter(':visible');
-    if (forms2 != null && forms2.length > 0) {
-        forms2.each(function() {
-            $(this).submit();
-        });
-    } else {
-        var values = {};
-        var stageName = jt.data.player.stage.id;
-        values.fnName = stageName;
-        jt.sendMessage(stageName, values);
+    ) {
+        let forms = $('form').filter(':visible');
+        if (forms != null && forms.length > 0) {
+            forms.each(function() {
+                $(this).submit();
+            });
+        } else {
+            var values = {};
+            var stageName = jt.data.player.stage.id;
+            values.fnName = stageName;
+            jt.sendMessage(stageName, values);
+        }
     }
 }
 
