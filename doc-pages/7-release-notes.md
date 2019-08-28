@@ -1,3 +1,8 @@
+##### 2019.08.28 - 0.7.11
+- REMOVED: unused client files.
+- FIXED: bug that cleared inputs when other players finished a stage.
+- UPDATED: "11simone" app.
+
 ##### 2019.08.27 - 0.7.10
 - fix for ending stages automatically after timeout.
 
