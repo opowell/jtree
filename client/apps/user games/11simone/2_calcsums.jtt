@@ -7,7 +7,7 @@ app.numTasks = 40;
 app.numGroups = 1;
 
 // The type of payment.
-app.addSelectOption('type', ['individual', 'contest', 'choose']);
+app.addSelectOption('paymentType', ['individual', 'contest', 'choose']);
 
 app.tasks = [];
 for (var i=0; i<app.numTasks; i++) {
@@ -24,8 +24,8 @@ if (app.paymentType === 'choose') {
     <p>CHOOSE</p>
     <p>What type of payment would you like?</p>
     <p>
-        <input name='player.paymentType' value='individual'>Individual</input>
-        <input name='player.paymentType' value='contest'>Contest</input>
+        <button name='player.paymentType' value='individual'>Individual</button>
+        <button name='player.paymentType' value='contest'>Contest</button>
     </p>
     `;
 }
@@ -35,6 +35,7 @@ var workStage = app.newStage('work');
 workStage.duration = app.workTime;
 workStage.activeScreen = `
     <p>TASKS</p>
+    <p>Payment type: {{player.paymentType}}</p>
     <p>Calculate as many of the following sums as you can before time runs out.
     <p v-for='(task, index) in app.tasks'>
         <span>Q{{index+1}}: <b>{{ task.join(' + ') }}</b> = </span>
@@ -72,5 +73,5 @@ resultsStage.playerStart = function(player) { // when a player starts this stage
 }
 resultsStage.activeScreen = `
     <p>RESULTS</p>
-    <p>You calculated {{ player.points }} sums correctly.</p>
+    <p>You calculated {{ player.points }} {{ player.points == 1 ? "sum" : "sums" }} correctly.</p>
 `;

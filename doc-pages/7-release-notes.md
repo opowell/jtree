@@ -1,3 +1,6 @@
+##### 2019.08.27 - 0.7.10
+- fix for ending stages automatically after timeout.
+
 ##### 2019.07.06 - 0.7.8
 - script for updating version numbers.
 - remove releases from repo.
