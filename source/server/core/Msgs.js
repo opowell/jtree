@@ -335,6 +335,7 @@ class Msgs {
     openGameAsNewSession(data, socket) {
         let userId = ''; // TODO
         var session = this.jt.data.createSession(userId);
+        socket.join(session.roomId());
         session.addMessage(
             'addGame',
             data

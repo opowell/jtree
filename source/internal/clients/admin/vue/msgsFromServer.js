@@ -238,28 +238,21 @@ msgs.designApp = function(sessData) {
     msgs.openSession(sessData, windowType);
 }
 
-msgs.openSession = function(sessData, windowType) {
+msgs.openSession = function(sessionLink, windowType) {
 
     if (windowType == null) {
         windowType = 'run';
     }
 
-    let session = JSON.parse(sessData, jt.dataReviver);
-
-    if (session == null) {
-        return;
-    }
+    sessionLink = JSON.parse(sessionLink, jt.dataReviver);
 
     for (let i in participantTimers) {
         clearInterval(participantTimers[i]);
     }
 
-    if (session.state == null) {
-        session.state = session.initialState;
-    }
+    let actualSession = jt.replaceLinksWithObjects(sessionLink);
     const prevSession = vue.$store.state.session;
-    vue.$store.state.session = session;
-    jt.replaceLinksWithObjects(session.objectList);
+    vue.$store.state.session = actualSession;
     // if (
     //     objLength(session.state.participants) === 0 && 
     //     prevSession != null && 
@@ -269,11 +262,11 @@ msgs.openSession = function(sessData, windowType) {
     //     server.setNumParticipants(objLength(prevSession.state.participants));
     // }
 
-    if (prevSession !== undefined && prevSession.id !== session.id) {
+    if (prevSession !== undefined && prevSession.id !== actualSession.id) {
         server.reloadClients();
     }
 
-    vue.$store.commit('setSession', session);
+    // vue.$store.commit('setSession', session);
     
     let windowData = {
         panels: [],

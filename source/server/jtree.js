@@ -132,7 +132,7 @@ jt.replaceExistingObjectsWithLinks = function(object, existingObjects, originalE
             });
         }
         object.nonObs.storageIndex = index;
-        existingObjects.push(copy);
+        existingObjectsTarget.push(copy);
         originalExistingObjects.push(object);
 
         // Store object prototypes.

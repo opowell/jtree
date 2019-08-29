@@ -142,8 +142,27 @@ class SessionV2 {
 
             msg.source = 'session';
 
-            jt.socketServer.io.to(thisSession.roomId()).emit('objChange', msg);
-            // console.log('sending message to ' + thisSession.roomId());
+            if (msg.path === 'objectList') {
+                console.log('sending objects: ' + msg.arguments.length);
+            }
+
+            /**
+             * Only send message if:
+             * - it is related to the objectList, or.
+             * - it is not a function call (i.e. push or splice)
+             */ 
+
+            let applyChanges = (
+                msg.path.includes('objectList') ||
+                msg.function == null
+            );
+
+            if (applyChanges) {
+                jt.socketServer.io.to(thisSession.roomId()).emit('objChange', msg);
+            } else {
+                debugger;
+            }
+
             thisSession.save();
 
             // TOTEST

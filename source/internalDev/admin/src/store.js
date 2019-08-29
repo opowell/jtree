@@ -580,19 +580,19 @@ export default new Vuex.Store({
     //   Vue.set(state.session, 'messageIndex', index);
     //   state.messageIndex = index;
     // },
-    setSession(state, session) {
-      state.sessionId = session.id;
-      state.session = session;
-      // state.session.gameTree.splice(0, state.session.gameTree.length);
-      // for (let i=0; i<session.gameTree.length; i++) {
-      //   state.session.gameTree.push(session.gameTree)
-      // }
-      for (let i=0; i<state.sessions.length; i++) {
-        if (state.sessions[i].id === session.id) {
-          state.sessions[i] = session;
-        }
-      }
-    },
+    // setSession(state, session) {
+    //   state.sessionId = session.id;
+    //   state.session = session;
+    //   // state.session.gameTree.splice(0, state.session.gameTree.length);
+    //   // for (let i=0; i<session.gameTree.length; i++) {
+    //   //   state.session.gameTree.push(session.gameTree)
+    //   // }
+    //   // for (let i=0; i<state.sessions.length; i++) {
+    //   //   if (state.sessions[i].id === session.id) {
+    //   //     state.sessions[i] = session;
+    //   //   }
+    //   // }
+    // },
     addPanelToActiveWindow(state, panelInfo) {
       for (let i=0; i<state.windowDescs.length; i++) {
         if (state.windowDescs[i].id === state.activeWindow.panelId) {

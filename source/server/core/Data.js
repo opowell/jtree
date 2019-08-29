@@ -71,13 +71,13 @@ class Data {
         // Reload them when a new session is opened.
         this.participantClients = [];
 
-        let proxyObj = {
-            sessions: [],
-        };
+        // let proxyObj = {
+        //     sessions: [],
+        // };
 
-        for (let i=0; i<this.sessions.length; i++) {
-            proxyObj.sessions.push(this.sessions[i].proxy);
-        }
+        // for (let i=0; i<this.sessions.length; i++) {
+        //     proxyObj.sessions.push(this.sessions[i].proxy);
+        // }
 
         this.dataReplacer = function(key, value) {
             // Strip out 'nonObs' objects.
@@ -95,12 +95,12 @@ class Data {
 
         let replacer = this.dataReplacer;
 
-        this.proxy = Observer.create(proxyObj, function(change) {
-            console.log('change from data: ' + change.path);
-            change.source = 'data';
-            global.jt.socketServer.sendMessage(jt.socketServer.ADMIN_TYPE, change);
-            return true; // to apply changes locally.
-        });
+        // this.proxy = Observer.create(proxyObj, function(change) {
+        //     console.log('change from data: ' + change.path);
+        //     change.source = 'data';
+        //     global.jt.socketServer.sendMessage(jt.socketServer.ADMIN_TYPE, change);
+        //     return true; // to apply changes locally.
+        // });
 
     }
 
@@ -835,7 +835,7 @@ class Data {
         // this.jt.socketServer.emitToAdmins('addSession', sess.shell());
         this.sessions.push(sess);
         // let shell = sess.shell();
-        this.proxy.sessions.push(sess.proxy);
+        // this.sessions.push(sess.proxy);
         return sess;
     }
 
