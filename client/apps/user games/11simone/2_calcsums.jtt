@@ -1,11 +1,33 @@
-app.description = 'Real-effort task, in which subjects have a fixed amount of time to calculate sums of numbers.';
+app.description = 'Real-effort task, in which subjects have a fixed amount of time to calculate sums of numbers. Needs at least 3 players for ranking to work.';
 
-app.workTime = 20;
+app.workTime = 2000;
 app.numbersPerTasks = 4;
 app.maxNumber = 10;
 app.numTasks = 40;
 app.numGroups = 1;
 app.numComparison = 2;
+
+app.html = `
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body class='hidden'>
+        <div id='jtree'>
+            <p v-show='app.numPeriods > 1'>{{ app.periodText }}: {{period.id}}/{{app.numPeriods}}</p>
+            <span v-show='player.status=="playing"'>
+                {{stages}}
+            </span>
+            <span v-show='["ready", "waiting", "finished", "done"].includes(player.status)'>
+                {{waiting-screens}}
+            </span>
+        </div>
+        {{scripts}}
+    </body>
+</html>
+`;
 
 // The type of payment.
 app.addSelectOption('paymentType', ['individual', 'contest', 'choose']);
@@ -19,18 +41,18 @@ for (var i=0; i<app.numTasks; i++) {
     app.tasks.push(problem);
 }
 
-app.getScoreFromRank = function(rank) {
+app.getScoreFromRank = function(rank, score) {
     switch (rank) {
         case 1:
-            return 10;
+            return score;
         case 2:
-            return 4;
+            return 0;
         case 3:
-            return 1;
+            return 0;
     }
 }
 
-app.getContestScore = function(player, contestants) {
+app.setContestScoreAndRank = function(player, contestants) {
 
     // Draw N+1 contestants at random w/o replacement,
     // where N = app.numComparison.
@@ -57,7 +79,8 @@ app.getContestScore = function(player, contestants) {
         }
     }
 
-    return app.getScoreFromRank(rank);
+    player.points = app.getScoreFromRank(rank, player.numCorrect);
+    player.rank = rank;
 }
 
 app.setNumCorrect = function(player) {
@@ -112,7 +135,22 @@ workStage.activeScreen = `
         <span>Q{{index+1}}: <b>{{ task.join(' + ') }}</b> = </span>
         <input :name="'player.A' + (index+1)" type="number" :max="app.maxNumber * app.numbersPerTask" style="width: 3em;">
     </p>
+    <style>
+    #jtree div:nth-child(2) {
+        display: none;
+    }
+    </style>
 `;
+
+if (app.paymentType === 'contest') {
+    let guessRankStage = app.newStage('guessRank');
+    guessRankStage.activeScreen = `
+        Guess your rank:
+        <button type='submit' name='player.guessedRank' value='1'>1</button>
+        <button type='submit' name='player.guessedRank' value='2'>2</button>
+        <button type='submit' name='player.guessedRank' value='3'>3</button>
+    `;
+}
 
 var resultsStage = app.newStage('results');
 resultsStage.groupStart = function(group) { // when a group of players starts this stage
@@ -140,9 +178,21 @@ resultsStage.groupStart = function(group) { // when a group of players starts th
                 player.points = player.numCorrect;
                 break;
             case 'contest':
-                player.points = app.getContestScore(player, contestants);
+                app.setContestScoreAndRank(player, contestants);
                 break;
         }
+
+        // Calculate rank-guess bonus.
+        if (app.paymentType === 'contest') {
+            if (player.rank == player.guessedRank) {
+                player.rankBonus = 1;
+            } else {
+                player.rankBonus = 0;
+            }
+            player.points = player.points + player.rankBonus;
+        }
+
+        // Save the points across apps.
         if (player.participant.scores == null) {
             player.participant.scores = [];
         }

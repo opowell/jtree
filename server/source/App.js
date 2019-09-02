@@ -147,7 +147,7 @@ class App {
                 <body class='hidden'>
                     <div id='jtree'>
                         <p v-show='app.numPeriods > 1'>{{ app.periodText }}: {{period.id}}/{{app.numPeriods}}</p>
-                        <p v-show='hasTimeout'>Time left (s): {{clock.totalSeconds}}</p>
+                        <p v-show='hasTimeout && stage.showTimer'>Time left (s): {{clock.totalSeconds}}</p>
                         <span v-show='player.status=="playing"'>
                             {{stages}}
                         </span>

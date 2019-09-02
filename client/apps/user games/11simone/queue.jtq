@@ -4,5 +4,6 @@ session.addApp('2_calcsums.jtt', {paymentType: 'contest'});
 session.addApp('2_calcsums.jtt', {paymentType: 'choose'});
 session.addApp('3_ravens.jtt');
 session.addApp('4_survey.jtt');
-session.addApp('5_stargame.jtt', {paymentType: 'risk'});
-session.addApp('5_stargame.jtt', {paymentType: 'time'});
+session.addApp('5_stargame.jtt', {version: 'risk'});
+session.addApp('5_stargame.jtt', {version: 'time'});
+session.addApp('6_enterround.jtt');

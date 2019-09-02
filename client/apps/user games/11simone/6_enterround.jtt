@@ -1,0 +1,40 @@
+app.password = 'simone';
+app.numGroups = 1;
+app.description = 'Players see a waiting screen. Once the password is entered, an input is shown. The app ends as soon as any player has filled out the input.';
+
+// Reference for key listening:
+// https://medium.com/javascript-in-plain-english/how-to-detect-a-sequence-of-keystrokes-in-javascript-83ec6ffd8e93
+let enterStage = app.newStage('enter');
+enterStage.activeScreen = `
+    <p>Please wait</p>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            'use strict';
+        
+            let buffer = [];
+        
+            document.addEventListener('keydown', event => {
+                const key = event.key.toLowerCase();
+        
+                if (key === 's') {
+                    buffer = 's';
+                }
+
+                buffer.push(key);
+
+                if (buffer === 'simone') {
+                    $('#inputRound').show();
+                }
+                console.log(buffer);
+            });
+        });
+    </script>
+    <form id='inputRound' hidden>
+        <input type='number' name='group.paidRound' min='1' max='5'>
+        <button>OK</button>
+    </form>
+`;
+enterStage.playerEnd = function(player) {
+    player.group.period.app.session.paidRound = player.group.paidRound;
+    player.group.forceEndStage(player.stage);
+}
