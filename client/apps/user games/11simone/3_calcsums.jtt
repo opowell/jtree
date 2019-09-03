@@ -106,6 +106,7 @@ workStage.playerStart = function(player) {
         player.paymentType = app.paymentType;
     }
 }
+workStage.addOKButtonIfNone = false;
 workStage.activeScreen = `
     <p>TASKS</p>
     <p>Payment type: {{player.paymentType}}</p>
@@ -136,14 +137,6 @@ resultsStage.groupStart = function(group) { // when a group of players starts th
         app.setNumCorrect(players[i]);
     }
 
-    // Determine who was in the contest.
-    let contestants = [];
-    for (let i in players) {
-        if (players[i].paymentType === 'contest') {
-            contestants.push(players[i]);
-        }
-    }    
-
     // Calculate actual points score for each player.
     for (let i in players) {
         let player = players[i];
@@ -152,7 +145,7 @@ resultsStage.groupStart = function(group) { // when a group of players starts th
                 player.points = player.numCorrect;
                 break;
             case 'contest':
-                app.setContestScoreAndRank(player, contestants);
+                app.setContestScoreAndRank(player, players);
                 break;
         }
 
@@ -168,9 +161,9 @@ resultsStage.groupStart = function(group) { // when a group of players starts th
 
         // Save the points across apps.
         if (player.participant.scores == null) {
-            player.participant.scores = [];
+            player.participant.scores = [0];
         }
-        player.participant.scores.push(player.points);
+        player.participant.scores[0] += player.points;
     }
 
 }

@@ -26,4 +26,8 @@ choiceStage.playerEnd = function(player) {
     if (player.choice == app.answers[period.id-1]) {
         player.points = player.points + 1;
     }
+    if (player.participant.scores < 2) {
+        player.participant.scores.push(0);
+    }
+    player.participant.scores[1] += player.points;
 }

@@ -24,7 +24,7 @@ questionsStage.activeScreen = `
   {{index+1}}. {{question}}<br><br>
   <span style='display: flex;'>
     <label v-for='(answer, j) in app.answers' width=150 height=150>
-      <input type='radio' :name='"player.Q" + (index+1)' :value='answer'>
+      <input type='radio' :name='"player.Q" + (index+1)' :value='answer' required>
       <div class='labelContainer'>
         <div class='answer'>{{answer}}</div>
         <div class='imageContainer'>
