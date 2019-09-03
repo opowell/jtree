@@ -1,0 +1,6 @@
+let enterStage = app.newStage('enter');
+
+enterStage.addOKButtonIfNone = false;
+enterStage.activeScreen = `
+    Thank you.
+`;

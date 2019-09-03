@@ -1,7 +1,3 @@
-// @flow
-
-// pkg cannot include part of 'opn' package in executable.
-// const opn           = require('opn');
 const openurl       = require('openurl');
 const path          = require('path');
 
@@ -19,7 +15,7 @@ const StaticServer  = require('./core/StaticServer.js');
 var jt = {};
 
 // The version of jtree, should match what is in buildJTree.bat
-jt.version = '0.7.11';
+jt.version = '0.7.12';
 
 /** Location of the server executable. All files should be relative to this.
 */
@@ -60,7 +56,11 @@ jt.staticServer = new StaticServer.new(jt);
  */
 jt.socketServer = new SocketServer.new(jt);
 
+// pkg cannot include part of 'opn' package in executable.
+// const opn           = require('opn');
 if (jt.settings.openAdminOnStart) {
 //    opn('http://' + jt.staticServer.ip + ':' + jt.staticServer.port + '/admin');
     openurl.open('http://' + jt.staticServer.ip + ':' + jt.staticServer.port + '/admin');
 }
+
+

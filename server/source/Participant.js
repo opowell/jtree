@@ -98,7 +98,8 @@ class Participant {
             'autoplay',
             'appTimer',
             'indexInSession',
-            'finishedApps'
+            'finishedApps',
+            'updateScheduled'
         ];
     }
 

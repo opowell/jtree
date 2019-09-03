@@ -1,3 +1,12 @@
+##### 2019.09.02 - 0.7.12
+- FIXED: buttons store values for multiple periods.
+- FIXED: passing methods to Vue on client.
+- FIXED: removed 'updateScheduled' for Participant output.
+- ADDED: Stage.showTimer field.
+- ADDED: Session.allowAdminClientsToPlay field.
+- UPDATED: "11simone" app.
+- REMOVED: unused client files.
+
 ##### 2019.08.28 - 0.7.11
 - REMOVED: unused client files.
 - FIXED: bug that cleared inputs when other players finished a stage.

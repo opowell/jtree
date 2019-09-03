@@ -134,6 +134,7 @@ msgs.openSession = function(session) {
         updateSessionApps();
         jt.updateSessionUsers();
         updateAllowNewParts();
+        updateAllowAdminPlay();
         jt.updateChartPage();
         jt.chartVar('test');
     }
@@ -336,6 +337,14 @@ msgs.setAllowNewParts = function(md) {
         updateAllowNewParts();
     }
 };
+
+msgs.setAllowAdminPlay = function(md) {
+    if (jt.data.session.id != md.sId) {
+        return;
+    }
+    jt.data.session.allowAdminClientsToPlay = md.value;
+    updateAllowAdminPlay();
+}
 
 msgs.setCaseSensitiveLabels = function(md) {
     if (jt.data.session.id === md.sId) {

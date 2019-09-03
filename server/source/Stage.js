@@ -44,6 +44,8 @@ class Stage {
          */
         this.duration 	= 0;
 
+        this.showTimer = true;
+
         /**
          * How long clients have before stage is auto-submitted (from client, not from server).
          * if <= 0, then no client timeout for this stage.
