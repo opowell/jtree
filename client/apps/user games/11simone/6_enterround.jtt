@@ -8,33 +8,42 @@ let enterStage = app.newStage('enter');
 enterStage.activeScreen = `
     <p>Please wait</p>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            'use strict';
-        
-            let buffer = [];
-        
-            document.addEventListener('keydown', event => {
-                const key = event.key.toLowerCase();
-        
-                if (key === 's') {
-                    buffer = 's';
-                }
+        jt.buffer = '';
+        document.addEventListener('keydown', function(event) {
+            const key = event.key.toLowerCase();
+    
+            if (key === 's') {
+                jt.buffer = '';
+            }
 
-                buffer.push(key);
+            jt.buffer += key;
 
-                if (buffer === 'simone') {
-                    $('#inputRound').show();
-                }
-                console.log(buffer);
-            });
+            if (jt.buffer === 'simone') {
+                $('#inputRound').show();
+            }
+            console.log(jt.buffer);
         });
     </script>
-    <form id='inputRound' hidden>
-        <input type='number' name='group.paidRound' min='1' max='5'>
-        <button>OK</button>
+    <form>
+        <div id='inputRound' style='display: none'>
+            Input mode activated. Enter the chosen round (1-5).
+            <input type='number' name='group.paidRound' min='1' max='5'>
+            <button>OK</button>
+        </div>
     </form>
 `;
 enterStage.playerEnd = function(player) {
-    player.group.period.app.session.paidRound = player.group.paidRound;
-    player.group.forceEndStage(player.stage);
+    let group = player.group;
+    group.period.app.session.paidRound = group.paidRound;
+    group.forceEndStage(player.stage);
 }
+
+let resultsStage = app.newStage('results');
+resultsStage.addOKButtonIfNone = false;
+resultsStage.playerStart = function(player) {
+    participant.paidScore = player.participant.scores[player.group.paidRound-1];
+}
+resultsStage.activeScreen = `
+    Chosen game: {{group.paidRound}}
+    Your score from that game: {{participant.paidScore}}
+`;

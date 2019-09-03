@@ -11,7 +11,7 @@ class ViewSessionSettings extends HTMLElement {
                     <small class="form-text text-muted">
                         Must be unique across all sessions. Clients must be reconnected after change.
                     </small>
-            </div>
+                </div>
                 <div>Number of participants</div>
                 <div>
                     <div>
@@ -19,6 +19,18 @@ class ViewSessionSettings extends HTMLElement {
                         <button type="button" class="btn btn-sm btn-primary" onclick='setNumParticipants();'>Set</button>
                         <small class="form-text text-muted">
                             Setting the number of participants will turn off login of new participants. Participants are added from the list of session participant IDs. More recent participants are removed first.
+                        </small>
+                    </div>
+                </div>
+                <div>Allow admin play</div>
+                <div>
+                    <div>
+                        <div class="btn-group" role="group" aria-label="Basic example">
+                            <button id='allowAdminPlayYes' type="button" class="btn btn-sm btn-outline-success" onclick='setAllowAdminPlay(true);'>Yes</button>
+                            <button id='allowAdminPlayNo' type="button" class="btn btn-sm btn-outline-success" onclick='setAllowAdminPlay(false);'>No</button>
+                        </div>
+                        <small class="form-text text-muted">
+                            Allows admin clients to "play" (or not) as participants.
                         </small>
                     </div>
                 </div>
@@ -82,8 +94,38 @@ setSessionId = function() {
     server.setSessionId(origId, newId);
 }
 
+setAllowAdminPlay = function(val) {
+    server.setAllowAdminPlay(val);
+}
+
 updateAllowNewParts = function() {
     $('#allowNewParts')[0].checked = jt.data.session.allowNewParts;
+}
+
+updateAllowAdminPlay = function() {
+    let val = jt.data.session.allowAdminClientsToPlay;
+    if (val) {
+        $('#allowAdminPlayYes').addClass('btn-success');
+        $('#allowAdminPlayYes').removeClass('btn-outline-success');
+        $('#allowAdminPlayNo').removeClass('btn-success');
+        $('#allowAdminPlayNo').addClass('btn-outline-success');
+    } else {
+        $('#allowAdminPlayYes').removeClass('btn-success');
+        $('#allowAdminPlayYes').addClass('btn-outline-success');
+        $('#allowAdminPlayNo').addClass('btn-success');
+        $('#allowAdminPlayNo').removeClass('btn-outline-success');
+    }
+
+    let views = $('.participant-view');
+    for (let i=0; i<views.length; i++) {
+        let view = $(views[i]);
+        if (val) {
+            $(view.children()[0]).css('background-color', '#cfe8cf');
+        } else {
+            $(view.children()[0]).css('background-color', '');
+        }
+    }
+    viewAllParticipants();
 }
 
 jt.setCaseSensitiveLabels = function() {

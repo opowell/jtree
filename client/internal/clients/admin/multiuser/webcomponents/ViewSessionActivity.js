@@ -84,6 +84,9 @@ function viewParticipant(pId) {
         $($(panel).children()[0]).append(refreshBtn);
 
     }
+    if (jt.data.session.allowAdminClientsToPlay) {
+        $($(panel).children()[0]).css('background-color', '#cfe8cf');
+    }
     showPanel('#panel-' + elId, 0, 0, '', '', '', '', false);
     $('#views').append(panel);
 }

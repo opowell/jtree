@@ -338,6 +338,8 @@ jt.setValues = function(player) {
 
 }
 
+let floatingPanel = $('<span style="width: 100%; height: 100%; position: fixed; top: 0; left: 0; z-index: 9999"></span>');
+
 jt.updatePlayer = function(player, updateVue) {
     // console.log('player update: ' + JSON.stringify(player));
     if (jt.data.player !== undefined && player.participant.id !== jt.data.player.participant.id) {
@@ -385,6 +387,13 @@ jt.updatePlayer = function(player, updateVue) {
         Vue.nextTick(function() {
             jt.setFormDefaults();
         });
+    }
+
+    // If admin client and not allowed to play, prevent any interaction with the play area.
+    if (jt.canPlay()) {
+        $(floatingPanel).remove();
+    } else {
+        $('body').append(floatingPanel);
     }
 
     if (player.stageTimerTimeLeft > 0) {
@@ -520,6 +529,9 @@ jt.defaultConnected = function() {
     });
 
     jt.socket.on('endStage', function(playerJSON) {
+        if (!jt.canPlay()) {
+            return;
+        }
         let player = jt.parse(playerJSON);
         jt.endStage(player);
     });
@@ -551,6 +563,24 @@ jt.defaultConnected = function() {
 
     jt.connected();
 
+}
+
+jt.getSession = function() {
+    let out = null;
+    try {
+        out = jt.data.player.stage.app.session;
+    } catch (err) {}
+    return out;
+}
+
+jt.canPlay = function() {
+    if (!jt.inIframe()) {
+        return true;
+    }
+    if (jt.getSession() == null) {
+        return true;
+    }
+    return jt.getSession().allowAdminClientsToPlay; 
 }
 
 jt.connected = function() {}

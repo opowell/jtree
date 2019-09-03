@@ -44,6 +44,9 @@ decideStage.playerStart = function(player) {
     player.starsB = 0;
     player.starsLeft = app.numStars;
 }
+decideStage.playerEnd = function(player) {
+    player.participant.scores.push(player.starsA);
+}
 decideStage.activeScreen = `
 <span style='flex: 1 1 400px; align-items: center; display: flex; flex-direction: column;'>
     Unassigned:

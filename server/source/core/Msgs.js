@@ -353,6 +353,13 @@ class Msgs {
         }
     }
 
+    setAllowAdminPlay(d, socket) {
+        let session = Utils.findByIdWOJQ(this.jt.data.sessions, d.sessionId);
+        if (session != null) {
+            session.setAllowAdminPlay(d.val);
+        }
+    }
+
     setSessionAppOption(d, socket) {
         var session = Utils.findByIdWOJQ(this.jt.data.sessions, d.sId);
         if (session !== null) {

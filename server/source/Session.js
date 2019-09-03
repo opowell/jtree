@@ -87,6 +87,12 @@ class Session {
 
         this.users = [];
 
+        /**
+         * Whether or not admin windows can play.
+         * Generally, during testing this can be test
+         */
+        this.allowAdminClientsToPlay = true;
+
         this.asyncQueue = async.queue(this.processMessage, 1);
 
         // A filestream for writing to this session's object states.
@@ -618,6 +624,12 @@ class Session {
         this.allowNewParts = b;
         var d = {sId: this.id, value: b};
         this.emit('setAllowNewParts', d);
+    }
+
+    setAllowAdminPlay(b) {
+        this.allowAdminClientsToPlay = b;
+        let data = {sId: this.id, value: b};
+        this.emit('setAllowAdminPlay', data);
     }
 
     setCaseSensitiveLabels(b) {

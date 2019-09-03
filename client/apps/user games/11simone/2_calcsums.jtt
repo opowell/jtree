@@ -1,33 +1,11 @@
 app.description = 'Real-effort task, in which subjects have a fixed amount of time to calculate sums of numbers. Needs at least 3 players for ranking to work.';
 
-app.workTime = 2000;
+app.workTime = 20;
 app.numbersPerTasks = 4;
 app.maxNumber = 10;
 app.numTasks = 40;
 app.numGroups = 1;
 app.numComparison = 2;
-
-app.html = `
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-    </head>
-    <body class='hidden'>
-        <div id='jtree'>
-            <p v-show='app.numPeriods > 1'>{{ app.periodText }}: {{period.id}}/{{app.numPeriods}}</p>
-            <span v-show='player.status=="playing"'>
-                {{stages}}
-            </span>
-            <span v-show='["ready", "waiting", "finished", "done"].includes(player.status)'>
-                {{waiting-screens}}
-            </span>
-        </div>
-        {{scripts}}
-    </body>
-</html>
-`;
 
 // The type of payment.
 app.addSelectOption('paymentType', ['individual', 'contest', 'choose']);
@@ -112,8 +90,8 @@ if (app.paymentType === 'choose') {
     <p>CHOOSE</p>
     <p>What type of payment would you like?</p>
     <p>
-        <button name='player.paymentType' value='individual'>Individual</button>
-        <button name='player.paymentType' value='contest'>Contest</button>
+        <button type='submit' name='player.paymentType' value='individual'>Individual</button>
+        <button type='submit' name='player.paymentType' value='contest'>Contest</button>
     </p>
     `;
 }
@@ -121,6 +99,7 @@ if (app.paymentType === 'choose') {
 // Answers are recorded as player.A1, player.A2, etc.
 var workStage = app.newStage('work');
 workStage.duration = app.workTime;
+workStage.showTimer = false;
 workStage.playerStart = function(player) {
     // If no payment type chosen, assign the one for the app.
     if (player.paymentType == null) {
@@ -135,11 +114,6 @@ workStage.activeScreen = `
         <span>Q{{index+1}}: <b>{{ task.join(' + ') }}</b> = </span>
         <input :name="'player.A' + (index+1)" type="number" :max="app.maxNumber * app.numbersPerTask" style="width: 3em;">
     </p>
-    <style>
-    #jtree div:nth-child(2) {
-        display: none;
-    }
-    </style>
 `;
 
 if (app.paymentType === 'contest') {
