@@ -1,7 +1,7 @@
 app.description = 'Real-effort task, in which subjects have a fixed amount of time to calculate sums of numbers. Needs at least 3 players for ranking to work.';
 
 app.workTime = 20;
-app.numbersPerTasks = 4;
+app.numbersPerTask = 4;
 app.maxNumber = 10;
 app.numTasks = 40;
 app.numGroups = 1;
@@ -13,7 +13,7 @@ app.addSelectOption('paymentType', ['individual', 'contest', 'choose']);
 app.tasks = [];
 for (var i=0; i<app.numTasks; i++) {
     var problem = [];
-    for (var j=0; j<app.numbersPerTasks; j++) {
+    for (var j=0; j<app.numbersPerTask; j++) {
         problem.push(Utils.randomInt(1, app.maxNumber));
     }
     app.tasks.push(problem);

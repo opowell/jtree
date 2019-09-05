@@ -24,6 +24,7 @@ class Data {
          * @type Object
          */
         this.jt = jt;
+        jt.data = this;
 
         this.lastOpenedSession = null;
 
@@ -314,7 +315,16 @@ class Data {
                     // Queue / Session Config
                     if (id.endsWith('.jtq')) {
                         var queue = Queue.loadJTQ(curPath, this.jt, dir);
-                        console.log('loading file queue ' + curPath);
+                        var session = new Session.new(this.jt, null);
+                        session.emitMessages = false;
+                        session.queuePath = path.dirname(queue.id);
+                        eval(queue.code);
+                        let options = {};
+                        for (let i in session.apps) {
+                            queue.addApp(session.apps[i].id, options);
+                        }
+                        // queue.apps = session.apps;
+                        console.log('loading file queue ' + curPath + ' with ' + queue.apps.length + ' apps');
                         this.queues[curPath] = queue;
                     }
                 } else if (curPathIsFolder) {

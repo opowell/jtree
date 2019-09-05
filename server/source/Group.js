@@ -309,6 +309,10 @@ class Group {
         this.emit('groupUpdate', this.shellWithChildren());
     }
 
+    sum(field) {
+        return Utils.sum(this.players, field);
+    }
+
     /**
      * Emit the given message to subscriber's of this group.
      *

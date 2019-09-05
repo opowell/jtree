@@ -42,7 +42,7 @@ jt.logger       = new Logger.new(jt);
  * The Data object
  * @type {Data}
  */
-jt.data         = new Data.new(jt);
+jt.data = new Data.new(jt);
 
 /**
  * The process that serves static files to clients.

@@ -820,9 +820,11 @@ class App {
         `
         for (let i=0; i<this.stages.length; i++) {
             out += `
-                jt.autoplay_${this.stages[i].id} = function() {
-                    ${this.stages[i].autoplay}
-                };
+                if (jt.autoplay_${this.stages[i].id} == null) {
+                    jt.autoplay_${this.stages[i].id} = function() {
+                        ${this.stages[i].autoplay}
+                    };
+                }
             `;
         }
 

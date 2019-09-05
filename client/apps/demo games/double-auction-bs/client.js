@@ -1,4 +1,4 @@
-makeOffer = function() {
+makeOffer = function(type) {
     if (jt.vue.player.offerType == 'buy') {
         jt.sendMessage("makeOfferToBuy", jt.vue.offerPrice);
     }
@@ -96,8 +96,8 @@ jt.connected = function() {
             }
             else if (app.mode === 'paid') {
                 var avgDiv = jt.avgDiv();
-                maxY = 2*avgDiv*numPeriods;
-
+                // maxY = 2*avgDiv*numPeriods;
+                maxY = avgDiv*numPeriods + 100;
                 // $('#fvTable').empty();
 
                 // for (var i=1; i<=numPeriods; i++) {
@@ -337,6 +337,12 @@ jt.connected = function() {
     });
 
     offersAdd = function(x) {
+        let offers = jt.data.player.group.offers;
+        for (let i in offers) {
+            if (offers[i].id === x.id) {
+                return;
+            }
+        }
         jt.offersAdd(x);
         if (x.buyer != null) {
             if (jt.bestBid == null || x.price > jt.bestBid) {
@@ -454,7 +460,7 @@ calcFV = function() {
     return periodsLeft*avgDiv;
 }
 
-jt.autoplay = function() {
+jt.autoplay_trading = function() {
     // DRAW VALUE (val)
     var curPeriod = jt.vue.player.group.period.id;
     var periodsLeft = jt.vue.player.group.period.app.numPeriods - curPeriod + 1;
@@ -485,7 +491,7 @@ jt.autoplay = function() {
     if (val > target) {
         // Bid / buy
         var price = randLog(target, val).toFixed(0);
-        if (bAsk != null && bAsk < price && bAsk < jt.vue.player.cash) {
+        if (bAsk != null && bAsk < price && bAsk < jt.vue.player.cashAvailable) {
             // Buy
             let offers = jt.vue.player.group.offers;
             for (let i=0; i<offers.length; i++) {
@@ -502,12 +508,12 @@ jt.autoplay = function() {
             }
         } else if (price < jt.vue.player.cash) {
             // Bid
-            $('#offerToBuyPrice').val(price);
-            makeOfferToBuy();
+            // $('#offerToBuyPrice').val(price);
+            jt.sendMessage("makeOfferToBuy", price);
         }
     } else {
         // Ask / sell
-        if (jt.vue.player.shares > 0) {
+        if (jt.vue.player.sharesAvailable > 0) {
             var price = randLog(val, target).toFixed(0);
             if (bBid != null && bBid > price) {
                 // Sell
@@ -526,8 +532,8 @@ jt.autoplay = function() {
                 }
             } else {
                 // Ask
-                $('#offerToSellPrice').val(price);
-                makeOfferToSell();
+                jt.sendMessage("makeOfferToSell", price);
+
             }
         }
     }

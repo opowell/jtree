@@ -350,11 +350,23 @@ class Participant {
     }
 
     points() {
-        var out = 0;
+        return this.pointsForApp(null);
+    }
+
+    /**
+     * Returns the points the participant earned in the given app.
+     * If app is null, returns points earned across all apps.
+     */
+    pointsForApp(app) {
+        let out = 0;
         for (var p in this.players) {
-            var points = this.players[p].points;
+            let player = this.players[p];
+            if (app == null || player.app().id !== app.id) {
+                continue;
+            }
+            var points = player.points;
             if (points !== undefined && points !== null && !isNaN(points)) {
-                out += parseFloat(this.players[p].points);
+                out += parseFloat(points);
             }
         }
         return out;
@@ -375,6 +387,7 @@ class Participant {
     actuallyEmitUpdate() {
         if (this.updateScheduled === true) {
             try {
+                console.log('sending update for ' + this.id);
                 if (this.player !== null) {
                     this.player.emit('playerUpdate', new clPlayer.new(this.player));
                 } else {
