@@ -9,8 +9,6 @@ client/internal/clients/shared/shared.js
 client/queues
 client/sessions
 client/users
-docs
-docs/reference
 server/node_modules/*
 .DS_Store
 desktop.ini
@@ -22,4 +20,3 @@ source/internal/clients/shared/shared.js
 source/sessions/*
 client/internal/clients/shared/shared.js
 release
-docs

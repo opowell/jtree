@@ -337,6 +337,7 @@ class Msgs {
         if (session !== null) {
             session.advanceSlowest();
         }
+        session.emitParticipantUpdates();
     }
 
     sessionCreate(userId, sock) {

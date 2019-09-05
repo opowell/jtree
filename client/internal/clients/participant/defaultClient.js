@@ -342,7 +342,10 @@ let floatingPanel = $('<span style="width: 100%; height: 100%; position: fixed; 
 
 jt.updatePlayer = function(player, updateVue) {
     // console.log('player update: ' + JSON.stringify(player));
-    if (jt.data.player !== undefined && player.participant.id !== jt.data.player.participant.id) {
+    if (
+        jt.data.player !== undefined &&
+        player.participant.id !== jt.data.player.participant.id
+    ) {
         return;
     }
 
@@ -438,6 +441,14 @@ jt.updatePlayer = function(player, updateVue) {
         // Add row to data object.
         if (jt[tableName + 'Add'] === undefined) {
             jt[tableName + 'Add'] = function(newRow) {
+                let table = jt.data.player.group[tableName];
+                for (let i in table) {
+                    let row = table[i];
+                    if (row.id === newRow.id) {
+                        table[i] = newRow;
+                        return;
+                    }
+                }
                 jt.data.player.group[tableName].push(newRow);
             }
         }
@@ -784,9 +795,9 @@ jt.showStage = function(s) {
 }
 
 
-jt.autoplay = function() {
-    jt.defaultAutoplay();
-}
+// jt.autoplay = function() {
+//     jt.defaultAutoplay();
+// }
 
 /**
  * First, attempts to set the value of an input that currently has no value.
@@ -798,7 +809,8 @@ jt.autoplay = function() {
 jt.defaultAutoplay = function() {
     var acted = false;
     //var inputs = $('input:visible:not([disabled])');
-    var inputs = $('input,textarea,select').filter(':visible:not([disabled])');
+    // var inputs = $('input,textarea,select').filter(':visible:not([disabled])');
+    var inputs = $('input,textarea,select').filter(':not([disabled])');
     for (var i=0; i<inputs.length; i++) {
         if (acted) {
             break;
@@ -811,18 +823,19 @@ jt.defaultAutoplay = function() {
             if (inputType === 'number') {
                 if (input.val() === '') {
                     var min = input.attr('min')-0;
-                    if (input.attr('min') === undefined) {
+                    if (isNaN(min)) {
                         min = 0;
                     }
                     var max = input.attr('max')-0;
-                    if (input.attr('max') === undefined) {
+                    if (isNaN(max)) {
                         max = 1000;
                     }
                     var step = input.attr('step')-0;
-                    if (input.attr('step') === undefined) {
+                    if (isNaN(step)) {
                         step = 1;
                     }
-                    var val = Math.round(Math.random()*(max - min)/step)*step + min;
+                    
+                    let val = Math.round(Math.random()*(max - min)/step)*step + min;
                     input.val(val);
                     acted = true;
                 }

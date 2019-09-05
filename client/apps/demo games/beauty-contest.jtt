@@ -18,8 +18,8 @@ var resultsStage = app.newStage('results');
 resultsStage.updateObject = 'group';
 // resultsStage.duration = 30;
 resultsStage.groupStart = function(group) { // when a group starts this stage
-    group.totalGuesses = Utils.sum(group.players, 'guess');
-    group.target = group.totalGuesses * app.multiplier / Utils.objLength(group.players);
+    group.totalGuesses = group.sum('guess');
+    group.target = group.totalGuesses * app.multiplier / group.players.length;
     group.lowestDist = null;
     group.numWinners = 0;
     // Find out who won.

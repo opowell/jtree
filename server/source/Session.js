@@ -117,8 +117,11 @@ class Session {
             'apps',
             'fileStream',
             'asyncQueue',
-            'started'
+            'started',
+            'emitMessages'
         ];
+
+        this.emitMessages = true;
 
     }
 
@@ -254,7 +257,8 @@ class Session {
             appPath = path.join(this.queuePath, appPath);
         }
 
-        var app = this.jt.data.loadApp(appPath, this, appPath, options);
+        try {
+            var app = this.jt.data.loadApp(appPath, this, appPath, options);
         if (app !== null) {
             this.apps.push(app);
             if (app.appPath.endsWith('.jtt') || app.appPath.endsWith('.js')) {
@@ -264,8 +268,13 @@ class Session {
             }
             // app.saveSelfAndChildren();
             this.save();
-            this.emit('sessionAddApp', {sId: this.id, app: app.shellWithChildren()});
+            if (this.emitMessages) {
+                this.emit('sessionAddApp', {sId: this.id, app: app.shellWithChildren()});
+            }
         }
+    } catch (err) {
+        debugger;
+    }
     }
 
     addUser(userId) {
@@ -602,6 +611,7 @@ class Session {
     }
 
     emitParticipantUpdates() {
+        // console.log('emitting updates');
         for (let p in this.participants) {
             this.participants[p].actuallyEmitUpdate();
         }
@@ -945,6 +955,7 @@ class Session {
         } else {
             this.participantEnd(participant);
         }
+        this.emitParticipantUpdates();
     }
 
     /**

@@ -1,3 +1,13 @@
+##### 2019.09.06 - 0.7.14
+- UPDATED: double-auction-bootstrap app.
+- UPDATED: 11simone app.
+- UPDATED: Admin UI, Apps view, shortened id length.
+- UPDATED, App.js: added check if jt.autoplay exists before creating it.
+- UPDATED, Admin UI: Display number of apps in queue properly.
+
+##### 2019.09.04 - 0.7.13
+- UPDATED: double auction app.
+
 ##### 2019.09.02 - 0.7.12
 - FIXED: buttons store values for multiple periods.
 - FIXED: passing methods to Vue on client.
