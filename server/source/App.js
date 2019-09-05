@@ -1474,13 +1474,16 @@ class App {
      *
      * @param  {Participant} participant The participant.
      */
-    participantEnd(participant) {
+    participantEndInternal(participant) {
         // for (var c in participant.clients) {
         //     var client = participant.clients[c];
         //     client.socket.leave(this.roomId());
         // }
+        this.participantEnd(participant);
         this.tryToEndApp();
     }
+
+    participantEnd(participant) {}
 
     // /**
     //  * Move the player to their next stage.
@@ -1667,7 +1670,7 @@ class App {
      * If all participants have finished the app, end the app ({@link App#end}).
      *
      * CALLED FROM
-     * - {@link App#participantEnd}
+     * - {@link App#participantEndInternal}
      *
      * @return {type}  description
      */

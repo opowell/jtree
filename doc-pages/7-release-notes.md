@@ -1,3 +1,8 @@
+##### 2019.09.06 - 0.7.14
+
+##### 2019.09.04 - 0.7.13
+- UPDATED: double auction app.
+
 ##### 2019.09.02 - 0.7.12
 - FIXED: buttons store values for multiple periods.
 - FIXED: passing methods to Vue on client.

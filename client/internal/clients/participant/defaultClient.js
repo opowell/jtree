@@ -342,7 +342,10 @@ let floatingPanel = $('<span style="width: 100%; height: 100%; position: fixed; 
 
 jt.updatePlayer = function(player, updateVue) {
     // console.log('player update: ' + JSON.stringify(player));
-    if (jt.data.player !== undefined && player.participant.id !== jt.data.player.participant.id) {
+    if (
+        jt.data.player !== undefined &&
+        player.participant.id !== jt.data.player.participant.id
+    ) {
         return;
     }
 
