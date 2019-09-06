@@ -384,7 +384,8 @@ jt.updatePlayer = function(player, updateVue) {
         $('body').find(':input')
             .removeAttr('checked')
             .removeAttr('selected')
-            .not(':button, :submit, :reset, :hidden, :radio, :checkbox')
+            // .not(':button, :submit, :reset, :hidden, :radio, :checkbox')
+            .not(':button, :submit, :reset, :radio, :checkbox')
             .val('');
         $('body').removeClass('hidden');
         Vue.nextTick(function() {
@@ -810,7 +811,7 @@ jt.defaultAutoplay = function() {
     var acted = false;
     //var inputs = $('input:visible:not([disabled])');
     // var inputs = $('input,textarea,select').filter(':visible:not([disabled])');
-    var inputs = $('input,textarea,select').filter(':not([disabled])');
+    var inputs = $('input,textarea,select').filter(':visible:not([disabled])');
     for (var i=0; i<inputs.length; i++) {
         if (acted) {
             break;

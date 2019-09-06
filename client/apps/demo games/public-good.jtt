@@ -14,7 +14,6 @@ decideStage.activeScreen = `
 `;
 
 var resultsStage = app.newStage('results');
-resultsStage.duration = 20;
 resultsStage.groupStart = function(group) {
     group.contributions = group.sum('contribution');
     group.production = group.contributions * app.factor;
