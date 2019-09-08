@@ -1,3 +1,6 @@
+##### 2019.09.07 - 0.7.15
+- FIXED, Participant: calculate points scored in an app / session.
+
 ##### 2019.09.06 - 0.7.14
 - UPDATED: double-auction-bootstrap app.
 - UPDATED: 11simone app.

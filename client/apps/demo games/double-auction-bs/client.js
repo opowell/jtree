@@ -1,16 +1,15 @@
-makeOffer = function(type) {
-    if (jt.vue.player.offerType == 'buy') {
-        jt.sendMessage("makeOfferToBuy", jt.vue.offerPrice);
+makeOffer = function(type, price) {
+    if (type == 'buy') {
+        jt.sendMessage("makeOfferToBuy", price);
     }
-    if (jt.vue.player.offerType == 'sell') {
-        jt.sendMessage("makeOfferToSell", jt.vue.offerPrice);
+    if (type == 'sell') {
+        jt.sendMessage("makeOfferToSell", price);
     }
     setOfferType('');
-    jt.vue.offerPrice = '';
 }
 
 setOfferType = function(type) {
-    jt.vue.player.offerType = type;
+    jt.vue.offerType = type;
     if (type === 'buy') {
         $('#offerTypeBuyBtn').addClass('btn-primary');
         $('#offerTypeSellBtn').addClass('btn-secondary');
@@ -26,27 +25,11 @@ setOfferType = function(type) {
         $('#offerTypeSellBtn').addClass('btn-secondary');
         $('#offerTypeSellBtn').removeClass('btn-primary');
         $('#offerTypeBuyBtn').removeClass('btn-primary');
+        jt.vue.offerPrice = p;
     }
 }
 
-// Checks for the client.
-checkIfValidOTBPrice = function() {
-    var otbInput = $('#offerToBuyPrice');
-    var price = parseFloat(otbInput.val());
-    var max = otbInput.attr('max');
-    jt.setButtonEnabled($('#makeOTBButton'), price <= max);
-}
-checkIfValidOTSPrice = function() {
-    var input = $('#offerToSellPrice');
-    var price = parseFloat(input.val());
-    var shares = jt.vue.player.shares;
-    jt.setButtonEnabled($('#makeOTSButton'), shares > 0 && !isNaN(price));
-}
-
-var chartData = [];
 var chartSetup = false;
-// var DATA_ASKS = 0;
-// var DATA_BIDS = 1;
 var DATA_count = 0;
 var DATA_TRADES = DATA_count++;
 var DATA_TIME = DATA_count++;
@@ -66,12 +49,7 @@ jt.avgDiv = function() {
 
 var chartLoaded = false;
 
-// Run once the client page is loaded.
 jt.connected = function() {
-
-    // $(function () {
-    //   $('[data-toggle="tooltip"]').tooltip()
-    // })
 
     jt.socket.on('playerUpdate', function(player) {
 
@@ -82,79 +60,54 @@ jt.connected = function() {
 
         var app = player.group.period.app;
         
-        app.mode = 'paid';
-
         if (!chartLoaded) {
 
             chartLoaded = true;
 
             var tradeTime = app.tradingTime;
             var numPeriods = app.numPeriods;
-            var maxY;
-            if (app.mode === 'practice') {
-                maxY = 1000;
+            var avgDiv = jt.avgDiv();
+            let maxY = avgDiv*numPeriods + 100;
+
+            var labels = [];
+            var fvData = [];
+            for (var i=1; i<=numPeriods; i++) {
+                labels.push(i);
+                fvData.push({
+                    x: (i-1)*tradeTime,
+                    y: avgDiv*(numPeriods - i + 1)
+                });
+                fvData.push({
+                    x: i*tradeTime,
+                    y: avgDiv*(numPeriods - i + 1)
+                });
             }
-            else if (app.mode === 'paid') {
-                var avgDiv = jt.avgDiv();
-                // maxY = 2*avgDiv*numPeriods;
-                maxY = avgDiv*numPeriods + 100;
-                // $('#fvTable').empty();
 
-                // for (var i=1; i<=numPeriods; i++) {
-                //     var tr = $('<tr>');
-                //     tr.append('<td>' + i + '</td>');
-                //     tr.append('<td>' + (numPeriods - i + 1) + '</td>');
-                //     tr.append('<td>' + avgDiv + '</td>');
-                //     tr.append('<td>' + avgDiv*(numPeriods - i + 1) + '</td>');
-                //     $('#fvTable').append(tr);
-                // }
-
-                var labels = [];
-                var fvData = [];
-                for (var i=1; i<=numPeriods; i++) {
-                    labels.push(i);
-                    fvData.push({
-                        x: (i-1)*tradeTime,
-                        y: avgDiv*(numPeriods - i + 1)
-                    });
-                    fvData.push({
-                        x: i*tradeTime,
-                        y: avgDiv*(numPeriods - i + 1)
-                    });
+            let tradeData = [];
+            let offers = player.group.offers;
+            for (let i=0; i<offers.length; i++) {
+                let offer = offers[i];
+                if (offer.buyer != null && offer.seller != null) {
+                    tradeData.push(
+                        {
+                            x: offer.timeElapsed,
+                            y: offer.price
+                        }
+                    );
                 }
             }
 
-            const fv = calcFV();
-
+            let timeLeft = calcTimeLeft(player);
+            
             var ctx = document.getElementById('tradesChart').getContext('2d');
 
             var chartDatasets = [
-                // {
-                //     label: "Asks",
-                //     type: "scatter",
-                //     data: [],
-                //     borderColor: "rgb(255, 99, 132)",
-                //     backgroundColor: "rgba(255, 99, 132, 0.2)",
-                //     showLine: false,
-                //     pointRadius: 4
-                // },
-                // {
-                //     label: "Bids",
-                //     type: "scatter",
-                //     pointBorderColor: "rgb(34, 152, 44)",
-                //     pointBackgroundColor: "rgba(34, 152, 44, 0.6)",
-                //     borderColor: "rgb(34, 152, 44)",
-                //     backgroundColor: "rgba(34, 152, 44, 0.6)",
-                //     data: [],
-                //     showLine: false,
-                //     pointRadius: 3
-                // },
                 {
                     label: "Trades",
                     type: "scatter",
                     pointBorderColor: "rgb(54, 162, 235)",
                     pointBackgroundColor: "rgba(54, 162, 235, 0.2)",
-                    data: [],
+                    data: tradeData,
                     showLine: false,
                     pointRadius: 4
                 },
@@ -163,11 +116,11 @@ jt.connected = function() {
                     type: "line",
                     data: [
                         {
-                            x: 0,
+                            x: timeLeft,
                             y: 0
                         },
                         {
-                            x: 0,
+                            x: timeLeft,
                             y: maxY
                         }
                     ],
@@ -205,19 +158,13 @@ jt.connected = function() {
                     borderColor: "rgb(200, 200, 200)",
                     pointRadius: 0
                 }
-        ];
-
-            if (app.mode === 'practice') {
-                chartDatasets.splice(DATA_FV, 1);
-            }
+            ];
 
             jt.chart = Chart.Scatter(ctx, {
 
-                // The data for our dataset
                 data: {
                      datasets: chartDatasets
-                 },
-                // Configuration options go here
+                },
                 options: {
                     legend: {
                         display: false
@@ -241,33 +188,9 @@ jt.connected = function() {
                 }
             });
 
-            for (var i in player.group.offers) {
-                var x = player.group.offers[i];
-                if (x.open) {
-                    if (x.buyer != null) {
-                        if (jt.bestBid == null || x.price > jt.bestBid) {
-                            jt.bestBid = x.price;
-                        }
-                    } else {
-                        if (jt.bestAsk == null || x.price < jt.bestAsk) {
-                            jt.bestAsk = x.price;
-                        }
-                    }
-                }
-                // jt.addOfferToChart(x);
-            }
-            jt.updateAxes();
 
         }
 
-    });
-
-    // Listen to messages from server
-    jt.socket.on('playerUpdateData', function(player) {
-        jt.setValues(player);
-        checkIfValidOTBPrice();
-        checkIfValidOTSPrice();
-        jt.updateBestOffers();
     });
 
     setInterval(function() {jt.tickChart()}, 1000);
@@ -277,28 +200,25 @@ jt.connected = function() {
             return;
         }
 
-        var period = jt.vue.player.group.period;
-        var curPeriod = period.id;
-        var duration = jt.vue.player.stage.duration;
-        var timeLeft = curPeriod*duration - jt.vue.timeLeft/1000;
+        let timeLeft = calcTimeLeft(jt.vue.player);
 
         jt.chart.data.datasets[DATA_TIME].data[0].x = timeLeft;
         jt.chart.data.datasets[DATA_TIME].data[1].x = timeLeft;
 
-        if (jt.bestBid != null) {
+        if (jt.vue.bestBid != null) {
             jt.chart.data.datasets[DATA_BESTBIDS].data.push(
                 {
                     x: timeLeft,
-                    y: jt.bestBid
+                    y: jt.vue.bestBid
                 }
             );
         }
 
-        if (jt.bestAsk != null) {
+        if (jt.vue.bestAsk != null) {
             jt.chart.data.datasets[DATA_BESTASKS].data.push(
                 {
                     x: timeLeft,
-                    y: jt.bestAsk
+                    y: jt.vue.bestAsk
                 }
             );
         }
@@ -308,135 +228,28 @@ jt.connected = function() {
 
     jt.socket.on('acceptOffer', function(data) {
         var oId = data.oId;
-        var curPeriod = jt.vue.player.group.period.id;
-        var duration = jt.vue.player.stage.duration;
-        var timeElapsed = data.time/1000 + (curPeriod-1)*duration;
-        jt.updateBestOffers();
         var offer = findById(jt.vue.player.group.offers, oId);
         if (offer == null) {
             console.log('ERROR: could not accept offer with id = ' + oId);
             return;
         }
-        offer.timeAccepted = timeElapsed;
-        offer.buyer = data.buyer;
-        offer.seller = data.seller;
         jt.chart.data.datasets[DATA_TRADES].data.push(
             {
-                x: timeElapsed,
+                x: data.timeElapsed,
                 y: offer.price
             }
         );
-        jt.lastP = offer.price;
         jt.chart.update();
-
-        jt.offersUpdate(offer);
     });
-
-    jt.socket.on('offersAdd', function(x) {
-        offersAdd(x);
-    });
-
-    offersAdd = function(x) {
-        let offers = jt.data.player.group.offers;
-        for (let i in offers) {
-            if (offers[i].id === x.id) {
-                return;
-            }
-        }
-        jt.offersAdd(x);
-        if (x.buyer != null) {
-            if (jt.bestBid == null || x.price > jt.bestBid) {
-                jt.bestBid = x.price;
-            }
-        } else {
-            if (jt.bestAsk == null || x.price < jt.bestAsk) {
-                jt.bestAsk = x.price;
-            }
-        }
-
-        if (x.buyer == jt.vue.player.id) {
-            jt.vue.player.cashAvailable -= x.price;
-        }
-        if (x.seller == jt.vue.player.id) {
-            jt.vue.player.sharesAvailable -= 1;
-        }
-
-        // jt.addOfferToChart(x);
-        jt.updateAxes();
-    }
-
-    offersRemove = function(id) {
-        jt.updateBestOffers();
-    }
-
-    jt.addOfferToChart = function(x) {
-        var curPeriod = jt.vue.player.group.period.id;
-        var duration = jt.vue.player.stage.duration;
-        x.time = curPeriod*duration - jt.vue.timeLeft/1000;
-
-        var i = DATA_BIDS;
-        if (x.buyer == null) {
-            i = DATA_ASKS;
-        }
-        jt.chart.data.datasets[i].data.push(
-            {
-                x: x.time,
-                y: x.price
-            }
-        );
-        jt.chart.update();
-    }
-}
-
-jt.updateBestOffers = function() {
-    var bBid = null;
-    var bAsk = null;
-    let offers = jt.vue.player.group.offers;
-    for (let i=0; i<offers.length; i++) {
-        let offer = offers[i];
-        if (offer.open) {
-            if (offer.buyer != null) {
-                if (bBid == null || bBid < offer.price) {
-                    bBid = offer.price;
-                }
-            } else {
-                if (bAsk == null || bAsk > offer.price) {
-                    bAsk = offer.price;
-                }
-            }
-        }
-    }
-    jt.bestBid = bBid;
-    jt.bestAsk = bAsk;
-
-    jt.updateAxes();
 
 }
 
-jt.updateAxes = function() {
-    var min;
-    if (jt.bestBid != null) {
-        min = jt.bestBid;
-    } else if (jt.lastP != null) {
-        min = jt.lastP;
-    } else {
-        min = calcFV();
-    }
-    // jt.chart.options.scales.yAxes[0].ticks.min = min/4;
-    // jt.chart.data.datasets[DATA_TIME].data[0].y = min/4;
-
-    var max;
-    if (jt.bestAsk != null) {
-        max = jt.bestAsk;
-    } else if (jt.lastP != null) {
-        max = jt.lastP;
-    } else {
-        max = calcFV();
-    }
-    // jt.chart.options.scales.yAxes[0].ticks.max = max*2;
-    // jt.chart.data.datasets[DATA_TIME].data[1].y = max*2;
-
-    jt.chart.update();
+calcTimeLeft = function(player) {
+    var period = player.group.period;
+    var curPeriod = period.id;
+    var duration = player.stage.duration;
+    var timeLeft = curPeriod*duration - player.stageTimerTimeleft/1000;
+    return timeLeft;
 }
 
 /**
@@ -462,36 +275,36 @@ calcFV = function() {
 
 jt.autoplay_trading = function() {
     // DRAW VALUE (val)
-    var curPeriod = jt.vue.player.group.period.id;
-    var periodsLeft = jt.vue.player.group.period.app.numPeriods - curPeriod + 1;
     var fv = calcFV();
-    var bAsk = jt.bestAsk;
-    var bBid = jt.bestBid;
-    var lastP = jt.lastP;
-    if (lastP == null) {
-        lastP = fv;
-    }
+    var bAsk = jt.vue.bestAsk;
+    var bBid = jt.vue.bestBid;
 
-    var curP = fv;
+    var curP = jt.vue.lastTradePrice;
+    if (curP == null) {
+        curP = fv;
+    }
     if (bAsk == null && bBid != null) {
-        curP = Math.sqrt(bBid*lastP);
+        curP = Math.sqrt(bBid*curP);
     } else
     if (bAsk != null && bBid == null) {
-        curP = Math.sqrt(bAsk*lastP);
+        curP = Math.sqrt(bAsk*curP);
     } else
     if (bAsk != null && bBid != null) {
         curP = Math.sqrt(bAsk*bBid);
     }
     if (isNaN(curP)) {
         debugger;
+        return;
     }
     var target = Math.sqrt(fv*curP);
-    var val = randLog(target/2, target*2);
+    var val = randLog(3*target/2, 2*target/3);
+    console.log(`TRADING: curP = ${curP}, target = ${target}, val = ${val}`);
     // GET CURRENT PRICE (curP)
     if (val > target) {
         // Bid / buy
         var price = randLog(target, val).toFixed(0);
         if (bAsk != null && bAsk < price && bAsk < jt.vue.player.cashAvailable) {
+            console.log('TRADING: trying to buy for ' + bAsk);
             // Buy
             let offers = jt.vue.player.group.offers;
             for (let i=0; i<offers.length; i++) {
@@ -506,9 +319,9 @@ jt.autoplay_trading = function() {
                     }
                 }
             }
-        } else if (price < jt.vue.player.cash) {
+        } else if (price < jt.vue.player.cashAvailable) {
             // Bid
-            // $('#offerToBuyPrice').val(price);
+            console.log('TRADING: offering to buy for ' + price);
             jt.sendMessage("makeOfferToBuy", price);
         }
     } else {
@@ -516,6 +329,7 @@ jt.autoplay_trading = function() {
         if (jt.vue.player.sharesAvailable > 0) {
             var price = randLog(val, target).toFixed(0);
             if (bBid != null && bBid > price) {
+                console.log('TRADING: selling for ' + bBid);
                 // Sell
                 let offers = jt.vue.player.group.offers;
                 for (let i=0; i<offers.length; i++) {
@@ -533,7 +347,6 @@ jt.autoplay_trading = function() {
             } else {
                 // Ask
                 jt.sendMessage("makeOfferToSell", price);
-
             }
         }
     }

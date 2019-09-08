@@ -1,22 +1,27 @@
-app.description = 'Shares are traded for experimental currency in a double auction. Shares pay random dividends every period. At the end of the game, shares are worth nothing. Reference: <a target="_blank" href="https://www.jstor.org/stable/1911361">Smith, Suchanek and Williams, 1988</a>.';
+app.description = 'Shares are traded for experimental currency in a double auction. Shares pay random dividends every period. At the end of the game, shares are worth nothing. Reference: <a target="_blank" href="https://www.jstor.org/stable/1911361">Smith, Suchanek and Williams, 1988</a>. Optimized for screen resolution of 1024 x 768.';
 
 const average = arr => arr.reduce( ( p, c ) => p + c, 0 ) / arr.length;
-    
+
+app.insertJtreeRefAtStartOfClientHTML = false;
 app.numPeriods = 15;
-app.tradingTime = 60;
+app.tradingTime = 6000;
 app.divs        = [0, 8, 28, 60];
 app.endowmentShares = 3;
 app.endowmentCash = average(app.divs)*app.numPeriods*app.endowmentShares;
 app.stageWrapPlayingScreenInFormTag = 'no';
 app.modifyPathsToIncludeId = false;
 app.numGroups = 1;
-
+app.vueModels = {
+    offerPrice: '',
+    offerType: '',
+};
 app.html = `
 <!DOCTYPE html>
 <html>
     <head>
         <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script type="text/javascript" src="/participant/jtree.js"></script>
         <script src="/shared/bootstrap.min.js"></script>
         <script src="/double-auction-bs/Chart.min.js"></script>
         <script src="/double-auction-bs/client.js"></script>
@@ -37,32 +42,28 @@ app.html = `
                 background-color: unset;
                 padding: 0px;
             }
-
             .card-body {
                 padding-bottom: 18px;
             }
-
             body {
                 max-width: unset;
             }
         </style>
     </head>
     <body class='hidden' style='background-color: #AAA'>
-        {{scripts}}
         <div id='jtree'>
-            <span v-show='player.status=="playing"'>
+            <span id='hi' v-show='player.status=="playing"'>
                 {{stages}}
             </span>
-            <span v-show='["ready", "waiting", "finished", "done"].includes(player.status)'>
+            <span id='hey' v-show='["ready", "waiting", "finished", "done"].includes(player.status)'>
                 {{waiting-screens}}
             </span>
         </div>
+        {{scripts}}
     </body>
 </html>
 `;
 
-// Objects defined here are generated on the client, and accessible via "jt.vue.XXX", 
-// where XXX is the name of the computed variable.
 app.vueComputed = {
     offersOpen: function() {
         return this.group.offers.filter((offer) => offer.open && offer.period == this.period.id);
@@ -83,6 +84,34 @@ app.vueComputed = {
     },
     selOTB: function() {
         return this.offersToBuy.find(x => x.id === this.selOTBId);
+    },
+    bestBid: function() {
+        var best = null;
+        let offers = this.offersToBuy;
+        for (let i=0; i<offers.length; i++) {
+            let offer = offers[i];
+            if (best == null || best < offer.price) {
+                best = offer.price;
+            }
+        }
+        return best;
+    },
+    bestAsk: function() {
+        var best = null;
+        let offers = this.offersToSell;
+        for (let i=0; i<offers.length; i++) {
+            let offer = offers[i];
+            if (best == null || best > offer.price) {
+                best = offer.price;
+            }
+        }
+        return best;
+    },
+    lastTradePrice: function() {
+        if (this.trades.length < 1) {
+            return null;
+        }
+        return this.trades[this.trades.length-1].price;
     }
 }
 
@@ -104,15 +133,14 @@ tradingStage.playerStart = function(player) {
         player.cash     = player.old().cash;
         player.shares   = player.old().shares;
     }
-    player.offerType = '';
     player.sharesAvailable = player.shares;
     player.cashAvailable = player.cash;
 }
 
 tradingStage.activeScreen = `
     <div style='display: flex;'>
-        <div style='display: flex; flex-direction: column'>
-            <div class="card text-white bg-dark" style="width: 20rem; border-bottom: 2px #FFF solid;">
+        <div style='display: flex; flex-direction: column; flex: 0 0 20rem;'>
+            <div class="card text-white bg-dark" style="border-bottom: 2px #FFF solid;">
                 <div class="card-body">
                     <h5 class="card-title">Time left (s): {{clock.totalSeconds}}</h5>
                     <div style='color: #AAA'>{{ app.periodText }}: {{period.id}}/{{app.numPeriods}}</div>
@@ -136,38 +164,39 @@ tradingStage.activeScreen = `
                 <div class="card-body">
                     <h5 class="card-title">Order form</h5> 
                     <div class="form-group row">
-                    <div class="col-sm-3 col-form-label" style='color: #AAA'>Type:</div>
-                    <div class="col-sm-9">
-                        <div class="btn-group" role="group">
-                            <button id='offerTypeBuyBtn' onclick='setOfferType("buy")' type="button" class="btn btn-secondary">Buy</button>
-                            <button id='offerTypeSellBtn' onclick='setOfferType("sell")' type="button" class="btn btn-secondary">Sell</button>
+                        <div class="col-sm-3 col-form-label" style='color: #AAA'>Type:</div>
+                        <div class="col-sm-9">
+                            <div class="btn-group" role="group">
+                                <button id='offerTypeBuyBtn' onclick='setOfferType("buy")' type="button" class="btn btn-secondary">Buy</button>
+                                <button id='offerTypeSellBtn' onclick='setOfferType("sell")' type="button" class="btn btn-secondary">Sell</button>
+                            </div>
                         </div>
-                    </div>
                     </div>
                     <div class="form-group row">
-                    <div class="col-sm-3 col-form-label" style='color: #AAA'>Price:</div>
-                    <div class="col-sm-9">
-                        <div class="btn-group" role="group">
-                            <input 
-                                :disabled='(player.offerType != "buy" && player.offerType != "sell")'
-                                id='offerPrice'
-                                style='width: 100px'
-                                v-model='offerPrice'
-                                type='number'
-                                min='1'
-                                :max='player.offerType == "buy" ? player.cashAvailable : "unset"' step='1'
-                            >
+                        <div class="col-sm-3 col-form-label" style='color: #AAA'>Price:</div>
+                        <div class="col-sm-9">
+                            <div class="btn-group" role="group">
+                                <input 
+                                    :disabled='(offerType != "buy" && offerType != "sell")'
+                                    id='offerPrice'
+                                    style='width: 100px'
+                                    v-model='offerPrice'
+                                    type='number'
+                                    min='1'
+                                    :max='offerType == "buy" ? player.cashAvailable : "unset"' 
+                                    step='1'
+                                >
+                            </div>
                         </div>
-                    </div>
                     </div>
                     <div>
                         <button class='btn' :disabled='
-                            (player.offerType != "buy" && player.offerType != "sell") ||
+                            (offerType != "buy" && offerType != "sell") ||
                             (offerPrice == "") ||
                             (isNaN(offerPrice)) ||
-                            (player.offerType == "buy" && player.cashAvailable < offerPrice) || 
-                            (player.offerType == "sell" && player.sharesAvailable == 0)'
-                            onclick='makeOffer()'
+                            (offerType == "buy" && player.cashAvailable < offerPrice) || 
+                            (offerType == "sell" && player.sharesAvailable == 0)'
+                            onclick='makeOffer(jt.vue.offerType, jt.vue.offerPrice)'
                         >
                             Make offer
                         </button>
@@ -179,7 +208,8 @@ tradingStage.activeScreen = `
                     <h5 class="card-title">Order book</h5> 
                     <div style='display: flex;'>
                         <span>
-                            <span style='color: #AAA'>Buy offers</span><br>
+                            <span style='color: #AAA'>Buy offers</span>
+                            <br>
                             <!-- Normally you would use v-model='selOTBId', but Vue has problems with timers and selects. -->
                             <select size=5 style='width: 100px' @input="selOTBId = $event.target.value-0">
                                 <option v-for='offer in offersToBuy' :value='offer.id' :key='offer.id' v-bind:style="offer.makerPId == player.id ? {color: 'blue'} : {}">
@@ -193,7 +223,8 @@ tradingStage.activeScreen = `
                             </div>
                         </span>
                         <span>
-                            <span style='color: #AAA'>Sell offers</span><br>
+                            <span style='color: #AAA'>Sell offers</span>
+                            <br>
                             <select size=5 style='width: 100px' @input="selOTSId = $event.target.value-0">
                                 <option v-for='offer in offersToSell' :value='offer.id' v-bind:style="offer.makerPId == player.id ? {color: 'blue'} : {}">
                                     {{ offer.price }}
@@ -209,38 +240,24 @@ tradingStage.activeScreen = `
                 </div>
             </div><!-- END CARDS -->
         </div>
-        <div style='margin-left: 10px; display: flex; flex-direction: column;'>
-            <div class="card text-white bg-dark" style="width: 42rem;">
+        <div style='margin-left: 10px; display: flex; flex-direction: column; flex: 1 1 auto;'>
+            <div class="card text-white bg-dark" style="flex: 1 1 auto;">
                 <div class="card-body">
                     <h5 class="card-title">Chart</h5>
                     <canvas id="tradesChart" width="600" height="500"></canvas>
                 </div>
             </div>
-            <div class="card text-white bg-dark" style='margin-top: 10px; height: 134px;'>
+            <div class="card text-white bg-dark" style='margin-top: 10px; flex: 0 1 134px;'>
                 <div class="card-body">
                     <h5 class="card-title">Recent trades</h5> 
+                    <div style='display: flex; flex-wrap: wrap;'>
                     <span v-for='trade in trades' class='trade'>{{trade.price}}</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 `;
-
-/**
- *             <div class="card text-white bg-dark" style="width: 12rem;">
-                <div class="card-body">
-                    <h5 class="card-title">Options</h5>
-                    Y-scale: Dynamic | Fixed<br>
-                    X-axis-ahead: <input type='number'><br>
-                    X-axis-back: <input type='number'><br>
-                    Show FV: <input type='checkbox'><br>
-                    Show Trades: <input type='checkbox'><br>
-                    Show Best bid: <input type='checkbox'><br>
-                    Show best ask: <input type='checkbox'><br>
-                </div>
-            </div>
-
- */
 
 var resultsStage = app.newStage('results');
 resultsStage.groupStart = function(group) { // when a group starts this stage
@@ -260,28 +277,48 @@ resultsStage.addOKButtonIfNone = false;
 resultsStage.activeScreen = `
 <div style='display: flex; justify-content: center;'>
     <div class="card text-white bg-dark" style="width: 18rem;">
-    <div class="card-body">
-        <h5 class="card-title">Dividends: {{ player.dividends }} E$</h5>
-        <div>Inventory: {{ player.shares }} shares</div>
-        <div>Dividend draw: {{ group.dividendDraw }} E$/share</div>
-        <div>Dividends received: {{ player.dividends }} E$</div>
-        <div>Cash (E$): {{ player.cash }}</div>
-        <br>
-        <button class='btn'>OK</button>
+        <div class="card-body">
+            <h5 class="card-title">Dividends: {{ player.dividends }} E$</h5>
+            <div>Inventory: {{ player.shares }} shares</div>
+            <div>Dividend draw: {{ group.dividendDraw }} E$/share</div>
+            <div>Dividends received: {{ player.dividends }} E$</div>
+            <div>Cash (E$): {{ player.cash }}</div>
+            <br>
+            <button class='btn'>OK</button>
+        </div>
     </div>
 </div>
 `;
+
+app.waitingScreen = `
+<div style='display: flex; justify-content: center;'>
+    <div class="card text-white bg-dark" style="width: 18rem;">
+        <div class="card-body">
+            <h5 class="card-title">Waiting</h5>
+            <div>The experiment will continue soon.</div>
+        </div>
+    </div>
+</div>
+`
 
 //  Listen for messages from clients.
 app.messages.makeOfferToBuy = function(price) {
     var player = this.participant.player;
     if (player.cashAvailable < price) {
+        console.log('tried to make invalid offer to buy: not enough cash available');
         return;
     }
     player.cashAvailable -= price;
-    console.log('make offer to buy');
-    var offer = {price: price, makerPId: player.id, open: true, buyer: player.id, period: player.periodIndex()};
+    var offer = {
+        price: price, 
+        makerPId: player.id, 
+        open: true, 
+        buyer: player.id, 
+        period: player.periodIndex()
+    };
     player.group.offers.new(offer); // Notifies group's players about new offer.
+    player.saveAndUpdate();
+    // app.printInventory(player.group);
 }
 app.messages.makeOfferToSell = function(price) {
     var player = this.participant.player;
@@ -292,11 +329,21 @@ app.messages.makeOfferToSell = function(price) {
     console.log('make offer to sell');
     var offer = {price: price, makerPId: player.id, open: true, seller: player.id, period: player.periodIndex()};
     player.group.offers.new(offer);
+    player.saveAndUpdate();
+    // app.printInventory(player.group);
 }
 app.messages.cancelOffer = function(id) {
     var group = this.participant.player.group;
     var offer = group.offers.getRow(id);
     app.closeOffer(offer, group);
+    var creator = group.player(offer.makerPId);
+    if (offer.seller == creator.id && offer.buyer == null) {
+        creator.sharesAvailable++;
+    } else if (offer.buyer == creator.id && offer.seller == null) {
+        creator.cashAvailable += offer.price;
+    }
+    creator.saveAndUpdate();
+    // app.printInventory(group);
 }
 app.messages.acceptOTS = function(id) {
     app.acceptOffer(id, 'buy', this.participant.player);
@@ -310,13 +357,6 @@ app.closeOffer = function(offer, group) {
     offer.open = false;
     group.offers.save();
     group.emit('offersUpdate', offer);
-    var creator = group.player(offer.makerPId);
-    if (offer.seller == creator.id && offer.buyer == null) {
-        creator.sharesAvailable++;
-    }
-    if (offer.buyer == creator.id && offer.seller == null) {
-        creator.cashAvailable += offer.price;
-    }
 }
 app.acceptOffer = function(id, action, player) {
     
@@ -326,21 +366,20 @@ app.acceptOffer = function(id, action, player) {
 
     if (action === 'buy') {
         // exit if trade not possible
-        if (creator.sharesAvailable < 1 || player.cashAvailable < offer.price) {
+        if (player.cashAvailable < offer.price) {
             return;
         }
         player.shares++;
         player.sharesAvailable++;
-        player.cash -= offer.price;
-        player.cashAvailable -= offer.price;
+        player.cash = player.cash - offer.price;
+        player.cashAvailable = player.cashAvailable - offer.price;
         creator.shares--;
-        creator.sharesAvailable--;
-        creator.cash += offer.price;
-        creator.cashAvailable += offer.price;
+        creator.cash = creator.cash + offer.price;
+        creator.cashAvailable = creator.cashAvailable + offer.price;
         offer.buyer = player.id;
     } else if (action === 'sell') {
         // exit if trade not possible
-        if (creator.cash < offer.price || player.shares < 1) {
+        if (player.sharesAvailable < 1) {
             return;
         }
         player.shares--;
@@ -349,14 +388,36 @@ app.acceptOffer = function(id, action, player) {
         player.cashAvailable += offer.price;
         creator.shares++;
         creator.sharesAvailable++;
-        creator.cash -= offer.price;
-        creator.cashAvailable -= offer.price;
+        creator.cash = creator.cash - offer.price;
         offer.seller = player.id;
     }
     offer.timeElapsed = player.timeInStage();
-    group.emit('acceptOffer', {oId: offer.id, time: offer.timeElapsed, seller: offer.seller, buyer: offer.buyer});
+    group.emit('acceptOffer', {oId: offer.id, time: offer.timeElapsed});
     app.closeOffer(offer, group);
 
     player.saveAndUpdate();
     creator.saveAndUpdate();
+
+    // app.printInventory(group);
 }
+
+// app.printInventory = function(group) {
+//     let sumCash = group.sum('cash');
+//     let sumCashAvailable = group.sum('cashAvailable');
+//     let sumShares = group.sum('shares');
+//     let sumSharesAvailable = group.sum('sharesAvailable');
+
+//     for (let i=0; i<group.offers.rows.length; i++) {
+//         let offer = group.offers.rows[i];
+//         console.log('parsing offer ' + JSON.stringify(offer));
+//         if (offer.open) {
+//             if (offer.seller != null) {
+//                 sumSharesAvailable++;
+//             } else if (offer.buyer != null) {
+//                 sumCashAvailable += offer.price;
+//             }
+//         }
+//     }
+
+//     console.log(`${sumCash} == ${sumCashAvailable}, ${sumShares} == ${sumSharesAvailable}`);
+// }
