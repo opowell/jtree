@@ -475,10 +475,21 @@ class Player {
             }
             // Still in this period.
             else if (actualPlyr.group.period.id === this.group.period.id) {
-                if (['finished', 'done'].includes(actualPlyr.status)) {
-                    return true;
-                } else {
+                // Not yet in the group's current stage.
+                if (actualPlyr.group.stageIndex > this.stageIndex) {
                     return false;
+                } 
+                // Passed the group's current stage.
+                else if (actualPlyr.group.stageIndex < this.stageIndex) {
+                    return true;
+                }
+                // In the group's current stage. Check status.
+                else {
+                    if (['finished', 'done'].includes(actualPlyr.status)) {
+                        return true;
+                    } else {
+                        return false;
+                    }
                 }
             }
             // Not yet in this period.

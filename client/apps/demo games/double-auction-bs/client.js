@@ -167,7 +167,11 @@ jt.connected = function() {
                 },
                 options: {
                     legend: {
-                        display: false
+                        display: true,
+                        position: 'right',
+                        labels: {
+                            fontSize: 20,
+                        }
                     },
                     scales: {
                         xAxes: [{
@@ -228,14 +232,15 @@ jt.connected = function() {
 
     jt.socket.on('acceptOffer', function(data) {
         var oId = data.oId;
-        var offer = findById(jt.vue.player.group.offers, oId);
+        var offer = findById(jt.vue.group.offers, oId);
         if (offer == null) {
             console.log('ERROR: could not accept offer with id = ' + oId);
             return;
         }
+        let time = (jt.vue.period.id-1)*jt.vue.stage.duration + data.time/1000;
         jt.chart.data.datasets[DATA_TRADES].data.push(
             {
-                x: data.timeElapsed,
+                x: time,
                 y: offer.price
             }
         );
@@ -248,7 +253,7 @@ calcTimeLeft = function(player) {
     var period = player.group.period;
     var curPeriod = period.id;
     var duration = player.stage.duration;
-    var timeLeft = curPeriod*duration - player.stageTimerTimeleft/1000;
+    var timeLeft = curPeriod*duration - player.stageTimerTimeLeft/1000;
     return timeLeft;
 }
 
@@ -300,16 +305,16 @@ jt.autoplay_trading = function() {
     var val = randLog(3*target/2, 2*target/3);
     console.log(`TRADING: curP = ${curP}, target = ${target}, val = ${val}`);
     // GET CURRENT PRICE (curP)
+    var price = randLog(target, val).toFixed(0);
     if (val > target) {
         // Bid / buy
-        var price = randLog(target, val).toFixed(0);
         if (bAsk != null && bAsk < price && bAsk < jt.vue.player.cashAvailable) {
             console.log('TRADING: trying to buy for ' + bAsk);
             // Buy
-            let offers = jt.vue.player.group.offers;
+            let offers = jt.vue.offersToSell;
             for (let i=0; i<offers.length; i++) {
                 let offer = offers[i];
-                if (offer.open && offer.price === bAsk) {
+                if (offer.price === bAsk) {
                     if (offer.seller === jt.vue.player.id) {
                         jt.sendMessage('cancelOffer', offer.id);
                         return;
@@ -327,11 +332,10 @@ jt.autoplay_trading = function() {
     } else {
         // Ask / sell
         if (jt.vue.player.sharesAvailable > 0) {
-            var price = randLog(val, target).toFixed(0);
             if (bBid != null && bBid > price) {
                 console.log('TRADING: selling for ' + bBid);
                 // Sell
-                let offers = jt.vue.player.group.offers;
+                let offers = jt.vue.offersToBuy;
                 for (let i=0; i<offers.length; i++) {
                     let offer = offers[i];
                     if (offer.open && offer.price === bBid) {

@@ -4,7 +4,7 @@ const average = arr => arr.reduce( ( p, c ) => p + c, 0 ) / arr.length;
 
 app.insertJtreeRefAtStartOfClientHTML = false;
 app.numPeriods = 15;
-app.tradingTime = 6000;
+app.tradingTime = 60;
 app.divs        = [0, 8, 28, 60];
 app.endowmentShares = 3;
 app.endowmentCash = average(app.divs)*app.numPeriods*app.endowmentShares;
@@ -318,7 +318,6 @@ app.messages.makeOfferToBuy = function(price) {
     };
     player.group.offers.new(offer); // Notifies group's players about new offer.
     player.saveAndUpdate();
-    // app.printInventory(player.group);
 }
 app.messages.makeOfferToSell = function(price) {
     var player = this.participant.player;
@@ -330,11 +329,13 @@ app.messages.makeOfferToSell = function(price) {
     var offer = {price: price, makerPId: player.id, open: true, seller: player.id, period: player.periodIndex()};
     player.group.offers.new(offer);
     player.saveAndUpdate();
-    // app.printInventory(player.group);
 }
 app.messages.cancelOffer = function(id) {
     var group = this.participant.player.group;
     var offer = group.offers.getRow(id);
+    if (!offer.open) {
+        return;
+    }
     app.closeOffer(offer, group);
     var creator = group.player(offer.makerPId);
     if (offer.seller == creator.id && offer.buyer == null) {
@@ -343,7 +344,6 @@ app.messages.cancelOffer = function(id) {
         creator.cashAvailable += offer.price;
     }
     creator.saveAndUpdate();
-    // app.printInventory(group);
 }
 app.messages.acceptOTS = function(id) {
     app.acceptOffer(id, 'buy', this.participant.player);
@@ -362,6 +362,11 @@ app.acceptOffer = function(id, action, player) {
     
     var group = player.group;
     var offer = group.offers.getRow(id);
+
+    if (!offer.open) {
+        return;
+    }
+
     var creator = group.player(offer.makerPId);
 
     if (action === 'buy') {
@@ -398,26 +403,4 @@ app.acceptOffer = function(id, action, player) {
     player.saveAndUpdate();
     creator.saveAndUpdate();
 
-    // app.printInventory(group);
 }
-
-// app.printInventory = function(group) {
-//     let sumCash = group.sum('cash');
-//     let sumCashAvailable = group.sum('cashAvailable');
-//     let sumShares = group.sum('shares');
-//     let sumSharesAvailable = group.sum('sharesAvailable');
-
-//     for (let i=0; i<group.offers.rows.length; i++) {
-//         let offer = group.offers.rows[i];
-//         console.log('parsing offer ' + JSON.stringify(offer));
-//         if (offer.open) {
-//             if (offer.seller != null) {
-//                 sumSharesAvailable++;
-//             } else if (offer.buyer != null) {
-//                 sumCashAvailable += offer.price;
-//             }
-//         }
-//     }
-
-//     console.log(`${sumCash} == ${sumCashAvailable}, ${sumShares} == ${sumSharesAvailable}`);
-// }

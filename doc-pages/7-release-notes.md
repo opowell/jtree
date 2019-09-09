@@ -1,5 +1,8 @@
 ##### 2019.09.07 - 0.7.15
 - FIXED, Participant: calculate points scored in an app / session.
+- FIXED, Player.js: check for whether player is already finished a particular stage.
+- FIXED, 1natalia app: outcome for ultimatum game & strategy method.
+- FIXED, double-auction-bootstrap app: proper check for available inventory.
 
 ##### 2019.09.06 - 0.7.14
 - UPDATED: double-auction-bootstrap app.
