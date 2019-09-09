@@ -163,6 +163,9 @@ class App {
         this.periodText = 'Period'
 
         this.vueModels = {};
+
+        // Objects defined here are generated on the client, and accessible via "jt.vue.XXX", 
+        // where XXX is the name of the computed variable.
         this.vueComputed = {};
         this.vueMethods = {};
 

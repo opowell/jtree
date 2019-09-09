@@ -361,7 +361,7 @@ class Participant {
         let out = 0;
         for (var p in this.players) {
             let player = this.players[p];
-            if (app == null || player.app().id !== app.id) {
+            if (app != null && player.app().id !== app.id) {
                 continue;
             }
             var points = player.points;

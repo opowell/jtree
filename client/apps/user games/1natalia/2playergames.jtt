@@ -43,7 +43,7 @@ decideStage.groupStart = function(group) {
         var player = group.players[i];
         var receiver = group.players[group.receiverIds[i]];
         player.receiverId = group.receiverIds[i] + 1; // who this player sent to.
-        receiver.senderId = i - 0 + 1; // who this player received from. Need -0 to force parsing as integer.
+        receiver.senderId = (i - 0) + 1; // who this player received from. Need -0 to force parsing as integer.
 
         if (app.names === 'receiver' || app.names === 'both') {
             player.receiverName = receiver.participant.name;
@@ -74,8 +74,8 @@ if (app.game === 'ultimatum') {
         var p2choose = app.newStage('p2choose');
         p2choose.playerStart = function(player) {
             var sender = player.group.players[player.senderId - 1];
-            var receiver = player.group.players[player.receiverId - 1];
             player.received = sender.send; // What they received as receiver in S2.
+            player.senderEndowment = sender.endowment;
         }
         p2choose.activeScreen = `
 <p>STAGE 2</p>
@@ -95,6 +95,8 @@ if (app.game === 'ultimatum') {
             player.senderEndowment = sender.endowment;
         }
         p2strategy.playerEnd = function(player) {
+            console.log('checking if player ' + player.id + ' accepted');
+            debugger;
             player.accepted = player.received >= player.acceptThresh;
         }
         p2strategy.activeScreen = `
@@ -164,25 +166,25 @@ resultsStage.groupStart = function(group) {
     }
 }
 resultsStage.activeScreen = `
-<p>RESULTS</p>
+    <p>RESULTS</p>
 
-<p>
-As Player 1, your endowment was {{player.p1Endowment}} points.
-You chose to {{app.stage1VerbPresent}} {{player.send}} points to {{player.receiverName}}.
-<span v-if='app.game === "ultimatum"'>Your offer was {{player.receiverAnswer}}.</span>
-<span v-if='app.game === "trust"'> You received {{player.receivedBack}} points back.</span>
-</p>
+    <p>
+    As Player 1, your endowment was {{player.p1Endowment}} points.
+    You chose to {{app.stage1VerbPresent}} {{player.send}} points to {{player.receiverName}}.
+    <span v-if='app.game === "ultimatum"'>Your offer was {{player.receiverAnswer}}.</span>
+    <span v-if='app.game === "trust"'> You received {{player.receivedBack}} points back.</span>
+    </p>
 
-<p>
-As Player 2, your endowment was {{player.p2Endowment}} points.
-You were {{app.stage1VerbPast}} {{player.received}} points from {{player.senderName}}.
-<span v-if='app.game === "ultimatum" && app.ultPlayType === "strategy"'> You entered a threshhold of {{player.acceptThresh}}.</span>
-<span v-if='app.game === "ultimatum"'> You chose to {{player.answer}} this offer.</span>
-<span v-if='app.game === "trust"'> You chose to return {{player.returnAmt}} points.</span>
-</p>
+    <p>
+    As Player 2, your endowment was {{player.p2Endowment}} points.
+    You were {{app.stage1VerbPast}} {{player.received}} points from {{player.senderName}}.
+    <span v-if='app.game === "ultimatum" && app.ultPlayType === "strategy"'> You entered a threshhold of {{player.acceptThresh}}.</span>
+    <span v-if='app.game === "ultimatum"'> You chose to {{player.answer}} this offer.</span>
+    <span v-if='app.game === "trust"'> You chose to return {{player.returnAmt}} points.</span>
+    </p>
 
-<p>Your total points from this game: {{player.points}}.</p>
-`
+    <p>Your total points from this game: {{player.points}}.</p>
+`;
 
 function getAnonymousPartnerIds(group) {
     var idsLeft = [];
