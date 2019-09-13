@@ -17,3 +17,4 @@ client/internal/serverState.json
 client/internal/clients/shared/shared.js
 release
 internal
+*.code-workspace
