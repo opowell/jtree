@@ -19,3 +19,12 @@ Most operating systems let you specify a list of applications to start automatic
 3. Add a shortcut to open jtree in Google Chrome to this folder (see above).
 
 Now jtree will open in Google Chrome whenever the computer starts up.
+
+### Running online
+
+If your server is behind a router (wireless or not), you will probably need to set up *port forwarding*. This can usually be done in the following way:
+
+1. Access the configuration page for the router (usually at 192.168.0.1 or 192.168.1.1).
+2. Set up a port forwarding rule, such as "port 80 -> serverIP, port 80".
+
+where serverIP is the IP of the machine where jtree is running (usually something like 192.168.x.x).

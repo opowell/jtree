@@ -10,7 +10,7 @@
 # 3. Update docs/README.md.
 # 4. Commit to Github.
 
-set "vers=0.7.15"
+set "vers=0.7.16"
 
 # ------- Prepare output folder.
 call del ".\release" /Q /F

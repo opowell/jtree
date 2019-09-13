@@ -1,0 +1,8 @@
+let enterStage = app.newStage('enter');
+
+enterStage.addOKButtonIfNone = false;
+enterStage.activeScreen = `
+    Vielen Dank, dass du so toll mitgemacht hast!
+    Wir z\u00e4hlen jetzt wie viele Sterne du gesammelt hast.
+    Bitte bleibe ruhig auf deinem Stuhl sitzen.
+`;

@@ -1,7 +1,12 @@
 app.description = 'Real-effort task, in which subjects have a fixed amount of time to calculate sums of numbers. Needs at least 3 players for ranking to work.';
 
+app.waitingScreen= `
+<p> Bitte warte bis alle fertig sind.</p>
+`;
+
+
 app.workTime = 20;
-app.numbersPerTask = 4;
+app.numbersPerTasks = 4;
 app.maxNumber = 10;
 app.numTasks = 40;
 app.numGroups = 1;
@@ -13,7 +18,7 @@ app.addSelectOption('paymentType', ['individual', 'contest', 'choose']);
 app.tasks = [];
 for (var i=0; i<app.numTasks; i++) {
     var problem = [];
-    for (var j=0; j<app.numbersPerTask; j++) {
+    for (var j=0; j<app.numbersPerTasks; j++) {
         problem.push(Utils.randomInt(1, app.maxNumber));
     }
     app.tasks.push(problem);
@@ -87,14 +92,17 @@ app.setNumCorrect = function(player) {
 if (app.paymentType === 'choose') {
     var chooseStage = app.newStage('choose');
     chooseStage.activeScreen = `
-    <p>CHOOSE</p>
-    <p>What type of payment would you like?</p>
+    <p>Entscheide dich!</p>
+    <p>Nun kannst du dich entscheiden, wie du im n\u00e4chsten Teil Sterne sammeln m\u00f6chtest?</p>
     <p>
-        <button type='submit' name='player.paymentType' value='individual'>Individual</button>
-        <button type='submit' name='player.paymentType' value='contest'>Contest</button>
+        <button type='submit' name='player.paymentType' value='individual'>Ich m\u00f6chte <b> nicht</b> beim Wettrennen mitmachen.</button>
+        <button type='submit' name='player.paymentType' value='contest'>Ich m\u00f6chte beim Wettrennen mitmachen.</button>
     </p>
     `;
+
 }
+
+
 
 // Answers are recorded as player.A1, player.A2, etc.
 var workStage = app.newStage('work');
@@ -108,11 +116,9 @@ workStage.playerStart = function(player) {
 }
 workStage.addOKButtonIfNone = false;
 workStage.activeScreen = `
-    <p>TASKS</p>
-    <p>Payment type: {{player.paymentType}}</p>
-    <p>Calculate as many of the following sums as you can before time runs out.
+    <p>Versuche so viele Aufgaben wie m\u00f6glich richtig zu l\u00f6sen.
     <p v-for='(task, index) in app.tasks'>
-        <span>Q{{index+1}}: <b>{{ task.join(' + ') }}</b> = </span>
+        <span><b>{{ task.join(' + ') }}</b> = </span>
         <input :name="'player.A' + (index+1)" type="number" :max="app.maxNumber * app.numbersPerTask" style="width: 3em;">
     </p>
 `;
@@ -120,10 +126,11 @@ workStage.activeScreen = `
 if (app.paymentType === 'contest') {
     let guessRankStage = app.newStage('guessRank');
     guessRankStage.activeScreen = `
-        Guess your rank:
-        <button type='submit' name='player.guessedRank' value='1'>1</button>
-        <button type='submit' name='player.guessedRank' value='2'>2</button>
-        <button type='submit' name='player.guessedRank' value='3'>3</button>
+      <p>  Entscheide dich!</p>
+    <p>   Wie gut, glaubst du, warst du im 2. Teil des Spieles?</p>  
+        <button type='submit' name='player.guessedRank' value='1'>Ich glaube, ich war Erste/r.</button>
+        <button type='submit' name='player.guessedRank' value='2'>Ich glaube, ich war Zweite/r.</button>
+        <button type='submit' name='player.guessedRank' value='3'>Ich glaube, ich war Dritte/r.</button>
     `;
 }
 
@@ -142,7 +149,7 @@ resultsStage.groupStart = function(group) { // when a group of players starts th
         let player = players[i];
         switch (player.paymentType) {
             case 'individual':
-                player.points = player.numCorrect;
+                player.points = player.numCorrect/3;
                 break;
             case 'contest':
                 app.setContestScoreAndRank(player, players);
@@ -168,9 +175,8 @@ resultsStage.groupStart = function(group) { // when a group of players starts th
 
 }
 resultsStage.activeScreen = `
-    <p>RESULTS</p>
-    <p>You calculated {{ player.numCorrect }} {{ player.numCorrect == 1 ? "sum" : "sums" }} correctly.</p>
-    <p v-if='app.paymentType === "choose"'>You chose the payment type "{{player.paymentType}}".</p>
-    <p v-if='app.paymentType !== "choose"'>The payment type for this round was "{{player.paymentType}}".</p>
-    <p>Therefore, you scored {{ player.points }} {{ player.points == 1 ? "point" : "points" }} in this round.</p>
+     <p>Das hast du super gemacht! </p>
+  <p>Wir erkl\u00e4ren dir gleich wie es weiter geht.</p>
+ <p>Bitte lege das Tablet auf den Tisch und h\u00f6re gut zu.</p>
+<p>Bitte dr\u00fccke OK.</p>
 `;

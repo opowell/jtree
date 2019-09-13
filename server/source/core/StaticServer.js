@@ -4,10 +4,14 @@ const fs        = require('fs-extra');
 const Utils     = require('../Utils.js');
 const ip        = require('ip');
 const http      = require('http');
+const https     = require('https');
 const replace   = require("replace");
 const bodyParser = require("body-parser");
 const session   = require('express-session');
 // const history   = require('connect-history-api-fallback');
+
+const selfsigned = require('selfsigned');
+
 
 /** Server for static files */
 class StaticServer {
@@ -187,7 +191,20 @@ class StaticServer {
         // START SERVER
         this.port = jt.settings.port;
         this.ip = ip.address();
-        this.server = http.Server(expApp);
+
+        var attrs = [{ name: 'commonName', value: this.ip }];
+        var pems = selfsigned.generate(attrs, { days: 365 });
+        console.log(pems);
+
+        if (jt.settings.useHTTPS == false) {
+            this.server = http.Server(expApp);
+        } else {
+            let options = {
+                key: pems.private,
+                cert: pems.cert,
+            }
+            this.server = https.createServer(options, expApp);
+        }
         try {
             this.server.listen(this.port, function() {
                 console.log('###############################################');

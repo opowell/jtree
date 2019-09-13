@@ -1,0 +1,121 @@
+app.description = 'Participants assign stars to envelopes.';
+app.waitingScreen =`
+  <p>Das hast du super gemacht! </p>
+  <p>Bitte warte bis sich alle Kinder entschieden haben.</p>
+`;
+app.addSelectOption('version', ['risk', 'time']);
+if (app.version=== 'risk') {
+app.numStars =10;
+}
+if (app.version=== 'time') {
+app.numStars =15;
+}
+
+app.numGroups = 1;
+app.versionTexts = {
+    'risk': {
+        optionA: 'Behalten',
+        optionB: 'gelb: 0 oder rosa: x3'
+    },
+    'time': {
+        optionA: 'Heute',
+        optionB: 'In einer Woche'
+    }
+}
+
+// Disable automatic modification of "src" attributes, instead the full path is pre-specified. Automation does not work with dynamic values yet.
+app.modifyPathsToIncludeId = false;
+
+app.texts = app.versionTexts[app.version];
+
+// Injected automatically into the page.
+app.vueMethods = {
+    addA: function() {
+        jt.vue.player.starsA++;
+        jt.vue.player.starsLeft--;
+    },
+    addB: function() {
+        jt.vue.player.starsB++;
+        jt.vue.player.starsLeft--;
+    },
+    returnA: function() {
+        jt.vue.player.starsA--;
+        jt.vue.player.starsLeft++;
+    },
+    returnB: function() {
+        jt.vue.player.starsB--;
+        jt.vue.player.starsLeft++;
+    }
+}
+
+let decideStage = app.newStage('decide');
+decideStage.playerStart = function(player) {
+    player.starsA = 0;
+    player.starsB = 0;
+    player.starsLeft = app.numStars;
+}
+decideStage.playerEnd = function(player) {
+    player.participant.scores.push(player.starsA);
+}
+decideStage.autoplay = `
+    let x = Utils.randomInt(0, app.numStars+1);
+    jt.vue.player.starsA = x;
+    jt.vue.player.starsB = app.numStars - x;
+    jt.defaultAutoplay();
+`;
+decideStage.activeScreen = `
+<span style='flex: 1 1 400px; align-items: center; display: flex; flex-direction: column;'>
+    So viele Sterne kannst du noch auf die Kurverts aufteilen:
+    <br><br>
+    <div style='font-size: 36pt'>
+        {{player.starsLeft}}x <img src='11simone/images/stargame_star.png' width=30 height=30>
+    </div>
+    <p style='text-align: center'>
+        <input type='hidden' name='player.starsA' :value='player.starsA'>
+        <input type='hidden' name='player.starsB' :value='player.starsB'>
+        <button type='button' :disabled='player.starsLeft == 0' @click='addA'>&lt; In A</button>
+        <button type='button' :disabled='player.starsLeft == 0' @click='addB'>In B &gt;</button><br>
+        <br>
+        <button :disabled='player.starsLeft > 0'>Fertig</button>
+    </p>
+</span>
+<div>
+    <div style='display: flex'>
+        <span style='flex: 1 1 200px; align-items: center; display: flex; flex-direction: column;'>
+            {{app.texts.optionA}}
+            <span class='envelope'>
+                <div style='background: white; border: #DDD; padding: 5px; margin: 3px; border-radius: 5px;'>
+                    <div style='font-size: 36pt'>
+                        {{player.starsA}}x <img src='11simone/images/stargame_star.png' width=30 height=30>
+                    </div>
+                </div>
+            </span>
+            <button type='button' :disabled='player.starsA == 0' @click='returnA'>Aus A &gt;</button><br>
+        </span>
+        <span style='flex: 1 1 200px; align-items: center; display: flex; flex-direction: column;'>
+            {{app.texts.optionB}}
+            <span class='envelope'>
+                <div style='background: white; border: #DDD; padding: 5px; margin: 3px; border-radius: 5px;'>
+                    <div style='font-size: 36pt'>
+                        {{player.starsB}}x <img src='11simone/images/stargame_star.png' width=30 height=30>
+                    </div>
+                </div>
+            </span>
+            <button type='button' :disabled='player.starsB == 0' @click='returnB'>&lt; Aus B</button><br>
+        </span>
+    </div>
+</div>
+    <style>
+        body {
+            max-width: unset;
+        }
+        .envelope {
+            background: url(11simone/images/stargame_envelope.jpg) no-repeat top left;
+            width: 250px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;'
+        }
+    </style>
+`;

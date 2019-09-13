@@ -5,5 +5,6 @@ app.description = 'Players see a waiting screen. Once the password is entered, a
 let enterStage = app.newStage('enter');
 enterStage.addOKButtonIfNone = false;
 enterStage.activeScreen = `
-    <p>Please wait</p>
+    <p>PAUSE</p>
+    <p>Bitte h\u00f6re gut zu!</p>
 `;
