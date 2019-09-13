@@ -35,7 +35,8 @@ class Msgs {
 
     appSaveFileContents(d, socket) {
         var app = this.jt.data.app(d.aId, d.options);
-        app.setFileContents(d.filename, d.content);
+        app.setFileContents(d.content);
+        app = app.reload();
         this.jt.data.appsMetaData[d.aId] = app.metaData();
     }
 

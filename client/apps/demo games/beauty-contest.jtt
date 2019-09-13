@@ -55,4 +55,4 @@ resultsStage.activeScreen = `
     <p v-if='player.points>0'>Your guess was one of the closest to this amount.</p>
     <p v-else>Your guess was not one of the closest to this amount.</p>
     <p>Thus, in this period your payoff was {{ player.points | round(2) }} EUR.</p>
-`
+`;

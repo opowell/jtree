@@ -21,20 +21,6 @@ class ViewApp extends HTMLElement {
             </div>
 
         <div class="view-buttons btn-group">
-                <button class="btn btn-outline-secondary btn-sm" onclick='jt.startSessionWithApp()'>
-                    <i class="fa fa-plus"></i>&nbsp;&nbsp;Add variable
-                </button>
-                <button class="btn btn-outline-secondary btn-sm" onclick='jt.appEdit()'>
-                    <i class="fa fa-plus"></i>&nbsp;&nbsp;Add stage
-                </button>
-                <button class="btn btn-outline-secondary btn-sm" onclick='jt.appShowOptions()'>
-                    <i class="fa fa-plus"></i>&nbsp;&nbsp;Add function
-                </button>
-            </div>
-        <div class="view-buttons btn-group">
-                <button class="btn btn-outline-secondary btn-sm" onclick='jt.appEdit()'>
-                    <i class="fa fa-copy"></i>&nbsp;&nbsp;Duplicate
-                </button>
               <button class="btn btn-outline-secondary btn-sm" onclick='jt.deleteApp()'>
                   <i class="fa fa-trash"></i>&nbsp;&nbsp;Delete
               </button>
@@ -111,10 +97,9 @@ jt.openApp = function(appId) {
     $('#editAppModal .modal-title').text(appId);
 
     jt.editor.reset();
-    jt.editor.addFile('app.js', app.appjs, 'ace/mode/javascript');
-    jt.editor.addFile('client.html', app.clientHTML, 'ace/mode/html');
+    jt.editor.addFile(app.id, app.appjs, 'ace/mode/javascript');
 
-    jt.editor.selectFile('app.js');
+    jt.editor.selectFile(app.id);
 
     jt.setEditAppOptionsData(app, app.options, jt.updateAppPreview);
 

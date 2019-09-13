@@ -102,8 +102,6 @@ function refresh(ag) {
 
     jt.showUsersMode(jt.settings.multipleUsers);
 
-    $('#navbarSupportedContent > ul').removeClass('hidden');
-
 }
 
 function removeClient(cId) {

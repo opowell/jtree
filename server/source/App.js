@@ -542,9 +542,9 @@ class App {
     }
 
     //TODO
-    setFileContents(filename, contents) {
+    setFileContents(contents) {
         try {
-            fs.writeFileSync('apps/' + this.id + '/' + filename, contents);
+            fs.writeFileSync(this.id, contents);
         } catch (err) {
             console.log(err);
         }

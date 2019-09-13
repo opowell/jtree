@@ -201,10 +201,21 @@ jt.varEl = function(name, value) {
     var div = $('<div class="varEl input-group input-group-sm mt-1 mb-1" style="width: auto;">');
     div.data('varName', name);
     div.data('varValue', value);
-    var name = $('<div class="input-group-prepend"><span class="input-group-text">' + name + '</span></div>');
+    let funcPrefix = '__func_';
+    let isFunc = false;
+    if (name.startsWith(funcPrefix)) {
+        name = name.substring(funcPrefix.length);
+        isFunc = true;
+    }
+    
+    var name = $('<div class="input-group-prepend"><span class="input-group-text" style="align-items: start">' + name + '</span></div>');
     div.append(name);
-    var value = $('<div class="form-control">' + JSON.stringify(value) + '</div>');
-    div.append(value);
+    var valueDiv = $('<div class="form-control" style="height: auto">' + JSON.stringify(value) + '</div>');
+    if (isFunc) {
+        valueDiv.css('white-space', 'pre-wrap');
+        valueDiv[0].innerHTML = value;
+    }
+    div.append(valueDiv);
     div.click(function(ev) {
         jt.appSetVar(ev);
     });
@@ -232,9 +243,9 @@ jt.funcEl = function(name, value) {
 
 jt.showAppTree = function(app) {
 
-    var appSkip = ['id', 'appjs', 'clientHTML', 'options', 'stages', 'optionValues', 'keyComparisons', 'finished', 'indexInSession', 'periods', 'textMarkerBegin', 'textMarkerEnd'];
-    var appDefaultVars = ['waitForAll', 'groupMatchingType', 'numPeriods', 'description']
-    var stageDefaultVars = ['duration', 'waitToStart', 'waitToEnd', 'onPlaySendPlayer', 'updateObject', 'waitOnTimerEnd'];
+    var appSkip = ['id', 'appjs', 'clientHTML', 'options', 'stages', 'optionValues', 'keyComparisons', 'finished', 'appDir', 'appFilename', 'shortId', 'appPath', 'started', 'indexInSession', 'periods', 'textMarkerBegin', 'textMarkerEnd'];
+    var appDefaultVars = ['waitForAll', 'groupMatchingType', 'numPeriods', 'description', 'outputDelimiter', 'duration', 'useVue', 'periodText', 'vueModels', 'vueComputed', 'vueMethods', 'vueMethodsDefaults', 'clientScripts', 'modifyPathsToIncludeId', 'stageWaitToStart', 'stageWaitToEnd', 'givenOptions', 'title'];
+    var stageDefaultVars = ['duration', 'waitToStart', 'waitToEnd', 'onPlaySendPlayer', 'updateObject', 'waitOnTimerEnd', 'showTimer', 'clientDuration', 'useAppActiveScreen', 'useAppWaitingScreen', 'wrapPlayingScreenInFormTag', 'addOKButtonIfNone', 'activeScreen', 'waitingScreen', 'stages', 'repetitions', 'autoplay', 'getGroupDuration'];
     var stageSkip = ['app.index', 'id', 'name', 'groupStart', 'groupEnd', 'playerStart', 'playerEnd', 'canPlayerParticipate'];
 
     $('#view-app-tree').empty();

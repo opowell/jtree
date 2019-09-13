@@ -9,7 +9,7 @@ class MainMenu extends HTMLElement {
           </button>
 
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
-              <ul class="navbar-nav mr-auto hidden" role='tabpanel'>
+              <ul class="navbar-nav mr-auto" role='tabpanel'>
                   <li class="nav-item">
                       <span id='tab-apps' class="nav-link view-tab" onclick='setView("apps")'>
                           Apps
@@ -22,23 +22,7 @@ class MainMenu extends HTMLElement {
                   </li>
                   <li class="nav-item">
                       <span id='tab-sessions' class="nav-link view-tab" onclick='setView("sessions")'>
-                          <!-- <i title="open in new window" class="fa fa-archive"></i>&nbsp;sessions -->
                           Sessions
-                      </span>
-                  </li>
-                  <li class="nav-item" admin-interface='advanced'>
-                      <span id='tab-rooms' class="nav-link view-tab" onclick='setView("rooms")'>
-                          Rooms
-                      </span>
-                  </li>
-                  <li class="nav-item" users-mode=true>
-                      <span id='tab-users' class="nav-link view-tab" onclick='setView("users")'>
-                          Users
-                      </span>
-                  </li>
-                  <li class="nav-item" admin-interface='advanced'>
-                      <span id='tab-usertypes' class="nav-link view-tab" onclick='setView("userTypes")'>
-                          User types
                       </span>
                   </li>
                   <li class="nav-item">

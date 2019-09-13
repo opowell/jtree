@@ -1,6 +1,6 @@
 app.description = 'Real-effort task, in which subjects have a fixed amount of time to calculate sums of numbers. Needs at least 3 players for ranking to work.';
 
-app.waitingScreen= `
+app.waitingScreen = `
 <p> Bitte warte bis alle fertig sind.</p>
 `;
 
