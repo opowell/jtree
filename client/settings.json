@@ -1,0 +1,7 @@
+{
+    "useHTTPS": true,
+    "multipleUsers": false,
+    "defaultAdminPwd": "",
+    "defaultAdminUI": "multiuser",
+    "port": 2233
+}

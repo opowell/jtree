@@ -1,6 +1,7 @@
 ##### 2019.09.10 - 0.7.16
 - ADDED: option to serve files over HTTPS instead of HTTP.
 - FIXED: allow socket connections from outside local network.
+- CHANGED: custom settings now located in *jtree/settings.json*.
 
 ##### 2019.09.07 - 0.7.15
 - FIXED, Participant: calculate points scored in an app / session.

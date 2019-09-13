@@ -3,7 +3,7 @@ class ViewHome extends HTMLElement {
       this.innerHTML = `
       <div id='view-home' class='view'>
           Welcome to jtree.
-          <div style='padding-top: 1rem; color: #888'>0.7.15</div>
+          <div style='padding-top: 1rem; color: #888'>0.7.16</div>
       </div>
       `;
     }

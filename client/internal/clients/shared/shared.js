@@ -12,8 +12,8 @@ jt.data.timeLeft = 0;
 jt.data.clockRunning = false;
 jt.data.CLOCK_FREQUENCY = 100; // in ms
 
-jt.serverIP = '192.168.0.23';
-jt.serverPort = '80';
+jt.serverIP = '137.208.148.108';
+jt.serverPort = '2233';
 jt.server = {};
 
 jt.serverURL = function() {

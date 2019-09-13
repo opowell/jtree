@@ -192,32 +192,33 @@ class StaticServer {
         this.port = jt.settings.port;
         this.ip = ip.address();
 
-        var attrs = [{ name: 'commonName', value: this.ip }];
-        var pems = selfsigned.generate(attrs, { days: 365 });
-        console.log(pems);
 
         if (jt.settings.useHTTPS == false) {
             this.server = http.Server(expApp);
         } else {
+
+            var attrs = [{ name: 'commonName', value: this.ip }];
+            var pems = selfsigned.generate(attrs, { days: 365 });
             let options = {
                 key: pems.private,
                 cert: pems.cert,
             }
+
             this.server = https.createServer(options, expApp);
         }
+
+        let printServerInfo = function() {
+            console.log('###############################################');
+            console.log('jtree ' + jt.version + ', listening on ' + self.ip + ':' + self.port);
+        }
+
         try {
-            this.server.listen(this.port, function() {
-                console.log('###############################################');
-                console.log('jtree ' + jt.version + ', listening on ' + self.ip + ':' + self.port);
-            });
+            this.server.listen(this.port, printServerInfo);
         } catch (err) {
             if (jt.settings.port === 80) {
                 jt.settings.port = 3000;
                 this.port = jt.settings.port;
-                this.server.listen(this.port, function() {
-                    console.log('###############################################');
-                    console.log('jtree ' + jt.version + ', listening on ' + self.ip + ':' + self.port);
-                });
+                this.server.listen(this.port, printServerInfo);
             }
         }
         //////////////////////////////

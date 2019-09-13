@@ -1,2 +1,2 @@
-session.addApp('app.jtt', {treatment: 'A'});
-session.addApp('app.jtt', {treatment: 'B'});
+session.addApp('app1.jtt', {treatment: 'A'});
+session.addApp('app1.jtt', {treatment: 'B'});

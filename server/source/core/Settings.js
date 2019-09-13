@@ -4,7 +4,7 @@ const fs        = require('fs-extra');
 const openport  = require('openport');
 const Utils     = require('../Utils.js');
 
-/** Settings that can be set in the settings.js file */
+/** Settings that can be set in the settings.json file */
 class Settings {
 
      constructor(jt) {
@@ -36,8 +36,10 @@ class Settings {
          this.sharedUI               = 'internal/clients/shared/';
          this.serverTimeInfoFilename = 'internal/serverState.json'; // location of file that stores last time server was active.
          this.autoplayDelay          = 'randomInt(4,8)*1000';
-         this.outputDelimiter = ';';
-         this.useHTTPS               = true;
+         this.outputDelimiter        = ';';
+         this.useHTTPS               = false;
+         this.httpsCertificateFile   = 'certificate.pem';
+         this.defaultAdminPwd        = undefined;
 
          this.valsToSave = {};
 
@@ -61,11 +63,13 @@ class Settings {
 
          var settings = this; // so that settings can be modified without using 'jt.' prefix.
          try {
-             var json = fs.readJSONSync(path.join(this.jt.path, 'internal/settings.js'));
+             var json = fs.readJSONSync(path.join(this.jt.path, 'settings.json'));
              for (var i in json) {
+                 console.log('loading custom setting: ' + i + ' = ' + json[i]);
                  this[i] = json[i];
              }
          } catch (err) {
+             console.log('Error loading settings file: ' + err);
              this.logMessage = err;
          }
 
@@ -106,7 +110,7 @@ class Settings {
      }
 
      save() {
-         Utils.writeJSON(path.join(this.jt.path, 'internal/settings.js'), this.valsToSave);
+         Utils.writeJSON(path.join(this.jt.path, 'settings.json'), this.valsToSave);
      }
 
      setDefaultAdminPwd(curPwd, newPwd) {
