@@ -208,8 +208,12 @@ class StaticServer {
         }
 
         let printServerInfo = function() {
+            let protocol = 'http://';
+            if (jt.settings.useHTTPS) {
+                protocol = 'https://';
+            }
             console.log('###############################################');
-            console.log('jtree ' + jt.version + ', listening on ' + self.ip + ':' + self.port);
+            console.log('jtree ' + jt.version + ', listening on ' + protocol + self.ip + ':' + self.port);
         }
 
         try {

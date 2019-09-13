@@ -1,5 +1,5 @@
 {
-    "useHTTPS": true,
+    "useHTTPS": false,
     "multipleUsers": false,
     "defaultAdminPwd": "",
     "defaultAdminUI": "multiuser",
