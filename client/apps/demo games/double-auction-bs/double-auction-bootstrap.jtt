@@ -404,3 +404,4 @@ app.acceptOffer = function(id, action, player) {
     creator.saveAndUpdate();
 
 }
+app.endowmentCash = 1090;

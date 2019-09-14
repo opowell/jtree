@@ -33,10 +33,33 @@ class AppSetVariableModal extends HTMLElement {
 jt.appSetVariable = function() {
   var appId = $('#view-app-fullId').text();
   var app = jt.app(appId);
+
+  let replaced = false;
+
   var name = $('#editVarName').text();
-  var value = $('#appSetVariable-newVal').val();
-  var contents = app.appjs + '\napp.' + name + ' = ' + value + ';';
-  jt.appSaveFileContents('app.js', contents);
+  var newValue = $('#appSetVariable-newVal').val();
+  let curValue = $('#appSetVariable-curVal').text();
+  let curString = name + ' = ' + curValue;
+  let newString = name + ' = ' + newValue;
+  if (app.appjs.includes(curString)) {
+    app.appjs = app.appjs.replace(curString, newString);
+    replaced = true;
+  }
+
+  if (!replaced) {
+      if (app.appjs.includes(curValue)) {
+        app.appjs = app.appjs.replace(curValue, newValue);
+          replaced = true;
+      }
+  }
+
+  if (!replaced) {
+    app.appjs = app.appjs + '\napp.' + name + ' = ' + newValue + ';';
+      replaced = true;
+  }
+
+  let fn = $('.filename.file-selected').text();
+  jt.appSaveFileContents(fn, app.appjs);
   $('#appSetVariableModal').modal('hide');
 }
 
