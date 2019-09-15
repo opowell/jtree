@@ -16,7 +16,7 @@ QueueAppDiv = function(app) {
         text = text.substring(0, text.length - 2);
         text += ')';
     }
-    return $('<div>').text(text);
+    return $('<div style="white-space: normal; word-break: break-all">').text(text);
 }
 
 AppOptionRow = function(option, app, options) {
@@ -320,10 +320,10 @@ jt.QueueRow = function(queue, cols) {
         var col = cols[i];
         switch(col) {
         case 'id':
-            row.append($('<td>').text(queue.id));
+            row.append($('<td style="white-space: normal; word-break: break-all">').text(queue.id));
             break;
         case 'apps':
-            var appsEl = $('<td>');
+            var appsEl = $('<td style="white-space: normal; word-break: break-all">');
             for (var i in queue.apps) {
                 var app = queue.apps[i];
                 var div = QueueAppDiv(app);

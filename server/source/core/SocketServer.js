@@ -1,7 +1,6 @@
 const path      = require('path');
 const fs        = require('fs-extra');
 const socketIO  = require('socket.io');
-// const syc       = require('syc');
 
 const Utils     = require('../Utils.js');
 const Client    = require('../Client.js');
@@ -17,7 +16,6 @@ class SocketServer {
         this.msgs         = new Msgs.new(jt); // MESSAGES TO LISTEN FOR FROM CLIENTS
         jt.io = this.io;
         this.io.on('connection', this.onConnection.bind(this));
-        // syc.sync('syncData', this.jt.data.syncData);
     }
 
     /**

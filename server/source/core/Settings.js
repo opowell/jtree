@@ -63,15 +63,29 @@ class Settings {
 
          var settings = this; // so that settings can be modified without using 'jt.' prefix.
          try {
-             var json = fs.readJSONSync(path.join(this.jt.path, 'settings.json'));
-             for (var i in json) {
-                 console.log('loading custom setting: ' + i + ' = ' + json[i]);
-                 this[i] = json[i];
-             }
+            let settingsJSONPath = path.join(this.jt.path, 'settings.json');
+            if (fs.existsSync(settingsJSONPath)) {
+                var json = fs.readJSONSync(settingsJSONPath);
+                for (var i in json) {
+                    console.log('loading custom setting: ' + i + ' = ' + json[i]);
+                    this[i] = json[i];
+                }
+            }
          } catch (err) {
-             console.log('Error loading settings file: ' + err);
+             console.log('Error loading settings JSON file: ' + err);
              this.logMessage = err;
          }
+         try {
+             let settingsJSPath = path.join(this.jt.path, 'settings.js');
+            if (fs.existsSync(settingsJSPath)) {
+                var settingsFile = fs.readSync(path.join(this.jt.path, 'settings.js'));
+                console.log('loading custom settings from settings.js');
+                eval(settingsFile);
+            }
+        } catch (err) {
+            console.log('Error reading settings JS file: ' + err);
+            this.logMessage = err;
+        }
 
          if (this.port === undefined) {
          //     try {
