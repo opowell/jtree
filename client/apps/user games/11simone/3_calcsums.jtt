@@ -1,9 +1,8 @@
 app.description = 'Real-effort task, in which subjects have a fixed amount of time to calculate sums of numbers. Needs at least 3 players for ranking to work.';
 
-app.waitingScreen = `
+app.waitingScreen= `
 <p> Bitte warte bis alle fertig sind.</p>
 `;
-
 
 app.workTime = 20;
 app.numbersPerTasks = 4;
@@ -113,15 +112,53 @@ workStage.playerStart = function(player) {
     if (player.paymentType == null) {
         player.paymentType = app.paymentType;
     }
+    player.taskNum = 1;
+    player.task = app.tasks[0];
 }
 workStage.addOKButtonIfNone = false;
 workStage.activeScreen = `
     <p>Versuche so viele Aufgaben wie m\u00f6glich richtig zu l\u00f6sen.
-    <p v-for='(task, index) in app.tasks'>
-        <span><b>{{ task.join(' + ') }}</b> = </span>
-        <input :name="'player.A' + (index+1)" type="number" :max="app.maxNumber * app.numbersPerTask" style="width: 3em;">
+    <p>
+        <span><b>{{ player.task.join(' + ') }}</b> = </span>
+        <input id='guessInput' type="number" :max="app.maxNumber * app.numbersPerTask" style="width: 3em;">
     </p>
+    <button onclick='sendGuessToServer()'>Make guess</button>
+    <script>
+        sendGuessToServer = function() {
+            let guess = $('#guessInput').val();
+            $('#guessInput').val('');
+            let guessData = {
+                taskNum: jt.vue.player.taskNum,
+                guess,
+            };
+            jt.sendMessage("setGuess", guessData);
+        }
+        jt.connected = function() {
+            jt.socket.on('newTaskData', function(data) {
+                data = JSON.parse(data);
+                jt.vue.player.taskNum = data.taskNum;
+                jt.vue.player.task = data.task;
+            });
+        }
+    </script>
 `;
+app.messages.setGuess = function(guessData) {
+    var player = this.participant.player;
+    player['A' + guessData.taskNum] = guessData.guess;
+    if (guessData.taskNum < app.numTasks) {
+        player.taskNum = guessData.taskNum+1;
+        player.task = app.tasks[player.taskNum - 1];
+        player.emit(
+            'newTaskData', 
+            {
+                taskNum: player.taskNum,
+                task: player.task
+            }
+        );
+    } else {
+        player.endStage();
+    }
+}
 
 if (app.paymentType === 'contest') {
     let guessRankStage = app.newStage('guessRank');

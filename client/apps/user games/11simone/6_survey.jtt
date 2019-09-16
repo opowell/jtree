@@ -40,7 +40,7 @@ questionsStage.activeScreen = `
 <div v-for='(question, index) in app.questions'>
   {{index+1}}. {{question}}<br><br>
   <span style='display: flex;'>
-    <label v-for='(answer, j) in app.answers' width=150 height=150>
+    <label v-for='(answer, j) in app.answers' class='answerLabel'>
       <input type='radio' :name='"player.Q" + (index+1)' :value='answer' required>
       <div class='labelContainer'>
         <div class='answer'>{{answer}}</div>
@@ -64,8 +64,11 @@ questionsStage.activeScreen = `
   visibility: hidden;
 }
 
+.answerLabel {
+  flex: 1 1 100px;
+}
+
 .answer {
-  width: 160px;
 }
 
 .imageContainer {
