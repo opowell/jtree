@@ -90,6 +90,10 @@ app.setNumCorrect = function(player) {
 
 if (app.paymentType === 'choose') {
     var chooseStage = app.newStage('choose');
+    chooseStage.playerStart = function(player) {
+        player.taskNum = 1;
+        player.task = app.tasks[0];
+    }
     chooseStage.activeScreen = `
     <p>Entscheide dich!</p>
     <p>Nun kannst du dich entscheiden, wie du im n\u00e4chsten Teil Sterne sammeln m\u00f6chtest?</p>
