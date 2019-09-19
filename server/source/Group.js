@@ -309,6 +309,11 @@ class Group {
         this.emit('groupUpdate', this.shellWithChildren());
     }
 
+    /**
+     * Returns the sum of "field" over all players in the group.
+     * 
+     * @param {String} field 
+     */
     sum(field) {
         return Utils.sum(this.players, field);
     }

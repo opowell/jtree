@@ -81,6 +81,12 @@ class SocketServer {
             self.refreshAdmin(null, 'socket_' + sock.id, msg.userId);
         });
 
+        socket.on('reloadApps', function(msg) {
+            console.log('reloading apps');
+            self.jt.data.loadApps();
+            self.refreshAdmin(null, 'socket_' + sock.id, msg.userId);
+        });
+
         socket.on('get-var', function(a) {
             log('getting variable ' + a + ': ' + global[a]);
         });

@@ -27,7 +27,6 @@ document.write('<script src="/admin/multiuser/msgsToServer.js"></script>');
 // INTERNAL COMPONENTS
 document.write('<script src="/admin/multiuser/webcomponents/ViewAppEditModal.js"></script>');
 document.write('<script src="/admin/multiuser/webcomponents/CreateAppModal.js"></script>');
-document.write('<script src="/admin/multiuser/webcomponents/CreateQueueModal.js"></script>');
 document.write('<script src="/admin/multiuser/webcomponents/CreateRoomModal.js"></script>');
 document.write('<script src="/admin/multiuser/webcomponents/CreateUserModal.js"></script>');
 document.write('<script src="/admin/multiuser/webcomponents/AddAppToQueueModal.js"></script>');

@@ -78,7 +78,7 @@ jt.view.updateNumParticipants = function() {
 }
 
 function refresh(ag) {
-    console.log('refresh');
+    // console.log('refresh');
 
     jt.data.clockRunning = ag.clockRunning;
     jt.data.ag = ag;
@@ -118,10 +118,10 @@ jt.connected = function() {
     // Register to listen for messages defined in msgs object.
     // https://stackoverflow.com/questions/29917977/get-event-name-in-events-callback-function-in-socket-io
     for (var i in msgs) {
-        console.log('listening for message ' + i);
+        // console.log('listening for message ' + i);
         (function(i) {
             jt.socket.on(i, function(d) {
-                console.log('received message ' + i + ': ' + JSON.stringify(d));
+                // console.log('received message ' + i + ': ' + JSON.stringify(d));
                 eval('msgs.' + i + "(d)");
             });
         })(i);
@@ -132,7 +132,7 @@ jt.connected = function() {
     });
 
     jt.socket.on('refresh-apps', function(appInfos) {
-        console.log('refresh-apps');
+        // console.log('refresh-apps');
         jt.data.appInfos = appInfos;
         showAppInfos();
     });

@@ -34,7 +34,6 @@ const App = require('../App.js');
 const Room = require('../Room.js');
 const Queue = require('../Queue.js');
 const User = require('../User.js');
-const Game = require('../Game.js');
 
 /** The data object. */
 class Data {
@@ -69,13 +68,8 @@ class Data {
 
         this.apps = {};
         this.appsMetaData = {};
-        this.games = {};
-
-        //this.queues = this.loadQueues();
         this.queues = [];
         this.loadApps();
-
-        this.loadGames();
 
         /*
          * Available [Sessions]{@link Session}, loaded from the contents of the 'sessions' folder.
@@ -93,10 +87,6 @@ class Data {
         // Participant clients with no session IDs.
         // Reload them when a new session is opened.
         this.participantClients = [];
-
-        this.syncData = {
-            hello: 'world'
-        }
 
     }
 
@@ -206,34 +196,6 @@ class Data {
             console.log('loaded app ' + filePath);
         } catch (err) {
             this.jt.log('Error loading app: ' + filePath);
-            this.jt.log(err);
-            app = null;
-        }
-        return app;
-    }
-
-    loadGame(id, session, appPath, options) {
-        var app = null;
-        app = new Game.new(session, this.jt, appPath);
-        app.givenOptions = options;
-     //   app.shortId = id;
-
-        // Set options before running code.
-         for (var i in options) {
-            app.setOptionValue(i, options[i]);
-        }
-
-        let filePath = appPath;
-        if (!fs.existsSync(appPath) &amp;&amp; session.queuePath != null) {
-            filePath = path.join(session.queuePath, appPath);
-        }
-
-        try {
-            app.appjs = fs.readFileSync(filePath) + '';
-            eval(app.appjs); // jshint ignore:line
-            // console.log('loaded game ' + filePath);
-        } catch (err) {
-            this.jt.log('Error loading game: ' + filePath);
             this.jt.log(err);
             app = null;
         }
@@ -367,63 +329,6 @@ class Data {
         }
     }
 
-    // Search for *.js and *.jtt files. Load as apps.
-    // Search folders.
-    loadGamesFromDir(dir) {
-        if (Utils.isDirectory(dir)) {
-            var appDirContents = fs.readdirSync(dir);
-
-            // Load folder as its own queue.
-            var folderGame = new Game.new(null, this.jt, dir);
-            console.log('loading folder game ' + dir);
-
-            // Load individual apps and queues.
-            for (var i in appDirContents) {
-                // the current file
-                var curPath = path.join(dir, appDirContents[i]);
-                var curPathIsFile = fs.lstatSync(curPath).isFile();
-                var curPathIsFolder = fs.lstatSync(curPath).isDirectory();
-                if (curPathIsFile) {
-                    var id = appDirContents[i];
-
-                    // Treatment / App
-                    if (id == 'app.js' || id == 'app.jtt') {
-                        // Take id from path name.
-                        if (dir.lastIndexOf('/') > -1) {
-                            id = dir.substring(dir.lastIndexOf('/') + 1);
-                        } else if (dir.lastIndexOf('\\') > -1) {
-                            id = dir.substring(dir.lastIndexOf('\\') + 1);
-                        }
-                    }
-                    if (id.endsWith('.js')) {
-                        id = id.substring(0, id.length - '.js'.length);
-                    } else if (id.endsWith('.jtt')) {
-                        id = id.substring(0, id.length - '.jtt'.length);
-                    }
-                    try {
-                        let app = this.loadGame(id, null, curPath, {});
-                        if (app != null) {
-                            this.games[curPath] = app;
-                            this.gamesMetaData[curPath] = app.metaData();
-                            folderGame.addGame(curPath);
-                        }
-                    } catch (err) {
-                        // not a valid app.
-                        // console.log('Error, invalid game: ' + err);
-                    }
-
-                } else if (curPathIsFolder) {
-                    this.loadGamesFromDir(curPath);
-                }
-            }
-
-            if (folderGame.stages.length > 0) {
-                folderGame.displayName = dir.substring(dir.lastIndexOf('\\')+1);
-                this.games[dir] = folderGame;
-            }
-        }
-    }
-
     saveRoom(room) {
         this.deleteRoom(room.originalId);
         var newRoom = new Room.new(room.id, this.jt);
@@ -490,44 +395,12 @@ class Data {
         return app;
     }
 
-    // getApps() {
-    //     var out = [];
-    //     for (var i in this.jt.settings.appFolders) {
-    //         var folder = this.jt.settings.appFolders[i];
-    //         out = out.concat(this.getAppsFromDir(folder));
-    //     }
-    //     return out;
-    // }
-
     loadApps() {
         for (var i in this.jt.settings.appFolders) {
             var folder = this.jt.settings.appFolders[i];
             this.loadAppDir(path.join(this.jt.path, folder));
         }
     }
-
-    loadGames() {
-        for (var i in this.jt.settings.appFolders) {
-            var folder = this.jt.settings.appFolders[i];
-            this.loadGamesFromDir(path.join(this.jt.path, folder));
-        }
-    }
-
-    // saveApp(appToSave) {
-    //     try {
-    //         var origFolder = this.appPath(appToSave.origId);
-    //         var newFolder = this.appPath(appToSave.id);
-    //         fs.renameSync(origFolder, newFolder);
-    //         var appjsPath = path.join(newFolder, 'app.jtt');
-    //         fs.writeFileSync(appjsPath, appToSave.appjs);
-    //         appjsPath = path.join(newFolder, 'client.html');
-    //         fs.writeFileSync(appjsPath, appToSave.clientHTML);
-    //         delete this.apps[appToSave.origId];
-    //         this.apps[appToSave.id] = this.loadAppMetaData(appToSave.id, newFolder);
-    //     } catch (err) {
-    //
-    //     }
-    // }
 
     /*
      * loadSessions - description
@@ -574,7 +447,7 @@ class Data {
     }
 
     queuePath(id) {
-        return path.join(this.queuesPath(), id + '.json');
+        return path.join(this.jt.path, this.jt.settings.appFolders[0], id);
     }
 
     roomsPath() {
@@ -583,10 +456,6 @@ class Data {
 
     usersPath() {
         return path.join(this.jt.path, this.jt.settings.usersPath);
-    }
-
-    queuesPath() {
-        return path.join(this.jt.path, this.jt.settings.queuesPath);
     }
 
     room(id) {
@@ -887,13 +756,13 @@ exports.new = Data;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Game.html">Game</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sun Sep 15 2019 07:11:28 GMT+0200 (Mitteleuropäische Sommerzeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Sep 19 2019 12:08:34 GMT+0200 (Mitteleuropäische Sommerzeit)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -6,6 +6,22 @@ settings.name = value
 
 The following options (with default values shown) are available:
 
+#### `defaultAdminPwd`: undefined
+
+A password for accessing the administrator page. A value of "undefined" means no password is required.
+
+#### `openAdminOnStart`: true
+
+Whether or not the administrator window should open when server is started.
+
+#### `port`: 80 on Windows, 3000 otherwise
+
+The port which the server will run on.
+
+#### `sessionShowFullLinks`: false
+
+Whether or not sessions should display links with explicit session id.
+
 #### `allowClientsToCreateParticipants`: true
 
 Whether or not clients can login (with a valid participant ID) before the participant actually exists in the session.

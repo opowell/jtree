@@ -15,6 +15,7 @@ class Queue {
         this.shortId        = path.basename(id);
         this.displayName    = this.shortId;
         this.apps           = [];
+        this.dummy          = false;
     }
 
     /** Deprecated 2018.10.11. Replaced by Queue.loadJTQ. */
@@ -90,7 +91,7 @@ class Queue {
             indexInQueue: this.apps.length + 1
         };
         this.apps.push(app);
-        if (this.jt.socketServer != null) {
+        if (!this.dummy && this.jt.socketServer != null) {
             this.save();
             this.jt.socketServer.sendOrQueueAdminMsg(null, 'queueAddApp', {queueId: this.id, app: app});
         }

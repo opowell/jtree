@@ -275,6 +275,10 @@ class Msgs {
         }
     }
 
+    reloadApps() {
+        this.jt.data.reloadApps();
+    }
+
     reloadClients() {
         const clients = this.jt.data.participantClients;
         for (let i=0; i<clients.length; i++) {

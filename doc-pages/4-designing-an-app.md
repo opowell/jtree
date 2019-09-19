@@ -37,11 +37,14 @@ We will use the following tags: `<p>` (paragraph) to display text, `<input>` to 
 ```html
 <p>DECISION</p>
 <p>Your endowment is {{app.endowment}} E$.</p>
-<form>
-    <p>Your contribution (E$): <input name='player.contribution' required type='number' min='0' jt-max='app.endowment' step='1'></p>
-    <button>Make contribution</button>
-</form>
+<p>Your contribution (E$): <input name='player.contribution' required type='number' min='0' :max='app.endowment' step='1'></p>
 ```
+
+jtree uses the Vue framework to bind screen elements to player data. For example, regular text that is encapsulated by double curly braces, `{{` and `}}`, is evaluated, rather than interpreted literally. For example, in the decision screen, `{{app.endowment}}` would be replaced with "20". The same applies to tag properties (such as the `max` property in the above example) that are preceded with a `:` character. Available data objects are `player`, `group` (the current player's group), `period` (the group's period), `app`, `session` and `stage`.
+
+The `name` attribute of an `<input>` tag is the name of the field where the input will be stored. So, `player.contribution` will store the value of the input in a field called `contribution` on the `player` object.
+
+"OK" buttons do not need to be explicitly added in many cases. They are added automatically to active screens if the screen does not contain any buttons already (see [`Stage.addOKButtonIfNone`]{@link Stage#addOKButtonIfNone}).
 
 Javascript allows multi-line strings through the use of 'backtick' characters, so for example the previous assignment could look like:
 
@@ -52,14 +55,11 @@ decideStage.activeScreen = `
 `;
 ```
 
-jtree automatically updates any text it finds within double curly braces, [`{{`]{@link App#textMarkerBegin} and [`}}`]{@link App#textMarkerEnd}, with the value of the given expression. For example, in the decision screen, `{{app.endowment}}` would be replaced with "20". Available objects are `player`, `group` (the current player's group), `period` (the group's period), `app`, `session` and `stage`. The `name` attribute of an `<input>` tag is the name of the inputted value.
-
 For the results stage, we wish to first calculate production of the public good and payoffs, and then display this information to the players. Add the following to the end of your file:
 
 ```javascript
-// app.js
 resultsStage.groupStart = function(group) {
-    group.contributions = Utils.sum(group.players, 'contribution');
+    group.contributions = group.sum('contribution');
     group.production = group.contributions * app.factor;
     group.prodPerPlayer = group.production / group.players.length;
     for (var i in group.players) { // i = 0, 1, 2, 3
@@ -79,9 +79,6 @@ resultsStage.activeScreen = `
 <p>Your endowment was {{app.endowment}} E$. You contributed {{player.contribution}} E$.</p>
 <p>In total, players in your group contributed {{group.contributions}} E$, thus the total amount produced was {{group.production.toFixed(2)}} E$.</p>
 <p>Thus, your payoff in this period is {{player.points.toFixed(2)}} E$.</p>
-<form>
-    <button>OK</button>
-</form>
 `;
 ```
 
@@ -97,15 +94,12 @@ var decideStage = app.newStage('decide');
 decideStage.activeScreen = `
     <p>DECISION</p>
     <p>Your endowment is {{app.endowment}} E$.</p>
-    <form>
-        <p>Your contribution (E$): <input name='player.contribution' required type='number' min='0' jt-max='app.endowment' step='1'></p>
-        <button>Make contribution</button>
-    </form>
+    <p>Your contribution (E$): <input name='player.contribution' required type='number' min='0' :max='app.endowment' step='1'></p>
 `;
 
 var resultsStage = app.newStage('results');
 resultsStage.groupStart = function(group) {
-    group.contributions = Utils.sum(group.players, 'contribution');
+    group.contributions = group.sum('contribution');
     group.production = group.contributions * app.factor;
     group.prodPerPlayer = group.production / group.players.length;
     for (var i in group.players) { // i = 0, 1, 2, 3
@@ -118,9 +112,6 @@ resultsStage.activeScreen = `
     <p>Your endowment was {{app.endowment}} E$. You contributed {{player.contribution}} E$.</p>
     <p>In total, players in your group contributed {{group.contributions}} E$, thus the total amount produced was {{group.production.toFixed(2)}} E$.</p>
     <p>Thus, your payoff in this period is {{player.points.toFixed(2)}} E$.</p>
-    <form>
-        <button>OK</button>
-    </form>
 `;
 ```
 

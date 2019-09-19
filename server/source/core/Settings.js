@@ -40,6 +40,7 @@ class Settings {
          this.useHTTPS               = false;
          this.httpsCertificateFile   = 'certificate.pem';
          this.defaultAdminPwd        = undefined;
+         this.sessionShowFullLinks   = false;
 
          this.valsToSave = {};
 

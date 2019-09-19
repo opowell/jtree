@@ -38,17 +38,17 @@ class Data {
          * @type Object
          */
 
-        this.apps = {};
         this.appsMetaData = {};
         this.queues = [];
-        this.loadApps();
+        this.reloadApps();
 
         /*
          * Available [Sessions]{@link Session}, loaded from the contents of the 'sessions' folder.
          * Sorted in ascending order according to time created.
          * @type Array of {@link Session}.
          */
-        this.sessions = this.loadSessions();
+        // this.sessions = this.loadSessions();
+        this.sessions = [];
 
         this.rooms = this.loadRooms();
 
@@ -165,7 +165,7 @@ class Data {
         try {
             app.appjs = fs.readFileSync(filePath) + '';
             eval(app.appjs); // jshint ignore:line
-            console.log('loaded app ' + filePath);
+            this.jt.log('loaded app ' + filePath);
         } catch (err) {
             this.jt.log('Error loading app: ' + filePath);
             this.jt.log(err);
@@ -237,7 +237,8 @@ class Data {
 
             // Load folder as its own queue.
             var folderQueue = new Queue.new(dir, this.jt);
-            console.log('loading folder queue ' + dir);
+            folderQueue.dummy = true;
+            this.jt.log('loading folder queue ' + dir);
 
             // Load individual apps and queues.
             for (var i in appDirContents) {
@@ -277,6 +278,7 @@ class Data {
                     // Queue / Session Config
                     if (id.endsWith('.jtq')) {
                         var queue = Queue.loadJTQ(curPath, this.jt, dir);
+                        queue.dummy = true;
                         var session = new Session.new(this.jt, null);
                         session.emitMessages = false;
                         session.queuePath = path.dirname(queue.id);
@@ -286,7 +288,7 @@ class Data {
                             queue.addApp(session.apps[i].id, options);
                         }
                         // queue.apps = session.apps;
-                        console.log('loading file queue ' + curPath + ' with ' + queue.apps.length + ' apps');
+                        this.jt.log('loading file queue ' + curPath + ' with ' + queue.apps.length + ' apps');
                         this.queues[curPath] = queue;
                     }
                 } else if (curPathIsFolder) {
@@ -365,6 +367,11 @@ class Data {
             app = null;
         }
         return app;
+    }
+
+    reloadApps() {
+        this.apps = {};
+        this.loadApps();
     }
 
     loadApps() {

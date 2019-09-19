@@ -52,12 +52,14 @@ tradingStage.playerStart = function(player) {
         player.cash     = player.old().cash;
         player.shares   = player.old().shares;
     }
+    player.sharesAvailable = player.shares;
+    player.cashAvailable = player.cash;
 }
 
 tradingStage.activeScreen = `
     <p>TRADING</p>
-    <p>Cash: {{player.cash}}</p>
-    <p>Shares: {{player.shares}}</p>
+    <p>Cash (available): {{player.cash}} ({{player.cashAvailable}})</p>
+    <p>Shares (available): {{player.shares}} ({{player.sharesAvailable}})</p>
     <p>Make offer to buy:
         <input id='otbPrice' style='width: 100px' v-model='otbPrice' type='number' min='1' :max='player.cash' step='1'>
         <br>
@@ -76,7 +78,7 @@ tradingStage.activeScreen = `
             </option>
         </select>
         <br>
-        <button @click='jt.sendMessage("acceptOTB"  , selOTBId)' :disabled='selOTB == null || selOTB.makerPId == player.id || player.shares < 1'>Accept / Sell</button>
+        <button @click='jt.sendMessage("acceptOTB"  , selOTBId)' :disabled='selOTB == null || selOTB.makerPId == player.id || player.sharesAvailable < 1'>Accept / Sell</button>
         <button @click='jt.sendMessage("cancelOffer", selOTBId)' :disabled='selOTB == null || selOTB.makerPId != player.id'>Cancel</button>
     </p>
     <p>Offers to sell:
@@ -85,7 +87,7 @@ tradingStage.activeScreen = `
                 {{ offer.price }}
             </option>
         </select>
-        <br><button @click='jt.sendMessage("acceptOTS"  , selOTSId)' :disabled='selOTS == null || selOTS.makerPId == player.id || player.cash < selOTS.price'>Accept / Buy</button>
+        <br><button @click='jt.sendMessage("acceptOTS"  , selOTSId)' :disabled='selOTS == null || selOTS.makerPId == player.id || player.cashAvailable < selOTS.price'>Accept / Buy</button>
         <button @click='jt.sendMessage("cancelOffer", selOTSId)' :disabled='selOTS == null || selOTS.makerPId != player.id'>Cancel</button>
     </p>
     <div>Trades:
@@ -113,25 +115,52 @@ resultsStage.activeScreen = `
     <div>Dividends (E$): {{ player.dividends }}.</div>
     <div>Cash (E$): {{ player.cash }}.</div>
     <div>Shares: {{ player.shares }}.</div>
+    <br>
 `;
 
 //  Listen for messages from clients.
 app.messages.makeOfferToBuy = function(price) {
-    console.log('make offer to buy');
     var player = this.participant.player;
-    var offer = {price: price, makerPId: player.id, open: true, buyer: player.id, period: player.periodIndex()};
+    if (player.cashAvailable < price) {
+        console.log('tried to make invalid offer to buy: not enough cash available');
+        return;
+    }
+    player.cashAvailable -= price;
+    var offer = {
+        price: price, 
+        makerPId: player.id, 
+        open: true, 
+        buyer: player.id, 
+        period: player.periodIndex()
+    };
     player.group.offers.new(offer); // Notifies group's players about new offer.
+    player.saveAndUpdate();
 }
 app.messages.makeOfferToSell = function(price) {
-    console.log('make offer to sell');
     var player = this.participant.player;
+    if (player.sharesAvailable < 1) {
+        return;
+    }
+    player.sharesAvailable--;
+    console.log('make offer to sell');
     var offer = {price: price, makerPId: player.id, open: true, seller: player.id, period: player.periodIndex()};
     player.group.offers.new(offer);
+    player.saveAndUpdate();
 }
 app.messages.cancelOffer = function(id) {
     var group = this.participant.player.group;
     var offer = group.offers.getRow(id);
+    if (!offer.open) {
+        return;
+    }
     app.closeOffer(offer, group);
+    var creator = group.player(offer.makerPId);
+    if (offer.seller == creator.id && offer.buyer == null) {
+        creator.sharesAvailable++;
+    } else if (offer.buyer == creator.id && offer.seller == null) {
+        creator.cashAvailable += offer.price;
+    }
+    creator.saveAndUpdate();
 }
 app.messages.acceptOTS = function(id) {
     app.acceptOffer(id, 'buy', this.participant.player);
@@ -150,58 +179,45 @@ app.acceptOffer = function(id, action, player) {
     
     var group = player.group;
     var offer = group.offers.getRow(id);
+
+    if (!offer.open) {
+        return;
+    }
+
     var creator = group.player(offer.makerPId);
 
     if (action === 'buy') {
         // exit if trade not possible
-        if (creator.shares < 1 || player.cash < offer.price) {
+        if (player.cashAvailable < offer.price) {
             return;
         }
         player.shares++;
+        player.sharesAvailable++;
         player.cash = player.cash - offer.price;
+        player.cashAvailable = player.cashAvailable - offer.price;
         creator.shares--;
         creator.cash = creator.cash + offer.price;
+        creator.cashAvailable = creator.cashAvailable + offer.price;
         offer.buyer = player.id;
     } else if (action === 'sell') {
         // exit if trade not possible
-        if (creator.cash < offer.price || player.shares < 1) {
+        if (player.sharesAvailable < 1) {
             return;
         }
         player.shares--;
-        player.cash = player.cash + offer.price;
+        player.sharesAvailable--;
+        player.cash += offer.price;
+        player.cashAvailable += offer.price;
         creator.shares++;
+        creator.sharesAvailable++;
         creator.cash = creator.cash - offer.price;
         offer.seller = player.id;
     }
     offer.timeElapsed = player.timeInStage();
-    group.emit('acceptOffer', {oId: offer.id, time: offer.timeElapsed, seller: offer.seller, buyer: offer.buyer});
+    group.emit('acceptOffer', {oId: offer.id, time: offer.timeElapsed});
     app.closeOffer(offer, group);
-
-    // Cancel other offers that might now be invalid.
-    for (var i=0; i<group.offers.rows.length; i++) {
-        var offer = group.offers.rows[i];
-        if (!app.isOfferValid(offer, group)) {
-            app.closeOffer(offer, group);
-        }
-    }
 
     player.saveAndUpdate();
     creator.saveAndUpdate();
-}
 
-app.isOfferValid = function(offer, group) {
-    if (offer.open) {
-        var creator = group.player(offer.makerPId);
-        if (offer.seller === offer.makerPId) {
-            if (creator.shares < 1) {
-                return false;
-            }
-        }
-        if (offer.buyer === offer.makerPId) {
-            if (creator.cash < offer.price) {
-                return false;
-            }
-        }
-    }
-    return true;
 }
