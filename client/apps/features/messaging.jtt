@@ -1,0 +1,18 @@
+app.description = 'Send messages between clients and server.';
+
+let stage = app.newStage('stage1');
+stage.activeScreen = `
+    <button type='button' onclick='jt.sendMessage("pingServer", "hi")'>Send message</button>
+    <script>
+        jt.connected = function() {
+            jt.socket.on('pingClient', function(msgData) {
+                console.log('ping: ' + msgData);
+            });
+        }
+    </script>
+`;
+
+app.messages.pingServer = function(msgData) {
+    console.log('ping: ' + msgData);
+    this.participant.player.group.emit('pingClient', 'hey');
+}

@@ -1,4 +1,4 @@
-app.description = 'Shares are traded for experimental currency in a double auction. Shares pay random dividends every period. At the end of the game, shares are worth nothing. Reference: <a target="_blank" href="https://www.jstor.org/stable/1911361">Smith, Suchanek and Williams, 1988</a>. Optimized for screen resolution of 1024 x 768.';
+app.description = 'Fancy version of double auction app.';
 
 const average = arr => arr.reduce( ( p, c ) => p + c, 0 ) / arr.length;
 
