@@ -7,7 +7,7 @@ class ViewApps extends HTMLElement {
             <a href='#' class='btn btn-sm btn-outline-secondary btn-sm' onclick='jt.showCreateAppModal();'>
                 <i class="fa fa-plus"></i>&nbsp;&nbsp;create...
             </a>
-            <a href='#' class='btn btn-sm btn-outline-secondary btn-sm' onclick='jt.socket.emit("reloadApps", {});'>
+            <a id='reloadAppsBtn' href='#' class='btn btn-sm btn-outline-secondary btn-sm' onclick='jt.reloadApps();'>
                 <i class="fas fa-redo-alt"></i>&nbsp;&nbsp;reload
             </a>
           </span>
@@ -28,12 +28,24 @@ class ViewApps extends HTMLElement {
     }
 }
 
+jt.reloadApps = function() {
+    $('#reloadAppsBtn').attr('disabled', true);
+    $('#reloadAppsBtn').addClass('disabled');
+    $('#reloadAppsBtn').removeClass('active');
+    $('#reloadAppsBtn').html('<i class="fas fa-redo-alt"></i>&nbsp;&nbsp;reloading...');
+    $('#appInfos').empty();
+    jt.socket.emit("reloadApps", {});
+}
+
 jt.showCreateAppModal = function() {
     $("#createAppModal").modal("show");
 }
 
 function showAppInfos() {
     var appInfos = jt.data.appInfos;
+    $('#reloadAppsBtn').attr('disabled', false);
+    $('#reloadAppsBtn').removeClass('disabled');
+    $('#reloadAppsBtn').html('<i class="fas fa-redo-alt"></i>&nbsp;&nbsp;reload');
     $('#appInfos').empty();
     for (var a in appInfos) {
         var app = appInfos[a];

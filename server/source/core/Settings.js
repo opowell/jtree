@@ -41,6 +41,7 @@ class Settings {
          this.httpsCertificateFile   = 'certificate.pem';
          this.defaultAdminPwd        = undefined;
          this.sessionShowFullLinks   = false;
+         this.loadSettings           = false;
 
          this.valsToSave = {};
 

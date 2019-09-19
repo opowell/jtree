@@ -314,7 +314,6 @@ class App {
             'keyComparisons',
             'screen',
             'activeScreen',
-            'waitingScreen',
             'stageWrapPlayingScreenInFormTag',
             'waitForAll',
             'finished',
@@ -965,7 +964,7 @@ class App {
         var groupText = [];
         var playerText = [];
         groupText.push('period.id' + this.outputDelimiter + 'group.id' + this.outputDelimiter + groupHeaders.join(this.outputDelimiter));
-        playerText.push('period.id,group.id,participant.id' + this.outputDelimiter + playerHeaders.join(this.outputDelimiter));
+        playerText.push('period.id' + this.outputDelimiter + 'group.id' + this.outputDelimiter + 'participant.id' + this.outputDelimiter + playerHeaders.join(this.outputDelimiter));
         for (var i=0; i<this.periods.length; i++) {
             var period = this.periods[i];
             var newLine = period.id + this.outputDelimiter;

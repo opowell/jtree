@@ -44,11 +44,8 @@ jt.appSaveFileContents = function(filename, content) {
   var appId = $('#view-app-fullId').text();
   jt.socket.emit('appSaveFileContents', {filename: filename, aId: appId, content: content});
   var app = jt.app(appId);
-  if (filename === 'app.js') {
-      app.appjs = content;
-  } else if (filename === 'client.html') {
-      app.clientHTML = content;
-  }
+  app.appjs = content;
+  //   app.clientHTML = content;
   jt.openApp(appId);
 }
 

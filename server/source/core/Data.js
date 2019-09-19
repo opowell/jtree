@@ -38,8 +38,6 @@ class Data {
          * @type Object
          */
 
-        this.appsMetaData = {};
-        this.queues = [];
         this.reloadApps();
 
         /*
@@ -47,8 +45,10 @@ class Data {
          * Sorted in ascending order according to time created.
          * @type Array of {@link Session}.
          */
-        // this.sessions = this.loadSessions();
         this.sessions = [];
+        if (jt.settings.loadSessions) {
+            this.sessions = this.loadSessions();
+        }
 
         this.rooms = this.loadRooms();
 
@@ -371,6 +371,8 @@ class Data {
 
     reloadApps() {
         this.apps = {};
+        this.appsMetaData = {};
+        this.queues = [];
         this.loadApps();
     }
 

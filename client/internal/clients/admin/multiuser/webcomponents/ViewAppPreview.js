@@ -244,7 +244,7 @@ jt.funcEl = function(name, value) {
 jt.showAppTree = function(app) {
 
     var appSkip = ['id', 'appjs', 'clientHTML', 'options', 'stages', 'optionValues', 'keyComparisons', 'finished', 'appDir', 'appFilename', 'shortId', 'appPath', 'started', 'indexInSession', 'periods', 'textMarkerBegin', 'textMarkerEnd'];
-    var appDefaultVars = ['waitForAll', 'groupMatchingType', 'numPeriods', 'description', 'outputDelimiter', 'duration', 'useVue', 'periodText', 'vueModels', 'vueComputed', 'vueMethods', 'vueMethodsDefaults', 'clientScripts', 'modifyPathsToIncludeId', 'stageWaitToStart', 'stageWaitToEnd', 'givenOptions', 'title'];
+    var appDefaultVars = ['waitForAll', 'groupMatchingType', 'numPeriods', 'description', 'outputDelimiter', 'duration', 'useVue', 'periodText', 'vueModels', 'vueComputed', 'vueMethods', 'vueMethodsDefaults', 'clientScripts', 'modifyPathsToIncludeId', 'stageWaitToStart', 'stageWaitToEnd', 'givenOptions', 'title', "waitingScreen"];
     var stageDefaultVars = ['duration', 'waitToStart', 'waitToEnd', 'onPlaySendPlayer', 'updateObject', 'waitOnTimerEnd', 'showTimer', 'clientDuration', 'useAppActiveScreen', 'useAppWaitingScreen', 'wrapPlayingScreenInFormTag', 'addOKButtonIfNone', 'activeScreen', 'waitingScreen', 'stages', 'repetitions', 'autoplay', 'getGroupDuration'];
     var stageSkip = ['app.index', 'id', 'name', 'groupStart', 'groupEnd', 'playerStart', 'playerEnd', 'canPlayerParticipate'];
 
@@ -294,12 +294,20 @@ jt.showAppTree = function(app) {
         stageDiv.contentDiv.append(psDiv.div);
 
         let screenTD = new ToggleDiv('screen-' + stageId, 'Screen: playing', 'playing');
-        var screen = $('<iframe resizeToggle="screen-' + stageId + '-playing" id="stage-' + stageId + '-screen-playing" width="100%" style="height: 15rem;">');
+        // var screen = $('<iframe resizeToggle="screen-' + stageId + '-playing" id="stage-' + stageId + '-screen-playing" width="100%" style="height: 15rem;">');
+        var screen = $('<div id="stage-' + stageId + '-screen-playing">').html('<pre style="overflow-x: auto; white-space: pre-wrap; word-wrap: break-word; border: 1px solid"><code>' + stage.activeScreen.replace(/\</g, '&lt') + '</code></pre>');
         screenTD.contentDiv.append(screen);
         stageDiv.contentDiv.append(screenTD.div);
 
         let waitingScrTD = new ToggleDiv('screen-' + stageId, 'Screen: waiting', 'waiting');
-        var waitingScr = $('<iframe resizeToggle="screen-' + stageId + '-waiting" id="stage-' + stageId + '-screen-waiting" width="100%" style="height: 15rem;">');
+        if (stage.waitingScreen == null) {
+            stage.waitingScreen = '';
+        }
+        if (stage.useAppWaitingScreen) {
+            stage.waitingScreen = app.waitingScreen;
+        }
+        
+        var waitingScr = $('<div id="stage-' + stageId + '-screen-playing">').html('<pre style="overflow-x: auto; white-space: pre-wrap; word-wrap: break-word; border: 1px solid"><code>' + stage.waitingScreen.replace(/\</g, '&lt') + '</code></pre>');
         waitingScrTD.contentDiv.append(waitingScr);
         stageDiv.contentDiv.append(waitingScrTD.div);
 
@@ -312,23 +320,23 @@ jt.showAppTree = function(app) {
         // appCtnt.append(stageDiv.div);
     }
 
-    for (var i in app.stages) {
-        try {
-            var stage = app.stages[i];
-            var stageId = stage;
-            if (stage.id !== undefined) {
-                stageId = stage.id;
-            }
-            var screen = $('#stage-' + stageId + '-screen-playing');
-            screen.contents().find('html').html(jt.showStagePreview(app, stageId, 'playing', screen[0].contentWindow.document.documentElement));
-            var waitingScr = $('#stage-' + stageId + '-screen-waiting');
-            waitingScr.contents().find('html').html(jt.showStagePreview(app, stageId, 'waiting', waitingScr[0].contentWindow.document.documentElement));
-            // jt.resizeIFrameToFitContent(screen[0]);
-        } catch (err) {
-            debugger;
-            console.log(err);
-        }
-    }
+    // for (var i in app.stages) {
+    //     try {
+    //         var stage = app.stages[i];
+    //         var stageId = stage;
+    //         if (stage.id !== undefined) {
+    //             stageId = stage.id;
+    //         }
+    //         // var screen = $('#stage-' + stageId + '-screen-playing');
+    //         // screen.contents().find('html').html(jt.showStagePreview(app, stageId, 'playing', screen[0].contentWindow.document.documentElement));
+    //         // var waitingScr = $('#stage-' + stageId + '-screen-waiting');
+    //         // waitingScr.contents().find('html').html(jt.showStagePreview(app, stageId, 'waiting', waitingScr[0].contentWindow.document.documentElement));
+    //         // jt.resizeIFrameToFitContent(screen[0]);
+    //     } catch (err) {
+    //         debugger;
+    //         console.log(err);
+    //     }
+    // }
 
     jt.toggleEl(appTDiv.div);
 }

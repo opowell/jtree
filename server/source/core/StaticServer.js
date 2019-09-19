@@ -56,7 +56,7 @@ class StaticServer {
         for (let i in jt.data.queues) {
             let queue = jt.data.queues[i];
             if (fs.existsSync(queue.id)) {
-                console.log('serving files from ' + queue.id + ' as /' + queue.shortId);
+                // console.log('serving files from ' + queue.id + ' as /' + queue.shortId);
                 expApp.use('/' + queue.shortId, express.static(queue.id));
             }
         }

@@ -275,8 +275,9 @@ class Msgs {
         }
     }
 
-    reloadApps() {
+    reloadApps(msg, socket) {
         this.jt.data.reloadApps();
+        this.jt.socketServer.refreshAdmin(null, 'socket_' + socket.id, msg.userId);
     }
 
     reloadClients() {

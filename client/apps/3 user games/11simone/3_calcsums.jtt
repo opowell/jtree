@@ -102,7 +102,6 @@ if (app.paymentType === 'choose') {
         <button type='submit' name='player.paymentType' value='contest'>Ich m\u00f6chte beim Wettrennen mitmachen.</button>
     </p>
     `;
-
 }
 
 
