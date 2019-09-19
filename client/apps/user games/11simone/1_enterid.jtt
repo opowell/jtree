@@ -1,8 +1,0 @@
-app.description = 'Players enter an id.';
-
-var inputStage = app.newStage('input');
-inputStage.activeScreen = `
-<p>INPUT YOUR NAME</p>
-<input name='participant.name' required type='text'>
-<br><br>
-`;

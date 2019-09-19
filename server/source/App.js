@@ -314,7 +314,6 @@ class App {
             'keyComparisons',
             'screen',
             'activeScreen',
-            'waitingScreen',
             'stageWrapPlayingScreenInFormTag',
             'waitForAll',
             'finished',
@@ -542,9 +541,9 @@ class App {
     }
 
     //TODO
-    setFileContents(filename, contents) {
+    setFileContents(contents) {
         try {
-            fs.writeFileSync('apps/' + this.id + '/' + filename, contents);
+            fs.writeFileSync(this.id, contents);
         } catch (err) {
             console.log(err);
         }
@@ -948,7 +947,7 @@ class App {
 
         //Create data
         var appsText = [];
-        appsText.push('id,' + appsHeaders.join(this.outputDelimiter));
+        appsText.push('id' + this.outputDelimiter + appsHeaders.join(this.outputDelimiter));
         var newLine = this.id + this.outputDelimiter;
         for (var h=0; h<appsHeaders.length; h++) {
             var header = appsHeaders[h];
@@ -964,8 +963,8 @@ class App {
         var periodText = [];
         var groupText = [];
         var playerText = [];
-        groupText.push('period.id,group.id' + this.outputDelimiter + groupHeaders.join(','));
-        playerText.push('period.id,group.id,participant.id' + this.outputDelimiter + playerHeaders.join(','));
+        groupText.push('period.id' + this.outputDelimiter + 'group.id' + this.outputDelimiter + groupHeaders.join(this.outputDelimiter));
+        playerText.push('period.id' + this.outputDelimiter + 'group.id' + this.outputDelimiter + 'participant.id' + this.outputDelimiter + playerHeaders.join(this.outputDelimiter));
         for (var i=0; i<this.periods.length; i++) {
             var period = this.periods[i];
             var newLine = period.id + this.outputDelimiter;
@@ -986,7 +985,7 @@ class App {
             }
         }
         var participantText = [];
-        var participantHeadersText = 'id,points';
+        var participantHeadersText = 'id' + this.outputDelimiter + 'points';
         if (participantHeaders.length > 0) {
             participantHeadersText += this.outputDelimiter + participantHeaders.join(this.outputDelimiter);
         }

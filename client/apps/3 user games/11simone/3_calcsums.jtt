@@ -1,0 +1,222 @@
+app.description = 'Real-effort task, in which subjects have a fixed amount of time to calculate sums of numbers. Needs at least 3 players for ranking to work.';
+
+app.waitingScreen= `
+<p> Bitte warte bis alle fertig sind.</p>
+`;
+
+app.workTime = 20;
+app.numbersPerTasks = 4;
+app.maxNumber = 10;
+app.numTasks = 40;
+app.numGroups = 1;
+app.numComparison = 2;
+
+// The type of payment.
+app.addSelectOption('paymentType', ['individual', 'contest', 'choose']);
+
+app.tasks = [];
+for (var i=0; i<app.numTasks; i++) {
+    var problem = [];
+    for (var j=0; j<app.numbersPerTasks; j++) {
+        problem.push(Utils.randomInt(1, app.maxNumber));
+    }
+    app.tasks.push(problem);
+}
+
+app.getScoreFromRank = function(rank, score) {
+    switch (rank) {
+        case 1:
+            return score;
+        case 2:
+            return 0;
+        case 3:
+            return 0;
+    }
+}
+
+app.setContestScoreAndRank = function(player, contestants) {
+
+    // Draw N+1 contestants at random w/o replacement,
+    // where N = app.numComparison.
+    let draws = Utils.randomEls(contestants, app.numComparison + 1);
+    
+    // Remove actual player, if drawn.
+    for (let i=0; i<draws.length; i++) {
+        if (draws[i].id === player.id) {
+            draws.splice(i, 1);
+            break;
+        }
+    }
+
+    // Only keep first N players.
+    if (draws.length > app.numComparison) {
+        draws.splice(app.numComparison, 1);
+    }
+
+    // Calculate player's rank.
+    let rank = 1;
+    for (let i in draws) {
+        if (player.numCorrect < draws[i].numCorrect) {
+            rank++;
+        }
+    }
+
+    player.points = app.getScoreFromRank(rank, player.numCorrect);
+    player.rank = rank;
+}
+
+app.setNumCorrect = function(player) {
+    
+    player.numCorrect = 0;
+
+    // For each correct answer, increment by 1.
+    for (let i=0; i<app.tasks.length; i++) {
+
+        // the problem.
+        let prob = app.tasks[i];
+
+        // calculate the answer.
+        let ans = 0;
+        for (let j=0; j<prob.length; j++) {
+            ans = prob[j] + ans;
+        }
+
+        // check if player's answer is correct.
+        if (ans === player['A' + (i+1)]) {
+            player.numCorrect++;
+        }
+    }
+}
+
+if (app.paymentType === 'choose') {
+    var chooseStage = app.newStage('choose');
+    chooseStage.playerStart = function(player) {
+        player.taskNum = 1;
+        player.task = app.tasks[0];
+    }
+    chooseStage.activeScreen = `
+    <p>Entscheide dich!</p>
+    <p>Nun kannst du dich entscheiden, wie du im n\u00e4chsten Teil Sterne sammeln m\u00f6chtest?</p>
+    <p>
+        <button type='submit' name='player.paymentType' value='individual'>Ich m\u00f6chte <b> nicht</b> beim Wettrennen mitmachen.</button>
+        <button type='submit' name='player.paymentType' value='contest'>Ich m\u00f6chte beim Wettrennen mitmachen.</button>
+    </p>
+    `;
+}
+
+
+
+// Answers are recorded as player.A1, player.A2, etc.
+var workStage = app.newStage('work');
+workStage.duration = app.workTime;
+workStage.showTimer = false;
+workStage.playerStart = function(player) {
+    // If no payment type chosen, assign the one for the app.
+    if (player.paymentType == null) {
+        player.paymentType = app.paymentType;
+    }
+    player.taskNum = 1;
+    player.task = app.tasks[0];
+}
+workStage.addOKButtonIfNone = false;
+workStage.activeScreen = `
+    <p>Versuche so viele Aufgaben wie m\u00f6glich richtig zu l\u00f6sen.
+    <p>
+        <span><b>{{ player.task.join(' + ') }}</b> = </span>
+        <input id='guessInput' type="number" :max="app.maxNumber * app.numbersPerTask" style="width: 3em;">
+    </p>
+    <button onclick='sendGuessToServer()'>Make guess</button>
+    <script>
+        sendGuessToServer = function() {
+            let guess = $('#guessInput').val();
+            $('#guessInput').val('');
+            let guessData = {
+                taskNum: jt.vue.player.taskNum,
+                guess,
+            };
+            jt.sendMessage("setGuess", guessData);
+        }
+        jt.connected = function() {
+            jt.socket.on('newTaskData', function(data) {
+                data = JSON.parse(data);
+                jt.vue.player.taskNum = data.taskNum;
+                jt.vue.player.task = data.task;
+            });
+        }
+    </script>
+`;
+app.messages.setGuess = function(guessData) {
+    var player = this.participant.player;
+    player['A' + guessData.taskNum] = guessData.guess;
+    if (guessData.taskNum < app.numTasks) {
+        player.taskNum = guessData.taskNum+1;
+        player.task = app.tasks[player.taskNum - 1];
+        player.emit(
+            'newTaskData', 
+            {
+                taskNum: player.taskNum,
+                task: player.task
+            }
+        );
+    } else {
+        player.endStage();
+    }
+}
+
+if (app.paymentType === 'contest') {
+    let guessRankStage = app.newStage('guessRank');
+    guessRankStage.activeScreen = `
+      <p>  Entscheide dich!</p>
+    <p>   Wie gut, glaubst du, warst du im 2. Teil des Spieles?</p>  
+        <button type='submit' name='player.guessedRank' value='1'>Ich glaube, ich war Erste/r.</button>
+        <button type='submit' name='player.guessedRank' value='2'>Ich glaube, ich war Zweite/r.</button>
+        <button type='submit' name='player.guessedRank' value='3'>Ich glaube, ich war Dritte/r.</button>
+    `;
+}
+
+var resultsStage = app.newStage('results');
+resultsStage.groupStart = function(group) { // when a group of players starts this stage
+    let app = group.app();
+    let players = group.players;
+
+    // Calculate individual scores for each player.
+    for (let i in players) {
+        app.setNumCorrect(players[i]);
+    }
+
+    // Calculate actual points score for each player.
+    for (let i in players) {
+        let player = players[i];
+        switch (player.paymentType) {
+            case 'individual':
+                player.points = player.numCorrect/3;
+                break;
+            case 'contest':
+                app.setContestScoreAndRank(player, players);
+                break;
+        }
+
+        // Calculate rank-guess bonus.
+        if (app.paymentType === 'contest') {
+            if (player.rank == player.guessedRank) {
+                player.rankBonus = 1;
+            } else {
+                player.rankBonus = 0;
+            }
+            player.points = player.points + player.rankBonus;
+        }
+
+        // Save the points across apps.
+        if (player.participant.scores == null) {
+            player.participant.scores = [0];
+        }
+        player.participant.scores[0] += player.points;
+    }
+
+}
+resultsStage.activeScreen = `
+     <p>Das hast du super gemacht! </p>
+  <p>Wir erkl\u00e4ren dir gleich wie es weiter geht.</p>
+ <p>Bitte lege das Tablet auf den Tisch und h\u00f6re gut zu.</p>
+<p>Bitte dr\u00fccke OK.</p>
+`;

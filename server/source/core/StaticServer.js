@@ -4,10 +4,14 @@ const fs        = require('fs-extra');
 const Utils     = require('../Utils.js');
 const ip        = require('ip');
 const http      = require('http');
+const https     = require('https');
 const replace   = require("replace");
 const bodyParser = require("body-parser");
 const session   = require('express-session');
 // const history   = require('connect-history-api-fallback');
+
+const selfsigned = require('selfsigned');
+
 
 /** Server for static files */
 class StaticServer {
@@ -52,7 +56,7 @@ class StaticServer {
         for (let i in jt.data.queues) {
             let queue = jt.data.queues[i];
             if (fs.existsSync(queue.id)) {
-                console.log('serving files from ' + queue.id + ' as /' + queue.shortId);
+                // console.log('serving files from ' + queue.id + ' as /' + queue.shortId);
                 expApp.use('/' + queue.shortId, express.static(queue.id));
             }
         }
@@ -187,20 +191,38 @@ class StaticServer {
         // START SERVER
         this.port = jt.settings.port;
         this.ip = ip.address();
-        this.server = http.Server(expApp);
+
+
+        if (jt.settings.useHTTPS == false) {
+            this.server = http.Server(expApp);
+        } else {
+
+            var attrs = [{ name: 'commonName', value: this.ip }];
+            var pems = selfsigned.generate(attrs, { days: 365 });
+            let options = {
+                key: pems.private,
+                cert: pems.cert,
+            }
+
+            this.server = https.createServer(options, expApp);
+        }
+
+        let printServerInfo = function() {
+            let protocol = 'http://';
+            if (jt.settings.useHTTPS) {
+                protocol = 'https://';
+            }
+            console.log('###############################################');
+            console.log('jtree ' + jt.version + ', listening on ' + protocol + self.ip + ':' + self.port);
+        }
+
         try {
-            this.server.listen(this.port, function() {
-                console.log('###############################################');
-                console.log('jtree ' + jt.version + ', listening on ' + self.ip + ':' + self.port);
-            });
+            this.server.listen(this.port, printServerInfo);
         } catch (err) {
             if (jt.settings.port === 80) {
                 jt.settings.port = 3000;
                 this.port = jt.settings.port;
-                this.server.listen(this.port, function() {
-                    console.log('###############################################');
-                    console.log('jtree ' + jt.version + ', listening on ' + self.ip + ':' + self.port);
-                });
+                this.server.listen(this.port, printServerInfo);
             }
         }
         //////////////////////////////

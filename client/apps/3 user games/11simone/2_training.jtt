@@ -1,0 +1,11 @@
+app.description = 'Training for real-effort task.';
+app.waitingScreen = 'Das hast du Super gemacht! Bitte warte bis alle Kinder fertig sind.';
+app.numGroups = 1;
+
+let stage = app.newStage('stage');
+stage.activeScreen = `
+ <p>Versuche die Aufgabe zu l\u00f6sen</p>
+    <p>1+2+3+4: <input name='player.guess' required type='number' :min='10' :max='10' step='1' oninvalid="this.setCustomValidity('Diese Antwort ist leider nicht richtig. Probiere es nochmal!')"
+    oninput="this.setCustomValidity('')"></p>
+    <button>OK</button>
+`;

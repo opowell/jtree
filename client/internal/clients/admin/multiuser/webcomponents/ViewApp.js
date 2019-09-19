@@ -2,7 +2,7 @@ class ViewApp extends HTMLElement {
     connectedCallback() {
       this.innerHTML = `
       <div id='view-app' class='view hidden'>
-          <h2 id='view-app-id'></h2>
+          <h2 class='text-muted'>App: <span style='color: #000' id='view-app-id'></span></h2>
           <h6 id='view-app-fullId' class='text-muted'></h6>
 
           <div class="view-buttons btn-group">
@@ -12,47 +12,16 @@ class ViewApp extends HTMLElement {
       </div>
 
           <div class="view-buttons btn-group">
-                <button class="btn btn-outline-success btn-sm" onclick='jt.appEdit()'>
-                    <i class="fa fa-file-code"></i>&nbsp;&nbsp;Code...
-                </button>
-                <button class="btn btn-outline-success btn-sm" onclick='jt.appShowOptions()'>
-                    <i class="fa fa-cog"></i>&nbsp;&nbsp;Options...
+                <button class="btn btn-outline-secondary btn-sm" onclick='jt.appEdit()'>
+                    <i class="fa fa-edit"></i>&nbsp;&nbsp;Edit...
                 </button>
             </div>
 
         <div class="view-buttons btn-group">
-                <button class="btn btn-outline-secondary btn-sm" onclick='jt.startSessionWithApp()'>
-                    <i class="fa fa-plus"></i>&nbsp;&nbsp;Add variable
-                </button>
-                <button class="btn btn-outline-secondary btn-sm" onclick='jt.appEdit()'>
-                    <i class="fa fa-plus"></i>&nbsp;&nbsp;Add stage
-                </button>
-                <button class="btn btn-outline-secondary btn-sm" onclick='jt.appShowOptions()'>
-                    <i class="fa fa-plus"></i>&nbsp;&nbsp;Add function
-                </button>
-            </div>
-        <div class="view-buttons btn-group">
-                <button class="btn btn-outline-secondary btn-sm" onclick='jt.appEdit()'>
-                    <i class="fa fa-copy"></i>&nbsp;&nbsp;Duplicate
-                </button>
               <button class="btn btn-outline-secondary btn-sm" onclick='jt.deleteApp()'>
-                  <i class="fa fa-trash"></i>&nbsp;&nbsp;Delete
+                  <i class="fa fa-trash"></i>&nbsp;&nbsp;Delete...
               </button>
           </div>
-
-          <!-- APP TABS -->
-          <ul class="nav nav-tabs hidden">
-            <li class="nav-item">
-              <div id='tab-app-view' class="nav-link subview-tab app-tabBtn" onclick='jt.setAppView("view");'>
-                  <i class="fa fa-desktop"></i>&nbsp;&nbsp;Client
-              </div>
-            </li>
-            <li class="nav-item">
-              <div id='tab-app-preview' class="nav-link subview-tab app-tabBtn" onclick='jt.setAppView("preview");'>
-                  <i class="fa fa-list"></i>&nbsp;&nbsp;App
-              </div>
-            </li>
-          </ul>
 
           <div id='view-app-edit' class='subview app-tab hidden'>
               <div class="btn-group">
@@ -73,11 +42,6 @@ class ViewApp extends HTMLElement {
                       <input type="text" style='max-width: 20rem;' class="form-control" id="edit-app-id" placeholder="Id">
                   </div>
               </div>
-
-              // <div class="form-group row">
-              //     <div class="col-sm-2 col-form-label">client.html</div>
-              //     <div class='col-sm-10 col-form-label' id='edit-app-clienthtml' style='height: 30rem;'></div>
-              // </div>
 
           </div>
           <view-app-preview></view-app-preview>
@@ -111,10 +75,9 @@ jt.openApp = function(appId) {
     $('#editAppModal .modal-title').text(appId);
 
     jt.editor.reset();
-    jt.editor.addFile('app.js', app.appjs, 'ace/mode/javascript');
-    jt.editor.addFile('client.html', app.clientHTML, 'ace/mode/html');
+    jt.editor.addFile(app.id, app.appjs, 'ace/mode/javascript');
 
-    jt.editor.selectFile('app.js');
+    jt.editor.selectFile(app.id);
 
     jt.setEditAppOptionsData(app, app.options, jt.updateAppPreview);
 
@@ -135,6 +98,7 @@ jt.deleteApp = function() {
         'Are you sure you want to delete App ' + appId + '?',
         function() {
             jt.socket.emit('deleteApp', appId);
+            setView('apps');
         }
     );
 }

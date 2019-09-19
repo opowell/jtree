@@ -11,7 +11,7 @@ class addQueueToSessionModal extends HTMLElement {
                       </button>
                   </div>
                   <div class="modal-body">
-                      <table class='table table-hover' style='width: 100% !important;'>
+                      <table class='table table-hover'>
                           <thead>
                               <tr>
                                   <th>id</th>

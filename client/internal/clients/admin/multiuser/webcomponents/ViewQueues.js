@@ -4,12 +4,9 @@ class ViewQueues extends HTMLElement {
       <div id='view-queues' class='view hidden'>
           <h2>Queues</h2>
           <div class="input-group mb-3">
-            <input type="text" class="form-control" placeholder="Queue id" id='create-queue-input' style='flex: 0 0 150px'>
-            <div class="input-group-append">
-                <a href='#' class='btn btn-outline-primary btn-sm input-group-text' onclick='jt.createQueue();'>
-                    <i class="fa fa-plus"></i>&nbsp;&nbsp;create
-                </a>
-            </div>
+            <a href='#' class='btn btn-sm btn-outline-secondary btn-sm' onclick='jt.showCreateQueueModal();'>
+                <i class="fa fa-plus"></i>&nbsp;&nbsp;create...
+            </a>
           </div>
           <div id='queues-table'>
               <b-table hover
@@ -24,20 +21,19 @@ class ViewQueues extends HTMLElement {
                     </div>
                 </template>
                 <template slot="actions" slot-scope="data">
-                    <div class="btn-group">
-                        <button class="btn btn-outline-primary btn-sm" @click.stop @click='startSessionFromQueue(data.item.id)'>
-                            <i class="fa fa-play" title="start new session with this queue"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-secondary" @click.stop @click='deleteQueueConfirm(data.item.id)'>
-                            <i class="fa fa-trash" title="delete"></i>
-                        </button>
-                    </div>
+                    <button class="btn btn-outline-primary btn-sm" @click.stop @click='startSessionFromQueue(data.item.id)'>
+                        <i class="fa fa-play" title="start new session with this queue"></i>
+                    </button>
                 </template>
               </b-table>
           </div>
       </div>
       `;
     }
+}
+
+jt.showCreateQueueModal = function() {
+    $("#createQueueModal").modal("show");
 }
 
 showQueues = function() {
@@ -78,13 +74,6 @@ showQueues = function() {
             },
         },
       });
-}
-
-jt.createQueue = function() {
-    var id = $('#create-queue-input').val().trim();
-    if (id.length > 0) {
-        server.createQueue(id);
-    }
 }
 
 jt.startSessionFromQueue = function(id) {

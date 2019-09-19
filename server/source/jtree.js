@@ -15,7 +15,7 @@ const StaticServer  = require('./core/StaticServer.js');
 var jt = {};
 
 // The version of jtree, should match what is in buildJTree.bat
-jt.version = '0.7.15';
+jt.version = '0.7.16';
 
 /** Location of the server executable. All files should be relative to this.
 */
@@ -60,7 +60,15 @@ jt.socketServer = new SocketServer.new(jt);
 // const opn           = require('opn');
 if (jt.settings.openAdminOnStart) {
 //    opn('http://' + jt.staticServer.ip + ':' + jt.staticServer.port + '/admin');
-    openurl.open('http://' + jt.staticServer.ip + ':' + jt.staticServer.port + '/admin');
+    try {
+        let protocol = 'http://';
+        if (jt.settings.useHTTPS) {
+            protocol = 'https://';
+        }
+        openurl.open(protocol + jt.staticServer.ip + ':' + jt.staticServer.port + '/admin');
+    } catch (err) {
+        
+    }
 }
 
 

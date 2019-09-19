@@ -1,0 +1,14 @@
+app.description = 'Demonstrate the use of app options.';
+
+// Create a "selectable" option for the "treatment" variable.
+app.addSelectOption(
+    'treatment', // name of the option
+    ['A', 'B']   // potential values the option can take.
+);
+// When the code in this file is executed, app.treatment will already have a value,
+// assigned either from a queue file or from the admin interface.
+
+var stage = app.newStage('stage');
+stage.activeScreen = `
+<h1>treatment = {{app.treatment}}</h1>
+`

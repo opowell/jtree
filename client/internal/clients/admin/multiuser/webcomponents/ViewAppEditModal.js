@@ -2,8 +2,8 @@ class ViewAppEditorModal extends HTMLElement {
     connectedCallback() {
       this.innerHTML = `
       <div id='editAppModal' class="modal fullPageModal" tabindex="-1" role="dialog">
-          <div style='max-width: 100%; max-height: 100%; margin: 0px' class="modal-dialog" role="document">
-              <div class="modal-content" style="border-width: 0px; border-radius: 0px;">
+          <div style='max-width: 100%; height: 100%; margin: 0px' class="modal-dialog" role="document">
+              <div class="modal-content" style="height: 100%; border-width: 0px; border-radius: 0px;">
                   <div class="modal-header">
                       <h5 class="modal-title"></h5>
                       <button type="button" class="ml-3 btn btn-sm btn-primary" onclick='jt.appSaveFileContentsFromEditor();'>Save</button>
@@ -12,11 +12,12 @@ class ViewAppEditorModal extends HTMLElement {
                       </button>
                   </div>
                   <div class="modal-body" style="padding: 0rem;">
-                      <div id="sidebar">
+<!--                      <div id="sidebar">
                         <div id="file-list"></div>
                         <a id="create-file-button" href="javascript:void(0);">&plus;</a>
                       </div>
-                      <div id='app-editor' style='height: 87vh; width: 100%;'></div>
+    -->
+                      <div id='app-editor' style='height: 100%; width: 100%;'></div>
                   </div>
               </div>
           </div>
@@ -43,11 +44,8 @@ jt.appSaveFileContents = function(filename, content) {
   var appId = $('#view-app-fullId').text();
   jt.socket.emit('appSaveFileContents', {filename: filename, aId: appId, content: content});
   var app = jt.app(appId);
-  if (filename === 'app.js') {
-      app.appjs = content;
-  } else if (filename === 'client.html') {
-      app.clientHTML = content;
-  }
+  app.appjs = content;
+  //   app.clientHTML = content;
   jt.openApp(appId);
 }
 

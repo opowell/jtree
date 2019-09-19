@@ -1,0 +1,10 @@
+app.password = 'simone';
+app.numGroups = 1;
+app.description = 'Players see a waiting screen. Once the password is entered, a button is shown. The app ends as soon as any player presses the button.';
+
+let enterStage = app.newStage('enter');
+enterStage.addOKButtonIfNone = false;
+enterStage.activeScreen = `
+    <p>PAUSE</p>
+    <p>Bitte h\u00f6re gut zu!</p>
+`;

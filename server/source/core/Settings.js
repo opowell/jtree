@@ -4,7 +4,7 @@ const fs        = require('fs-extra');
 const openport  = require('openport');
 const Utils     = require('../Utils.js');
 
-/** Settings that can be set in the settings.js file */
+/** Settings that can be set in the settings.json file */
 class Settings {
 
      constructor(jt) {
@@ -36,7 +36,12 @@ class Settings {
          this.sharedUI               = 'internal/clients/shared/';
          this.serverTimeInfoFilename = 'internal/serverState.json'; // location of file that stores last time server was active.
          this.autoplayDelay          = 'randomInt(4,8)*1000';
-        this.outputDelimiter = ';';
+         this.outputDelimiter        = ';';
+         this.useHTTPS               = false;
+         this.httpsCertificateFile   = 'certificate.pem';
+         this.defaultAdminPwd        = undefined;
+         this.sessionShowFullLinks   = false;
+         this.loadSettings           = false;
 
          this.valsToSave = {};
 
@@ -60,13 +65,29 @@ class Settings {
 
          var settings = this; // so that settings can be modified without using 'jt.' prefix.
          try {
-             var json = fs.readJSONSync(path.join(this.jt.path, 'internal/settings.js'));
-             for (var i in json) {
-                 this[i] = json[i];
-             }
+            let settingsJSONPath = path.join(this.jt.path, 'settings.json');
+            if (fs.existsSync(settingsJSONPath)) {
+                var json = fs.readJSONSync(settingsJSONPath);
+                for (var i in json) {
+                    console.log('loading custom setting: ' + i + ' = ' + json[i]);
+                    this[i] = json[i];
+                }
+            }
          } catch (err) {
+             console.log('Error loading settings JSON file: ' + err);
              this.logMessage = err;
          }
+         try {
+             let settingsJSPath = path.join(this.jt.path, 'settings.js');
+            if (fs.existsSync(settingsJSPath)) {
+                var settingsFile = fs.readSync(path.join(this.jt.path, 'settings.js'));
+                console.log('loading custom settings from settings.js');
+                eval(settingsFile);
+            }
+        } catch (err) {
+            console.log('Error reading settings JS file: ' + err);
+            this.logMessage = err;
+        }
 
          if (this.port === undefined) {
          //     try {
@@ -105,7 +126,7 @@ class Settings {
      }
 
      save() {
-         Utils.writeJSON(path.join(this.jt.path, 'internal/settings.js'), this.valsToSave);
+         Utils.writeJSON(path.join(this.jt.path, 'settings.json'), this.valsToSave);
      }
 
      setDefaultAdminPwd(curPwd, newPwd) {

@@ -1,9 +1,0 @@
-app.description = 'Training for real-effort task.';
-
-app.numGroups = 1;
-
-let stage = app.newStage('stage');
-stage.activeScreen = `
-5 + 5 = ?
-  <input type='number' min='10' max='10'>
-`;

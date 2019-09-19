@@ -6,7 +6,6 @@ const App = require('../App.js');
 const Room = require('../Room.js');
 const Queue = require('../Queue.js');
 const User = require('../User.js');
-const Game = require('../Game.js');
 
 /** The data object. */
 class Data {
@@ -39,22 +38,17 @@ class Data {
          * @type Object
          */
 
-        this.apps = {};
-        this.appsMetaData = {};
-        this.games = {};
-
-        //this.queues = this.loadQueues();
-        this.queues = [];
-        this.loadApps();
-
-        this.loadGames();
+        this.reloadApps();
 
         /*
          * Available [Sessions]{@link Session}, loaded from the contents of the 'sessions' folder.
          * Sorted in ascending order according to time created.
          * @type Array of {@link Session}.
          */
-        this.sessions = this.loadSessions();
+        this.sessions = [];
+        if (jt.settings.loadSessions) {
+            this.sessions = this.loadSessions();
+        }
 
         this.rooms = this.loadRooms();
 
@@ -65,10 +59,6 @@ class Data {
         // Participant clients with no session IDs.
         // Reload them when a new session is opened.
         this.participantClients = [];
-
-        this.syncData = {
-            hello: 'world'
-        }
 
     }
 
@@ -175,37 +165,9 @@ class Data {
         try {
             app.appjs = fs.readFileSync(filePath) + '';
             eval(app.appjs); // jshint ignore:line
-            console.log('loaded app ' + filePath);
+            this.jt.log('loaded app ' + filePath);
         } catch (err) {
             this.jt.log('Error loading app: ' + filePath);
-            this.jt.log(err);
-            app = null;
-        }
-        return app;
-    }
-
-    loadGame(id, session, appPath, options) {
-        var app = null;
-        app = new Game.new(session, this.jt, appPath);
-        app.givenOptions = options;
-     //   app.shortId = id;
-
-        // Set options before running code.
-         for (var i in options) {
-            app.setOptionValue(i, options[i]);
-        }
-
-        let filePath = appPath;
-        if (!fs.existsSync(appPath) && session.queuePath != null) {
-            filePath = path.join(session.queuePath, appPath);
-        }
-
-        try {
-            app.appjs = fs.readFileSync(filePath) + '';
-            eval(app.appjs); // jshint ignore:line
-            // console.log('loaded game ' + filePath);
-        } catch (err) {
-            this.jt.log('Error loading game: ' + filePath);
             this.jt.log(err);
             app = null;
         }
@@ -275,7 +237,8 @@ class Data {
 
             // Load folder as its own queue.
             var folderQueue = new Queue.new(dir, this.jt);
-            console.log('loading folder queue ' + dir);
+            folderQueue.dummy = true;
+            this.jt.log('loading folder queue ' + dir);
 
             // Load individual apps and queues.
             for (var i in appDirContents) {
@@ -315,6 +278,7 @@ class Data {
                     // Queue / Session Config
                     if (id.endsWith('.jtq')) {
                         var queue = Queue.loadJTQ(curPath, this.jt, dir);
+                        queue.dummy = true;
                         var session = new Session.new(this.jt, null);
                         session.emitMessages = false;
                         session.queuePath = path.dirname(queue.id);
@@ -324,7 +288,7 @@ class Data {
                             queue.addApp(session.apps[i].id, options);
                         }
                         // queue.apps = session.apps;
-                        console.log('loading file queue ' + curPath + ' with ' + queue.apps.length + ' apps');
+                        this.jt.log('loading file queue ' + curPath + ' with ' + queue.apps.length + ' apps');
                         this.queues[curPath] = queue;
                     }
                 } else if (curPathIsFolder) {
@@ -335,63 +299,6 @@ class Data {
             if (folderQueue.apps.length > 0) {
                 folderQueue.displayName = dir.substring(dir.lastIndexOf('\\')+1);
                 this.queues[dir] = folderQueue;
-            }
-        }
-    }
-
-    // Search for *.js and *.jtt files. Load as apps.
-    // Search folders.
-    loadGamesFromDir(dir) {
-        if (Utils.isDirectory(dir)) {
-            var appDirContents = fs.readdirSync(dir);
-
-            // Load folder as its own queue.
-            var folderGame = new Game.new(null, this.jt, dir);
-            console.log('loading folder game ' + dir);
-
-            // Load individual apps and queues.
-            for (var i in appDirContents) {
-                // the current file
-                var curPath = path.join(dir, appDirContents[i]);
-                var curPathIsFile = fs.lstatSync(curPath).isFile();
-                var curPathIsFolder = fs.lstatSync(curPath).isDirectory();
-                if (curPathIsFile) {
-                    var id = appDirContents[i];
-
-                    // Treatment / App
-                    if (id == 'app.js' || id == 'app.jtt') {
-                        // Take id from path name.
-                        if (dir.lastIndexOf('/') > -1) {
-                            id = dir.substring(dir.lastIndexOf('/') + 1);
-                        } else if (dir.lastIndexOf('\\') > -1) {
-                            id = dir.substring(dir.lastIndexOf('\\') + 1);
-                        }
-                    }
-                    if (id.endsWith('.js')) {
-                        id = id.substring(0, id.length - '.js'.length);
-                    } else if (id.endsWith('.jtt')) {
-                        id = id.substring(0, id.length - '.jtt'.length);
-                    }
-                    try {
-                        let app = this.loadGame(id, null, curPath, {});
-                        if (app != null) {
-                            this.games[curPath] = app;
-                            this.gamesMetaData[curPath] = app.metaData();
-                            folderGame.addGame(curPath);
-                        }
-                    } catch (err) {
-                        // not a valid app.
-                        // console.log('Error, invalid game: ' + err);
-                    }
-
-                } else if (curPathIsFolder) {
-                    this.loadGamesFromDir(curPath);
-                }
-            }
-
-            if (folderGame.stages.length > 0) {
-                folderGame.displayName = dir.substring(dir.lastIndexOf('\\')+1);
-                this.games[dir] = folderGame;
             }
         }
     }
@@ -462,14 +369,12 @@ class Data {
         return app;
     }
 
-    // getApps() {
-    //     var out = [];
-    //     for (var i in this.jt.settings.appFolders) {
-    //         var folder = this.jt.settings.appFolders[i];
-    //         out = out.concat(this.getAppsFromDir(folder));
-    //     }
-    //     return out;
-    // }
+    reloadApps() {
+        this.apps = {};
+        this.appsMetaData = {};
+        this.queues = [];
+        this.loadApps();
+    }
 
     loadApps() {
         for (var i in this.jt.settings.appFolders) {
@@ -477,29 +382,6 @@ class Data {
             this.loadAppDir(path.join(this.jt.path, folder));
         }
     }
-
-    loadGames() {
-        for (var i in this.jt.settings.appFolders) {
-            var folder = this.jt.settings.appFolders[i];
-            this.loadGamesFromDir(path.join(this.jt.path, folder));
-        }
-    }
-
-    // saveApp(appToSave) {
-    //     try {
-    //         var origFolder = this.appPath(appToSave.origId);
-    //         var newFolder = this.appPath(appToSave.id);
-    //         fs.renameSync(origFolder, newFolder);
-    //         var appjsPath = path.join(newFolder, 'app.jtt');
-    //         fs.writeFileSync(appjsPath, appToSave.appjs);
-    //         appjsPath = path.join(newFolder, 'client.html');
-    //         fs.writeFileSync(appjsPath, appToSave.clientHTML);
-    //         delete this.apps[appToSave.origId];
-    //         this.apps[appToSave.id] = this.loadAppMetaData(appToSave.id, newFolder);
-    //     } catch (err) {
-    //
-    //     }
-    // }
 
     /*
      * loadSessions - description
@@ -546,7 +428,7 @@ class Data {
     }
 
     queuePath(id) {
-        return path.join(this.queuesPath(), id + '.json');
+        return path.join(this.jt.path, this.jt.settings.appFolders[0], id);
     }
 
     roomsPath() {
@@ -555,10 +437,6 @@ class Data {
 
     usersPath() {
         return path.join(this.jt.path, this.jt.settings.usersPath);
-    }
-
-    queuesPath() {
-        return path.join(this.jt.path, this.jt.settings.queuesPath);
     }
 
     room(id) {

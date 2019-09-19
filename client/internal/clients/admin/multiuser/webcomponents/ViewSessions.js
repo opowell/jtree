@@ -3,8 +3,8 @@ class ViewSessions extends HTMLElement {
       this.innerHTML = `
       <div id='view-sessions' class='view hidden'>
           <h2>Sessions</h2>
-          <a href='#' class='mb-2 btn btn-outline-primary btn-sm' onclick='server.sessionCreate();'>
-              <i class="fa fa-plus"></i>&nbsp;&nbsp;new
+          <a href='#' class='mb-2 btn btn-sm btn-outline-secondary btn-sm' onclick='server.sessionCreate();'>
+              <i class="fa fa-plus"></i>&nbsp;&nbsp;create
           </a>
           <table class="table table-hover">
             <thead>
@@ -38,6 +38,16 @@ function showSessionRow(session) {
     $('#active-sessions').prepend(SessionDiv(session));
 }
 
+jt.deleteSessionPrompt = function(sessionId) {
+    jt.confirm(
+        'Are you sure you want to delete Session ' + sessionId + '?',
+        function() {
+            jt.socket.emit('deleteSession', sessionId);
+            setView('sessions');
+        }
+    );
+}
+
 function SessionDiv(session) {
     var row = $('<tr role="button" style="cursor: pointer">');
     var actionDiv = $('<td>');
@@ -45,12 +55,7 @@ function SessionDiv(session) {
     delBtn.click(function (ev) {
         ev.stopPropagation();
         var sessionId = $(ev.target).parents('tr').attr('sessionId');
-        jt.confirm(
-            'Are you sure you want to delete Session ' + sessionId + '?',
-            function() {
-                jt.socket.emit('deleteSession', sessionId);
-            }
-        );
+        jt.deleteSessionPrompt(sessionId);
     });
     actionDiv.append(delBtn);
     row.append(actionDiv);

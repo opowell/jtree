@@ -35,7 +35,8 @@ class Msgs {
 
     appSaveFileContents(d, socket) {
         var app = this.jt.data.app(d.aId, d.options);
-        app.setFileContents(d.filename, d.content);
+        app.setFileContents(d.content);
+        app = app.reload();
         this.jt.data.appsMetaData[d.aId] = app.metaData();
     }
 
@@ -269,11 +270,14 @@ class Msgs {
             socket.join(session.roomId());
             this.jt.io.to('socket_' + socket.id).emit('openSession', session.shellWithChildren());
             this.jt.data.lastOpenedSession = session;
-            this.jt.data.syncData.hello = 'updated active session!';
-            this.jt.data.syncData.activeSession = session;
             // this.reloadClients();
             // Called from client-side.
         }
+    }
+
+    reloadApps(msg, socket) {
+        this.jt.data.reloadApps();
+        this.jt.socketServer.refreshAdmin(null, 'socket_' + socket.id, msg.userId);
     }
 
     reloadClients() {

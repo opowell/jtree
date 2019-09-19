@@ -3,3 +3,12 @@
     url = url.replace('help.html', 'internal/docs/index.html');
     window.location.replace(url);
 </script>
+
+<p>RESULTS</p>
+<p>Your endowment was {{app.endowment}} E$. You contributed {{player.contribution}} E$.</p>
+<p>In total, players in your group contributed {{group.contributions}} E$, thus the total amount produced was {{group.production.toFixed(2)}} E$.</p>
+<p>Thus, your payoff in this period is {{player.points.toFixed(2)}} E$.</p>
+<form>
+    <button>OK</button>
+</form>
+`;

@@ -1,0 +1,2 @@
+session.addApp('app1.jtt', {treatment: 'A'});
+session.addApp('app1.jtt', {treatment: 'B'});
