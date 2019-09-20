@@ -28,7 +28,7 @@ app.groupIds = [
     [1,2,1,2]
 ]
 app.getGroupIdsForPeriod = function(period) {
-  return this.groupIds[period.id] // one row of app.groupIds
+  return this.groupIds[period.id-1] // one row of app.groupIds
 }
 ```
 
@@ -43,6 +43,6 @@ app.groupIds = [
   [['P1', 'P3'],['P2', 'P4']]
 ]
 app.getGroupIdsForPeriod = function(period) {
-  return this.groupIds[period.id] // one row of app.groupIds
+  return this.groupIds[period.id-1] // one row of app.groupIds
 }
 ```

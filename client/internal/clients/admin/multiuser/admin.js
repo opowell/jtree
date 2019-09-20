@@ -15,11 +15,6 @@ function clearSelectedParticipants() {
     }
 }
 
-function setNumParticipants() {
-    const amt = $('#setNumParticipants').val();
-    server.setNumParticipants(amt);
-}
-
 function removeCustomAppFolder(folder) {
 
 }

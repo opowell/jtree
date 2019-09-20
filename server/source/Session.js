@@ -59,6 +59,8 @@ class Session {
 
         this.caseSensitiveLabels = false;
 
+        this.suggestedNumParticipants = jt.settings.session.suggestedNumParticipants;
+
         /**
         * A list of participants in this session.
         * @type Object
@@ -266,6 +268,12 @@ class Session {
             } else {
                 Utils.copyFiles(path.parse(app.appPath).dir, app.getOutputFN());
             }
+            if (this.apps.length == 1 &&
+                app.suggestedNumParticipants != null &&
+                this.suggestedNumParticipants == null) {
+                    this.suggestedNumParticipants = app.suggestedNumParticipants;
+                    this.setNumParticipants(app.suggestedNumParticipants);
+            }
             // app.saveSelfAndChildren();
             this.save();
             if (this.emitMessages) {
@@ -465,7 +473,9 @@ class Session {
         }
         for (var i in this.participants) {
             var participant = this.participants[i];
-            participant.player.emitUpdate2();
+            if (participant.player != null) {
+                participant.player.emitUpdate2();
+            }
         }
     }
 
@@ -915,7 +925,9 @@ class Session {
         participant.save();
         this.save();
         this.participants[participantId] = participant;
-        this.jt.socketServer.sendOrQueueAdminMsg(null, 'addParticipant', participant.shell());
+        if (this.jt.socketServer != null) {
+            this.jt.socketServer.sendOrQueueAdminMsg(null, 'addParticipant', participant.shell());
+        }
         return participant;
     }
 

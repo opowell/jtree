@@ -64,12 +64,18 @@ class SocketServer {
         for (var i in functionList) {
             var fnI = functionList[i];
             (function(fnI) {
-                socket.on(fnI, function(d) {
+                socket.on(fnI, function(d, cb) {
                     try {
                         log('received message ' + fnI + ': ' + JSON.stringify(d));
                         eval('self.msgs.' + fnI + "(d, sock)");
+                        if (cb != null) {
+                            cb(true);
+                        }
                     } catch (err) {
                         console.log("Error: " + err + "\n" + err.stack);
+                        if (cb != null) {
+                            cb(false);
+                        }
                         debugger;
                     }
                 });

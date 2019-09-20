@@ -29,10 +29,7 @@ class ViewApps extends HTMLElement {
 }
 
 jt.reloadApps = function() {
-    $('#reloadAppsBtn').attr('disabled', true);
-    $('#reloadAppsBtn').addClass('disabled');
-    $('#reloadAppsBtn').removeClass('active');
-    $('#reloadAppsBtn').html('<i class="fas fa-redo-alt"></i>&nbsp;&nbsp;reloading...');
+    jt.disableButton('reloadAppsBtn', '<i class="fas fa-redo-alt"></i>&nbsp;&nbsp;reloading...');
     $('#appInfos').empty();
     jt.socket.emit("reloadApps", {});
 }
@@ -43,9 +40,7 @@ jt.showCreateAppModal = function() {
 
 function showAppInfos() {
     var appInfos = jt.data.appInfos;
-    $('#reloadAppsBtn').attr('disabled', false);
-    $('#reloadAppsBtn').removeClass('disabled');
-    $('#reloadAppsBtn').html('<i class="fas fa-redo-alt"></i>&nbsp;&nbsp;reload');
+    jt.enableButton('reloadAppsBtn', '<i class="fas fa-redo-alt"></i>&nbsp;&nbsp;reload');
     $('#appInfos').empty();
     for (var a in appInfos) {
         var app = appInfos[a];

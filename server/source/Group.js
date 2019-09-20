@@ -4,6 +4,7 @@ const Utils     = require('./Utils.js');
 const Table     = require('./Table.js');
 const fs        = require('fs-extra');
 const path      = require('path');
+const CircularJSON = require('./circularjson.js');
 
 /** A group of players playing in a {@link Period}. */
 class Group {
@@ -325,7 +326,7 @@ class Group {
      * @param  {type} msgData  The data of the message.
      */
     emit(msgTitle, msgData) {
-        this.session().io().to(this.roomId()).emit(msgTitle, msgData);
+        this.session().io().to(this.roomId()).emit(msgTitle, CircularJSON.stringify(msgData));
     }
 
     /**

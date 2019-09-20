@@ -36,7 +36,7 @@ class Settings {
          this.sharedUI               = 'internal/clients/shared/';
          this.serverTimeInfoFilename = 'internal/serverState.json'; // location of file that stores last time server was active.
          this.autoplayDelay          = 'randomInt(4,8)*1000';
-        this.outputDelimiter = ';';
+        this.outputDelimiter        = ';';
 
          this.valsToSave = {};
 

@@ -272,6 +272,11 @@ class App {
          /**TODO:*/
          this.groupingType = undefined;
 
+         /**
+          * If not null and this is the first App in a Session, sets the initial number of players to this amount.
+          */
+        this.suggestedNumPlayers = undefined;
+
         /**
          * if defined, subjects are split evenly into this number of groups
          * overridden by groupSize.

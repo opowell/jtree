@@ -145,10 +145,10 @@ server.reloadClients = function() {
     jt.socket.emit('reloadClients');
 }
 
-server.setNumParticipants = function(amt) {
+server.setNumParticipants = function(amt, cb) {
     var d = {};
     d.sId = jt.data.session.id;
     d.number = amt;
-    jt.socket.emit('setNumParticipants', d);
+    jt.socket.emit('setNumParticipants', d, cb);
     $('#setNumParticipantsModal').modal('hide');
 }

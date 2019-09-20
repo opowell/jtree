@@ -15,8 +15,8 @@ class ViewSessionSettings extends HTMLElement {
                 <div>Number of participants</div>
                 <div>
                     <div>
-                        <input id='setNumParticipants' style='width: 3em;' type='number' min='0' step='1'>
-                        <button type="button" class="btn btn-sm btn-primary" onclick='setNumParticipants();'>Set</button>
+                        <input id='setNumParticipantsInput' style='width: 3em;' type='number' min='0' step='1'>
+                        <button id='setNumParticipantsBtn' type="button" class="btn btn-sm btn-primary" onclick='setNumParticipants();'>Set</button>
                         <small class="form-text text-muted">
                             Setting the number of participants will turn off login of new participants. Participants are added from the list of session participant IDs. More recent participants are removed first.
                         </small>
@@ -92,6 +92,15 @@ setSessionId = function() {
     let newId = $('#view-session-id-input').val();
     let origId = jt.data.session.id;
     server.setSessionId(origId, newId);
+}
+
+setNumParticipants = function() {
+    jt.disableButton('setNumParticipantsBtn', 'Setting...');
+    const amt = $('#setNumParticipantsInput').val();
+    let cb = function() {
+        jt.enableButton('setNumParticipantsBtn', 'Set');
+    }
+    server.setNumParticipants(amt, cb);
 }
 
 setAllowAdminPlay = function(val) {

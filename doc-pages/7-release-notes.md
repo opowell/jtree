@@ -1,3 +1,6 @@
+##### 2019.09.27 - 0.7.17
+
+
 ##### 2019.09.19 - 0.7.16
 - ADDED: option to serve files over HTTPS instead of HTTP.
 - FIXED: allow socket connections from outside local network.

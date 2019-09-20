@@ -283,6 +283,7 @@ class Data {
                         session.emitMessages = false;
                         session.queuePath = path.dirname(queue.id);
                         eval(queue.code);
+                        session.setNumParticipants(session.suggestedNumParticipants);
                         let options = {};
                         for (let i in session.apps) {
                             queue.addApp(session.apps[i].id, options);
@@ -667,13 +668,14 @@ class Data {
      * @return {Session}        description
      */
     createSession(userId) {
-        var sess = new Session.new(this.jt, null);
+        var session = new Session.new(this.jt, null);
+        session.setNumParticipants(session.suggestedNumParticipants);
         if (userId != null && userId.length > 0) {
-            sess.addUser(userId);
+            session.addUser(userId);
         }
-        sess.save();
-        this.jt.socketServer.emitToAdmins('addSession', sess.shell());
-        return sess;
+        session.save();
+        this.jt.socketServer.emitToAdmins('addSession', session.shell());
+        return session;
     }
 
     getAdmin(id, pwd) {
