@@ -99,6 +99,7 @@ setNumParticipants = function() {
     const amt = $('#setNumParticipantsInput').val();
     let cb = function() {
         jt.enableButton('setNumParticipantsBtn', 'Set');
+        jt.popupMessage('Set number of participants = ' + amt);
     }
     server.setNumParticipants(amt, cb);
 }

@@ -15,8 +15,8 @@ class Logger {
         this.logStream = fs.createWriteStream(path.join(logPath, jt.settings.getLogFilename()), {'flags': 'a'});
 
         // Add logging function to app controller.
-        jt.log = function(text) {
-            jt.logger.log(text);
+        jt.log = function(text, forceConsole) {
+            jt.logger.log(text, forceConsole);
         }
 
         if (jt.settings.logMessage != null) {
@@ -29,11 +29,11 @@ class Logger {
     * If {@link Settings#logToConsole} is true, then also logs to console.
     * @param text The text to be written.
     */
-    log(text) {
+    log(text, forcePrintToConosle) {
         var time = new Date().toString();
         this.logStream.write(time + ': ' + text + '\n');
 
-        if (this.jt.settings.logToConsole === true) {
+        if (this.jt.settings.logToConsole === true || forcePrintToConosle == true) {
             console.log(time + ': ' + text);
         }
     }

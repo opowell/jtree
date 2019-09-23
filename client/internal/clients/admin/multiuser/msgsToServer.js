@@ -152,3 +152,14 @@ server.setNumParticipants = function(amt, cb) {
     jt.socket.emit('setNumParticipants', d, cb);
     $('#setNumParticipantsModal').modal('hide');
 }
+
+server.resetSession = function(cb) {
+    var d = {};
+    d.sId = jt.data.session.id;
+    jt.disableButton('resetSessionBtn', '<i class="fas fa-undo-alt"></i>&nbsp;&nbsp;Resetting...');
+    let activateBtn = function() {
+        jt.enableButton('resetSessionBtn',  '<i class="fas fa-undo-alt"></i>&nbsp;&nbsp;Reset');
+        jt.popupMessage('Reset session <b>' + d.sId + '</b>.');
+    }
+    jt.socket.emit('resetSession', d, activateBtn);
+}

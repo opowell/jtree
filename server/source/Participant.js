@@ -34,46 +34,9 @@ class Participant {
          * @type array
          * @default []
          */
-        this.players = [];
-
-        /**
-         * The current player of this participant.
-         * @type {Player}
-         * @default null
-         */
-        this.player = null;
-
-        /**
-         * @type array
-         * @default []
-         */
         this.clients = [];
 
-        /**
-         * Indexed at 0.
-         * @type number
-         * @default -1
-         */
-        this.periodIndex = -1;
-
-        /**
-         * The current app index of this participant.
-         * 0 indicates no current app.
-         * @type number
-         * @default 0
-         */
-        this.appIndex = 0;
-
-        /**
-         * List of app ids that this participant has completed.
-         */
-        this.finishedApps = [];
-
-        /**
-         * @type boolean
-         * @default false
-         */
-        this.autoplay = false;
+        this.reset();
 
         /**
          * 'outputHide' fields are not included in output.
@@ -143,6 +106,46 @@ class Participant {
         } else {
             this.player.showStatus();
         }
+    }
+
+    reset() {
+        /**
+         * @type array
+         * @default []
+         */
+        this.players = [];
+
+        /**
+         * The current player of this participant.
+         * @type {Player}
+         * @default null
+         */
+        this.player = null;
+
+        /**
+         * Indexed at 0.
+         * @type number
+         * @default -1
+         */
+        this.periodIndex = -1;
+        /**
+         * The current app index of this participant.
+         * 0 indicates no current app.
+         * @type number
+         * @default 0
+         */
+        this.appIndex = 0;
+
+        /**
+         * List of app ids that this participant has completed.
+         */
+        this.finishedApps = [];
+
+        /**
+         * @type boolean
+         * @default false
+         */
+        this.autoplay = false;
     }
 
     canStartStage(stage) {

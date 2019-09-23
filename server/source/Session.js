@@ -487,6 +487,18 @@ class Session {
         }
     }
 
+    reset() {
+        this.started = false;
+        for (let i in this.participants) {
+            let participant = this.participants[i];
+            participant.reset();
+        }
+        for (let i=0; i<this.apps.length; i++) {
+            let app = this.apps[i];
+            this.apps[i] = app.reload();
+        }
+    }
+
     timers() {
         var out = [];
         for (var a in this.apps) {

@@ -104,6 +104,13 @@ class Msgs {
         session.setNumParticipants(num);
     }
 
+    resetSession(d, socket) {
+        let session = this.jt.data.getSession(d.sId);
+        session.reset();
+        this.jt.io.to('socket_' + socket.id).emit('openSession', session.shellWithChildren());
+        this.jt.data.lastOpenedSession = session;
+    }
+
     appAddStage(d, socket) {
         var session = this.jt.data.getApp(d.aId);
     }

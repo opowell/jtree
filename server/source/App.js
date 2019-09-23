@@ -87,6 +87,10 @@ class App {
          */
         this.session = session;
 
+        /**
+         * 
+         */
+        this.isStandaloneApp = true;
 
         /**
          * The stages of this app.
@@ -271,6 +275,11 @@ class App {
 
          /**TODO:*/
          this.groupingType = undefined;
+
+         /**
+          * Indicates whether or not the code for this app compiles to an error or not.
+          */
+        this.hasError = false;
 
          /**
           * If not null and this is the first App in a Session, sets the initial number of players to this amount.
@@ -1140,6 +1149,9 @@ class App {
         metaData.title = this.title;
         metaData.description = this.description;
         metaData.appPath = this.appPath;
+        metaData.hasError = this.hasError;
+        metaData.errorPosition = this.errorPosition;
+        metaData.errorLine = this.errorLine;
 
         // var folder = path.join(this.jt.path, this.jt.settings.appFolders[0] + '/' + this.id);
         try {

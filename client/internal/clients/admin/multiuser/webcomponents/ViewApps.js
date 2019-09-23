@@ -62,18 +62,26 @@ function showAppInfos() {
         row.data('appShortId', app.shortId);
 
         var actionDiv = $('<div class="btn-group">');
-        var createSessionBtn = $(`
-        <button class="btn btn-outline-primary btn-sm">
-            <i class="fa fa-play" title="start new session with this app"></i>
-        </button>`);
-
-        createSessionBtn.click(function(ev) {
-            ev.stopPropagation();
-            var optionEls = $(this).parents('tr').find('[app-option-name]');
-            var options = jt.deriveAppOptions(optionEls);
-            server.createSessionAndAddApp($(this).parents('tr').data('appId'), options);
-        });
-        actionDiv.append(createSessionBtn);
+        if (app.hasError) {
+            var errorMsg = $(`<div style='color: red'>
+            Error<br>
+            <small style='white-space: normal' class='text-muted'>line ${app.errorLine}, pos ${app.errorPosition}<small>
+            </div>`);
+            actionDiv.append(errorMsg);    
+        } else {
+            var createSessionBtn = $(`
+            <button class="btn btn-outline-primary btn-sm">
+                <i class="fa fa-play" title="start new session with this app"></i>
+            </button>`);
+    
+            createSessionBtn.click(function(ev) {
+                ev.stopPropagation();
+                var optionEls = $(this).parents('tr').find('[app-option-name]');
+                var options = jt.deriveAppOptions(optionEls);
+                server.createSessionAndAddApp($(this).parents('tr').data('appId'), options);
+            });
+            actionDiv.append(createSessionBtn);
+        }
 
         row.prepend($('<td>').append(actionDiv));
 

@@ -9,6 +9,9 @@ class ViewSessionControls extends HTMLElement {
             <span class='btn btn-outline-secondary btn-sm' onclick='server.sessionAdvanceSlowest();'>
                 <i class="fa fa-play"></i>&nbsp;&nbsp;Advance slowest
             </span>
+            <button id='resetSessionBtn' class="btn btn-outline-secondary btn-sm" onclick='server.resetSession()'>
+                <i class="fas fa-undo-alt"></i>&nbsp;&nbsp;Reset
+            </button>
             <button class="btn btn-outline-secondary btn-sm" onclick='setView("edit-app")'>
                 <i class="fa fa-copy"></i>&nbsp;&nbsp;Duplicate
             </button>
