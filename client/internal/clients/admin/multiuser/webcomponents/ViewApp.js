@@ -15,10 +15,13 @@ class ViewApp extends HTMLElement {
                 <button class="btn btn-outline-secondary btn-sm" onclick='jt.appEdit()'>
                     <i class="fa fa-edit"></i>&nbsp;&nbsp;Edit...
                 </button>
+                <button class="btn btn-outline-secondary btn-sm" onclick='jt.appRename()'>
+                    &nbsp;&nbsp;Rename...
+                </button>
             </div>
 
         <div class="view-buttons btn-group">
-              <button class="btn btn-outline-secondary btn-sm" onclick='jt.deleteApp()'>
+              <button class="btn btn-outline-danger btn-sm" onclick='jt.deleteApp()'>
                   <i class="fa fa-trash"></i>&nbsp;&nbsp;Delete...
               </button>
           </div>
@@ -86,6 +89,12 @@ jt.openApp = function(appId) {
     $('#view-app-tree').empty();
 
     setView('app');
+}
+
+jt.appRename = function() {
+    let appId = $('#view-app-fullId').text();
+    $('#rename-app-input').val(appId);
+    $('#renameAppModal').modal('show');
 }
 
 jt.appEdit = function() {

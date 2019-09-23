@@ -21,6 +21,9 @@ server.createAppFromFile    = function(fn, contents) { jt.socket.emit('createApp
 server.saveOutput = function() { jt.socket.emit('saveOutput', jt.data.session.id); }
 server.deleteQueue = function(id) { jt.socket.emit('deleteQueue', id); }
 server.setSessionId = function(oldId, newId) { jt.socket.emit('setSessionId', {oldId: oldId, newId: newId}); }
+server.renameApp    = function(originalId, newId, cb) {
+    jt.socket.emit('renameApp', {originalId, newId}, cb);
+}
 
 server.sendMessages = function(data) {
     jt.socket.emit('messages', data);
