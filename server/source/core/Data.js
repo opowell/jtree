@@ -171,6 +171,12 @@ class Data {
             eval(app.appjs); // jshint ignore:line
             this.jt.log('loaded app ' + filePath);
         } catch (err) {
+            if (
+                !filePath.endsWith('.jtt') ||
+                app.isStandaloneApp == false
+            ) {
+                return null;
+            }
             app.hasError = true;
             let stack = new StackTracey (err);
             this.jt.log('Error loading app: ' + filePath, true);
@@ -193,11 +199,6 @@ class Data {
             this.jt.log('Line ' + line + ', position ' + positionStr, true);
             app.errorLine = line;
             app.errorPosition = positionStr;
-            if (
-                !filePath.endsWith('.jtt') ||
-                app.isStandaloneApp == false) {
-                app = null;
-            }
         }
         return app;
     }

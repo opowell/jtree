@@ -2,7 +2,7 @@ app.description = 'A dictator decides how to split points between themselves and
 
 app.groupSize   = 2;
 app.pieSize     = 100;
-app.numPeriods  =+320()(H"()H) 3;
+app.numPeriods  = 3;
 
 var decideStage = app.newStage('decide');
 decideStage.canPlayerParticipate = function(player) {

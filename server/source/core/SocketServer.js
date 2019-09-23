@@ -76,7 +76,6 @@ class SocketServer {
                         if (cb != null) {
                             cb(false);
                         }
-                        debugger;
                     }
                 });
             })(fnI);

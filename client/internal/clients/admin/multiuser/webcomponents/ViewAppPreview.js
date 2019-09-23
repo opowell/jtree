@@ -1,7 +1,8 @@
 class ViewAppPreview extends HTMLElement {
     connectedCallback() {
       this.innerHTML = `
-        <div id='view-app-preview' style='box-shadow: 0px 0px 11px 2px #888; padding: 15px; display: flex;'>
+        <div id='view-app-preview' style='box-shadow: 0px 0px 11px 2px #888; padding: 15px; display: flex; flex-direction: column'>
+        <div id='view-app-compile-error' style='display: none'></div>
 
           <div id='view-app-tree'></div>
 
@@ -25,8 +26,21 @@ jt.updateAppPreview = function() {
     jt.socket.emit('updateAppPreview', {appId: appId, options: options});
 }
 
+jt.showAppError = function(app) {
+    let el = $('#view-app-compile-error');
+    if (app.hasError) {
+        el.html(`<div style='color: red'>
+            <i class="fas fa-exclamation-triangle"></i>&nbsp;&nbsp;Error: line ${app.errorLine}, pos ${app.errorPosition}
+            </div>`);
+        el.css('display', 'block');
+    } else {
+        el.css('display', 'none');
+    }
+}
+
 jt.showAppPreview = function(app) {
     $('.view-app-screen').resizable();
+    jt.showAppError(app);
     jt.showAppTree(app);
     var appMetaData = jt.appMetaData(app.id);
     try {
@@ -243,7 +257,29 @@ jt.funcEl = function(name, value) {
 
 jt.showAppTree = function(app) {
 
-    var appSkip = ['id', 'appjs', 'clientHTML', 'options', 'stages', 'optionValues', 'keyComparisons', 'finished', 'appDir', 'appFilename', 'shortId', 'appPath', 'started', 'indexInSession', 'periods', 'textMarkerBegin', 'textMarkerEnd'];
+    var appSkip = [
+        'id', 
+        'appjs', 
+        'clientHTML', 
+        'options',
+        'stages',
+        'optionValues',
+        'keyComparisons',
+        'finished',
+        'appDir',
+        'appFilename',
+        'shortId',
+        'appPath',
+        'started',
+        'indexInSession',
+        'periods',
+        'textMarkerBegin',
+        'textMarkerEnd',
+        'isStandaloneApp',
+        'hasError',
+        'errorLine',
+        'errorPosition',
+    ];
     var appDefaultVars = ['waitForAll', 'groupMatchingType', 'numPeriods', 'description', 'outputDelimiter', 'duration', 'useVue', 'periodText', 'vueModels', 'vueComputed', 'vueMethods', 'vueMethodsDefaults', 'clientScripts', 'modifyPathsToIncludeId', 'stageWaitToStart', 'stageWaitToEnd', 'givenOptions', 'title', "waitingScreen"];
     var stageDefaultVars = ['duration', 'waitToStart', 'waitToEnd', 'onPlaySendPlayer', 'updateObject', 'waitOnTimerEnd', 'showTimer', 'clientDuration', 'useAppActiveScreen', 'useAppWaitingScreen', 'wrapPlayingScreenInFormTag', 'addOKButtonIfNone', 'activeScreen', 'waitingScreen', 'stages', 'repetitions', 'autoplay', 'getGroupDuration'];
     var stageSkip = ['app.index', 'id', 'name', 'groupStart', 'groupEnd', 'playerStart', 'playerEnd', 'canPlayerParticipate'];

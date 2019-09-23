@@ -64,7 +64,7 @@ function showAppInfos() {
         var actionDiv = $('<div class="btn-group">');
         if (app.hasError) {
             var errorMsg = $(`<div style='color: red'>
-            Error<br>
+            <i class="fas fa-exclamation-triangle"></i>&nbsp;&nbsp;Error<br>
             <small style='white-space: normal' class='text-muted'>line ${app.errorLine}, pos ${app.errorPosition}<small>
             </div>`);
             actionDiv.append(errorMsg);    
