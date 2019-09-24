@@ -15,7 +15,5 @@ server/node_modules
 .DS_Store
 desktop.ini
 
-internal
-node_modules2
 node_modules
 server/internal
