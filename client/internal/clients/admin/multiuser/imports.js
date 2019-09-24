@@ -40,6 +40,7 @@ document.write('<script src="/admin/multiuser/View.js"></script>');
 
 document.write('<script src="/admin/multiuser/webcomponents/Button.js"></script>');
 document.write('<script src="/admin/multiuser/webcomponents/MainMenu.js"></script>');
+document.write('<script src="/admin/multiuser/webcomponents/RenameAppModal.js"></script>');
 document.write('<script src="/admin/multiuser/webcomponents/SetViewSizeModal.js"></script>');
 document.write('<script src="/admin/multiuser/webcomponents/ToggleSwitch.js"></script>');
 document.write('<script src="/admin/multiuser/webcomponents/ViewApp.js"></script>');

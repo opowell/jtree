@@ -1,0 +1,8 @@
+app.description = 'Import a local file.';
+
+var stage1 = app.newStage('stage1');
+stage1.activeScreen = `
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js">
+  Demo of importing external files.
+`;

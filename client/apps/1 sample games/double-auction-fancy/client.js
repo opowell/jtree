@@ -279,7 +279,6 @@ calcFV = function() {
 }
 
 jt.autoplay_trading = function() {
-    // DRAW VALUE (val)
     var fv = calcFV();
     var bAsk = jt.vue.bestAsk;
     var bBid = jt.vue.bestBid;

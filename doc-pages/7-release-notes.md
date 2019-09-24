@@ -1,3 +1,18 @@
+##### 2019.09.24 - 0.7.17
+- FIXED: # clients not updating.
+- ADDED: show apps with errors.
+- ADDED, Settings: suggestedNumParticipants.
+- ADDED: features/chat app.
+- REMOVED: features/messaging app.
+- FIXED: samples/double-auction-fancy app.
+- CHANGED, Group: automatically stringify and parse message data.
+- ADDED: messages object on client.
+Admin UI
+- ADDED: Restart session (with same Apps).
+- ADDED: feedback on button clicks.
+- ADDED: feature app, adding external library.
+- ADDED: feature chart app.
+
 ##### 2019.09.19 - 0.7.16
 - ADDED: option to serve files over HTTPS instead of HTTP.
 - FIXED: allow socket connections from outside local network.

@@ -481,6 +481,23 @@ jt.updatePlayer = function(player, updateVue) {
 
 jt.postUpdatePlayer = function() {}
 
+jt.messages = {}
+
+jt.defaultSocketConnected = function() {
+    var functionList = Object.getOwnPropertyNames(jt.messages);
+    for (var i in functionList) {
+        var fnI = functionList[i];
+        jt.socket.on(fnI, function(d, cb) {
+            try {
+                d = jt.parse(d);
+                eval('jt.messages.' + fnI + "(d)");
+            } catch (err) {
+                console.log("Error: " + err + "\n" + err.stack);
+            }
+        });
+    }
+}
+
 // Default client functionality to be included in all (most?) apps.
 jt.defaultConnected = function() {
 
@@ -966,13 +983,4 @@ jt.setAutoplay = function(b) {
         setTimeout(jt.autoplayWrapper, eval(jt.autoplayDelay));
     }
     jt.popupMessage('Setting autoplay to <b>' + b + '</b>.');
-}
-
-jt.popupMessage = function(text) {
-    var abDiv = $('<div class="popup">');
-    var div = $('<div class="alert-box success">');
-    div.html(text);
-    abDiv.append(div);
-    $('body').append(abDiv);
-    abDiv.delay(1200).fadeOut(700);
 }

@@ -90,6 +90,20 @@ class Msgs {
         this.jt.io.to('socket_' + socket.id).emit('setSessionId', data);
     }
 
+    renameApp(data, socket) {
+        fs.renameSync(data.originalId, data.newId);
+        this.jt.data.appsMetaData[data.newId] = this.jt.data.appsMetaData[data.originalId];
+        delete this.jt.data.appsMetaData[data.originalId];
+        this.jt.data.appsMetaData[data.newId].appPath = data.newId;
+        this.jt.data.appsMetaData[data.newId].id = data.newId;
+        let sep = '\\';
+        if (data.newId.includes('/')) {
+            sep = '/';
+        }
+        let lastFolderChar = data.newId.lastIndexOf(sep);
+        this.jt.data.appsMetaData[data.newId].shortId = data.newId.substring(lastFolderChar+1);
+    }
+
     /*
      * setNumParticipants - Sets the specified number of participants to the session.
      *
@@ -102,6 +116,13 @@ class Msgs {
         var session = this.jt.data.getSession(d.sId);
         var num = parseInt(d.number);
         session.setNumParticipants(num);
+    }
+
+    resetSession(d, socket) {
+        let session = this.jt.data.getSession(d.sId);
+        session.reset();
+        this.jt.io.to('socket_' + socket.id).emit('openSession', session.shellWithChildren());
+        this.jt.data.lastOpenedSession = session;
     }
 
     appAddStage(d, socket) {

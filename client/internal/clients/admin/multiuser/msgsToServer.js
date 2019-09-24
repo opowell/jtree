@@ -13,7 +13,7 @@ server.getRoom      = function(id)  { jt.socket.emit('get-room'         , id); }
 server.refreshApps  = function()    { jt.socket.emit('refresh-apps'     , ''); }
 server.addAppFolder = function(f)   { jt.socket.emit('add-app-folder'   , f); }
 server.createRoom   = function(id)  { jt.socket.emit('createRoom'      , id); }
-server.createApp   = function(id)  { jt.socket.emit('createApp'      , id); }
+server.createApp   = function(id, cb)  { jt.socket.emit('createApp'      , id, cb); }
 server.createQueue   = function(id)  { jt.socket.emit('createQueue'      , id); }
 server.saveRoom     = function(room) { jt.socket.emit('saveRoom', room); }
 server.startSessionFromQueue = function(id) { jt.socket.emit('startSessionFromQueue', {qId: id, userId: Cookies.get('userId')}); }
@@ -21,6 +21,9 @@ server.createAppFromFile    = function(fn, contents) { jt.socket.emit('createApp
 server.saveOutput = function() { jt.socket.emit('saveOutput', jt.data.session.id); }
 server.deleteQueue = function(id) { jt.socket.emit('deleteQueue', id); }
 server.setSessionId = function(oldId, newId) { jt.socket.emit('setSessionId', {oldId: oldId, newId: newId}); }
+server.renameApp    = function(originalId, newId, cb) {
+    jt.socket.emit('renameApp', {originalId, newId}, cb);
+}
 
 server.sendMessages = function(data) {
     jt.socket.emit('messages', data);
@@ -145,10 +148,21 @@ server.reloadClients = function() {
     jt.socket.emit('reloadClients');
 }
 
-server.setNumParticipants = function(amt) {
+server.setNumParticipants = function(amt, cb) {
     var d = {};
     d.sId = jt.data.session.id;
     d.number = amt;
-    jt.socket.emit('setNumParticipants', d);
+    jt.socket.emit('setNumParticipants', d, cb);
     $('#setNumParticipantsModal').modal('hide');
+}
+
+server.resetSession = function(cb) {
+    var d = {};
+    d.sId = jt.data.session.id;
+    jt.disableButton('resetSessionBtn', '<i class="fas fa-undo-alt"></i>&nbsp;&nbsp;Resetting...');
+    let activateBtn = function() {
+        jt.enableButton('resetSessionBtn',  '<i class="fas fa-undo-alt"></i>&nbsp;&nbsp;Reset');
+        jt.popupMessage('Reset session <b>' + d.sId + '</b>.');
+    }
+    jt.socket.emit('resetSession', d, activateBtn);
 }

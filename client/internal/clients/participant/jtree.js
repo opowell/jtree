@@ -8,5 +8,5 @@ document.write('<script src="/shared/jquery.cookie.js"></script>');
 document.write('<script src="/shared/vue.js"></script>');
 document.write('<script src="/shared/circularjson.js"></script>');
 document.write('<script src="/participant/defaultClient.js"></script>');
-document.write('<link rel="stylesheet" href="/participant/popups.css">');
+document.write('<link rel="stylesheet" href="/shared/popups.css">');
 document.write('<link rel="stylesheet" href="/participant/simple.css">');

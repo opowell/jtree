@@ -29,23 +29,19 @@ class ViewApps extends HTMLElement {
 }
 
 jt.reloadApps = function() {
-    $('#reloadAppsBtn').attr('disabled', true);
-    $('#reloadAppsBtn').addClass('disabled');
-    $('#reloadAppsBtn').removeClass('active');
-    $('#reloadAppsBtn').html('<i class="fas fa-redo-alt"></i>&nbsp;&nbsp;reloading...');
+    jt.disableButton('reloadAppsBtn', '<i class="fas fa-redo-alt"></i>&nbsp;&nbsp;reloading...');
     $('#appInfos').empty();
     jt.socket.emit("reloadApps", {});
 }
 
 jt.showCreateAppModal = function() {
     $("#createAppModal").modal("show");
+    $('#create-app-input').focus();
 }
 
 function showAppInfos() {
     var appInfos = jt.data.appInfos;
-    $('#reloadAppsBtn').attr('disabled', false);
-    $('#reloadAppsBtn').removeClass('disabled');
-    $('#reloadAppsBtn').html('<i class="fas fa-redo-alt"></i>&nbsp;&nbsp;reload');
+    jt.enableButton('reloadAppsBtn', '<i class="fas fa-redo-alt"></i>&nbsp;&nbsp;reload');
     $('#appInfos').empty();
     for (var a in appInfos) {
         var app = appInfos[a];
@@ -67,18 +63,26 @@ function showAppInfos() {
         row.data('appShortId', app.shortId);
 
         var actionDiv = $('<div class="btn-group">');
-        var createSessionBtn = $(`
-        <button class="btn btn-outline-primary btn-sm">
-            <i class="fa fa-play" title="start new session with this app"></i>
-        </button>`);
-
-        createSessionBtn.click(function(ev) {
-            ev.stopPropagation();
-            var optionEls = $(this).parents('tr').find('[app-option-name]');
-            var options = jt.deriveAppOptions(optionEls);
-            server.createSessionAndAddApp($(this).parents('tr').data('appId'), options);
-        });
-        actionDiv.append(createSessionBtn);
+        if (app.hasError) {
+            var errorMsg = $(`<div style='color: red'>
+            <i class="fas fa-exclamation-triangle"></i>&nbsp;&nbsp;Error<br>
+            <small style='white-space: normal' class='text-muted'>line ${app.errorLine}, pos ${app.errorPosition}<small>
+            </div>`);
+            actionDiv.append(errorMsg);    
+        } else {
+            var createSessionBtn = $(`
+            <button class="btn btn-outline-primary btn-sm">
+                <i class="fa fa-play" title="start new session with this app"></i>
+            </button>`);
+    
+            createSessionBtn.click(function(ev) {
+                ev.stopPropagation();
+                var optionEls = $(this).parents('tr').find('[app-option-name]');
+                var options = jt.deriveAppOptions(optionEls);
+                server.createSessionAndAddApp($(this).parents('tr').data('appId'), options);
+            });
+            actionDiv.append(createSessionBtn);
+        }
 
         row.prepend($('<td>').append(actionDiv));
 

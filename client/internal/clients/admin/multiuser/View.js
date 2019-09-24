@@ -19,6 +19,19 @@ QueueAppDiv = function(app) {
     return $('<div style="white-space: normal; word-break: break-all">').text(text);
 }
 
+jt.disableButton = function(elId, html) {
+    $('#' + elId).attr('disabled', true);
+    $('#' + elId).addClass('disabled');
+    $('#' + elId).removeClass('active');
+    $('#' + elId).html(html);
+}
+
+jt.enableButton = function(elId, html) {
+    $('#' + elId).attr('disabled', false);
+    $('#' + elId).removeClass('disabled');
+    $('#' + elId).html(html);
+}
+
 AppOptionRow = function(option, app, options) {
     var selected = undefined;
     if (app[option.name] !== undefined) {

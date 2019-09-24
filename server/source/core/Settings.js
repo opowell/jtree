@@ -42,7 +42,9 @@ class Settings {
          this.defaultAdminPwd        = undefined;
          this.sessionShowFullLinks   = false;
          this.loadSettings           = false;
-
+         this.session = {};
+         this.session.suggestedNumParticipants = 4;
+ 
          this.valsToSave = {};
 
          this.logMessage = null;

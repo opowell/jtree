@@ -1,3 +1,5 @@
+//NOTSTANDALONEAPP
+
 stage.groupStart = function(group) {
     var app = group.app();
     for (var p in group.players) {

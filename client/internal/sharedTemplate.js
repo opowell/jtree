@@ -31,6 +31,15 @@ window.onload = function() {
     jt.checkIfLoaded();
 }
 
+jt.popupMessage = function(text) {
+    var abDiv = $('<div class="popup">');
+    var div = $('<div class="alert-box success">');
+    div.html(text);
+    abDiv.append(div);
+    $('body').append(abDiv);
+    abDiv.delay(1200).fadeOut(700);
+}
+
 jt.checkIfLoaded = function() {
         var pId = jt.getPId();
         var pwd = jt.getURLParameter('pwd');
@@ -54,6 +63,7 @@ jt.checkIfLoaded = function() {
         jt.socket = io(jt.serverIP + ':' + jt.serverPort, query);
         jt.socket.on('connect', function() {
             console.log('client.socket connected socketId=' + jt.socket.id);
+            jt.defaultSocketConnected();
             jt.socketConnected();
         });
 
@@ -71,6 +81,10 @@ jt.checkIfLoaded = function() {
         if (jt.alwaysShowAllStages) {
             jt.showAllStages();
         }
+}
+
+jt.defaultSocketConnected = function() {
+    
 }
 
 // Overwrite

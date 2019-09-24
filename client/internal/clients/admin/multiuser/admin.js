@@ -15,11 +15,6 @@ function clearSelectedParticipants() {
     }
 }
 
-function setNumParticipants() {
-    const amt = $('#setNumParticipants').val();
-    server.setNumParticipants(amt);
-}
-
 function removeCustomAppFolder(folder) {
 
 }
@@ -73,7 +68,7 @@ jt.view = {};
 
 jt.view.updateNumParticipants = function() {
     const numParts = objLength(jt.data.session.participants);
-    $('#setNumParticipants').val(numParts);
+    $('#setNumParticipantsInput').val(numParts);
     $('#tabSessionParticipantsNumber').text(numParts);
 }
 

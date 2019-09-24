@@ -1,0 +1,14 @@
+app.description = 'Grouping based on player label.';
+
+app.groupIds = [
+    [['P1', 'P2'],['P3', 'P4']],
+    [['P3', 'P2'],['P1', 'P4']]
+];
+app.getGroupIdsForPeriod = function(period) {
+    return this.groupIds[period.id-1] // one row of app.groupIds
+}
+
+var stage = app.newStage('decide');
+stage.activeScreen = `
+    <p>You are player {{player.idInGroup}} in group {{group.id}}.</p>
+`;

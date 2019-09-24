@@ -1,3 +1,5 @@
+//NOTSTANDALONEAPP
+
 stage.waitToStart = false;
 
 stage.groupStart = function(group) {

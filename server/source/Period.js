@@ -75,11 +75,10 @@ class Period {
         var ng = null;
         if (this.app.groupSize !== undefined) {
             ng = Math.floor((Object.keys(this.session().participants).length - 1) / this.app.groupSize) + 1;
-        } else {
+        } else if (this.app.numGroups != null) {
             ng = this.app.numGroups;
-            if (ng === undefined) {
-                ng = 1; // by default, everyone in same group
-            }
+        } else {
+            ng = 1; // by default, everyone in same group
         }
         return ng;
     }
@@ -157,7 +156,6 @@ class Period {
     createGroups() {
         const app = this.app;
         const participants = app.session.participants;
-        const numGroups = this.numGroups();
         const gIds = app.getGroupIdsForPeriod(this);
 
         // Create groups
@@ -166,25 +164,51 @@ class Period {
             pIds.push(p);
         }
 
+        let numGroups = this.numGroups();
+        if (gIds[0].length != null) {
+            numGroups = gIds.length;
+        } else {
+            for (let i in gIds) {
+                numGroups = Math.max(numGroups, gIds[i]);
+            }
+        }
         for (var g=this.groups.length; g<numGroups; g++) {
             var group = new Group.new(g+1, this);
             group.save();
             this.groups.push(group);
-            for (var i=0; i<gIds[g].length; i++) {
-                var pId = gIds[g][i];
-                var participant = participants[pId];
-                var player = new Player.new(pId, participant, group, i+1);
-                participant.players.push(player);
-                player.save();
-                participant.save();
-                group.players.push(player);
+
+            if (gIds[g].length != null) {
+                // Label format
+                // [['P1', 'P2'], ['P3', 'P4'], ...]
+                for (var i=0; i<gIds[g].length; i++) {
+                    var pId = gIds[g][i];
+                    var participant = participants[pId];
+                    var player = new Player.new(pId, participant, group, i+1);
+                    participant.players.push(player);
+                    player.save();
+                    participant.save();
+                    group.players.push(player);
+                }
+                group.allPlayersCreated = true;
+                group.save();    
+            } else {
+                // Numerical format
+                // [['P1', 'P2'], ['P3', 'P4'], ...]
+                for (var i=0; i<gIds.length; i++) {
+                    if (gIds[i] == group.id) {
+                        var participant = participants[pIds[i]];
+                        var player = new Player.new(pIds[i], participant, group, group.players.length+1);
+                        participant.players.push(player);
+                        player.save();
+                        participant.save();
+                        group.players.push(player);
+                    }
+                }
+                group.allPlayersCreated = true;
+                group.save();    
             }
-            group.allPlayersCreated = true;
-            group.save();
-//            if (this.app.stages[0].canGroupPlay(group)) {
-            //    this.app.stages[0].groupPlayDefault(group);
-//            }
         }
+
     }
 
     groupIds() {
