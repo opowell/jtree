@@ -35,7 +35,15 @@ jt.createAppKeyUp = function(e) {
 jt.createApp = function() {
     var id = $('#create-app-input').val();
     if (id.length > 0) {
-        server.createApp(id);
+        if (!id.includes('.')) {
+            id = id + '.jtt';
+        }
+
+        let cb = function() {
+            jt.popupMessage('Created app = ' + id);
+        }
+    
+        server.createApp(id, cb);
         $("#createAppModal").modal("hide");
         $('#create-app-input').val('');
     }
