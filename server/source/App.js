@@ -810,10 +810,10 @@ class App {
                 html = html.replace(new RegExp(i + "='", "gmi"), i + "='./" + this.shortId + '/');
     
                 // Revert fix.
-                html = html.replace(new RegExp(i + 'XXX="', 'gmi'), 'src="/');
-                html = html.replace(new RegExp(i + "XXX='", "gmi"), "src='/");
-                html = html.replace(new RegExp(i + 'XXXhttp="', 'gmi'), 'src="http');
-                html = html.replace(new RegExp(i + "XXXhttp='", "gmi"), "src='http");
+                html = html.replace(new RegExp(i + 'XXX="', 'gmi'), i + '="/');
+                html = html.replace(new RegExp(i + "XXX='", "gmi"), i + "='/");
+                html = html.replace(new RegExp(i + 'XXXhttp="', 'gmi'), i + '="http');
+                html = html.replace(new RegExp(i + "XXXhttp='", "gmi"), i + "='http");
             }
         }
         // Return to client.
@@ -864,7 +864,7 @@ class App {
             let nextStart = text.indexOf('<' + tagName, start + tagName.length + 1);
             let endTag = '/' + tagName + '>';
             let end = text.indexOf(endTag, start) + endTag.length;
-            if (end == -1 || end > nextStart) {
+            if (end == -1 || (nextStart > -1 && end > nextStart)) {
                 endTag = '>';
                 end = text.indexOf(endTag, start) + endTag.length;
             } 

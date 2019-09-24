@@ -68,7 +68,7 @@ jt.view = {};
 
 jt.view.updateNumParticipants = function() {
     const numParts = objLength(jt.data.session.participants);
-    $('#setNumParticipants').val(numParts);
+    $('#setNumParticipantsInput').val(numParts);
     $('#tabSessionParticipantsNumber').text(numParts);
 }
 

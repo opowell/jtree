@@ -1,4 +1,4 @@
-This tutorial will show you how to program the simple public goods game used in the previous section. Create a file called `my-public-goods.jtt` in the `<jtree>/apps/` folder.
+This tutorial will show you how to program the simple public goods game used in the previous section. From the "Apps" page, click "create...". Type `my-public-goods` as the filename, then click "Create".
 
 First, we will define the parameters and stages of the app. Each app file begins with a pre-defined App object called `app`, and fields are modified and/or added to this object using regular Javascript. Add the following code to your file now:
 

@@ -22,7 +22,7 @@ app.html = `
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <script type="text/javascript" src="/participant/jtree.js"></script>
         <script src="/shared/bootstrap.min.js"></script>
-        <script src="/double-auction-fancy/Chart.min.js"></script>
+        <script src="/shared/Chart.min.js"></script>
         <script src="client.js"></script>
         <link rel="stylesheet" href="/shared/bootstrap.min.css">
         <link rel="stylesheet" href="client.css">
