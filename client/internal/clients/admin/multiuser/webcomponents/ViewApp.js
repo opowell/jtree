@@ -16,7 +16,7 @@ class ViewApp extends HTMLElement {
                     <i class="fa fa-edit"></i>&nbsp;&nbsp;Edit...
                 </button>
                 <button class="btn btn-outline-secondary btn-sm" onclick='jt.appRename()'>
-                    &nbsp;&nbsp;Rename...
+                    &nbsp;&nbsp;Rename / Move...
                 </button>
             </div>
 
@@ -95,6 +95,7 @@ jt.appRename = function() {
     let appId = $('#view-app-fullId').text();
     $('#rename-app-input').val(appId);
     $('#renameAppModal').modal('show');
+    $('#rename-app-input').focus();
 }
 
 jt.appEdit = function() {

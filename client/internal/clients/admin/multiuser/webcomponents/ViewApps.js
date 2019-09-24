@@ -36,6 +36,7 @@ jt.reloadApps = function() {
 
 jt.showCreateAppModal = function() {
     $("#createAppModal").modal("show");
+    $('#create-app-input').focus();
 }
 
 function showAppInfos() {
