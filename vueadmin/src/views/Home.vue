@@ -1,7 +1,10 @@
 <template>
-  <div class="home">
+  <div>
     <main-menu/>
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <div id='view-home' class='view'>
+        Welcome to jtree.
+        <div style='padding-top: 1rem; color: #888'>0.7.18</div>
+    </div>
   </div>
 </template>
 
