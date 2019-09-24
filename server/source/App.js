@@ -753,7 +753,8 @@ class App {
 
         let [strippedScripts, stagesHTML1] = this.stripTag('script', stagesHTML);
         let [strippedStyles, stagesHTML2] = this.stripTag('style', stagesHTML1);
-        stagesHTML = stagesHTML2;
+        let [strippedLinks, stagesHTML3] = this.stripTag('link', stagesHTML2);
+        stagesHTML = stagesHTML3;
 
         if (html.includes('{{stages}}')) {
             html = html.replace('{{stages}}', stagesHTML);
@@ -780,7 +781,7 @@ class App {
             html = '<script type="text/javascript" src="/participant/jtree.js"></script>\n' + html;
         }
 
-        let scriptsHTML = strippedStyles + '\n' + strippedScripts;
+        let scriptsHTML = strippedLinks + '\n' + strippedStyles + '\n' + strippedScripts;
         if (app.clientScripts != null) {
             if (!app.clientScripts.trim().startsWith('<script')) {
                 scriptsHTML = '<script>' + app.clientScripts + '</script>';
@@ -795,22 +796,25 @@ class App {
         }
 
         if (this.modifyPathsToIncludeId) {
-
-            // Temporary fix, do not change anything that starts with '/' or 'http'.
-            html = html.replace(/src="\//gmi, 'srcXXX="');
-            html = html.replace(/src='\//gmi, "srcXXX='");
-            html = html.replace(/src="http/gmi, 'srcXXXhttp="');
-            html = html.replace(/src='http/gmi, "srcXXXhttp='");
-
-            html = html.replace(/src="/gmi, 'src="./' + this.shortId + '/');
-            html = html.replace(/src='/gmi, "src='./" + this.shortId + '/');
-
-            // Revert fix.
-            html = html.replace(/srcXXX="/gmi, 'src="/');
-            html = html.replace(/srcXXX='/gmi, "src='/");
-            html = html.replace(/srcXXXhttp="/gmi, 'src="http');
-            html = html.replace(/srcXXXhttp='/gmi, "src='http");
-
+            let prefixes = ['href', 'src'];
+            for (let ind in prefixes) {
+                let i = prefixes[ind];
+                // Temporary fix, do not change anything that starts with '/' or 'http'.
+                html = html.replace(new RegExp(i + '="\\/', 'gmi'), i + 'XXX="');
+                html = html.replace(new RegExp(i + "='\\/", "gmi"), i + "XXX='");
+                html = html.replace(new RegExp(i + '="http', 'gmi'), i + 'XXXhttp="');
+                html = html.replace(new RegExp(i + "='http", "gmi"), i + "XXXhttp='");
+    
+                // Replace all other paths.
+                html = html.replace(new RegExp(i + '="', 'gmi'), i + '="./' + this.shortId + '/');
+                html = html.replace(new RegExp(i + "='", "gmi"), i + "='./" + this.shortId + '/');
+    
+                // Revert fix.
+                html = html.replace(new RegExp(i + 'XXX="', 'gmi'), 'src="/');
+                html = html.replace(new RegExp(i + "XXX='", "gmi"), "src='/");
+                html = html.replace(new RegExp(i + 'XXXhttp="', 'gmi'), 'src="http');
+                html = html.replace(new RegExp(i + "XXXhttp='", "gmi"), "src='http");
+            }
         }
         // Return to client.
         res.send(html);
@@ -854,8 +858,17 @@ class App {
         let strippedText = '';
         while (text.includes('<' + tagName)) {
             let start = text.indexOf('<' + tagName);
-            let end = text.indexOf('/' + tagName + '>') + ('/' + tagName + '>').length;
-            if (start == -1 || end == -1 || start >= end) {
+            if (start == -1) {
+                break;
+            }
+            let nextStart = text.indexOf('<' + tagName, start + tagName.length + 1);
+            let endTag = '/' + tagName + '>';
+            let end = text.indexOf(endTag, start) + endTag.length;
+            if (end == -1 || end > nextStart) {
+                endTag = '>';
+                end = text.indexOf(endTag, start) + endTag.length;
+            } 
+            if (end == -1 + endTag.length) {
                 break;
             }
             strippedText += text.substring(start, end);

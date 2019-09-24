@@ -1,0 +1,21 @@
+.trade {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 5px;
+    padding-right: 5px;
+    background-color: rgb(54, 162, 235);
+    color: white;
+    margin: 1px;
+}
+#jtree {
+    border: none;
+    flex: 1 1 auto;
+    background-color: unset;
+    padding: 0px;
+}
+.card-body {
+    padding-bottom: 18px;
+}
+body {
+    max-width: unset;
+}

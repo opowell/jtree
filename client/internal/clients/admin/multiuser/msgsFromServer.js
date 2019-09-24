@@ -146,6 +146,25 @@ msgs.openSession = function(session) {
     jt.setSessionView('appqueue');
 }
 
+msgs.addClient = function(md) {
+    if (md.session == null || md.session.id == null) {
+        return;
+    }
+    if (md.pId == null) {
+        return;
+    }
+
+    let participant = jt.data.session.participants[md.pId];
+
+    if (participant == null) {
+        return;
+    }
+
+    participant.numClients++;
+
+    $('.participant-' + md.pId + '-numClients').text(participant.numClients);
+}
+
 msgs.updateSessionId = function(md) {
     var session = findById(jt.data.sessions, d.sId);
     if (session !== null && session !== undefined) {

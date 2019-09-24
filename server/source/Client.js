@@ -40,6 +40,9 @@ class Client {
         out.id = this.id;
         out.ip = this.ip;
         out.pId = this.pId;
+        if (this.participant != null) {
+            out.pId = this.participant.id;
+        }
         out.lastActivity = this.lastActivity;
         if (this.session != null) {
             out.session = this.session.shell();

@@ -1,23 +1,34 @@
-app.description = 'Demonstrates the use of a table.';
+app.description = 'Draw a chart using chart.js.';
 
 var stage = app.newStage('stage1');
-stage.groupStart = function(group) {
-    group.addTable('offers');
-}
 stage.activeScreen = `
-    <p>
-        <input v-model='price' type='number' min='1' max='20' step='1'>
-        <button type='button' :disabled='!(price > 0)' @click='jt.sendMessage("makeOffer", price)'>Make offer [1-20]</button>
-    </p>
-    <p>Offers:
-        <div v-for='offer in group.offers' :value='offer.id' :key='offer.id'>
-            {{ offer.price }}
-        </div>
-    </p>
+    <button type='button' onclick='addData()'>Add data</button>
+    <canvas id="myChart" width="600" height="500"></canvas>
 `;
 
-//  Listen for messages from clients.
-app.messages.makeOffer = function(price) {
-    var offer = {price: price};
-    this.participant.player.group.offers.new(offer); // Notifies group's players about new offer.
+var ctx = document.getElementById('myChart').getContext('2d');
+
+var chartDatasets = [
+    {
+        label: "Data",
+        type: "scatter",
+        pointBorderColor: "rgb(54, 162, 235)",
+        pointBackgroundColor: "rgba(54, 162, 235, 0.2)",
+        data: [],
+        showLine: false,
+        pointRadius: 4
+    },
+];
+
+jt.chart = Chart.Scatter(ctx, {
+    data: {
+            datasets: chartDatasets
+    },
+});
+
+addData = function() {
+    let x = Math.random()*100;
+    let y = Math.random()*100;
+    jt.chart.data.datasets[0].push([x, y]);
+    jt.chart.update();
 }
