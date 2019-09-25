@@ -229,7 +229,8 @@ class StaticServer {
 
         //////////////////////////////
         // Generate files used by clients.
-        this.generateSharedJS();
+        this.generateSharedJS(this.jt.settings.clientJSTemplateFile, this.jt.settings.clientJSFile);
+        this.generateSharedJS(this.jt.settings.clientJSModuleTemplateFile, this.jt.settings.clientJSModuleFile);
         // If running in development mode, recompile client webpack.
         if (process.argv[0].indexOf('node') > -1) {
             this.generateClientModels();
@@ -317,9 +318,9 @@ class StaticServer {
      * http://stackoverflow.com/questions/3653065/get-local-ip-address-in-node-js
      * http://stackoverflow.com/questions/14177087/replace-a-string-in-a-file-with-nodejs
      */
-    generateSharedJS() {
-        var fn = path.join(this.jt.path, this.jt.settings.clientJSTemplateFile) // file with marker
-        var newFN = path.join(this.jt.path, this.jt.settings.clientJSFile) // actual file to be sent to clients and admins
+    generateSharedJS(inFile, outFile) {
+        var fn = path.join(this.jt.path, inFile) // file with marker
+        var newFN = path.join(this.jt.path, outFile) // actual file to be sent to clients and admins
         try {
             fs.copySync(fn, newFN);
             replace({

@@ -1,5 +1,6 @@
 build-tools/7z.dll
 build-tools/7z.exe
+client/internal/clients/admin/vue
 client/internal/clients/shared/shared.js
 client/internal/docs
 client/internal/logs

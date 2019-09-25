@@ -1,7 +1,8 @@
 //
 // MAKE CHANGES TO 'sharedTemplate.js', not 'shared.js' directly!!!
 //
-var jt = jt || {};
+import jt from '@/webcomps/jtree.js'
+import $ from 'jquery'
 
 // Code used by both participant and admin.
 jt.socket = null;
@@ -235,3 +236,5 @@ if (jt.connected == null) {
 if (jt.showPId == null) {
     jt.showPId = function(id)        {}
 }
+
+export default jt
