@@ -28,8 +28,8 @@ class ViewApps extends HTMLElement {
     }
 }
 
-let jt = window.jt; 
-let $ = window.$;
+import jt from '@/webcomponents/View.js';
+import $ from 'jquery';
 
 jt.reloadApps = function() {
     jt.disableButton('reloadAppsBtn', '<i class="fas fa-redo-alt"></i>&nbsp;&nbsp;reloading...');
@@ -42,7 +42,7 @@ jt.showCreateAppModal = function() {
     $('#create-app-input').focus();
 }
 
-function showAppInfos() {
+window.showAppInfos = function() {
     var appInfos = jt.data.appInfos;
     jt.enableButton('reloadAppsBtn', '<i class="fas fa-redo-alt"></i>&nbsp;&nbsp;reload');
     $('#appInfos').empty();
@@ -82,7 +82,7 @@ function showAppInfos() {
                 ev.stopPropagation();
                 var optionEls = $(this).parents('tr').find('[app-option-name]');
                 var options = jt.deriveAppOptions(optionEls);
-                server.createSessionAndAddApp($(this).parents('tr').data('appId'), options);
+                window.server.createSessionAndAddApp($(this).parents('tr').data('appId'), options);
             });
             actionDiv.append(createSessionBtn);
         }
@@ -93,18 +93,18 @@ function showAppInfos() {
     }
 }
 
-function addAppToSessionAndStart(event) {
+window.addAppToSessionAndStart = function(event) {
     event.stopPropagation();
     console.log('add app to session and start: ' + event.data.id + ', name = ' + event.data.name);
-    server.addAppToSessionAndStart(event.data.id);
-    setPage('participants');
+    window.server.addAppToSessionAndStart(event.data.id);
+    window.setPage('participants');
 }
 
 jt.startSessionWithApp = function() {
     var appId = $('#view-app-fullId').text();
     var optionEls = $('#view-app [app-option-name]');
     var options = jt.deriveAppOptions(optionEls);
-    server.createSessionAndAddApp(appId, options);
+    window.server.createSessionAndAddApp(appId, options);
 }
 
 window.customElements.define('view-apps', ViewApps);
