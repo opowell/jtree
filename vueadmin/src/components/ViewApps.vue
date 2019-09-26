@@ -20,6 +20,11 @@
           </thead>
           <tbody id='appInfos'>
           </tbody>
+          <!-- <tbody>
+              <AppRow v-for='app in apps' :key='app.shortId' as tr>
+                  <td>{{app.shortId}}</td>
+              </AppRow>
+          </tbody> -->
       </table>
   </div>
 </template>
@@ -28,15 +33,21 @@
 
 import $ from 'jquery'
 import jt from '@/webcomps/jtree.js'
+import server from '@/webcomps/msgsToServer.js'
 
 export default {
-  name: 'ViewHome',
+  name: 'ViewApps',
   props: {
     msg: String
+  },
+  data() {
+    return {
+        apps: this.$store.state.appInfos
+    }
   }
 }
 
-window.showAppInfos = function() {
+jt.showAppInfos = function() {
     var appInfos = window.jt.data.appInfos;
     jt.enableButton('reloadAppsBtn', '<i class="fas fa-redo-alt"></i>&nbsp;&nbsp;reload');
     $('#appInfos').empty();
@@ -76,7 +87,7 @@ window.showAppInfos = function() {
                 ev.stopPropagation();
                 var optionEls = $(this).parents('tr').find('[app-option-name]');
                 var options = jt.deriveAppOptions(optionEls);
-                window.server.createSessionAndAddApp($(this).parents('tr').data('appId'), options);
+                server.createSessionAndAddApp($(this).parents('tr').data('appId'), options);
             });
             actionDiv.append(createSessionBtn);
         }

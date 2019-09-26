@@ -1,5 +1,4 @@
 // EXTERNAL LIBRARIES
-document.write('<script src="/socket.io/socket.io.js"></script>');
 document.write('<script src="/shared/HackTimer.min.js"></script>');
 document.write('<script src="/shared/HackTimerWorker.min.js"></script>');
 document.write('<script src="/shared/jquery-1.11.1.js"></script>');
@@ -15,9 +14,12 @@ document.write('<script src="/shared/vue.js"></script>');
 document.write('<script src="/shared/webcomponents-bundle.js"></script>');
 document.write('<script src="/shared/polyfill.min.js"></script>');
 document.write('<script src="/shared/bootstrap-vue.js"></script>');
+// document.write('<script src="/socket.io/socket.io.js"></script>');
+// document.write('<script src="/shared/shared.js"></script>');
+
 
 // INTERNAL LIBRARIES
-document.write('<script src="/admin/multiuser/msgsFromServer.js"></script>');
+// document.write('<script src="/admin/multiuser/msgsFromServer.js"></script>');
 
 // INTERNAL COMPONENTS
 

@@ -4,7 +4,9 @@ import $ from 'jquery'
 import Utils from '@/webcomps/utilsFns.js'
 import msgs from '@/webcomps/msgsFromServer.js'
 
-window.participantTimers = {};
+window.msgs = msgs;
+
+jt.participantTimers = {};
 
 // window.reloadParticipantView() {
 //     for (var i in selectedParticipants) {
@@ -14,15 +16,15 @@ window.participantTimers = {};
 //     }
 // }
 
-window.clearSelectedParticipants = function() {
+jt.clearSelectedParticipants = function() {
     const numSelected = this.selectedParticipants.length;
     for (let i=0; i<numSelected; i++) {
-        window.removeSelectedParticipant(this.selectedParticipants[0]);
+        jt.removeSelectedParticipant(this.selectedParticipants[0]);
     }
 }
 
 // eslint-disable-next-line no-unused-vars
-window.removeCustomAppFolder = function(folder) {
+jt.removeCustomAppFolder = function(folder) {
 
 }
 
@@ -34,25 +36,25 @@ window.removeCustomAppFolder = function(folder) {
 //     return div;
 // }
 
-window.deleteParticipant = function(pId) {
+jt.deleteParticipant = function(pId) {
     $('.participant-' + pId).remove();
     delete jt.data.session.participants[pId];
     $('#deleteParticipantSelect option[value=' + pId + ']').remove();
 }
 
-window.setQueue = function(event) {
+jt.setQueue = function(event) {
     event.stopPropagation();
     console.log('set session queue: ' + event.data.id + ', name = ' + event.data.name);
     server.setQueue(event.data.id);
 }
 
-window.setQueueAndStart = function(event) {
+jt.setQueueAndStart = function(event) {
     event.stopPropagation();
     console.log('set session queue and start: ' + event.data.id + ', name = ' + event.data.name);
     server.setQueueAndStart(event.data.id);
 }
 
-window.addSelectedAppToQueue = function() {
+jt.addSelectedAppToQueue = function() {
     var id = $('#addAppToQueueSelect').val();
     server.sessionAddApp(id);
 }
@@ -62,7 +64,7 @@ jt.addAppToNewQueue = function(aId) {
 
 }
 
-window.addAppFolder = function() {
+jt.addAppFolder = function() {
     var folder = $('#input-app-folder').val();
     server.addAppFolder(folder);
 }
@@ -72,7 +74,7 @@ jt.setApps = function(apps) {
     for (let i in apps) {
         window.vue.$store.state.appInfos.push(apps[i]);
     }
-    window.showAppInfos();
+    jt.showAppInfos();
 }
 
 jt.view = {};
@@ -83,7 +85,7 @@ jt.view.updateNumParticipants = function() {
     $('#tabSessionParticipantsNumber').text(numParts);
 }
 
-window.refresh = function(ag) {
+jt.refresh = function(ag) {
     // console.log('refresh');
 
     jt.data.clockRunning = ag.clockRunning;
@@ -98,24 +100,58 @@ window.refresh = function(ag) {
     jt.data.users = ag.users;
 
     jt.setApps(ag.apps);
-    this.showSessions();
-    this.showAppFolders(ag.appFolders);
-    this.showRooms();
-    this.showQueues();
-    this.showUsers();
+    // window.showSessions();
+    // jt.showAppFolders(ag.appFolders);
+    // window.showRooms();
+    // window.showQueues();
+    // window.showUsers();
 
     $('#setAutoplayFreq-input').val(jt.settings.autoplayDelay);
 
-    jt.showUsersMode(jt.settings.multipleUsers);
+    // jt.showUsersMode(jt.settings.multipleUsers);
 
 }
 
-window.removeClient = function(cId) {
+jt.removeClient = function(cId) {
     $('#client-' + cId).remove();
 }
 
+jt.socketConnected = function() {
+    server.refreshAdmin();
+
+    // eslint-disable-next-line no-undef
+    ace.config.set("basePath", "/shared/ace");
+
+    // var editor = ace.edit("edit-app-appjs");
+    // var editorCH = ace.edit("edit-app-clienthtml");
+    // editor.setTheme("ace/theme/tomorrow");
+    // editor.session.setMode("ace/mode/javascript");
+    // editorCH.setTheme("ace/theme/tomorrow");
+    // editorCH.session.setMode("ace/mode/html");
+
+    // 2019.09.25: Disable temporarily until editor window exists.
+    // jt.editor = new Editor();
+}
+
 jt.connected = function() {
-    debugger;
+
+    jt.socketConnected = function() {
+        server.refreshAdmin();
+    
+        // eslint-disable-next-line no-undef
+        ace.config.set("basePath", "/shared/ace");
+    
+        // var editor = ace.edit("edit-app-appjs");
+        // var editorCH = ace.edit("edit-app-clienthtml");
+        // editor.setTheme("ace/theme/tomorrow");
+        // editor.session.setMode("ace/mode/javascript");
+        // editorCH.setTheme("ace/theme/tomorrow");
+        // editorCH.session.setMode("ace/mode/html");
+    
+        // 2019.09.25: Disable temporarily until editor window exists.
+        // jt.editor = new Editor();
+    }
+    
     // $('#startAdvanceSlowest').click(function(ev) {
     //     ev.stopPropagation();
     //     server.sessionAdvanceSlowest();
@@ -129,7 +165,7 @@ jt.connected = function() {
             // eslint-disable-next-line no-unused-vars
             jt.socket.on(i, function(d) {
                 // console.log('received message ' + i + ': ' + JSON.stringify(d));
-                eval('msgs.' + i + "(d)");
+                eval('window.msgs.' + i + "(d)");
             });
         })(i);
     }
@@ -141,7 +177,7 @@ jt.connected = function() {
     jt.socket.on('refresh-apps', function(appInfos) {
         // console.log('refresh-apps');
         jt.data.appInfos = appInfos;
-        window.showAppInfos();
+        jt.showAppInfos();
     });
 
     jt.socket.on('stage-end', function(a) {
@@ -169,8 +205,8 @@ jt.connected = function() {
     jt.socket.on('remove-client', function(client) {
         if (client.session.id === jt.data.session.id) {
             console.log('remove client: ' + client);
-            this.deleteById(jt.data.session.clients, client.id);
-            this.removeClient(client.id);
+            jt.deleteById(jt.data.session.clients, client.id);
+            jt.removeClient(client.id);
             var participant = this.findById(jt.data.session.participants, client.pId);
             if (participant != null) {
                 participant.numClients--;
@@ -199,45 +235,5 @@ jt.connected = function() {
         }
     });
 
-    var interfaceMode = localStorage.getItem('interfaceMode');
-    if (interfaceMode === null) {
-        interfaceMode = 'basic';
-    }
-    jt.setInterfaceMode(interfaceMode);
-
-    // var queuesMode = localStorage.getItem('queuesMode');
-    // if (queuesMode === null) {
-    //     queuesMode = 'hide';
-    // }
-    // jt.setQueuesMode(queuesMode);
-
-  // var sId = localStorage.getItem("sessionId");
-  // if (sId !== null) {
-  //     server.openSessionId(sId);
-  // } else {
-  //     server.sessionCreate();
-  // }
-
-  var userId = window.Cookies.get('userId');
-  if (userId !== undefined) {
-      $('#menu-userid').text(userId);
-  }
-
 }
 
-jt.socketConnected = function() {
-    server.refreshAdmin();
-
-    // eslint-disable-next-line no-undef
-    ace.config.set("basePath", "/shared/ace");
-
-    // var editor = ace.edit("edit-app-appjs");
-    // var editorCH = ace.edit("edit-app-clienthtml");
-    // editor.setTheme("ace/theme/tomorrow");
-    // editor.session.setMode("ace/mode/javascript");
-    // editorCH.setTheme("ace/theme/tomorrow");
-    // editorCH.session.setMode("ace/mode/html");
-
-    // 2019.09.25: Disable temporarily until editor window exists.
-    // jt.editor = new Editor();
-}

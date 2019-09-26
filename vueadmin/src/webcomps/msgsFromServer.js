@@ -9,12 +9,15 @@ let findById = Utils.findById
 let objLength = Utils.objLength
 
 var msgs = {};
+
+jt.msgs = msgs;
+
 msgs.addSession = function(session) {
   var index = findById(jt.data.sessions, session.id);
   if (index === null) {
       jt.data.sessions.push(session);
-      window.showSessionRow(session);
-      jt.showUsersMode(jt.settings.multipleUsers);
+      jt.showSessionRow(session);
+    //   jt.showUsersMode(jt.settings.multipleUsers);
   }
 }
 msgs.deleteSession = function(id) {
@@ -23,7 +26,7 @@ msgs.deleteSession = function(id) {
         if (id === session.id) {
             jt.data.sessions.splice(i, 1);
             i--;
-            window.showSessions();
+            jt.showSessions();
         }
     }
 }
@@ -38,7 +41,7 @@ msgs.reloadApps = function(apps) {
 
 msgs.createRoom = function(room) {
     jt.data.rooms.push(room);
-    window.showRoom(room);
+    jt.showRoom(room);
 }
 
 msgs.dataUpdate = function(dataChanges) {
@@ -56,13 +59,13 @@ msgs.createUser = function(user) {
 
 msgs.createApp = function(app) {
     jt.data.appInfos[app.id] = app;
-    window.showAppInfos();
+    jt.showAppInfos();
     jt.openApp(app.id);
 }
 
 msgs.createQueue = function(queue) {
     jt.data.queues.push(queue);
-    window.showQueue(queue);
+    jt.showQueue(queue);
 }
 
 msgs.setSessionId = function(data) {
@@ -115,8 +118,8 @@ msgs.removeRoomClient = function(client) {
 
 msgs.openSession = function(session) {
 
-    for (let i in window.participantTimers) {
-        clearInterval(window.participantTimers[i]);
+    for (let i in jt.participantTimers) {
+        clearInterval(jt.participantTimers[i]);
     }
 
     const prevSession = jt.data.session;
@@ -137,20 +140,20 @@ msgs.openSession = function(session) {
         $('#view-session-results-filelink')
             .text(filelink)
             .attr('href', 'file:///' + filelink);
-        this.showPanel("#panel-session-info");
-        this.showParticipants(jt.data.session.participants);
+        jt.showPanel("#panel-session-info");
+        jt.showParticipants(jt.data.session.participants);
         // viewAllParticipants();
-        this.updateSessionApps();
-        jt.updateSessionUsers();
-        this.updateAllowNewParts();
-        this.updateAllowAdminPlay();
+        jt.updateSessionApps();
+        // jt.updateSessionUsers();
+        jt.updateAllowNewParts();
+        jt.updateAllowAdminPlay();
         jt.updateChartPage();
         jt.chartVar('test');
     }
 
     // $('#session-participants').removeAttr('hidden');
 
-    this.window.setView('session');
+    jt.setView('session');
     jt.view.updateNumParticipants();
     jt.setSessionView('appqueue');
 }
@@ -178,27 +181,27 @@ msgs.updateSessionId = function(d) {
     var session = findById(jt.data.sessions, d.sId);
     if (session !== null && session !== undefined) {
         session.users.push(d.uId);
-        window.showSessions();
+        jt.showSessions();
     }
     if (jt.data.session.id === d.sId) {
-        window.updateSessionUsers();
+        jt.updateSessionUsers();
     }
 }
 
 msgs.participantSetAppIndex = function(md) {
     var participant = jt.data.session.participants[md.participantId];
     participant.appIndex = md.appIndex;
-    window.showPlayerCurApp(participant);
+    jt.showPlayerCurApp(participant);
 }
 
 msgs.participantSetGroupId = function(md) {
-    $('.participant-' + window.safePId(md.participantId) + '-groupId').text(md.groupId);
+    $('.participant-' + jt.safePId(md.participantId) + '-groupId').text(md.groupId);
 }
 
 msgs.participantSetPeriodIndex = function(md) {
     var participant = jt.data.session.participants[md.participantId];
     participant.periodIndex = md.periodIndex;
-    $('.participant-' + window.safePId(md.participantId) + '-periodIndex').text(participant.periodIndex+1);
+    $('.participant-' + jt.safePId(md.participantId) + '-periodIndex').text(participant.periodIndex+1);
 }
 
 msgs.playerSetStageIndex = function(md) {
@@ -214,14 +217,14 @@ msgs.playerSetStageIndex = function(md) {
         if (stage !== undefined) {
             stageText = stage.id;
         }
-        $('.participant-' + window.safePId(md.participantId) + '-stageId').text(stageText);
+        $('.participant-' + jt.safePId(md.participantId) + '-stageId').text(stageText);
     // eslint-disable-next-line no-empty
     } catch (err) {}
 }
 msgs.participantSetPlayer = function(md) {
     var participant = jt.data.session.participants[md.participantId];
     participant.player = md.player;
-    $('.participant-' + window.safePId(md.participantId) + '-groupId').text(participant.player.group.id);
+    $('.participant-' + jt.safePId(md.participantId) + '-groupId').text(participant.player.group.id);
 }
 msgs.playerUpdate = function(player) {
 //    var decompId = decomposeId(player.roomId);
@@ -230,7 +233,7 @@ msgs.playerUpdate = function(player) {
     player = jt.parse(player);
 
     if (player.group.period.app.session.id === jt.data.session.id) {
-        var div = $('tr.participant-' + window.safePId(player.id));
+        var div = $('tr.participant-' + jt.safePId(player.id));
 
         // // Re-establish object links.
         // player.participant.session = player.group.period.app.session;
@@ -241,26 +244,26 @@ msgs.playerUpdate = function(player) {
 
         jt.data.session.participants[player.id] = player.participant;
 
-        window.setParticipantPlayer(player.id, player, div);
+        jt.setParticipantPlayer(player.id, player, div);
 //        $('.participant-' + player.id + '-periodIndex').text(decompId.periodId);
-        $('.participant-' + window.safePId(player.id) + '-periodIndex').text(player.group.period.id);
+        $('.participant-' + jt.safePId(player.id) + '-periodIndex').text(player.group.period.id);
     }
 }
 
 msgs.refreshAdmin = function(ag) {
-    window.refresh(ag);
+    jt.refresh(ag);
 }
 
 msgs.sessionAddApp = function(d) {
     if (jt.data.session.id === d.sId) {
         jt.data.session.apps.push(d.app);
-        window.updateSessionApps();
+        jt.updateSessionApps();
     }
     var session = findById(jt.data.sessions, d.sId);
     if (session !== null && session !== undefined) {
         session.appSequence.push(d.app.id);
         session.numApps++;
-        window.showSessions();
+        jt.showSessions();
     }
 };
 
@@ -268,10 +271,10 @@ msgs.sessionAddUser = function(d) {
     var session = findById(jt.data.sessions, d.sId);
     if (session !== null && session !== undefined) {
         session.users.push(d.uId);
-        window.showSessions();
+        jt.showSessions();
     }
     if (jt.data.session.id === d.sId) {
-        window.updateSessionUsers();
+        jt.updateSessionUsers();
     }
 }
 
@@ -289,7 +292,7 @@ msgs.deleteQueue = function(id) {
     }
     $('#view-queues-table').find('[queueId="' + id + '"]').remove();
     if ($('#view-queue-id').text() === id) {
-        window.setView('queues');
+        jt.setView('queues');
     }
 }
 
@@ -301,7 +304,7 @@ msgs.deleteApp = function(id) {
     }
     $('#appInfos').find('[appid="' + id + '"]').remove();
     if ($('#view-app-id').text() === id) {
-        window.setView('apps');
+        jt.setView('apps');
     }
 }
 
@@ -314,24 +317,24 @@ msgs.queueAddApp = function(d) {
 msgs.sessionSetActive = function(msgData) {
     if (jt.data.session.id === msgData.sId) {
         jt.data.session.active = msgData.active;
-        window.updateSessionActive(jt.data.session);
+        jt.updateSessionActive(jt.data.session);
     }
     var session = findById(jt.data.sessions, msgData.sId);
     if (session !== null) {
         session.active = msgData.active;
-        window.showSessions();
+        jt.showSessions();
     }
 }
 
 msgs.sessionSetRunning = function(msgData) {
     if (jt.data.session.id === msgData.sId) {
         jt.data.session.isRunning = msgData.isRunning;
-        window.updateSessionRunning(jt.data.session);
+        jt.updateSessionRunning(jt.data.session);
     }
     var session = findById(jt.data.sessions, msgData.sId);
     if (session !== null) {
         session.canPlay = msgData.canPlay;
-        window.showSessions();
+        jt.showSessions();
     }
 }
 
@@ -339,13 +342,13 @@ msgs.sessionDeleteApp = function(md) {
     if (jt.data.session.id === md.sId &&
         jt.data.session.apps[md.i].id === md.aId) {
             jt.data.session.apps.splice(md.i, 1);
-            window.updateSessionApps();
+            jt.updateSessionApps();
     }
 }
 
 msgs.sessionDeleteParticipant = function(md) {
     if (jt.data.session.id === md.sId) {
-        window.deleteParticipant(md.pId);
+        jt.deleteParticipant(md.pId);
         jt.view.updateNumParticipants();
     }
 }
@@ -354,7 +357,7 @@ msgs.addParticipant = function(participant) {
     if (jt.data.session != null && participant.session.id === jt.data.session.id) {
         console.log('add participant: ' + participant);
         Vue.set(jt.data.session.participants, participant.id, participant);
-        window.showParticipant(participant);
+        jt.showParticipant(participant);
         //        viewParticipant(participant.id);
         jt.view.updateNumParticipants();
     }
@@ -363,7 +366,7 @@ msgs.addParticipant = function(participant) {
 msgs.setAllowNewParts = function(md) {
     if (jt.data.session.id === md.sId) {
         jt.data.session.allowNewParts = md.value;
-        window.updateAllowNewParts();
+        jt.updateAllowNewParts();
     }
 };
 
@@ -372,7 +375,7 @@ msgs.setAllowAdminPlay = function(md) {
         return;
     }
     jt.data.session.allowAdminClientsToPlay = md.value;
-    window.updateAllowAdminPlay();
+    jt.updateAllowAdminPlay();
 }
 
 msgs.setCaseSensitiveLabels = function(md) {

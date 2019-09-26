@@ -1,7 +1,7 @@
 import jt from '@/webcomps/jtree.js'
 import $ from 'jquery'
 
-window.partLink = function(pId) {
+jt.partLink = function(pId) {
     if (jt.interfaceMode === 'basic') {
         return jt.serverURL() + '/' + pId;
     } else {
@@ -14,19 +14,19 @@ window.partLink = function(pId) {
     }
 }
 
-window.roomLink = function(roomId) {
+jt.roomLink = function(roomId) {
     return jt.serverURL() + '/room/' + roomId;
 }
 
-window.roundValue = function(obj, dec) {
-    if (window.isNumber(obj)) {
-        return window.round(obj-0, dec);
+jt.roundValue = function(obj, dec) {
+    if (jt.isNumber(obj)) {
+        return jt.round(obj-0, dec);
     } else {
         return obj;
     }
 }
 
-window.groupId = function(fullId) {
+jt.groupId = function(fullId) {
     if (fullId === undefined) {
         return '';
     }
@@ -34,7 +34,7 @@ window.groupId = function(fullId) {
     return fullId.substring(i + '_group_'.length);
 }
 
-window.appId = function(id) {
+jt.appId = function(id) {
     var index = id.indexOf('app_');
     var indexPrd = id.indexOf('period_');
     if (index > -1) {

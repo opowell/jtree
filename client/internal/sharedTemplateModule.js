@@ -1,8 +1,10 @@
+/* eslint-disable no-undef */
 //
 // MAKE CHANGES TO 'sharedTemplate.js', not 'shared.js' directly!!!
 //
 import jt from '@/webcomps/jtree.js'
 import $ from 'jquery'
+import io from 'socket.io-client'
 
 // Code used by both participant and admin.
 jt.socket = null;
@@ -13,8 +15,8 @@ jt.data.timeLeft = 0;
 jt.data.clockRunning = false;
 jt.data.CLOCK_FREQUENCY = 100; // in ms
 
-jt.serverIP = '{{{SERVER_IP}}}';
-jt.serverPort = '{{{SERVER_PORT}}}';
+jt.serverIP = '137.208.212.33';
+jt.serverPort = '80';
 jt.server = {};
 
 jt.serverURL = function() {
@@ -234,7 +236,6 @@ if (jt.connected == null) {
     jt.connected = function()        {}
 }
 if (jt.showPId == null) {
+    // eslint-disable-next-line no-unused-vars
     jt.showPId = function(id)        {}
 }
-
-export default jt

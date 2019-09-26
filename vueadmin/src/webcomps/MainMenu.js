@@ -11,17 +11,17 @@ class MainMenu extends HTMLElement {
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
               <ul class="navbar-nav mr-auto" role='tabpanel'>
                   <li class="nav-item">
-                      <span id='tab-apps' class="nav-link view-tab" onclick='setView("apps")'>
+                      <span id='tab-apps' class="nav-link view-tab" onclick='jt.setView("apps")'>
                           Apps
                       </span>
                   </li>
                   <li class="nav-item">
-                      <span id='tab-queues' class="nav-link view-tab" onclick='setView("queues")'>
+                      <span id='tab-queues' class="nav-link view-tab" onclick='jt.setView("queues")'>
                           Queues
                       </span>
                   </li>
                   <li class="nav-item">
-                      <span id='tab-sessions' class="nav-link view-tab" onclick='setView("sessions")'>
+                      <span id='tab-sessions' class="nav-link view-tab" onclick='jt.setView("sessions")'>
                           Sessions
                       </span>
                   </li>
@@ -44,7 +44,7 @@ jt.setAppView = function(a) {
     this.setSubView('app', a);
 }
 
-window.setView = function(a) {
+jt.setView = function(a) {
     $('.view').addClass('hidden');
     $('#view-' + a).removeClass('hidden');
     $('.view-tab').removeClass('active');

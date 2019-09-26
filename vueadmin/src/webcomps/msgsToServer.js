@@ -8,6 +8,8 @@ import $ from 'jquery'
 
 var server = {};
 
+window.server = server;
+
 // SERVER CALLS
 //server.refresh      = function()    { jt.socket.emit('refresh-admin'    , ''); }
 server.getVar       = function(a)   { jt.socket.emit('get-var'          , a ); }
