@@ -10,3 +10,7 @@ window.vue = new Vue({
   store,
   render: h => h(App)
 }).$mount('#app')
+
+import '@/webcomps/utilities.js'
+import '@/webcomps/View.js'
+import '@/webcomps/admin.js'

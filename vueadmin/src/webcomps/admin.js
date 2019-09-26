@@ -1,5 +1,8 @@
 import server from '@/webcomps/msgsToServer.js'
 import jt from '@/webcomps/jtree.js'
+import $ from 'jquery'
+import Utils from '@/webcomps/utilsFns.js'
+import msgs from '@/webcomps/msgsFromServer.js'
 
 window.participantTimers = {};
 
@@ -12,13 +15,14 @@ window.participantTimers = {};
 // }
 
 window.clearSelectedParticipants = function() {
-    const numSelected = selectedParticipants.length;
+    const numSelected = this.selectedParticipants.length;
     for (let i=0; i<numSelected; i++) {
-        window.removeSelectedParticipant(selectedParticipants[0]);
+        window.removeSelectedParticipant(this.selectedParticipants[0]);
     }
 }
 
-window.removeCustomAppFolder(folder) {
+// eslint-disable-next-line no-unused-vars
+window.removeCustomAppFolder = function(folder) {
 
 }
 
@@ -53,6 +57,7 @@ window.addSelectedAppToQueue = function() {
     server.sessionAddApp(id);
 }
 
+// eslint-disable-next-line no-unused-vars
 jt.addAppToNewQueue = function(aId) {
 
 }
@@ -67,13 +72,13 @@ jt.setApps = function(apps) {
     for (let i in apps) {
         window.vue.$store.state.appInfos.push(apps[i]);
     }
-    showAppInfos();
+    window.showAppInfos();
 }
 
 jt.view = {};
 
 jt.view.updateNumParticipants = function() {
-    const numParts = objLength(jt.data.session.participants);
+    const numParts = Utils.objLength(jt.data.session.participants);
     $('#setNumParticipantsInput').val(numParts);
     $('#tabSessionParticipantsNumber').text(numParts);
 }
@@ -93,11 +98,11 @@ window.refresh = function(ag) {
     jt.data.users = ag.users;
 
     jt.setApps(ag.apps);
-    showSessions();
-    showAppFolders(ag.appFolders);
-    showRooms();
-    showQueues();
-    showUsers();
+    this.showSessions();
+    this.showAppFolders(ag.appFolders);
+    this.showRooms();
+    this.showQueues();
+    this.showUsers();
 
     $('#setAutoplayFreq-input').val(jt.settings.autoplayDelay);
 
@@ -121,6 +126,7 @@ jt.connected = function() {
     for (var i in msgs) {
         // console.log('listening for message ' + i);
         (function(i) {
+            // eslint-disable-next-line no-unused-vars
             jt.socket.on(i, function(d) {
                 // console.log('received message ' + i + ': ' + JSON.stringify(d));
                 eval('msgs.' + i + "(d)");
@@ -129,30 +135,30 @@ jt.connected = function() {
     }
 
     jt.socket.on('refresh-admin', function(ag) {
-        refresh(ag);
+        this.refresh(ag);
     });
 
     jt.socket.on('refresh-apps', function(appInfos) {
         // console.log('refresh-apps');
         jt.data.appInfos = appInfos;
-        showAppInfos();
+        window.showAppInfos();
     });
 
     jt.socket.on('stage-end', function(a) {
-        stageEnd(a);
+        this.stageEnd(a);
         console.log('stage-end');
     });
 
     jt.socket.on('get-app', function(a) {
         jt.data.viewedApp = a;
-        viewApp(a.id, a.title);
+        this.viewApp(a.id, a.title);
     });
 
     jt.socket.on('add-client', function(client) {
         if (client.session.id === jt.data.session.id) {
             // console.log('add client: ' + client);
             jt.data.session.clients.push(client);
-            var participant = findByIdWOJQ(jt.data.session.participants, client.pId);
+            var participant = Utils.findById(jt.data.session.participants, client.pId);
             if (participant !== null) {
                 participant.numClients++;
                 $('.participant-' + client.pId + '-numClients').text(participant.numClients);
@@ -163,9 +169,9 @@ jt.connected = function() {
     jt.socket.on('remove-client', function(client) {
         if (client.session.id === jt.data.session.id) {
             console.log('remove client: ' + client);
-            deleteById(jt.data.session.clients, client.id);
-            removeClient(client.id);
-            var participant = findByIdWOJQ(jt.data.session.participants, client.pId);
+            this.deleteById(jt.data.session.clients, client.id);
+            this.removeClient(client.id);
+            var participant = this.findById(jt.data.session.participants, client.pId);
             if (participant != null) {
                 participant.numClients--;
                 $('.participant-' + client.pId + '-numClients').text(participant.numClients);
@@ -175,19 +181,19 @@ jt.connected = function() {
 
 // TODO: move all message functionality here
     jt.socket.on('messages', function(msgs) {
-        for (m in msgs) {
+        for (let m in msgs) {
             var msg = msgs[m];
             // eval(msg.type + "(msg.data)");
             switch (msg.type) {
                 case 'set-session-app-status':
                     jt.data.session.appSequence[msg.data.index].status = msg.data.status;
-                    showSessionAppSequence();
+                    this.showSessionAppSequence();
                     break;
                 case 'clock-start':
-                    startClock(msg.data.endTime);
+                    this.startClock(msg.data.endTime);
                     break;
                 case 'refresh-admin':
-                    refresh(msg.data);
+                    this.refresh(msg.data);
                     break;
             }
         }
@@ -212,7 +218,7 @@ jt.connected = function() {
   //     server.sessionCreate();
   // }
 
-  var userId = Cookies.get('userId');
+  var userId = window.Cookies.get('userId');
   if (userId !== undefined) {
       $('#menu-userid').text(userId);
   }
@@ -222,6 +228,7 @@ jt.connected = function() {
 jt.socketConnected = function() {
     server.refreshAdmin();
 
+    // eslint-disable-next-line no-undef
     ace.config.set("basePath", "/shared/ace");
 
     // var editor = ace.edit("edit-app-appjs");

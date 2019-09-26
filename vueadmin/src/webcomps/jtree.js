@@ -1,6 +1,4 @@
 import $ from 'jquery'
-import '@/webcomps/View.js'
-import '@/webcomps/utilities.js'
 
 let jt = {};
 
