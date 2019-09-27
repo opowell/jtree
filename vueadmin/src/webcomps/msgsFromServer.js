@@ -1,5 +1,6 @@
 // INCOMING MESSAGES FROM SERVER
-import $ from 'jquery'
+import 'jquery'
+let $ = window.jQuery
 import jt from '@/webcomps/jtree.js'
 import Utils from '@/webcomps/utilsFns.js'
 import server from '@/webcomps/msgsToServer.js'

@@ -15,7 +15,7 @@ app.vueModels.participant = {
     'capPoints': 0
 }; // must declare vue fields up front.
 
-var introStage = app.newStage('intro');
+let introStage = app.newStage('intro');
 introStage.activeScreen = `
     <h4>INFORMATION</h4>
     <p>
@@ -37,7 +37,7 @@ introStage.playerStart = function(player) {
     player.tax = player.participant.paymentSchemes[player.period().id-1][1];
 }
 
-var entryStage = app.newStage('entry');
+let entryStage = app.newStage('entry');
 entryStage.duration = 300;
 entryStage.activeScreen = `
     <h4>ENTER TEXT</h4>
@@ -72,7 +72,7 @@ entryStage.playerEnd = function(player) {
 
 }
 
-var resultsStage = app.newStage('results');
+let resultsStage = app.newStage('results');
 resultsStage.canPlayerParticipate = function(player) {
   return player.period().id === app.numPeriods;
 }

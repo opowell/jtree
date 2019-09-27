@@ -1,11 +1,11 @@
 //NOTSTANDALONEAPP
 
 stage.groupStart = function(group) {
-    var app = group.app();
-    for (var p in group.players) {
-        var plyr = group.players[p];
+    let app = group.app();
+    for (let p in group.players) {
+        let plyr = group.players[p];
         plyr.treatment = plyr.idInGroup % 2 + 1;
-        var n = Utils.objLength(app.session.participants);
+        let n = Utils.objLength(app.session.participants);
         if (plyr.idInGroup-0 <= n / 2) {
             plyr.part5Mult = app.part5MultT1;
         } else {

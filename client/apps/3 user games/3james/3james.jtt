@@ -135,11 +135,11 @@ app.html = `
 <script>
 
     jt.comprehension = function(field) {
-        var el = $('#' + field);
-        var taskName = el.attr('task-name');
-        var taskNameUnd = el.attr('task-name-und');
-        var taskDesc = el.attr('task-desc');
-        var idPrefix = el.attr('id-prefix');
+        let el = $('#' + field);
+        let taskName = el.attr('task-name');
+        let taskNameUnd = el.attr('task-name-und');
+        let taskDesc = el.attr('task-desc');
+        let idPrefix = el.attr('id-prefix');
         el.html(\`
             <p>In \${taskName}, you were asked \${taskDesc}.</p>
             <p>How well do you feel you understood \${taskNameUnd}?</p>
@@ -152,18 +152,18 @@ app.html = `
     }
 
     jt.likertScale = function(field) {
-        var el = $('#' + field);
-        var minText = el.attr('likert-low');
-        var maxText = el.attr('likert-high');
+        let el = $('#' + field);
+        let minText = el.attr('likert-low');
+        let maxText = el.attr('likert-high');
 
-        var minTextEl = $('<div class="likertMinText likertText">').html(minText);
-        var maxTextEl = $('<div class="likertMaxText likertText">').html(maxText);
+        let minTextEl = $('<div class="likertMinText likertText">').html(minText);
+        let maxTextEl = $('<div class="likertMaxText likertText">').html(maxText);
 
         el.append(minTextEl);
-        for (var i=1; i<=7; i++) {
-            var option = $('<label for="' + field + i + '" class="likertScaleOption answer">');
-            var input = $("<input name='" + field + "' type='radio' required value='" + i + "' id='" + field + i + "'>");
-            var label = $("<div>").text(i);
+        for (let i=1; i<=7; i++) {
+            let option = $('<label for="' + field + i + '" class="likertScaleOption answer">');
+            let input = $("<input name='" + field + "' type='radio' required value='" + i + "' id='" + field + i + "'>");
+            let label = $("<div>").text(i);
             option.append(label);
             option.append(input);
             el.append(option);
@@ -179,13 +179,13 @@ app.html = `
             if (!jt.setup) {
                 jt.setup = true;
                 // Set up comprehension sections
-                var els = $('.comprehension');
+                let els = $('.comprehension');
                 els.each(function(i) {
                     jt.comprehension($(this).attr('id'));
                 });
 
                 // Set up Likert scales.
-                var els = $('.likertScale');
+                let els = $('.likertScale');
                 els.each(function(i) {
                     jt.likertScale($(this).attr('id'));
                     $(this).addClass('question');

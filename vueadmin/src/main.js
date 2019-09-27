@@ -3,7 +3,8 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 
-import $ from 'jquery'
+import 'jquery'
+let $ = window.jQuery
 import jt from '@/webcomps/jtree.js'
 import '@/webcomps/utilities.js'
 import '@/webcomps/View.js'

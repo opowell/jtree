@@ -1,6 +1,7 @@
 
 import jt from '@/webcomps/jtree.js'
-import $ from 'jquery';
+import 'jquery'
+let $ = window.jQuery;
 import Utils from '@/webcomps/utilsFns.js';
 
 jt.confirm = function(text, ifYes) {

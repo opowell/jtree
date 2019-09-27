@@ -3,7 +3,7 @@ app.waitingScreen = `
    <p>Das hast du super gemacht! </p>
    <p>Bitte warte bis das erste Spiel los geht.</p>
    	`;
-var inputStage = app.newStage('input');
+let inputStage = app.newStage('input');
 inputStage.activeScreen = `
 <p>Dein Name</p>
 <input name='participant.name' required type='text'>

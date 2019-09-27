@@ -1,6 +1,6 @@
 app.description = 'Draw a chart using chart.js.';
 
-var stage = app.newStage('stage1');
+let stage = app.newStage('stage1');
 stage.activeScreen = `
     <script src="/shared/Chart.min.js"></script>
     <canvas id="myChart"></canvas>

@@ -28,7 +28,8 @@ class ViewSessionParticipants extends HTMLElement {
 */}
 
 import jt from '@/webcomps/jtree.js'
-import $ from 'jquery'
+import 'jquery'
+let $ = window.jQuery
 import msgs from '@/webcomps/msgsToServer.js'
 import Vue from 'vue'
 

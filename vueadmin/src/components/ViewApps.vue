@@ -2,7 +2,7 @@
   <div id='view-apps' class='view hidden'>
       <h2>Apps</h2>
       <span style='display: flex;' class='mb-2'>
-        <a href='#' class='btn btn-sm btn-outline-secondary btn-sm' onclick='jt.showCreateAppModal();'>
+        <a href='#' class='btn btn-sm btn-outline-secondary btn-sm' onclick='jt.showCreateAppModal()'>
             <i class="fa fa-plus"></i>&nbsp;&nbsp;create...
         </a>
         <a id='reloadAppsBtn' href='#' class='btn btn-sm btn-outline-secondary btn-sm' onclick='jt.reloadApps();'>
@@ -31,9 +31,12 @@
 
 <script>
 
-import $ from 'jquery'
+import 'jquery'
+let $ = window.jQuery
 import jt from '@/webcomps/jtree.js'
 import server from '@/webcomps/msgsToServer.js'
+
+// window.$ = $;
 
 export default {
   name: 'ViewApps',
@@ -44,7 +47,18 @@ export default {
     return {
         apps: this.$store.state.appInfos
     }
-  }
+  },
+}
+
+jt.reloadApps = function() {
+    jt.disableButton('reloadAppsBtn', '<i class="fas fa-redo-alt"></i>&nbsp;&nbsp;reloading...');
+    $('#appInfos').empty();
+    jt.socket.emit("reloadApps", {});
+}
+
+jt.showCreateAppModal = function() {
+    $("#createAppModal").modal("show");
+    $('#create-app-input').focus();
 }
 
 jt.showAppInfos = function() {
@@ -96,6 +110,20 @@ jt.showAppInfos = function() {
 
         $('#appInfos').append(row);
     }
+}
+
+// function addAppToSessionAndStart(event) {
+//     event.stopPropagation();
+//     console.log('add app to session and start: ' + event.data.id + ', name = ' + event.data.name);
+//     server.addAppToSessionAndStart(event.data.id);
+//     jt.setPage('participants');
+// }
+
+jt.startSessionWithApp = function() {
+    var appId = $('#view-app-fullId').text();
+    var optionEls = $('#view-app [app-option-name]');
+    var options = jt.deriveAppOptions(optionEls);
+    server.createSessionAndAddApp(appId, options);
 }
 
 </script>

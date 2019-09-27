@@ -3,13 +3,13 @@
 stage.waitToStart = false;
 
 stage.groupStart = function(group) {
-  var app = group.app();
+  let app = group.app();
 
   // Part 1
-  var part1Groups = Utils.getRandomGroups(group.players, 2);
-  for (var i=0; i<part1Groups.length; i++) {
-      var p1 = part1Groups[i][0];
-      var p2 = part1Groups[i][1];
+  let part1Groups = Utils.getRandomGroups(group.players, 2);
+  for (let i=0; i<part1Groups.length; i++) {
+      let p1 = part1Groups[i][0];
+      let p2 = part1Groups[i][1];
       p1.part1GroupId = i;
       p2.part1GroupId = i;
       p1.part1PartnerId = p2.id;
@@ -21,20 +21,20 @@ stage.groupStart = function(group) {
   }
 
   // Part 5
-    var t1players = group.players.filter(function(el) {
+    let t1players = group.players.filter(function(el) {
         return el.part5Mult === app.part5MultT1;
     });
-    var t2players = group.players.filter(function(el) {
+    let t2players = group.players.filter(function(el) {
         return el.part5Mult === app.part5MultT2;
     });
 
-    var part5GroupsT1 = Utils.getRandomGroups(t1players, 2);
-    for (var i=0; i<part5GroupsT1.length; i++) {
-        var players = part5GroupsT1[i];
-        var groupContributions = Utils.sum(players, 'part5Cont');
-        var groupProd = groupContributions * app.part5MultT1;
-        for (var j=0; j<players.length; j++) {
-            var player = players[j];
+    let part5GroupsT1 = Utils.getRandomGroups(t1players, 2);
+    for (let i=0; i<part5GroupsT1.length; i++) {
+        let players = part5GroupsT1[i];
+        let groupContributions = Utils.sum(players, 'part5Cont');
+        let groupProd = groupContributions * app.part5MultT1;
+        for (let j=0; j<players.length; j++) {
+            let player = players[j];
             player.part5GroupPlayerIds = Utils.values(players, 'id');
             player.part5GroupContributions = groupContributions;
             player.part5GroupProd = groupProd;
@@ -44,13 +44,13 @@ stage.groupStart = function(group) {
         }
     }
 
-    var part5GroupsT2 = Utils.getRandomGroups(t2players, 2);
-    for (var i=0; i<part5GroupsT2.length; i++) {
-        var players = part5GroupsT2[i];
-        var groupContributions = Utils.sum(players, 'part5Cont');
-        var groupProd = groupContributions * app.part5MultT2;
-        for (var j=0; j<players.length; j++) {
-            var player = players[j];
+    let part5GroupsT2 = Utils.getRandomGroups(t2players, 2);
+    for (let i=0; i<part5GroupsT2.length; i++) {
+        let players = part5GroupsT2[i];
+        let groupContributions = Utils.sum(players, 'part5Cont');
+        let groupProd = groupContributions * app.part5MultT2;
+        for (let j=0; j<players.length; j++) {
+            let player = players[j];
             player.part5GroupPlayerIds = Utils.values(players, 'id');
             player.part5GroupContributions = groupContributions;
             player.part5GroupProd = groupProd;
@@ -65,13 +65,13 @@ stage.groupStart = function(group) {
 stage.playerStart = function(player) {
 
     // Part 2
-    var app = player.app();
-    var group = player.group;
+    let app = player.app();
+    let group = player.group;
 
     if (player.treatment == 1) {
-        var n = Math.random()*100;
+        let n = Math.random()*100;
         player.part2n = n;
-        var randomOtherPlayer = Utils.randomEl(group.playersExceptIds([player.id, player.part1PartnerId]));
+        let randomOtherPlayer = Utils.randomEl(group.playersExceptIds([player.id, player.part1PartnerId]));
         player.part2PartnerAns = randomOtherPlayer.part1Ans;
         if (n < player.part2Ans) {
             if (randomOtherPlayer.part1Ans === app.STAG) {
@@ -88,9 +88,9 @@ stage.playerStart = function(player) {
             }
         }
     } else {
-        var otherPlayers = Utils.randomEls(group.playersExceptIds([player.id, player.part1PartnerId]), 20);
+        let otherPlayers = Utils.randomEls(group.playersExceptIds([player.id, player.part1PartnerId]), 20);
         player.part2OtherPlayersIds = [];
-        for (var i=0; i<otherPlayers.length; i++) {
+        for (let i=0; i<otherPlayers.length; i++) {
             player.part2OtherPlayersIds.push(otherPlayers[i].id);
         }
         player.part2CountStag = Utils.count(otherPlayers, 'element.part1Ans === "' + app.STAG + '"');
@@ -102,19 +102,19 @@ stage.playerStart = function(player) {
     }
 
     // Part 6
-      var filterPlayer = function(el) {
+      let filterPlayer = function(el) {
           // Not a member of this player's group, AND
           // Same multiplier.
-          var a =
+          let a =
               !player.part5GroupPlayerIds.includes(el.id) &&
               el.part5Mult === player.part5Mult;
           return a;
       };
-      var otherPlayers = group.players.filter(filterPlayer);
+      let otherPlayers = group.players.filter(filterPlayer);
       // Sort randomly.
       otherPlayers.sort(function() { return 0.5 - Math.random() });
       player.part6OtherPlayersIds = [];
-      for (var i=0; i<otherPlayers.length; i++) {
+      for (let i=0; i<otherPlayers.length; i++) {
           player.part6OtherPlayersIds.push(otherPlayers[i].id);
       }
 
@@ -160,9 +160,9 @@ stage.playerStart = function(player) {
 }
 
 stage.part6Payoff = function(player, otherPlayers, exactField, condition, countField, pointsField, count) {
-    var app = player.app();
-    var exactMatch = true;
-    for (var i=0; i<otherPlayers.length; i++) {
+    let app = player.app();
+    let exactMatch = true;
+    for (let i=0; i<otherPlayers.length; i++) {
         if (otherPlayers[i].part5Cont != exactField) {
             exactMatch = false;
         }

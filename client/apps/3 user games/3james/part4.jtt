@@ -3,7 +3,7 @@
 stage.waitToStart = false;
 
 stage.playerStart = function(player) {
-    var app = player.app();
+    let app = player.app();
     player.part4Urn = Math.random() < 0.5 ? app.part4Urn1 : app.part4Urn2;
     player.part4BallColor = app.drawFromUrn(player.part4Urn);
     if (player.part4BallColor == 'Green') {
@@ -52,9 +52,9 @@ stage.activeScreen = `
 //stage.waitToEnd = false;
 
 stage.playerEnd = function(player) {
-    var app = player.app();
+    let app = player.app();
     if (player.treatment == 1) {
-        var n = Math.random()*100;
+        let n = Math.random()*100;
         player.part4n = n;
         player.part4RandomBall = app.drawFromUrn(player.part4Urn);
         if (n < player.part4Ans) {
@@ -73,7 +73,7 @@ stage.playerEnd = function(player) {
         }
     } else {
         player.part4MatchingBalls = 0;
-        for (var i=0; i<20; i++) {
+        for (let i=0; i<20; i++) {
             if (app.drawFromUrn(player.part4Urn) == player.part4BallColor) {
                 player.part4MatchingBalls++;
             }

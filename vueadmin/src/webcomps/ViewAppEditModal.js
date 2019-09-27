@@ -33,7 +33,8 @@ document.write('<script src="/admin/multiuser/webcomponents/codeEditor/fileManag
 document.write('<script src="/admin/multiuser/webcomponents/codeEditor/editor.js"></script>');
 
 import jt from '@/webcomps/jtree.js'
-import $ from 'jquery'
+import 'jquery'
+let $ = window.jQuery
 
 jt.appSaveFileContentsFromEditor = function() {
     // eslint-disable-next-line no-undef

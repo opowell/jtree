@@ -16,7 +16,8 @@ class ViewAppPreview extends HTMLElement {
 }
 
 import jt from '@/webcomps/jtree.js'
-import $ from 'jquery'
+import 'jquery'
+let $ = window.jQuery;
 
 jt.updateAppPreview = function() {
     $('#editAppOptionsModal').modal('hide');

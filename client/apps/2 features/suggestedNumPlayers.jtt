@@ -1,7 +1,7 @@
 app.description = 'Set the initial number of players in a session, as long as this App is the first in the session.';
 app.suggestedNumParticipants = 4;
 
-var stage = app.newStage('stage');
+let stage = app.newStage('stage');
 stage.activeScreen = `
     Number of suggested participants: {{app.suggestedNumParticipants}}.
 `;

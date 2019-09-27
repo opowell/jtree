@@ -1,11 +1,11 @@
 // Must match what is in 2playergames.jtt.
-var ENDOWMENT_LOW       = 50;
-var ENDOWMENT_HIGH      = 10000;
-var SCORE_THRESHHOLD    = 20;
-var ENDOWMENT_P2_LOW    = 0;
-var ENDOWMENT_P2_HIGH   = 10;
-var RETURN_RATE_HIGH    = 3;
-var RETURN_RATE_LOW     = 200;
+let ENDOWMENT_LOW       = 50;
+let ENDOWMENT_HIGH      = 10000;
+let SCORE_THRESHHOLD    = 20;
+let ENDOWMENT_P2_LOW    = 0;
+let ENDOWMENT_P2_HIGH   = 10;
+let RETURN_RATE_HIGH    = 3;
+let RETURN_RATE_LOW     = 200;
 // These are the possible values for the above fields.
 // app.addSelectOption('p1Endowment', [ENDOWMENT_LOW, ENDOWMENT_HIGH, 'earned']);
 // app.addSelectOption('names', ['none', 'sender', 'receiver', 'both']);

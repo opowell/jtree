@@ -4,7 +4,8 @@
  */
 
 import jt from '@/webcomps/jtree'
-import $ from 'jquery'
+import 'jquery'
+let $ = window.jQuery
 
 var server = {};
 

@@ -24,7 +24,8 @@ class ViewSessions extends HTMLElement {
     }
 }
 
-import $ from 'jquery'
+import 'jquery'
+let $ = window.jQuery
 import jt from '@/webcomps/jtree.js'
 import server from '@/webcomps/msgsToServer.js'
 

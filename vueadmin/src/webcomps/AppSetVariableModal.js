@@ -31,7 +31,8 @@ class AppSetVariableModal extends HTMLElement {
 }
 
 import jt from '@/webcomps/jtree.js'
-import $ from 'jquery'
+import 'jquery'
+let $ = window.jQuery
 
 jt.appSetVariable = function() {
   var appId = $('#view-app-fullId').text();

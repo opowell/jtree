@@ -38,7 +38,8 @@ class SetViewSizeModal extends HTMLElement {
 }
 
 import jt from '@/webcomps/jtree.js'
-import $ from 'jquery'
+import 'jquery'
+let $ = window.jQuery
 
 jt.setViewSize = function() {
     $('#setViewSize-Width').val($($('.participant-view')[0]).width());

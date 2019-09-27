@@ -25,7 +25,7 @@ app.html = `
 </html>
 `;
 
-var treatmentMessage = app.newStage('treatmentMessage');
+let treatmentMessage = app.newStage('treatmentMessage');
 // treatmentMessage.duration = 60;
 treatmentMessage.activeScreen = `
 	<p>Das Experiment geht in Kürze weiter, bitte lesen Sie die folgende Nachricht genau durch.</p>

@@ -30,7 +30,8 @@ class ViewSessionActivity extends HTMLElement {
 }
 
 import jt from '@/webcomps/jtree.js'
-import $ from 'jquery'
+import 'jquery'
+let $ = window.jQuery
 import server from '@/webcomps/msgsToServer.js'
 
 jt.viewAllParticipants = function() {

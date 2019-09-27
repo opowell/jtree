@@ -7,7 +7,7 @@ app.SHARE_TAKER     = 0.8;
 app.numPeriods      = 5;
 
 for (let curPass=0; curPass < app.MAX_PASSES; curPass++) {
-    var s1 = app.newStage('pA_' + curPass);
+    let s1 = app.newStage('pA_' + curPass);
     s1.canPlayerParticipate = function(player) {
         return (!player.finished1);
     }
@@ -15,8 +15,8 @@ for (let curPass=0; curPass < app.MAX_PASSES; curPass++) {
         s1.groupStart = function(group) {
             if (group.period.id === 1) {
                 app.p2Ids = getAnonymousPartnerIds(group);
-                for (var i in group.players) {
-                    var player = group.players[i];
+                for (let i in group.players) {
+                    let player = group.players[i];
                     player.pieSize1 = app.PIE_INITIAL;
                     player.pieSize2 = app.PIE_INITIAL;
                     player.finished1 = false;
@@ -27,7 +27,7 @@ for (let curPass=0; curPass < app.MAX_PASSES; curPass++) {
                     player.share2 = 0.5;
                     player.whyEnd1 = 'neither player chose to TAKE';
                     player.p2 = app.p2Ids[i]; // who this player sent to.
-                    var p2 = group.playerByParticipantId(player.p2);
+                    let p2 = group.playerByParticipantId(player.p2);
                     p2.whyEnd2 = 'neither player chose to TAKE';
                     p2.p1 = player.id; // who this player received from.
                 }
@@ -43,7 +43,7 @@ for (let curPass=0; curPass < app.MAX_PASSES; curPass++) {
     </form>
     `;
     s1.playerEnd = function(player) {
-        var p2 = player.group.playerByParticipantId(player.p2);
+        let p2 = player.group.playerByParticipantId(player.p2);
         if (player.choice1 === 'TAKE') {
             player.finished1 = true;
             p2.finished2 = true;
@@ -62,7 +62,7 @@ for (let curPass=0; curPass < app.MAX_PASSES; curPass++) {
     <p v-if='player.finished1'>As Player 1, someone in your group has chosen TAKE and ended the game.</p>
     `
     
-    var s2 = app.newStage('pB_' + curPass);
+    let s2 = app.newStage('pB_' + curPass);
     s2.canPlayerParticipate = function(player) {
         return (!player.finished2);
     }
@@ -75,7 +75,7 @@ for (let curPass=0; curPass < app.MAX_PASSES; curPass++) {
     </form>
     `;
     s2.playerEnd = function(player) {
-        var p1 = player.group.playerByParticipantId(player.p1);
+        let p1 = player.group.playerByParticipantId(player.p1);
         if (player.choice2 === 'TAKE') {
             player.finished2 = true;
             p1.finished1 = true;
@@ -95,7 +95,7 @@ for (let curPass=0; curPass < app.MAX_PASSES; curPass++) {
     `;
 }
 
-var resultsStage = app.newStage('results');
+let resultsStage = app.newStage('results');
 resultsStage.playerStart = function(player) {
     player.points1 = player.share1 * player.pieSize1;
     player.points2 = player.share2 * player.pieSize2;
@@ -114,25 +114,25 @@ resultsStage.activeScreen = `
 `;
 
 function getAnonymousPartnerIds(group) {
-    var idsLeft = [];
-    var lastId;
-    for (var i in group.players) {
+    let idsLeft = [];
+    let lastId;
+    for (let i in group.players) {
         let id = group.players[i].id;
         idsLeft.push(id);
         lastId = id;
     }
-    var round1pairs = [];
-    var N = group.players.length;
-    for (var i in group.players) { // i = '0', '1', '2', ...
+    let round1pairs = [];
+    let N = group.players.length;
+    for (let i in group.players) { // i = '0', '1', '2', ...
         let id = group.players[i].id;
-        var tookOutOwnId = false;
+        let tookOutOwnId = false;
         if (idsLeft.includes(id)) {
             tookOutOwnId = true;
             idsLeft.splice(idsLeft.indexOf(id), 1);
         }
 
-        var r = Utils.randomInt(0, idsLeft.length);
-        var partnerId = idsLeft[r];
+        let r = Utils.randomInt(0, idsLeft.length);
+        let partnerId = idsLeft[r];
         if (tookOutOwnId) {
             idsLeft.push(id);
         }

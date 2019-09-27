@@ -1,6 +1,7 @@
 import server from '@/webcomps/msgsToServer.js'
 import jt from '@/webcomps/jtree.js'
-import $ from 'jquery'
+import 'jquery'
+let $ = window.jQuery
 import Utils from '@/webcomps/utilsFns.js'
 import msgs from '@/webcomps/msgsFromServer.js'
 
@@ -129,8 +130,9 @@ jt.socketConnected = function() {
     // editorCH.setTheme("ace/theme/tomorrow");
     // editorCH.session.setMode("ace/mode/html");
 
-    // 2019.09.25: Disable temporarily until editor window exists.
-    // jt.editor = new Editor();
+    console.log('Creating editor');
+    // eslint-disable-next-line no-undef
+    jt.editor = new Editor();
 }
 
 jt.connected = function() {
@@ -148,8 +150,9 @@ jt.connected = function() {
         // editorCH.setTheme("ace/theme/tomorrow");
         // editorCH.session.setMode("ace/mode/html");
     
-        // 2019.09.25: Disable temporarily until editor window exists.
-        // jt.editor = new Editor();
+        console.log('Creating editor');
+        // eslint-disable-next-line no-undef
+        jt.editor = new Editor();
     }
     
     // $('#startAdvanceSlowest').click(function(ev) {
@@ -204,10 +207,10 @@ jt.connected = function() {
 
     jt.socket.on('remove-client', function(client) {
         if (client.session.id === jt.data.session.id) {
-            console.log('remove client: ' + client);
-            jt.deleteById(jt.data.session.clients, client.id);
+            // console.log('remove client: ' + client);
+            Utils.deleteById(jt.data.session.clients, client.id);
             jt.removeClient(client.id);
-            var participant = this.findById(jt.data.session.participants, client.pId);
+            var participant = Utils.findById(jt.data.session.participants, client.pId);
             if (participant != null) {
                 participant.numClients--;
                 $('.participant-' + client.pId + '-numClients').text(participant.numClients);

@@ -26,8 +26,9 @@ class CreateAppModal extends HTMLElement {
 window.customElements.define('createapp-modal', CreateAppModal);
 
 import jt from '@/webcomps/jtree.js'
-import $ from 'jquery'
+import 'jquery'
 import server from '@/webcomps/msgsToServer.js'
+let $ = window.jQuery;
 
 jt.createAppKeyUp = function(e) {
     var code = (e.keyCode ? e.keyCode : e.which);

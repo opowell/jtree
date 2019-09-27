@@ -15,9 +15,9 @@ app.numComparison = 2;
 app.addSelectOption('paymentType', ['individual', 'contest', 'choose']);
 
 app.tasks = [];
-for (var i=0; i<app.numTasks; i++) {
-    var problem = [];
-    for (var j=0; j<app.numbersPerTasks; j++) {
+for (let i=0; i<app.numTasks; i++) {
+    let problem = [];
+    for (let j=0; j<app.numbersPerTasks; j++) {
         problem.push(Utils.randomInt(1, app.maxNumber));
     }
     app.tasks.push(problem);
@@ -89,7 +89,7 @@ app.setNumCorrect = function(player) {
 }
 
 if (app.paymentType === 'choose') {
-    var chooseStage = app.newStage('choose');
+    let chooseStage = app.newStage('choose');
     chooseStage.playerStart = function(player) {
         player.taskNum = 1;
         player.task = app.tasks[0];
@@ -107,7 +107,7 @@ if (app.paymentType === 'choose') {
 
 
 // Answers are recorded as player.A1, player.A2, etc.
-var workStage = app.newStage('work');
+let workStage = app.newStage('work');
 workStage.duration = app.workTime;
 workStage.showTimer = false;
 workStage.playerStart = function(player) {
@@ -146,7 +146,7 @@ workStage.activeScreen = `
     </script>
 `;
 app.messages.setGuess = function(guessData) {
-    var player = this.participant.player;
+    let player = this.participant.player;
     player['A' + guessData.taskNum] = guessData.guess;
     if (guessData.taskNum < app.numTasks) {
         player.taskNum = guessData.taskNum+1;
@@ -174,7 +174,7 @@ if (app.paymentType === 'contest') {
     `;
 }
 
-var resultsStage = app.newStage('results');
+let resultsStage = app.newStage('results');
 resultsStage.groupStart = function(group) { // when a group of players starts this stage
     let app = group.app();
     let players = group.players;

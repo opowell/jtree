@@ -1,7 +1,7 @@
 app.title = 'live ranking';
 app.groupSize = 2;
 
-var stage1 = app.newStage('stage1');
+let stage1 = app.newStage('stage1');
 stage1.playerStart = function(player){
   player.x = Math.random();
 }

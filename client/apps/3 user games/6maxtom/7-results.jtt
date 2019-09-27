@@ -7,7 +7,7 @@ app.sortByX = function() {
     }
 }
 
-var thankyouStage = app.newStage('finished');
+let thankyouStage = app.newStage('finished');
 thankyouStage.playerStart = function(player) {
       player.parts1 = []; // list of participants from the first app
       player.parts2 = []; // .................... from the second app.

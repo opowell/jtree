@@ -1,5 +1,6 @@
 import jt from '@/webcomps/jtree.js'
-import $ from 'jquery'
+import 'jquery'
+let $ = window.jQuery
 
 jt.partLink = function(pId) {
     if (jt.interfaceMode === 'basic') {

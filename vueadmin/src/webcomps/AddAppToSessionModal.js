@@ -35,7 +35,8 @@ class addAppToSessionModal extends HTMLElement {
 window.customElements.define('addapptosession-modal', addAppToSessionModal);
 
 import jt from '@/webcomps/jtree.js'
-import $ from 'jquery'
+import 'jquery'
+let $ = window.jQuery
 import server from '@/webcomps/msgsToServer.js'
 
 jt.showAddAppToSessionModal = function() {

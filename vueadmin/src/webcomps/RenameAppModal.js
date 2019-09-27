@@ -26,7 +26,8 @@ class RenameAppModal extends HTMLElement {
 window.customElements.define('renameapp-modal', RenameAppModal);
 
 import jt from '@/webcomps/jtree.js'
-import $ from 'jquery'
+import 'jquery'
+let $ = window.jQuery
 import server from '@/webcomps/msgsToServer.js'
 
 jt.renameAppModalKeyUp = function(e) {

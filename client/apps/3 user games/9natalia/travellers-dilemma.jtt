@@ -21,17 +21,17 @@ app.payoff = function(player) {
     }
 }
 
-var decideStage = app.newStage('decide');
+let decideStage = app.newStage('decide');
 decideStage.activeScreen = `
     <p>DECISION (Matching: {{app.matching}})</p>
     <p>Choose an amount to claim between {{app.lowerBound}} and {{app.upperBound}}: <input name='player.claim' required type='number' :min='app.lowerBound' :max='app.upperBound' step='1'></p>
     <button>Make claim</button>
 `;
 
-var resultsStage = app.newStage('results');
+let resultsStage = app.newStage('results');
 resultsStage.groupStart = function(group) {
-    for (var i in group.players) { // i = 0, 1, 2, 3
-        var player = group.players[i];
+    for (let i in group.players) { // i = 0, 1, 2, 3
+        let player = group.players[i];
         player.partnerClaim = group.playerWithId(player.idInGroup - (player.idInGroup==2?1:-1)).claim;
         player.points = app.payoff(player);
     }

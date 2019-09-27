@@ -9,6 +9,7 @@
         <appsetvariable-modal/>
         <createapp-modal/>
         <renameapp-modal/>
+        <editappoptions-modal/>
     <view-queue/>
         <addapptoqueue-modal/>
     <view-queues/>
@@ -41,6 +42,7 @@ import '@/webcomps/AddAppToSessionModal.js'
 import '@/webcomps/AddQueueToSessionModal.js'
 import '@/webcomps/SetViewSizeModal.js'
 import '@/webcomps/SetAutoplayFreqModal.js'
+import '@/webcomps/EditAppOptionsModal.js'
 import '@/webcomps/ViewSessions.js'
 import '@/webcomps/ViewLogin.js'
 
