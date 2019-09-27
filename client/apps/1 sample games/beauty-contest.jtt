@@ -1,4 +1,4 @@
-app.title = 'Beauty Contest Game2';
+app.title = 'Beauty Contest Game';
 app.description = 'Players make a guess between 0 and 100. Winner is the player whose guess is closest to 2/3 of the average guess.';
 
 app.multiplier  = 2/3;

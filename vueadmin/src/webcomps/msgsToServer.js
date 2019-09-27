@@ -165,10 +165,11 @@ server.setNumParticipants = function(amt, cb) {
 server.resetSession = function() {
     var d = {};
     d.sId = jt.data.session.id;
-    jt.disableButton('resetSessionBtn', '<i class="fas fa-undo-alt"></i>&nbsp;&nbsp;Resetting...');
+    jt.disableButton('resetSessionBtn');
     let activateBtn = function() {
-        jt.enableButton('resetSessionBtn',  '<i class="fas fa-undo-alt"></i>&nbsp;&nbsp;Reset');
+        jt.enableButton('resetSessionBtn');
         jt.popupMessage('Reset session <b>' + d.sId + '</b>.');
+        jt.addLog('Session ' + d.sId + ' reset.');
     }
     jt.socket.emit('resetSession', d, activateBtn);
 }

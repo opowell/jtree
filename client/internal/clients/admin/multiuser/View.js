@@ -175,7 +175,7 @@ jt.AppRow = function(app, options, cols) {
                 row.append($(`
                     <td>
                         <div>${app.shortId}</div>
-                        <div><small style='white-space: normal' class='text-muted'>${app.id}<small></div>
+                        <div><small style='white-space: normal' class='text-muted'>${app.id}</small></div>
                     </td>    
                 `));
                 break;

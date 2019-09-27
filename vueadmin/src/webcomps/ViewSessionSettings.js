@@ -100,11 +100,13 @@ jt.setSessionId = function() {
 }
 
 jt.setNumParticipants = function() {
-    jt.disableButton('setNumParticipantsBtn', 'Setting...');
+    jt.disableButton('setNumParticipantsBtn');
     const amt = $('#setNumParticipantsInput').val();
     let cb = function() {
-        jt.enableButton('setNumParticipantsBtn', 'Set');
+        jt.enableButton('setNumParticipantsBtn');
         jt.popupMessage('Set number of participants = ' + amt);
+        jt.addLog('Set number of participants = ' + amt);
+
     }
     server.setNumParticipants(amt, cb);
 }

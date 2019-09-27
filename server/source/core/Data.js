@@ -358,7 +358,10 @@ class Data {
 
     deleteApp(id) {
         try {
-            fs.removeSync(this.appPath(id));
+            if (!id.startsWith(this.jt.path)) {
+                id = this.appPath(id);                
+            }
+            fs.removeSync(id);
             delete this.apps[id];
             delete this.appsMetaData[id];
         } catch (err) {

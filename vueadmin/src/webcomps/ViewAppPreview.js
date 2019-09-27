@@ -43,7 +43,7 @@ jt.showAppPreview = function(app) {
     $('.view-app-screen').resizable();
     jt.showAppError(app);
     jt.showAppTree(app);
-    let appMetaData = jt.appMetaData(app.id);
+    let appMetaData = jt.app(app.id);
     try {
         let els = $($.parseHTML(appMetaData.clientHTML));
         let stageEls = els.find('[jt-stage]');
@@ -106,7 +106,7 @@ jt.showAppPreview = function(app) {
 }
 
 jt.showStagePreview = function(app, stageId, status, doc) {
-    let appMetaData = jt.appMetaData(app.id);
+    let appMetaData = jt.app(app.id);
     try {
         let trimmedHTML = $.trim(appMetaData.clientHTML);
 

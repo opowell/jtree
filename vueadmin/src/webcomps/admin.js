@@ -72,10 +72,19 @@ jt.addAppFolder = function() {
 
 jt.setApps = function(apps) {
     jt.data.appInfos = apps;
+    let appInfos = window.vue.$store.state.appInfos;
+    appInfos.splice(0, appInfos.length)
     for (let i in apps) {
-        window.vue.$store.state.appInfos.push(apps[i]);
+        appInfos.push(apps[i]);
     }
-    jt.showAppInfos();
+}
+
+jt.addPanel = function(text) {
+    $('#testArea > ul').append($(`
+      <li class="nav-item" style='display: flex'>
+        <a class="nav-link" href="#">${text}&nbsp;<span style='align-self: center'>&times;</span></a>
+      </li>
+    `));
 }
 
 jt.view = {};
@@ -136,6 +145,12 @@ jt.socketConnected = function() {
 }
 
 jt.connected = function() {
+
+    jt.addPanel('Home');
+    jt.addPanel('Apps');
+    jt.addPanel('Sessions');
+    jt.addPanel('Queues');
+    jt.addPanel('Log');
 
     jt.socketConnected = function() {
         server.refreshAdmin();

@@ -25,17 +25,15 @@ jt.QueueAppDiv = function(app) {
     return $('<div style="white-space: normal; word-break: break-all">').text(text);
 }
 
-jt.disableButton = function(elId, html) {
+jt.disableButton = function(elId) {
     $('#' + elId).attr('disabled', true);
     $('#' + elId).addClass('disabled');
     $('#' + elId).removeClass('active');
-    $('#' + elId).html(html);
 }
 
-jt.enableButton = function(elId, html) {
+jt.enableButton = function(elId) {
     $('#' + elId).attr('disabled', false);
     $('#' + elId).removeClass('disabled');
-    $('#' + elId).html(html);
 }
 
 jt.AppOptionRow = function(option, app, options) {

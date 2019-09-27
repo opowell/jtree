@@ -1,5 +1,9 @@
 <template>
   <div>
+    <div onclick='jt.addPanel()'>
+        Test
+    </div>
+
     <main-menu/>
     <view-home/>
     <ViewApps/>
@@ -20,15 +24,32 @@
         <setautoplayfreq-modal/>
     <view-sessions/>
     <view-login/>
+    <ViewLog/>
 
+    <div style='display: none' id='logMessage' class='popup'>
+      <div id='logMessageText' class="alert-box success">
+      </div>
+    </div>
+
+    <ConfirmModal/>
+
+    <div id='testArea'>
+      <ul class="nav nav-tabs">
+      </ul>
+    </div>
 
   </div>
 </template>
 
 <script>
+
+import ViewApps from '@/components/ViewApps.vue'
+import ViewLog from '@/components/ViewLog.vue'
+import ConfirmModal from '@/components/ConfirmModal.vue'
+// import ViewSessionParticipants from '@/components/ViewSessionParticipants.vue'
+
 import '@/webcomps/MainMenu.js'
 import '@/webcomps/ViewHome.js'
-import ViewApps from '@/components/ViewApps.vue'
 import '@/webcomps/ViewApp.js'
 import '@/webcomps/ViewAppEditModal.js'
 import '@/webcomps/AppSetVariableModal.js'
@@ -50,7 +71,6 @@ import '@/webcomps/ViewSessionActivity.js'
 import '@/webcomps/ViewSessionApps.js'
 import '@/webcomps/ViewSessionControls.js'
 import '@/webcomps/ViewSessionParticipants.js'
-import '@/webcomps/ViewSessionResults.js'
 import '@/webcomps/ViewSessionSettings.js'
 import '@/webcomps/ViewSessionTabs.js'
 
@@ -68,6 +88,8 @@ export default {
   name: 'home',
   components: {
     ViewApps,
+    ViewLog,
+    ConfirmModal,
   }
 }
 </script>

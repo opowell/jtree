@@ -19,7 +19,3 @@ jt.queue = function(id) {
 jt.app = function(appId) {
     return jt.data.appInfos[appId];
 }
-
-jt.appMetaData = function(appId) {
-    return jt.data.appInfos[appId];
-}

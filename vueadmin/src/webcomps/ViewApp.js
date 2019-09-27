@@ -111,7 +111,11 @@ jt.deleteApp = function() {
     jt.confirm(
         'Are you sure you want to delete App ' + appId + '?',
         function() {
-            jt.socket.emit('deleteApp', appId);
+            jt.addLog('Deleting App ' + appId + '.');
+            let cb = function() {
+                jt.addLog('FINISHED: Deleting App ' + appId + '.');
+            }
+            jt.socket.emit('deleteApp', appId, cb);
             jt.setView('apps');
         }
     );

@@ -77,7 +77,7 @@ function viewParticipant(pId) {
 
         var autoplayBtn = $('<button title="toggle autoplay" id="' + pId + '-autoplay" type="button" class="headerBtn close float-right">A</button>');
         autoplayBtn.click(function() {
-            toggleParticipantAutoplay(pId);
+            jt.toggleParticipantAutoplay(pId);
         });
         $($(panel).children()[0]).append(autoplayBtn);
 
@@ -95,14 +95,14 @@ function viewParticipant(pId) {
     $('#views').append(panel);
 }
 
-function toggleParticipantAutoplay(pId) {
+jt.toggleParticipantAutoplay = function(pId) {
     // const elId = 'panel-session-participant-' + jt.safePId(pId);
     // const el = $('#' + elId);
     const apEl = $('#' + jt.safePId(pId) + '-autoplay');
-    setParticipantAutoplay(pId, !apEl.hasClass('headerBtn-on'));
+    jt.setParticipantAutoplay(pId, !apEl.hasClass('headerBtn-on'));
 }
 
-function setParticipantAutoplay(pId, b) {
+jt.setParticipantAutoplay = function(pId, b) {
     // const elId = 'panel-session-participant-' + pId;
     // const el = $('#' + elId);
     const apEl = $('#' + pId + '-autoplay');

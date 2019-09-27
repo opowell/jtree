@@ -298,6 +298,11 @@ class Msgs {
 
     reloadApps(msg, socket) {
         this.jt.data.reloadApps();
+        if (msg == null) {
+            msg = {
+                userId: ''
+            }
+        }
         this.jt.socketServer.refreshAdmin(null, 'socket_' + socket.id, msg.userId);
     }
 

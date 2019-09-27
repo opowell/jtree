@@ -18,13 +18,16 @@
                   <th>description</th>
               </tr>
           </thead>
-          <tbody id='appInfos'>
+          <tbody>
+              <AppRow 
+                v-for='app in apps'
+                :key='app.id'
+                :fields='["playButton", "id", "description"]'
+                :app='app'
+                @click.native="clickApp(app.id, $event)"
+                style='cursor: pointer;'
+              />
           </tbody>
-          <!-- <tbody>
-              <AppRow v-for='app in apps' :key='app.shortId' as tr>
-                  <td>{{app.shortId}}</td>
-              </AppRow>
-          </tbody> -->
       </table>
   </div>
 </template>
@@ -35,89 +38,48 @@ import 'jquery'
 let $ = window.jQuery
 import jt from '@/webcomps/jtree.js'
 import server from '@/webcomps/msgsToServer.js'
-
-// window.$ = $;
+import AppRow from '@/components/AppRow.vue'
 
 export default {
   name: 'ViewApps',
-  props: {
-    msg: String
+  components: {
+      AppRow,
   },
   data() {
     return {
-        apps: this.$store.state.appInfos
+        apps: this.$store.state.appInfos,
+        jt,
     }
   },
+  methods: {
+      clickApp(id, ev) {
+        if (
+            ($(ev.target).prop('tagName') !== 'SELECT') &&
+            ($(ev.target).prop('tagName') !== 'INPUT') &&
+            ($(ev.target).prop('tagName') !== 'A')
+        ) {
+            jt.openApp(id);
+        }
+      }
+  }
 }
 
 jt.reloadApps = function() {
-    jt.disableButton('reloadAppsBtn', '<i class="fas fa-redo-alt"></i>&nbsp;&nbsp;reloading...');
-    $('#appInfos').empty();
-    jt.socket.emit("reloadApps", {});
+    let appInfos = window.vue.$store.state.appInfos;
+    appInfos.splice(0, appInfos.length)
+    jt.disableButton('reloadAppsBtn');
+    jt.addLog('Reloading Apps...');
+    let cb = function() {
+        jt.enableButton('reloadAppsBtn');
+        jt.addLog('FINISHED: Reloading Apps.');
+    }
+    jt.socket.emit("reloadApps", null, cb);
 }
 
 jt.showCreateAppModal = function() {
     $("#createAppModal").modal("show");
     $('#create-app-input').focus();
 }
-
-jt.showAppInfos = function() {
-    var appInfos = window.jt.data.appInfos;
-    jt.enableButton('reloadAppsBtn', '<i class="fas fa-redo-alt"></i>&nbsp;&nbsp;reload');
-    $('#appInfos').empty();
-    for (var a in appInfos) {
-        var app = appInfos[a];
-        var row = jt.AppRow(app, {}, ['id', 'description']);
-        row.click(function(ev) {
-            if (
-                ($(ev.target).prop('tagName') !== 'SELECT') &&
-                ($(ev.target).prop('tagName') !== 'INPUT') &&
-                ($(ev.target).prop('tagName') !== 'A')
-            ) {
-                jt.openApp($(this).data('appId'));
-            }
-        });
-        row.css('cursor', 'pointer');
-        
-        row.data('appId', app.id);
-        row.attr('appId', app.id);
-        
-        row.data('appShortId', app.shortId);
-
-        var actionDiv = $('<div class="btn-group">');
-        if (app.hasError) {
-            var errorMsg = $(`<div style='color: red'>
-            <i class="fas fa-exclamation-triangle"></i>&nbsp;&nbsp;Error<br>
-            <small style='white-space: normal' class='text-muted'>line ${app.errorLine}, pos ${app.errorPosition}<small>
-            </div>`);
-            actionDiv.append(errorMsg);    
-        } else {
-            var createSessionBtn = $(`
-            <button class="btn btn-outline-primary btn-sm">
-                <i class="fa fa-play" title="start new session with this app"></i>
-            </button>`);
-    
-            createSessionBtn.click(function(ev) {
-                ev.stopPropagation();
-                var optionEls = $(this).parents('tr').find('[app-option-name]');
-                var options = jt.deriveAppOptions(optionEls);
-                server.createSessionAndAddApp($(this).parents('tr').data('appId'), options);
-            });
-            actionDiv.append(createSessionBtn);
-        }
-
-        row.prepend($('<td>').append(actionDiv));
-
-        $('#appInfos').append(row);
-    }
-}
-
-// function addAppToSessionAndStart(event) {
-//     event.stopPropagation();
-//     console.log('add app to session and start: ' + event.data.id + ', name = ' + event.data.name);
-//     server.addAppToSessionAndStart(event.data.id);
-//     jt.setPage('participants');
-// }
 
 jt.startSessionWithApp = function() {
     var appId = $('#view-app-fullId').text();

@@ -6,6 +6,10 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     appInfos: [],
+    log: [],
+    session: {
+      participants: {},
+    },
     view: 'home',
   },
   mutations: {

@@ -59,8 +59,7 @@ msgs.createUser = function(user) {
 }
 
 msgs.createApp = function(app) {
-    jt.data.appInfos[app.id] = app;
-    jt.showAppInfos();
+    window.vue.$store.state.appInfos[app.id] = app;
     jt.openApp(app.id);
 }
 
@@ -148,8 +147,8 @@ msgs.openSession = function(session) {
         // jt.updateSessionUsers();
         jt.updateAllowNewParts();
         jt.updateAllowAdminPlay();
-        jt.updateChartPage();
-        jt.chartVar('test');
+        // jt.updateChartPage();
+        // jt.chartVar('test');
     }
 
     // $('#session-participants').removeAttr('hidden');
@@ -298,15 +297,7 @@ msgs.deleteQueue = function(id) {
 }
 
 msgs.deleteApp = function(id) {
-    for (var i=0; i<jt.data.appInfos.length; i++) {
-        if (jt.data.appInfos[i].id === id) {
-            jt.data.appInfos.splice(i, 1);
-        }
-    }
-    $('#appInfos').find('[appid="' + id + '"]').remove();
-    if ($('#view-app-id').text() === id) {
-        jt.setView('apps');
-    }
+    delete window.vue.$store.state.appInfos[id];
 }
 
 msgs.queueAddApp = function(d) {

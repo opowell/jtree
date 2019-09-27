@@ -9,8 +9,6 @@ class ViewSession extends HTMLElement {
     <view-session-apps></view-session-apps>
     <view-session-participants></view-session-participants>
     <view-session-activity></view-session-activity>
-    <view-session-results></view-session-results>
-    <view-session-users></view-session-users>
 </div>
     `;
     }

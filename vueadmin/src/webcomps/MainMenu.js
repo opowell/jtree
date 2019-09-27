@@ -3,7 +3,7 @@ class MainMenu extends HTMLElement {
     connectedCallback() {
       this.innerHTML = `
       <nav style='padding-left: 3rem; padding-right: 3rem; margin-bottom: 1rem;' class="navbar navbar-expand-sm navbar-dark bg-secondary">
-          <span id='tab-home' class="navbar-brand view-tab" onclick='setView("home")' style='padding-left: 0.5rem; padding-right: 0.5rem; cursor: pointer;'>jtree</span>
+          <span id='tab-home' class="navbar-brand view-tab" onclick='jt.setView("home")' style='padding-left: 0.5rem; padding-right: 0.5rem; cursor: pointer;'>jtree</span>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
               <span class="navbar-toggler-icon"></span>
           </button>
@@ -23,6 +23,11 @@ class MainMenu extends HTMLElement {
                   <li class="nav-item">
                       <span id='tab-sessions' class="nav-link view-tab" onclick='jt.setView("sessions")'>
                           Sessions
+                      </span>
+                  </li>
+                  <li class="nav-item">
+                      <span id='tab-log' class="nav-link view-tab" onclick='jt.setView("log")'>
+                          Log
                       </span>
                   </li>
                   <li class="nav-item">
