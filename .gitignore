@@ -19,3 +19,4 @@ desktop.ini
 node_modules
 server/internal
 client/internal/clients/admin/vue/app.js
+vueadmin/src/webcomps/shared.js
