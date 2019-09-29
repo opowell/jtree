@@ -69,12 +69,7 @@ msgs.createQueue = function(queue) {
 }
 
 msgs.setSessionId = function(data) {
-    var session = findById(jt.data.sessions, data.oldId);
-    session.id = data.newId;
-    if (jt.data.session.id === data.oldId) {
-        jt.data.session.id = data.newId;
-        jt.showSessionId(data.newId);
-    }
+    window.vue.$store.commit('setSessionId', data.oldId, data.newId);
 }
 
 msgs.appSaved = function(app) {
@@ -134,18 +129,24 @@ msgs.openSession = function(session) {
 
     localStorage.setItem('sessionId', session.id);
 
+    jt.showPanelNew('Session Settings', 'ViewSessionSettings');
+    jt.showPanelNew('Session Controls', 'ViewSessionControls');
+    jt.showPanelNew('Monitor', 'ViewSessionActivity');
+    jt.showPanelNew('Participants', 'ViewSessionParticipants');
+
     if (session !== undefined) {
-        jt.showSessionId(session.id);
+        // jt.showSessionId(session.id);
         var filelink = jt.data.jtreeLocalPath + '/sessions/' + session.id + '.csv';
         $('#view-session-results-filelink')
             .text(filelink)
             .attr('href', 'file:///' + filelink);
         jt.showPanel("#panel-session-info");
+        window.vue.$store.commit('setSession', session);
         jt.showParticipants(jt.data.session.participants);
-        // viewAllParticipants();
+        jt.viewAllParticipants();
         jt.updateSessionApps();
         // jt.updateSessionUsers();
-        jt.updateAllowNewParts();
+        // jt.updateAllowNewParts();
         jt.updateAllowAdminPlay();
         // jt.updateChartPage();
         // jt.chartVar('test');
@@ -153,7 +154,7 @@ msgs.openSession = function(session) {
 
     // $('#session-participants').removeAttr('hidden');
 
-    jt.setView('session');
+    // jt.setView('session');
     jt.view.updateNumParticipants();
     jt.setSessionView('appqueue');
 }

@@ -1,7 +1,7 @@
 class ViewQueues extends HTMLElement {
     connectedCallback() {
       this.innerHTML = `
-      <div id='view-queues' class='view hidden'>
+      <div id='view-queues' class='view'>
           <h2>Queues</h2>
           <div class="input-group mb-3">
             <a href='#' class='btn btn-sm btn-outline-secondary btn-sm' onclick='jt.showCreateQueueModal();'>

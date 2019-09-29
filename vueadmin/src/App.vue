@@ -1,8 +1,22 @@
 <template>
-  <div id="app">
-    <router-view/>
+  <div id="app" @click='click'>
+    <Home/>
   </div>
 </template>
 
-<style>
-</style>
+<script>
+
+import Home from '@/views/Home.vue'
+
+export default {
+  name: 'App',
+  components: {
+    Home,
+  },
+  methods: {
+    click() {
+      this.$store.state.isMenuOpen = false;
+    },
+  }
+}
+</script>

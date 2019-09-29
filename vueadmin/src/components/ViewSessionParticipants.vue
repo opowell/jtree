@@ -1,16 +1,16 @@
 <template>
-  <div id='view-session-participants' class='session-tab hidden'>
+  <div>
       <table class='table table-hover table-bordered'>
           <thead>
             <tr>
-              <th v-for='header in allFields' :key='header' id='session-participants-headers'>
+              <th v-for='(header, index) in allFields' :key='index' id='session-participants-headers'>
                 {{header.key}}
               </th>
             </tr>
           </thead>
           <tbody id='participants'>
             <tr v-for='part in partsArray' :key='part.id'>
-              <td v-for='header in allFields' :key='header'>
+              <td v-for='(header, index) in allFields' :key='index'>
                 {{part[header]}}
               </td>
             </tr>
@@ -25,56 +25,61 @@
 import 'jquery'
 let $ = window.jQuery
 import jt from '@/webcomps/jtree.js'
+import msgs from '@/webcomps/msgsFromServer.js'
 // import server from '@/webcomps/msgsToServer.js'
 
 export default {
   name: 'ParticipantsTable',
-  data: {
-      data: this.$store.state.session,
-      participants: this.$store.state.session.participants,
-      fields: [
-          {
-              key: 'id',
-              label: 'id',
-              sortable: true,
-          },
-          {
-              key: 'link',
-              label: 'link',
-          },
-          {
-              key: 'numClients',
-              label: 'clients',
-          },
-          {
-              key: 'appIndex',
-              label: 'app',
-          },
-          {
-              key: 'periodIndex',
-              label: 'period',
-          },
-          {
-              key: 'group',
-          },
-          {
-              key: 'stage',
-          },
-          {
-              key: 'time',
-          },
-          {
-              key: 'status',
-          },
-      ],
+  data() {
+        let linkType = 'link';
+        if (jt.settings.sessionShowFullLinks) {
+            linkType = 'full link';
+        } 
+
+      return {
+        session: this.$store.state.session,
+        participants: this.$store.state.session.participants,
+        fields: [
+            {
+                key: 'id',
+                label: 'id',
+                sortable: true,
+            },
+            {
+                key: linkType,
+                label: 'link',
+            },
+            {
+                key: 'numClients',
+                label: 'clients',
+            },
+            {
+                key: 'appIndex',
+                label: 'app',
+            },
+            {
+                key: 'periodIndex',
+                label: 'period',
+            },
+            {
+                key: 'group',
+            },
+            {
+                key: 'stage',
+            },
+            {
+                key: 'time',
+            },
+            {
+                key: 'status',
+            },
+        ],
+      }
     },
     computed: {
         allFields() {
             let out = [];
             let outKeys = [];
-            if (jt.settings.sessionShowFullLinks) {
-                this.fields[1] = 'full link';
-            } 
             for (let f in this.fields) {
                 out.push(this.fields[f]);
                 outKeys.push(this.fields[f].key);
@@ -97,8 +102,8 @@ export default {
         },
         partsArray() {
             let parts = [];
-            for (let p in this.data.session.participants) {
-                parts.push(this.data.session.participants[p]);
+            for (let p in this.session.participants) {
+                parts.push(this.session.participants[p]);
             }
             return parts;
         },
@@ -188,7 +193,7 @@ try {
     for (var i in player) {
         if (!playerFieldsToSkip.includes(i)) {
             if (!headersText.includes(i)) {
-                addParticipantPlayerHeader(i);
+                jt.addParticipantPlayerHeader(i);
                 headersText.push(i);
             }
             pDiv.find('.player-' + sPId + '-' + i).text(jt.roundValue(player[i], 2));
@@ -256,7 +261,7 @@ jt.closeViews = function() {
     });
 }
 
-jt.showParticipants = function(participants) {
+jt.showParticipants = function() {
 
     // resetParticipantsTable();
     jt.sessionSetAutoplay(false);

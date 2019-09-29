@@ -21,7 +21,7 @@ let $ = window.jQuery;
 
 jt.updateAppPreview = function() {
     $('#editAppOptionsModal').modal('hide');
-    let appId = $('#view-app-fullId').text();
+    let appId = window.vue.$store.state.app.id;
     let optionEls = $('#editAppOptionsModal').find('[app-option-name]');
     let options = jt.deriveAppOptions(optionEls);
     jt.socket.emit('updateAppPreview', {appId: appId, options: options});

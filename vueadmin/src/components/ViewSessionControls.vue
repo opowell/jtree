@@ -1,23 +1,51 @@
-class ViewSession extends HTMLElement {
-    connectedCallback() {
-        this.innerHTML = `
-<div id='view-session' class='view hidden'>
-    <h2 id='session-id'></h2>
-    <view-session-controls></view-session-controls>
-    <view-session-tabs></view-session-tabs>
-    <view-session-settings></view-session-settings>
-    <view-session-apps></view-session-apps>
-    <view-session-participants></view-session-participants>
-    <view-session-activity></view-session-activity>
-</div>
-    `;
+<template>
+    <div>
+        <h2 id='session-id'>{{session.id}}</h2>
+        <span class='mb-3 btn btn-outline-primary btn-sm' onclick='server.sessionStart();'>
+            <i class="fa fa-play"></i>&nbsp;&nbsp;Start
+        </span>
+        <div class='btn-group mb-3'>
+            <span class='btn btn-outline-secondary btn-sm' onclick='server.sessionAdvanceSlowest();'>
+                <i class="fa fa-play"></i>&nbsp;&nbsp;Advance slowest
+            </span>
+            <button id='resetSessionBtn' class="btn btn-outline-secondary btn-sm" onclick='server.resetSession()'>
+                <i class="fas fa-undo-alt"></i>&nbsp;&nbsp;Reset
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" onclick='setView("edit-app")'>
+                <i class="fa fa-copy"></i>&nbsp;&nbsp;Duplicate
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" onclick='server.saveOutput()'>
+                <i class="fa fa-save"></i>&nbsp;&nbsp;Save output
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" onclick='jt.downloadOutput()'>
+                <i class="fa fa-download"></i>&nbsp;&nbsp;Download output
+            </button>
+        </div>
+        <button class="mb-3 btn btn-outline-danger btn-sm" onclick='jt.deleteSessionPrompt(jt.data.session.id)'>
+            <i class="fa fa-trash"></i>&nbsp;&nbsp;Delete...
+        </button>
+    </div>
+</template>
+
+<script>
+
+export default {
+  name: 'ViewSessionControls',
+  data() {
+    return {
+        session: this.$store.state.session
     }
+  },
 }
 
-import jt from '@/webcomps/jtree.js'
 import 'jquery'
 let $ = window.jQuery
+import jt from '@/webcomps/jtree.js'
 import server from '@/webcomps/msgsToServer.js'
+
+jt.downloadOutput = function() {
+    window.open("/session-download/" + jt.data.session.id, "_blank", "");
+}
 
 jt.deleteParticipantBtn = function() {
     var pId = $('#deleteParticipantSelect').val();
@@ -35,11 +63,11 @@ jt.sessionSetAutoplay = function(b) {
 jt.participantOpenInNewTab = function() {
     for (var i in jt.selectedParticipants) {
         var pId = jt.selectedParticipants[i];
-        participantOpenInNewTabId(pId);
+        jt.participantOpenInNewTabId(pId);
     }
 }
 
-function participantOpenInNewTabId(id) {
+jt.participantOpenInNewTabId = function(id) {
     window.open("http://" + jt.partLink(id));
 }
 
@@ -88,4 +116,4 @@ jt.showSessionId = function(id) {
     $('#view-session-id-input').val(id);
 }
 
-window.customElements.define('view-session', ViewSession);
+</script>

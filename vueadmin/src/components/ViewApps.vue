@@ -1,5 +1,5 @@
 <template>
-  <div id='view-apps' class='view hidden'>
+  <div>
       <h2>Apps</h2>
       <span style='display: flex;' class='mb-2'>
         <a href='#' class='btn btn-sm btn-outline-secondary btn-sm' onclick='jt.showCreateAppModal()'>

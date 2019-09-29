@@ -79,12 +79,24 @@ jt.setApps = function(apps) {
     }
 }
 
-jt.addPanel = function(text) {
-    $('#testArea > ul').append($(`
-      <li class="nav-item" style='display: flex'>
-        <a class="nav-link" href="#">${text}&nbsp;<span style='align-self: center'>&times;</span></a>
-      </li>
-    `));
+jt.showPanelNew = function(title, type) {
+    let panels = window.vue.$store.state.panels;
+    for (let i in panels) {
+        let panel = panels[i];
+        if (panel.type === type) {
+            window.vue.$store.commit('setPanel', i);
+            return;
+        }
+    }
+    jt.addPanelNew(title, type);
+    window.vue.$store.commit('setPanel', panels.length-1);
+}
+
+jt.addPanelNew = function(title, type) {
+    window.vue.$store.commit('addPanel', {
+        title,
+        type
+    });
 }
 
 jt.view = {};
@@ -145,12 +157,6 @@ jt.socketConnected = function() {
 }
 
 jt.connected = function() {
-
-    jt.addPanel('Home');
-    jt.addPanel('Apps');
-    jt.addPanel('Sessions');
-    jt.addPanel('Queues');
-    jt.addPanel('Log');
 
     jt.socketConnected = function() {
         server.refreshAdmin();

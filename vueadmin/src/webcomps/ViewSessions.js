@@ -1,7 +1,7 @@
 class ViewSessions extends HTMLElement {
     connectedCallback() {
       this.innerHTML = `
-      <div id='view-sessions' class='view hidden'>
+      <div id='view-sessions' class='view'>
           <h2>Sessions</h2>
           <a href='#' class='mb-2 btn btn-sm btn-outline-secondary btn-sm' onclick='server.sessionCreate();'>
               <i class="fa fa-plus"></i>&nbsp;&nbsp;create
