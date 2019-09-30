@@ -26,6 +26,7 @@
 <script>
 
 import MenuEl from './MenuEl'
+import server from '@/webcomps/msgsToServer.js'
 export default {
   name: 'MainMenu',
   components: {
@@ -125,6 +126,12 @@ let windowMenu = {
         text: 'Session',
         hasParent: false,
         children: [
+            {
+                text: 'Start',
+                action: server.sessionStart,
+                clickData: 'session-info-panel',
+            },
+            'divider',
             {
                 text: 'Info',
                 action: this.showPanel,

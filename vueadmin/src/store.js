@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import jt from '@/webcomps/jtree.js'
 
 Vue.use(Vuex)
 
@@ -355,6 +356,46 @@ let stateObj = {
   openPlayers: [],
   settings: [],
 
+  allFields: [],
+  fields: [
+    {
+        key: 'id',
+        label: 'id',
+        sortable: true,
+    },
+    {
+        key: 'link',
+        label: 'link',
+    },
+    {
+        key: 'numClients',
+        label: 'clients',
+    },
+    {
+        key: 'appIndex',
+        label: 'app',
+    },
+    {
+        key: 'periodIndex',
+        label: 'period',
+    },
+    {
+        key: 'player.group.id',
+        label: 'group'
+    },
+    {
+        key: 'player.stage.id',
+        label: 'stage'
+    },
+    {
+        key: 'time',
+    },
+    {
+        key: 'player.status',
+        label: 'status'
+    },
+],
+
   // carried over from 0.8
   windows: [],
   activeMenu: null,
@@ -373,6 +414,26 @@ for (let i=0; i<persistentSettings.length; i++) {
   }
 }
 
+function storeFields(path, obj, outKeys, state) {
+  for (var i in obj) {
+    if (!outKeys.includes(path + i)) {
+      if (
+        typeof(obj[i]) === 'object' &&
+        !Array.isArray(obj[i])
+      ) {
+        storeFields(path + i + '.', obj[i], outKeys, state);
+      } else {
+        outKeys.push(path + i);
+        state.allFields.push({
+            key: path + i,
+            label: path + i,
+        });
+      }
+    }
+  }
+
+} 
+
 export default new Vuex.Store({
   state: stateObj,
   mutations: {
@@ -386,7 +447,24 @@ export default new Vuex.Store({
       state.shownPanel = (index - 0);
     },
     setParticipant (state, participant) {
-      state.session.participants[participant.id] = participant;
+      Vue.set(state.session.participants, participant.id, participant);
+      state.allFields.splice(0, state.allFields.length);
+      if (jt.settings.sessionShowFullLinks) {
+          state.allFields[1].key = 'full link';
+      } 
+  
+        // let out = [];
+        let outKeys = []; // Track which fields have already been found.
+        for (let f in state.fields) {
+            state.allFields.push(state.fields[f]);
+            outKeys.push(state.fields[f].key);
+        }
+        for (let p in state.session.participants) {
+            let part = state.session.participants[p];
+            storeFields('', part, outKeys, state);
+          }
+        // state.allFields = out;
+
     },
     setSession (state, session) {
       state.session = session;

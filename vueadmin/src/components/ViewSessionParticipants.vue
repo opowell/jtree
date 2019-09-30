@@ -3,24 +3,22 @@
       <table class='table table-hover table-bordered'>
           <thead>
             <tr>
-              <th v-for='(header, index) in allFields' :key='index' id='session-participants-headers'>
-                {{header.label}}
+              <th v-for='(header, index) in storeFields' :key='index' id='session-participants-headers'>
+                {{header.label != null ? header.label : header.key}}
               </th>
             </tr>
           </thead>
           <tbody id='participants'>
             <tr v-for='part in partsArray' :key='part.id'>
-              <td v-for='(header, index) in allFields' :key='index'>
+              <td v-for='(header, index) in storeFields' :key='index'>
                   <span v-if='header.key == "link"' v-html="linkCol(part)"/>
                   <span v-else>
-                    {{part[header.key]}}
+                    {{displayProp(part, header.key)}}
                   </span>
               </td>
             </tr>
           </tbody>
       </table>
-      <div id='participants-table'>
-      </div>
   </div>
 </template>
 
@@ -34,15 +32,16 @@ import msgs from '@/webcomps/msgsFromServer.js'
 export default {
   name: 'ParticipantsTable',
   data() {
-        let linkType = 'link';
-        if (jt.settings.sessionShowFullLinks) {
-            linkType = 'full link';
-        } 
+    let linkType = 'link';
+    if (jt.settings.sessionShowFullLinks) {
+        linkType = 'full link';
+    } 
 
-      return {
-        session: this.$store.state.session,
-        participants: this.$store.state.session.participants,
-        fields: [
+    return {
+      session: this.$store.state.session,
+      participants: this.$store.state.session.participants,
+      storeFields: this.$store.state.allFields,
+      fields: [
             {
                 key: 'id',
                 label: 'id',
@@ -65,56 +64,66 @@ export default {
                 label: 'period',
             },
             {
-                // TODO: FIX
                 key: 'player.group.id',
                 label: 'group'
             },
             {
-                key: 'stage',
+                key: 'player.stage.id',
+                label: 'stage'
             },
             {
                 key: 'time',
             },
             {
-                key: 'status',
+                key: 'player.status',
+                label: 'status'
             },
         ],
-      }
-    },
+    }
+  },
     computed: {
-        allFields() {
-            let out = [];
-            let outKeys = [];
-            for (let f in this.fields) {
-                out.push(this.fields[f]);
-                outKeys.push(this.fields[f].key);
-            }
-            for (let p in this.partsArray) {
-                let player = this.partsArray[p];
-                for (var i in player) {
-                    if (!playerFieldsToSkip.includes(i)) {
-                        if (!outKeys.includes(i)) {
-                            outKeys.push(i);
-                            out.push({
-                                key: i,
-                                label: i,
-                                // formatter: (value) => { return jt.roundValue(value, 2); }
-                            });
-                        }
-                    }
-                }
-            }
-            return out;
-        },
+        // allFields() {
+        //     let out = [];
+        //     let outKeys = []; // Track which fields have already been found.
+        //     for (let f in this.fields) {
+        //         out.push(this.fields[f]);
+        //         outKeys.push(this.fields[f].key);
+        //     }
+        //     for (let p in this.partsArray) {
+        //         let player = this.partsArray[p];
+        //         for (var i in player) {
+        //             if (!playerFieldsToSkip.includes(i)) {
+        //                 if (!outKeys.includes(i)) {
+        //                     outKeys.push(i);
+        //                     out.push({
+        //                         key: 'player.' + i,
+        //                         label: i,
+        //                         // formatter: (value) => { return jt.roundValue(value, 2); }
+        //                     });
+        //                 }
+        //             }
+        //         }
+        //     }
+        //     return out;
+        // },
         partsArray() {
             let parts = [];
-            for (let p in this.session.participants) {
-                parts.push(this.session.participants[p]);
+            for (let p in this.participants) {
+                parts.push(this.participants[p]);
             }
             return parts;
         },
     },
     methods: {
+        displayProp(participant, prop) {
+            try {
+                let x = 'participant.' + prop;
+                // console.log('trying: ' + x);
+                return eval(x);
+            } catch (err) {
+                return '-';
+            }
+        },
         linkCol(item) {
             return '<a href="http://' + jt.partLink(item.id) + '" target="_blank">' + jt.partLink(item.id) + '</a></td>';
         },
