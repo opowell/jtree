@@ -4,7 +4,7 @@
             <div>Id</div>
             <div>
                 <input id='view-session-id-input' type='text'>
-                <button type="button" class="btn btn-sm btn-primary" onclick='setSessionId();'>Set</button>
+                <button type="button" class="btn btn-sm btn-primary" onclick='jt.setSessionId();'>Set</button>
                 <small class="form-text text-muted">
                     Must be unique across all sessions. Clients must be reconnected after change.
                 </small>
@@ -13,7 +13,7 @@
             <div>
                 <div>
                     <input id='setNumParticipantsInput' style='width: 3em;' type='number' min='0' step='1'>
-                    <button id='setNumParticipantsBtn' type="button" class="btn btn-sm btn-primary" onclick='setNumParticipants();'>Set</button>
+                    <button id='setNumParticipantsBtn' type="button" class="btn btn-sm btn-primary" onclick='jt.setNumParticipants();'>Set</button>
                     <small class="form-text text-muted">
                         Setting the number of participants will turn off login of new participants. Participants are added from the list of session participant IDs. More recent participants are removed first.
                     </small>
@@ -36,7 +36,7 @@
                 <div>
                     <textarea id='setParticipantLabels' cols=80 rows=10></textarea>
                 </div>
-                <button type="button" class="btn btn-sm btn-primary" onclick='setParticipantLabelss();'>Set</button>
+                <button type="button" class="btn btn-sm btn-primary" onclick='jt.setParticipantLabels();'>Set</button>
                 <small class="form-text text-muted">
                     Each label should be seperated by a comma and/or new line. Setting the participant labels will turn off login of new participants and set the number of participants.
                 </small>

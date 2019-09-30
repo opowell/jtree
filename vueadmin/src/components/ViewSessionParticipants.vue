@@ -4,14 +4,17 @@
           <thead>
             <tr>
               <th v-for='(header, index) in allFields' :key='index' id='session-participants-headers'>
-                {{header.key}}
+                {{header.label}}
               </th>
             </tr>
           </thead>
           <tbody id='participants'>
             <tr v-for='part in partsArray' :key='part.id'>
               <td v-for='(header, index) in allFields' :key='index'>
-                {{part[header]}}
+                  <span v-if='header.key == "link"' v-html="linkCol(part)"/>
+                  <span v-else>
+                    {{part[header.key]}}
+                  </span>
               </td>
             </tr>
           </tbody>
@@ -62,7 +65,9 @@ export default {
                 label: 'period',
             },
             {
-                key: 'group',
+                // TODO: FIX
+                key: 'player.group.id',
+                label: 'group'
             },
             {
                 key: 'stage',
@@ -92,7 +97,8 @@ export default {
                             outKeys.push(i);
                             out.push({
                                 key: i,
-                                formatter: (value) => { return jt.roundValue(value, 2); }
+                                label: i,
+                                // formatter: (value) => { return jt.roundValue(value, 2); }
                             });
                         }
                     }
@@ -145,7 +151,10 @@ var playerFieldsToSkip = [
     'status',
     'time',
     'participant',
-    'full link'
+    'full link',
+    'playerIds',
+    'players',
+    'player',
 ];
 
 jt.setPlayerTimeLeft = function(participant, tl) {

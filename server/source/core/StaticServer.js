@@ -213,6 +213,8 @@ class StaticServer {
                 protocol = 'https://';
             }
             console.log('###############################################');
+            jt.settings.server.ip = self.ip;
+            jt.settings.server.port = self.port;
             console.log('jtree ' + jt.version + ', listening on ' + protocol + self.ip + ':' + self.port);
         }
 

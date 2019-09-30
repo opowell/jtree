@@ -118,6 +118,8 @@ jt.refresh = function(ag) {
     jt.data.rooms = ag.rooms;
     jt.data.queues = ag.queues;
     jt.data.jtreeLocalPath = ag.jtreeLocalPath;
+    
+    window.vue.$store.commit('setSettings', ag.settings);
     jt.settings = ag.settings;
     jt.data.users = ag.users;
 

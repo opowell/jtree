@@ -3,15 +3,15 @@ import 'jquery'
 let $ = window.jQuery
 
 jt.partLink = function(pId) {
-    if (jt.interfaceMode === 'basic') {
+    let state = window.vue.$store.state;
+    if (state.includeSessionIdInPartLinks) {
+        if (state.session != null) {
+            return jt.serverURL() + '/session/' + jt.data.session.id + '/' + pId;
+          } else {
+            return jt.serverURL() + '/' + pId;
+          }
+      } else {
         return jt.serverURL() + '/' + pId;
-    } else {
-//        return jt.serverURL() + '/' + pId + '?sessionId=' + jt.data.session.id;
-        if (jt.data.session != null) {
-          return jt.serverURL() + '/session/' + jt.data.session.id + '/' + pId;
-        } else {
-          return jt.serverURL() + '/' + pId;
-        }
     }
 }
 

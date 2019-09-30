@@ -37,7 +37,7 @@
                             <i title="refresh" class="fa fa-redo-alt"/>
                         </button>
                     </div>
-                    <iframe :id="'participant-frame-' + player.id" :src="'http://192.168.0.23/session/' + session.id + '/' + player.id" class="participant-frame panel-content2"></iframe>
+                    <iframe :id="'participant-frame-' + player.id" :src="'http://' + settings.server.ip + ':' + settings.server.port + '/session/' + session.id + '/' + player.id" class="participant-frame panel-content2"></iframe>
                 </div>
             </div>
         </div>
@@ -51,6 +51,7 @@ export default {
   data() {
     return {
         session: this.$store.state.session,
+        settings: this.$store.state.settings,
     }
   },
   computed: {

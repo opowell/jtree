@@ -49,6 +49,8 @@ class Settings {
  
          this.valsToSave = {};
 
+         this.server = {};
+
          this.logMessage = null;
 
          /**

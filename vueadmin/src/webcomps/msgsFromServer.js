@@ -234,7 +234,7 @@ msgs.playerUpdate = function(player) {
     player = jt.parse(player);
 
     if (player.group.period.app.session.id === jt.data.session.id) {
-        var div = $('tr.participant-' + jt.safePId(player.id));
+        // var div = $('tr.participant-' + jt.safePId(player.id));
 
         // // Re-establish object links.
         // player.participant.session = player.group.period.app.session;
@@ -243,11 +243,15 @@ msgs.playerUpdate = function(player) {
         // }
         // player.participant.player = player;
 
-        jt.data.session.participants[player.id] = player.participant;
+        let participant = player.participant;
+        participant.player = player;
+        delete player.participant;
+        // jt.data.session.participants[player.id] = participant;
+        window.vue.$store.commit('setParticipant', participant);
 
-        jt.setParticipantPlayer(player.id, player, div);
+        // jt.setParticipantPlayer(player.id, player, div);
 //        $('.participant-' + player.id + '-periodIndex').text(decompId.periodId);
-        $('.participant-' + jt.safePId(player.id) + '-periodIndex').text(player.group.period.id);
+        // $('.participant-' + jt.safePId(player.id) + '-periodIndex').text(player.group.period.id);
     }
 }
 

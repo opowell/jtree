@@ -247,6 +247,13 @@ const persistentSettings = [
     type: 'text',
     key: 'nodeSelectedFocussedBGColor',
   },
+  {
+    name: 'Include session id in participant links',
+    type: 'checkbox',
+    key: 'includeSessionIdInPartLinks',
+    default: false, 
+  },
+
 ];
 
 let settingsPresets = [
@@ -346,6 +353,7 @@ let stateObj = {
   session: null,
   sessions: [],
   openPlayers: [],
+  settings: [],
 
   // carried over from 0.8
   windows: [],
@@ -377,6 +385,9 @@ export default new Vuex.Store({
     setPanel (state, index) {
       state.shownPanel = (index - 0);
     },
+    setParticipant (state, participant) {
+      state.session.participants[participant.id] = participant;
+    },
     setSession (state, session) {
       state.session = session;
     },
@@ -388,6 +399,9 @@ export default new Vuex.Store({
           return;
         }
       }
+    },
+    setSettings (state, settings) {
+      state.settings = settings;
     }
   },
   actions: {
