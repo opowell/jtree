@@ -156,7 +156,7 @@ msgs.openSession = function(session) {
 
     // jt.setView('session');
     jt.view.updateNumParticipants();
-    jt.setSessionView('appqueue');
+    // jt.setSessionView('appqueue');
 }
 
 msgs.addClient = function(md) {

@@ -169,15 +169,22 @@
 import MenuEl from './MenuEl.vue';
 import JtSpacer from './JtSpacer.vue';
 // Panels
-import FilesPanel from '@/components/FilesPanel.vue'
-import GamesPanel from '@/components/GamesPanel.vue'
-import GameTreePanel from '@/components/GameTreePanel.vue'
-import SessionInfoPanel from '@/components/SessionInfoPanel.vue'
-import SessionActionsPanel from '@/components/SessionActionsPanel.vue'
-import SessionParticipantsPanel from '@/components/SessionParticipantsPanel.vue'
-import SessionMonitorPanel from '@/components/SessionMonitorPanel.vue'
-import SessionsPanel from '@/components/SessionsPanel.vue'
+// import FilesPanel from '@/components/FilesPanel.vue'
+// import GamesPanel from '@/components/GamesPanel.vue'
+// import GameTreePanel from '@/components/GameTreePanel.vue'
+// import SessionInfoPanel from '@/components/SessionInfoPanel.vue'
+// import SessionActionsPanel from '@/components/SessionActionsPanel.vue'
+// import SessionParticipantsPanel from '@/components/SessionParticipantsPanel.vue'
+// import SessionMonitorPanel from '@/components/SessionMonitorPanel.vue'
+// import SessionsPanel from '@/components/SessionsPanel.vue'
 import SettingsPanel from '@/components/SettingsPanel.vue'
+
+import ViewApps from '@/components/ViewApps.vue'
+import ViewSessionActivity from '@/components/ViewSessionActivity.vue'
+import ViewSessionApps from '@/components/ViewSessionApps.vue'
+import ViewSessionControls from '@/components/ViewSessionControls.vue'
+import ViewSessionSettings from '@/components/ViewSessionSettings.vue'
+import ViewSessionParticipants from '@/components/ViewSessionParticipants.vue'
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import {
@@ -194,14 +201,20 @@ export default {
       JtSpacer,
       MenuEl,
       'font-awesome-icon': FontAwesomeIcon,
-    FilesPanel,
-    GameTreePanel,
-    GamesPanel,
-    SessionInfoPanel,
-    SessionActionsPanel,
-    SessionMonitorPanel,
-    SessionParticipantsPanel,
-    SessionsPanel,
+      ViewApps,
+    ViewSessionActivity,
+    ViewSessionApps,
+    ViewSessionControls,
+    ViewSessionParticipants,
+    ViewSessionSettings,
+    // FilesPanel,
+    // GameTreePanel,
+    // GamesPanel,
+    // SessionInfoPanel,
+    // SessionActionsPanel,
+    // SessionMonitorPanel,
+    // SessionParticipantsPanel,
+    // SessionsPanel,
     SettingsPanel,
   },
   props: [
@@ -532,7 +545,7 @@ export default {
     background-color: var(--areaContentBGColor);
     color: var(--areaContentFontColor);
     flex: 1 1 auto;
-    /* overflow: auto; */
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     box-shadow: 0px 0px 7px 1px rgba(0, 0, 0, 0.4);

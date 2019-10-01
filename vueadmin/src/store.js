@@ -394,12 +394,21 @@ let stateObj = {
         key: 'player.status',
         label: 'status'
     },
-],
+  ],
 
-  // carried over from 0.8
-  windows: [],
+  windows: [],                    // After panels are mounted, they register here. Order determines z-index.
+  windowDescs: [],                // Information about created panels.
+  containerHeight: 5000,
+  containerWidth: 5000,
+  nextWindowXIncrement: 40,
+  nextWindowYIncrement: 40,
+  nextWindowId: 0,
+  nextWindowX: 20,                // Coordinates of where to open panels.
+  nextWindowY: 20,
+
   activeMenu: null,
   isMenuOpen: false,
+  activeWindow: null,
   persistentSettings,
   settingsPresets
 }
@@ -434,9 +443,334 @@ function storeFields(path, obj, outKeys, state) {
 
 } 
 
+// *********************************
+// From 0.8.0
+
+function getWindowDataIndex(state, windowId) {
+  for (let i=0; i<state.windowDescs.length; i++) {
+    if (state.windowDescs[i].id === windowId) {
+      return i;
+    }
+  }
+}
+
+function findPanel(state, type, data) {
+  for (let i=0; i<state.windows.length; i++) {
+    let win = state.windows[i];
+    let x = findPanelFromArea(state, type, data, win.area);
+    if (x.panel !== null) {
+      return {panel: x.panel, index: x.index, area: x.area, window: win};
+    }
+  }
+  return {panel: null, index: null, area: null, window: null};
+}
+
+function findPanelFromArea(state, type, data, area) {
+  if (area == null) {
+    debugger;
+  }
+  for (let i=0; i<area.areas.length; i++) {
+    let x = findPanelFromArea(state, type, data, area.areas[i]);
+    if (x.panel != null) {
+      return {panel: x.panel, index: x.index, area: x.area};
+    }
+  }
+  for (let i=0; i<area.panels.length; i++) {
+    let panel = area.panels[i];
+    // if (panel.type === type && panel.data === data) {
+    if (panel.type === type) {
+      return {panel, index: i, area};
+    }
+  }
+  return {panel: null, index: null, area: null};
+}
+
+function getArea(state, windowId, areaPath) {
+  let win = getWindowData(state, windowId);
+  let area = win;
+  for (let i=0; i<areaPath.length; i++) {
+    area = area.areas[areaPath[i]];
+  }
+  return area;
+}
+
+function getWindowData(state, windowId) {
+  let win = null;
+  let index = getWindowDataIndex(state, windowId);
+  if (index > -1) {
+    win = state.windowDescs[index];
+  }
+  return win;
+}
+
+function closeAreaMethod(state, areaPath, windowId) {
+  let winIndex = getWindowDataIndex(state, windowId);
+  let win = state.windowDescs[winIndex];
+  let area = win;
+  let parent = null;
+  let lastIndex = null;
+  for (let i=0; i<areaPath.length; i++) {
+    parent = area;
+    area = area.areas[areaPath[i]];
+    lastIndex = areaPath[i];
+  }
+  if (parent != null) {
+    parent.areas.splice(lastIndex, 1);
+    if (parent.areas.length < 2) {
+      for (let i=0; i<parent.areas[0].panels.length; i++) {
+        parent.panels.push(parent.areas[0].panels[i]);
+      }
+      parent.activePanelInd = parent.areas[0].activePanelInd;
+      parent.areas.splice(0, 1);
+    }
+  } else {
+    state.windowDescs.splice(winIndex, 1);
+    if (state.activeWindow.window.id === windowId) {
+      if (state.windows.length === 1) {
+        state.activeWindow = null;
+        return;
+      }
+      state.activeWindow = state.windows[state.windows.length - 2];
+    }
+  }
+
+}
+
+// END From 0.8.0
+// *********************************
+
+
+
+
 export default new Vuex.Store({
   state: stateObj,
   mutations: {
+
+// ****************************************
+// From 0.8.0
+deleteParticipant(state, pId) {
+  Vue.delete(state.session.participants, pId);
+},
+setSessionId(state, sessionId) {
+  state.sessionId = sessionId;
+  // axios.get(
+  //     'http://' + window.location.host + '/api/session/' + sessionId
+  // ).then(response => {
+  //     if (response.data.success === true) {
+  //       state.session = response.data.session;
+  //     }
+  // });
+  global.jt.socket.emit('openSession', sessionId);
+},
+// setActionIndex(state, index) {
+//   Vue.set(state.session, 'messageIndex', index);
+//   state.messageIndex = index;
+// },
+// setSession(state, session) {
+//   state.sessionId = session.id;
+//   state.session = session;
+//   // state.session.gameTree.splice(0, state.session.gameTree.length);
+//   // for (let i=0; i<session.gameTree.length; i++) {
+//   //   state.session.gameTree.push(session.gameTree)
+//   // }
+//   // for (let i=0; i<state.sessions.length; i++) {
+//   //   if (state.sessions[i].id === session.id) {
+//   //     state.sessions[i] = session;
+//   //   }
+//   // }
+// },
+addPanelToActiveWindow(state, panelInfo) {
+  for (let i=0; i<state.windowDescs.length; i++) {
+    if (state.windowDescs[i].id === state.activeWindow.panelId) {
+      let area = state.windowDescs[i];
+      while (area.areas.length > 0) {
+        area = area.areas[0];
+      }
+      area.panels.push(panelInfo);
+      area.activePanelInd = area.panels.length - 1;
+      break;
+    }
+  }
+},
+addQueues(state, queues) {
+  state.queues.splice(0, state.queues.length);
+  for (let q in queues) {
+    state.queues.push(queues[q]);
+  }
+},
+addTabToPanel(state, {
+  sourceWindowId, sourceAreaPath, sourcePanelIndex, targetWindowId, targetAreaPath, targetIndex,
+}) {
+  let sourceArea = getArea(state, sourceWindowId, sourceAreaPath);
+  let sourcePanel = sourceArea.panels[sourcePanelIndex];
+  let targetArea = getArea(state, targetWindowId, targetAreaPath);
+  targetArea.panels.splice(targetIndex, 0, sourcePanel);
+  targetArea.activePanelInd = targetIndex;
+  // if (
+  //   sourceArea === targetArea &&
+  //   sourceWindowId === targetWindowId &&
+  //   targetIndex > sourcePanelIndex
+  // ) {
+  //   targetArea.activePanelInd++;
+  // }
+},
+addWindow(state, panel) {
+  state.activeWindow = panel;
+  state.windows.push(panel);
+},
+closeAllWindows(state) {
+  state.activeWindow = null;
+  state.windowDescs.splice(0, state.windowDescs.length);
+},
+changeSelectedIndex(state, {areaPath, windowId, change}) {
+  let area = getArea(state, windowId, areaPath);
+  area.activePanelInd = area.activePanelInd + change;
+  if (area.activePanelInd < 0) {
+    area.activePanelInd = area.panels.length - 1;
+  }
+  else if (area.activePanelInd > area.panels.length - 1) {
+    area.activePanelInd = 0;
+  }
+},
+closeArea(state, {areaPath, windowId}) {
+  closeAreaMethod(state, areaPath, windowId);
+},
+closePanel(state, {panelIndex, areaPath, windowId}) {
+  let area = getArea(state, windowId, areaPath);
+  area.panels.splice(panelIndex, 1);
+  if (area.panels.length < 1) {
+      closeAreaMethod(state, areaPath, windowId);
+  }
+  if (panelIndex === area.activePanelInd) {
+      area.activePanelInd = Math.max(0, panelIndex-1);
+  } else if (panelIndex < area.activePanelInd) {
+    area.activePanelInd--;
+  }
+},
+newSiblingOfParent(state, {areaPath, windowId, panelInd}) {
+  let areaIndex = areaPath.splice(areaPath.length-1, 1);
+  let parent = getArea(state, windowId, areaPath);
+  let area = parent.areas[areaIndex];
+  
+  // Nothing to do if not more than one panel.
+  if (area.panels.length < 2) {
+    return;
+  }
+
+  let panel = area.panels.splice(panelInd, 1)[0];
+  parent.areas.push({
+      panels: [panel],
+      areas: [],
+      activePanelInd: 0,
+      flex: '1 1 100px',
+      rowChildren: true,
+  });
+  area.activePanelInd = Math.max(0, panelInd-1);
+},
+createChild(state, {areaPath, windowId, panelInd, rowChildren}) {
+  let area = getArea(state, windowId, areaPath);
+  area.rowChildren = rowChildren;
+  let curActivePanel = area.panels.splice(panelInd, 1)[0];
+
+  let firstChildArea = {
+      panels: [],
+      areas: [],
+      activePanelInd: 0,
+      flex: '1 1 100px',
+      rowChildren: true,
+  };
+  let numPanels = area.panels.length;
+  for (let i=0; i<numPanels; i++) {
+      let panel = area.panels.splice(0, 1)[0];
+      firstChildArea.panels.push(panel);
+  }
+  firstChildArea.activePanelInd = Math.max(0, panelInd-1),
+  area.areas.push(firstChildArea);
+
+  area.areas.push({
+      panels: [curActivePanel],
+      areas: [],
+      activePanelInd: 0,
+      flex: '1 1 100px',
+      rowChildren: true,
+  });
+
+},
+resetWindowIds(state) {
+  if (state.windowDescs == null) {
+    return;
+  }
+  for (let i=0; i<state.windowDescs.length; i++) {
+    state.windowDescs[i].id = state.nextWindowId;
+    state.nextWindowId++;
+  }
+},
+saveWindowInfo(state, windowDataIn) {
+  for (let i=0; i < state.windowDescs.length; i++) {
+    let windowData = state.windowDescs[i];
+    if (windowData.id === windowDataIn.panelId) {
+      windowData.x = windowDataIn.left;
+      windowData.y = windowDataIn.top;
+      windowData.w = windowDataIn.width;
+      windowData.h = windowDataIn.height;
+      return;
+    }
+  }
+},
+setActivePanelIndex(state, {index, areaPath, windowId}) {
+  let area = getArea(state, windowId, areaPath);
+  area.activePanelInd = index;
+},
+setApps(state, apps) {
+  state.apps.splice(0, state.apps.length);
+  for (let q in apps) {
+    state.apps.push(apps[q]);
+  }
+},
+setContainerDimensions(state, container) {
+  state.containerWidth = container.clientWidth - 5;
+  state.containerHeight = container.clientHeight - 5;
+},
+setFocussedWindow(state, windowPanel) {
+  let curPos = windowPanel.zIndex;
+  state.windows.splice(curPos, 1); 
+  state.windows.push(windowPanel);
+  state.activeWindow = windowPanel;
+  state.isMenuOpen = false;
+},
+setAreaSize(state, {windowId, areaPath, size}) {
+  let area = getArea(state, windowId, areaPath);
+  area.flex = '0 0 ' + size + 'px';
+},
+setSetting(state, {key, value}) {
+  state[key] = value;
+},
+showWindow(state, windowInfo) {
+  windowInfo.id = state.nextWindowId;
+  if (state.nextWindowX + windowInfo.w > state.containerWidth) {
+    state.nextWindowX = 25;
+  }
+  if (state.nextWindowY + windowInfo.h > state.containerHeight) {
+    state.nextWindowY = 25;
+  }
+  windowInfo.x = state.nextWindowX;
+  windowInfo.y = state.nextWindowY;
+  windowInfo.activePanelInd = 0;
+  state.nextWindowX += state.nextWindowXIncrement;
+  state.nextWindowY += state.nextWindowYIncrement;
+  state.nextWindowId++;
+  state.windowDescs.push(windowInfo);
+},
+toggleWindowsMaximized(state) {
+  state.windowsMaximized = !state.windowsMaximized;
+},
+toggleRowChildren(state, {windowId, areaPath}) {
+  let area = getArea(state, windowId, areaPath);
+  area.rowChildren = !area.rowChildren;
+},
+// END From 0.8.0
+// *********************************
+
     addPanel (state, panelInfo) {
       state.panels.push(panelInfo);
     },
@@ -469,20 +803,55 @@ export default new Vuex.Store({
     setSession (state, session) {
       state.session = session;
     },
-    setSessionId (state, oldId, newId) {
-      for (let i in state.sessions) {
-        let session = state.sessions[i];
-        if (session.id === oldId) {
-          session.id = newId;
+    setSettings (state, settings) {
+      state.settings = settings;
+    },
+  },
+  actions: {
+    showPanel: ({commit, state}, data) => {
+      if (data.checkIfAlreadyOpen === true) {
+        let x = findPanel(state, data.type, data.data);
+        if (x.panel !== null) {
+          x.area.activePanelInd = x.index;
+          let curPos = x.window.zIndex;
+          state.windows.splice(curPos, 1); 
+          state.windows.push(x.window);
+          state.activeWindow = x.window;
+          state.isMenuOpen = false;
           return;
         }
       }
+      if (
+        (
+          state.openNewPanelsIn === OPEN_NEW_PANELS_IN_ACTIVE_WINDOW &&
+          state.windowDescs.length > 0
+        ) ||
+        (
+          state.openNewPanelsIn === OPEN_NEW_PANELS_IN_ACTIVE_WINDOW_IF_MAXED &&
+          state.windowsMaximized &&
+          state.windowDescs.length > 0
+        )
+      ) {
+        commit('addPanelToActiveWindow', {
+          id: data.title,
+          type: data.type,
+          data: data.data,
+        });
+      } else {
+        commit('showWindow', {
+          panels: [
+              {
+                  id: data.title,
+                  type: data.type,
+                  data: data.data,
+              },
+          ],
+          areas: [],
+          w: 500,
+          h: 300,
+          flex: '1 1 100px',
+        });
+      }
     },
-    setSettings (state, settings) {
-      state.settings = settings;
-    }
-  },
-  actions: {
-
   }
 })

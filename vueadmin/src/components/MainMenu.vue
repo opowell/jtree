@@ -67,6 +67,11 @@ let windowMenu = {
         hasParent: false,
         children: [
             {
+                text: 'Apps',
+                action: this.showPanel,
+                clickData: 'ViewApps',
+            },
+            {
                 text: 'Files',
                 action: this.showPanel,
                 clickData: 'files-panel',

@@ -1,6 +1,5 @@
 <template>
-  <div>
-      <h2>Apps</h2>
+  <div style='flex: 1 1 auto; align-self: stretch; overflow: auto; padding: 10px'>
       <span style='display: flex;' class='mb-2'>
         <a href='#' class='btn btn-sm btn-outline-secondary btn-sm' onclick='jt.showCreateAppModal()'>
             <i class="fa fa-plus"></i>&nbsp;&nbsp;create...
@@ -45,6 +44,10 @@ export default {
   components: {
       AppRow,
   },
+  props: [
+    'dat',
+    'panel',
+  ],
   data() {
     return {
         apps: this.$store.state.appInfos,
@@ -61,7 +64,10 @@ export default {
             jt.openApp(id);
         }
       }
-  }
+  },
+  mounted() {
+      this.panel.id = 'Apps';
+  },
 }
 
 jt.reloadApps = function() {

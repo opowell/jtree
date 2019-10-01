@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div style='padding: 5px; display: block'>
         <h2 id='session-id'>{{session.id}}</h2>
         <span class='mb-3 btn btn-outline-primary btn-sm' onclick='server.sessionStart();'>
             <i class="fa fa-play"></i>&nbsp;&nbsp;Start
@@ -35,6 +35,13 @@ export default {
     return {
         session: this.$store.state.session
     }
+  },
+  props: [
+    'dat',
+    'panel',
+  ],
+  mounted() {
+      this.panel.id = 'Session Controls';
   },
 }
 

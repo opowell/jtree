@@ -1,5 +1,5 @@
 <template>
-  <div>
+    <div style='padding: 5px; display: block'>
       <table class='table table-hover table-bordered'>
           <thead>
             <tr>
@@ -114,6 +114,13 @@ export default {
             return parts;
         },
     },
+  props: [
+    'dat',
+    'panel',
+  ],
+  mounted() {
+      this.panel.id = 'Session Participants';
+  },
     methods: {
         displayProp(participant, prop) {
             try {

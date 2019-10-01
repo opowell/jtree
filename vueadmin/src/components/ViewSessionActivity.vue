@@ -1,6 +1,5 @@
 <template>
-    <!-- SESSION - ACTIVITY -->
-    <div>
+    <div style='padding: 5px; display: block'>
         <div class='btn-group mb-3'>
             <span class="btn btn-outline-primary btn-sm" onclick='jt.viewAllParticipants()'>
                 <i class="fa fa-eye"></i>&nbsp;&nbsp;show all
@@ -48,6 +47,10 @@
 
 export default {
   name: 'ViewSessionActivity',
+  props: [
+    'dat',
+    'panel',
+  ],
   data() {
     return {
         session: this.$store.state.session,
@@ -58,7 +61,10 @@ export default {
       openPlayers() {
           return this.$store.state.openPlayers;
       }
-  }
+  },
+  mounted() {
+      this.panel.id = 'Session Activity';
+  },
 }
 
 import jt from '@/webcomps/jtree.js'

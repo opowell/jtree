@@ -9,6 +9,11 @@
     "build-watch": "vue-cli-service build-watch --dest ..\\client\\internal\\clients\\admin\\vue"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.25",
+    "@fortawesome/free-brands-svg-icons": "^5.11.2",
+    "@fortawesome/free-solid-svg-icons": "^5.11.2",
+    "@fortawesome/vue-fontawesome": "^0.1.7",
+    "bootstrap-vue": "^2.0.2",
     "core-js": "^2.6.5",
     "flatted": "^2.0.1",
     "jquery": "^3.4.1",

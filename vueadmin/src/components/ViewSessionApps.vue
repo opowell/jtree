@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div style='padding: 5px; display: block'>
         <div class='btn-group mb-3'>
             <button type='button' class='btn btn-outline-primary btn-sm' onclick='jt.showAddAppToSessionModal();'>
                 <i class="fa fa-plus"></i>&nbsp;&nbsp;add App...
@@ -34,6 +34,13 @@ export default {
     return {
         session: this.$store.state.session
     }
+  },
+  props: [
+    'dat',
+    'panel',
+  ],
+  mounted() {
+      this.panel.id = 'Session Apps';
   },
 }
 

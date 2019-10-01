@@ -4,6 +4,7 @@ import 'jquery'
 let $ = window.jQuery
 import Utils from '@/webcomps/utilsFns.js'
 import msgs from '@/webcomps/msgsFromServer.js'
+import store from '@/store.js'
 
 window.msgs = msgs;
 
@@ -80,16 +81,17 @@ jt.setApps = function(apps) {
 }
 
 jt.showPanelNew = function(title, type) {
-    let panels = window.vue.$store.state.panels;
-    for (let i in panels) {
-        let panel = panels[i];
-        if (panel.type === type) {
-            window.vue.$store.commit('setPanel', i);
-            return;
-        }
-    }
-    jt.addPanelNew(title, type);
-    window.vue.$store.commit('setPanel', panels.length-1);
+    // let panels = window.vue.$store.state.panels;
+    // for (let i in panels) {
+    //     let panel = panels[i];
+    //     if (panel.type === type) {
+    //         window.vue.$store.commit('setPanel', i);
+    //         return;
+    //     }
+    // }
+    // jt.addPanelNew(title, type);
+    // window.vue.$store.commit('setPanel', panels.length-1);
+    store.dispatch('showPanel', {type: type});
 }
 
 jt.addPanelNew = function(title, type) {

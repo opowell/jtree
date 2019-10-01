@@ -1,5 +1,5 @@
 <template>
-    <div id='view-session-general'>
+    <div id='view-session-general' style='padding: 5px; display: block'>
         <div class='tab-grid'>
             <div>Id</div>
             <div>
@@ -90,6 +90,13 @@ export default {
     return {
         session: this.$store.state.session
     }
+  },
+  props: [
+    'dat',
+    'panel',
+  ],
+  mounted() {
+      this.panel.id = 'Session Settings';
   },
 }
 
