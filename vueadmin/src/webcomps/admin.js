@@ -80,20 +80,6 @@ jt.setApps = function(apps) {
     }
 }
 
-jt.showPanelNew = function(title, type) {
-    // let panels = window.vue.$store.state.panels;
-    // for (let i in panels) {
-    //     let panel = panels[i];
-    //     if (panel.type === type) {
-    //         window.vue.$store.commit('setPanel', i);
-    //         return;
-    //     }
-    // }
-    // jt.addPanelNew(title, type);
-    // window.vue.$store.commit('setPanel', panels.length-1);
-    store.dispatch('showPanel', {type: type});
-}
-
 jt.addPanelNew = function(title, type) {
     window.vue.$store.commit('addPanel', {
         title,
@@ -121,20 +107,14 @@ jt.refresh = function(ag) {
     jt.data.queues = ag.queues;
     jt.data.jtreeLocalPath = ag.jtreeLocalPath;
     
-    window.vue.$store.commit('setSettings', ag.settings);
+    store.commit('setSettings', ag.settings);
+    store.commit('setQueues', ag.queues);
     jt.settings = ag.settings;
     jt.data.users = ag.users;
-
+    
     jt.setApps(ag.apps);
-    // window.showSessions();
-    // jt.showAppFolders(ag.appFolders);
-    // window.showRooms();
-    // window.showQueues();
-    // window.showUsers();
 
     $('#setAutoplayFreq-input').val(jt.settings.autoplayDelay);
-
-    // jt.showUsersMode(jt.settings.multipleUsers);
 
 }
 

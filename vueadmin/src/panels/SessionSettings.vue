@@ -1,9 +1,9 @@
 <template>
-    <div id='view-session-general' style='padding: 5px; display: block'>
+    <div id='view-session-general' style='display: block'>
         <div class='tab-grid'>
             <div>Id</div>
             <div>
-                <input id='view-session-id-input' type='text'>
+                <input id='view-session-id-input' type='text' :value="session.id">
                 <button type="button" class="btn btn-sm btn-primary" onclick='jt.setSessionId();'>Set</button>
                 <small class="form-text text-muted">
                     Must be unique across all sessions. Clients must be reconnected after change.
@@ -12,7 +12,7 @@
             <div>Number of participants</div>
             <div>
                 <div>
-                    <input id='setNumParticipantsInput' style='width: 3em;' type='number' min='0' step='1'>
+                    <input id='setNumParticipantsInput' :value='numParts' style='width: 3em;' type='number' min='0' step='1'>
                     <button id='setNumParticipantsBtn' type="button" class="btn btn-sm btn-primary" onclick='jt.setNumParticipants();'>Set</button>
                     <small class="form-text text-muted">
                         Setting the number of participants will turn off login of new participants. Participants are added from the list of session participant IDs. More recent participants are removed first.
@@ -23,8 +23,8 @@
             <div>
                 <div>
                     <div class="btn-group" role="group" aria-label="Basic example">
-                        <button id='allowAdminPlayYes' type="button" class="btn btn-sm btn-outline-success" onclick='setAllowAdminPlay(true);'>Yes</button>
-                        <button id='allowAdminPlayNo' type="button" class="btn btn-sm btn-outline-success" onclick='setAllowAdminPlay(false);'>No</button>
+                        <button id='allowAdminPlayYes' type="button" class="btn btn-sm btn-outline-secondary" onclick='jt.setAllowAdminPlay(true);'>Yes</button>
+                        <button id='allowAdminPlayNo' type="button" class="btn btn-sm btn-outline-secondary" onclick='jt.setAllowAdminPlay(false);'>No</button>
                     </div>
                     <small class="form-text text-muted">
                         Allows admin clients to "play" (or not) as participants.
@@ -70,7 +70,9 @@
                 Delete participant
             </div>
             <div>
-                <select id='deleteParticipantSelect'></select>
+                <select id='deleteParticipantSelect'>
+                    <option v-for='part in session.participants' :key='part.id'>{{part.id}}</option>
+                </select>
                 <button type="button" class="btn btn-sm btn-primary" onclick='deleteParticipantBtn();'>Delete</button>
                 <small class="form-text text-muted">
                     Delete the given participant from the session. Make sure to turn off login of new participants if you wish to prevent clients from re-creating this participant.
@@ -84,6 +86,9 @@
 
 <script>
 
+import store from '@/store.js'
+import jt from '@/webcomps/jtree.js'
+
 export default {
   name: 'ViewSessionSettings',
   data() {
@@ -95,12 +100,17 @@ export default {
     'dat',
     'panel',
   ],
+  computed: {
+      numParts() {
+        return Object.keys(this.session.participants).length;
+      }
+  },
   mounted() {
       this.panel.id = 'Session Settings';
+        jt.updateAllowAdminPlay();
   },
 }
 
-import jt from '@/webcomps/jtree.js'
 import 'jquery'
 let $ = window.jQuery
 import server from '@/webcomps/msgsToServer.js'
@@ -132,17 +142,17 @@ jt.setAllowAdminPlay = function(val) {
 // }
 
 jt.updateAllowAdminPlay = function() {
-    let val = jt.data.session.allowAdminClientsToPlay;
+    let val = store.state.session.allowAdminClientsToPlay;
     if (val) {
-        $('#allowAdminPlayYes').addClass('btn-success');
-        $('#allowAdminPlayYes').removeClass('btn-outline-success');
-        $('#allowAdminPlayNo').removeClass('btn-success');
-        $('#allowAdminPlayNo').addClass('btn-outline-success');
+        $('#allowAdminPlayYes').addClass('btn-secondary');
+        $('#allowAdminPlayYes').removeClass('btn-outline-secondary');
+        $('#allowAdminPlayNo').removeClass('btn-secondary');
+        $('#allowAdminPlayNo').addClass('btn-outline-secondary');
     } else {
-        $('#allowAdminPlayYes').removeClass('btn-success');
-        $('#allowAdminPlayYes').addClass('btn-outline-success');
-        $('#allowAdminPlayNo').addClass('btn-success');
-        $('#allowAdminPlayNo').removeClass('btn-outline-success');
+        $('#allowAdminPlayYes').removeClass('btn-secondary');
+        $('#allowAdminPlayYes').addClass('btn-outline-secondary');
+        $('#allowAdminPlayNo').addClass('btn-secondary');
+        $('#allowAdminPlayNo').removeClass('btn-outline-secondary');
     }
 
     let views = $('.participant-view');

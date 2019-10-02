@@ -1,13 +1,13 @@
 <template>
-    <div style='padding: 5px; display: block'>
+    <div style='display: block'>
         <div class='btn-group mb-3'>
-            <button type='button' class='btn btn-outline-primary btn-sm' onclick='jt.showAddAppToSessionModal();'>
+            <button type='button' class='btn btn-outline-secondary btn-sm' onclick='jt.showAddAppToSessionModal();'>
                 <i class="fa fa-plus"></i>&nbsp;&nbsp;add App...
             </button>
-            <button type='button' class='btn btn-outline-primary btn-sm' onclick='jt.showAddQueueToSessionModal();'>
+            <button type='button' class='btn btn-outline-secondary btn-sm' onclick='jt.showAddQueueToSessionModal();'>
                 <i class="fa fa-plus"></i>&nbsp;&nbsp;add Queue...
             </button>
-            <button type='button' class='btn btn-outline-primary btn-sm' onclick='jt.showAddQueueToSessionModal();'>
+            <button type='button' class='btn btn-outline-secondary btn-sm' onclick='jt.showAddQueueToSessionModal();'>
                 <i class="fa fa-save"></i>&nbsp;&nbsp;Save as new queue...
             </button>
         </div>
@@ -41,6 +41,7 @@ export default {
   ],
   mounted() {
       this.panel.id = 'Session Apps';
+      jt.updateSessionApps();
   },
 }
 
@@ -49,14 +50,15 @@ import 'jquery'
 let $ = window.jQuery
 import server from '@/webcomps/msgsToServer.js'
 import Vue from 'vue'
+import store from '@/store.js'
 
 jt.updateSessionApps = function() {
     Vue.nextTick(function() {
         $('#session-apps-table').empty();
-        if (jt.data.session !== null && jt.data.session !== undefined) {
-            for (var a in jt.data.session.apps) {
+        if (store.state.session !== null && store.state.session !== undefined) {
+            for (var a in store.state.session.apps) {
 
-                var sessionApp = jt.data.session.apps[a];
+                var sessionApp = store.state.session.apps[a];
 
                 var appId = sessionApp.id;
                 var options = sessionApp.options;

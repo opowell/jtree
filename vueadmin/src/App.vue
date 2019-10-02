@@ -12,6 +12,7 @@
       </jt-window>
     </div>
     <viewappeditor-modal/>
+    <ModalSetViewSize/>
   </div>
 </template>
 
@@ -20,21 +21,21 @@
 import JtWindow from '@/components/JtWindow.vue'
 import MainMenu from '@/components/MainMenu.vue'
 
-import '@/webcomps/ViewAppEditModal.js'
-import '@/webcomps/ViewAppEditModal.js'
-import '@/webcomps/AppSetVariableModal.js'
-import '@/webcomps/CreateAppModal.js'
-import '@/webcomps/RenameAppModal.js'
-import '@/webcomps/ViewQueue.js'
+import ModalSetViewSize            from '@/modals/SetViewSize.vue'
+
 import '@/webcomps/AddAppToQueueModal.js'
-import '@/webcomps/ViewQueues.js'
 import '@/webcomps/AddAppToSessionModal.js'
 import '@/webcomps/AddQueueToSessionModal.js'
-import '@/webcomps/SetViewSizeModal.js'
-import '@/webcomps/SetAutoplayFreqModal.js'
+import '@/webcomps/AppSetVariableModal.js'
+import '@/webcomps/CreateAppModal.js'
 import '@/webcomps/EditAppOptionsModal.js'
-import '@/webcomps/ViewSessions.js'
+import '@/webcomps/RenameAppModal.js'
+import '@/webcomps/SetAutoplayFreqModal.js'
+import '@/webcomps/ViewAppEditModal.js'
 import '@/webcomps/ViewLogin.js'
+import '@/webcomps/ViewQueue.js'
+import '@/webcomps/ViewSessions.js'
+
 import '@/webcomps/Model.js'
 import '@/webcomps/circularjson.js'
 
@@ -43,6 +44,7 @@ export default {
   components: {
     JtWindow,
     MainMenu,
+    ModalSetViewSize,
   },
   data() {
     return {
@@ -79,6 +81,7 @@ export default {
     this.$nextTick(function() {
       window.addEventListener('resize', this.setContainerDimensions);
       this.setContainerDimensions();
+      this.$store.dispatch('showPanel', {type: 'ViewWelcome'});
       // this.$bvModal.show('welcomeModal');
     });
   }

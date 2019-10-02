@@ -17,7 +17,7 @@
                 </div>              
               </template>
               <template v-else>
-                <button @click.stop='clickPlayButton' class="btn btn-outline-primary btn-sm">
+                <button @click.stop='clickPlayButton' class="btn btn-outline-secondary btn-sm">
                     <i class="fa fa-play" title="start new session with this app"></i>
                 </button>
               </template>
@@ -38,11 +38,6 @@ export default {
   props: {
     fields: Array,
     app: Object,
-  },
-  data() {
-    return {
-        apps: this.$store.state.appInfos
-    }
   },
   methods: {
     clickPlayButton() {

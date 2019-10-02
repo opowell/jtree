@@ -179,15 +179,18 @@ import JtSpacer from './JtSpacer.vue';
 // import SessionParticipantsPanel from '@/components/SessionParticipantsPanel.vue'
 // import SessionMonitorPanel from '@/components/SessionMonitorPanel.vue'
 // import SessionsPanel from '@/components/SessionsPanel.vue'
-import SettingsPanel from '@/components/SettingsPanel.vue'
 
-import ViewApp from '@/components/ViewApp.vue'
-import ViewApps from '@/components/ViewApps.vue'
-import ViewSessionActivity from '@/components/ViewSessionActivity.vue'
-import ViewSessionApps from '@/components/ViewSessionApps.vue'
-import ViewSessionControls from '@/components/ViewSessionControls.vue'
-import ViewSessionSettings from '@/components/ViewSessionSettings.vue'
-import ViewSessionParticipants from '@/components/ViewSessionParticipants.vue'
+import SettingsPanel            from '@/panels/Settings.vue'
+import ViewApp                  from '@/panels/App.vue'
+import ViewApps                 from '@/panels/Apps.vue'
+import ViewWelcome              from '@/panels/Welcome.vue'
+import ViewLog                  from '@/panels/Log.vue'
+import ViewQueues               from '@/panels/Queues.vue'
+import ViewSessionActivity      from '@/panels/SessionActivity.vue'
+import ViewSessionApps          from '@/panels/SessionApps.vue'
+import ViewSessionControls      from '@/panels/SessionControls.vue'
+import ViewSessionSettings      from '@/panels/SessionSettings.vue'
+import ViewSessionParticipants  from '@/panels/SessionParticipants.vue'
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import {
@@ -206,6 +209,9 @@ export default {
       'font-awesome-icon': FontAwesomeIcon,
     ViewApp,
     ViewApps,
+    ViewWelcome,
+    ViewLog,
+    ViewQueues,
     ViewSessionActivity,
     ViewSessionApps,
     ViewSessionControls,

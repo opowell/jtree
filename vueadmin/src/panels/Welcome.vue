@@ -1,10 +1,10 @@
 <template>
   <div>
-      Welcome to jtree.
+      <div>Welcome to <span style='font-weight: bold'>jtree</span>.</div>
       <div style='padding-top: 1rem; color: #888'>0.7.18</div>
       <br>
       <div>
-        <span class='link' v-for='(link, index) in links' :key='index' @click='showThisPanel(index)'>
+        <span class='link' v-for='(link, index) in links' :key='index' @click='clickLink(index)'>
           {{link.title}}
           </span>
         </div>
@@ -15,26 +15,32 @@
 
 let links = [
   { title: 'Apps',     type: 'ViewApps'      },
-  { title: 'Queues',   type: 'view-queues'   },
-  { title: 'Sessions', type: 'view-sessions' },
+  { title: 'Queues',   type: 'ViewQueues'    },
+  { title: 'Sessions', type: 'ViewSessions'  },
+  { title: 'Settings', type: 'SettingsPanel' },
   { title: 'Log',      type: 'ViewLog'       },
 ]
 
-import jt from '@/webcomps/jtree.js'
-
 export default {
-  name: 'ViewHome',
+  name: 'ViewWelcome',
+  props: [
+    'dat',
+    'panel',
+  ],
   data() {
     return {
       links,
     }
   },
   methods: {
-    showThisPanel(index) {
+    clickLink(index) {
       let link = this.links[index];
-      jt.showPanelNew(link.title, link.type);
+      this.$store.dispatch('showPanel', {type: link.type});
     }
-  }
+  },
+  mounted() {
+      this.panel.id = 'Welcome';
+  },
 }
 </script>
 

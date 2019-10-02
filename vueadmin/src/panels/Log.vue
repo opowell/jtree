@@ -31,6 +31,13 @@ export default {
         log: this.$store.state.log
     }
   },
+  props: [
+    'dat',
+    'panel',
+  ],
+  mounted() {
+      this.panel.id = 'Log';
+  },
 }
 
 jt.addLog = function(text) {

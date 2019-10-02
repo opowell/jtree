@@ -130,21 +130,17 @@ msgs.openSession = function(session) {
 
     localStorage.setItem('sessionId', session.id);
 
-    // jt.showPanelNew('Session Settings', 'ViewSessionSettings');
-    // jt.showPanelNew('Session Controls', 'ViewSessionControls');
-    // jt.showPanelNew('Monitor', 'ViewSessionActivity');
-    // jt.showPanelNew('Participants', 'ViewSessionParticipants');
-
     let windowData = {
         areas: [
           { 
             rowChildren: true,
             areas: [
                 {
+                    flex: "0 1 auto",
                     panels: [
                         {
                             id: "Controls", 
-                            type: "ViewSessionControls" 
+                            type: "ViewSessionControls",
                         },
                     ],
                 },
@@ -152,11 +148,11 @@ msgs.openSession = function(session) {
                     panels: [
                         {
                             id: "Session Settings", 
-                            type: "ViewSessionSettings" 
+                            type: "ViewSessionSettings",
                         },
                         {
                             id: "Apps", 
-                            type: "ViewSessionApps" 
+                            type: "ViewSessionApps",
                         },
                     ],
                 },
@@ -166,11 +162,11 @@ msgs.openSession = function(session) {
             panels: [
                 { 
                     id: "Activity",
-                    type: "ViewSessionActivity"
+                    type: "ViewSessionActivity",
                   }, 
                 { 
                     id: "Participants", 
-                    type: "ViewSessionParticipants" 
+                    type: "ViewSessionParticipants",
                 },
             ],
           }
@@ -180,28 +176,15 @@ msgs.openSession = function(session) {
     store.commit('showWindow', windowData);
 
     if (session !== undefined) {
-        // jt.showSessionId(session.id);
-        var filelink = jt.data.jtreeLocalPath + '/sessions/' + session.id + '.csv';
-        $('#view-session-results-filelink')
-            .text(filelink)
-            .attr('href', 'file:///' + filelink);
         jt.showPanel("#panel-session-info");
         window.vue.$store.commit('setSession', session);
         jt.showParticipants(jt.data.session.participants);
         jt.viewAllParticipants();
         jt.updateSessionApps();
-        // jt.updateSessionUsers();
-        // jt.updateAllowNewParts();
         jt.updateAllowAdminPlay();
-        // jt.updateChartPage();
-        // jt.chartVar('test');
     }
 
-    // $('#session-participants').removeAttr('hidden');
-
-    // jt.setView('session');
     jt.view.updateNumParticipants();
-    // jt.setSessionView('appqueue');
 }
 
 msgs.addClient = function(md) {

@@ -67,33 +67,48 @@ let windowMenu = {
         hasParent: false,
         children: [
             {
+                text: 'Welcome',
+                action: this.showPanel,
+                clickData: 'ViewWelcome',
+            },
+            {
                 text: 'Apps',
                 action: this.showPanel,
                 clickData: 'ViewApps',
             },
             {
-                text: 'Files',
+                text: 'Queues',
                 action: this.showPanel,
-                clickData: 'files-panel',
+                clickData: 'ViewQueues',
             },
             {
-                text: this.$store.state.appName + 's',
-                shortcut: 'Ctrl+G',
+                text: 'Log',
                 action: this.showPanel,
-                clickData: 'games-panel',
+                clickData: 'ViewLog',
             },
-            {
-                text: 'Sessions',
-                action: this.showPanel,
-                clickData: 'sessions-panel',
-            },
-            {
-                text: 'Users',
-            },
-            {
-                text: 'Rooms',
-            },
-            'divider',
+            // {
+            //     text: 'Files',
+            //     action: this.showPanel,
+            //     clickData: 'files-panel',
+            // },
+            // {
+            //     text: this.$store.state.appName + 's',
+            //     shortcut: 'Ctrl+G',
+            //     action: this.showPanel,
+            //     clickData: 'games-panel',
+            // },
+            // {
+            //     text: 'Sessions',
+            //     action: this.showPanel,
+            //     clickData: 'sessions-panel',
+            // },
+            // {
+            //     text: 'Users',
+            // },
+            // {
+            //     text: 'Rooms',
+            // },
+            // 'divider',
             {
                 text: 'Settings',
                 action: this.showPanel,

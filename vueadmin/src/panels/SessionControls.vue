@@ -1,11 +1,11 @@
 <template>
     <div style='display: block'>
-        <h2 id='session-id'>{{session.id}}</h2>
-        <span class='btn btn-outline-primary btn-sm' onclick='server.sessionStart();'>
-            <i class="fa fa-play"></i>&nbsp;&nbsp;Start
-        </span>
+        <div class='btn-group flex-wrap'>
+            <span class='btn btn-outline-secondary btn-sm' :disabled='session.started' onclick='server.sessionStart();'>
+                <i class="fa fa-play"></i>&nbsp;&nbsp;Start
+            </span>
             <span class='btn btn-outline-secondary btn-sm' onclick='server.sessionAdvanceSlowest();'>
-                <i class="fa fa-play"></i>&nbsp;&nbsp;Advance slowest
+                <i class="fas fa-chevron-right"></i>&nbsp;&nbsp;Advance slowest
             </span>
             <button id='resetSessionBtn' class="btn btn-outline-secondary btn-sm" onclick='server.resetSession()'>
                 <i class="fas fa-undo-alt"></i>&nbsp;&nbsp;Reset
@@ -19,9 +19,10 @@
             <button class="btn btn-outline-secondary btn-sm" onclick='jt.downloadOutput()'>
                 <i class="fa fa-download"></i>&nbsp;&nbsp;Download output
             </button>
-        <button class="btn btn-outline-danger btn-sm" onclick='jt.deleteSessionPrompt(jt.data.session.id)'>
-            <i class="fa fa-trash"></i>&nbsp;&nbsp;Delete...
-        </button>
+            <button class="btn btn-outline-secondary btn-sm" onclick='jt.deleteSessionPrompt(jt.data.session.id)'>
+                <i class="fa fa-trash"></i>&nbsp;&nbsp;Delete...
+            </button>
+        </div>
     </div>
 </template>
 

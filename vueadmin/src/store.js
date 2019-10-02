@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import jt from '@/webcomps/jtree.js'
+import createPersistedState from 'vuex-persistedstate'
 
 Vue.use(Vuex)
 
@@ -327,7 +328,7 @@ let settingsPresets = [
       tabBGColor: '#666',
       tabsBGColor: '#71717159',
       tabHoverBGColor: '#353535',
-      areaContentBGColor: '#353535',
+      areaContentBGColor: '#292929',
       areaContentFontColor: '#CCC',
       panelContentBGColor: 'rgb(37, 37, 37)',
       nodeTitleHoverBGColor: '#424242',
@@ -350,6 +351,7 @@ let settingsPresets = [
 
 let persistPaths = [
   'sessionId',
+  'settings'
 ];
 
 let stateObj = {
@@ -357,11 +359,19 @@ let stateObj = {
   appInfos: [],
   log: [],
   panels: defaultPanels,
+  queues: [],
   shownPanel: 0,
   session: null,
   sessions: [],
   openPlayers: [],
-  settings: [],
+
+  // For Participant views.
+  stretchViews: true,
+  viewsHeight: 400,
+  viewsWidth: 300,
+
+  settings: {},
+  jtreeLocalPath: '',
 
   allFields: [],
   fields: [
@@ -561,6 +571,9 @@ function closeAreaMethod(state, areaPath, windowId) {
 
 
 export default new Vuex.Store({
+  plugins: [createPersistedState({
+    paths: persistPaths,
+  })],
   state: stateObj,
   mutations: {
 
@@ -760,6 +773,9 @@ setAreaSize(state, {windowId, areaPath, size}) {
   let area = getArea(state, windowId, areaPath);
   area.flex = '0 0 ' + size + 'px';
 },
+setJtreeLocalPath(state, value) {
+  state.jtreeLocalPath = value;
+},
 setSetting(state, {key, value}) {
   state[key] = value;
 },
@@ -801,30 +817,38 @@ toggleRowChildren(state, {windowId, areaPath}) {
     },
     setParticipant (state, participant) {
       Vue.set(state.session.participants, participant.id, participant);
+      this.commit('calcFields');
+    },
+    calcFields(state) {
       state.allFields.splice(0, state.allFields.length);
       if (jt.settings.sessionShowFullLinks) {
           state.allFields[1].key = 'full link';
       } 
   
-        // let out = [];
-        let outKeys = []; // Track which fields have already been found.
-        for (let f in state.fields) {
-            state.allFields.push(state.fields[f]);
-            outKeys.push(state.fields[f].key);
-        }
-        for (let p in state.session.participants) {
-            let part = state.session.participants[p];
-            storeFields('', part, outKeys, state);
-          }
-        // state.allFields = out;
-
+      let outKeys = []; // Track which fields have already been found.
+      for (let f in state.fields) {
+          state.allFields.push(state.fields[f]);
+          outKeys.push(state.fields[f].key);
+      }
+      for (let p in state.session.participants) {
+          let part = state.session.participants[p];
+          storeFields('', part, outKeys, state);
+      }
+    },
+    setQueues (state, queues) {
+      state.queues = queues;
     },
     setSession (state, session) {
       state.session = session;
+      this.commit('calcFields');
     },
     setSettings (state, settings) {
       state.settings = settings;
     },
+    // eslint-disable-next-line no-unused-vars
+    setValue (state, {path, value}) {
+      eval("state." + path + " = value;");
+    }
   },
   actions: {
 

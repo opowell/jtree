@@ -1,28 +1,32 @@
 <template>
     <div style='padding: 5px; display: block'>
-        <div class='mb-3'>
-            <span class="btn btn-outline-primary btn-sm" onclick='jt.viewAllParticipants()'>
+        <div class='mb-3 btn-group flex-wrap'>
+            <span class="btn btn-outline-secondary btn-sm" onclick='jt.viewAllParticipants()'>
                 <i class="fa fa-eye"></i>&nbsp;&nbsp;show all
             </span>
-            <span class="btn btn-outline-primary btn-sm" onclick='jt.hideAllParticipants()'>
+            <span class="btn btn-outline-secondary btn-sm" onclick='jt.hideAllParticipants()'>
                 <i class="fa fa-times"></i>&nbsp;&nbsp;close all
             </span>
-            <span class='btn btn-outline-primary btn-sm' id='startAutoplay' onclick='server.setAutoplayForAll(true);'>
+            <span class='btn btn-outline-secondary btn-sm' id='startAutoplay' onclick='server.setAutoplayForAll(true);'>
                 <span class='px-1' style='border: 1px solid; border-radius: 0.3rem;'>A</span>&nbsp;&nbsp;start autoplay
             </span>
-            <span class='btn btn-outline-primary btn-sm' id='stopAutoplay' onclick='server.setAutoplayForAll(false);'>
+            <span class='btn btn-outline-secondary btn-sm' id='stopAutoplay' onclick='server.setAutoplayForAll(false);'>
                 <span>A</span>&nbsp;&nbsp;stop autoplay
             </span>
-            <span class="btn btn-outline-primary btn-sm" onclick='jt.showSetAutoplayFreqModal()'>
+            <span class="btn btn-outline-secondary btn-sm" onclick='jt.showSetAutoplayFreqModal()'>
                 <i class="fa fa-stopwatch"></i>&nbsp;&nbsp;set autoplay delay...
             </span>
-            <span class="btn btn-outline-primary btn-sm" onclick='jt.setViewSize()'>
+            <span class="btn btn-outline-secondary btn-sm" onclick='jt.setViewSize()'>
                 <i class="fa fa-expand"></i>&nbsp;&nbsp;set size...
             </span>
         </div>
         <div id='views'>
-            <div v-for='player in openPlayers' :key='player.id'>
-                <div class="card panel ui-widget-content participant-view">
+                <div 
+                    class="card panel ui-widget-content participant-view" 
+                    v-for='player in openPlayers' 
+                    :key='player.id' 
+                    :style='participantViewStyle'
+                    >
                     <div class="card-header" style="background-color: rgb(207, 232, 207);">
                         <span>Participant {{player.id}}</span>
                         <button type="button" class="headerBtn close float-right">
@@ -38,7 +42,6 @@
                     </div>
                     <iframe :id="'participant-frame-' + player.id" :src="'http://' + settings.server.ip + ':' + settings.server.port + '/session/' + session.id + '/' + player.id" class="participant-frame panel-content2"></iframe>
                 </div>
-            </div>
         </div>
     </div>
 </template>
@@ -60,6 +63,12 @@ export default {
   computed: {
       openPlayers() {
           return this.$store.state.openPlayers;
+      },
+      participantViewStyle() {
+          return {
+              "height": this.$store.state.viewsHeight + 'px',
+              "flex": (this.$store.state.stretchViews ? '1' : '0') + ' 0 ' + this.$store.state.viewsWidth + 'px',
+          }
       }
   },
   mounted() {
@@ -101,46 +110,6 @@ jt.refreshParticipantView = function(pId) {
     panel.src = panel.src;
 }
 
-// function viewParticipant(pId) {
-//     const view = new ParticipantView(pId);
-//     const elId = 'session-participant-' + pId;
-//     const existsAlready = $('#panel-' + elId).length > 0;
-//     const panel = jt.addPanel(elId, 'Participant ' + pId, view);
-//     $('#panel-' + elId.replace(/\./g, '\\\\.')).addClass('participant-view');
-//     if (!existsAlready) {
-
-//         var closeBtn = $('<button type="button" class="headerBtn close float-right"><i title="close" class="fa fa-times"></i></button>');
-//         closeBtn.click(function() {
-//             jt.closeParticipantView(pId);
-//         });
-//         $($(panel).children()[0]).append(closeBtn);
-
-//         var newWinBtn = $('<button type="button" class="headerBtn close float-right"><i title="open in new window" class="fa fa-external-link-alt"></i></button>');
-//         newWinBtn.click(function() {
-//             jt.participantOpenInNewTabId(pId);
-//         });
-//         $($(panel).children()[0]).append(newWinBtn);
-
-//         var autoplayBtn = $('<button title="toggle autoplay" id="' + pId + '-autoplay" type="button" class="headerBtn close float-right">A</button>');
-//         autoplayBtn.click(function() {
-//             jt.toggleParticipantAutoplay(pId);
-//         });
-//         $($(panel).children()[0]).append(autoplayBtn);
-
-//         var refreshBtn = $('<button type="button" class="headerBtn close float-right"><i title="refresh" class="fa fa-redo-alt"></i></button>');
-//         refreshBtn.click(function() {
-//             jt.refreshParticipantView(pId);
-//         });
-//         $($(panel).children()[0]).append(refreshBtn);
-
-//     }
-//     if (jt.data.session.allowAdminClientsToPlay) {
-//         $($(panel).children()[0]).css('background-color', '#cfe8cf');
-//     }
-//     jt.showPanel('#panel-' + elId, 0, 0, '', '', '', '', false);
-//     $('#views').append(panel);
-// }
-
 jt.toggleParticipantAutoplay = function(pId) {
     // const elId = 'panel-session-participant-' + jt.safePId(pId);
     // const el = $('#' + elId);
@@ -163,20 +132,5 @@ jt.setParticipantAutoplay = function(pId, b) {
     //     iframe.contentWindow.setAutoplay(b);
     // }
 }
-
-// function ParticipantView(pId) {
-//     if (jt.data.session !== null && jt.data.session !== undefined) {
-//         var url = 'http://' + jt.partLink(pId);
-//         var frame = $('<iframe>', {
-//             id:  'participant-frame-' + pId
-//         });
-//         $(frame).data('pId', pId);
-//         frame.attr('src', url);
-//         frame.addClass('participant-frame');
-//         return frame;
-//     } else {
-//         return null;
-//     }
-// }
 
 </script>

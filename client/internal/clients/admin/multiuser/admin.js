@@ -1,3 +1,5 @@
+import store from "../../../../../vueadmin/src/store";
+
 var participantTimers = {};
 
 // function reloadParticipantView() {
@@ -82,7 +84,7 @@ function refresh(ag) {
     jt.data.sessions = ag.sessions;
     jt.data.rooms = ag.rooms;
     jt.data.queues = ag.queues;
-    jt.data.jtreeLocalPath = ag.jtreeLocalPath;
+    store.commit('setLocalPath', ag.jtreeLocalPath);
     jt.settings = ag.settings;
     jt.data.users = ag.users;
 
