@@ -1,27 +1,25 @@
 <template>
-    <div style='padding: 5px; display: block'>
+    <div style='display: block'>
         <h2 id='session-id'>{{session.id}}</h2>
-        <span class='mb-3 btn btn-outline-primary btn-sm' onclick='server.sessionStart();'>
+        <span class='btn btn-outline-primary btn-sm' onclick='server.sessionStart();'>
             <i class="fa fa-play"></i>&nbsp;&nbsp;Start
         </span>
-        <div class='btn-group mb-3'>
             <span class='btn btn-outline-secondary btn-sm' onclick='server.sessionAdvanceSlowest();'>
                 <i class="fa fa-play"></i>&nbsp;&nbsp;Advance slowest
             </span>
             <button id='resetSessionBtn' class="btn btn-outline-secondary btn-sm" onclick='server.resetSession()'>
                 <i class="fas fa-undo-alt"></i>&nbsp;&nbsp;Reset
             </button>
-            <button class="btn btn-outline-secondary btn-sm" onclick='setView("edit-app")'>
+            <!-- <button class="btn btn-outline-secondary btn-sm" onclick='setView("edit-app")'>
                 <i class="fa fa-copy"></i>&nbsp;&nbsp;Duplicate
-            </button>
-            <button class="btn btn-outline-secondary btn-sm" onclick='server.saveOutput()'>
+            </button> -->
+            <!-- <button class="btn btn-outline-secondary btn-sm" onclick='server.saveOutput()'>
                 <i class="fa fa-save"></i>&nbsp;&nbsp;Save output
-            </button>
+            </button> -->
             <button class="btn btn-outline-secondary btn-sm" onclick='jt.downloadOutput()'>
                 <i class="fa fa-download"></i>&nbsp;&nbsp;Download output
             </button>
-        </div>
-        <button class="mb-3 btn btn-outline-danger btn-sm" onclick='jt.deleteSessionPrompt(jt.data.session.id)'>
+        <button class="btn btn-outline-danger btn-sm" onclick='jt.deleteSessionPrompt(jt.data.session.id)'>
             <i class="fa fa-trash"></i>&nbsp;&nbsp;Delete...
         </button>
     </div>

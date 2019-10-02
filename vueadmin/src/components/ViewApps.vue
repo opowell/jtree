@@ -1,5 +1,5 @@
 <template>
-  <div style='flex: 1 1 auto; align-self: stretch; overflow: auto; padding: 10px'>
+  <div style='flex: 1 1 auto; align-self: stretch; overflow: auto;'>
       <span style='display: flex;' class='mb-2'>
         <a href='#' class='btn btn-sm btn-outline-secondary btn-sm' onclick='jt.showCreateAppModal()'>
             <i class="fa fa-plus"></i>&nbsp;&nbsp;create...

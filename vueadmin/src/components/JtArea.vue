@@ -123,9 +123,11 @@
             </template>
         </div>
         <!-- CONTENT -->
+            <!-- v-show='activePanelInd === index' -->
+
         <div 
             v-for='(panel, index) in panels'
-            v-show='activePanelInd === index'
+            v-bind:style='[activePanelInd === index ? {} : {"z-index": -1, "width": "1px", "height": "1px", "position": "absolute"}]'
             class='content'
             :is='panel.type'
             :dat='panel.data'
@@ -179,6 +181,7 @@ import JtSpacer from './JtSpacer.vue';
 // import SessionsPanel from '@/components/SessionsPanel.vue'
 import SettingsPanel from '@/components/SettingsPanel.vue'
 
+import ViewApp from '@/components/ViewApp.vue'
 import ViewApps from '@/components/ViewApps.vue'
 import ViewSessionActivity from '@/components/ViewSessionActivity.vue'
 import ViewSessionApps from '@/components/ViewSessionApps.vue'
@@ -201,7 +204,8 @@ export default {
       JtSpacer,
       MenuEl,
       'font-awesome-icon': FontAwesomeIcon,
-      ViewApps,
+    ViewApp,
+    ViewApps,
     ViewSessionActivity,
     ViewSessionApps,
     ViewSessionControls,
@@ -507,6 +511,9 @@ export default {
 .tabs {
     display: flex;
     flex: 0 0 auto;
+    background-color: var(--tabsBGColor);
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
 }
 
 .tabHover:hover {
@@ -545,11 +552,12 @@ export default {
     background-color: var(--areaContentBGColor);
     color: var(--areaContentFontColor);
     flex: 1 1 auto;
-    overflow-y: auto;
+    overflow: auto;
     display: flex;
     flex-direction: column;
     box-shadow: 0px 0px 7px 1px rgba(0, 0, 0, 0.4);
     border-radius: 5px;
+    padding: 10px;
 }
 
 .flex-direction-column {
@@ -563,6 +571,7 @@ export default {
 .areas {
     display: flex;
     flex: 1 1 300px;
+    overflow: auto;
 }
 
 .area {

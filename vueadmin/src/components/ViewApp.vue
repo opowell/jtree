@@ -49,6 +49,7 @@
 </template>
 
 <script>
+import '@/webcomps/ViewAppPreview.js'
 
 export default {
   name: 'ViewApp',
@@ -61,6 +62,7 @@ export default {
 
 import jt from '@/webcomps/jtree.js'
 import 'jquery'
+import store from '@/store.js'
 
 let $ = window.jQuery;
 
@@ -84,15 +86,24 @@ jt.openApp = function(appId) {
 
     jt.editor.selectFile(app.id);
 
-    jt.setEditAppOptionsData(app, app.options, jt.updateAppPreview);
+    // jt.setEditAppOptionsData(app, app.options, jt.updateAppPreview);
 
     window.vue.$store.commit('setApp', app);
 
-    jt.updateAppPreview();
+    // jt.updateAppPreview();
 
     $('#view-app-tree').empty();
 
-    jt.showPanelNew('App', 'ViewApp');
+    let windowData = {
+        panels: [
+            { 
+                id: "App",
+                type: "ViewApp"
+            }, 
+        ],
+    };
+
+    store.commit('showWindow', windowData);
 }
 
 jt.appRename = function() {

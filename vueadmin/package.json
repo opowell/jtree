@@ -6,7 +6,8 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "build-watch": "vue-cli-service build-watch --dest ..\\client\\internal\\clients\\admin\\vue"
+    "build-watch": "vue-cli-service build-watch --dest ..\\client\\internal\\clients\\admin\\vue",
+    "build-stats": "webpack --profile --json"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.25",
@@ -29,7 +30,9 @@
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
     "vue-cli-plugin-build-watch": "^1.0.0",
+    "vue-cli-plugin-webpack-bundle-analyzer": "^1.4.0",
     "vue-template-compiler": "^2.6.10",
-    "webpack-bundle-analyzer": "^3.5.2"
+    "webpack-bundle-analyzer": "^3.5.2",
+    "webpack-cli": "^3.3.9"
   }
 }

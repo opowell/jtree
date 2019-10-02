@@ -1,6 +1,6 @@
 <template>
     <div style='padding: 5px; display: block'>
-        <div class='btn-group mb-3'>
+        <div class='mb-3'>
             <span class="btn btn-outline-primary btn-sm" onclick='jt.viewAllParticipants()'>
                 <i class="fa fa-eye"></i>&nbsp;&nbsp;show all
             </span>

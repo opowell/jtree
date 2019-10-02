@@ -5,6 +5,7 @@ import jt from '@/webcomps/jtree.js'
 import Utils from '@/webcomps/utilsFns.js'
 import server from '@/webcomps/msgsToServer.js'
 import Vue from 'vue'
+import store from '@/store.js'
 
 let findById = Utils.findById
 let objLength = Utils.objLength
@@ -129,10 +130,54 @@ msgs.openSession = function(session) {
 
     localStorage.setItem('sessionId', session.id);
 
-    jt.showPanelNew('Session Settings', 'ViewSessionSettings');
-    jt.showPanelNew('Session Controls', 'ViewSessionControls');
-    jt.showPanelNew('Monitor', 'ViewSessionActivity');
-    jt.showPanelNew('Participants', 'ViewSessionParticipants');
+    // jt.showPanelNew('Session Settings', 'ViewSessionSettings');
+    // jt.showPanelNew('Session Controls', 'ViewSessionControls');
+    // jt.showPanelNew('Monitor', 'ViewSessionActivity');
+    // jt.showPanelNew('Participants', 'ViewSessionParticipants');
+
+    let windowData = {
+        areas: [
+          { 
+            rowChildren: true,
+            areas: [
+                {
+                    panels: [
+                        {
+                            id: "Controls", 
+                            type: "ViewSessionControls" 
+                        },
+                    ],
+                },
+                {
+                    panels: [
+                        {
+                            id: "Session Settings", 
+                            type: "ViewSessionSettings" 
+                        },
+                        {
+                            id: "Apps", 
+                            type: "ViewSessionApps" 
+                        },
+                    ],
+                },
+            ]
+          }, 
+          { 
+            panels: [
+                { 
+                    id: "Activity",
+                    type: "ViewSessionActivity"
+                  }, 
+                { 
+                    id: "Participants", 
+                    type: "ViewSessionParticipants" 
+                },
+            ],
+          }
+        ] 
+    };
+
+    store.commit('showWindow', windowData);
 
     if (session !== undefined) {
         // jt.showSessionId(session.id);

@@ -28,7 +28,6 @@
 
 <script>
 
-import ViewApp from '@/components/ViewApp.vue'
 import ViewHome from '@/components/ViewHome.vue'
 import ViewLog from '@/components/ViewLog.vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
@@ -47,21 +46,16 @@ import '@/webcomps/SetAutoplayFreqModal.js'
 import '@/webcomps/EditAppOptionsModal.js'
 import '@/webcomps/ViewSessions.js'
 import '@/webcomps/ViewLogin.js'
+import '@/webcomps/ViewAppPreview.js'
 
 import '@/webcomps/Model.js'
 import '@/webcomps/circularjson.js'
 
 
 
-
-
-import '@/webcomps/ViewAppPreview.js'
-
 export default {
   name: 'home',
   components: {
-    ViewApp,
-    ViewApps,
     ViewHome,
     ViewLog,
     ConfirmModal,

@@ -603,6 +603,7 @@ export default {
 	overflow: auto;
 	display: flex;
     padding: 10px;
+	max-width: 100vw;
 }
 
 </style>

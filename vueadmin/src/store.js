@@ -179,6 +179,11 @@ const persistentSettings = [
       key: 'tabBGColor',
   },
   {
+    name: 'Tab bar background color',
+    type: 'text',
+    key: 'tabsBGColor',
+},
+  {
     name: 'Tab hover background color',
     type: 'text',
     key: 'tabHoverBGColor',
@@ -283,6 +288,7 @@ let settingsPresets = [
       areaContentBGColor: '#fff',
       areaContentFontColor: '#000',
       tabBGColor: 'rgba(245, 245, 245, 0.7)',
+      tabsBGColor: '#5f9ea059',
       tabHoverBGColor: '#fff',
       panelContentBGColor: '#fff',
       nodeTitleHoverBGColor: 'unset',
@@ -304,7 +310,7 @@ let settingsPresets = [
     name: 'modern',
     values: {
       windowFocussedBGColorTop: '#b5b5b5',
-      windowFocussedBGColor: '#b5b5b5',
+      windowFocussedBGColor: '#444444',
       menuBGColor: "rgb(90, 90, 90)",
       menuColor: 'rgb(185, 185, 185)',
       fontSize: '10pt',
@@ -319,7 +325,8 @@ let settingsPresets = [
       tabSelectedFontColor: '#CCC',
       tabFontColor: '#888',
       tabBGColor: '#666',
-      tabHoverBGColor: '#AAA',
+      tabsBGColor: '#71717159',
+      tabHoverBGColor: '#353535',
       areaContentBGColor: '#353535',
       areaContentFontColor: '#CCC',
       panelContentBGColor: 'rgb(37, 37, 37)',
@@ -336,7 +343,7 @@ let settingsPresets = [
       actionBarBGColor: '#555',
       windowBGColor: '#333',
       openNewPanelsIn: OPEN_NEW_PANELS_IN_ACTIVE_WINDOW_IF_MAXED,
-      tabSelectedBGColor: '#f5f5f5',
+      tabSelectedBGColor: '#353535',
     }
   }
 ]
@@ -442,6 +449,17 @@ function storeFields(path, obj, outKeys, state) {
   }
 
 } 
+
+
+function checkWindowInfo(obj) {
+  if (obj.panels          == null) obj.panels         = [];
+  if (obj.flex            == null) obj.flex           = '1 1 100px';
+  if (obj.activePanelInd  == null) obj.activePanelInd = 0;
+  if (obj.areas           == null) obj.areas          = [];
+  for (let i in obj.areas) {
+    checkWindowInfo(obj.areas[i]);
+  } 
+}
 
 // *********************************
 // From 0.8.0
@@ -746,6 +764,7 @@ setSetting(state, {key, value}) {
   state[key] = value;
 },
 showWindow(state, windowInfo) {
+  checkWindowInfo(windowInfo);
   windowInfo.id = state.nextWindowId;
   if (state.nextWindowX + windowInfo.w > state.containerWidth) {
     state.nextWindowX = 25;
@@ -808,6 +827,127 @@ toggleRowChildren(state, {windowId, areaPath}) {
     },
   },
   actions: {
+
+    // Import from 0.8.0
+    dropOnTab: ({commit}, {sourceWindowId, sourceAreaPath, sourcePanelIndex, targetWindowId, targetAreaPath, targetIndex}) => {
+      commit('addTabToPanel', {
+        sourceWindowId, sourceAreaPath, sourcePanelIndex, targetWindowId, targetAreaPath, targetIndex,
+      });
+    
+      // If inserted before its current position, increase source panel index.
+      if (
+        sourceWindowId === targetWindowId &&
+        sourceAreaPath === targetAreaPath &&
+        sourcePanelIndex > targetIndex
+      ) {
+        sourcePanelIndex++;
+      }
+    
+      commit('closePanel', {
+        panelIndex: sourcePanelIndex, 
+        areaPath: sourceAreaPath, 
+        windowId: sourceWindowId
+      });
+    },
+    // eslint-disable-next-line
+    showSessionWindow: ({ commit, state}, data) => {
+      commit('showWindow',
+      {
+        panels: [],
+        flex: '1 1 100px',
+        areas: [
+          // LEFT
+          { 
+            flex: '1 1 100px',
+            areas: [],
+            activePanelInd: 0,
+            panels: [
+              { 
+                id: "Game Tree",
+                type: "game-tree-panel"
+              }, 
+              { 
+                id: "Files",
+                type: "files-panel"
+              },
+              { 
+                id: "Sessions",
+                type: "sessions-panel"
+              }
+            ],
+          }, 
+          // RIGHT
+          { 
+            flex: '1 1 100px',
+            rowChildren: true,
+            panels: [],
+            areas: [
+              // TOP RIGHT
+              { 
+                flex: '1 1 100px',
+                panels: [],
+                areas: [
+                  // TOP RIGHT - LEFT
+                  {
+                    activePanelInd: 0,
+                    flex: '1 1 100px',
+                    areas: [],
+                    panels: 
+                    [
+                      { 
+                        id: "Info", 
+                        type: "session-info-panel", 
+                      }
+                    ], 
+                  }, 
+                  // TOP RIGHT - RIGHT
+                  { 
+                    areas: [],
+                    flex: '1 1 100px',
+                    activePanelInd: 0,
+                    panels: [
+                      { 
+                        id: "Actions", 
+                        type: "session-actions-panel" 
+                      }
+                    ], 
+                  }
+                ], 
+              }, 
+              // BOTTOM RIGHT
+              { 
+                panels: [],
+                flex: '1 1 100px',
+                areas: [
+                  { 
+                    flex: '1 1 100px',
+                    areas: [],
+                    activePanelInd: 0,
+                    panels: [
+                      { 
+                        id: "Participants", 
+                        type: "session-participants-panel" 
+                      }
+                    ], 
+                  }, 
+                  { 
+                    flex: '1 1 100px',
+                    areas: [],
+                    activePanelInd: 0,
+                    panels: [
+                      {
+                        id: "Monitor", 
+                        type: "session-monitor-panel" 
+                      }
+                    ], 
+                  }
+                ], 
+              }
+            ], 
+          }
+        ], 
+      });
+    },
     showPanel: ({commit, state}, data) => {
       if (data.checkIfAlreadyOpen === true) {
         let x = findPanel(state, data.type, data.data);
@@ -853,5 +993,7 @@ toggleRowChildren(state, {windowId, areaPath}) {
         });
       }
     },
+    // End IMPORT.
   }
 })
+
