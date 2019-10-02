@@ -21,15 +21,31 @@
                     <th>options</th>
                 </tr>
             </thead>
-            <tbody id='session-apps-table'></tbody>
+            <tbody id='session-apps-table'>
+            </tbody>
+            <tbody>
+                <AppRow 
+                    v-for='app in session.apps'
+                    :key='app.id'
+                    :fields='["indexInSession", "id", "description"]'
+                    :app='app'
+                    @click.native="clickApp(app.id, $event)"
+                    style='cursor: pointer;'
+                  />
+            </tbody>
         </table>
     </div>
 </template>
 
 <script>
 
+import AppRow from '@/components/AppRow.vue';
+
 export default {
   name: 'ViewSessionApps',
+  components: {
+      AppRow,
+  },
   data() {
     return {
         session: this.$store.state.session

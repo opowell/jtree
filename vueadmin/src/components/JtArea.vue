@@ -200,6 +200,7 @@ import { faJs, } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 library.add(faJs, faCaretRight, faCaretDown, faTable, faImage, faFile, faCircle, faCode, faFolder, faFolderOpen, faTimes);
 
+import jt from '@/webcomps/jtree.js';
 
 export default {
   name: 'JtArea',
@@ -384,7 +385,8 @@ export default {
               origHeight: el.clientHeight,
           }
 			document.documentElement.addEventListener('mousemove', this.adjust);
-			document.documentElement.addEventListener('mouseup', this.stopAdjust);
+            document.documentElement.addEventListener('mouseup', this.stopAdjust);
+            jt.coverUpParticipantViews(true);
       },
       adjust(ev) {
           ev.preventDefault();
@@ -422,6 +424,7 @@ export default {
               areaPath,
               size: this.adjustData.newSize,
           });
+            jt.coverUpParticipantViews(false);
       },
       startMove(ev) {
           this.$emit('startmove', ev);

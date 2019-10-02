@@ -5,9 +5,6 @@
               <div>{{app.shortId}}</div>
               <div><small style="white-space: normal" class="text-muted">{{app.id}}</small></div>
           </template>
-          <template v-else-if="field == 'description'">
-              <div style='white-space: normal;' v-html="app.description"/>
-          </template>
           <template v-else-if="field == 'playButton'">
             <div class="btn-group">
               <template v-if='app.hasError'>
@@ -22,6 +19,9 @@
                 </button>
               </template>
             </div>
+          </template>
+          <template v-else>
+              <div style='white-space: normal;' v-html="getProp(app, field)"/>
           </template>
       </td>
   </tr>
@@ -44,6 +44,13 @@ export default {
       var optionEls = $(this).parents('tr').find('[app-option-name]');
       var options = jt.deriveAppOptions(optionEls);
       server.createSessionAndAddApp(this.app.id, options);
+    },
+    getProp(app, field) {
+      try {
+        return eval('app.' + field);
+      } catch {
+        return '-';
+      }
     }
   }
 }

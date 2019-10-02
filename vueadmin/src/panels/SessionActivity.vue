@@ -1,6 +1,6 @@
 <template>
-    <div style='padding: 5px; display: block'>
-        <div class='mb-3 btn-group flex-wrap'>
+    <div style='display: block'>
+        <div class='mb-1 btn-group flex-wrap'>
             <span class="btn btn-outline-secondary btn-sm" onclick='jt.viewAllParticipants()'>
                 <i class="fa fa-eye"></i>&nbsp;&nbsp;show all
             </span>
@@ -26,7 +26,7 @@
                     v-for='player in openPlayers' 
                     :key='player.id' 
                     :style='participantViewStyle'
-                    >
+                >
                     <div class="card-header" style="background-color: rgb(207, 232, 207);">
                         <span>Participant {{player.id}}</span>
                         <button type="button" class="headerBtn close float-right">

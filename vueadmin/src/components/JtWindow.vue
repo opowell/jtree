@@ -44,7 +44,9 @@
 </template>
 <script>
 import JtArea from './JtArea.vue';
-
+import jt from '@/webcomps/jtree.js';
+import 'jquery'
+let $ = window.jQuery
 export default {
 	name: 'JtWindow',
 	components: {
@@ -194,6 +196,7 @@ export default {
 		startResizeTL(ev) {
 			document.documentElement.addEventListener('mousemove', this.resizeTL);
 			document.documentElement.addEventListener('mouseup', this.stopResizeTL);
+			jt.coverUpParticipantViews(true);
 			this.resizeStartX =
 				typeof ev.pageX !== 'undefined' ? ev.pageX : ev.touches[0].pageX;
 			this.resizeStartY =
@@ -222,12 +225,14 @@ export default {
 		stopResizeTL() {
 			document.documentElement.removeEventListener('mousemove', this.resizeTL);
 			document.documentElement.removeEventListener('mouseup',	this.stopResizeTL);
+			jt.coverUpParticipantViews(false);
 			this.$store.commit('saveWindowInfo', this);
 		},
 
 		startResizeT(ev) {
 			document.documentElement.addEventListener('mousemove', this.resizeT);
 			document.documentElement.addEventListener('mouseup', this.stopResizeT);
+			jt.coverUpParticipantViews(true);
 			this.resizeStartY =
 				typeof ev.pageY !== 'undefined' ? ev.pageY : ev.touches[0].pageY;
 			this.origTop = this.top;
@@ -245,12 +250,14 @@ export default {
 		stopResizeT() {
 			document.documentElement.removeEventListener('mousemove', this.resizeT);
 			document.documentElement.removeEventListener('mouseup', this.stopResizeT);
+			jt.coverUpParticipantViews(false);
 			this.$store.commit('saveWindowInfo', this);
 		},
 
 		startResizeTR(ev) {
 			document.documentElement.addEventListener('mousemove', this.resizeTR);
 			document.documentElement.addEventListener('mouseup', this.stopResizeTR);
+			jt.coverUpParticipantViews(true);
 			this.resizeStartX =
 				typeof ev.pageX !== 'undefined' ? ev.pageX : ev.touches[0].pageX;
 			this.resizeStartY =
@@ -281,11 +288,13 @@ export default {
 			document.documentElement.removeEventListener('mousemove', this.resizeTR);
 			document.documentElement.removeEventListener('mouseup',	this.stopResizeTR);
 			this.$store.commit('saveWindowInfo', this);
+			jt.coverUpParticipantViews(false);
 		},
 
 		startResizeL(ev) {
 			document.documentElement.addEventListener('mousemove', this.resizeL);
 			document.documentElement.addEventListener('mouseup', this.stopResizeL);
+			jt.coverUpParticipantViews(true);
 			this.resizeStartX =
 				typeof ev.pageX !== 'undefined' ? ev.pageX : ev.touches[0].pageX;
 			this.origLeft = this.left;
@@ -304,11 +313,13 @@ export default {
 			document.documentElement.removeEventListener('mousemove', this.resizeL);
 			document.documentElement.removeEventListener('mouseup', this.stopResizeL);
 			this.$store.commit('saveWindowInfo', this);
+			jt.coverUpParticipantViews(false);
 		},
 
 		startResizeR(ev) {
 			document.documentElement.addEventListener('mousemove', this.resizeR);
 			document.documentElement.addEventListener('mouseup', this.stopResizeR);
+			jt.coverUpParticipantViews(true);
 			this.resizeStartX =
 				typeof ev.pageX !== 'undefined' ? ev.pageX : ev.touches[0].pageX;
 			this.origLeft = this.left;
@@ -326,11 +337,13 @@ export default {
 			document.documentElement.removeEventListener('mousemove', this.resizeR);
 			document.documentElement.removeEventListener('mouseup', this.stopResizeR);
 			this.$store.commit('saveWindowInfo', this);
+			// jt.coverUpParticipantViews(false);
 		},
 
 		startResizeBL(ev) {
 			document.documentElement.addEventListener('mousemove', this.resizeBL);
 			document.documentElement.addEventListener('mouseup', this.stopResizeBL);
+			jt.coverUpParticipantViews(false);
 			this.resizeStartX =
 				typeof ev.pageX !== 'undefined' ? ev.pageX : ev.touches[0].pageX;
 			this.resizeStartY =
@@ -360,11 +373,13 @@ export default {
 			document.documentElement.removeEventListener('mousemove', this.resizeBL);
 			document.documentElement.removeEventListener('mouseup', this.stopResizeBL);
 			this.$store.commit('saveWindowInfo', this);
+			jt.coverUpParticipantViews(false);
 		},
 
 		startResizeB(ev) {
 			document.documentElement.addEventListener('mousemove', this.resizeB);
 			document.documentElement.addEventListener('mouseup', this.stopResizeB);
+			jt.coverUpParticipantViews(true);
 			this.resizeStartY =
 				typeof ev.pageY !== 'undefined' ? ev.pageY : ev.touches[0].pageY;
 			this.origHeight = this.height;
@@ -381,12 +396,14 @@ export default {
 		stopResizeB() {
 			document.documentElement.removeEventListener('mousemove', this.resizeB);
 			document.documentElement.removeEventListener('mouseup', this.stopResizeB);
+			jt.coverUpParticipantViews(false);
 			this.$store.commit('saveWindowInfo', this);
 		},
 
 		startResizeBR(ev) {
 			document.documentElement.addEventListener('mousemove', this.resizeBR);
 			document.documentElement.addEventListener('mouseup', this.stopResizeBR);
+			jt.coverUpParticipantViews(true);
 			this.resizeStartX =
 				typeof ev.pageX !== 'undefined' ? ev.pageX : ev.touches[0].pageX;
 			this.resizeStartY =
@@ -414,6 +431,7 @@ export default {
 			document.documentElement.removeEventListener('mousemove', this.resizeBR);
 			document.documentElement.removeEventListener('mouseup', this.stopResizeBR);
 			this.$store.commit('saveWindowInfo', this);
+			jt.coverUpParticipantViews(false);
 		}
 	},
   mounted() {
@@ -421,6 +439,28 @@ export default {
 	},
 
 };
+
+jt.coverUpParticipantViews = function(b) {
+	if (b) {
+		$('.participant-view').append(`
+<div 
+	class="participant-view-cover" 
+	style="
+		position: absolute;
+		top: 0px;
+		left: 0px;
+		width: 100%;
+		height: 100%;
+	"
+>
+</div>
+		`);
+	} else {
+		$('.participant-view-cover').remove();
+	}
+}
+
+
 </script>
 
 <style>
