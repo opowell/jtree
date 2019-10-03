@@ -1,25 +1,16 @@
 <template>
     <div>
-        <h2 class='text-muted'>App: <span style='color: #000' id='view-app-id'>{{app.shortId}}</span></h2>
-        <h6 id='view-app-fullId' class='text-muted'>{{app.id}}</h6>
-
         <div class="view-buttons btn-group">
-            <button class="btn btn-outline-primary btn-sm" onclick='jt.startSessionWithApp()'>
+            <button class="btn btn-outline-secondary btn-sm" onclick='jt.startSessionWithApp()'>
                 <i class="fa fa-play"></i>&nbsp;&nbsp;Start session
             </button>
-        </div>
-
-        <div class="view-buttons btn-group">
             <button class="btn btn-outline-secondary btn-sm" onclick='jt.appEdit()'>
                 <i class="fa fa-edit"></i>&nbsp;&nbsp;Edit...
             </button>
             <button class="btn btn-outline-secondary btn-sm" onclick='jt.appRename()'>
                 &nbsp;&nbsp;Rename / Move...
             </button>
-        </div>
-
-        <div class="view-buttons btn-group">
-            <button class="btn btn-outline-danger btn-sm" onclick='jt.deleteApp()'>
+            <button class="btn btn-outline-secondary btn-sm" onclick='jt.deleteApp()'>
                 <i class="fa fa-trash"></i>&nbsp;&nbsp;Delete...
             </button>
         </div>
@@ -53,10 +44,17 @@ import '@/webcomps/ViewAppPreview.js'
 
 export default {
   name: 'ViewApp',
+  props: [
+    'dat',
+    'panel',
+  ],
   data() {
     return {
         app: this.$store.state.app
     }
+  },
+  mounted() {
+      this.panel.id = this.app.shortId;
   },
 }
 

@@ -12,8 +12,11 @@
       </jt-window>
     </div>
     <viewappeditor-modal/>
+    <ModalConfirm/>
     <ModalSetViewSize/>
     <ModalAddAppToQueue/>
+    <ModalCreateApp/>
+    <ModalSetAutoplayFreq/>
   </div>
 </template>
 
@@ -24,14 +27,15 @@ import MainMenu from '@/components/MainMenu.vue'
 
 import ModalSetViewSize            from '@/modals/SetViewSize.vue'
 import ModalAddAppToQueue          from '@/modals/AddAppToQueue.vue'
+import ModalConfirm                from '@/modals/Confirm.vue'
+import ModalCreateApp              from '@/modals/CreateApp.vue'
+import ModalSetAutoplayFreq        from '@/modals/SetAutoplayFreq.vue'
 
 import '@/webcomps/AddAppToSessionModal.js'
 import '@/webcomps/AddQueueToSessionModal.js'
 import '@/webcomps/AppSetVariableModal.js'
-import '@/webcomps/CreateAppModal.js'
 import '@/webcomps/EditAppOptionsModal.js'
 import '@/webcomps/RenameAppModal.js'
-import '@/webcomps/SetAutoplayFreqModal.js'
 import '@/webcomps/ViewAppEditModal.js'
 import '@/webcomps/ViewLogin.js'
 import '@/webcomps/ViewSessions.js'
@@ -45,6 +49,9 @@ export default {
     JtWindow,
     MainMenu,
     ModalAddAppToQueue,
+    ModalConfirm,
+    ModalCreateApp,
+    ModalSetAutoplayFreq,
     ModalSetViewSize,
   },
   data() {

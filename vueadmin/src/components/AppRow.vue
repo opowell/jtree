@@ -7,7 +7,7 @@
           </template>
           <template v-else-if="field == 'optionsView'">
             <td>
-              <div v-for='(value, index2) in options' :key='index2'>
+              <div v-for='(option, index2) in options' :key='index2'>
                 {{option.name}}: {{getOptionValue(option)}}
               </div>
             </td>
@@ -45,7 +45,7 @@ export default {
   props: {
     fields: Array,
     app: Object,
-    options: Object,
+    options: Array,
   },
   methods: {
     clickPlayButton() {

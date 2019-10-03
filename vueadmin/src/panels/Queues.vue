@@ -14,14 +14,14 @@
               <tr>
                   <th></th>
                   <th>name</th>
-                  <th>apps</th>
+                  <th># apps</th>
               </tr>
           </thead>
           <tbody>
               <QueueRow 
                 v-for='queue in queues'
                 :key='queue.id'
-                :fields='["playButton", "id", "apps"]'
+                :fields='["playButton", "id", "apps.length"]'
                 :queue='queue'
                 @click.native="clickQueue(queue, $event)"
                 style='cursor: pointer;'

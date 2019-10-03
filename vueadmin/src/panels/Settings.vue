@@ -4,7 +4,7 @@
             :menus='actions' ref='actionBar'>
         </action-bar>
         <div style='flex: 1 1 auto; align-self: stretch; overflow: auto; padding: 5px;'>
-            <div style='padding-left: 5px'>
+            <div style='padding-left: 5px; padding-bottom: 1rem;'>
                 Load preset:
                 <span v-for='(preset, index) in presets' 
                     :key='preset.name'
@@ -14,7 +14,7 @@
                     {{index + 1}}. {{preset.name}}
                 </span>
             </div>
-            <b-row class="my-1 form-group row" v-for="setting in filteredSettings" :key="setting.key" style='padding: 10px'>
+            <b-row style='margin-left: 0px; margin-right: 0px;' class="my-1 form-group row" v-for="setting in filteredSettings" :key="setting.key">
                 <b-col class="col-sm-2 col-form-label">
                     <label :for="`setting-${setting.key}`">
                         {{ setting.name }}:

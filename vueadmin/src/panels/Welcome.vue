@@ -7,6 +7,7 @@
         <span class='link' v-for='(link, index) in links' :key='index' @click='clickLink(index)'>
           {{link.title}}
           </span>
+          <span class='link' onclick='jt.showCreateAppModal()'>Create App...</span>
       </div>
       <br>
       <br>
@@ -19,9 +20,6 @@
 let links = [
   { title: 'Apps',     type: 'ViewApps'      },
   { title: 'Queues',   type: 'ViewQueues'    },
-  { title: 'Sessions', type: 'ViewSessions'  },
-  { title: 'Settings', type: 'SettingsPanel' },
-  { title: 'Log',      type: 'ViewLog'       },
 ]
 
 export default {

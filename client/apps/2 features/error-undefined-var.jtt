@@ -1,0 +1,2 @@
+app.description = 'Shows what an undefined variable error looks like.';
+ap.description = 'This line refers to an undefined variable.';

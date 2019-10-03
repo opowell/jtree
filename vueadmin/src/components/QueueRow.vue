@@ -28,6 +28,9 @@
               </template>
             </div>
           </template>
+          <template v-else>
+              <div style='white-space: normal;' v-html="getProp(queue, field)"/>
+          </template>
       </td>
   </tr>
 </template>
@@ -59,6 +62,13 @@ export default {
           text += ')';
       }
       return text;
+    },
+    getProp(obj, field) {
+      try {
+        return eval('obj.' + field);
+      } catch {
+        return '-';
+      }
     },
   }
 }

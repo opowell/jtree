@@ -1,6 +1,4 @@
-class SetAutoplayFreqModal extends HTMLElement {
-    connectedCallback() {
-      this.innerHTML = `
+<template>
       <div class="modal" id="setAutoplayFreqModal" tabindex="-1" role="dialog">
           <div class="modal-dialog" role="document" style='max-width: 400px;'>
               <div class="modal-content">
@@ -24,10 +22,9 @@ class SetAutoplayFreqModal extends HTMLElement {
               </div>
           </div>
       </div>
-      `;
-    }
-}
+</template>
 
+<script>
 import jt from '@/webcomps/jtree.js'
 import 'jquery'
 let $ = window.jQuery
@@ -44,4 +41,13 @@ jt.updateAutoplayFreq = function() {
     $('#setAutoplayFreqModal').modal('hide');
 }
 
-window.customElements.define('setautoplayfreq-modal', SetAutoplayFreqModal);
+export default {
+  name: 'SetAutoplayFreq',
+  data() {
+    return {
+        state: this.$store.state
+    }
+  },
+}
+
+</script>

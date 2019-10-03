@@ -25,10 +25,11 @@
             </tbody> -->
             <tbody>
                 <AppRow 
-                    v-for='app in session.apps'
-                    :key='app.id'
-                    :fields='["", "indexInSession", "id", "description"]'
+                    v-for='(app, appIndex) in session.fullApps'
+                    :key='appIndex'
+                    :fields='["", "indexInSession", "id", "optionsView"]'
                     :app='app'
+                    :options='app.sessionOptions'
                     @click.native="clickApp(app.id, $event)"
                     style='cursor: pointer;'
                   />
@@ -66,10 +67,30 @@ import 'jquery'
 let $ = window.jQuery
 import server from '@/webcomps/msgsToServer.js'
 // import Vue from 'vue'
-// import store from '@/store.js'
+import store from '@/store.js'
 
 jt.updateSessionApps = function() {
-    // Vue.nextTick(function() {
+    let session = store.state.session;
+    session.fullApps = [];
+    for (let i in session.apps) {
+        let oldApp = session.apps[i];
+        let appId = oldApp.id;
+        let app = {};
+        let appDefn = jt.app(appId);
+        for (let i in appDefn) {
+            app[i] = appDefn[i];
+        }
+        app.id = appId;
+        app.indexInSession = (i-0)+1;
+        app.sessionOptions = oldApp.options;
+        for (let i in oldApp.options) {
+            var option = oldApp.options[i].name;
+            if (oldApp[option] !== undefined) {
+                app[option] = oldApp[option];
+            }
+        }
+        session.fullApps.push(app);
+    }    // Vue.nextTick(function() {
     //     $('#session-apps-table').empty();
     //     if (store.state.session !== null && store.state.session !== undefined) {
     //         for (var a in store.state.session.apps) {

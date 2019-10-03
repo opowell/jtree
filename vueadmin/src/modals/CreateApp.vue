@@ -1,6 +1,4 @@
-class CreateAppModal extends HTMLElement {
-    connectedCallback() {
-      this.innerHTML = `
+<template>
       <div class="modal" id="createAppModal" tabindex="-1" role="dialog">
           <div class="modal-dialog" role="document" style='max-width: 400px;'>
               <div class="modal-content">
@@ -11,7 +9,7 @@ class CreateAppModal extends HTMLElement {
                       </button>
                   </div>
                   <div class="modal-body">
-                      Enter filename for new app: <input type="text" class="form-control" placeholder="Filename" id='create-app-input' name='feaojfweaofijw' onkeyup="jt.createAppKeyUp(event)" style='flex: 0 0 150px'>
+                      Enter filename for new app: <br><br><input type="text" class="form-control" placeholder="Filename" id='create-app-input' name='feaojfweaofijw' onkeyup="jt.createAppKeyUp(event)" style='flex: 0 0 150px'>
                   </div>
                   <div class="modal-footer">
                       <button type="button" class="btn btn-sm btn-outline-primary" onclick='jt.createApp();'>Create</button>
@@ -19,16 +17,23 @@ class CreateAppModal extends HTMLElement {
               </div>
           </div>
       </div>
-      `;
-    }
-}
+</template>
 
-window.customElements.define('createapp-modal', CreateAppModal);
+<script>
 
 import jt from '@/webcomps/jtree.js'
 import 'jquery'
 import server from '@/webcomps/msgsToServer.js'
 let $ = window.jQuery;
+
+export default {
+  name: 'CreateApp',
+  data() {
+    return {
+        state: this.$store.state
+    }
+  },
+}
 
 jt.createAppKeyUp = function(e) {
     var code = (e.keyCode ? e.keyCode : e.which);
@@ -53,3 +58,5 @@ jt.createApp = function() {
         $('#create-app-input').val('');
     }
 }
+
+</script>

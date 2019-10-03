@@ -64,7 +64,7 @@ showQueues = function() {
         },
         methods: {
             openQueue(item, index, event) {
-                jt.openQueue(item.id);
+                jt.openQueue(item);
             },
             deleteQueueConfirm(id) {
                 jt.deleteQueueConfirm(id);
