@@ -200,7 +200,7 @@ let windowMenu = {
         for (let i=0; i<numWindows; i++) {
             const panel = this.$store.state.windows[i];
             const menuData = {
-                text: 'need a title',
+                text: this.getWindowTitle(panel.area),
                 panel: panel,
                 action: panel.focus,
                 icon: panel.isFocussed ? 'fas fa-check' : '',
@@ -262,6 +262,20 @@ let windowMenu = {
     //   }
   },
   methods: {
+      getWindowTitle(win) {
+          let out = '';
+          if (win.panels != null) {
+            for (let i in win.panels) {
+                out = out + (out == '' ? '' : ', ') + win.panels[i].id;
+            }
+          }
+          if (win.areas != null) {
+            for (let i in win.areas) {
+                out = out + (out == '' ? '' : ', ') + this.getWindowTitle(win.areas[i]);
+            }
+          }
+          return out;
+      },
       restore() {
           
       },

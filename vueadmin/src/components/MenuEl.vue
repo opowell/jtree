@@ -22,6 +22,7 @@
       <div class='text-first'>{{firstLetter}}</div>
       <div class='text-rest'>{{rest}}</div>
     </div>
+    <!-- <div v-show="hasParent" class="shortcut-spacer"/> -->
     <div v-show="hasParent" class="shortcut">{{menu.shortcut}}</div>
     <div v-show='showArrow' class="arrow">&lt;</div>
     <div v-show='menu.children' class="dropdown" :class='{ open: isOpen}'>
@@ -115,10 +116,13 @@ export default {
   margin: 2px 0px;
 }
 
+.shortcut-spacer {
+  min-width: 3rem;
+  flex: 1 1 auto;
+}
+
 .shortcut {
-    flex: 0 0 auto;
-    margin-left: 4rem;
-    padding: 4px 3px;
+    padding: var(--menuTextPadding);
 }
 
 .disabled {
@@ -153,6 +157,11 @@ export default {
   background-color: rgba(0,123,255,.25);
 }
 
+.dropdown > .menu {
+  /* width: max-content; */
+  max-width: 20rem;
+}
+
 
 
 .menubar-focussed .text-first {
@@ -176,6 +185,7 @@ export default {
     border-width: 1px;
     border-color: transparent;
     border-style: solid;
+    width: max-content;
 }
 
 .text {

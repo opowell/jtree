@@ -6,8 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "build-watch": "vue-cli-service build-watch --dest ..\\client\\internal\\clients\\admin\\vue",
-    "build-stats": "webpack --profile --json"
+    "build-watch": "vue-cli-service build-watch --dest ..\\client\\internal\\clients\\admin\\vue"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.25",
