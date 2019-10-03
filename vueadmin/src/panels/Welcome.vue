@@ -1,12 +1,16 @@
 <template>
-  <div>
-      <div>Welcome to <span style='font-weight: bold'>jtree</span>.</div>
-      <div style='padding-top: 1rem; color: #888; padding-bottom: 1rem;'>0.7.18</div>
-      <div>
+  <div style='display: flex; flex-direction: column; justify-content: center; align-items: center;'>
+      <div style='font-size: 4rem;'>Welcome to <span style='font-weight: bold'>jtree</span>.</div>
+      <div style='font-size: 2rem; padding-top: 1rem; color: #888; padding-bottom: 3rem;'>0.7.18</div>
+      <div style='margin-bottom: 1rem; font-size: 2rem'>What would you like to do?</div>
+      <div style='font-size: 2rem'>
         <span class='link' v-for='(link, index) in links' :key='index' @click='clickLink(index)'>
           {{link.title}}
           </span>
-        </div>
+      </div>
+      <br>
+      <br>
+      <br>
   </div>
 </template>
 
@@ -55,6 +59,7 @@ export default {
   color: rgba(255, 255, 255, 0.75);
   background-color: rgba(0, 0, 0, 0.5);
   cursor: pointer;
+  border-radius: 5px;
 }
 
 .link:hover {
