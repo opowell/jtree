@@ -13,6 +13,7 @@
     </div>
     <viewappeditor-modal/>
     <ModalSetViewSize/>
+    <ModalAddAppToQueue/>
   </div>
 </template>
 
@@ -22,8 +23,8 @@ import JtWindow from '@/components/JtWindow.vue'
 import MainMenu from '@/components/MainMenu.vue'
 
 import ModalSetViewSize            from '@/modals/SetViewSize.vue'
+import ModalAddAppToQueue          from '@/modals/AddAppToQueue.vue'
 
-import '@/webcomps/AddAppToQueueModal.js'
 import '@/webcomps/AddAppToSessionModal.js'
 import '@/webcomps/AddQueueToSessionModal.js'
 import '@/webcomps/AppSetVariableModal.js'
@@ -33,7 +34,6 @@ import '@/webcomps/RenameAppModal.js'
 import '@/webcomps/SetAutoplayFreqModal.js'
 import '@/webcomps/ViewAppEditModal.js'
 import '@/webcomps/ViewLogin.js'
-import '@/webcomps/ViewQueue.js'
 import '@/webcomps/ViewSessions.js'
 
 import '@/webcomps/Model.js'
@@ -44,6 +44,7 @@ export default {
   components: {
     JtWindow,
     MainMenu,
+    ModalAddAppToQueue,
     ModalSetViewSize,
   },
   data() {

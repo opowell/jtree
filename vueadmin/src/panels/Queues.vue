@@ -23,7 +23,7 @@
                 :key='queue.id'
                 :fields='["playButton", "id", "apps"]'
                 :queue='queue'
-                @click.native="clickQueue(queue.id, $event)"
+                @click.native="clickQueue(queue, $event)"
                 style='cursor: pointer;'
               />
           </tbody>
@@ -55,13 +55,13 @@ export default {
     }
   },
   methods: {
-      clickQueue(id, ev) {
+      clickQueue(queue, ev) {
         if (
             ($(ev.target).prop('tagName') !== 'SELECT') &&
             ($(ev.target).prop('tagName') !== 'INPUT') &&
             ($(ev.target).prop('tagName') !== 'A')
         ) {
-            jt.openQueue(id);
+            jt.openQueue(queue);
         }
       }
   },

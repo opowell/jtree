@@ -21,13 +21,13 @@
                     <th>options</th>
                 </tr>
             </thead>
-            <tbody id='session-apps-table'>
-            </tbody>
+            <!-- <tbody id='session-apps-table'>
+            </tbody> -->
             <tbody>
                 <AppRow 
                     v-for='app in session.apps'
                     :key='app.id'
-                    :fields='["indexInSession", "id", "description"]'
+                    :fields='["", "indexInSession", "id", "description"]'
                     :app='app'
                     @click.native="clickApp(app.id, $event)"
                     style='cursor: pointer;'
@@ -65,70 +65,70 @@ import jt from '@/webcomps/jtree.js'
 import 'jquery'
 let $ = window.jQuery
 import server from '@/webcomps/msgsToServer.js'
-import Vue from 'vue'
-import store from '@/store.js'
+// import Vue from 'vue'
+// import store from '@/store.js'
 
 jt.updateSessionApps = function() {
-    Vue.nextTick(function() {
-        $('#session-apps-table').empty();
-        if (store.state.session !== null && store.state.session !== undefined) {
-            for (var a in store.state.session.apps) {
+    // Vue.nextTick(function() {
+    //     $('#session-apps-table').empty();
+    //     if (store.state.session !== null && store.state.session !== undefined) {
+    //         for (var a in store.state.session.apps) {
 
-                var sessionApp = store.state.session.apps[a];
+    //             var sessionApp = store.state.session.apps[a];
 
-                var appId = sessionApp.id;
-                var options = sessionApp.options;
+    //             var appId = sessionApp.id;
+    //             var options = sessionApp.options;
 
-                // TODO: Why is it necessary to load App, rather than use SessionApp?
-                var appDefn = jt.app(appId);
-                appDefn.index = sessionApp.indexInSession;
-                for (var i in sessionApp.options) {
-                    var option = sessionApp.options[i].name;
-                    if (sessionApp[option] !== undefined) {
-                        appDefn[option] = sessionApp[option];
-                    }
-                }
+    //             // TODO: Why is it necessary to load App, rather than use SessionApp?
+    //             var appDefn = jt.app(appId);
+    //             appDefn.index = sessionApp.indexInSession;
+    //             for (var i in sessionApp.options) {
+    //                 var option = sessionApp.options[i].name;
+    //                 if (sessionApp[option] !== undefined) {
+    //                     appDefn[option] = sessionApp[option];
+    //                 }
+    //             }
 
-                var div = jt.AppRow(appDefn, options, ['#', 'id', 'optionsView']);
-                div.attr('appIndex', appDefn.index);
-                div.attr('appId', appDefn.appId);
-                div.data('app', appDefn);
-                div.data('options', options);
-                var actionsDiv = $('<div class="btn-group">');
-                var deleteBtn = jt.DeleteButton();
-                var copyBtn = jt.CopyButton();
-                copyBtn.click(function() {
-                    server.sessionAddApp(appId, options);
-                });
-                actionsDiv.append(copyBtn);
-                deleteBtn.click(function(ev) {
-                    ev.stopPropagation();
-                    var appIndex = $(ev.target).parents('[appIndex]').attr('appIndex');
-                    var appId = $(ev.target).parents('[appId]').attr('appId');
-                    let qId = jt.data.queue.id;
-                    jt.confirm(
-                        'Are you sure you want to delete App #' + appIndex + ' - ' + appId + ' from Queue ' + qId + '?',
-                        function() {
-                            let sId = '';
-                            jt.socket.emit('sessionDeleteApp', {sId: sId, aId: appId, appIndex: appIndex});
-                        }
-                    );
-                });
-                actionsDiv.append(deleteBtn);
-                div.prepend($('<td>').append(actionsDiv));
-                div.click(function(ev) {
-                    var tr = $(ev.target).parents('tr');
-                    var appDefn = tr.data('app');
-                    var options = tr.data('options');
-                    jt.setEditAppOptionsData(appDefn, options, 'jt.saveSessionAppOptions()');
-                    $('#editAppOptionsModal').modal('show');
-                });
+    //             var div = jt.AppRow(appDefn, options, ['#', 'id', 'optionsView']);
+    //             div.attr('appIndex', appDefn.index);
+    //             div.attr('appId', appDefn.appId);
+    //             div.data('app', appDefn);
+    //             div.data('options', options);
+    //             var actionsDiv = $('<div class="btn-group">');
+    //             var deleteBtn = jt.DeleteButton();
+    //             var copyBtn = jt.CopyButton();
+    //             copyBtn.click(function() {
+    //                 server.sessionAddApp(appId, options);
+    //             });
+    //             actionsDiv.append(copyBtn);
+    //             deleteBtn.click(function(ev) {
+    //                 ev.stopPropagation();
+    //                 var appIndex = $(ev.target).parents('[appIndex]').attr('appIndex');
+    //                 var appId = $(ev.target).parents('[appId]').attr('appId');
+    //                 let qId = jt.data.queue.id;
+    //                 jt.confirm(
+    //                     'Are you sure you want to delete App #' + appIndex + ' - ' + appId + ' from Queue ' + qId + '?',
+    //                     function() {
+    //                         let sId = '';
+    //                         jt.socket.emit('sessionDeleteApp', {sId: sId, aId: appId, appIndex: appIndex});
+    //                     }
+    //                 );
+    //             });
+    //             actionsDiv.append(deleteBtn);
+    //             div.prepend($('<td>').append(actionsDiv));
+    //             div.click(function(ev) {
+    //                 var tr = $(ev.target).parents('tr');
+    //                 var appDefn = tr.data('app');
+    //                 var options = tr.data('options');
+    //                 jt.setEditAppOptionsData(appDefn, options, 'jt.saveSessionAppOptions()');
+    //                 $('#editAppOptionsModal').modal('show');
+    //             });
 
-                $('#session-apps-table').append(div);
-                $(div).css('cursor', 'pointer');
-            }
-        }
-    })
+    //             $('#session-apps-table').append(div);
+    //             $(div).css('cursor', 'pointer');
+    //         }
+    //     }
+    // })
 }
 
 jt.showAddQueueToSessionModal = function() {

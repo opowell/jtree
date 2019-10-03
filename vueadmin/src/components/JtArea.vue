@@ -185,6 +185,7 @@ import ViewApp                  from '@/panels/App.vue'
 import ViewApps                 from '@/panels/Apps.vue'
 import ViewWelcome              from '@/panels/Welcome.vue'
 import ViewLog                  from '@/panels/Log.vue'
+import ViewQueue                from '@/panels/Queue.vue'
 import ViewQueues               from '@/panels/Queues.vue'
 import ViewSessionActivity      from '@/panels/SessionActivity.vue'
 import ViewSessionApps          from '@/panels/SessionApps.vue'
@@ -212,6 +213,7 @@ export default {
     ViewApps,
     ViewWelcome,
     ViewLog,
+    ViewQueue,
     ViewQueues,
     ViewSessionActivity,
     ViewSessionApps,
@@ -598,6 +600,11 @@ export default {
 .closeButton {
     display: none;
     align-self: center;
+    color: #AAA;
+}
+
+.closeButton:hover {
+    color: #000;
 }
 
 .tab:hover .closeButton {

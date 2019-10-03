@@ -5,6 +5,13 @@
               <div>{{app.shortId}}</div>
               <div><small style="white-space: normal" class="text-muted">{{app.id}}</small></div>
           </template>
+          <template v-else-if="field == 'optionsView'">
+            <td>
+              <div v-for='(value, index2) in options' :key='index2'>
+                {{option.name}}: {{getOptionValue(option)}}
+              </div>
+            </td>
+          </template>
           <template v-else-if="field == 'playButton'">
             <div class="btn-group">
               <template v-if='app.hasError'>
@@ -38,6 +45,7 @@ export default {
   props: {
     fields: Array,
     app: Object,
+    options: Object,
   },
   methods: {
     clickPlayButton() {
@@ -51,6 +59,22 @@ export default {
       } catch {
         return '-';
       }
+    },
+    getOptionValue(option) {
+      let selected = '-';
+      if (option.values !== undefined) {
+          selected = option.values[0];
+      }
+      if (option.defaultVal !== undefined) {
+          selected = option.defaultVal;
+      }
+      if (this.app[option.name] !== undefined) {
+          selected = this.app[option.name];
+      }
+      if (this.options !== undefined && this.options[option.name] !== undefined) {
+          selected = this.options[option.name];
+      }
+      return selected;
     }
   }
 }

@@ -1,8 +1,7 @@
 <template>
   <div>
       <div>Welcome to <span style='font-weight: bold'>jtree</span>.</div>
-      <div style='padding-top: 1rem; color: #888'>0.7.18</div>
-      <br>
+      <div style='padding-top: 1rem; color: #888; padding-bottom: 1rem;'>0.7.18</div>
       <div>
         <span class='link' v-for='(link, index) in links' :key='index' @click='clickLink(index)'>
           {{link.title}}

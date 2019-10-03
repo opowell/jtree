@@ -355,14 +355,18 @@ let persistPaths = [
 ];
 
 let stateObj = {
-  app: null,
-  appInfos: [],
   log: [],
   panels: defaultPanels,
-  queues: [],
   shownPanel: 0,
+
+  app: null,
   session: null,
+  queue: null,
+
+  appInfos: [],
+  queues: [],
   sessions: [],
+
   openPlayers: [],
 
   // For Participant views.

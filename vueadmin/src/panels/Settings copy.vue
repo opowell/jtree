@@ -14,13 +14,13 @@
                     {{index + 1}}. {{preset.name}}
                 </span>
             </div>
-            <b-row class="my-1 form-group row" v-for="setting in filteredSettings" :key="setting.key" style='padding: 10px'>
-                <b-col class="col-sm-2 col-form-label">
+            <b-row class="my-1" v-for="setting in filteredSettings" :key="setting.key" style='padding: 10px'>
+                <b-col style='flex: 1 1 auto'>
                     <label :for="`setting-${setting.key}`">
                         {{ setting.name }}:
                     </label>
                 </b-col>
-                <b-col class="col-sm-10">
+                <b-col style='flex: 0 0 300px'>
                     <b-form-select v-if='setting.type == "select"'
                         :id="`setting-${setting.key}`"
                         :options='setting.options'

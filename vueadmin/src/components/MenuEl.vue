@@ -18,10 +18,8 @@
   >
     <div v-show='menu.template != null' v-html="menu.template"></div>
     <i v-show='menu.icon || showIcon' :class='"icon " + menu.icon'></i>
-    <div v-show='menu.text' class='text'>
-      <div class='text-first'>{{firstLetter}}</div>
-      <div class='text-rest'>{{rest}}</div>
-    </div>
+    <div v-show='menu.text' class='text text-first'>{{firstLetter}}</div>
+    <div v-show='menu.text' class='text text-rest'>{{rest}}</div>
     <!-- <div v-show="hasParent" class="shortcut-spacer"/> -->
     <div v-show="hasParent" class="shortcut">{{menu.shortcut}}</div>
     <div v-show='showArrow' class="arrow">&lt;</div>
@@ -98,11 +96,12 @@ export default {
 
 <style>
 .icon {
-  flex: 0 0 auto;
+  /* flex: 0 0 auto; */
+  flex: 0 0 24px;
   padding: 5px;
   cursor: default;
   margin-right: 1px;
-  width: 24px;
+  /* width: 24px; */
   align-self: center;
   text-align: center;
   line-height: 1;
@@ -150,7 +149,9 @@ export default {
   z-index: 1000;
 }
 .dropdown.open {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  width: max-content;
 }
 
 .dropdown .menu:hover {
@@ -160,20 +161,13 @@ export default {
 .dropdown > .menu {
   /* width: max-content; */
   max-width: 20rem;
+  width: 100%;
 }
 
 
 
 .menubar-focussed .text-first {
     text-decoration: underline;
-}
-
-.text-first {
-
-}
-
-.text-rest {
-
 }
 
 
@@ -193,9 +187,20 @@ export default {
     border-radius: 0px;
     outline: none;
     box-shadow: none;
-    display: flex;
-    flex: 1 0 auto;
     padding: var(--menuTextPadding); 
+}
+
+.text-first {
+  flex: 0 0 auto;
+  padding-right: 0px;
+}
+
+.text-rest {
+  flex: 1 1 auto;
+  padding-left: 0px;
+  text-overflow: clip;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .dropdown {

@@ -193,29 +193,29 @@ jt.AppRow = function(app, options, cols) {
             case 'name':
                 row.append($('<td>').text((app.name !== undefined ? app.name : app.id)));
                 break;
-                case 'optionsView':
-                    // var optionsEl = $('<td style="display: flex; flex-wrap: wrap; padding-top: calc(.375rem - 1px);">');
-                    var optionsEl = $('<td>');
-                    for (let i in app.options) {
-                        var option = app.options[i];
-                        var selected = undefined;
-                        if (option.values !== undefined) {
-                            selected = option.values[0];
-                        }
-                        if (option.defaultVal !== undefined) {
-                            selected = option.defaultVal;
-                        }
-                        if (app[option.name] !== undefined) {
-                            selected = app[option.name];
-                        }
-                        if (options !== undefined && options[option.name] !== undefined) {
-                            selected = options[option.name];
-                        }
-                        var div = $('<div>').text(option.name + ': ' + selected);
-                        optionsEl.append(div);
+            case 'optionsView':
+                // var optionsEl = $('<td style="display: flex; flex-wrap: wrap; padding-top: calc(.375rem - 1px);">');
+                var optionsEl = $('<td>');
+                for (let i in app.options) {
+                    var option = app.options[i];
+                    var selected = undefined;
+                    if (option.values !== undefined) {
+                        selected = option.values[0];
                     }
-                    row.append(optionsEl);
-                    break;
+                    if (option.defaultVal !== undefined) {
+                        selected = option.defaultVal;
+                    }
+                    if (app[option.name] !== undefined) {
+                        selected = app[option.name];
+                    }
+                    if (options !== undefined && options[option.name] !== undefined) {
+                        selected = options[option.name];
+                    }
+                    var div = $('<div>').text(option.name + ': ' + selected);
+                    optionsEl.append(div);
+                }
+                row.append(optionsEl);
+                break;
             case 'options':
                 optionsEl = $('<td style="display: flex; flex-wrap: wrap; padding-top: calc(.375rem - 1px);">');
                 for (let i in app.options) {
