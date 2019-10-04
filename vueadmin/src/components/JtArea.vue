@@ -7,7 +7,7 @@
             <menu-el
                 :dblclickFunc="close"
                 :menu='{
-                icon: "fas fa-align-center",
+                icon: ["fas", "align-center"],
                 hasParent: false,
                 showIcon: true,
                 children: [
@@ -22,14 +22,14 @@
                         clickData: -1,
                     },
                     {
-                        icon: "fas fa-angle-double-right",
+                        icon: ["fas", "angle-double-right"],
                         action: createChild,
                         text: "Create child (Col)",
                         clickData: false,
                         hasParent: false,
                     },
                     {
-                        icon: "fas fa-angle-double-down",
+                        icon: ["fas", "angle-double-down"],
                         action: createChild,
                         text: "Create child (Row)",
                         clickData: true,
@@ -42,12 +42,12 @@
                     },
                     "divider",
                     {
-                        icon: "far fa-window-close",
+                        icon: ["far", "window-close"],
                         text: "Close Area",
                         action: close,
                     },
                     {
-                        icon: "fas fa-exchange-alt",
+                        icon: ["fas", "exchange-alt"],
                         text: "Toggle parent dir.",
                         action: toggleRowChildren,
                     },
@@ -60,12 +60,12 @@
                     },
                     "divider",
                     {
-                        icon: "far fa-window-minimize",
+                        icon: ["far", "window-minimize"],
                         hasParent: false,
                         text: "(Minimize)",
                     },
                     {
-                        icon: "far fa-window-restore",
+                        icon: ["far", "window-restore"],
                         action: restore,
                         text: "Restore",
                     },
@@ -193,22 +193,13 @@ import ViewSessionControls      from '@/panels/SessionControls.vue'
 import ViewSessionSettings      from '@/panels/SessionSettings.vue'
 import ViewSessionParticipants  from '@/panels/SessionParticipants.vue'
 
-import { library } from '@fortawesome/fontawesome-svg-core';
-import {
-  faCaretRight, faCaretDown, faTable, faImage, faFile, faCircle, faCode, faFolder, faFolderOpen, faTimes
-} from '@fortawesome/free-solid-svg-icons';
-import { faJs, } from '@fortawesome/free-brands-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-library.add(faJs, faCaretRight, faCaretDown, faTable, faImage, faFile, faCircle, faCode, faFolder, faFolderOpen, faTimes);
-
 import jt from '@/webcomps/jtree.js';
 
 export default {
   name: 'JtArea',
   components: {
-      JtSpacer,
-      MenuEl,
-      'font-awesome-icon': FontAwesomeIcon,
+    JtSpacer,
+    MenuEl,
     ViewApp,
     ViewApps,
     ViewWelcome,

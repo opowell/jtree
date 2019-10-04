@@ -1,5 +1,5 @@
 <template>
-  <tr>
+  <tr :style='queue.hasError ? "background-color: #ff000017" : ""'>
       <td 
         v-for='(field, index) in fields'
         :key='index'
@@ -23,7 +23,7 @@
               </template>
               <template v-else>
                 <button @click.stop='clickPlayButton' class="btn btn-outline-primary btn-sm">
-                    <i class="fa fa-play" title="start new session with this queue"></i>
+                    <font-awesome-icon :icon="['fa', 'play']" title="start new session with this queue"/>
                 </button>
               </template>
             </div>

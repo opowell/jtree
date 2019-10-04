@@ -17,7 +17,15 @@
     :title='menu.title'
   >
     <div v-show='menu.template != null' v-html="menu.template"></div>
-    <i v-show='menu.icon || showIcon' :class='"icon " + menu.icon'></i>
+    <!-- <i v-show='menu.icon || showIcon' :class='"icon fas fa-align-center"'></i> -->
+    <template v-if='menu.icon'>
+      <div class='icon'>
+        <font-awesome-icon :icon="menu.icon"/>
+        </div>
+    </template>
+    <template v-else-if='showIcon'>
+      <i class='icon'></i>
+    </template>
     <div v-show='menu.text' class='text text-first'>{{firstLetter}}</div>
     <div v-show='menu.text' class='text text-rest'>{{rest}}</div>
     <!-- <div v-show="hasParent" class="shortcut-spacer"/> -->
@@ -122,6 +130,7 @@ export default {
 
 .shortcut {
     padding: var(--menuTextPadding);
+    margin-left: 6px;
 }
 
 .disabled {
@@ -198,7 +207,7 @@ export default {
 .text-rest {
   flex: 1 1 auto;
   padding-left: 0px;
-  text-overflow: clip;
+  text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
 }

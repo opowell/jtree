@@ -2,10 +2,10 @@
   <div style='flex: 1 1 auto; align-self: stretch; overflow: auto;'>
       <span style='display: flex;' class='mb-2'>
         <a href='#' class='btn btn-sm btn-outline-secondary btn-sm' onclick='jt.showCreateAppModal()'>
-            <i class="fa fa-plus"></i>&nbsp;&nbsp;create...
+            <font-awesome-icon :icon="['fas', 'plus']"/>&nbsp;&nbsp;create...
         </a>
         <a id='reloadAppsBtn' href='#' class='btn btn-sm btn-outline-secondary btn-sm' onclick='jt.reloadApps();'>
-            <i class="fas fa-redo-alt"></i>&nbsp;&nbsp;reload
+            <font-awesome-icon :icon="['fas', 'redo-alt']"/>&nbsp;&nbsp;reload
         </a>
       </span>
 

@@ -5,7 +5,13 @@
     :class='{"focussed": isFocussed, "maxed": isMaximized, "active": isActive}'
     :style="style"
   >
-    <div class="body">
+    <div 
+		class="body"
+		@dragover='dragOver'
+        @dragenter="dragEnterBody($event)"
+        @dragleave="dragLeaveTab"
+        @drop='dropOnTab($event)'
+	>
       <jt-area 
 		:areaProp="area"
 		:window="window"
@@ -146,9 +152,46 @@ export default {
 		}
 	},
 	methods: {
-		closejt() {
-			this.$store.commit('removePanel', this);
+        dragEnterBody(ev) {
+			if (ev.target !== this.$el.children[0]) {
+				return;
+			}
+            // let targetData = {
+            //     windowId: this.window.id,
+            //     areaPath: this.areaPath,
+            //     index,
+            // };
+            // let samePanel = this.sameWindow(this.$store.state.dragData, targetData);
+			let samePanel = false;
+			if (samePanel === false) {
+                let el = ev.target;
+                el.classList.add('highlight');
+            }
 		},
+        dragLeaveTab(ev) {
+            ev.target.classList.remove('highlight');
+		},
+		dragOver(ev) {
+            ev.preventDefault();
+		},
+        dropOnTab(ev) {
+            ev.preventDefault();
+            ev.target.classList.remove('highlight');
+            // let targetData = {
+            //     windowId: this.window.id,
+            //     areaPath: this.areaPath,
+            //     index,
+            // };
+			// let same = this.samePanel(this.$store.state.dragData, targetData);
+			let same = false;
+            if (same === false) {
+                this.$store.dispatch('dropOnWindow', {
+                    sourceWindowId: this.$store.state.dragData.windowId,
+                    sourceAreaPath: this.$store.state.dragData.areaPath,
+                    sourcePanelIndex: this.$store.state.dragData.index,
+                });
+            }
+        },
 		focus() {
 			this.click();
 		},
@@ -644,6 +687,10 @@ jt.coverUpParticipantViews = function(b) {
 	display: flex;
     padding: 10px;
 	max-width: 100vw;
+}
+
+.highlight {
+    background-color: #ff00004f;
 }
 
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <tr>
+  <tr :style='app.hasError ? "background-color: #ff000017" : ""'>
       <td v-for='(field, index) in fields' :key='index'>
           <template v-if='field == "id"'>
               <div>{{app.shortId}}</div>
@@ -16,13 +16,13 @@
             <div class="btn-group">
               <template v-if='app.hasError'>
                 <div style='color: red'>
-                  <i class="fas fa-exclamation-triangle"></i>&nbsp;&nbsp;Error<br>
-                  <small style='white-space: normal' class='text-muted'>line ${app.errorLine}, pos ${app.errorPosition}</small>
+                  <font-awesome-icon :icon="['fas', 'exclamation-triangle']"/><br>Error<br>
+                  <small style='white-space: normal' class='text-muted'>line {{app.errorLine}}, pos {{app.errorPosition}}</small>
                 </div>              
               </template>
               <template v-else>
                 <button @click.stop='clickPlayButton' class="btn btn-outline-secondary btn-sm">
-                    <i class="fa fa-play" title="start new session with this app"></i>
+                    <font-awesome-icon :icon="['fa', 'play']" title="start new session with this app"/>
                 </button>
               </template>
             </div>

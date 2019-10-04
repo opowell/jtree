@@ -655,7 +655,10 @@ addWindow(state, panel) {
 },
 closeAllWindows(state) {
   state.activeWindow = null;
-  state.windowDescs.splice(0, state.windowDescs.length);
+  let numWindows = state.windowDescs.length;
+  for (let i=0; i<numWindows; i++) {
+    state.windowDescs.splice(0, state.windowDescs.length);
+  }
 },
 changeSelectedIndex(state, {areaPath, windowId, change}) {
   let area = getArea(state, windowId, areaPath);
@@ -876,6 +879,27 @@ toggleRowChildren(state, {windowId, areaPath}) {
         areaPath: sourceAreaPath, 
         windowId: sourceWindowId
       });
+    },
+    dropOnWindow: ({commit, state}, {sourceWindowId, sourceAreaPath, sourcePanelIndex}) => {
+    
+      let area = getArea(state, sourceWindowId, sourceAreaPath);
+      let panel = area.panels[sourcePanelIndex];
+
+      commit('closePanel', {
+        panelIndex: sourcePanelIndex, 
+        areaPath: sourceAreaPath, 
+        windowId: sourceWindowId
+      });
+
+      let winData = {
+        panels: [
+            {
+              id: panel.id,
+              type: panel.type,
+            },
+        ],
+      };
+      commit('showWindow', winData);
     },
     // eslint-disable-next-line
     showSessionWindow: ({ commit, state}, data) => {

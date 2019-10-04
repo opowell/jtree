@@ -1,7 +1,7 @@
 <template>
     <div class='main-menu no-text-select' :style='mainMenuStyle'>
         <menu-el 
-            v-for='menu in menus'
+            v-for='menu in menuData'
             :key='menu.text'
             :menu='menu'
             :style='menuElStyle'
@@ -35,211 +35,14 @@ export default {
   data() {
       return {
           windowDescs: this.$store.state.windowDescs,
+          menuData: [],
       }
   },
   computed: {
-          menus() {
-let windowMenu = {
-    text: 'Window',
-    hasParent: false,
-    children: [
-        {
-            text: 'New',
-            children: [
-                {
-                    text: 'Design',
-                    action: this.showDesignWindow,
-                },
-                {
-                    text: 'Run',
-                    action: this.showRunWindow,
-                },
-            ],
-        },
-        'divider',
-    ],
-    showIcon: true,
-};
-              let out = 
-[
-    {
-        text: 'File',
-        hasParent: false,
-        children: [
-            {
-                text: 'Welcome',
-                action: this.showPanel,
-                clickData: 'ViewWelcome',
-            },
-            {
-                text: 'Apps',
-                action: this.showPanel,
-                clickData: 'ViewApps',
-            },
-            {
-                text: 'Queues',
-                action: this.showPanel,
-                clickData: 'ViewQueues',
-            },
-            {
-                text: 'Log',
-                action: this.showPanel,
-                clickData: 'ViewLog',
-            },
-            // {
-            //     text: 'Files',
-            //     action: this.showPanel,
-            //     clickData: 'files-panel',
-            // },
-            // {
-            //     text: this.$store.state.appName + 's',
-            //     shortcut: 'Ctrl+G',
-            //     action: this.showPanel,
-            //     clickData: 'games-panel',
-            // },
-            // {
-            //     text: 'Sessions',
-            //     action: this.showPanel,
-            //     clickData: 'sessions-panel',
-            // },
-            // {
-            //     text: 'Users',
-            // },
-            // {
-            //     text: 'Rooms',
-            // },
-            // 'divider',
-            {
-                text: 'Settings',
-                action: this.showPanel,
-                clickData: 'settings-panel',
-            },
-        ]
-    },
-    {
-        text: 'Edit',
-        hasParent: false,
-        children: [
-            {
-                text: 'Cut',
-            },
-            {
-                text: 'Copy',
-            },
-            {
-                text: 'Paste',
-            },
-            {
-                text: 'Find',
-            },
-        ]
-    },
-    {
-        text: this.$store.state.appName,
-        hasParent: false,
-    },
-    {
-        text: '?',
-        hasParent: false,
-    },
-    {
-        text: 'Session',
-        hasParent: false,
-        children: [
-            {
-                text: 'Start',
-                action: server.sessionStart,
-                clickData: 'session-info-panel',
-            },
-            'divider',
-            {
-                text: 'Info',
-                action: this.showPanel,
-                clickData: 'session-info-panel',
-            },
-            {
-                text: this.$store.state.appName + ' Tree',
-                action: this.showPanel,
-                clickData: 'game-tree-panel',
-            },
-            {
-                text: 'Actions',
-                action: this.showPanel,
-                clickData: 'session-actions-panel',
-            },
-            {
-                text: 'Participants',
-                action: this.showPanel,
-                clickData: 'session-participants-panel',
-            },
-            {
-                text: 'Monitor',
-                action: this.showPanel,
-                clickData: 'session-monitor-panel',
-            },
-            'divider',
-            {
-                text: 'Window',
-                action: this.showSessionWindow,
-            }
-        ],
-    },
-    {
-        text: 'Modals',
-        hasParent: false,
-        children: [
-            {
-                text: 'Welcome',
-                action: this.showWelcomeModal,
-            },
-        ],
-    },
-    windowMenu,
-];
-    let numWindows = this.$store.state.windows.length;
-        for (let i=0; i<numWindows; i++) {
-            const panel = this.$store.state.windows[i];
-            const menuData = {
-                text: this.getWindowTitle(panel.area),
-                panel: panel,
-                action: panel.focus,
-                icon: panel.isFocussed ? 'fas fa-check' : '',
-                shortcut: 'Ctrl+' + (i+1),
-            };
-            windowMenu.children.push(menuData);
-            window.vue.$watch(
-                function() {
-                    return panel.isFocussed; 
-                },
-                function(newval) {
-                    menuData.icon = newval ? 'fas fa-check' : '';
-                }
-            );
-        }
-        windowMenu.children.push('divider');
-        windowMenu.children.push(
-            {
-                text: 'Close All',
-                action: this.closeAll,
-            }
-        );
-        windowMenu.children.push(
-            {
-                text: 'Split horizontally',
-                action: this.splitMultiPanel,
-                clickData: 'horizontal',
-            }
-        );
-        windowMenu.children.push(
-            {
-                text: 'Split vertically',
-                action: this.splitMultiPanel,
-                clickData: 'vertical',
-            }
-        );
-        return out;
-
-          },
+    // menus() {
+    //   let out = this.recalcMenu();
+    //   return out;
+    // },
       mainMenuStyle() { return {
         //   'background-color': this.$store.state.menuBGColor,
         //   'color': this.$store.state.menuColor,
@@ -251,60 +54,245 @@ let windowMenu = {
           padding: this.$store.state.mainMenuPadding,
       }},
   },
-  watch: {
-    //   windowDescs: {
-    //     handler: function(newval) {
-    //         // Update Window menu.
-    //         this.menus[4].children.splice(0, this.menus[4].children.length);
-    //         this.setWindowMenuChildren(newval);
-    //     },
-    //     deep: true,
-    //   }
-  },
-  methods: {
-      getWindowTitle(win) {
-          let out = '';
-          if (win.panels != null) {
-            for (let i in win.panels) {
-                out = out + (out == '' ? '' : ', ') + win.panels[i].id;
+    created() {
+        this.$store.watch(
+            (state) => state.windowDescs,
+            (newValue, oldValue) => {
+                console.log(`Updating from ${oldValue} to ${newValue}`);
+                this.recalcMenu();
+            },
+        );
+    },
+    watch: {
+        windowDescs: {
+            handler: function() {
+                this.recalcMenu();
+                // handler: function(newval) {
+                // Update Window menu.
+                // this.menus[4].children.splice(0, this.menus[4].children.length);
+                // this.setWindowMenuChildren(newval);
+                // this.menus();
+            },
+            deep: true,
+        }
+    },
+    methods: {
+        recalcMenu() {
+            let windowMenu = {
+                text: 'Window',
+                hasParent: false,
+                children: [
+                    {
+                        text: 'New',
+                        children: [
+                            {
+                                text: 'Design',
+                                action: this.showDesignWindow,
+                            },
+                            {
+                                text: 'Run',
+                                action: this.showRunWindow,
+                            },
+                        ],
+                    },
+                    'divider',
+                ],
+                showIcon: true,
+            };
+            let out = [
+                {
+                    text: 'File',
+                    hasParent: false,
+                    children: [
+                        {
+                            text: 'Welcome',
+                            action: this.showPanel,
+                            clickData: 'ViewWelcome',
+                        },
+                        {
+                            text: 'Apps',
+                            action: this.showPanel,
+                            clickData: 'ViewApps',
+                        },
+                        {
+                            text: 'Queues',
+                            action: this.showPanel,
+                            clickData: 'ViewQueues',
+                        },
+                        {
+                            text: 'Log',
+                            action: this.showPanel,
+                            clickData: 'ViewLog',
+                        },
+                        // {
+                        //     text: 'Files',
+                        //     action: this.showPanel,
+                        //     clickData: 'files-panel',
+                        // },
+                        // {
+                        //     text: this.$store.state.appName + 's',
+                        //     shortcut: 'Ctrl+G',
+                        //     action: this.showPanel,
+                        //     clickData: 'games-panel',
+                        // },
+                        // {
+                        //     text: 'Sessions',
+                        //     action: this.showPanel,
+                        //     clickData: 'sessions-panel',
+                        // },
+                        // {
+                        //     text: 'Users',
+                        // },
+                        // {
+                        //     text: 'Rooms',
+                        // },
+                        // 'divider',
+                        {
+                            text: 'Settings',
+                            action: this.showPanel,
+                            clickData: 'settings-panel',
+                        },
+                    ]
+                },
+                {
+                    text: this.$store.state.appName,
+                    hasParent: false,
+                },
+                {
+                    text: '?',
+                    hasParent: false,
+                },
+                {
+                    text: 'Session',
+                    hasParent: false,
+                    children: [
+                        {
+                            text: 'Start',
+                            action: server.sessionStart,
+                            clickData: 'session-info-panel',
+                        },
+                        'divider',
+                        {
+                            text: 'Info',
+                            action: this.showPanel,
+                            clickData: 'session-info-panel',
+                        },
+                        {
+                            text: this.$store.state.appName + ' Tree',
+                            action: this.showPanel,
+                            clickData: 'game-tree-panel',
+                        },
+                        {
+                            text: 'Actions',
+                            action: this.showPanel,
+                            clickData: 'session-actions-panel',
+                        },
+                        {
+                            text: 'Participants',
+                            action: this.showPanel,
+                            clickData: 'session-participants-panel',
+                        },
+                        {
+                            text: 'Monitor',
+                            action: this.showPanel,
+                            clickData: 'session-monitor-panel',
+                        },
+                        'divider',
+                        {
+                            text: 'Window',
+                            action: this.showSessionWindow,
+                        }
+                    ],
+                },
+                windowMenu,
+            ];
+            let numWindows = this.$store.state.windowDescs.length;
+            for (let i=0; i<numWindows; i++) {
+                const panel = this.$store.state.windows[i];
+                const menuData = {
+                    text: this.getWindowTitle(panel.area),
+                    panel: panel,
+                    action: panel.focus,
+                    icon: panel.isFocussed ? ['fas', 'check'] : null,
+                    shortcut: 'Ctrl+' + (i+1),
+                };
+                windowMenu.children.push(menuData);
+                window.vue.$watch(
+                    function() {
+                        return panel.isFocussed; 
+                    },
+                    function(newval) {
+                        menuData.icon = newval ? ['fas', 'check'] : null;
+                    }
+                );
             }
-          }
-          if (win.areas != null) {
-            for (let i in win.areas) {
-                out = out + (out == '' ? '' : ', ') + this.getWindowTitle(win.areas[i]);
+            windowMenu.children.push('divider');
+            windowMenu.children.push(
+                {
+                    text: 'Close All',
+                    action: this.closeAll,
+                }
+            );
+            windowMenu.children.push(
+                {
+                    text: 'Split horizontally',
+                    action: this.splitMultiPanel,
+                    clickData: 'horizontal',
+                }
+            );
+            windowMenu.children.push(
+                {
+                    text: 'Split vertically',
+                    action: this.splitMultiPanel,
+                    clickData: 'vertical',
+                }
+            );
+            this.menuData = out;
+                console.log('Num windows: ' + this.menuData[4].children.length - 6);
+        },
+        getWindowTitle(win) {
+            let out = '';
+            if (win.panels != null) {
+                for (let i in win.panels) {
+                    out = out + (out == '' ? '' : ', ') + win.panels[i].id;
+                }
             }
-          }
-          return out;
-      },
-      restore() {
-          
-      },
-      close() {
+            if (win.areas != null) {
+                for (let i in win.areas) {
+                    out = out + (out == '' ? '' : ', ') + this.getWindowTitle(win.areas[i]);
+                }
+            }
+            return out;
+        },
+        restore() {
+            
+        },
+        close() {
 
-      },
+        },
 
-      closeAll() {
-          this.$store.commit('closeAllWindows');
-      },
-    // setWindowMenuChildren(newval) {
-    // },
-    showPanel(type) {
-        this.$store.dispatch('showPanel', {type: type});
-    },
+        closeAll() {
+            this.$store.commit('closeAllWindows');
+        },
+        // setWindowMenuChildren(newval) {
+        // },
+        showPanel(type) {
+            this.$store.dispatch('showPanel', {type: type});
+        },
 
-    showSessionWindow() {
-        this.$store.dispatch('showSessionWindow');
+        showSessionWindow() {
+            this.$store.dispatch('showSessionWindow');
+        },
+        showWelcomeModal() {
+            this.$bvModal.show('welcomeModal');
+        },
+        showDesignWindow() {
+            this.$store.dispatch('showPanel', {type: 'game-tree-panel'});
+        },
+        showRunWindow() {
+            this.$store.dispatch('showPanel', {type: 'session-actions-panel'});
+        }
     },
-    showWelcomeModal() {
-        this.$bvModal.show('welcomeModal');
-    },
-    showDesignWindow() {
-        this.$store.dispatch('showPanel', {type: 'game-tree-panel'});
-    },
-    showRunWindow() {
-        this.$store.dispatch('showPanel', {type: 'session-actions-panel'});
-    }
-  },
 //   mounted() {
 //     let that = this;
 //     this.$root.$nextTick(function() {
