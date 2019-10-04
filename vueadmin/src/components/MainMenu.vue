@@ -159,10 +159,6 @@ export default {
                     hasParent: false,
                 },
                 {
-                    text: '?',
-                    hasParent: false,
-                },
-                {
                     text: 'Session',
                     hasParent: false,
                     children: [

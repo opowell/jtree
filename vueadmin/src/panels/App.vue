@@ -1,19 +1,19 @@
 <template>
     <div>
-        <div class="view-buttons btn-group">
-            <button class="btn btn-outline-secondary btn-sm" onclick='jt.startSessionWithApp()'>
-                <i class="fa fa-play"></i>&nbsp;&nbsp;Start session
-            </button>
-            <button class="btn btn-outline-secondary btn-sm" onclick='jt.appEdit()'>
-                <i class="fa fa-edit"></i>&nbsp;&nbsp;Edit...
-            </button>
-            <button class="btn btn-outline-secondary btn-sm" onclick='jt.appRename()'>
+        <b-button-group class="view-buttons">
+            <b-button variant="outline-secondary" size="sm" onclick='jt.startSessionWithApp()'>
+                <font-awesome-icon :icon="['fas', 'play']"/>&nbsp;&nbsp;Start session
+            </b-button>
+            <b-button variant="outline-secondary" size="sm" onclick='jt.appEdit()'>
+                <font-awesome-icon :icon="['fas', 'edit']"/>&nbsp;&nbsp;Edit...
+            </b-button>
+            <b-button variant="outline-secondary" size="sm" onclick='jt.appRename()'>
                 &nbsp;&nbsp;Rename / Move...
-            </button>
-            <button class="btn btn-outline-secondary btn-sm" onclick='jt.deleteApp()'>
-                <i class="fa fa-trash"></i>&nbsp;&nbsp;Delete...
-            </button>
-        </div>
+            </b-button>
+            <b-button variant="outline-secondary" size="sm" onclick='jt.deleteApp()'>
+                <font-awesome-icon :icon="['fas', 'trash']"/>&nbsp;&nbsp;Delete...
+            </b-button>
+        </b-button-group>
 
         <div id='view-app-edit' class='subview app-tab hidden'>
             <div class="btn-group">

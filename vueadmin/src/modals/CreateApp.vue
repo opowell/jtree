@@ -1,22 +1,15 @@
 <template>
-      <div class="modal" id="createAppModal" tabindex="-1" role="dialog">
-          <div class="modal-dialog" role="document" style='max-width: 400px;'>
-              <div class="modal-content">
-                  <div class="modal-header">
-                      <h5 class="modal-title">Create App</h5>
-                      <button type="button" class="close" data-dismiss="modal">
-                          <span>&times;</span>
-                      </button>
-                  </div>
-                  <div class="modal-body">
-                      Enter filename for new app: <br><br><input type="text" class="form-control" placeholder="Filename" id='create-app-input' name='feaojfweaofijw' onkeyup="jt.createAppKeyUp(event)" style='flex: 0 0 150px'>
-                  </div>
-                  <div class="modal-footer">
-                      <button type="button" class="btn btn-sm btn-outline-primary" onclick='jt.createApp();'>Create</button>
-                  </div>
-              </div>
-          </div>
-      </div>
+    <b-modal 
+        id="createAppModal"
+        style='max-width: 400px;'
+        title='Create App'
+    >
+        Enter filename for new app: <br><br><input type="text" class="form-control" placeholder="Filename" id='create-app-input' name='feaojfweaofijw' onkeyup="jt.createAppKeyUp(event)" style='flex: 0 0 150px'>
+        <template v-slot:modal-footer="{ hide }">
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick='jt.createApp();'>Create</button>
+        </template>
+
+      </b-modal>
 </template>
 
 <script>
@@ -54,7 +47,7 @@ jt.createApp = function() {
         }
     
         server.createApp(id, cb);
-        $("#createAppModal").modal("hide");
+        window.vue.$bvModal.hide("createAppModal");
         $('#create-app-input').val('');
     }
 }

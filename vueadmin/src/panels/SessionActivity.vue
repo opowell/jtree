@@ -1,25 +1,25 @@
 <template>
     <div style='display: block'>
-        <div class='mb-1 btn-group flex-wrap'>
-            <span class="btn btn-outline-secondary btn-sm" onclick='jt.viewAllParticipants()'>
-                <i class="fa fa-eye"></i>&nbsp;&nbsp;show all
-            </span>
-            <span class="btn btn-outline-secondary btn-sm" onclick='jt.hideAllParticipants()'>
-                <i class="fa fa-times"></i>&nbsp;&nbsp;close all
-            </span>
-            <span class='btn btn-outline-secondary btn-sm' id='startAutoplay' onclick='server.setAutoplayForAll(true);'>
+        <b-button-group class='mb-1 flex-wrap'>
+            <b-button variant="outline-secondary" size="sm" onclick='jt.viewAllParticipants()'>
+                <font-awesome-icon :icon="['fas', 'eye']"/>&nbsp;&nbsp;Show all
+            </b-button>
+            <b-button variant="outline-secondary" size="sm" onclick='jt.hideAllParticipants()'>
+                <font-awesome-icon :icon="['fas', 'times']"/>&nbsp;&nbsp;Close all
+            </b-button>
+            <b-button variant="outline-secondary" size="sm" id='startAutoplay' onclick='server.setAutoplayForAll(true);'>
                 <span class='px-1' style='border: 1px solid; border-radius: 0.3rem;'>A</span>&nbsp;&nbsp;start autoplay
-            </span>
-            <span class='btn btn-outline-secondary btn-sm' id='stopAutoplay' onclick='server.setAutoplayForAll(false);'>
+            </b-button>
+            <b-button variant="outline-secondary" size="sm" id='stopAutoplay' onclick='server.setAutoplayForAll(false);'>
                 <span>A</span>&nbsp;&nbsp;stop autoplay
-            </span>
-            <span class="btn btn-outline-secondary btn-sm" onclick='jt.showSetAutoplayFreqModal()'>
-                <i class="fa fa-stopwatch"></i>&nbsp;&nbsp;set autoplay delay...
-            </span>
-            <span class="btn btn-outline-secondary btn-sm" onclick='jt.setViewSize()'>
-                <i class="fa fa-expand"></i>&nbsp;&nbsp;set size...
-            </span>
-        </div>
+            </b-button>
+            <b-button variant="outline-secondary" size="sm" onclick='jt.showSetAutoplayFreqModal()'>
+                <font-awesome-icon :icon="['fas', 'stopwatch']"/>&nbsp;&nbsp;Set autoplay delay...
+            </b-button>
+            <b-button variant="outline-secondary" size="sm" onclick='jt.setViewSize()'>
+                <font-awesome-icon :icon="['fas', 'expand']"/>&nbsp;&nbsp;Set size...
+            </b-button>
+        </b-button-group>
         <div id='views'>
                 <div 
                     class="card panel ui-widget-content participant-view" 
@@ -30,14 +30,14 @@
                     <div class="card-header" style="background-color: rgb(207, 232, 207);">
                         <span>Participant {{player.id}}</span>
                         <button type="button" class="headerBtn close float-right">
-                            <i title="close" class="fa fa-times"/>
+                            <font-awesome-icon title='close' :icon="['fas', 'times']"/>
                         </button>
                         <button type="button" class="headerBtn close float-right">
-                            <i title="open in new window" class="fa fa-external-link-alt"/>
+                            <font-awesome-icon title="open in new window" :icon="['fas', 'external-link-alt']"/>
                         </button>
                         <button title="toggle autoplay" :id="player.id + '-autoplay'" type="button" class="headerBtn close float-right">A</button>
                         <button type="button" class="headerBtn close float-right">
-                            <i title="refresh" class="fa fa-redo-alt"/>
+                            <font-awesome-icon title="refresh" :icon="['fas', 'redo-alt']"/>
                         </button>
                     </div>
                     <iframe :id="'participant-frame-' + player.id" :src="'http://' + settings.server.ip + ':' + settings.server.port + '/session/' + session.id + '/' + player.id" class="participant-frame panel-content2"></iframe>

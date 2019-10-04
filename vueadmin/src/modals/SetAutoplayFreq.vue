@@ -1,5 +1,5 @@
 <template>
-      <div class="modal" id="setAutoplayFreqModal" tabindex="-1" role="dialog">
+      <b-modal id="setAutoplayFreqModal" tabindex="-1" role="dialog">
           <div class="modal-dialog" role="document" style='max-width: 400px;'>
               <div class="modal-content">
                   <div class="modal-header">
@@ -21,7 +21,7 @@
                   </div>
               </div>
           </div>
-      </div>
+      </b-modal>
 </template>
 
 <script>

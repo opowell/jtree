@@ -4,7 +4,31 @@ import App from './App.vue'
 import store from './store'
 store.commit('closeAllWindows', {});
 
-import BootstrapVue from 'bootstrap-vue'
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
+import { 
+  BButton,
+  BButtonGroup,
+  BTable, 
+  BRow, 
+  BCol, 
+  BFormSelect, 
+  BFormCheckbox, 
+  BFormInput,
+  BModal,
+  ModalPlugin,
+} from 'bootstrap-vue'
+Vue.component('b-button', BButton)
+Vue.component('b-button-group', BButtonGroup)
+Vue.component('b-table', BTable)
+Vue.component('b-row', BRow)
+Vue.component('b-col', BCol)
+Vue.component('b-form-select', BFormSelect)
+Vue.component('b-form-checkbox', BFormCheckbox)
+Vue.component('b-form-input', BFormInput)
+Vue.component('b-modal', BModal)
+
+Vue.use(ModalPlugin)
 
 import jt from '@/webcomps/jtree.js'
 import '@/webcomps/utilities.js'
@@ -24,6 +48,10 @@ import {faCheck}                from '@fortawesome/free-solid-svg-icons/faCheck'
 import {faChevronRight}         from '@fortawesome/free-solid-svg-icons/faChevronRight'
 import {faCircle}               from '@fortawesome/free-solid-svg-icons/faCircle'
 import {faCode}                 from '@fortawesome/free-solid-svg-icons/faCode'
+import {faEdit}                 from '@fortawesome/free-solid-svg-icons/faEdit'
+import {faExpand}               from '@fortawesome/free-solid-svg-icons/faExpand'
+import {faExternalLinkAlt}      from '@fortawesome/free-solid-svg-icons/faExternalLinkAlt'
+import {faEye}                  from '@fortawesome/free-solid-svg-icons/faEye'
 import {faExchangeAlt}          from '@fortawesome/free-solid-svg-icons/faExchangeAlt'
 import {faExclamationTriangle}  from '@fortawesome/free-solid-svg-icons/faExclamationTriangle'
 import {faFile}                 from '@fortawesome/free-solid-svg-icons/faFile'
@@ -34,8 +62,10 @@ import {faPlay}                 from '@fortawesome/free-solid-svg-icons/faPlay'
 import {faPlus}                 from '@fortawesome/free-solid-svg-icons/faPlus'
 import {faRedoAlt}              from '@fortawesome/free-solid-svg-icons/faRedoAlt'
 import {faSave}                 from '@fortawesome/free-solid-svg-icons/faSave'
+import {faStopwatch}            from '@fortawesome/free-solid-svg-icons/faStopwatch'
 import {faTable}                from '@fortawesome/free-solid-svg-icons/faTable'
 import {faTimes}                from '@fortawesome/free-solid-svg-icons/faTimes'
+import {faTrash}                from '@fortawesome/free-solid-svg-icons/faTrash'
 import {faUndoAlt}              from '@fortawesome/free-solid-svg-icons/faUndoAlt'
 
 import {faWindowClose}          from '@fortawesome/free-regular-svg-icons/faWindowClose'
@@ -52,6 +82,10 @@ library.add(
   faCheck,
   faCircle,
   faCode,
+  faEdit,
+  faExpand,
+  faExternalLinkAlt,
+  faEye,
   faExchangeAlt,
   faExclamationTriangle,
   faFile,
@@ -62,8 +96,10 @@ library.add(
   faPlus,
   faRedoAlt,
   faSave,
+  faStopwatch,
   faTable,
   faTimes,
+  faTrash,
   faUndoAlt,
 
   faWindowClose,
@@ -77,7 +113,6 @@ Vue.component('font-awesome-icon', FontAwesomeIcon)
 window.jt = jt;
 
 Vue.config.productionTip = false
-Vue.use(BootstrapVue);
 
 window.vue = new Vue({
   store,

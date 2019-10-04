@@ -82,9 +82,9 @@ jt.reloadQueues = function() {
     jt.socket.emit("reloadApps", null, cb);
 }
 
-jt.showCreateAppModal = function() {
-    $("#createAppModal").modal("show");
-    $('#create-app-input').focus();
+jt.showCreateQueueModal = function() {
+    window.vue.$bvModal.show("createQueueModal");
+    $('#create-queue-input').focus();
 }
 
 jt.deleteQueueConfirm = function(id) {

@@ -1,12 +1,12 @@
 <template>
   <div style='flex: 1 1 auto; align-self: stretch; overflow: auto;'>
       <span style='display: flex;' class='mb-2'>
-        <a href='#' class='btn btn-sm btn-outline-secondary btn-sm' onclick='jt.showCreateAppModal()'>
+        <b-button variant="outline-secondary" size="sm" onclick='jt.showCreateAppModal()'>
             <font-awesome-icon :icon="['fas', 'plus']"/>&nbsp;&nbsp;create...
-        </a>
-        <a id='reloadAppsBtn' href='#' class='btn btn-sm btn-outline-secondary btn-sm' onclick='jt.reloadApps();'>
+        </b-button>
+        <b-button variant="outline-secondary" size="sm" id='reloadAppsBtn' onclick='jt.reloadApps();'>
             <font-awesome-icon :icon="['fas', 'redo-alt']"/>&nbsp;&nbsp;reload
-        </a>
+        </b-button>
       </span>
 
       <table class='table table-hover' style='width: 100% !important;'>
@@ -83,7 +83,7 @@ jt.reloadApps = function() {
 }
 
 jt.showCreateAppModal = function() {
-    $("#createAppModal").modal("show");
+    window.vue.$bvModal.show("createAppModal");
     $('#create-app-input').focus();
 }
 
