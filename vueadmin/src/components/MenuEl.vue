@@ -10,9 +10,8 @@
     @dblclick="callDblclickFunc"
     :class='{
        active: menu.isActive !== false,
-       disabled: menu.isEnabled === false,
+       disabled: isDisabled,
        open: isOpen,
-       disabled: enabled != true,
     }'
     :title='menu.title'
   >
@@ -47,6 +46,9 @@ export default {
       'enabled': {
         default: true,
       },
+      'disabled': {
+        default: false,
+      }
   },
   computed: {
     hasParent() {
@@ -60,6 +62,17 @@ export default {
     },
     isActive() {
       return this.$store.state.activeMenu === this;
+    },
+    isDisabled() {
+      if (this.menu.disabled == null) {
+        return false;
+      }
+      let x = eval(this.menu.disabled);
+      if (x === true) {
+        return true;
+      } else {
+        return false;
+      }
     },
     isOpen() {
       return this.$store.state.isMenuOpen && this.isActive;
@@ -84,6 +97,9 @@ export default {
       }
     },
     click: function(ev) {
+      if (this.isDisabled) {
+        return;
+      }
       if (this.menu.action != null) {
         this.menu.action(this.menu.clickData, ev);
         this.$store.state.isMenuOpen = false;
@@ -93,10 +109,10 @@ export default {
       }
     },
     hover: function() {
+      if (this.isDisabled) {
+        return;
+      }
       this.$store.state.activeMenu = this;
-      // if (this.hasChildren) {
-        
-      // }
     }
   }
 }
@@ -131,10 +147,6 @@ export default {
 .shortcut {
     padding: var(--menuTextPadding);
     margin-left: 6px;
-}
-
-.disabled {
-  color: 'red';
 }
 
 .arrow {
@@ -245,7 +257,12 @@ export default {
 }
 
 .disabled {
-  color: #888;
+    color: rgba(99, 108, 114, 0.5) !important;
+    cursor: default !important;
+}
+
+.dropdown .disabled:hover {
+    background-color: inherit;
 }
 
 </style>

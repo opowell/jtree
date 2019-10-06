@@ -38,6 +38,7 @@
 <script>
 import server from '@/webcomps/msgsToServer.js'
 import Utils from '@/webcomps/utilsFns.js'
+import jt from '@/webcomps/jtree.js'
 
 export default {
   name: 'QueueRow',
@@ -48,6 +49,8 @@ export default {
   methods: {
     clickPlayButton() {
       server.startSessionFromQueue(this.queue.id);
+      window.vue.$bvModal.hide('openQueueModal');
+      jt.addLog('Opening Queue ' + this.queue.id + '.');
     },
     appText(app) {
       var text = app.appId;

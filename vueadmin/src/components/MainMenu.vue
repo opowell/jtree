@@ -27,6 +27,8 @@
 
 import MenuEl from './MenuEl'
 import server from '@/webcomps/msgsToServer.js'
+import jt from '@/webcomps/jtree.js'
+
 export default {
   name: 'MainMenu',
   components: {
@@ -67,11 +69,6 @@ export default {
         windowDescs: {
             handler: function() {
                 this.recalcMenu();
-                // handler: function(newval) {
-                // Update Window menu.
-                // this.menus[4].children.splice(0, this.menus[4].children.length);
-                // this.setWindowMenuChildren(newval);
-                // this.menus();
             },
             deep: true,
         }
@@ -82,20 +79,20 @@ export default {
                 text: 'Window',
                 hasParent: false,
                 children: [
-                    {
-                        text: 'New',
-                        children: [
-                            {
-                                text: 'Design',
-                                action: this.showDesignWindow,
-                            },
-                            {
-                                text: 'Run',
-                                action: this.showRunWindow,
-                            },
-                        ],
-                    },
-                    'divider',
+                    // {
+                    //     text: 'New',
+                    //     children: [
+                    //         {
+                    //             text: 'Design',
+                    //             action: this.showDesignWindow,
+                    //         },
+                    //         {
+                    //             text: 'Run',
+                    //             action: this.showRunWindow,
+                    //         },
+                    //     ],
+                    // },
+                    // 'divider',
                 ],
                 showIcon: true,
             };
@@ -157,46 +154,111 @@ export default {
                 {
                     text: this.$store.state.appName,
                     hasParent: false,
+                    children: [
+                        {
+                            text: 'New...',
+                            action: jt.showCreateAppModal,
+                        },
+                        {
+                            text: 'Open...',
+                            action: jt.showOpenAppModal,
+                        },
+                        {
+                            text: 'Manage',
+                            action: this.showPanel,
+                            clickData: 'ViewApps',
+                        },
+                    ]
+                },
+                {
+                    text: 'Queue',
+                    hasParent: false,
+                    children: [
+                        {
+                            text: 'New...',
+                            action: jt.showCreateQueueModal,
+                        },
+                        {
+                            text: 'Open...',
+                            action: jt.showOpenQueueModal,
+                        },
+                        {
+                            text: 'Manage',
+                            action: this.showPanel,
+                            clickData: 'ViewQueues',
+                        },
+                    ]
                 },
                 {
                     text: 'Session',
                     hasParent: false,
                     children: [
                         {
-                            text: 'Start',
-                            action: server.sessionStart,
-                            clickData: 'session-info-panel',
+                            text: 'New...',
+                            action: jt.showCreateAppModal,
                         },
                         'divider',
                         {
-                            text: 'Info',
-                            action: this.showPanel,
-                            clickData: 'session-info-panel',
+                            text: 'Start',
+                            action: server.sessionStart,
+                            disabled: 'this.$store.state.session == null'
                         },
                         {
-                            text: this.$store.state.appName + ' Tree',
-                            action: this.showPanel,
-                            clickData: 'game-tree-panel',
+                            text: 'Advance slowest',
+                            action: server.sessionAdvanceSlowest,
+                            disabled: 'this.$store.state.session == null',
                         },
                         {
-                            text: 'Actions',
+                            text: 'Reset',
+                            action: server.resetSession,
+                            disabled: 'this.$store.state.session == null',
+                        },
+                        {
+                            text: 'Download output',
+                            action: jt.downloadOutput,
+                            disabled: 'this.$store.state.session == null',
+                        },
+                        {
+                            text: 'Delete...',
+                            action: jt.deleteSessionPrompt,
+                            disabled: 'this.$store.state.session == null',
+                        },
+                        'divider',
+                        {
+                            text: 'Controls',
                             action: this.showPanel,
-                            clickData: 'session-actions-panel',
+                            clickData: 'ViewSessionControls',
+                            disabled: 'this.$store.state.session == null',
+                        },
+                        {
+                            text: this.$store.state.appName + 's',
+                            action: this.showPanel,
+                            clickData: 'ViewSessionApps',
+                            disabled: 'this.$store.state.session == null',
+                        },
+                        {
+                            text: 'Activity',
+                            action: this.showPanel,
+                            clickData: 'ViewSessionActivity',
+                            disabled: 'this.$store.state.session == null',
                         },
                         {
                             text: 'Participants',
                             action: this.showPanel,
-                            clickData: 'session-participants-panel',
+                            clickData: 'ViewSessionParticipants',
+                            disabled: 'this.$store.state.session == null',
                         },
                         {
-                            text: 'Monitor',
+                            text: 'Settings',
                             action: this.showPanel,
-                            clickData: 'session-monitor-panel',
+                            clickData: 'ViewSessionSettings',
+                            disabled: 'this.$store.state.session == null',
                         },
                         'divider',
                         {
                             text: 'Window',
                             action: this.showSessionWindow,
+                            disabled: 'this.$store.state.session == null',
                         }
                     ],
                 },
@@ -222,7 +284,9 @@ export default {
                     }
                 );
             }
-            windowMenu.children.push('divider');
+            if (numWindows > 0) {
+                windowMenu.children.push('divider');
+            }
             windowMenu.children.push(
                 {
                     text: 'Close All',
@@ -244,7 +308,6 @@ export default {
                 }
             );
             this.menuData = out;
-                console.log('Num windows: ' + this.menuData[4].children.length - 6);
         },
         getWindowTitle(win) {
             let out = '';
@@ -277,10 +340,7 @@ export default {
         },
 
         showSessionWindow() {
-            this.$store.dispatch('showSessionWindow');
-        },
-        showWelcomeModal() {
-            this.$bvModal.show('welcomeModal');
+            this.$store.dispatch('showSessionWindow2');
         },
         showDesignWindow() {
             this.$store.dispatch('showPanel', {type: 'game-tree-panel'});
@@ -303,7 +363,7 @@ export default {
 
 .main-menu {
    display: flex;
-    z-index: 10000;
+    z-index: 1039; /* z-index of modal backdrops is 1040 */
     flex: 0 0 auto;
     background-color: var(--menuBGColor);
     color: var(--menuColor);
@@ -324,6 +384,11 @@ export default {
 .main-menu .menu:hover {
     background-color:var(--menuHoverBGColor);
     border-color:var(--menuHoverBorderColor);
+}
+
+.main-menu .disabled:hover {
+    background-color: inherit;
+    border-color: transparent;
 }
 
 .spacer {

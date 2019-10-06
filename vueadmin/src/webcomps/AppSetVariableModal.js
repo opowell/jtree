@@ -33,9 +33,10 @@ class AppSetVariableModal extends HTMLElement {
 import jt from '@/webcomps/jtree.js'
 import 'jquery'
 let $ = window.jQuery
+import store from '@/store.js'
 
 jt.appSetVariable = function() {
-  var appId = $('#view-app-fullId').text();
+  var appId = store.state.app.id;
   var app = jt.app(appId);
 
   let replaced = false;
@@ -62,8 +63,7 @@ jt.appSetVariable = function() {
       replaced = true;
   }
 
-  let fn = $('.filename.file-selected').text();
-  jt.appSaveFileContents(fn, app.appjs);
+  jt.appSaveFileContents(appId, app.appjs);
   $('#appSetVariableModal').modal('hide');
 }
 

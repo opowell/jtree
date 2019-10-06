@@ -358,6 +358,7 @@ let stateObj = {
   log: [],
   panels: defaultPanels,
   shownPanel: 0,
+  appPreview: [],
 
   app: null,
   session: null,
@@ -560,10 +561,11 @@ function closeAreaMethod(state, areaPath, windowId) {
     if (state.activeWindow.window.id === windowId) {
       if (state.windows.length === 1) {
         state.activeWindow = null;
-        return;
+      } else {
+        state.activeWindow = state.windows[state.windows.length - 2];
       }
-      state.activeWindow = state.windows[state.windows.length - 2];
     }
+    state.windows.splice(winIndex, 1);
   }
 
 }
@@ -572,6 +574,8 @@ function closeAreaMethod(state, areaPath, windowId) {
 // *********************************
 
 
+import 'jquery'
+let $ = window.jQuery
 
 
 export default new Vuex.Store({
@@ -802,6 +806,7 @@ showWindow(state, windowInfo) {
   state.nextWindowY += state.nextWindowYIncrement;
   state.nextWindowId++;
   state.windowDescs.push(windowInfo);
+  $('.modal').modal('hide');
 },
 toggleWindowsMaximized(state) {
   state.windowsMaximized = !state.windowsMaximized;
@@ -842,9 +847,6 @@ toggleRowChildren(state, {windowId, areaPath}) {
           storeFields('', part, outKeys, state);
       }
     },
-    setQueues (state, queues) {
-      state.queues = queues;
-    },
     setSession (state, session) {
       state.session = session;
       this.commit('calcFields');
@@ -854,7 +856,15 @@ toggleRowChildren(state, {windowId, areaPath}) {
     },
     // eslint-disable-next-line no-unused-vars
     setValue (state, {path, value}) {
-      eval("state." + path + " = value;");
+      if (Array.isArray(value)) {
+        eval("state." + path + '.splice(0, state.' + path + '.length);');
+        for (let i=0; i<value.length; i++) {
+          eval("state." + path + '.push(value[' + i + ']);');
+        }
+        return;
+      } else {
+        eval("state." + path + " = value;");
+      }
     }
   },
   actions: {
@@ -900,6 +910,53 @@ toggleRowChildren(state, {windowId, areaPath}) {
         ],
       };
       commit('showWindow', winData);
+    },
+    showSessionWindow2: ({ commit }) => {
+      let windowData = {
+        areas: [
+          { 
+            rowChildren: true,
+            areas: [
+                {
+                    flex: "0 1 auto",
+                    panels: [
+                        {
+                            id: "Controls", 
+                            type: "ViewSessionControls",
+                        },
+                    ],
+                },
+                {
+                    panels: [
+                        {
+                            id: "Session Settings", 
+                            type: "ViewSessionSettings",
+                        },
+                        {
+                            id: "Apps", 
+                            type: "ViewSessionApps",
+                        },
+                    ],
+                },
+            ]
+          }, 
+          { 
+            panels: [
+                { 
+                    id: "Activity",
+                    type: "ViewSessionActivity",
+                  }, 
+                { 
+                    id: "Participants", 
+                    type: "ViewSessionParticipants",
+                },
+            ],
+          }
+        ] 
+    };
+
+    commit('showWindow', windowData);
+
     },
     // eslint-disable-next-line
     showSessionWindow: ({ commit, state}, data) => {

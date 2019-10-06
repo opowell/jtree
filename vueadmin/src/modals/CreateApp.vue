@@ -2,9 +2,9 @@
     <b-modal 
         id="createAppModal"
         style='max-width: 400px;'
-        title='Create App'
+        :title='"Create " + this.$store.state.appName'
     >
-        Enter filename for new app: <br><br><input type="text" class="form-control" placeholder="Filename" id='create-app-input' name='feaojfweaofijw' onkeyup="jt.createAppKeyUp(event)" style='flex: 0 0 150px'>
+        Enter filename for new {{this.$store.state.appName}}: <br><br><input type="text" class="form-control" placeholder="Filename" id='create-app-input' name='feaojfweaofijw' onkeyup="jt.createAppKeyUp(event)" style='flex: 0 0 150px'>
         <template v-slot:modal-footer="{ hide }">
             <button type="button" class="btn btn-sm btn-outline-primary" onclick='jt.createApp();'>Create</button>
         </template>
@@ -43,7 +43,7 @@ jt.createApp = function() {
         }
 
         let cb = function() {
-            jt.popupMessage('Created app = ' + id);
+            jt.addLog('Created ' + this.$store.state.appName + ' = ' + id);
         }
     
         server.createApp(id, cb);

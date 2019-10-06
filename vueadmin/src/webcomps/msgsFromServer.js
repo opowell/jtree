@@ -35,6 +35,7 @@ msgs.deleteSession = function(id) {
 
 msgs.updateAppPreview = function(appPreview) {
     jt.showAppPreview(appPreview);
+    store.commit('setValue', {path: 'appPreview', value: appPreview});
 }
 
 msgs.reloadApps = function(apps) {
@@ -65,8 +66,9 @@ msgs.createApp = function(app) {
 }
 
 msgs.createQueue = function(queue) {
-    jt.data.queues.push(queue);
-    jt.showQueue(queue);
+    // jt.data.queues.push(queue);
+    window.vue.$store.state.queues.unshift(queue);
+    jt.openQueue(queue);
 }
 
 msgs.setSessionId = function(data) {
@@ -114,6 +116,8 @@ msgs.removeRoomClient = function(client) {
 
 msgs.openSession = function(session) {
 
+    jt.addLog('Open Session ' + session.id + '.');
+
     for (let i in jt.participantTimers) {
         clearInterval(jt.participantTimers[i]);
     }
@@ -130,50 +134,7 @@ msgs.openSession = function(session) {
 
     localStorage.setItem('sessionId', session.id);
 
-    let windowData = {
-        areas: [
-          { 
-            rowChildren: true,
-            areas: [
-                {
-                    flex: "0 1 auto",
-                    panels: [
-                        {
-                            id: "Controls", 
-                            type: "ViewSessionControls",
-                        },
-                    ],
-                },
-                {
-                    panels: [
-                        {
-                            id: "Session Settings", 
-                            type: "ViewSessionSettings",
-                        },
-                        {
-                            id: "Apps", 
-                            type: "ViewSessionApps",
-                        },
-                    ],
-                },
-            ]
-          }, 
-          { 
-            panels: [
-                { 
-                    id: "Activity",
-                    type: "ViewSessionActivity",
-                  }, 
-                { 
-                    id: "Participants", 
-                    type: "ViewSessionParticipants",
-                },
-            ],
-          }
-        ] 
-    };
-
-    store.commit('showWindow', windowData);
+    store.dispatch('showSessionWindow2');
 
     if (session !== undefined) {
         jt.showPanel("#panel-session-info");

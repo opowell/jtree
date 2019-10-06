@@ -1,13 +1,25 @@
 <template>
-  <div style='display: flex; flex-direction: column; justify-content: center; align-items: center;'>
-      <div style='font-size: 4rem;'>Welcome to <span style='font-weight: bold'>jtree</span>.</div>
-      <div style='font-size: 2rem; padding-top: 1rem; color: #888; padding-bottom: 3rem;'>0.7.18</div>
-      <div style='margin-bottom: 1rem; font-size: 2rem'>What would you like to do?</div>
-      <div style='font-size: 2rem'>
-        <span class='link' v-for='(link, index) in links' :key='index' @click='clickLink(index)'>
-          {{link.title}}
-          </span>
-          <span class='link' onclick='jt.showCreateAppModal()'>Create App...</span>
+  <div style='display: flex; flex-direction: column;'>
+      <div style='font-size: 1rem;'>Welcome to <span style='font-weight: bold'>jtree</span>.</div>
+      <div style='font-size: 1rem; padding-top: 1rem; color: #888; padding-bottom: 1rem;'>0.8.0</div>
+      <!-- <div style='margin-bottom: 1rem;'>What would you like to do?</div> -->
+      <div style='display: flex'>
+        <div style=''>
+          <!-- <span class='link' v-for='(link, index) in links' :key='index' @click='clickLink(index)'>
+            {{link.title}}
+            </span> -->
+          <div class='link' onclick='jt.showCreateAppModal()'>Create {{this.$store.state.appName}}...</div>
+          <div class='link' onclick='jt.showOpenAppModal()'>Open {{this.$store.state.appName}}...</div>
+          <div class='link' onclick='vue.$store.dispatch("showPanel", {type: "ViewApps"})'>Manage {{this.$store.state.appName}}s</div>
+        </div>
+        <div>
+          <!-- <span class='link' v-for='(link, index) in links' :key='index' @click='clickLink(index)'>
+            {{link.title}}
+            </span> -->
+          <div class='link' onclick='jt.showCreateQueueModal()'>Create Queue...</div>
+          <div class='link' onclick='jt.showOpenQueueModal()'>Open Queue...</div>
+          <div class='link' onclick='vue.$store.dispatch("showPanel", {type: "ViewQueues"})'>Manage Queues</div>
+        </div>
       </div>
       <br>
       <br>
@@ -18,7 +30,7 @@
 <script>
 
 let links = [
-  { title: 'Apps',     type: 'ViewApps'      },
+  // { title: 'Apps',     type: 'ViewApps'      },
   { title: 'Queues',   type: 'ViewQueues'    },
 ]
 

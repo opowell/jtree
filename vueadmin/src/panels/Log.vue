@@ -1,6 +1,5 @@
 <template>
   <div>
-      <h2>Log</h2>
       <table class='table table-hover' style='width: 100% !important;'>
           <thead>
               <tr>

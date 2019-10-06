@@ -40,13 +40,8 @@
 
 <script>
 
-import AppRow from '@/components/AppRow.vue';
-
 export default {
   name: 'ViewSessionApps',
-  components: {
-      AppRow,
-  },
   data() {
     return {
         session: this.$store.state.session

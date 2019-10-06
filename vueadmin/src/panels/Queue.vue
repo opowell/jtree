@@ -2,10 +2,10 @@
       <div>
 
           <div class="btn-group mb-3">
-                <button class="btn btn-primary btn-sm" onclick='jt.startSessionFromQueue()'>
+                <button class="btn btn-outline-secondary btn-sm" onclick='server.startSessionFromQueue(vue.$store.state.queue.id)'>
                     <i class="fa fa-play"></i>&nbsp;&nbsp;Start session
                 </button>
-                <button class="btn btn-outline-primary btn-sm" onclick='jt.saveQueue()'>
+                <button class="btn btn-outline-secondary btn-sm" onclick='jt.saveQueue()'>
                     <i class="fa fa-save"></i>&nbsp;&nbsp;Save
                 </button>
               <button class="btn btn-outline-secondary btn-sm" onclick='jt.deleteQueueConfirm()'>
@@ -13,7 +13,6 @@
               </button>
           </div>
 
-          <h6 id='view-queue-id'>{{queue.displayName}}</h6>
           <div class='mb-2'>Id: {{queue.id}}</div>
 
             <div class="form-group row">
@@ -28,7 +27,6 @@
                   <table class='table'>
                       <thead>
                           <tr>
-                              <th></th>
                               <th>#</th>
                               <th>id</th>
                               <th>options</th>
@@ -38,9 +36,9 @@
                 <AppRow 
                     v-for='(app, appIndex) in queue.apps'
                     :key='appIndex'
-                    :fields='["", "indexInQueue", "id", "optionsView"]'
+                    :fields='["indexInQueue", "id", "optionsView"]'
                     :app='app'
-                    :options='app.queueOptions'
+                    :options='app.options'
                     style='cursor: pointer;'
                   />
                     <!-- @click.native="clickApp(app.id, $event)" -->
@@ -58,13 +56,9 @@ let $ = window.jQuery
 import jt from '@/webcomps/jtree.js'
 import server from '@/webcomps/msgsToServer.js'
 import store from '@/store.js'
-import AppRow from '@/components/AppRow.vue'
 
 export default {
   name: 'ViewQueue',
-  components: {
-      AppRow,
-  },
   props: [
     'dat',
     'panel',
@@ -76,7 +70,7 @@ export default {
     }
   },
   mounted() {
-      this.panel.id = 'Queue';
+      this.panel.id = this.queue.displayName;
   },
 }
 

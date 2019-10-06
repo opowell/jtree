@@ -12,11 +12,23 @@
       </jt-window>
     </div>
     <viewappeditor-modal/>
+    <editappoptions-modal/>
+    <renameapp-modal/>
+    <appsetvariable-modal/>
+    <addapptosession-modal/>
     <ModalConfirm/>
     <ModalSetViewSize/>
     <ModalAddAppToQueue/>
     <ModalCreateApp/>
+    <ModalCreateQueue/>
+    <ModalOpenApp/>
+    <ModalOpenQueue/>
     <ModalSetAutoplayFreq/>
+      <div id='logMessage' class='popup' style='margin-top: 2rem; display: none'>
+        <div class='alert-box success'>
+          <div id='logMessageText'/>
+        </div>
+      </div>
   </div>
 </template>
 
@@ -29,6 +41,9 @@ import ModalSetViewSize            from '@/modals/SetViewSize.vue'
 import ModalAddAppToQueue          from '@/modals/AddAppToQueue.vue'
 import ModalConfirm                from '@/modals/Confirm.vue'
 import ModalCreateApp              from '@/modals/CreateApp.vue'
+import ModalCreateQueue            from '@/modals/CreateQueue.vue'
+import ModalOpenApp                from '@/modals/OpenApp.vue'
+import ModalOpenQueue              from '@/modals/OpenQueue.vue'
 import ModalSetAutoplayFreq        from '@/modals/SetAutoplayFreq.vue'
 
 import '@/webcomps/AddAppToSessionModal.js'
@@ -51,6 +66,9 @@ export default {
     ModalAddAppToQueue,
     ModalConfirm,
     ModalCreateApp,
+    ModalCreateQueue,
+    ModalOpenApp,
+    ModalOpenQueue,
     ModalSetAutoplayFreq,
     ModalSetViewSize,
   },

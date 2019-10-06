@@ -71,16 +71,16 @@ export default {
     data() {
         return {
             actions: [
-            {
-                icon: 'far fa-folder-open',
-                hasParent: false,
-                title: 'Load preset...'
-            }, 
-            {
-                icon: 'fas fa-save',
-                hasParent: false,
-                title: 'Save preset...'
-            },
+            // {
+            //     icon: ['far', 'folder-open'],
+            //     hasParent: false,
+            //     title: 'Load preset...'
+            // }, 
+            // {
+            //     icon: ['fas', 'save'],
+            //     hasParent: false,
+            //     title: 'Save preset...'
+            // },
             ],
             filterText: '',
         }

@@ -108,11 +108,11 @@ jt.refresh = function(ag) {
     jt.data.jtreeLocalPath = ag.jtreeLocalPath;
     
     store.commit('setSettings', ag.settings);
-    store.commit('setQueues', ag.queues);
     jt.settings = ag.settings;
     jt.data.users = ag.users;
     
     jt.setApps(ag.apps);
+    store.commit('setValue', { path: 'queues', value: ag.queues });
 
     $('#setAutoplayFreq-input').val(jt.settings.autoplayDelay);
 

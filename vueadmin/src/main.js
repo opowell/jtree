@@ -56,7 +56,6 @@ import {faExchangeAlt}          from '@fortawesome/free-solid-svg-icons/faExchan
 import {faExclamationTriangle}  from '@fortawesome/free-solid-svg-icons/faExclamationTriangle'
 import {faFile}                 from '@fortawesome/free-solid-svg-icons/faFile'
 import {faFolder}               from '@fortawesome/free-solid-svg-icons/faFolder'
-import {faFolderOpen}           from '@fortawesome/free-solid-svg-icons/faFolderOpen'
 import {faImage}                from '@fortawesome/free-solid-svg-icons/faImage'
 import {faPlay}                 from '@fortawesome/free-solid-svg-icons/faPlay'
 import {faPlus}                 from '@fortawesome/free-solid-svg-icons/faPlus'
@@ -68,6 +67,9 @@ import {faTimes}                from '@fortawesome/free-solid-svg-icons/faTimes'
 import {faTrash}                from '@fortawesome/free-solid-svg-icons/faTrash'
 import {faUndoAlt}              from '@fortawesome/free-solid-svg-icons/faUndoAlt'
 
+import {faFolderOpen}           from '@fortawesome/free-regular-svg-icons/faFolderOpen'
+import {faMinusSquare}          from '@fortawesome/free-regular-svg-icons/faMinusSquare'
+import {faPlusSquare}           from '@fortawesome/free-regular-svg-icons/faPlusSquare'
 import {faWindowClose}          from '@fortawesome/free-regular-svg-icons/faWindowClose'
 import {faWindowMinimize}       from '@fortawesome/free-regular-svg-icons/faWindowMinimize'
 import {faWindowRestore}        from '@fortawesome/free-regular-svg-icons/faWindowRestore'
@@ -102,13 +104,20 @@ library.add(
   faTrash,
   faUndoAlt,
 
+  faMinusSquare,
+  faPlusSquare,
   faWindowClose,
   faWindowMinimize,
   faWindowRestore,
 
 )
 
+import AppRow from '@/components/AppRow.vue'
+import QueueRow from '@/components/QueueRow.vue'
+
 Vue.component('font-awesome-icon', FontAwesomeIcon)
+Vue.component('AppRow', AppRow)
+Vue.component('QueueRow', QueueRow)
 
 window.jt = jt;
 

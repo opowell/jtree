@@ -71,6 +71,7 @@ jt.saveQueueAppOptions = function() {
 
 jt.showAddAppToQueueModal = function() {
     $('#addAppToQueueModal').modal('show');
+    // window.vue.$bvModal.show('addAppToQueueModal');
     $('#addAppToQueueModal-apps').empty();
     for (var i in jt.data.appInfos) {
         var app = jt.data.appInfos[i];
@@ -118,6 +119,7 @@ jt.viewQueueShowApp = function(queueApp, qId) {
     div.click(function() {
         jt.setEditAppOptionsData(app, options, 'jt.saveQueueAppOptions()');
         $('#editAppOptionsModal').modal('show');
+        // window.vue.$bvModal.show('editAppOptionsModal');
     });
 }
 

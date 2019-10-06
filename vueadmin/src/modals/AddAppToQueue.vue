@@ -10,15 +10,22 @@
                   </div>
                   <div class="modal-body">
                       <table class='table table-hover'>
-                          <thead>
-                              <tr>
-                                  <th>id</th>
-                                  <th>title</th>
-                                  <th>description</th>
-                              </tr>
-                          </thead>
-                          <tbody id='addAppToQueueModal-apps'>
-                          </tbody>
+            <thead>
+                <tr>
+                    <th>id</th>
+                    <th>description</th>
+                </tr>
+            </thead>
+            <tbody>
+            <AppRow 
+                v-for='app in apps'
+                :key='app.id'
+                :fields='["id", "description"]'
+                :app='app'
+                @click.native="clickApp(app.id, $event)"
+                style='cursor: pointer;'
+            />
+            </tbody>
                       </table>
                   </div>
                   <div class="modal-footer">
@@ -31,13 +38,32 @@
 
 <script>
 
+import 'jquery'
+let $ = window.jQuery
+import jt from '@/webcomps/jtree.js'
+import server from '@/webcomps/msgsToServer.js'
+
 export default {
   name: 'AddAppToQueue',
   data() {
     return {
-        state: this.$store.state
+        apps: this.$store.state.appInfos
     }
   },
+    methods: {
+        click(id, ev) {
+            if (
+                ($(ev.target).prop('tagName') !== 'SELECT') &&
+                ($(ev.target).prop('tagName') !== 'INPUT') &&
+                ($(ev.target).prop('tagName') !== 'A')
+            ) {
+                window.vue.$bvModal.hide('addAppToQueueModal');
+                    var optionEls = $(this).find('[app-option-name]');
+                    var options = jt.deriveAppOptions(optionEls);
+                    server.queueAddApp($(this).data('appId'), options);
+            }
+        }
+    }
 }
 
 </script>

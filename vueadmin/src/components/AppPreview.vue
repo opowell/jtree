@@ -1,27 +1,49 @@
-class ViewAppPreview extends HTMLElement {
-    connectedCallback() {
-      this.innerHTML = `
+<template>
+    <div>
         <div id='view-app-preview' style='box-shadow: 0px 0px 11px 2px #888; padding: 15px; display: flex; flex-direction: column'>
         <div id='view-app-compile-error' style='display: none'></div>
 
-          <div id='view-app-tree'></div>
-
-          <div hidden class='view-app-screen'>
-            <iframe id='view-app-screen'></iframe>
+          <div id='view-app-tree'>
+              <ToggleDiv :toggleId='app' :title='app' />
           </div>
 
+          <!-- <div hidden class='view-app-screen'>
+            <iframe id='view-app-screen'></iframe>
+          </div> -->
       </div>
-      `;
-    }
+    </div>
+
+</template>
+
+<script>
+
+import 'jquery'
+let $ = window.jQuery
+import jt from '@/webcomps/jtree.js'
+
+import ToggleDiv from '@/components/ToggleDiv.vue'
+
+export default {
+  name: 'AppPreview',
+  components: {
+      ToggleDiv,
+  },
+  props: [
+  ],
+  data() {
+      return {
+          filterText: '',
+      }
+  },
+  methods: {
+      changeFilterText() {
+          this.$emit('changeFilterText');
+      },
+  },
 }
 
-import jt from '@/webcomps/jtree.js'
-import 'jquery'
-let $ = window.jQuery;
-
 jt.updateAppPreview = function() {
-    $('#editAppOptionsModal').modal('hide');
-    // window.vue.$bvModal.show('editAppOptionsModal');
+    window.vue.$bvModal.show('editAppOptionsModal');
     let appId = window.vue.$store.state.app.id;
     let optionEls = $('#editAppOptionsModal').find('[app-option-name]');
     let options = jt.deriveAppOptions(optionEls);
@@ -41,7 +63,7 @@ jt.showAppError = function(app) {
 }
 
 jt.showAppPreview = function(app) {
-    $('.view-app-screen').resizable();
+    // $('.view-app-screen').resizable();
     jt.showAppError(app);
     jt.showAppTree(app);
     let appMetaData = jt.app(app.id);
@@ -245,8 +267,7 @@ jt.appSetVar = function(ev) {
     $('#editVarName').text(name);
     $('#appSetVariable-curVal').text(JSON.stringify(value));
     $('#appSetVariable-newVal').val(JSON.stringify(value));
-    $('#appSetVariableModal').modal('show');
-    // window.vue.$bvModal.show('appSetVariableModal');
+    window.vue.$bvModal.show('appSetVariableModal');
 }
 
 jt.funcEl = function(name, value) {
@@ -287,9 +308,9 @@ jt.showAppTree = function(app) {
     let stageDefaultVars = ['duration', 'waitToStart', 'waitToEnd', 'onPlaySendPlayer', 'updateObject', 'waitOnTimerEnd', 'showTimer', 'clientDuration', 'useAppActiveScreen', 'useAppWaitingScreen', 'wrapPlayingScreenInFormTag', 'addOKButtonIfNone', 'activeScreen', 'waitingScreen', 'stages', 'repetitions', 'autoplay', 'getGroupDuration'];
     let stageSkip = ['app.index', 'id', 'name', 'groupStart', 'groupEnd', 'playerStart', 'playerEnd', 'canPlayerParticipate'];
 
-    $('#view-app-tree').empty();
-    let appTDiv = new ToggleDiv('app', 'App');
-    $('#view-app-tree').append(appTDiv.div);
+    // $('#view-app-tree').empty();
+    // let appTDiv = new ToggleDiv('app', 'App');
+    // $('#view-app-tree').append(appTDiv.div);
     let appCtnt = appTDiv.contentDiv;
 
     let varsDiv = jt.varsToggleDiv('app', 'Default variables (0)');
@@ -384,36 +405,34 @@ jt.showProps = function() {
     console.log('show props');
 }
 
-class ToggleDiv {
+// class ToggleDiv {
 
-    constructor(toggleId, title) {
-        this.div = $('<div class="toggle" state="closed" toggleId="' + toggleId + '">');
+//     constructor(toggleId, title) {
+//         this.div = $('<div class="toggle" state="closed" toggleId="' + toggleId + '">');
 
-        this.titleDiv = $('<div class="toggleTitleDiv" onclick="jt.toggleEvent(event)">');
-        this.expandBtn = $('<i class="far fa-plus-square toggleContentClosed" toggleId="' + toggleId + '"></i>');
-        this.minimzBtn = $('<i class="far fa-minus-square toggleContentOpen hidden" toggleId="' + toggleId + '"></i>');
-                // this.expandBtn = $(`
-        // <font-awesome-icon 
-        // toggleId="' + toggleId + '" 
-        // class="toggleContentClosed" 
-        // :icon="['far', 'plus-square']"
-        // />
-        // `);
-        // this.minimzBtn = $(`
-        // <font-awesome-icon 
-        // toggleId="' + toggleId + '" 
-        // class="toggleContentOpen hidden" 
-        // :icon="['far', 'minus-square']"
-        // />
-        // `);
-        this.name = $('<div class="ml-1">').text(title);
-        this.titleDiv.append(this.expandBtn).append(this.minimzBtn).append(this.name);
-        this.div.append(this.titleDiv);
+//         this.titleDiv = $('<div class="toggleTitleDiv" onclick="jt.toggleEvent(event)">');
+//         this.expandBtn = $(`
+//         <font-awesome-icon 
+//         toggleId="' + toggleId + '" 
+//         class="toggleContentClosed" 
+//         :icon="['far', 'plus-square']"
+//         />
+//         `);
+//         this.minimzBtn = $(`
+//         <font-awesome-icon 
+//         toggleId="' + toggleId + '" 
+//         class="toggleContentOpen hidden" 
+//         :icon="['far', 'minus-square']"
+//         />
+//         `);
+//         this.name = $('<div class="ml-1">').text(title);
+//         this.titleDiv.append(this.expandBtn).append(this.minimzBtn).append(this.name);
+//         this.div.append(this.titleDiv);
 
-        this.contentDiv = $('<div class="toggleContentDiv toggleContentOpen hidden" toggleId="' + toggleId + '">');
-        this.div.append(this.contentDiv);
-    }
-}
+//         this.contentDiv = $('<div class="toggleContentDiv toggleContentOpen hidden" toggleId="' + toggleId + '">');
+//         this.div.append(this.contentDiv);
+//     }
+// }
 
 jt.varsToggleDiv = function(id, name) {
     let div = new ToggleDiv('vars-' + id, name);
@@ -430,4 +449,4 @@ jt.appPreviewStageFnDiv = function(fnName, fnContent) {
     return div;
 }
 
-window.customElements.define('view-app-preview', ViewAppPreview);
+</script>

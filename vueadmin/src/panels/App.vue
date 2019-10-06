@@ -40,6 +40,8 @@
 </template>
 
 <script>
+// import AppPreview from '@/components/AppPreview.vue'
+import 'bootstrap-vue'
 import '@/webcomps/ViewAppPreview.js'
 
 export default {
@@ -48,6 +50,9 @@ export default {
     'dat',
     'panel',
   ],
+//   components: {
+//       AppPreview,
+//   },
   data() {
     return {
         app: this.$store.state.app
@@ -73,10 +78,11 @@ jt.resizeIFrameToFitContent = function(iframe) {
 jt.appShowOptions = function() {
     // eslint-disable-next-line no-undef
     jt.setEditAppOptionsData(appDefn, options, 'jt.saveSessionAppOptions()');
-    $('#editAppOptionsModal').modal('show');
+    window.vue.$bvModal.show('editAppOptionsModal');
 }
 
 jt.openApp = function(appId) {
+    $('.modal').modal('hide');
     var app = jt.app(appId);
 
     jt.editor.reset();
@@ -84,11 +90,11 @@ jt.openApp = function(appId) {
 
     jt.editor.selectFile(app.id);
 
-    // jt.setEditAppOptionsData(app, app.options, jt.updateAppPreview);
+    jt.setEditAppOptionsData(app, app.options, jt.updateAppPreview);
 
     window.vue.$store.commit('setApp', app);
 
-    // jt.updateAppPreview();
+    jt.updateAppPreview();
 
     $('#view-app-tree').empty();
 
@@ -105,14 +111,17 @@ jt.openApp = function(appId) {
 }
 
 jt.appRename = function() {
-    let appId = $('#view-app-fullId').text();
+    let appId = store.state.app.id;
     $('#rename-app-input').val(appId);
+    // window.vue.$bvModal.show('renameAppModal');
     $('#renameAppModal').modal('show');
     $('#rename-app-input').focus();
 }
 
 jt.appEdit = function() {
-    $('#editAppModal').modal('show');
+    $('#viewAppEditTitle').text(store.state.app.id);
+// window.vue.$bvModal.show('editAppModal');
+    $('#editAppModal').modal().show();
 }
 
 jt.deleteApp = function() {

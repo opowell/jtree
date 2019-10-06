@@ -5,7 +5,7 @@ class ViewAppEditorModal extends HTMLElement {
           <div style='max-width: 100%; height: 100%; margin: 0px' class="modal-dialog" role="document">
               <div class="modal-content" style="height: 100%; border-width: 0px; border-radius: 0px;">
                   <div class="modal-header">
-                      <h5 class="modal-title"></h5>
+                      <h5 id='viewAppEditTitle' class="modal-title"></h5>
                       <button type="button" class="ml-3 btn btn-sm btn-primary" onclick='jt.appSaveFileContentsFromEditor();'>Save</button>
                       <button type="button" class="close" data-dismiss="modal">
                           <span>&times;</span>
@@ -35,6 +35,7 @@ document.write('<script src="/admin/multiuser/webcomponents/codeEditor/editor.js
 import jt from '@/webcomps/jtree.js'
 import 'jquery'
 let $ = window.jQuery
+import store from '@/store.js'
 
 jt.appSaveFileContentsFromEditor = function() {
     // eslint-disable-next-line no-undef
@@ -43,15 +44,16 @@ jt.appSaveFileContentsFromEditor = function() {
     var fn = $('.filename.file-selected').text();
     jt.appSaveFileContents(fn, text);
     $("#editAppModal").modal("hide");
+    // window.vue.$bvModal.hide("editAppModal");
 }
 
 jt.appSaveFileContents = function(filename, content) {
-  var appId = $('#view-app-fullId').text();
+  var appId = store.state.app.id;
   jt.socket.emit('appSaveFileContents', {filename: filename, aId: appId, content: content});
   var app = jt.app(appId);
   app.appjs = content;
-  //   app.clientHTML = content;
-  jt.openApp(appId);
+  store.state.app.appjs = content;
+  jt.updateAppPreview();
 }
 
 window.customElements.define('viewappeditor-modal', ViewAppEditorModal);

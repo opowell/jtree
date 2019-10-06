@@ -1,13 +1,13 @@
 <template>
-  <div style='flex: 1 1 auto; align-self: stretch; overflow: auto;'>
-      <span style='display: flex;' class='mb-2'>
-        <a href='#' class='btn btn-sm btn-outline-secondary btn-sm' onclick='jt.showCreateQueueModal()'>
-            <i class="fa fa-plus"></i>&nbsp;&nbsp;create...
-        </a>
-        <a id='reloadQueuesBtn' href='#' class='btn btn-sm btn-outline-secondary btn-sm' onclick='jt.reloadQueues();'>
-            <i class="fas fa-redo-alt"></i>&nbsp;&nbsp;reload
-        </a>
-      </span>
+    <div style='flex: 1 1 auto; align-self: stretch; overflow: auto;'>
+        <span style='display: flex;' class='mb-2'>
+            <b-button variant="outline-secondary" size="sm" onclick='jt.showCreateQueueModal()'>
+                <font-awesome-icon :icon="['fas', 'plus']"/>&nbsp;&nbsp;Create...
+            </b-button>
+            <b-button variant="outline-secondary" size="sm" onclick='jt.reloadQueues()'>
+                <font-awesome-icon :icon="['fas', 'redo-alt']"/>&nbsp;&nbsp;Reload
+            </b-button>
+        </span>
 
       <table class='table table-hover' style='width: 100% !important;'>
           <thead>
@@ -37,13 +37,9 @@ import 'jquery'
 let $ = window.jQuery
 import jt from '@/webcomps/jtree.js'
 import server from '@/webcomps/msgsToServer.js'
-import QueueRow from '@/components/QueueRow.vue'
 
 export default {
   name: 'ViewQueues',
-  components: {
-      QueueRow,
-  },
   props: [
     'dat',
     'panel',

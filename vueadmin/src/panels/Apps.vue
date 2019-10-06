@@ -37,13 +37,9 @@ import 'jquery'
 let $ = window.jQuery
 import jt from '@/webcomps/jtree.js'
 import server from '@/webcomps/msgsToServer.js'
-import AppRow from '@/components/AppRow.vue'
 
 export default {
   name: 'ViewApps',
-  components: {
-      AppRow,
-  },
   props: [
     'dat',
     'panel',
