@@ -22,8 +22,11 @@
         </div>
       </div>
       <br>
-      <br>
-      <br>
+      <div style='display: flex'>
+        <a class='text-muted' href="/admin/multiuser" target='_blank'>Old interface</a>
+        <span>&nbsp;|&nbsp;</span>
+        <a class='text-muted' href="/help/index.html" target='_blank'>Help</a>
+      </div>
   </div>
 </template>
 

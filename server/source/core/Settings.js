@@ -24,7 +24,7 @@ class Settings {
          this.clientJSTemplateFile   = 'internal/sharedTemplate.js';
          this.clientJSModuleFile           = '../vueadmin/src/webcomps/shared.js';
          this.clientJSModuleTemplateFile   = 'internal/sharedTemplateModule.js';
-         this.defaultAdminUI         = 'multiuser';
+         this.defaultAdminUI         = 'vue';
          this.participantUI          = 'internal/clients/participant';
          this.clientUI               = 'internal/clients/participant';
          this.adminUIsPath           = 'internal/clients/admin';

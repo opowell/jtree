@@ -29,6 +29,10 @@ import MenuEl from './MenuEl'
 import server from '@/webcomps/msgsToServer.js'
 import jt from '@/webcomps/jtree.js'
 
+jt.openUrl = function(url) {
+    window.open(url, name='_blank');
+}
+
 export default {
   name: 'MainMenu',
   components: {
@@ -121,6 +125,23 @@ export default {
                             action: this.showPanel,
                             clickData: 'ViewLog',
                         },
+                        {
+                            text: 'Settings',
+                            action: this.showPanel,
+                            clickData: 'settings-panel',
+                        },
+                        'divider',
+                        {
+                            text: 'Old interface',
+                            action: jt.openUrl,
+                            clickData: '/admin/multiuser',
+                        },
+                        {
+                            text: 'Help',
+                            action: jt.openUrl,
+                            clickData: '/help/index.html',
+                        },
+
                         // {
                         //     text: 'Files',
                         //     action: this.showPanel,
@@ -144,11 +165,6 @@ export default {
                         //     text: 'Rooms',
                         // },
                         // 'divider',
-                        {
-                            text: 'Settings',
-                            action: this.showPanel,
-                            clickData: 'settings-panel',
-                        },
                     ]
                 },
                 {
