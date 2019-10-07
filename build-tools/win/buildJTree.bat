@@ -32,6 +32,7 @@ call del ".\release\internal\clients\admin" /Q /F
 call rmdir ".\release\internal\clients\admin" /Q /S
 call xcopy ".\client\internal\clients\admin\multiuser" ".\release\internal\clients\admin\multiuser\" /E
 call xcopy ".\client\internal\clients\admin\shared" ".\release\internal\clients\admin\shared\" /E
+call xcopy ".\client\internal\clients\admin\vue" ".\release\internal\clients\admin\vue\" /E
 call xcopy ".\client\help.html" ".\release\"
 call xcopy ".\server\source" ".\release\internal\source\" /E
 

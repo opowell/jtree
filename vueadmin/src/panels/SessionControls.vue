@@ -1,12 +1,12 @@
 <template>
     <div style='display: block'>
         <div class='btn-group flex-wrap'>
-            <span class='btn btn-outline-secondary btn-sm' :disabled='session.started' onclick='server.sessionStart();'>
+            <button class='btn btn-outline-secondary btn-sm' :disabled='session.started' onclick='server.sessionStart();'>
                 <i class="fa fa-play"></i>&nbsp;&nbsp;Start
-            </span>
-            <span class='btn btn-outline-secondary btn-sm' onclick='server.sessionAdvanceSlowest();'>
+            </button>
+            <button class='btn btn-outline-secondary btn-sm' onclick='server.sessionAdvanceSlowest();'>
                 <i class="fas fa-chevron-right"></i>&nbsp;&nbsp;Advance slowest
-            </span>
+            </button>
             <button id='resetSessionBtn' class="btn btn-outline-secondary btn-sm" onclick='server.resetSession()'>
                 <i class="fas fa-undo-alt"></i>&nbsp;&nbsp;Reset
             </button>
