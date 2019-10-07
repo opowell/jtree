@@ -67,7 +67,7 @@ app.html = `
 </html>
 `;
 
-var decideStage = app.newStage('decide');
+let decideStage = app.newStage('decide');
 decideStage.canPlayerParticipate = function(player) {
     return new Date().getTime() < player.participant.finishTime;
 }

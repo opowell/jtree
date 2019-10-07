@@ -46,7 +46,7 @@ app.questions = [
 let numPages = Math.ceil(app.questions.length / app.questionsPerPage);
 for (let i=0; i<numPages; i++) {
     // DEFINE STAGES
-    var page = app.newStage('page' + i);
+    let page = app.newStage('page' + i);
     page.playerStart = function(player) {
         
         if (i == 0) { // do this once, for first page.

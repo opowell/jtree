@@ -1,7 +1,7 @@
 //
 // MAKE CHANGES TO 'sharedTemplate.js', not 'shared.js' directly!!!
 //
-var jt = {};
+var jt = jt || {};
 
 // Code used by both participant and admin.
 jt.socket = null;
@@ -226,6 +226,12 @@ jt.displayTimeLeft = function(min, secs, timeLeft) {
 }
 
 // Should be overwritten.
-jt.defaultConnected = function() {}
-jt.connected = function()        {}
-jt.showPId = function(id)        {}
+if (jt.defaultConnected == null) {
+    jt.defaultConnected = function() {}
+}
+if (jt.connected == null) {
+    jt.connected = function()        {}
+}
+if (jt.showPId == null) {
+    jt.showPId = function(id)        {}
+}

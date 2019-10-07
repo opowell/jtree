@@ -127,8 +127,8 @@ app.schemes = ['test', 'flatrate', 'piecerate', 'tournament', 'choice'];
 
 app.startPeriods = [1];
 app.endPeriods = [];
-var curPrd = 1;
-for (var i=0; i<app.qIndices.length-1; i++) {
+let curPrd = 1;
+for (let i=0; i<app.qIndices.length-1; i++) {
     curPrd = curPrd + app.qIndices[i].length;
     if (i < app.qIndices.length - 1) {
         app.startPeriods.push(curPrd);
@@ -141,22 +141,22 @@ app.numPeriods = curPrd;
 app.schemeOrders    = Utils.permutations([1, 2, 3, 4]);
 app.questionOrders  = Utils.permutations([1, 2, 3, 4]);
 
-var invitationStage     = app.newStage('invitation');
-var informationStage    = app.newStage('information');
-var attentionStage      = app.newStage('attention');
-var questionStage       = app.newStage('question');
-var showAnsStage        = app.newStage('answer');
-var askdiffStage        = app.newStage('difficulty');
-var endInfoStage        = app.newStage('end-info');
-var paymentInfoStage    = app.newStage('payment-info');
-var perfStage           = app.newStage('subj-perf');
+let invitationStage     = app.newStage('invitation');
+let informationStage    = app.newStage('information');
+let attentionStage      = app.newStage('attention');
+let questionStage       = app.newStage('question');
+let showAnsStage        = app.newStage('answer');
+let askdiffStage        = app.newStage('difficulty');
+let endInfoStage        = app.newStage('end-info');
+let paymentInfoStage    = app.newStage('payment-info');
+let perfStage           = app.newStage('subj-perf');
 
 // INVITATION STAGE
 invitationStage.canPlayerParticipate = function(player) {
     return player.period().id == 1;
 }
 invitationStage.playerStart = function(player) {
-    var participant = player.participant;
+    let participant = player.participant;
     // Determine orders for player.
     participant.schemeOrder      = app.schemeOrders[player.idInGroup - 1];
     participant.questionOrder    = app.questionOrders[player.idInGroup - 1];
@@ -181,7 +181,7 @@ informationStage.canPlayerParticipate = function(player) {
     return player.app().startPeriods.includes(player.period().id);
 }
 informationStage.playerStart = function(player) {
-    var participant = player.participant;
+    let participant = player.participant;
     participant.block++;
     participant.curQIndex = 0;
     participant.scheme = participant.schemeOrder[participant.block];
@@ -279,7 +279,7 @@ attentionStage.clientDuration = 3;
 
 // SHOW QUESTION
 questionStage.playerStart = function(player) {
-    var participant = player.participant;
+    let participant = player.participant;
     player.qIndex = player.app().qIndices[participant.block][participant.curQIndex];
     player.question = player.app().allQuestions[player.qIndex][0];
     player.correctAnswer = player.app().allQuestions[player.qIndex][1];
@@ -287,8 +287,8 @@ questionStage.playerStart = function(player) {
 }
 
 app.vueComputed.tickerWidth = function() {
-    var ms = this.clock.milliseconds;
-    var secs = this.clock.seconds - 0;
+    let ms = this.clock.milliseconds;
+    let secs = this.clock.seconds - 0;
     return (secs + ms/1000)*100/(this.stage.clientDuration) + '%';
 }
 
@@ -308,7 +308,7 @@ questionStage.content = `
 `;
 questionStage.clientDuration = 6;
 questionStage.playerEnd = function(player) {
-    var participant = player.participant;
+    let participant = player.participant;
     if (player.answer === player.correctAnswer) {
         participant.scores[participant.block]++;
     }

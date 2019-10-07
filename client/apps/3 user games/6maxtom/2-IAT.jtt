@@ -236,7 +236,7 @@ app.participantStart = function(participant) {
 }
 
 if (app.instructionLists.length > 0) {
-    var generalInstructions = app.newStage('generalInstructions');
+    let generalInstructions = app.newStage('generalInstructions');
     generalInstructions.canPlayerParticipate = function(player) {
         return player.period().id === 1;
     }
@@ -270,7 +270,7 @@ if (app.instructionLists.length > 0) {
     `
 }
 
-var instructions = app.newStage('instructions');
+let instructions = app.newStage('instructions');
 instructions.addOKButtonIfNone = false;
 instructions.canPlayerParticipate = function(player) {
     return player.period().id === 1; // period.ids start with 1.
@@ -292,7 +292,7 @@ instructions.autoplay = `
     $('body').trigger(e);
 `;
 
-var delayStage = app.newStage('delay');
+let delayStage = app.newStage('delay');
 delayStage.clientDuration = 0.25; // in seconds
 delayStage.activeScreen = `
     <div style='display: flex; flex-direction: column; align-items: center'>
@@ -309,7 +309,7 @@ delayStage.activeScreen = `
     `;
 delayStage.addOKButtonIfNone = false;
 
-var decideStage = app.newStage('decide');
+let decideStage = app.newStage('decide');
 decideStage.playerStart = function(player) {
     player.keyPresses = [];
     let question = player.participant.words[player.group.period.id-1];

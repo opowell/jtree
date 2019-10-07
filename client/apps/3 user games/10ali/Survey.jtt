@@ -2,7 +2,7 @@ app.description = 'Simple questionnaire.';
 app.groupSize = 1;
 
 // DEFINE STAGES
-var questionsStage = app.newStage('questions');
+let questionsStage = app.newStage('questions');
 questionsStage.activeScreen = `
 <h4>QUESTIONS</h4>
 <p>1. Quelle est votre profession?</p>

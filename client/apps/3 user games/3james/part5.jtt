@@ -60,30 +60,30 @@ stage.activeScreen = `
     </div>
     <script>
         isValidContribution = function(x) {
-          var check1 = (!isNaN(x));
-          var check2 = (x >= 0);
-          var check3 = (x <= jt.data.player.group.period.app.part5End);
-          var check4 = (parseInt(x) == x);
+          let check1 = (!isNaN(x));
+          let check2 = (x >= 0);
+          let check3 = (x <= jt.data.player.group.period.app.part5End);
+          let check4 = (parseInt(x) == x);
           return check1 && check2 && check3 && check4;
         }
         removeMessage = function() {
           $('#part5Msg').text('');
         }
         jt.updateCalculator = function() {
-            var myCont = parseInt($('#myCont').val());
-            var otherCont = parseInt($('#otherCont').val());
+            let myCont = parseInt($('#myCont').val());
+            let otherCont = parseInt($('#otherCont').val());
             if (isValidContribution(myCont) && isValidContribution(otherCont)) {
-                var end = jt.data.player.stage.app.part5End;
-                var mult = jt.data.player.part5Mult;
+                let end = jt.data.player.stage.app.part5End;
+                let mult = jt.data.player.part5Mult;
                 $('#myContDisp').text(myCont + ' points');
                 $('#otherContDisp').text(otherCont + ' points');
-                var p5c = $('#part5Calcs');
+                let p5c = $('#part5Calcs');
                 if (p5c.val().length > 0) {
                     p5c.val(p5c.val() + ',');
                 }
                 p5c.val(p5c.val() + '(' + myCont + ',' + otherCont + ')');
-                var myEarnings = round(end - myCont + (myCont + otherCont) * mult / 2, 2);
-                var otherEarnings = round(end - otherCont + (myCont + otherCont) * mult / 2, 2);
+                let myEarnings = round(end - myCont + (myCont + otherCont) * mult / 2, 2);
+                let otherEarnings = round(end - otherCont + (myCont + otherCont) * mult / 2, 2);
                 $('#myEarnings').text(end + ' - ' + myCont + ' + (' + myCont + ' + ' + otherCont + ') x ' + mult + '/2 = ' + myEarnings + ' points');
                 $('#otherEarnings').text(end + ' - ' + otherCont + ' + (' + otherCont + ' + ' + myCont + ') x ' + mult + '/2 = ' + otherEarnings + ' points');
             } else {

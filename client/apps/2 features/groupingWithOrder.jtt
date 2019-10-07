@@ -8,7 +8,7 @@ app.getGroupIdsForPeriod = function(period) {
     return this.groupIds[period.id-1] // one row of app.groupIds
 }
 
-var stage = app.newStage('decide');
+let stage = app.newStage('decide');
 stage.activeScreen = `
     <p>You are player {{player.idInGroup}} in group {{group.id}}.</p>
 `;

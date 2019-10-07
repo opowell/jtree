@@ -66,7 +66,7 @@ function showAppInfos() {
         if (app.hasError) {
             var errorMsg = $(`<div style='color: red'>
             <i class="fas fa-exclamation-triangle"></i>&nbsp;&nbsp;Error<br>
-            <small style='white-space: normal' class='text-muted'>line ${app.errorLine}, pos ${app.errorPosition}<small>
+            <small style='white-space: normal' class='text-muted'>line ${app.errorLine}, pos ${app.errorPosition}</small>
             </div>`);
             actionDiv.append(errorMsg);    
         } else {

@@ -48,7 +48,7 @@ app.answers = [
     "Very much like a female"
 ];
 
-var stage = app.newStage('questions');
+let stage = app.newStage('questions');
 stage.activeScreen = `
 <style>
 body {
@@ -70,7 +70,7 @@ for (let j=0; j<app.questions.length; j++) {
     stage.activeScreen += eval('`' + a + '<br><br>`');
 }
 
-var stage2 = app.newStage('questions2');
+let stage2 = app.newStage('questions2');
 stage2.activeScreen = `
 <h4>Finally we kindly ask you to fill out a short questionnaire about yourself.</h4>
 <p>1. How old are you (in years)?</p>

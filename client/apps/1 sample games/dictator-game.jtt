@@ -4,7 +4,7 @@ app.groupSize   = 2;
 app.pieSize     = 100;
 app.numPeriods  = 3;
 
-var decideStage = app.newStage('decide');
+let decideStage = app.newStage('decide');
 decideStage.canPlayerParticipate = function(player) {
     return player.idInGroup === 1;
 }
@@ -15,10 +15,10 @@ decideStage.activeScreen = `
     <p>The amount you would like to keep (E$): <input name='player.keep' required type='number' min='0' :max='app.pieSize' step='1'></p>
 `;
 
-var resultsStage = app.newStage('results');
+let resultsStage = app.newStage('results');
 resultsStage.groupStart = function(group) { // when a group starts this stage
-    var p1 = group.playerWithId(1);
-    var p2 = group.playerWithId(2);
+    let p1 = group.playerWithId(1);
+    let p2 = group.playerWithId(2);
     p1.points = p1.keep;
     p2.points = app.pieSize - p1.keep;
     group.p1keep = p1.keep;

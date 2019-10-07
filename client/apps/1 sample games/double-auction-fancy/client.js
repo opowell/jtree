@@ -29,25 +29,25 @@ setOfferType = function(type) {
     }
 }
 
-var chartSetup = false;
-var DATA_count = 0;
-var DATA_TRADES = DATA_count++;
-var DATA_TIME = DATA_count++;
-var DATA_BESTBIDS = DATA_count++;
-var DATA_BESTASKS = DATA_count++;
-var DATA_FV = DATA_count++;
+let chartSetup = false;
+let DATA_count = 0;
+let DATA_TRADES = DATA_count++;
+let DATA_TIME = DATA_count++;
+let DATA_BESTBIDS = DATA_count++;
+let DATA_BESTASKS = DATA_count++;
+let DATA_FV = DATA_count++;
 
 jt.avgDiv = function() {
-    var app = jt.vue.player.group.period.app;
-    var avgDiv = 0;
-    for (var i in app.divs) {
+    let app = jt.vue.player.group.period.app;
+    let avgDiv = 0;
+    for (let i in app.divs) {
         avgDiv = avgDiv + app.divs[i];
     }
     avgDiv = avgDiv / app.divs.length;
     return avgDiv;
 }
 
-var chartLoaded = false;
+let chartLoaded = false;
 
 jt.connected = function() {
 
@@ -58,20 +58,20 @@ jt.connected = function() {
         jt.bestBid = null;
         jt.bestAsk = null;
 
-        var app = player.group.period.app;
+        let app = player.group.period.app;
         
         if (!chartLoaded) {
 
             chartLoaded = true;
 
-            var tradeTime = app.tradingTime;
-            var numPeriods = app.numPeriods;
-            var avgDiv = jt.avgDiv();
+            let tradeTime = app.tradingTime;
+            let numPeriods = app.numPeriods;
+            let avgDiv = jt.avgDiv();
             let maxY = avgDiv*numPeriods + 100;
 
-            var labels = [];
-            var fvData = [];
-            for (var i=1; i<=numPeriods; i++) {
+            let labels = [];
+            let fvData = [];
+            for (let i=1; i<=numPeriods; i++) {
                 labels.push(i);
                 fvData.push({
                     x: (i-1)*tradeTime,
@@ -99,9 +99,9 @@ jt.connected = function() {
 
             let timeLeft = calcTimeLeft(player);
             
-            var ctx = document.getElementById('tradesChart').getContext('2d');
+            let ctx = document.getElementById('tradesChart').getContext('2d');
 
-            var chartDatasets = [
+            let chartDatasets = [
                 {
                     label: "Trades",
                     type: "scatter",
@@ -231,8 +231,8 @@ jt.connected = function() {
     }
 
     jt.socket.on('acceptOffer', function(data) {
-        var oId = data.oId;
-        var offer = findById(jt.vue.group.offers, oId);
+        let oId = data.oId;
+        let offer = findById(jt.vue.group.offers, oId);
         if (offer == null) {
             console.log('ERROR: could not accept offer with id = ' + oId);
             return;
@@ -250,10 +250,10 @@ jt.connected = function() {
 }
 
 calcTimeLeft = function(player) {
-    var period = player.group.period;
-    var curPeriod = period.id;
-    var duration = player.stage.duration;
-    var timeLeft = curPeriod*duration - player.stageTimerTimeLeft/1000;
+    let period = player.group.period;
+    let curPeriod = period.id;
+    let duration = player.stage.duration;
+    let timeLeft = curPeriod*duration - player.stageTimerTimeLeft/1000;
     return timeLeft;
 }
 
@@ -267,23 +267,23 @@ calcTimeLeft = function(player) {
 **/
 
 randLog = function(a, b) {
-    var r = Math.random();
+    let r = Math.random();
     return Math.exp(r*Math.log(a) + (1-r)*Math.log(b))
 }
 
 calcFV = function() {
-    var avgDiv = jt.avgDiv();
-    var curPeriod = jt.vue.player.group.period.id;
-    var periodsLeft = jt.vue.player.group.period.app.numPeriods - curPeriod + 1;
+    let avgDiv = jt.avgDiv();
+    let curPeriod = jt.vue.player.group.period.id;
+    let periodsLeft = jt.vue.player.group.period.app.numPeriods - curPeriod + 1;
     return periodsLeft*avgDiv;
 }
 
 jt.autoplay_trading = function() {
-    var fv = calcFV();
-    var bAsk = jt.vue.bestAsk;
-    var bBid = jt.vue.bestBid;
+    let fv = calcFV();
+    let bAsk = jt.vue.bestAsk;
+    let bBid = jt.vue.bestBid;
 
-    var curP = jt.vue.lastTradePrice;
+    let curP = jt.vue.lastTradePrice;
     if (curP == null) {
         curP = fv;
     }
@@ -300,11 +300,11 @@ jt.autoplay_trading = function() {
         debugger;
         return;
     }
-    var target = Math.sqrt(fv*curP);
-    var val = randLog(3*target/2, 2*target/3);
+    let target = Math.sqrt(fv*curP);
+    let val = randLog(3*target/2, 2*target/3);
     console.log(`TRADING: curP = ${curP}, target = ${target}, val = ${val}`);
     // GET CURRENT PRICE (curP)
-    var price = randLog(target, val).toFixed(0);
+    let price = randLog(target, val).toFixed(0);
     if (val > target) {
         // Bid / buy
         if (bAsk != null && bAsk < price && bAsk < jt.vue.player.cashAvailable) {

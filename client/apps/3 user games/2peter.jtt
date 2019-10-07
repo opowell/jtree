@@ -66,17 +66,17 @@ app.getGroupIdsForPeriod = function(period) {
     // Roles: alternate ABAB etc.
     // Super-groups of 8. Within a group, matched pairs of 2: 1 A and 1 B.
     // Participants 1-8 are always in groups 1-4, participants 9-16 in groups 5-8, etc. 
-    var participants = this.session.participants;
-    var pIds = [];
-    for (var p in participants) {
+    let participants = this.session.participants;
+    let pIds = [];
+    for (let p in participants) {
         pIds.push(p);
     }
     Utils.alphanumSort(pIds); // P1, P2, ..., P10, P11, ...
-    var numGroups = pIds.length / app.playersPerGroup;
-    var numPairsPerGroup = app.playersPerGroup / app.playersPerSubgroup;
+    let numGroups = pIds.length / app.playersPerGroup;
+    let numPairsPerGroup = app.playersPerGroup / app.playersPerSubgroup;
 
-    var gIds = [];
-    for (var g=0; g<numGroups; g++) {
+    let gIds = [];
+    for (let g=0; g<numGroups; g++) {
         let idsForA = [];
         let idsForB = [];
         for (let k=0; k<numPairsPerGroup; k++) {
@@ -85,7 +85,7 @@ app.getGroupIdsForPeriod = function(period) {
         }
         Utils.shuffle(idsForA);
         Utils.shuffle(idsForB);
-        for (var sg=0; sg<numPairsPerGroup; sg++) {
+        for (let sg=0; sg<numPairsPerGroup; sg++) {
             gIds.push([
                 idsForA[sg],
                 idsForB[sg]
@@ -121,7 +121,7 @@ app.html = `
 	</html>
 `;
 
-var instructions = app.newStage('instructions');
+let instructions = app.newStage('instructions');
 instructions.canPlayerParticipate = function(player) {
     if (player.idInGroup === 1) {
         player.label = 'A';
@@ -141,7 +141,7 @@ instructions.activeScreen = `
 `
 
 // PAY FOR INFO
-var pAbuyInfo = app.newStage('pAbuyinfo');
+let pAbuyInfo = app.newStage('pAbuyinfo');
 pAbuyInfo.canPlayerParticipate = function(player) {
     return player.label === 'A' && player.period().id > app.numPrdsNoFeedback;
 }
@@ -155,8 +155,8 @@ pAbuyInfo.activeScreen = `
 `
 pAbuyInfo.groupEnd = function(group) {
     if (group.period.id > app.numPrdsNoFeedback) {
-        var pA = group.playerWithId(1);
-        var pB = group.playerWithId(2);
+        let pA = group.playerWithId(1);
+        let pB = group.playerWithId(2);
 		let pBHistory = pB.participant.history; // To show output in table.
         switch (app.repType) {
 			case app.REPTYPE_RANDOM:
@@ -184,7 +184,7 @@ pAbuyInfo.groupEnd = function(group) {
 				pA.histLength = Math.min(app.N, pBHistory.length);
 				// console.log(JSON.stringify(pA.histLength));
 				pA.pBRep = 0;
-				for (var i=0; i<pA.histLength; i++) {
+				for (let i=0; i<pA.histLength; i++) {
 					pA.pBRep += pBHistory[pBHistory.length - 1 - i];
 				}
 				// console.log(pA.pBRep);
@@ -200,7 +200,7 @@ pAbuyInfo.groupEnd = function(group) {
 }
 
 // TRUST CHOICE
-var pApropose = app.newStage('pAinvest');
+let pApropose = app.newStage('pAinvest');
 pApropose.canPlayerParticipate = function(player) {
     return player.label === 'A';
 }
@@ -227,9 +227,9 @@ pApropose.activeScreen = `
 `
 
 // RETURN
-var pBchoose = app.newStage('pBreturn');
+let pBchoose = app.newStage('pBreturn');
 pBchoose.groupStart = function(group) { // when a group starts this stage
-    var pA = group.playerWithId(1);
+    let pA = group.playerWithId(1);
     group.pAaction = pA.pAaction;
 }
 pBchoose.canPlayerParticipate = function(player) {
@@ -244,12 +244,12 @@ pBchoose.activeScreen = `
 `
 
 // RESULTS
-var resultsStage = app.newStage('results');
+let resultsStage = app.newStage('results');
 resultsStage.groupStart = function(group) {
 
     // Get players.
-    var pA = group.playerWithId(1);
-    var pB = group.playerWithId(2);
+    let pA = group.playerWithId(1);
+    let pB = group.playerWithId(2);
 
     // Determine payoffs
     group.return = pB.return;
@@ -258,7 +258,7 @@ resultsStage.groupStart = function(group) {
     group.pBpoints = pB.points;
 
     // Track history, average of last N actions by pB.
-    var history = pB.participant.history;
+    let history = pB.participant.history;
     if (pA.pAaction === group.period.app.TEXT_INVEST) {
         history.push(pB.return === group.period.app.TEXT_RETURN ? 1 : 0);
     }

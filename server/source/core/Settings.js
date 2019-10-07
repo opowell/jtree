@@ -22,7 +22,9 @@ class Settings {
 
          this.clientJSFile           = 'internal/clients/shared/shared.js';
          this.clientJSTemplateFile   = 'internal/sharedTemplate.js';
-         this.defaultAdminUI         = 'multiuser';
+         this.clientJSModuleFile           = '../vueadmin/src/webcomps/shared.js';
+         this.clientJSModuleTemplateFile   = 'internal/sharedTemplateModule.js';
+         this.defaultAdminUI         = 'vue';
          this.participantUI          = 'internal/clients/participant';
          this.clientUI               = 'internal/clients/participant';
          this.adminUIsPath           = 'internal/clients/admin';
@@ -46,6 +48,8 @@ class Settings {
          this.session.suggestedNumParticipants = 4;
  
          this.valsToSave = {};
+
+         this.server = {};
 
          this.logMessage = null;
 

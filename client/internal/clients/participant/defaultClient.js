@@ -175,6 +175,9 @@ window.onbeforeunload = function(ev) {
 };
 
 jt.mountVue = function(player) {
+    if ($('#jtree').length == 0) {
+        return;
+    }
     if (player.stage.app.useVue) {
     
         let vueComputed = {

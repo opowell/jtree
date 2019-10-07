@@ -119,7 +119,7 @@ class Session {
             'apps',
             'fileStream',
             'asyncQueue',
-            'started',
+            // 'started',
             'emitMessages'
         ];
 
@@ -1068,11 +1068,11 @@ class Session {
             for (let p in this.participants) {
                 this.participantStart(this.participants[p]);
             }
-            // this.io().to(this.roomId()).emit('dataUpdate', [{
-            //     roomId: this.roomId(),
-            //     field: 'started',
-            //     value: this.started
-            // }]);
+            this.io().to(this.roomId()).emit('dataUpdate', [{
+                roomId: this.roomId(),
+                field: 'started',
+                value: this.started
+            }]);
             this.advanceSlowest();
         }
     }

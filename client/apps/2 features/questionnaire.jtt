@@ -1,6 +1,6 @@
 app.description = 'Simple questionnaire.';
 
-var questionsStage = app.newStage('questions');
+let questionsStage = app.newStage('questions');
 questionsStage.activeScreen = `
 <script>
 showSliderVal = function(val) {

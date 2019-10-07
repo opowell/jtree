@@ -33,7 +33,7 @@ function showSessions() {
     }
 }
 
-function showSessionRow(session) {
+window.showSessionRow = function(session) {
     $('#view-sessions-list').prepend(SessionDiv(session));
     $('#active-sessions').prepend(SessionDiv(session));
 }

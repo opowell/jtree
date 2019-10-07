@@ -1,6 +1,6 @@
 app.description = 'Demonstrates the use of a table.';
 
-var stage = app.newStage('stage1');
+let stage = app.newStage('stage1');
 stage.groupStart = function(group) {
     group.addTable('offers');
 }
@@ -18,6 +18,6 @@ stage.activeScreen = `
 
 //  Listen for messages from clients.
 app.messages.makeOffer = function(price) {
-    var offer = {price: price};
+    let offer = {price: price};
     this.participant.player.group.offers.new(offer); // Notifies group's players about new offer.
 }

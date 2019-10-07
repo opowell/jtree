@@ -34,14 +34,14 @@ app.vueComputed = {
     }
 }
 
-var tradingStage = app.newStage('trading');
+let tradingStage = app.newStage('trading');
 tradingStage.duration = app.tradingTime;
 tradingStage.groupStart = function(group) {
     group.addTable('offers');
 }
 tradingStage.waitOnTimerEnd = false;
 tradingStage.playerStart = function(player) {
-    var app = player.stage.app;
+    let app = player.stage.app;
     // First trading period
     if (player.periodIndex() == 1) {
         player.cash     = app.endowmentCash;
@@ -95,11 +95,11 @@ tradingStage.activeScreen = `
     </div>
 `;
 
-var resultsStage = app.newStage('results');
+let resultsStage = app.newStage('results');
 resultsStage.groupStart = function(group) { // when a group starts this stage
     group.dividendDraw = Utils.randomEl(app.divs);
-    for (var i in group.players) { // i = 0, 1, 2, 3
-        var player = group.players[i];
+    for (let i in group.players) { // i = 0, 1, 2, 3
+        let player = group.players[i];
         player.dividends = player.shares * group.dividendDraw;
         player.cash = player.cash + player.dividends;
         // Points only recorded for last period.
@@ -120,13 +120,13 @@ resultsStage.activeScreen = `
 
 //  Listen for messages from clients.
 app.messages.makeOfferToBuy = function(price) {
-    var player = this.participant.player;
+    let player = this.participant.player;
     if (player.cashAvailable < price) {
         console.log('tried to make invalid offer to buy: not enough cash available');
         return;
     }
     player.cashAvailable -= price;
-    var offer = {
+    let offer = {
         price: price, 
         makerPId: player.id, 
         open: true, 
@@ -137,24 +137,24 @@ app.messages.makeOfferToBuy = function(price) {
     player.saveAndUpdate();
 }
 app.messages.makeOfferToSell = function(price) {
-    var player = this.participant.player;
+    let player = this.participant.player;
     if (player.sharesAvailable < 1) {
         return;
     }
     player.sharesAvailable--;
     console.log('make offer to sell');
-    var offer = {price: price, makerPId: player.id, open: true, seller: player.id, period: player.periodIndex()};
+    let offer = {price: price, makerPId: player.id, open: true, seller: player.id, period: player.periodIndex()};
     player.group.offers.new(offer);
     player.saveAndUpdate();
 }
 app.messages.cancelOffer = function(id) {
-    var group = this.participant.player.group;
-    var offer = group.offers.getRow(id);
+    let group = this.participant.player.group;
+    let offer = group.offers.getRow(id);
     if (!offer.open) {
         return;
     }
     app.closeOffer(offer, group);
-    var creator = group.player(offer.makerPId);
+    let creator = group.player(offer.makerPId);
     if (offer.seller == creator.id && offer.buyer == null) {
         creator.sharesAvailable++;
     } else if (offer.buyer == creator.id && offer.seller == null) {
@@ -177,14 +177,14 @@ app.closeOffer = function(offer, group) {
 }
 app.acceptOffer = function(id, action, player) {
     
-    var group = player.group;
-    var offer = group.offers.getRow(id);
+    let group = player.group;
+    let offer = group.offers.getRow(id);
 
     if (!offer.open) {
         return;
     }
 
-    var creator = group.player(offer.makerPId);
+    let creator = group.player(offer.makerPId);
 
     if (action === 'buy') {
         // exit if trade not possible

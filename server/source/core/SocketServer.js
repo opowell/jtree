@@ -87,8 +87,12 @@ class SocketServer {
         });
 
         socket.on('reloadApps', function(msg) {
-            // log('reloading apps');
             self.jt.data.reloadApps();
+            if (msg == null) {
+                msg = {
+                    userId: ''
+                }
+            }
             self.refreshAdmin(null, 'socket_' + sock.id, msg.userId);
         });
 

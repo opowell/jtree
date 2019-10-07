@@ -1,3 +1,10 @@
+##### PLANNED
+- Generic game trees.
+- Listen to incremental game changes via observer.
+
+#### 2019.10.07 - 0.8.0
+- Windowed Admin interface.
+
 ##### 2019.09.24 - 0.7.17
 - FIXED: # clients not updating.
 - ADDED: show apps with errors.

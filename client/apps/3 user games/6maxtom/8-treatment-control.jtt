@@ -25,7 +25,7 @@ app.html = `
 </html>
 `;
 
-var controlMessage = app.newStage('controlMessage');
+let controlMessage = app.newStage('controlMessage');
 // controlMessage.duration = 60;
 controlMessage.activeScreen = `
 	<p>Das Experiment geht in Kürze weiter. Bitte lesen Sie die folgende Nachricht genau durch.</p>

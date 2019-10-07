@@ -3,7 +3,7 @@ app.description = 'Simone.';
 app.waitForAll  = false;
 app.groupSize   = 1;
 app.waitingScreen ='';
-var instructions1Stage = app.newStage('instructions1');
+let instructions1Stage = app.newStage('instructions1');
 instructions1Stage.activeScreen = `
 <h4>INSTRUCTIONS</h4>
 <p> Thank you for your participation in our study.</p>

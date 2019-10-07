@@ -107,7 +107,7 @@ Lors de la première partie, il n'y aura qu'un seul tour : vous allez voter pour
 
 }
 
-var decideStage = app.newStage('decide');
+let decideStage = app.newStage('decide');
 decideStage.groupStart = function(group) {
     let p0 = group.players[0].participant;
     group.finished = p0.groupFinished; // Whether the group is finished.
@@ -308,7 +308,7 @@ decideStage.activeScreen = `
 `;
 
 
-var resultsStage = app.newStage('results');
+let resultsStage = app.newStage('results');
 // Only play this stage if the group does not have a payoff yet.
 resultsStage.canPlayerParticipate = function(player) {
 

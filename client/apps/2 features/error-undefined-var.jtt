@@ -1,0 +1,2 @@
+app.description = 'Shows what a ReferenceError looks like. In this case, the message `ReferenceError: ap is not defined: Line 2, position 1` is received. A Reference error can be fixed by fixing the relevant line / position in the code.';
+ap.description = 'This line refers to an undefined (ap) variable.';

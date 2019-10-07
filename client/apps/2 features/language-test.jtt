@@ -2,7 +2,7 @@ app.title = 'Language test';
 app.description = 'Displays messages in various languages.';
 app.tags = ['languages'];
 
-var demoStage = app.newStage('demo');
+let demoStage = app.newStage('demo');
 demoStage.activeScreen = `
     <h4>English</h4>
     Please wait for the experiment.

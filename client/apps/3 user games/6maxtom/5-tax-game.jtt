@@ -31,7 +31,7 @@ app.html = `
 </html>
 `;
 
-var instructions = app.newStage('instructions');
+let instructions = app.newStage('instructions');
 instructions.canPlayerParticipate = function(player) {
     return player.period().id === 1; 
 };
@@ -58,7 +58,7 @@ instructions.activeScreen = `
 /// Berechnung fine jt.data.player.app.finefactor * ((jt.data.player.app.incomes[player.period().id-1] - contribution) * jt.data.player.app.taxrate)
 /// document.getElementById('displayNoAudit').value = income - (contribution * taxrate); document.getElementById('displayAudit').value = income - (contribution * taxrate) - fine;
 
-var trialStage = app.newStage('trialStage');
+let trialStage = app.newStage('trialStage');
 trialStage.duration = 120;
 trialStage.canPlayerParticipate = function(player) {
     return player.period().id === 1; 
@@ -67,11 +67,11 @@ trialStage.activeScreen = `
 	
 	<script>
 		function printResults() {
-			var contribution = document.getElementById('contField').value;
-			var income = jt.vue.player.stage.app.incomes[jt.vue.player.group.period.id-1];
-			var taxrate = jt.vue.player.stage.app.taxrate;
-			var finefactor = jt.vue.player.stage.app.finefactor;
-			var fine = finefactor * ((income - contribution) * taxrate);
+			let contribution = document.getElementById('contField').value;
+			let income = jt.vue.player.stage.app.incomes[jt.vue.player.group.period.id-1];
+			let taxrate = jt.vue.player.stage.app.taxrate;
+			let finefactor = jt.vue.player.stage.app.finefactor;
+			let fine = finefactor * ((income - contribution) * taxrate);
 			document.getElementById('displayFine').value = fine;
 			document.getElementById('displayTax').value = contribution * taxrate;
 		}
@@ -95,7 +95,7 @@ trialStage.activeScreen = `
 	<button>Verstanden</button>
 `;
 
-var decideStage = app.newStage('decide');
+let decideStage = app.newStage('decide');
 decideStage.duration = 60;
 decideStage.canPlayerParticipate = function(player) {
     return player.period().id > 1; 
@@ -111,7 +111,7 @@ decideStage.activeScreen = `
 `;
 
 
-var resultsStage = app.newStage('results'); 
+let resultsStage = app.newStage('results'); 
 resultsStage.duration = 60; 
 resultsStage.playerStart = function(player) {
 	player.audit = Math.random() <= app.auditp; 

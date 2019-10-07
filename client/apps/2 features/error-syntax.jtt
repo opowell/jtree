@@ -1,0 +1,2 @@
+app.description = 'Shows what a syntax error looks like. In this case, the message `SyntaxError: Invalid or unexpected token` is received. Syntax errors can be fixed by looking at the code in a Javascript editor.';
+#app.description = 'This line has a syntax error.';

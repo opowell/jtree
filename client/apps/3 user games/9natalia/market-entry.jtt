@@ -12,7 +12,7 @@ app.payoff = function(player) {
         }
 }
 
-var decideStage = app.newStage('decide');
+let decideStage = app.newStage('decide');
 decideStage.activeScreen = `
 <p>DECISION</p>
 <p>Choose whether or not to enter the market (capacity, c = {{app.capacity}}).</p>
@@ -20,19 +20,19 @@ decideStage.activeScreen = `
 <button name='player.enter' value='false' type='submit'>Not enter</button>
 `;
 
-var resultsStage = app.newStage('results');
+let resultsStage = app.newStage('results');
 resultsStage.groupStart = function(group) { // when a group starts this stage
     group.numEnter = 0;
     // Find out winning number.
-    for (var i in group.players) { // i = 0, 1, 2, 3
-        var player = group.players[i];
+    for (let i in group.players) { // i = 0, 1, 2, 3
+        let player = group.players[i];
         if (player.enter) {
             group.numEnter++;
         }
     }
     // Assign points
-    for (var i in group.players) {
-        var player = group.players[i];
+    for (let i in group.players) {
+        let player = group.players[i];
         player.points = app.payoff(player);
     }
 }

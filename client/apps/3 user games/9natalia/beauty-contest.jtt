@@ -7,14 +7,14 @@ app.upperBound  = 100;
 app.numPeriods  = 5;
 app.prize       = 5;
 
-var decideStage = app.newStage('decide');
+let decideStage = app.newStage('decide');
 decideStage.activeScreen = `
     <p>DECISION</p>
     <p>Guess an integer between {{app.lowerBound}} and {{app.upperBound}}: <input name='player.guess' required type='number' :min='app.lowerBound' :max='app.upperBound' step='1'></p>
     <button>Make guess</button>
 `;
 
-var resultsStage = app.newStage('results');
+let resultsStage = app.newStage('results');
 resultsStage.updateObject = 'group';
 resultsStage.groupStart = function(group) { // when a group starts this stage
     group.totalGuesses = Utils.sum(group.players, 'guess');
@@ -23,8 +23,8 @@ resultsStage.groupStart = function(group) { // when a group starts this stage
     group.lowestDist = null;
     group.numWinners = 0;
     // Find out who won.
-    for (var i in group.players) { // i = 0, 1, 2, 3
-        var player = group.players[i];
+    for (let i in group.players) { // i = 0, 1, 2, 3
+        let player = group.players[i];
         player.distance = Math.abs(group.target - player.guess);
         if (group.lowestDist === null || player.distance < group.lowestDist) {
             group.lowestDist = player.distance;
@@ -34,8 +34,8 @@ resultsStage.groupStart = function(group) { // when a group starts this stage
         }
     }
     // Assign points
-    for (var i in group.players) {
-        var player = group.players[i];
+    for (let i in group.players) {
+        let player = group.players[i];
         if (player.distance <= group.lowestDist) {
             player.points = app.prize / group.numWinners;
         } else {

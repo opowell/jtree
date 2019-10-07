@@ -1,12 +1,12 @@
 app.description = 'Players play two repetitions of either the dictator, ultimatum or trust game, once as the first player and once as the second player.'
 
-var ENDOWMENT_LOW       = 50;
-var ENDOWMENT_HIGH      = 10000;
-var SCORE_THRESHHOLD    = 20;
-var ENDOWMENT_P2_LOW    = 0;
-var ENDOWMENT_P2_HIGH   = 10;
-var RETURN_RATE_HIGH    = 3;
-var RETURN_RATE_LOW     = 200;
+let ENDOWMENT_LOW       = 50;
+let ENDOWMENT_HIGH      = 10000;
+let SCORE_THRESHHOLD    = 20;
+let ENDOWMENT_P2_LOW    = 0;
+let ENDOWMENT_P2_HIGH   = 10;
+let RETURN_RATE_HIGH    = 3;
+let RETURN_RATE_LOW     = 200;
 
 app.addSelectOption('p1Endowment', [ENDOWMENT_LOW, ENDOWMENT_HIGH, 'earned']);
 app.addSelectOption('names', ['none', 'sender', 'receiver', 'both']);
@@ -23,7 +23,7 @@ if (app.game === 'dictator' || app.game === 'trust') {
     app.stage1VerbPast = 'offered';
 }
 
-var decideStage = app.newStage('decide');
+let decideStage = app.newStage('decide');
 decideStage.playerStart = function(player) {
     if (app.endowment === 'earned') {
         if (player.participant.score > SCORE_THRESHHOLD) {
@@ -38,10 +38,10 @@ decideStage.playerStart = function(player) {
 }
 decideStage.groupStart = function(group) {
     group.receiverIds = getAnonymousPartnerIds(group);
-    for (var i in group.players) { // 0, 1, 2, ...
+    for (let i in group.players) { // 0, 1, 2, ...
         // Match current player with their receiver.
-        var player = group.players[i];
-        var receiver = group.players[group.receiverIds[i]];
+        let player = group.players[i];
+        let receiver = group.players[group.receiverIds[i]];
         player.receiverId = group.receiverIds[i] + 1; // who this player sent to.
         receiver.senderId = (i - 0) + 1; // who this player received from. Need -0 to force parsing as integer.
 
@@ -71,9 +71,9 @@ This person will see who {{app.stage1VerbPast}} them the points.
 
 if (app.game === 'ultimatum') {
     if (app.ultPlayType === 'choice') {
-        var p2choose = app.newStage('p2choose');
+        let p2choose = app.newStage('p2choose');
         p2choose.playerStart = function(player) {
-            var sender = player.group.players[player.senderId - 1];
+            let sender = player.group.players[player.senderId - 1];
             player.received = sender.send; // What they received as receiver in S2.
             player.senderEndowment = sender.endowment;
         }
@@ -88,9 +88,9 @@ if (app.game === 'ultimatum') {
         `;
     }
     else if (app.ultPlayType === 'strategy') {
-        var p2strategy = app.newStage('p2strategy');
+        let p2strategy = app.newStage('p2strategy');
         p2strategy.playerStart = function(player) {
-            var sender = player.group.players[player.senderId - 1];
+            let sender = player.group.players[player.senderId - 1];
             player.received = sender.send; // What they received as receiver in S2.
             player.senderEndowment = sender.endowment;
         }
@@ -111,9 +111,9 @@ Otherwise both of you will get 0 points.</p>
     }
 }
 else if (app.game === 'trust') {
-    var p2return = app.newStage('p2return');
+    let p2return = app.newStage('p2return');
     p2return.playerStart = function(player) {
-        var sender = player.group.players[player.senderId - 1];
+        let sender = player.group.players[player.senderId - 1];
         player.received = sender.send * app.returnRate; // What they received as receiver in S2.
     }
     p2return.activeScreen = `
@@ -126,11 +126,11 @@ Choose how much you wish to return.
     `;
 }
 
-var resultsStage = app.newStage('results');
+let resultsStage = app.newStage('results');
 resultsStage.groupStart = function(group) {
 
-    for (var i in group.players) {
-        var player = group.players[i];
+    for (let i in group.players) {
+        let player = group.players[i];
 
         if (app.game === 'dictator' || app.game === 'trust') {
             player.accepted = true;
@@ -142,10 +142,10 @@ resultsStage.groupStart = function(group) {
 
     }
 
-    for (var i in group.players) {
-        var player = group.players[i];
-        var sender = group.players[player.senderId - 1]; // The sender who this player received from.
-        var receiver = group.players[player.receiverId - 1]; // The receiver who this player sent to.
+    for (let i in group.players) {
+        let player = group.players[i];
+        let sender = group.players[player.senderId - 1]; // The sender who this player received from.
+        let receiver = group.players[player.receiverId - 1]; // The receiver who this player sent to.
 
         if (app.game === 'dictator') {
             player.received = sender.send;
@@ -187,24 +187,24 @@ resultsStage.activeScreen = `
 `;
 
 function getAnonymousPartnerIds(group) {
-    var idsLeft = [];
-    var lastId;
-    for (var i in group.players) {
+    let idsLeft = [];
+    let lastId;
+    for (let i in group.players) {
         idsLeft.push(i);
         lastId = i;
     }
-    var round1pairs = [];
-    var N = group.players.length;
-    for (var i in group.players) { // i = '0', '1', '2', ...
+    let round1pairs = [];
+    let N = group.players.length;
+    for (let i in group.players) { // i = '0', '1', '2', ...
 
-        var tookOutOwnId = false;
+        let tookOutOwnId = false;
         if (idsLeft.includes(i)) {
             tookOutOwnId = true;
             idsLeft.splice(idsLeft.indexOf(i), 1);
         }
 
-        var r = Utils.randomInt(0, idsLeft.length);
-        var partnerId = idsLeft[r];
+        let r = Utils.randomInt(0, idsLeft.length);
+        let partnerId = idsLeft[r];
         if (tookOutOwnId) {
             idsLeft.push(i);
         }

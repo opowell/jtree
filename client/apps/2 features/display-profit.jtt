@@ -1,5 +1,5 @@
 app.description = 'Displays the profit (over all apps) for the player.';
-var thankyouStage = app.newStage('finished');
+let thankyouStage = app.newStage('finished');
 thankyouStage.activeScreen = `
     <div>Your profit (in points):</div>
     <h1>{{ participant.numPoints | round(2) }} </h1>
