@@ -51,6 +51,7 @@ export default {
     clickPlayButton() {
       var optionEls = $(this).parents('tr').find('[app-option-name]');
       var options = jt.deriveAppOptions(optionEls);
+      window.vue.$bvModal.hide('openAppModal');
       server.createSessionAndAddApp(this.app.id, options);
     },
     getProp(app, field) {

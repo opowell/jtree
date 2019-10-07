@@ -11,12 +11,12 @@
                   <div class="modal-body">
                       <div>
                           Width:
-                          <input id='setViewSize-Width' style='width: 3em;' :value='state.viewsWidth' type='number' min='0' step='1'>
+                          <input id='setViewSize-Width' style='width: 5em;' :value='state.viewsWidth' type='number' min='0' step='1'>
                       </div>
                       <br>
                       <div>
                           Height:
-                          <input id='setViewSize-Height' style='width: 3em;' :value='state.viewsHeight' type='number' min='0' step='1'>
+                          <input id='setViewSize-Height' style='width: 5em;' :value='state.viewsHeight' type='number' min='0' step='1'>
                       </div>
                       <br>
                       <div>
@@ -25,10 +25,8 @@
                       </div>
                       <br>
                       <button type="button" class="btn btn-primary" data-dismiss="modal" onclick='jt.updateViewSize();'>Set</button>
-                      <hr>
-                      <br>
-                      <button type="button" class="btn btn-outline-primary" data-dismiss="modal" onclick='jt.setViewSizeFullWidth();'>Full width</button>
-                      <button type="button" class="btn btn-outline-primary" data-dismiss="modal" onclick='jt.setViewSizeTiled();'>Tiled</button>
+                      <button type="button" class="btn btn-outline-primary" data-dismiss="modal" onclick='jt.setViewSizeFullWidth();'>Set to Full width</button>
+                      <button type="button" class="btn btn-outline-primary" data-dismiss="modal" onclick='jt.setViewSizeTiled();'>Set to Tiled</button>
                   </div>
                   <div class="modal-footer">
                       <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>

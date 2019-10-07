@@ -806,6 +806,10 @@ showWindow(state, windowInfo) {
   state.nextWindowY += state.nextWindowYIncrement;
   state.nextWindowId++;
   state.windowDescs.push(windowInfo);
+  window.vue.$bvModal.hide('openAppModal');
+  window.vue.$bvModal.hide('openQueueModal');
+  window.vue.$bvModal.hide('createAppModal');
+  window.vue.$bvModal.hide('createQueueModal');
   $('.modal').modal('hide');
 },
 toggleWindowsMaximized(state) {

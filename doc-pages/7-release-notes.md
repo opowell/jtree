@@ -1,8 +1,9 @@
 ##### PLANNED
-- Windowed Admin interface.
 - Generic game trees.
 - Listen to incremental game changes via observer.
-- Reduce Admin UI file size.
+
+#### 2019.10.07 - 0.8.0
+- Windowed Admin interface.
 
 ##### 2019.09.24 - 0.7.17
 - FIXED: # clients not updating.
