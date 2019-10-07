@@ -2,7 +2,7 @@
 - Generic game trees.
 - Listen to incremental game changes via observer.
 
-#### 2019.10.07 - 0.8.0
+#### 2019.10.07 - 0.8.1
 - Windowed Admin interface.
 
 ##### 2019.09.24 - 0.7.17
