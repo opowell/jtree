@@ -30,7 +30,7 @@ import server from '@/webcomps/msgsToServer.js'
 import jt from '@/webcomps/jtree.js'
 
 jt.openUrl = function(url) {
-    window.open(url, name='_blank');
+    window.open(url, '_blank');
 }
 
 export default {

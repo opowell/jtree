@@ -147,6 +147,10 @@ jt.updateSessionApps = function() {
     // })
 }
 
+jt.showAddAppToSessionModal = function() {
+    $('#addAppToSessionModal').modal('show');
+}
+
 jt.showAddQueueToSessionModal = function() {
     $('#addQueueToSessionModal').modal('show');
     $('#addQueueToSessionModal-queues').empty();

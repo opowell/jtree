@@ -7,8 +7,8 @@ A group of players is given an endowment from which they may contribute a certai
 
 Follow these steps to run a session:
 
-1. Open the "Apps" view.
-2. Find the "public-goods" app. Click the blue play button. `jtree` switches to the "Session" view.
+1. Click "Open App...".
+2. Find the "public-goods" app. Click the blue play button. `jtree` opens a new "Session" with this App.
 3. Start the session: Click the "Start" button.
 
 The session is now running.
