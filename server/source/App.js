@@ -528,7 +528,10 @@ class App {
         }
     }
 
-    // TODO
+    /**
+     * Adds a stage, with contents loaded from .jtt file.
+     * @param {The name of the stage to add} name 
+     */
     addStage(name) {
         var stage = this.newStage(name);
         var fn = path.join(path.dirname(this.id), name);
@@ -1319,7 +1322,10 @@ class App {
      * @return {Stage} The new stage.
      */
     newStage(id) {
-        var stage = new Stage.new(id, this, this.stages.length);
+        if (id == null) {
+            id = 'stage' + (this.stages.length + 1);
+        }
+        var stage = new Stage.new(id, this);
         this.stages.push(stage);
         return stage;
     }

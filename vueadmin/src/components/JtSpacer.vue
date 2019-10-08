@@ -48,7 +48,7 @@ export default {
                 index,
             };
             let same = this.samePanel(this.$store.state.dragData, targetData);
-            if (same === false) {
+            if (same === false && this.$store.state.dragData != null) {
                 this.$store.dispatch('dropOnTab', {
                     sourceWindowId: this.$store.state.dragData.windowId,
                     sourceAreaPath: this.$store.state.dragData.areaPath,

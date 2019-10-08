@@ -49,9 +49,10 @@ msgs.createRoom = function(room) {
 
 msgs.dataUpdate = function(dataChanges) {
     for (let i=0; i<dataChanges.length; i++) {
+        // eslint-disable-next-line no-unused-vars
         let change = dataChanges[i];
-        let obj = jt.getObject(change.roomId);
-        obj[change.field] = change.value;
+        // let obj = jt.getObject(change.roomId);
+        // obj[change.field] = change.value;
     }
 }
 
