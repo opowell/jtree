@@ -60,7 +60,7 @@ export default {
 import jt from '@/webcomps/jtree.js'
 import 'jquery'
 let $ = window.jQuery
-import server from '@/webcomps/msgsToServer.js'
+// import server from '@/webcomps/msgsToServer.js'
 // import Vue from 'vue'
 import store from '@/store.js'
 

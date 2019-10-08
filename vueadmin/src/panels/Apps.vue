@@ -2,10 +2,10 @@
   <div style='flex: 1 1 auto; align-self: stretch; overflow: auto;'>
       <span style='display: flex;' class='mb-2'>
         <b-button variant="outline-secondary" size="sm" onclick='jt.showCreateAppModal()'>
-            <font-awesome-icon :icon="['fas', 'plus']"/>&nbsp;&nbsp;create...
+            <font-awesome-icon :icon="['fas', 'plus']"/>&nbsp;&nbsp;Create...
         </b-button>
         <b-button variant="outline-secondary" size="sm" id='reloadAppsBtn' onclick='jt.reloadApps();'>
-            <font-awesome-icon :icon="['fas', 'redo-alt']"/>&nbsp;&nbsp;reload
+            <font-awesome-icon :icon="['fas', 'redo-alt']"/>&nbsp;&nbsp;Reload
         </b-button>
       </span>
 
@@ -62,7 +62,7 @@ export default {
       }
   },
   mounted() {
-      this.panel.id = 'Apps';
+      this.panel.id = this.$store.state.appName + 's';
   },
 }
 

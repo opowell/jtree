@@ -68,6 +68,9 @@ export default {
                 this.recalcMenu();
             },
         );
+        this.$nextTick(function() {
+            this.recalcMenu();
+        });
     },
     watch: {
         windowDescs: {
@@ -311,6 +314,12 @@ export default {
             );
             windowMenu.children.push(
                 {
+                    text: 'Reset',
+                    action: this.resetWindows,
+                }
+            ),
+            windowMenu.children.push(
+                {
                     text: 'Split horizontally',
                     action: this.splitMultiPanel,
                     clickData: 'horizontal',
@@ -327,15 +336,19 @@ export default {
         },
         getWindowTitle(win) {
             let out = '';
-            if (win.panels != null) {
-                for (let i in win.panels) {
-                    out = out + (out == '' ? '' : ', ') + win.panels[i].id;
+            try {
+                if (win.panels != null) {
+                    for (let i in win.panels) {
+                        out = out + (out == '' ? '' : ', ') + win.panels[i].id;
+                    }
                 }
-            }
-            if (win.areas != null) {
-                for (let i in win.areas) {
-                    out = out + (out == '' ? '' : ', ') + this.getWindowTitle(win.areas[i]);
+                if (win.areas != null) {
+                    for (let i in win.areas) {
+                        out = out + (out == '' ? '' : ', ') + this.getWindowTitle(win.areas[i]);
+                    }
                 }
+            } catch (err) {
+                out = 'error';
             }
             return out;
         },
@@ -344,6 +357,10 @@ export default {
         },
         close() {
 
+        },
+
+        resetWindows() {
+            this.$store.dispatch('resetWindows');
         },
 
         closeAll() {

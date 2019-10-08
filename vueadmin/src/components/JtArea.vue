@@ -72,7 +72,7 @@
                 ],
             }' />
 
-            <!-- TABS -->
+            <!-- SINGLE TAB -->
             <template v-if='hideTabsWhenSinglePanel && panels.length === 1'>
                 <jt-spacer
                     @mousedown.native='startMove'
@@ -91,35 +91,36 @@
                     class='closeIcon title-bar-icon'
                 />
             </template>
+            <!-- MULTIPLE TABS -->
             <template v-else>
-            <span 
-                v-for='(panel, index) in panels'
-                :key='index'
-                class='tab tabHover'
-                :class='{"selected": isSelected(panel)}'
-                @mousedown='setActivePanelIndex(index)'
-                draggable="true"
-                @dragstart='dragStart(index)'
-                @dragleave="dragLeaveTab"
-                @drop='dropOnTab(index, $event)'
-                @dragover='dragOver'
-                @dragenter="dragEnterTab(index, $event)"
-            >
-                {{panel.id}}
-                <span style='width: 20px; display: flex; margin-left: 5px;'>
-                    <font-awesome-icon
-                        class='closeButton'
-                        @click.stop='closePanel(index)'
-                        icon="times"
-                        style='width: 20px'
-                    />
+                <span 
+                    v-for='(panel, index) in panels'
+                    :key='index'
+                    class='tab tabHover'
+                    :class='{"selected": isSelected(panel)}'
+                    @mousedown='setActivePanelIndex(index)'
+                    draggable="true"
+                    @dragstart='dragStart(index)'
+                    @dragleave="dragLeaveTab"
+                    @drop='dropOnTab(index, $event)'
+                    @dragover='dragOver'
+                    @dragenter="dragEnterTab(index, $event)"
+                >
+                    {{panel.id}}
+                    <span style='width: 20px; display: flex; margin-left: 5px;'>
+                        <font-awesome-icon
+                            class='closeButton'
+                            @click.stop='closePanel(index)'
+                            icon="times"
+                            style='width: 20px'
+                        />
+                    </span>
                 </span>
-            </span>
-            <jt-spacer
-                @mousedown.native='startMove'
-                :window='window'
-                :area='area'
-            />
+                <jt-spacer
+                    @mousedown.native='startMove'
+                    :window='window'
+                    :area='area'
+                />
             </template>
         </div>
         <!-- CONTENT -->
@@ -305,6 +306,7 @@ export default {
         },
         dropOnTab(index, ev) {
             ev.preventDefault();
+            ev.stopPropagation();
             ev.target.classList.remove('highlight');
             let targetData = {
                 windowId: this.window.id,

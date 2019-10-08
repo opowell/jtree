@@ -37,6 +37,7 @@
 import 'jquery'
 let $ = window.jQuery
 import jt from '@/webcomps/jtree.js'
+import server from '@/webcomps/msgsToServer.js'
 
 export default {
   name: 'ModalAddQueueToSession',

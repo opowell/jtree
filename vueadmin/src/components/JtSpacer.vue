@@ -40,6 +40,7 @@ export default {
         },
         dropOnTab(index, ev) {
             ev.preventDefault();
+            ev.stopPropagation();
             ev.target.classList.remove('highlight');
             let targetData = {
                 windowId: this.window.id,
@@ -62,9 +63,16 @@ export default {
             ev.preventDefault();
         },
         samePanel(panel1Data, panel2Data) {
-            let out = (panel1Data.windowId === panel2Data.windowId &&
-                panel1Data.areaPath === panel2Data.areaPath && 
-                panel1Data.index === panel2Data.index);
+            let out = false;
+            try {
+                out = (panel1Data.windowId === panel2Data.windowId &&
+                    panel1Data.areaPath === panel2Data.areaPath && 
+                    panel1Data.index === panel2Data.index);
+            } 
+            // eslint-disable-next-line
+            catch (err) {
+
+            }
             return out;
         },
         dragEnterTab(index, ev) {

@@ -5,10 +5,6 @@ import createPersistedState from 'vuex-persistedstate'
 
 Vue.use(Vuex)
 
-let defaultPanels = [
-  { title: 'Home',     type: 'ViewHome'     },
-]
-
 const OPEN_NEW_PANELS_IN_ACTIVE_WINDOW = 0;
 const OPEN_NEW_PANELS_IN_NEW_WINDOW = 1;
 const OPEN_NEW_PANELS_IN_ACTIVE_WINDOW_IF_MAXED = 2;
@@ -349,16 +345,21 @@ let settingsPresets = [
   }
 ]
 
+// Only these paths will be stored locally on clients.
 let persistPaths = [
   'sessionId',
-  'settings'
+  'settings',
+  'windowDescs',
+  'initialWindowHeight',
+  'initialWindowWidth',
 ];
 
 let stateObj = {
   log: [],
-  panels: defaultPanels,
   shownPanel: 0,
   appPreview: [],
+
+  touch: 0,
 
   app: null,
   session: null,
@@ -427,6 +428,8 @@ let stateObj = {
   nextWindowId: 0,
   nextWindowX: 20,                // Coordinates of where to open panels.
   nextWindowY: 20,
+  initialWindowHeight: 300,
+  initialWindowWidth: 500,
 
   activeMenu: null,
   isMenuOpen: false,
@@ -631,6 +634,7 @@ addPanelToActiveWindow(state, panelInfo) {
     }
   }
 },
+
 addQueues(state, queues) {
   state.queues.splice(0, state.queues.length);
   for (let q in queues) {
@@ -659,10 +663,10 @@ addWindow(state, panel) {
 },
 closeAllWindows(state) {
   state.activeWindow = null;
-  let numWindows = state.windowDescs.length;
-  for (let i=0; i<numWindows; i++) {
-    state.windowDescs.splice(0, state.windowDescs.length);
-  }
+  state.windowDescs.splice(0, state.windowDescs.length);
+  state.nextWindowX = state.nextWindowXIncrement / 2;
+  state.nextWindowY = state.nextWindowYIncrement / 2;
+  state.nextWindowId = 0;
 },
 changeSelectedIndex(state, {areaPath, windowId, change}) {
   let area = getArea(state, windowId, areaPath);
@@ -801,6 +805,8 @@ showWindow(state, windowInfo) {
   }
   windowInfo.x = state.nextWindowX;
   windowInfo.y = state.nextWindowY;
+  windowInfo.w = state.initialWindowWidth;
+  windowInfo.h = state.initialWindowHeight;
   windowInfo.activePanelInd = 0;
   state.nextWindowX += state.nextWindowXIncrement;
   state.nextWindowY += state.nextWindowYIncrement;
@@ -873,6 +879,15 @@ toggleRowChildren(state, {windowId, areaPath}) {
   },
   actions: {
 
+    // eslint-disable-next-line no-unused-vars
+    resetWindows: ({commit, dispatch}) => {
+      commit('closeAllWindows');
+      Vue.nextTick(function() {
+        dispatch('showPanel', {type: 'ViewWelcome'});
+      });
+      jt.addLog('Reset windows');
+    },
+    
     // Import from 0.8.0
     dropOnTab: ({commit}, {sourceWindowId, sourceAreaPath, sourcePanelIndex, targetWindowId, targetAreaPath, targetIndex}) => {
       commit('addTabToPanel', {
@@ -1061,6 +1076,12 @@ toggleRowChildren(state, {windowId, areaPath}) {
         ], 
       });
     },
+
+    // eslint-disable-next-line no-unused-vars
+    touch: ({commit, state}) => {
+      state.touch++;
+    },
+
     showPanel: ({commit, state}, data) => {
       if (data.checkIfAlreadyOpen === true) {
         let x = findPanel(state, data.type, data.data);
@@ -1100,8 +1121,8 @@ toggleRowChildren(state, {windowId, areaPath}) {
               },
           ],
           areas: [],
-          w: 500,
-          h: 300,
+          w: state.initialWindowWidth,
+          h: state.initialWindowHeight,
           flex: '1 1 100px',
         });
       }

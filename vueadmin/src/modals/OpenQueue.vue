@@ -12,7 +12,7 @@
                 <tr>
                     <th></th>
                     <th>name</th>
-                    <th># apps</th>
+                    <th># {{appName}}s</th>
                 </tr>
             </thead>
             <tbody>
@@ -42,7 +42,8 @@ export default {
   name: 'ModalOpenQueue',
   data() {
     return {
-        queues: this.$store.state.queues
+        queues: this.$store.state.queues,
+        appName: this.$store.state.appName,
     }
   },
     methods: {

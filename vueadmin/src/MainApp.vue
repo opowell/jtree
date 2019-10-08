@@ -1,15 +1,20 @@
 <template>
   <div id="app" :style='appStyle' @click='click'>
     <MainMenu/>
-    <div class='panel-container'>
+    <div 
+      class='panel-container'
+      @dragover='dragOver'
+      @dragenter="dragEnter($event)"
+      @dragleave="dragLeave"
+      @drop='drop($event)'
+    >
       <jt-window
         v-for='window in windows'
         :window='window'
         :key='window.id'
         :activePanelInd='window.activePanelInd'
         :rowChildren='window.rowChildren'
-        >
-      </jt-window>
+        />
     </div>
     <viewappeditor-modal/>
     <editappoptions-modal/>
@@ -92,8 +97,30 @@ export default {
     setContainerDimensions() {
       let container = document.querySelector('.panel-container');
       this.$store.commit('setContainerDimensions', container);
-    }
-  },
+    },
+        dragEnter(ev) {
+          if (ev.target !== this.$el.children[1]) {
+            return;
+          }
+          let el = ev.target;
+          el.classList.add('highlight');
+        },
+        dragLeave(ev) {
+            ev.target.classList.remove('highlight');
+        },
+        dragOver(ev) {
+                ev.preventDefault();
+        },
+        drop(ev) {
+            ev.preventDefault();
+            ev.target.classList.remove('highlight');
+            this.$store.dispatch('dropOnWindow', {
+                sourceWindowId: this.$store.state.dragData.windowId,
+                sourceAreaPath: this.$store.state.dragData.areaPath,
+                sourcePanelIndex: this.$store.state.dragData.index,
+            });
+        }
+      },
   computed: {
     appStyle() {
       let s = this.$store.state;
@@ -111,7 +138,9 @@ export default {
     this.$nextTick(function() {
       window.addEventListener('resize', this.setContainerDimensions);
       this.setContainerDimensions();
-      this.$store.dispatch('showPanel', {type: 'ViewWelcome'});
+      // debugger;
+      // this.$store.dispatch('touch');
+      // this.$store.dispatch('showPanel', {type: 'ViewWelcome'});
       // this.$bvModal.show('welcomeModal');
     });
   }
@@ -213,4 +242,10 @@ body {
     background-color: rgba(48, 121, 244,.5);
 }
 
+</style>
+
+<style scoped>
+.highlight {
+    background-color: #6d000057;
+}
 </style>
