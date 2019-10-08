@@ -19,6 +19,7 @@
     <ModalSetViewSize/>
     <ModalAddAppToQueue/>
     <ModalAddAppToSession/>
+    <ModalAddQueueToSession/>
     <ModalCreateApp/>
     <ModalCreateQueue/>
     <ModalOpenApp/>
@@ -40,6 +41,7 @@ import MainMenu from '@/components/MainMenu.vue'
 import ModalSetViewSize            from '@/modals/SetViewSize.vue'
 import ModalAddAppToQueue          from '@/modals/AddAppToQueue.vue'
 import ModalAddAppToSession        from '@/modals/AddAppToSession.vue'
+import ModalAddQueueToSession      from '@/modals/AddQueueToSession.vue'
 import ModalConfirm                from '@/modals/Confirm.vue'
 import ModalCreateApp              from '@/modals/CreateApp.vue'
 import ModalCreateQueue            from '@/modals/CreateQueue.vue'
@@ -47,7 +49,7 @@ import ModalOpenApp                from '@/modals/OpenApp.vue'
 import ModalOpenQueue              from '@/modals/OpenQueue.vue'
 import ModalSetAutoplayFreq        from '@/modals/SetAutoplayFreq.vue'
 
-import '@/webcomps/AddQueueToSessionModal.js'
+// import '@/webcomps/AddQueueToSessionModal.js'
 import '@/webcomps/AppSetVariableModal.js'
 import '@/webcomps/EditAppOptionsModal.js'
 import '@/webcomps/RenameAppModal.js'
@@ -65,6 +67,7 @@ export default {
     MainMenu,
     ModalAddAppToQueue,
     ModalAddAppToSession,
+    ModalAddQueueToSession,
     ModalConfirm,
     ModalCreateApp,
     ModalCreateQueue,
