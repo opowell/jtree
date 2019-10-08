@@ -22,7 +22,7 @@
                 :key='app.id'
                 :fields='["id", "description"]'
                 :app='app'
-                @click.native="clickApp(app.id, $event)"
+                @click.native="click(app.id, $event)"
                 style='cursor: pointer;'
             />
             </tbody>
@@ -60,7 +60,7 @@ export default {
                 window.vue.$bvModal.hide('addAppToSessionModal');
                 var optionEls = $(this).find('[app-option-name]');
                 var options = jt.deriveAppOptions(optionEls);
-                server.sessionAddApp($(this).data('appId'), options);
+                server.sessionAddApp(id, options);
             }
         }
     }
