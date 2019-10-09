@@ -17,7 +17,7 @@
 export default {
     name: 'JtSpacer',
     props: [
-        'window',
+        'windowDesc',
         'area',
     ],
     computed: {
@@ -43,7 +43,7 @@ export default {
             ev.stopPropagation();
             ev.target.classList.remove('highlight');
             let targetData = {
-                windowId: this.window.id,
+                windowId: this.windowDesc.id,
                 areaPath: this.areaPath,
                 index,
             };
@@ -53,7 +53,7 @@ export default {
                     sourceWindowId: this.$store.state.dragData.windowId,
                     sourceAreaPath: this.$store.state.dragData.areaPath,
                     sourcePanelIndex: this.$store.state.dragData.index,
-                    targetWindowId: this.window.id,
+                    targetWindowId: this.windowDesc.id,
                     targetAreaPath: this.areaPath,
                     targetIndex: index,
                 });
@@ -77,7 +77,7 @@ export default {
         },
         dragEnterTab(index, ev) {
             let targetData = {
-                windowId: this.window.id,
+                windowId: this.windowDesc.id,
                 areaPath: this.areaPath,
                 index,
             };

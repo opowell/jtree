@@ -60,8 +60,4 @@ export default {
 
 }
 
-jt.showOpenAppModal = function() {
-    window.vue.$bvModal.show('openAppModal');
-}
-
 </script>

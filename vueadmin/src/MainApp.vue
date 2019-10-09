@@ -9,11 +9,11 @@
       @drop='drop($event)'
     >
       <jt-window
-        v-for='window in windows'
-        :window='window'
-        :key='window.id'
-        :activePanelInd='window.activePanelInd'
-        :rowChildren='window.rowChildren'
+        v-for='windowDesc in windowDescs'
+        :windowDesc='windowDesc'
+        :key='windowDesc.id'
+        :activePanelInd='windowDesc.activePanelInd'
+        :rowChildren='windowDesc.rowChildren'
         />
     </div>
     <viewappeditor-modal/>
@@ -29,6 +29,7 @@
     <ModalCreateQueue/>
     <ModalOpenApp/>
     <ModalOpenQueue/>
+    <ModalOpenSession/>
     <ModalSetAutoplayFreq/>
       <div id='logMessage' class='popup' style='margin-top: 2rem; display: none'>
         <div class='alert-box success'>
@@ -52,15 +53,14 @@ import ModalCreateApp              from '@/modals/CreateApp.vue'
 import ModalCreateQueue            from '@/modals/CreateQueue.vue'
 import ModalOpenApp                from '@/modals/OpenApp.vue'
 import ModalOpenQueue              from '@/modals/OpenQueue.vue'
+import ModalOpenSession            from '@/modals/OpenSession.vue'
 import ModalSetAutoplayFreq        from '@/modals/SetAutoplayFreq.vue'
 
-// import '@/webcomps/AddQueueToSessionModal.js'
 import '@/webcomps/AppSetVariableModal.js'
 import '@/webcomps/EditAppOptionsModal.js'
 import '@/webcomps/RenameAppModal.js'
 import '@/webcomps/ViewAppEditModal.js'
 import '@/webcomps/ViewLogin.js'
-import '@/webcomps/ViewSessions.js'
 
 import '@/webcomps/Model.js'
 import '@/webcomps/circularjson.js'
@@ -78,13 +78,14 @@ export default {
     ModalCreateQueue,
     ModalOpenApp,
     ModalOpenQueue,
+    ModalOpenSession,
     ModalSetAutoplayFreq,
     ModalSetViewSize,
   },
   data() {
     return {
       elements: this.$store.state.panelDescs,
-      windows: this.$store.state.windowDescs,
+      windowDescs: this.$store.state.windowDescs,
     }
   },
   beforeMount() {

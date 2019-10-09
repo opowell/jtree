@@ -25,7 +25,7 @@
             </tbody> -->
             <tbody>
                 <AppRow 
-                    v-for='(app, appIndex) in session.fullApps'
+                    v-for='(app, appIndex) in sessionFullApps'
                     :key='appIndex'
                     :fields='["", "indexInSession", "id", "optionsView"]'
                     :app='app'
@@ -43,12 +43,17 @@
 export default {
   name: 'ViewSessionApps',
   data() {
-      let session = this.$store.state.session;
-      let fullApps = session == null ? [] : session.fullApps;
     return {
-        session,
-        fullApps,
+        session: this.$store.state.session,
     }
+  },
+  computed: {
+      sessionFullApps() {
+          if (this.session == null) {
+              return [];
+          }
+          return this.session.fullApps;
+      }
   },
   props: [
     'dat',

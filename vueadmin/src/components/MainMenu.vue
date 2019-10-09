@@ -49,6 +49,9 @@ export default {
     //   let out = this.recalcMenu();
     //   return out;
     // },
+    appName() {
+        return this.$store.state.appName;
+    },
       mainMenuStyle() { return {
         //   'background-color': this.$store.state.menuBGColor,
         //   'color': this.$store.state.menuColor,
@@ -109,12 +112,52 @@ export default {
                     hasParent: false,
                     children: [
                         {
+                            text: 'New',
+                            children: [
+                                {
+                                    text: this.$store.state.appName,
+                                    action: jt.showCreateAppModal,
+                                },
+                                {
+                                    text: 'Queue',
+                                    action: jt.showCreateQueueModal,
+                                },
+                                {
+                                    text: 'Session',
+                                    action: server.sessionCreate,
+                                },
+
+                            ]
+                        },
+                        {
+                            text: 'Open',
+                            children: [
+                                {
+                                    text: this.$store.state.appName,
+                                    action: jt.showModal,
+                                    clickData: 'openAppModal',
+                                },
+                                {
+                                    text: 'Queue',
+                                    action: jt.showModal,
+                                    clickData: 'openQueueModal',
+                                },
+                                {
+                                    text: 'Session',
+                                    action: jt.showModal,
+                                    clickData: 'openSessionModal',
+                                },
+
+                            ]
+                        },
+                        'divider',
+                        {
                             text: 'Welcome',
                             action: this.showPanel,
                             clickData: 'ViewWelcome',
                         },
                         {
-                            text: 'Apps',
+                            text: this.appName + 's',
                             action: this.showPanel,
                             clickData: 'ViewApps',
                         },
@@ -123,6 +166,12 @@ export default {
                             action: this.showPanel,
                             clickData: 'ViewQueues',
                         },
+                        {
+                            text: 'Sessions',
+                            action: this.showPanel,
+                            clickData: 'ViewSessions',
+                        },
+                        'divider',
                         {
                             text: 'Log',
                             action: this.showPanel,
@@ -180,7 +229,8 @@ export default {
                         },
                         {
                             text: 'Open...',
-                            action: jt.showOpenAppModal,
+                            action: jt.showModal,
+                            clickData: 'openAppModal',
                         },
                         {
                             text: 'Manage',
@@ -199,7 +249,8 @@ export default {
                         },
                         {
                             text: 'Open...',
-                            action: jt.showOpenQueueModal,
+                            action: jt.showModal,
+                            clickData: 'openQueueModal',
                         },
                         {
                             text: 'Manage',
@@ -213,8 +264,18 @@ export default {
                     hasParent: false,
                     children: [
                         {
-                            text: 'New...',
-                            action: jt.showCreateAppModal,
+                            text: 'New',
+                            action: server.sessionCreate,
+                        },
+                        {
+                            text: 'Open...',
+                            action: jt.showModal,
+                            clickData: 'openSessionModal',
+                        },
+                        {
+                            text: 'Manage',
+                            action: this.showPanel,
+                            clickData: 'ViewSessions',
                         },
                         'divider',
                         {
@@ -283,7 +344,7 @@ export default {
                 },
                 windowMenu,
             ];
-            let numWindows = this.$store.state.windowDescs.length;
+            let numWindows = this.$store.state.windows.length;
             for (let i=0; i<numWindows; i++) {
                 const panel = this.$store.state.windows[i];
                 const menuData = {
@@ -308,28 +369,27 @@ export default {
             }
             windowMenu.children.push(
                 {
-                    text: 'Close All',
-                    action: this.closeAll,
-                }
-            );
-            windowMenu.children.push(
-                {
-                    text: 'Reset',
-                    action: this.resetWindows,
-                }
-            ),
-            windowMenu.children.push(
+                    text: 'Close Active',
+                    action: this.closeActive,
+                },
                 {
                     text: 'Split horizontally',
                     action: this.splitMultiPanel,
                     clickData: 'horizontal',
-                }
-            );
-            windowMenu.children.push(
+                },
                 {
                     text: 'Split vertically',
                     action: this.splitMultiPanel,
                     clickData: 'vertical',
+                },
+                'divider',
+                {
+                    text: 'Close All',
+                    action: this.closeAll,
+                },
+                {
+                    text: 'Reset',
+                    action: this.resetWindows,
                 }
             );
             this.menuData = out;
@@ -366,8 +426,9 @@ export default {
         closeAll() {
             this.$store.commit('closeAllWindows');
         },
-        // setWindowMenuChildren(newval) {
-        // },
+        closeActive() {
+            this.$store.dispatch('closeActiveWindow');
+        },
         showPanel(type) {
             this.$store.dispatch('showPanel', {type: type});
         },

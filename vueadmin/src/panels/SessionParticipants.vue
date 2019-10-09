@@ -120,7 +120,7 @@ export default {
   },
     computed: {
         viewedFields() {
-            console.log('recalculating viewed fields');
+            // console.log('recalculating viewed fields');
             let out = [];
             for (let i in this.fields) {
                 out.push(this.fields[i]);

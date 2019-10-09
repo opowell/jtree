@@ -3,7 +3,7 @@
         <div class='tab-grid'>
             <div>Id</div>
             <div>
-                <input id='view-session-id-input' type='text' :value="session.id">
+                <input id='view-session-id-input' type='text' :value="session == null ? 'none' : session.id">
                 <button type="button" class="btn btn-sm btn-primary" onclick='jt.setSessionId();'>Set</button>
                 <small class="form-text text-muted">
                     Must be unique across all sessions. Clients must be reconnected after change.
@@ -71,7 +71,7 @@
             </div>
             <div>
                 <select id='deleteParticipantSelect'>
-                    <option v-for='part in session.participants' :key='part.id'>{{part.id}}</option>
+                    <option v-for='part in sessionParticipants' :key='part.id'>{{part.id}}</option>
                 </select>
                 <button type="button" class="btn btn-sm btn-primary" onclick='deleteParticipantBtn();'>Delete</button>
                 <small class="form-text text-muted">
@@ -102,7 +102,13 @@ export default {
   ],
   computed: {
       numParts() {
-        return Object.keys(this.session.participants).length;
+        return Object.keys(this.sessionParticipants).length;
+      },
+      sessionParticipants() {
+          if (this.session == null) {
+              return [];
+          }
+          return this.session.participants;
       }
   },
   mounted() {

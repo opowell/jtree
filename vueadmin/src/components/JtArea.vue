@@ -42,9 +42,12 @@
                     },
                     "divider",
                     {
-                        icon: ["far", "window-close"],
                         text: "Close Area",
                         action: close,
+                    },
+                    {
+                        text: "Close Window",
+                        action: closeWindow,
                     },
                     {
                         icon: ["fas", "exchange-alt"],
@@ -118,7 +121,7 @@
                 </span>
                 <jt-spacer
                     @mousedown.native='startMove'
-                    :window='window'
+                    :windowDesc='windowDesc'
                     :area='area'
                 />
             </template>
@@ -149,7 +152,7 @@
                 :key='"area-" + index'
                 :areaProp='curArea'
                 :parent='area'
-                :window='window'
+                :windowDesc='windowDesc'
                 :indexOnParent='index'
                 @startmove='startMove'
                 :rowChildren='curArea.rowChildren'
@@ -188,6 +191,7 @@ import ViewWelcome              from '@/panels/Welcome.vue'
 import ViewLog                  from '@/panels/Log.vue'
 import ViewQueue                from '@/panels/Queue.vue'
 import ViewQueues               from '@/panels/Queues.vue'
+import ViewSessions             from '@/panels/Sessions.vue'
 import ViewSessionActivity      from '@/panels/SessionActivity.vue'
 import ViewSessionApps          from '@/panels/SessionApps.vue'
 import ViewSessionControls      from '@/panels/SessionControls.vue'
@@ -207,6 +211,7 @@ export default {
     ViewLog,
     ViewQueue,
     ViewQueues,
+    ViewSessions,
     ViewSessionActivity,
     ViewSessionApps,
     ViewSessionControls,
@@ -225,7 +230,7 @@ export default {
   props: [
       'areaProp',
       'parent',
-      'window',
+      'windowDesc',
       'indexOnParent', // Non-array fields must be listed explicitly for some reason, otherwise they do not update.
       'activePanelInd',
       'isLastArea',
@@ -243,7 +248,7 @@ export default {
   },
   mounted() {
       this.area.parent = this.parent;
-      this.area.window = this.window;
+      this.area.windowDesc = this.windowDesc;
   },
   computed: {
       hideTabsWhenSinglePanel() {
@@ -299,7 +304,7 @@ export default {
   methods: {
         dragStart(index) {
             this.$store.state.dragData = {
-                windowId: this.window.id,
+                windowId: this.windowDesc.id,
                 areaPath: this.areaPath,
                 index,
             }
@@ -309,7 +314,7 @@ export default {
             ev.stopPropagation();
             ev.target.classList.remove('highlight');
             let targetData = {
-                windowId: this.window.id,
+                windowId: this.windowDesc.id,
                 areaPath: this.areaPath,
                 index,
             };
@@ -319,7 +324,7 @@ export default {
                     sourceWindowId: this.$store.state.dragData.windowId,
                     sourceAreaPath: this.$store.state.dragData.areaPath,
                     sourcePanelIndex: this.$store.state.dragData.index,
-                    targetWindowId: this.window.id,
+                    targetWindowId: this.windowDesc.id,
                     targetAreaPath: this.areaPath,
                     targetIndex: index,
                 });
@@ -336,7 +341,7 @@ export default {
         },
         dragEnterTab(index, ev) {
             let targetData = {
-                windowId: this.window.id,
+                windowId: this.windowDesc.id,
                 areaPath: this.areaPath,
                 index,
             };
@@ -352,14 +357,14 @@ export default {
       newSiblingOfParent() {
           this.$store.commit('newSiblingOfParent', {
               areaPath: this.areaPath,
-              windowId: this.window.id,
+              windowId: this.windowDesc.id,
               panelInd: this.activePanelInd,
           });
       },
       changeSelectedIndex(change) {
           this.$store.commit('changeSelectedIndex', {
               areaPath: this.areaPath,
-              windowId: this.window.id,
+              windowId: this.windowDesc.id,
               change,
           })
       },
@@ -415,7 +420,7 @@ export default {
                 indexOnParent = curArea.indexOnParent;
             }
           this.$store.commit('setAreaSize', {
-              windowId: this.window.id,
+              windowId: this.windowDesc.id,
               areaPath,
               size: this.adjustData.newSize,
           });
@@ -431,19 +436,22 @@ export default {
         this.$store.commit('setActivePanelIndex', {
                 index,
                 areaPath: this.areaPath,
-                windowId: this.window.id,
+                windowId: this.windowDesc.id,
             });
         },
         close() {
             this.$store.commit('closeArea', {
                 areaPath: this.areaPath,
-                windowId: this.window.id,
+                windowId: this.windowDesc.id,
             });
+        },
+        closeWindow() {
+            this.$store.commit('closeWindow', this);
         },
       createChild(rowChildren) {
             this.$store.commit('createChild', {
               areaPath: this.areaPath,
-              windowId: this.window.id,
+              windowId: this.windowDesc.id,
               panelInd: this.activePanelInd,
               rowChildren,
             });
@@ -455,7 +463,7 @@ export default {
         this.$store.commit('closePanel', {
             panelIndex: index,
             areaPath: this.areaPath,
-            windowId: this.window.id,
+            windowId: this.windowDesc.id,
         });
     },
     closeArea(area) {
@@ -499,7 +507,7 @@ export default {
             parentAreaPath.push(this.areaPath[i]);
         }
         this.$store.commit('toggleRowChildren', {
-            windowId: this.window.id,
+            windowId: this.windowDesc.id,
             areaPath: parentAreaPath,
         });
     },

@@ -13,9 +13,10 @@ const StaticServer  = require('./core/StaticServer.js');
  * If requested, opens the admin interface in the browser.
  */
 var jt = {};
+global.jt = jt;
 
 // The version of jtree, should match what is in buildJTree.bat
-jt.version = '0.8.2';
+jt.version = '0.8.3';
 
 /** Location of the server executable. All files should be relative to this.
 */

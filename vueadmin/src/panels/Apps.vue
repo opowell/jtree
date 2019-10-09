@@ -62,7 +62,9 @@ export default {
       }
   },
   mounted() {
-      this.panel.id = this.$store.state.appName + 's';
+      this.$nextTick(function() {
+          this.panel.id = this.$store.state.appName + 's';
+      });
   },
 }
 

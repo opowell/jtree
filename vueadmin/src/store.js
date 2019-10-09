@@ -561,7 +561,7 @@ function closeAreaMethod(state, areaPath, windowId) {
     }
   } else {
     state.windowDescs.splice(winIndex, 1);
-    if (state.activeWindow.window.id === windowId) {
+    if (state.activeWindow.windowDesc.id === windowId) {
       if (state.windows.length === 1) {
         state.activeWindow = null;
       } else {
@@ -664,9 +664,37 @@ addWindow(state, panel) {
 closeAllWindows(state) {
   state.activeWindow = null;
   state.windowDescs.splice(0, state.windowDescs.length);
+  state.windows.splice(0, state.windows.length);
   state.nextWindowX = state.nextWindowXIncrement / 2;
   state.nextWindowY = state.nextWindowYIncrement / 2;
   state.nextWindowId = 0;
+},
+closeWindow(state, win) {
+  if (win == null) {
+    return;
+  }
+  for (let i in state.windowDescs) {
+    let wd = state.windowDescs[i];
+    if (wd == win.windowDesc) {
+      state.windowDescs.splice(i, 1);
+      break;
+    }
+  }
+  if (state.activeWindow.windowDesc.id === win.windowDesc.id) {
+    if (state.windows.length === 1) {
+      state.activeWindow = null;
+    } else {
+      state.activeWindow = state.windows[state.windows.length - 2];
+    }
+  }
+  for (let i in state.windows) {
+    let window = state.windows[i];
+    if (window == win) {
+      state.windows.splice(i, 1);
+      break;
+    }
+  }
+  // state.activeWindow = state.windows[state.windows.length-1];
 },
 changeSelectedIndex(state, {areaPath, windowId, change}) {
   let area = getArea(state, windowId, areaPath);
@@ -879,6 +907,10 @@ toggleRowChildren(state, {windowId, areaPath}) {
   },
   actions: {
 
+    closeActiveWindow: ({commit, state}) => {
+      commit('closeWindow', state.activeWindow);
+    },
+    
     // eslint-disable-next-line no-unused-vars
     resetWindows: ({commit, dispatch}) => {
       commit('closeAllWindows');
@@ -1083,7 +1115,7 @@ toggleRowChildren(state, {windowId, areaPath}) {
     },
 
     showPanel: ({commit, state}, data) => {
-      if (data.checkIfAlreadyOpen === true) {
+      if (data.checkIfAlreadyOpen !== false) {
         let x = findPanel(state, data.type, data.data);
         if (x.panel !== null) {
           x.area.activePanelInd = x.index;

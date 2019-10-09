@@ -211,14 +211,16 @@ jt.connected = function() {
     });
 
     jt.socket.on('remove-client', function(client) {
-        if (client.session.id === jt.data.session.id) {
-            // console.log('remove client: ' + client);
-            Utils.deleteById(jt.data.session.clients, client.id);
+        let session = window.vue.$store.state.session;
+        if (session == null) {
+            return;
+        }
+        if (client.session.id === session.id) {
+            Utils.deleteById(session.clients, client.id);
             jt.removeClient(client.id);
-            var participant = Utils.findById(jt.data.session.participants, client.pId);
+            var participant = Utils.findById(session.participants, client.pId);
             if (participant != null) {
                 participant.numClients--;
-                $('.participant-' + client.pId + '-numClients').text(participant.numClients);
             }
         }
     });

@@ -9,6 +9,7 @@ const replace   = require("replace");
 const bodyParser = require("body-parser");
 const session   = require('express-session');
 // const history   = require('connect-history-api-fallback');
+const apiRoutes = require("./api-routes")
 
 const selfsigned = require('selfsigned');
 
@@ -64,6 +65,8 @@ class StaticServer {
 
         // END FILE SERVING
         //////////////////////////////
+
+        expApp.use('/api', apiRoutes)
 
         //////////////////////////////
         // REQUESTS

@@ -2,7 +2,6 @@ import Vue from 'vue'
 import MainApp from './MainApp.vue'
 
 import store from './store'
-// store.commit('closeAllWindows', {});
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
@@ -114,10 +113,12 @@ library.add(
 
 import AppRow from '@/components/AppRow.vue'
 import QueueRow from '@/components/QueueRow.vue'
+import SessionRow from '@/components/SessionRow.vue'
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 Vue.component('AppRow', AppRow)
 Vue.component('QueueRow', QueueRow)
+Vue.component('SessionRow', SessionRow)
 
 window.jt = jt;
 

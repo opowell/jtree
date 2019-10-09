@@ -15,11 +15,9 @@ var msgs = {};
 jt.msgs = msgs;
 
 msgs.addSession = function(session) {
-  var index = findById(jt.data.sessions, session.id);
+  var index = findById(window.vue.$store.state.sessions, session.id);
   if (index === null) {
-      jt.data.sessions.push(session);
-      jt.showSessionRow(session);
-    //   jt.showUsersMode(jt.settings.multipleUsers);
+    window.vue.$store.state.sessions.push(session);
   }
 }
 msgs.deleteSession = function(id) {
@@ -133,7 +131,7 @@ msgs.openSession = function(session) {
         server.reloadClients();
     }
 
-    localStorage.setItem('sessionId', session.id);
+    store.commit('setSessionId', session.id);
 
     store.dispatch('showSessionWindow2');
 

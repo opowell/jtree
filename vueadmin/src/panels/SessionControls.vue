@@ -1,7 +1,7 @@
 <template>
     <div style='display: block'>
         <div class='btn-group flex-wrap'>
-            <button class='btn btn-outline-secondary btn-sm' :disabled='session.started' onclick='server.sessionStart();'>
+            <button class='btn btn-outline-secondary btn-sm' :disabled='session == null || session.started' onclick='server.sessionStart();'>
                 <i class="fa fa-play"></i>&nbsp;&nbsp;Start
             </button>
             <button class='btn btn-outline-secondary btn-sm' onclick='server.sessionAdvanceSlowest();'>

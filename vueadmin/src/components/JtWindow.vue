@@ -14,7 +14,7 @@
 	>
       <jt-area 
 		:areaProp="area"
-		:window="window"
+		:windowDesc="windowDesc"
 		:indexOnParent=0
 		@startmove='startMove'
 		:flex="flex"
@@ -59,7 +59,7 @@ export default {
 		JtArea,
 	},
 	props: [
-		'window',
+		'windowDesc',
 		'activePanelInd',
 		'index',
 		'rowChildren',
@@ -67,8 +67,8 @@ export default {
 	data() {
 		return {
 			area: {
-				panels: this.window.panels,
-				areas: this.window.areas,
+				panels: this.windowDesc.panels,
+				areas: this.windowDesc.areas,
 				// activePanelInd: this.activePanelInd,
 			},
 			menus: [
@@ -81,13 +81,13 @@ export default {
 					hasParent: false
 				}
 			],
-			panelId: this.window.id,
-			dataTitle: this.window.title,
+			panelId: this.windowDesc.id,
+			dataTitle: this.windowDesc.title,
 
-			left: this.window.x,
-			top: this.window.y,
-			width: this.window.w,
-			height: this.window.h,
+			left: this.windowDesc.x,
+			top: this.windowDesc.y,
+			width: this.windowDesc.w,
+			height: this.windowDesc.h,
 
 			minHeight: 100,
 			minWidth: 200,
@@ -108,7 +108,7 @@ export default {
 			return this.$store.state.containerHeight;
 		},
 		flex() {
-			return this.window.flex;
+			return this.windowDesc.flex;
 		},
 		isActive() {
 			return !this.isMaximized || this === this.$store.state.activeWindow;
@@ -153,7 +153,7 @@ export default {
 		}
 	},
 	watch: {
-		window: function(oldVal, newVal) {
+		windowDesc: function(oldVal, newVal) {
 			this.left = newVal.x;
 			this.top = newVal.y;
 			this.width = newVal.w;

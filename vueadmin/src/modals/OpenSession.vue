@@ -1,30 +1,30 @@
 <template>
       <b-modal 
-        id="openQueueModal" 
+        id="openSessionModal" 
         tabindex="-1" 
         role="dialog"
         size='xl'
-        title="Open Queue"
+        title="Open Session"
         class='test'
         >
         <table class='table table-hover'>
             <thead>
                 <tr>
-                    <th></th>
-                    <th>name</th>
-                    <th># {{appName}}s</th>
+                    <th>id</th>
+                    <th>participants</th>
+                    <th>{{appName}}s</th>
                 </tr>
             </thead>
             <tbody>
-              <QueueRow 
-                v-for='queue in queues'
-                :key='queue.id'
-                :fields='["playButton", "id", "apps.length"]'
-                :queue='queue'
-                @click.native="click(queue, $event)"
+            <SessionRow 
+                v-for='session in sessions'
+                :key='session.id'
+                :fields='["id", "numParticipants", "numApps"]'
+                :session='session'
+                @click.native="click(session.id, $event)"
                 style='cursor: pointer;'
-              />
-          </tbody>
+            />
+            </tbody>
         </table>
         <template v-slot:modal-footer="{ hide }">
             <button type="button" class="btn btn-sm btn-outline-primary" @click='hide'>Close</button>
@@ -39,10 +39,10 @@ let $ = window.jQuery
 import jt from '@/webcomps/jtree.js'
 
 export default {
-  name: 'ModalOpenQueue',
+  name: 'ModalOpenSession',
   data() {
     return {
-        queues: this.$store.state.queues,
+        sessions: this.$store.state.sessions,
         appName: this.$store.state.appName,
     }
   },
@@ -53,16 +53,16 @@ export default {
             ($(ev.target).prop('tagName') !== 'INPUT') &&
             ($(ev.target).prop('tagName') !== 'A')
         ) {
-            window.vue.$bvModal.hide('openQueueModal');
-            jt.openQueue(id);
+            window.vue.$bvModal.hide('openSessionModal');
+            jt.openApp(id);
         }
     }
   },
 
 }
 
-jt.showModal = function(x) {
-    window.vue.$bvModal.show(x);
+jt.showOpenSessionModal = function() {
+    window.vue.$bvModal.show('openSessionModal');
 }
 
 </script>

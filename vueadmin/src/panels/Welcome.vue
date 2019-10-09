@@ -1,24 +1,19 @@
 <template>
   <div style='display: flex; flex-direction: column;'>
       <div style='font-size: 1rem;'>Welcome to <span style='font-weight: bold'>jtree</span>.</div>
-      <div style='font-size: 1rem; padding-top: 1rem; color: #888; padding-bottom: 1rem;'>0.8.2</div>
-      <!-- <div style='margin-bottom: 1rem;'>What would you like to do?</div> -->
+      <div style='font-size: 1rem; padding-top: 1rem; color: #888; padding-bottom: 1rem;'>0.8.3</div>
       <div style='display: flex'>
         <div style=''>
-          <!-- <span class='link' v-for='(link, index) in links' :key='index' @click='clickLink(index)'>
-            {{link.title}}
-            </span> -->
           <div class='link' onclick='jt.showCreateAppModal()'>Create {{this.$store.state.appName}}...</div>
-          <div class='link' onclick='jt.showOpenAppModal()'>Open {{this.$store.state.appName}}...</div>
-          <div class='link' onclick='vue.$store.dispatch("showPanel", {type: "ViewApps"})'>Manage {{this.$store.state.appName}}s</div>
+          <div class='link' onclick='jt.showModal("openAppModal")'>Open {{this.$store.state.appName}}...</div>
         </div>
         <div>
-          <!-- <span class='link' v-for='(link, index) in links' :key='index' @click='clickLink(index)'>
-            {{link.title}}
-            </span> -->
           <div class='link' onclick='jt.showCreateQueueModal()'>Create Queue...</div>
-          <div class='link' onclick='jt.showOpenQueueModal()'>Open Queue...</div>
-          <div class='link' onclick='vue.$store.dispatch("showPanel", {type: "ViewQueues"})'>Manage Queues</div>
+          <div class='link' onclick='jt.showModal("openQueueModal")'>Open Queue...</div>
+        </div>
+        <div>
+          <div class='link' onclick='server.sessionCreate()'>Create Session</div>
+          <div class='link' onclick='jt.showModal("openSessionModal")'>Open Session...</div>
         </div>
       </div>
       <br>
@@ -32,35 +27,18 @@
 
 <script>
 
-let links = [
-  // { title: 'Apps',     type: 'ViewApps'      },
-  { title: 'Queues',   type: 'ViewQueues'    },
-]
-
 export default {
   name: 'ViewWelcome',
   props: [
     'dat',
     'panel',
   ],
-  data() {
-    return {
-      links,
-    }
-  },
-  methods: {
-    clickLink(index) {
-      let link = this.links[index];
-      this.$store.dispatch('showPanel', {type: link.type});
-    }
-  },
   mounted() {
       this.panel.id = 'Welcome';
   },
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 
 .link {
