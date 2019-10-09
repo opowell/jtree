@@ -29,7 +29,7 @@
                 >
                     <div class="card-header" style="background-color: rgb(207, 232, 207);">
                         <span>Participant {{player.id}}</span>
-                        <button type="button" class="headerBtn close float-right">
+                        <button type="button" class="headerBtn close float-right" @click='hideParticipant(player.id)'>
                             <font-awesome-icon title='close' :icon="['fas', 'times']"/>
                         </button>
                         <button type="button" class="headerBtn close float-right">
@@ -40,7 +40,7 @@
                             <font-awesome-icon title="refresh" :icon="['fas', 'redo-alt']"/>
                         </button>
                     </div>
-                    <iframe :id="'participant-frame-' + player.id" :src="'http://' + settings.server.ip + ':' + settings.server.port + '/session/' + session.id + '/' + player.id" class="participant-frame panel-content2"></iframe>
+                    <iframe :id="'participant-frame-' + player.id" :src="'http://' + settings.server.ip + ':' + settings.server.port + '/session/' + sessionId + '/' + player.id" class="participant-frame panel-content2"></iframe>
                 </div>
         </div>
     </div>
@@ -61,6 +61,9 @@ export default {
     }
   },
   computed: {
+      sessionId() {
+          return this.session == null ? 'none' : this.session.id;
+      },
       openPlayers() {
           return this.$store.state.openPlayers;
       },
@@ -69,10 +72,16 @@ export default {
               "height": this.$store.state.viewsHeight + 'px',
               "flex": (this.$store.state.stretchViews ? '1' : '0') + ' 0 ' + this.$store.state.viewsWidth + 'px',
           }
-      }
+      },
   },
   mounted() {
       this.panel.id = 'Session Activity';
+  },
+  methods: {
+      hideParticipant(id) {
+        store.commit('hideParticipant', id);          
+      },
+
   },
 }
 
@@ -81,6 +90,7 @@ import 'jquery'
 let $ = window.jQuery
 import server from '@/webcomps/msgsToServer.js'
 // import Vue from 'vue'
+import store from '@/store.js'
 
 jt.viewAllParticipants = function() {
     let openPlayers = window.vue.$store.state.openPlayers;
@@ -92,7 +102,7 @@ jt.viewAllParticipants = function() {
 }
 
 jt.hideAllParticipants = function() {
-    this.openPlayers.splice(0, this.openPlayers.length);
+    store.commit('hideAllParticipants');
 }
 
 jt.closeParticipantView = function(pId) {

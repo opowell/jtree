@@ -66,8 +66,9 @@ export default {
     created() {
         this.$store.watch(
             (state) => state.windowDescs,
-            (newValue, oldValue) => {
-                console.log(`Updating from ${oldValue} to ${newValue}`);
+            // (newValue, oldValue) => {
+            () => {
+                // console.log(`Updating from ${oldValue} to ${newValue}`);
                 this.recalcMenu();
             },
         );

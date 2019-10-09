@@ -602,7 +602,7 @@ setSessionId(state, sessionId) {
   //       state.session = response.data.session;
   //     }
   // });
-  global.jt.socket.emit('openSession', sessionId);
+  // global.jt.socket.emit('openSession', sessionId);
 },
 // setActionIndex(state, index) {
 //   Vue.set(state.session, 'messageIndex', index);
@@ -621,6 +621,18 @@ setSessionId(state, sessionId) {
 //   //   }
 //   // }
 // },
+
+hideParticipant(state, id) {
+  for (let i in state.openPlayers) {
+    if (state.openPlayers[i].id === id) {
+      state.openPlayers.splice(i, 1);
+      return;
+    }
+  }
+},
+hideAllParticipants(state) {
+  state.openPlayers.splice(0, state.openPlayers.length);
+},
 addPanelToActiveWindow(state, panelInfo) {
   for (let i=0; i<state.windowDescs.length; i++) {
     if (state.windowDescs[i].id === state.activeWindow.panelId) {
@@ -1118,7 +1130,11 @@ toggleRowChildren(state, {windowId, areaPath}) {
       if (data.checkIfAlreadyOpen !== false) {
         let x = findPanel(state, data.type, data.data);
         if (x.panel !== null) {
-          x.area.activePanelInd = x.index;
+          if (x.area.activePanelInd == null) {
+            x.window.windowDesc.activePanelInd = x.index;
+          } else {
+            x.area.activePanelInd = x.index;
+          }
           let curPos = x.window.zIndex;
           state.windows.splice(curPos, 1); 
           state.windows.push(x.window);

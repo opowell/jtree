@@ -60,7 +60,7 @@ export default {
             ($(ev.target).prop('tagName') !== 'INPUT') &&
             ($(ev.target).prop('tagName') !== 'A')
         ) {
-            server.openSession({id: id, name: id});
+            server.openSessionId(id);
         }
       }
   },
