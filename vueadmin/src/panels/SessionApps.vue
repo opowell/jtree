@@ -43,8 +43,11 @@
 export default {
   name: 'ViewSessionApps',
   data() {
+      let session = this.$store.state.session;
+      let fullApps = session == null ? [] : session.fullApps;
     return {
-        session: this.$store.state.session
+        session,
+        fullApps,
     }
   },
   props: [
@@ -66,6 +69,9 @@ import store from '@/store.js'
 
 jt.updateSessionApps = function() {
     let session = store.state.session;
+    if (session == null) {
+        return;
+    }
     session.fullApps = [];
     for (let i in session.apps) {
         let oldApp = session.apps[i];

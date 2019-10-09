@@ -67,13 +67,15 @@ export default {
   name: 'ParticipantsTable',
   data() {
     let linkType = 'link';
-    if (jt.settings.sessionShowFullLinks) {
+    if (jt.settings != null && jt.settings.sessionShowFullLinks) {
         linkType = 'full link';
     } 
 
+    let session = this.$store.state.session;
+    let participants = session != null ? session.participants : [];
     return {
-      session: this.$store.state.session,
-      participants: this.$store.state.session.participants,
+      session: session,
+      participants: participants,
       storeFields: this.$store.state.allFields,
       fieldsToSkip: playerFieldsToSkip,
       fields: [
