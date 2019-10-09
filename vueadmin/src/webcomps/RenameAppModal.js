@@ -50,8 +50,8 @@ jt.renameApp = function() {
 
     let cb = function() {
         let appInfos = store.state.appInfos;
-        for (let i=0; i<store.state.appInfos.length; i++) {
-            let app = store.state.appInfos[i];
+        for (let i=0; i<appInfos.length; i++) {
+            let app = appInfos[i];
             if (app.id === originalId) {
                 app.id = newId;
                 app.appPath = newId;

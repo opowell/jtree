@@ -233,7 +233,7 @@ class Stage {
     };
 
     newStage(id) {
-        var stage = new Stage.new(id, this.app, this.stages.length);
+        var stage = new Stage.new(id, this.app);
         this.stages.push(stage);
         return stage;
     }

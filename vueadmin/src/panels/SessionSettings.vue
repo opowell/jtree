@@ -142,6 +142,9 @@ jt.setAllowAdminPlay = function(val) {
 // }
 
 jt.updateAllowAdminPlay = function() {
+    if (store.state.session == null) {
+        return;
+    }
     let val = store.state.session.allowAdminClientsToPlay;
     if (val) {
         $('#allowAdminPlayYes').addClass('btn-secondary');

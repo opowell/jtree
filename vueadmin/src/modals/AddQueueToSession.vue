@@ -1,17 +1,17 @@
 <template>
       <b-modal 
-        id="openQueueModal" 
+        id="addQueueToSessionModal" 
         tabindex="-1" 
         role="dialog"
         size='xl'
-        title="Open Queue"
+        title="Add Queue to Session"
         class='test'
         >
         <table class='table table-hover'>
             <thead>
                 <tr>
                     <th></th>
-                    <th>name</th>
+                    <th>Name</th>
                     <th># {{appName}}s</th>
                 </tr>
             </thead>
@@ -37,9 +37,10 @@
 import 'jquery'
 let $ = window.jQuery
 import jt from '@/webcomps/jtree.js'
+import server from '@/webcomps/msgsToServer.js'
 
 export default {
-  name: 'ModalOpenQueue',
+  name: 'ModalAddQueueToSession',
   data() {
     return {
         queues: this.$store.state.queues,
@@ -53,16 +54,16 @@ export default {
             ($(ev.target).prop('tagName') !== 'INPUT') &&
             ($(ev.target).prop('tagName') !== 'A')
         ) {
-            window.vue.$bvModal.hide('openQueueModal');
-            jt.openQueue(id);
+            window.vue.$bvModal.hide('addQueueToSessionModal');
+            server.sessionAddQueue(id);
         }
     }
   },
 
 }
 
-jt.showOpenQueueModal = function() {
-    window.vue.$bvModal.show('openQueueModal');
+jt.showAddQueueToSessionModal = function() {
+    window.vue.$bvModal.show('addQueueToSessionModal');
 }
 
 </script>

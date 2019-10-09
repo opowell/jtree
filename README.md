@@ -1,34 +1,27 @@
 ## Getting started
 Download for your system, unzip and run.
 
-Latest version (2019.10.07): **0.8.1**
+Latest version (2019.10.07): **0.8.2**
 
-<a href='https://github.com/opowell/jtree/releases/latest/download/jtree-0.8.1-win.zip'>jtree for Windows</a>
+<a href='https://github.com/opowell/jtree/releases/latest/download/jtree-0.8.2-win.zip'>jtree for Windows</a>
 
-<a href='https://github.com/opowell/jtree/releases/latest/download/jtree-0.8.1-macos.zip'>jtree for Mac</a>
+<a href='https://github.com/opowell/jtree/releases/latest/download/jtree-0.8.2-macos.zip'>jtree for Mac</a>
 
-<a href='https://github.com/opowell/jtree/releases/latest/download/jtree-0.8.1-linux.zip'>jtree for Linux</a>
+<a href='https://github.com/opowell/jtree/releases/latest/download/jtree-0.8.2-linux.zip'>jtree for Linux</a>
 
-<a href='https://github.com/opowell/jtree/releases/latest/download/jtree-0.8.1-winxp.zip'>jtree for WindowsXP</a>
+<a href='https://github.com/opowell/jtree/releases/latest/download/jtree-0.8.2-winxp.zip'>jtree for WindowsXP</a>
 
 ![](double-auction.png)
 
+![](adminUI.png)
+
 #### Features
-- modern programming capabilities (functions; objects).
+- functions, objects.
 - subjects not required to run separate program / use Windows.
 - server runs natively on Windows, MacOS and Linux.
 - autoplay for testing.
 - treatment options: facilitate switching between important parameter configurations of a treatment.
 - session queues: save sequences of treatments (including their options) for re-use.
-
-##### Planned features
-- same look and functionality as z-Tree and oTree.
-- documentation.
-- users: share one server among many experimenters.
-- rooms: persistent links for subjects.
-
-### UNDER DEVELOPMENT
-Parts of the documentation are accurate, others are out of date, while still others refer to functionality that will be implemented soon (but for the moment still does not exist). Proceed with caution.
 
 #### <a href='https://opowell.github.io/jtree/reference/tutorial-1-quick-start.html'>Quick start</a>
 

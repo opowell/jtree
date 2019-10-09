@@ -1,4 +1,8 @@
-This tutorial will show you how to program the simple public goods game used in the previous section. From the "Apps" page, click "create...". Type `my-public-goods` as the filename, then click "Create".
+This tutorial will show you how to program the simple public goods game used in the previous section. From the Welcome screen, click "Create App...". Type `my-public-goods` as the filename, then click "Create".
+
+[Note: "App", "Game" and "Treatment" are used interchangeably in jtree.]
+
+The App window will open. Click "Code..." to edit the code of your App.
 
 First, we will define the parameters and stages of the app. Each app file begins with a pre-defined App object called `app`, and fields are modified and/or added to this object using regular Javascript. Add the following code to your file now:
 
@@ -110,9 +114,9 @@ resultsStage.groupStart = function(group) {
 resultsStage.activeScreen = `
     <p>RESULTS</p>
     <p>Your endowment was {{app.endowment}} E$. You contributed {{player.contribution}} E$.</p>
-    <p>In total, players in your group contributed {{group.contributions}} E$, thus the total amount produced was {{group.production.toFixed(2)}} E$.</p>
-    <p>Thus, your payoff in this period is {{player.points.toFixed(2)}} E$.</p>
+    <p>In total, players in your group contributed {{group.contributions}} E$, thus the total amount produced was {{group.production | round(2)}} E$.</p>
+    <p>Thus, your payoff in this period is {{player.points | round(2)}} E$.</p>
 `;
 ```
 
-And now the app is complete. To test it, simply follow the previous tutorial on <a href='file:///Users/esragul/Downloads/jtree-0-2/internal/docs/tutorial-3-running-a-session.html'>running a session.</a>
+And now the app is complete. To test it, simply follow the previous tutorial on <a href='tutorial-3-running-a-session.html'>running a session.</a>

@@ -11,7 +11,7 @@ Extract the contents of the zip file. It contains the following:
 - /apps: a folder for apps.
 - /internal: logs, client files and server information.
 
-Additionally, jtree will generate the following folders:
+Additionally, jtree generates the following folder:
 - /sessions: where session output is stored.
 
 jtree consists of a server program (the .exe file). You start the server, then connect to it as a client via your web browser. Clients can be either administrators or participants.

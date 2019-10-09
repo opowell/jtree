@@ -7,9 +7,9 @@
             <button type='button' class='btn btn-outline-secondary btn-sm' onclick='jt.showAddQueueToSessionModal();'>
                 <i class="fa fa-plus"></i>&nbsp;&nbsp;add Queue...
             </button>
-            <button type='button' class='btn btn-outline-secondary btn-sm' onclick='jt.showAddQueueToSessionModal();'>
+            <!-- <button type='button' class='btn btn-outline-secondary btn-sm' onclick='jt.showAddQueueToSessionModal();'>
                 <i class="fa fa-save"></i>&nbsp;&nbsp;Save as new queue...
-            </button>
+            </button> -->
         </div>
 
         <table class='table table-hover'>
@@ -43,8 +43,11 @@
 export default {
   name: 'ViewSessionApps',
   data() {
+      let session = this.$store.state.session;
+      let fullApps = session == null ? [] : session.fullApps;
     return {
-        session: this.$store.state.session
+        session,
+        fullApps,
     }
   },
   props: [
@@ -60,12 +63,15 @@ export default {
 import jt from '@/webcomps/jtree.js'
 import 'jquery'
 let $ = window.jQuery
-import server from '@/webcomps/msgsToServer.js'
+// import server from '@/webcomps/msgsToServer.js'
 // import Vue from 'vue'
 import store from '@/store.js'
 
 jt.updateSessionApps = function() {
     let session = store.state.session;
+    if (session == null) {
+        return;
+    }
     session.fullApps = [];
     for (let i in session.apps) {
         let oldApp = session.apps[i];
@@ -147,22 +153,12 @@ jt.updateSessionApps = function() {
     // })
 }
 
+jt.showAddAppToSessionModal = function() {
+    $('#addAppToSessionModal').modal('show');
+}
+
 jt.showAddQueueToSessionModal = function() {
-    $('#addQueueToSessionModal').modal('show');
-    $('#addQueueToSessionModal-queues').empty();
-    for (var i in jt.data.queues) {
-        var queue = jt.data.queues[i];
-        var row = jt.QueueRow(queue, ['id', 'apps']);
-        row.css('cursor', 'pointer');
-        row.data('queue', queue.id);
-
-        row.click(function() {
-            server.sessionAddQueue($(this).data('queue'));
-            $('#addQueueToSessionModal').modal('hide');
-        });
-
-        $('#addQueueToSessionModal-queues').append(row);
-    }
+    window.vue.$bvModal.show('addQueueToSessionModal');
 }
 
 jt.saveSessionAppOptions = function() {

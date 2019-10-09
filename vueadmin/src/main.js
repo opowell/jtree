@@ -1,8 +1,8 @@
 import Vue from 'vue'
-import App from './App.vue'
+import MainApp from './MainApp.vue'
 
 import store from './store'
-store.commit('closeAllWindows', {});
+// store.commit('closeAllWindows', {});
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
@@ -125,5 +125,5 @@ Vue.config.productionTip = false
 
 window.vue = new Vue({
   store,
-  render: h => h(App),
+  render: h => h(MainApp),
 }).$mount('#app')

@@ -8,9 +8,9 @@
     <div 
 		class="body"
 		@dragover='dragOver'
-        @dragenter="dragEnterBody($event)"
-        @dragleave="dragLeaveTab"
-        @drop='dropOnTab($event)'
+		@dragenter="dragEnter($event)"
+		@dragleave="dragLeave"
+		@drop='drop($event)'
 	>
       <jt-area 
 		:areaProp="area"
@@ -83,6 +83,7 @@ export default {
 			],
 			panelId: this.window.id,
 			dataTitle: this.window.title,
+
 			left: this.window.x,
 			top: this.window.y,
 			width: this.window.w,
@@ -151,8 +152,16 @@ export default {
 			}
 		}
 	},
+	watch: {
+		window: function(oldVal, newVal) {
+			this.left = newVal.x;
+			this.top = newVal.y;
+			this.width = newVal.w;
+			this.height = newVal.h;
+		},
+	},
 	methods: {
-        dragEnterBody(ev) {
+        dragEnter(ev) {
 			if (ev.target !== this.$el.children[0]) {
 				return;
 			}
@@ -168,14 +177,15 @@ export default {
                 el.classList.add('highlight');
             }
 		},
-        dragLeaveTab(ev) {
+        dragLeave(ev) {
             ev.target.classList.remove('highlight');
 		},
 		dragOver(ev) {
             ev.preventDefault();
 		},
-        dropOnTab(ev) {
+        drop(ev) {
             ev.preventDefault();
+            ev.stopPropagation();
             ev.target.classList.remove('highlight');
             // let targetData = {
             //     windowId: this.window.id,
@@ -214,6 +224,8 @@ export default {
 				typeof ev.pageY !== 'undefined' ? ev.pageY : ev.touches[0].pageY;
 			this.origTop = this.top;
 			this.origLeft = this.left;
+
+			// console.log('start move from ' + this.left + ', ' + this.top);
 		},
 		move(ev) {
 			const pageX =
@@ -229,6 +241,8 @@ export default {
 			newTop = Math.max(newTop, this.minTop);
 			newTop = Math.min(newTop, this.parentHeight - this.height);
 			this.top = newTop;
+
+			// console.log('move to ' + newLeft + ', ' + newTop);
 		},
 		stopMove() {
 			document.documentElement.removeEventListener('mousemove', this.move);
@@ -477,7 +491,7 @@ export default {
 			jt.coverUpParticipantViews(false);
 		}
 	},
-  mounted() {
+	mounted() {
 		this.$store.commit('addWindow', this);
 	},
 

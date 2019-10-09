@@ -14,7 +14,7 @@
 
 #### Start a new Session
 
-6. Switch to the "Apps" or "Queues" view. Press the blue play button next to the App or Queue that you wish to run.
+6. From the Welcome screen, click "Open App..." or "Open Queue...". Press the blue play button next to the App or Queue that you wish to run.
 
 7. Set the number of participants (`Settings` -> `Number of participants`).
 
