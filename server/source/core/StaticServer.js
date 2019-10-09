@@ -356,7 +356,7 @@ class StaticServer {
         }
 
         // If asked for a particular session, and that session:
-        // - does not exists, send invalid session page.
+        // - does not exist, send invalid session page.
         // - does exist, send participant page for that session.
         // If did not ask for particular session,
         // - send default start page.

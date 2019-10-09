@@ -978,6 +978,7 @@ toggleRowChildren(state, {windowId, areaPath}) {
       let windowData = {
         areas: [
           { 
+            flex: "0 0 305px",
             rowChildren: true,
             areas: [
                 {

@@ -55,11 +55,7 @@ class Session {
         */
         this.clients = [];
 
-        this.potentialParticipantIds = this.jt.settings.participantIds;
-
         this.caseSensitiveLabels = false;
-
-        this.suggestedNumParticipants = jt.settings.session.suggestedNumParticipants;
 
         /**
         * A list of participants in this session.
@@ -77,9 +73,13 @@ class Session {
         /**
         * Whether or not clients can create a participant that does not exist yet.
         */
-        this.allowNewParts = this.jt.settings.allowClientsToCreateParticipants;
+        this.allowNewParts = this.jt.settings.session.allowClientsToCreateParticipants;
 
         this.outputDelimiter = this.jt.settings.outputDelimiter;
+
+        for (let i in this.jt.settings.session) {
+            this[i] = this.jt.settings.session[i];
+        }
 
         /**
         * The apps in this session.
@@ -88,12 +88,6 @@ class Session {
         this.apps = [];
 
         this.users = [];
-
-        /**
-         * Whether or not admin windows can play.
-         * Generally, during testing this can be test
-         */
-        this.allowAdminClientsToPlay = true;
 
         this.asyncQueue = async.queue(this.processMessage, 1);
 
@@ -551,8 +545,12 @@ class Session {
     sendParticipantPage(req, res, participantId) {
         var participant = this.participant(participantId);
 
+        // Not a valid participant.
+        if (!this.isValidPId(participantId)) {
+            res.sendFile(path.join(this.jt.path, this.participantUI() + '/enterId.html'));
+        } 
         // Not a participant yet
-        if (participant == null) {
+        else if (participant == null) {
             res.sendFile(path.join(this.jt.path, this.participantUI() + '/readyClient.html'));
         }
         // Participant, but not in an app yet.
@@ -575,20 +573,9 @@ class Session {
 
         // Search through the list of participantIds until one is found for which
         // no participant already exists.
-        for (var i=0; i<this.potentialParticipantIds.length; i++) {
-            let pId = this.potentialParticipantIds[i];
-            let ptcptAlreadyExists = this.participants[pId] !== undefined;
-
-            // No participant already exists, so create one.
-            if (!ptcptAlreadyExists) {
-                this.participantCreate(pId);
-                partsAdded++;
-
-                // Check if enough participants have been created. If yes, exit.
-                if (partsAdded >= num) {
-                    return;
-                }
-            }
+        for (let i=0; i<num; i++) {
+            let newId = this.getNextAvailablePId();
+            this.participantCreate(newId);    
         }
     }
 
@@ -941,10 +928,6 @@ class Session {
             this.jt.socketServer.sendOrQueueAdminMsg(null, 'addParticipant', participant.shell());
         }
         return participant;
-    }
-
-    isValidPId(pId) {
-        return (pId != null && this.allowNewParts) || this.potentialParticipantIds.includes(pId);
     }
 
     /**

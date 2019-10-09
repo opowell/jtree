@@ -13,7 +13,6 @@ class Settings {
 
          this.admins                 = {};
          this.adminLoginReq          = false; // whether or not admins need to login.
-         this.allowClientsToCreateParticipants = true; // default for new sessions
          this.autoSaveFreq           = 100000; // how often to save active sessions, in ms.
          this.logToConsole           = false;
          this.openAdminOnStart       = true; // whether or not the admin page should be opened when the server starts.
@@ -46,20 +45,46 @@ class Settings {
          this.loadSettings           = false;
          this.session = {};
          this.session.suggestedNumParticipants = 4;
+         this.session.allowClientsToCreateParticipants = false;
+         this.session.isValidPId = function(id) { // return true if the participant id is valid, false otherwise.
+             return (
+                this.isValidPIdPxx(id) ||
+                this.isValidPIdIP(id)
+             );
+         }
+         this.session.isValidPIdPxx = function(id) {
+             let regexp = /([P][0-9]+$)/i
+             return id.match(regexp) != null;
+         }
+         this.session.isValidPIdIP = function(id) {
+             let regexp = /[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/
+             return id.match(regexp) != null;
+         }
+         this.session.getNextAvailablePId = function(id) {
+            for (var i=0; i<10000; i++) {
+                let pId = 'P' + (i+1);
+                let ptcptAlreadyExists = this.participants[pId] !== undefined;
+    
+                // No participant already exists, so create one.
+                if (!ptcptAlreadyExists) {
+                    return pId;
+                }
+            }
+            return null;
+         }
+
+        /**
+         * Whether or not admin windows can play.
+         * Generally, during testing this can be true.
+         */
+        this.session.allowAdminClientsToPlay = true;
+
  
          this.valsToSave = {};
 
          this.server = {};
 
          this.logMessage = null;
-
-         /**
-          * Pre-specified participant IDs.
-          */
-         this.participantIds         = [];
-         for (let i=1; i<100; i++) {
-             this.participantIds.push('P' + i);
-         }
 
          // On Linux / Mac, ports below 1024 require sudo access.
          var isWin = process.platform === "win32";

@@ -6,6 +6,7 @@
         size='xl'
         :title='"Open " + this.$store.state.appName'
         class='test'
+        style='max-width: unset'
         >
         <table class='table table-hover'>
             <thead>

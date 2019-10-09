@@ -32,7 +32,8 @@
                         <button type="button" class="headerBtn close float-right" @click='hideParticipant(player.id)'>
                             <font-awesome-icon title='close' :icon="['fas', 'times']"/>
                         </button>
-                        <button type="button" class="headerBtn close float-right">
+                        <button type="button" class="headerBtn close float-right"
+                        @click='participantOpenInNewTab(player.id)'>
                             <font-awesome-icon title="open in new window" :icon="['fas', 'external-link-alt']"/>
                         </button>
                         <button title="toggle autoplay" :id="player.id + '-autoplay'" type="button" class="headerBtn close float-right">A</button>
@@ -81,6 +82,9 @@ export default {
       hideParticipant(id) {
         store.commit('hideParticipant', id);          
       },
+      participantOpenInNewTab(id) {
+        window.open("http://" + jt.partLink(id));
+      }
 
   },
 }
