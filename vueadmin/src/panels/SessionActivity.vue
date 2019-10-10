@@ -37,7 +37,7 @@
                             <font-awesome-icon title="open in new window" :icon="['fas', 'external-link-alt']"/>
                         </button>
                         <button title="toggle autoplay" :id="player.id + '-autoplay'" type="button" class="headerBtn close float-right">A</button>
-                        <button type="button" class="headerBtn close float-right">
+                        <button type="button" class="headerBtn close float-right" @click='refreshParticipantView(player.id)'>
                             <font-awesome-icon title="refresh" :icon="['fas', 'redo-alt']"/>
                         </button>
                     </div>
@@ -84,8 +84,12 @@ export default {
       },
       participantOpenInNewTab(id) {
         window.open("http://" + jt.partLink(id));
+      },
+      refreshParticipantView(id) {
+        var panel = $('#participant-frame-' + id)[0];
+        // eslint-disable-next-line
+        panel.src = panel.src;
       }
-
   },
 }
 
@@ -93,7 +97,6 @@ import jt from '@/webcomps/jtree.js'
 import 'jquery'
 let $ = window.jQuery
 import server from '@/webcomps/msgsToServer.js'
-// import Vue from 'vue'
 import store from '@/store.js'
 
 jt.viewAllParticipants = function() {

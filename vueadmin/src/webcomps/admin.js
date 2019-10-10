@@ -245,9 +245,11 @@ jt.connected = function() {
         }
     });
 
-    if (store.state.sessionId != null) {
-        server.openSessionId(store.state.sessionId);
-      }
+    // if (store.state.sessionId != null) {
+    //     server.openSessionId(store.state.sessionId);
+    //   }
+
+    
 
 }
 

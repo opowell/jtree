@@ -107,7 +107,7 @@ jt.openApp = function(appId) {
         ],
     };
 
-    store.commit('showWindow', windowData);
+    store.dispatch('showWindow', windowData);
 }
 
 jt.appRename = function() {

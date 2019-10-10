@@ -79,14 +79,14 @@
             <template v-if='hideTabsWhenSinglePanel && panels.length === 1'>
                 <jt-spacer
                     @mousedown.native='startMove'
-                    :window='window'
+                    :windowDesc='windowDesc'
                     :area='area'
                 >
                     {{panels[0].id}}
                 </jt-spacer>
                 <menu-el
                     :menu='{
-                        icon: "fas fa-times",
+                        icon: ["fas", "times"],
                         hasParent: false,
                         showIcon: true,
                         action: closeActivePanel,
@@ -552,6 +552,8 @@ export default {
     padding: 0px;
     margin: 0px;
     color: inherit;
+    display: flex;
+    align-items: center;
 }
 
 .content-vbar {

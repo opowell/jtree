@@ -133,7 +133,7 @@ msgs.openSession = function(session) {
 
     store.commit('setSessionId', session.id);
 
-    store.dispatch('showSessionWindow2');
+    store.dispatch('showSessionWindow2', session.id);
 
     if (session !== undefined) {
         jt.showPanel("#panel-session-info");

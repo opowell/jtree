@@ -474,7 +474,15 @@ function checkWindowInfo(obj) {
   if (obj.flex            == null) obj.flex           = '1 1 100px';
   if (obj.activePanelInd  == null) obj.activePanelInd = 0;
   if (obj.areas           == null) obj.areas          = [];
+  for (let i in obj.panels) {
+    if (obj.panels[i].data == null) {
+      obj.panels[i].data = obj.panelData;
+    }
+  }
   for (let i in obj.areas) {
+    if (obj.areas[i].panelData == null) {
+      obj.areas[i].panelData = obj.panelData;
+    }
     checkWindowInfo(obj.areas[i]);
   } 
 }
@@ -834,30 +842,6 @@ setJtreeLocalPath(state, value) {
 setSetting(state, {key, value}) {
   state[key] = value;
 },
-showWindow(state, windowInfo) {
-  checkWindowInfo(windowInfo);
-  windowInfo.id = state.nextWindowId;
-  if (state.nextWindowX + windowInfo.w > state.containerWidth) {
-    state.nextWindowX = 25;
-  }
-  if (state.nextWindowY + windowInfo.h > state.containerHeight) {
-    state.nextWindowY = 25;
-  }
-  windowInfo.x = state.nextWindowX;
-  windowInfo.y = state.nextWindowY;
-  windowInfo.w = state.initialWindowWidth;
-  windowInfo.h = state.initialWindowHeight;
-  windowInfo.activePanelInd = 0;
-  state.nextWindowX += state.nextWindowXIncrement;
-  state.nextWindowY += state.nextWindowYIncrement;
-  state.nextWindowId++;
-  state.windowDescs.push(windowInfo);
-  window.vue.$bvModal.hide('openAppModal');
-  window.vue.$bvModal.hide('openQueueModal');
-  window.vue.$bvModal.hide('createAppModal');
-  window.vue.$bvModal.hide('createQueueModal');
-  $('.modal').modal('hide');
-},
 toggleWindowsMaximized(state) {
   state.windowsMaximized = !state.windowsMaximized;
 },
@@ -917,7 +901,45 @@ toggleRowChildren(state, {windowId, areaPath}) {
       }
     }
   },
+  // Should not change state.
   actions: {
+
+    showWindow: ({commit, state}, windowInfo) => {
+  
+      // Check whether window already exists. If so, bring window to front and return.
+      for (let i in state.windows) {
+        let window = state.windows[i];
+        if (window.windowDesc.panelData == windowInfo.panelData) {
+          commit('setFocussedWindow', window);
+          return;
+        }
+      }
+    
+      // Add missing properties with default values.
+      checkWindowInfo(windowInfo);
+    
+      windowInfo.id = state.nextWindowId;
+      if (state.nextWindowX + windowInfo.w > state.containerWidth) {
+        state.nextWindowX = 25;
+      }
+      if (state.nextWindowY + windowInfo.h > state.containerHeight) {
+        state.nextWindowY = 25;
+      }
+      windowInfo.x = state.nextWindowX;
+      windowInfo.y = state.nextWindowY;
+      windowInfo.w = state.initialWindowWidth;
+      windowInfo.h = state.initialWindowHeight;
+      windowInfo.activePanelInd = 0;
+      state.nextWindowX += state.nextWindowXIncrement;
+      state.nextWindowY += state.nextWindowYIncrement;
+      state.nextWindowId++;
+      state.windowDescs.push(windowInfo);
+      window.vue.$bvModal.hide('openAppModal');
+      window.vue.$bvModal.hide('openQueueModal');
+      window.vue.$bvModal.hide('createAppModal');
+      window.vue.$bvModal.hide('createQueueModal');
+      $('.modal').modal('hide');
+    },
 
     closeActiveWindow: ({commit, state}) => {
       commit('closeWindow', state.activeWindow);
@@ -953,7 +975,7 @@ toggleRowChildren(state, {windowId, areaPath}) {
         windowId: sourceWindowId
       });
     },
-    dropOnWindow: ({commit, state}, {sourceWindowId, sourceAreaPath, sourcePanelIndex}) => {
+    dropOnWindow: ({commit, dispatch, state}, {sourceWindowId, sourceAreaPath, sourcePanelIndex}) => {
     
       let area = getArea(state, sourceWindowId, sourceAreaPath);
       let panel = area.panels[sourcePanelIndex];
@@ -972,10 +994,11 @@ toggleRowChildren(state, {windowId, areaPath}) {
             },
         ],
       };
-      commit('showWindow', winData);
+      dispatch('showWindow', winData);
     },
-    showSessionWindow2: ({ commit }) => {
+    showSessionWindow2: ({ dispatch }, sessionId) => {
       let windowData = {
+        panelData: sessionId,
         areas: [
           { 
             flex: "0 0 305px",
@@ -1019,12 +1042,11 @@ toggleRowChildren(state, {windowId, areaPath}) {
         ] 
     };
 
-    commit('showWindow', windowData);
+    dispatch('showWindow', windowData);
 
     },
-    // eslint-disable-next-line
-    showSessionWindow: ({ commit, state}, data) => {
-      commit('showWindow',
+    showSessionWindow: ({ dispatch }) => {
+      dispatch('showWindow',
       {
         panels: [],
         flex: '1 1 100px',
@@ -1127,7 +1149,7 @@ toggleRowChildren(state, {windowId, areaPath}) {
       state.touch++;
     },
 
-    showPanel: ({commit, state}, data) => {
+    showPanel: ({commit, state, dispatch}, data) => {
       if (data.checkIfAlreadyOpen !== false) {
         let x = findPanel(state, data.type, data.data);
         if (x.panel !== null) {
@@ -1161,7 +1183,7 @@ toggleRowChildren(state, {windowId, areaPath}) {
           data: data.data,
         });
       } else {
-        commit('showWindow', {
+        dispatch('showWindow', {
           panels: [
               {
                   id: data.title,

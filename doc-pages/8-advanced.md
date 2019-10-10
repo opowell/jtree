@@ -24,4 +24,7 @@ The jtree project is divided into parts roughly based on its folder structure:
 
 ### Contributing
 
-Anyone is welcome to contribute to the project. Either edit files directly on Github, or submit groups of changes as a pull request.
+Anyone is welcome to contribute to the project on Github.
+- Submit and comment on issues.
+- Edit files directly.
+- Submit groups of changes as a pull request.

@@ -111,7 +111,7 @@ jt.openQueue = function(queue) {
         ],
     };
 
-    store.commit('showWindow', windowData);
+    store.dispatch('showWindow', windowData);
 }
 
 jt.saveQueueAppOptions = function() {

@@ -31,16 +31,6 @@
                     </small>
                 </div>
             </div>
-            <div>Participant labels</div>
-            <div>
-                <div>
-                    <textarea id='setParticipantLabels' cols=80 rows=10></textarea>
-                </div>
-                <button type="button" class="btn btn-sm btn-primary" onclick='jt.setParticipantLabels();'>Set</button>
-                <small class="form-text text-muted">
-                    Each label should be seperated by a comma and/or new line. Setting the participant labels will turn off login of new participants and set the number of participants.
-                </small>
-            </div>
             <div>Login of new participants</div>
             <div>
                 <div class="form-check">
@@ -78,8 +68,6 @@
                     Delete the given participant from the session. Make sure to turn off login of new participants if you wish to prevent clients from re-creating this participant.
                 </small>
             </div>
-            <div>Labels</div>
-            <div>This is the list of labels for participants.</div>
         </div>
     </div>
 </template>
@@ -193,3 +181,12 @@ jt.updateSessionCanPlay = function(session) {
 }
 
 </script>
+
+<style scoped>
+.tab-grid {
+    display: grid;
+    grid-template-columns: 4rem auto;
+    grid-column-gap: 1rem;
+    grid-row-gap: 2rem;
+}
+</style>

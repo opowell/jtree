@@ -385,13 +385,6 @@ td {
     text-decoration: line-through;
 }
 
-.tab-grid {
-    display: grid;
-    grid-template-columns: 10rem auto;
-    grid-column-gap: 1rem;
-    grid-row-gap: 2rem;
-}
-
 .btn-group > * {
     flex: 0 0 auto !important;
 }
