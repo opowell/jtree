@@ -86,16 +86,6 @@ class SocketServer {
             self.refreshAdmin(null, 'socket_' + sock.id, msg.userId);
         });
 
-        socket.on('reloadApps', function(msg) {
-            self.jt.data.reloadApps();
-            if (msg == null) {
-                msg = {
-                    userId: ''
-                }
-            }
-            self.refreshAdmin(null, 'socket_' + sock.id, msg.userId);
-        });
-
         socket.on('get-var', function(a) {
             log('getting variable ' + a + ': ' + global[a]);
         });

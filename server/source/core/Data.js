@@ -168,6 +168,8 @@ class Data {
             if (app.appjs.startsWith('//NOTSTANDALONEAPP')) {
                 return null;
             }
+            let game = app;
+            let treatment = app;
             eval(app.appjs); // jshint ignore:line
             this.jt.log('loaded app ' + filePath);
         } catch (err) {
@@ -294,8 +296,11 @@ class Data {
                     } else if (id.endsWith('.jtt')) {
                         isApp = true;
                         id = id.substring(0, id.length - '.jtt'.length);
-                    }
-                    if (isApp) {
+                } else if (id.endsWith('.jt')) {
+                    isApp = true;
+                    id = id.substring(0, id.length - '.jt'.length);
+                }
+                if (isApp) {
                         let app = this.loadApp(id, {}, curPath, {});
                         if (app != null) {
                             this.apps[curPath] = app;
