@@ -35,9 +35,9 @@ server.sendMessages = function(data) {
     jt.socket.emit('messages', data);
 }
 
-server.setAllowAdminPlay = function(val) {
+server.setAllowAdminPlay = function(val, sessionId) {
     let d = {};
-    d.sessionId = jt.data.session.id;
+    d.sessionId = sessionId;
     d.val = val;
     jt.socket.emit('setAllowAdminPlay', d);
 }

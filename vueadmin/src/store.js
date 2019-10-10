@@ -352,6 +352,7 @@ let persistPaths = [
   'windowDescs',
   'initialWindowHeight',
   'initialWindowWidth',
+  'openSessionIds',
 ];
 
 let stateObj = {
@@ -363,6 +364,8 @@ let stateObj = {
 
   app: null,
   session: null,
+  openSessions: {},
+  openSessionIds: [],
   queue: null,
 
   appInfos: [],
@@ -688,6 +691,7 @@ closeAllWindows(state) {
   state.nextWindowX = state.nextWindowXIncrement / 2;
   state.nextWindowY = state.nextWindowYIncrement / 2;
   state.nextWindowId = 0;
+  state.openSessionIds.splice(0, state.openSessionIds.length);
 },
 closeWindow(state, win) {
   if (win == null) {
@@ -876,13 +880,19 @@ toggleRowChildren(state, {windowId, areaPath}) {
           state.allFields.push(state.fields[f]);
           outKeys.push(state.fields[f].key);
       }
-      for (let p in state.session.participants) {
+      if (state.session != null) {
+        for (let p in state.session.participants) {
           let part = state.session.participants[p];
           storeFields('', part, outKeys, state);
+        }
       }
     },
     setSession (state, session) {
       state.session = session;
+      state.openSessions[session.id] = session;
+      if (!state.openSessionIds.includes(session.id)) {
+        state.openSessionIds.push(session.id);
+      }
       this.commit('calcFields');
     },
     setSettings (state, settings) {
@@ -907,11 +917,13 @@ toggleRowChildren(state, {windowId, areaPath}) {
     showWindow: ({commit, state}, windowInfo) => {
   
       // Check whether window already exists. If so, bring window to front and return.
-      for (let i in state.windows) {
-        let window = state.windows[i];
-        if (window.windowDesc.panelData == windowInfo.panelData) {
-          commit('setFocussedWindow', window);
-          return;
+      if (windowInfo.panelData != null) {
+        for (let i in state.windows) {
+          let window = state.windows[i];
+          if (window.windowDesc.panelData == windowInfo.panelData) {
+            commit('setFocussedWindow', window);
+            return;
+          }
         }
       }
     
@@ -1018,6 +1030,9 @@ toggleRowChildren(state, {windowId, areaPath}) {
                         {
                             id: "Session Settings", 
                             type: "ViewSessionSettings",
+                            data: {
+                              sessionId,
+                            },
                         },
                         {
                             id: "Apps", 

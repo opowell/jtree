@@ -203,8 +203,4 @@ jt.closeViews = function() {
     });
 }
 
-jt.showParticipants = function() {
-    jt.sessionSetAutoplay(false);
-}
-
 </script>

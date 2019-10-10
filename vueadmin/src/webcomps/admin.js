@@ -89,11 +89,10 @@ jt.addPanelNew = function(title, type) {
 
 jt.view = {};
 
-jt.view.updateNumParticipants = function() {
-    const numParts = Utils.objLength(jt.data.session.participants);
-    $('#setNumParticipantsInput').val(numParts);
-    $('#tabSessionParticipantsNumber').text(numParts);
-}
+// jt.view.updateNumParticipants = function() {
+//     const numParts = Utils.objLength(jt.data.session.participants);
+//     $('#setNumParticipantsInput').val(numParts);
+// }
 
 jt.refresh = function(ag) {
     // console.log('refresh');
@@ -138,28 +137,15 @@ jt.socketConnected = function() {
     console.log('Creating editor');
     // eslint-disable-next-line no-undef
     jt.editor = new Editor();
+
+    console.log('v2');
+    for (let id in store.state.openSessionIds) {
+        server.openSessionId(id);
+      }
 }
 
 jt.connected = function() {
-
-    jt.socketConnected = function() {
-        server.refreshAdmin();
-    
-        // eslint-disable-next-line no-undef
-        ace.config.set("basePath", "/shared/ace");
-    
-        // var editor = ace.edit("edit-app-appjs");
-        // var editorCH = ace.edit("edit-app-clienthtml");
-        // editor.setTheme("ace/theme/tomorrow");
-        // editor.session.setMode("ace/mode/javascript");
-        // editorCH.setTheme("ace/theme/tomorrow");
-        // editorCH.session.setMode("ace/mode/html");
-    
-        console.log('Creating editor');
-        // eslint-disable-next-line no-undef
-        jt.editor = new Editor();
-    }
-    
+   
     // $('#startAdvanceSlowest').click(function(ev) {
     //     ev.stopPropagation();
     //     server.sessionAdvanceSlowest();
@@ -244,12 +230,6 @@ jt.connected = function() {
             }
         }
     });
-
-    // if (store.state.sessionId != null) {
-    //     server.openSessionId(store.state.sessionId);
-    //   }
-
-    
 
 }
 

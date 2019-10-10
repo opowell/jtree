@@ -8,10 +8,10 @@
                 <font-awesome-icon :icon="['fas', 'times']"/>&nbsp;&nbsp;Close all
             </b-button>
             <b-button variant="outline-secondary" size="sm" id='startAutoplay' onclick='server.setAutoplayForAll(true);'>
-                <span class='px-1' style='border: 1px solid; border-radius: 0.3rem;'>A</span>&nbsp;&nbsp;start autoplay
+                <span class='px-1' style='border: 1px solid; border-radius: 0.3rem;'>A</span>&nbsp;&nbsp;Start autoplay
             </b-button>
             <b-button variant="outline-secondary" size="sm" id='stopAutoplay' onclick='server.setAutoplayForAll(false);'>
-                <span>A</span>&nbsp;&nbsp;stop autoplay
+                <span>A</span>&nbsp;&nbsp;Stop autoplay
             </b-button>
             <b-button variant="outline-secondary" size="sm" onclick='jt.showSetAutoplayFreqModal()'>
                 <font-awesome-icon :icon="['fas', 'stopwatch']"/>&nbsp;&nbsp;Set autoplay delay...
@@ -27,7 +27,7 @@
                     :key='player.id' 
                     :style='participantViewStyle'
                 >
-                    <div class="card-header" style="background-color: rgb(207, 232, 207);">
+                    <div class="card-header" :style='headerStyle'>
                         <span>Participant {{player.id}}</span>
                         <button type="button" class="headerBtn close float-right" @click='hideParticipant(player.id)'>
                             <font-awesome-icon title='close' :icon="['fas', 'times']"/>
@@ -74,6 +74,18 @@ export default {
               "flex": (this.$store.state.stretchViews ? '1' : '0') + ' 0 ' + this.$store.state.viewsWidth + 'px',
           }
       },
+      headerStyle() {
+          let bg = this.allowAdminClientsToPlay ? '#cfe8cf' : '';
+          return {
+              'background-color': bg,
+          }
+      },
+        allowAdminClientsToPlay() {
+            if (this.session == null) {
+                return false;
+            }
+            return this.session.allowAdminClientsToPlay;
+        }
   },
   mounted() {
       this.panel.id = 'Session Activity';

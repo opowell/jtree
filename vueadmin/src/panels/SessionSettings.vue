@@ -23,8 +23,22 @@
             <div>
                 <div>
                     <div class="btn-group" role="group" aria-label="Basic example">
-                        <button id='allowAdminPlayYes' type="button" class="btn btn-sm btn-outline-secondary" onclick='jt.setAllowAdminPlay(true);'>Yes</button>
-                        <button id='allowAdminPlayNo' type="button" class="btn btn-sm btn-outline-secondary" onclick='jt.setAllowAdminPlay(false);'>No</button>
+                        <button 
+                         type="button" 
+                         class="btn btn-sm"
+                         @click='setAllowAdminPlay(true)'
+                         :class='allowAdminClientsToPlay ? ["btn-secondary"] : ["btn-outline-secondary"]'
+                             >
+                             Yes
+                             </button>
+                        <button 
+                        type="button"
+                         class="btn btn-sm"
+                         :class='allowAdminClientsToPlay ? ["btn-outline-secondary"] : ["btn-secondary"]'
+                          @click='setAllowAdminPlay(false)'
+                          >
+                          No
+                          </button>
                     </div>
                     <small class="form-text text-muted">
                         Allows admin clients to "play" (or not) as participants.
@@ -79,16 +93,19 @@ import jt from '@/webcomps/jtree.js'
 
 export default {
   name: 'ViewSessionSettings',
-  data() {
-    return {
-        session: this.$store.state.session
-    }
-  },
   props: [
     'dat',
     'panel',
   ],
   computed: {
+      session() {
+          let sessionId = this.panel.data.sessionId;
+          if (sessionId == null) {
+              return null;
+          }
+          let out = this.$store.state.openSessions[sessionId];
+          return out;
+      },
       numParts() {
         return Object.keys(this.sessionParticipants).length;
       },
@@ -97,11 +114,21 @@ export default {
               return [];
           }
           return this.session.participants;
+      },
+      allowAdminClientsToPlay() {
+          if (this.session == null) {
+              return false;
+          }
+          return this.session.allowAdminClientsToPlay;
       }
   },
   mounted() {
       this.panel.id = 'Session Settings';
-        jt.updateAllowAdminPlay();
+  },
+  methods: {
+      setAllowAdminPlay(value) {
+          server.setAllowAdminPlay(value, this.session.id);
+      },
   },
 }
 
@@ -127,10 +154,6 @@ jt.setNumParticipants = function() {
     server.setNumParticipants(amt, cb);
 }
 
-jt.setAllowAdminPlay = function(val) {
-    server.setAllowAdminPlay(val);
-}
-
 // jt.updateAllowNewParts = function() {
 //     $('#allowNewParts')[0].checked = jt.data.session.allowNewParts;
 // }
@@ -139,28 +162,17 @@ jt.updateAllowAdminPlay = function() {
     if (store.state.session == null) {
         return;
     }
-    let val = store.state.session.allowAdminClientsToPlay;
-    if (val) {
-        $('#allowAdminPlayYes').addClass('btn-secondary');
-        $('#allowAdminPlayYes').removeClass('btn-outline-secondary');
-        $('#allowAdminPlayNo').removeClass('btn-secondary');
-        $('#allowAdminPlayNo').addClass('btn-outline-secondary');
-    } else {
-        $('#allowAdminPlayYes').removeClass('btn-secondary');
-        $('#allowAdminPlayYes').addClass('btn-outline-secondary');
-        $('#allowAdminPlayNo').addClass('btn-secondary');
-        $('#allowAdminPlayNo').removeClass('btn-outline-secondary');
-    }
+    // let val = store.state.session.allowAdminClientsToPlay;
 
-    let views = $('.participant-view');
-    for (let i=0; i<views.length; i++) {
-        let view = $(views[i]);
-        if (val) {
-            $(view.children()[0]).css('background-color', '#cfe8cf');
-        } else {
-            $(view.children()[0]).css('background-color', '');
-        }
-    }
+    // let views = $('.participant-view');
+    // for (let i=0; i<views.length; i++) {
+    //     let view = $(views[i]);
+    //     if (val) {
+    //         $(view.children()[0]).css('background-color', '#cfe8cf');
+    //     } else {
+    //         $(view.children()[0]).css('background-color', '');
+    //     }
+    // }
     jt.viewAllParticipants();
 }
 

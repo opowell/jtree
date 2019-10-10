@@ -298,10 +298,10 @@ jt.addPanel = function(id, title, contentEl) {
     return panel;
 }
 
-jt.showPanel = function(t) {
-    var el = $(t.replace(/\./g, '\\.'));
-    el.removeAttr('hidden');
-}
+// jt.showPanel = function(t) {
+//     var el = $(t.replace(/\./g, '\\.'));
+//     el.removeAttr('hidden');
+// }
 
 jt.Panel = function(id, title, contentEl) {
     var card;

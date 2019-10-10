@@ -136,15 +136,14 @@ msgs.openSession = function(session) {
     store.dispatch('showSessionWindow2', session.id);
 
     if (session !== undefined) {
-        jt.showPanel("#panel-session-info");
+        // jt.showPanel("#panel-session-info");
         window.vue.$store.commit('setSession', session);
-        jt.showParticipants(jt.data.session.participants);
+        jt.sessionSetAutoplay(false);
         jt.viewAllParticipants();
         jt.updateSessionApps();
-        jt.updateAllowAdminPlay();
     }
 
-    jt.view.updateNumParticipants();
+    // jt.view.updateNumParticipants();
 }
 
 msgs.addClient = function(md) {
@@ -334,7 +333,7 @@ msgs.sessionDeleteApp = function(md) {
 msgs.sessionDeleteParticipant = function(md) {
     if (jt.data.session.id === md.sId) {
         jt.deleteParticipant(md.pId);
-        jt.view.updateNumParticipants();
+        // jt.view.updateNumParticipants();
     }
 }
 
@@ -344,7 +343,7 @@ msgs.addParticipant = function(participant) {
         Vue.set(jt.data.session.participants, participant.id, participant);
         jt.showParticipant(participant);
         //        viewParticipant(participant.id);
-        jt.view.updateNumParticipants();
+        // jt.view.updateNumParticipants();
     }
 }
 
@@ -356,11 +355,13 @@ msgs.setAllowNewParts = function(md) {
 };
 
 msgs.setAllowAdminPlay = function(md) {
-    if (jt.data.session.id != md.sId) {
-        return;
-    }
-    jt.data.session.allowAdminClientsToPlay = md.value;
-    jt.updateAllowAdminPlay();
+    // let session = store.state.openSessions[md.sId];
+    // if (session == null) {
+    //     return;
+    // }
+    // session.allowAdminClientsToPlay = md.value;
+
+    store.commit('setValue', {path: 'openSessions["' + md.sId + '"].allowAdminClientsToPlay', value: md.value});
 }
 
 msgs.setCaseSensitiveLabels = function(md) {
