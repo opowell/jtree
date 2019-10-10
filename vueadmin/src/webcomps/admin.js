@@ -134,18 +134,42 @@ jt.socketConnected = function() {
     // editorCH.setTheme("ace/theme/tomorrow");
     // editorCH.session.setMode("ace/mode/html");
 
-    console.log('Creating editor');
+    // console.log('Creating editor');
     // eslint-disable-next-line no-undef
     jt.editor = new Editor();
 
-    console.log('v2');
+    console.log('v2' + store.state.openSessionIds);
     for (let id in store.state.openSessionIds) {
-        server.openSessionId(id);
+        let sessionId = store.state.openSessionIds[id];
+        server.openSessionId(sessionId);
       }
 }
 
 jt.connected = function() {
    
+    jt.socketConnected = function() {
+        server.refreshAdmin();
+    
+        // eslint-disable-next-line no-undef
+        ace.config.set("basePath", "/shared/ace");
+    
+        // var editor = ace.edit("edit-app-appjs");
+        // var editorCH = ace.edit("edit-app-clienthtml");
+        // editor.setTheme("ace/theme/tomorrow");
+        // editor.session.setMode("ace/mode/javascript");
+        // editorCH.setTheme("ace/theme/tomorrow");
+        // editorCH.session.setMode("ace/mode/html");
+    
+        // console.log('Creating editor');
+        // eslint-disable-next-line no-undef
+        jt.editor = new Editor();
+    
+        console.log('v2' + store.state.openSessionIds);
+        for (let id in store.state.openSessionIds) {
+            let sessionId = store.state.openSessionIds[id];
+            server.openSessionId(sessionId);
+          }
+    }
     // $('#startAdvanceSlowest').click(function(ev) {
     //     ev.stopPropagation();
     //     server.sessionAdvanceSlowest();
