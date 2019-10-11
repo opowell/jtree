@@ -11,6 +11,7 @@ const Utils         = require('./Utils.js');
 const fs            = require('fs-extra');
 const path          = require('path');
 const async         = require('async');
+const {stringify} = require('flatted/cjs');
 
 const PLAYER_STATUS_FINISHED = 'finished';
 const PLAYER_STATUS_PLAYING = 'playing';
@@ -405,7 +406,7 @@ class Session {
         participant.clientAdd(client);
         this.clients.push(client);
         global.jt.socketServer.sendOrQueueAdminMsg(null, 'addClient', client.shell());
-        this.io().to(socket.id).emit('logged-in', participant.shell());
+        this.io().to(socket.id).emit('logged-in', stringify(participant.shell()));
         if (participant.player !== null) {
             participant.player.sendUpdate(socket.id);
         }
@@ -611,7 +612,7 @@ class Session {
             res.sendFile(path.join(global.jt.path, this.participantUI() + '/readyClient.html'));
         }
         // Participant, but not in an app yet.
-        else if (participant.getApp() == null) {
+        else if (participant.getGame() == null) {
             res.sendFile(path.join(global.jt.path, this.participantUI() + '/readyClient.html'));
         }
         // participant in an app.

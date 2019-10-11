@@ -8,6 +8,7 @@ document.write('<script src="/shared/jquery.cookie.js"></script>');
 document.write('<script src="/shared/queue.js"></script>');
 document.write('<script src="/shared/vue.js"></script>');
 // document.write('<script src="/shared/circularjson.js"></script>');
+document.write('<script src="/shared/flatted.js"></script>');
 document.write('<script src="/shared/async.js"></script>');
 document.write('<script src="/participant/defaultClient_new.js"></script>');
 document.write('<link rel="stylesheet" href="/shared/popups.css">');

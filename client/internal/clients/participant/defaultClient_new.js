@@ -588,7 +588,7 @@ jt.defaultConnected = function() {
         //     participant = jt.replaceLinksWithObjects(participant);
         // }
 
-        let participant = data;
+        let participant = Flatted.parse(data);
         jt.updatePlayer(participant, true);
     });
     

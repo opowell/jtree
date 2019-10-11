@@ -354,6 +354,8 @@ class Stage {
         }
         out['app.index'] = this.app.indexInSession();
         out.app = this.app.shell();
+        out.superGame = null;
+        out.parent = null;
         return out;
     }
 
