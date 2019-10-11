@@ -6,7 +6,6 @@ const App = require('../App.js');
 const Room = require('../Room.js');
 const Queue = require('../Queue.js');
 const User = require('../User.js');
-const StackTracey = require('stacktracey');
 
 /** The data object. */
 class Data {
@@ -71,7 +70,7 @@ class Data {
      *
      */
     callStoreTimeInfoFunc() {
-        setTimeout(this.storeTimeInfo.bind(this), this.jt.settings.autoSaveFreq);
+        setTimeout(this.storeTimeInfo.bind(this), global.jt.settings.autoSaveFreq);
     }
 
     /*
@@ -133,13 +132,13 @@ class Data {
      *
      */
     storeTimeInfo() {
-        var fn = path.join(this.jt.path, this.jt.settings.serverTimeInfoFilename);
+        var fn = path.join(global.jt.path, global.jt.settings.serverTimeInfoFilename);
         var now = Date.now();
         fs.writeJSON(fn, now, this.callStoreTimeInfoFunc.bind(this));
     }
 
     app(id, options) {
-        if (this.jt.settings.reloadApps) {
+        if (global.jt.settings.reloadApps) {
             var appPath = this.appsMetaData[id].appPath;
             return this.loadApp(id, null, appPath, options);
         } else {
@@ -149,7 +148,7 @@ class Data {
     
     loadApp(id, session, appPath, options) {
         var app = null;
-        app = new App.new(session, this.jt, appPath);
+        app = new App.new(session, appPath);
         app.givenOptions = options;
      //   app.shortId = id;
 
@@ -171,7 +170,7 @@ class Data {
             let game = app;
             let treatment = app;
             eval(app.appjs); // jshint ignore:line
-            this.jt.log('loaded app ' + filePath);
+            global.jt.log('loaded app ' + filePath);
         } catch (err) {
             if (
                 !filePath.endsWith('.jtt') ||
@@ -180,9 +179,6 @@ class Data {
                 return null;
             }
             app.hasError = true;
-            let stack = new StackTracey (err);
-            this.jt.log('Error loading app: ' + filePath, true);
-            this.jt.log(err, true);
             let lines = err.stack.split('\n');
             let index = lines[1].indexOf('<anonymous>:');
             let position = lines[1].substring(index + '<anonymous>:'.length);
@@ -198,9 +194,15 @@ class Data {
             if (isNaN(positionStr)) {
                 positionStr = 'unknown';
             }
-            this.jt.log('Line ' + line + ', position ' + positionStr, true);
             app.errorLine = line;
             app.errorPosition = positionStr;
+
+            if (app.showErrorsInLog) {
+                global.jt.log('Error loading app: ' + filePath, true);
+                global.jt.log(err, true);
+                global.jt.log('Line ' + line + ', position ' + positionStr, true);
+            }
+
         }
         return app;
     }
@@ -269,7 +271,7 @@ class Data {
             // Load folder as its own queue.
             var folderQueue = new Queue.new(dir, this.jt);
             folderQueue.dummy = true;
-            this.jt.log('loading folder queue ' + dir);
+            global.jt.log('loading folder queue ' + dir);
 
             // Load individual apps and queues.
             for (var i in appDirContents) {
@@ -313,7 +315,7 @@ class Data {
                     if (id.endsWith('.jtq')) {
                         var queue = Queue.loadJTQ(curPath, this.jt, dir);
                         queue.dummy = true;
-                        var session = new Session.new(this.jt, null);
+                        var session = new Session.new(null);
                         session.emitMessages = false;
                         session.queuePath = path.dirname(queue.id);
                         eval(queue.code);
@@ -323,7 +325,7 @@ class Data {
                             queue.addApp(session.apps[i].id, options);
                         }
                         // queue.apps = session.apps;
-                        this.jt.log('loading file queue ' + curPath + ' with ' + queue.apps.length + ' apps');
+                        global.jt.log('loading file queue ' + curPath + ' with ' + queue.apps.length + ' apps');
                         this.queues[curPath] = queue;
                     }
                 } else if (curPathIsFolder) {
@@ -363,14 +365,14 @@ class Data {
 
     deleteApp(id) {
         try {
-            if (!id.startsWith(this.jt.path)) {
+            if (!id.startsWith(global.jt.path)) {
                 id = this.appPath(id);                
             }
             fs.removeSync(id);
             delete this.apps[id];
             delete this.appsMetaData[id];
         } catch (err) {
-            this.jt.log(err);
+            global.jt.log(err);
         }
     }
 
@@ -389,7 +391,7 @@ class Data {
     }
 
     getApp(appPath, options) {
-        var app = App.newSansId(this.jt, appPath);
+        var app = App.newSansId(appPath);
 
         // Set options before running code.
         for (var i in options) {
@@ -400,8 +402,8 @@ class Data {
             app.appjs = fs.readFileSync(appPath) + '';
             eval(app.appjs); // jshint ignore:line
         } catch (err) {
-            this.jt.log('Error loading app: ' + appPath);
-            this.jt.log(err);
+            global.jt.log('Error loading app: ' + appPath);
+            global.jt.log(err);
             app = null;
         }
         return app;
@@ -415,9 +417,9 @@ class Data {
     }
 
     loadApps() {
-        for (var i in this.jt.settings.appFolders) {
-            var folder = this.jt.settings.appFolders[i];
-            this.loadAppDir(path.join(this.jt.path, folder));
+        for (var i in global.jt.settings.appFolders) {
+            var folder = global.jt.settings.appFolders[i];
+            this.loadAppDir(path.join(global.jt.path, folder));
         }
     }
 
@@ -432,7 +434,7 @@ class Data {
     loadSessions() {
         var out = [];
 
-        const sessPath = path.join(this.jt.path, this.jt.settings.sessionsFolder);
+        const sessPath = path.join(global.jt.path, global.jt.settings.sessionsFolder);
         fs.ensureDirSync(sessPath);
 
         var dirContents = fs.readdirSync(sessPath);
@@ -443,7 +445,7 @@ class Data {
                 if (session !== null) {
                     out.push(session);
                 } else {
-                    var pathToFolder = path.join(this.jt.path, this.jt.settings.sessionsFolder + '/' + folder + '/');
+                    var pathToFolder = path.join(global.jt.path, global.jt.settings.sessionsFolder + '/' + folder + '/');
                     var contents = fs.readdirSync(pathToFolder);
                     if (contents.length === 0) {
                         console.log('completing delete of session ' + folder);
@@ -466,23 +468,23 @@ class Data {
     }
 
     queuePath(id) {
-        return path.join(this.jt.path, this.jt.settings.appFolders[0], id);
+        return path.join(global.jt.path, global.jt.settings.appFolders[0], id);
     }
 
     roomsPath() {
-        return path.join(this.jt.path, this.jt.settings.roomsPath);
+        return path.join(global.jt.path, global.jt.settings.roomsPath);
     }
 
     usersPath() {
-        return path.join(this.jt.path, this.jt.settings.usersPath);
+        return path.join(global.jt.path, global.jt.settings.usersPath);
     }
 
     room(id) {
-        return Utils.findByIdWOJQ(this.rooms, id);
+        return Utils.findById(this.rooms, id);
     }
 
     queue(id) {
-        return Utils.findByIdWOJQ(this.queues, id);
+        return Utils.findById(this.queues, id);
     }
 
     loadRooms() {
@@ -601,7 +603,7 @@ class Data {
     }
 
     appPath(id) {
-        return path.join(this.jt.path, 'apps/' + id);
+        return path.join(global.jt.path, 'apps/' + id);
     }
 
     createApp(id) {
@@ -611,7 +613,7 @@ class Data {
 
         var session = null;
         var appPath = this.appPath(id);
-        var app = new App.new(session, this.jt, appPath);
+        var app = new App.new(session, appPath);
 
         fs.writeFileSync(this.appPath(id), '');
 
@@ -653,10 +655,10 @@ class Data {
     loadSession(folder) {
         var out = null;
         try {
-            var pathToFolder = path.join(this.jt.path, this.jt.settings.sessionsFolder + '/' + folder + '/');
-            this.jt.log('loading session: ' + folder);
+            var pathToFolder = path.join(global.jt.path, global.jt.settings.sessionsFolder + '/' + folder + '/');
+            global.jt.log('loading session: ' + folder);
             if (folder !== null && fs.lstatSync(pathToFolder).isDirectory()) {
-                out = Session.load(this.jt, folder, this);
+                out = Session.load(folder, this);
             }
         } catch (err) {
             console.log('error loading session WS: ' + folder);
@@ -670,7 +672,7 @@ class Data {
         try {
             out = fs.readJSONSync(this.js.settings.serverTimeInfoFilename);
         } catch (err) {}
-        this.jt.log("last time on: " + out);
+        global.jt.log("last time on: " + out);
         return out;
     }
 
@@ -691,7 +693,7 @@ class Data {
     }
 
     getSession(sessionId) {
-        return Utils.findByIdWOJQ(this.sessions, sessionId);
+        return Utils.findById(this.sessions, sessionId);
     }
 
     /*
@@ -705,13 +707,13 @@ class Data {
      * @return {Session}        description
      */
     createSession(userId) {
-        var session = new Session.new(this.jt, null);
+        var session = new Session.new(null);
         session.setNumParticipants(session.suggestedNumParticipants);
         if (userId != null && userId.length > 0) {
             session.addUser(userId);
         }
         session.save();
-        this.jt.socketServer.emitToAdmins('addSession', session.shell());
+        global.jt.socketServer.emitToAdmins('addSession', session.shell());
         return session;
     }
 
@@ -719,7 +721,7 @@ class Data {
         if (id === null || id === 'null') {
             return null;
         }
-        var admin = this.jt.settings.admins[id];
+        var admin = global.jt.settings.admins[id];
         if (admin !== null && admin !== undefined) {
             // If password required and does not match, then do not log in.
             if (admin.pwd !== null && admin.pwd !== pwd) {
@@ -730,7 +732,7 @@ class Data {
     }
 
     session(id) {
-        return Utils.findByIdWOJQ(this.sessions, id);
+        return Utils.findById(this.sessions, id);
     }
 
     isValidAdmin(id, pwd) {

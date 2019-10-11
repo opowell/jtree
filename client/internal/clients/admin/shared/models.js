@@ -830,7 +830,7 @@ var App = function () {
             metaData.description = this.description;
             metaData.appPath = this.appPath;
 
-            // var folder = path.join(this.jt.path, this.jt.settings.appFolders[0] + '/' + this.id);
+            // var folder = path.join(global.jt.path, global.jt.settings.appFolders[0] + '/' + this.id);
             try {
                 if (this.appPath.endsWith('.jtt') || this.appPath.endsWith('.js')) {
                     metaData.appjs = Utils.readJS(this.appPath);
@@ -1253,7 +1253,7 @@ var App = function () {
             if (prevPeriod === null) {
                 return null;
             } else {
-                return Utils.findByIdWOJQ(prevPeriod.groups, group.id);
+                return Utils.findById(prevPeriod.groups, group.id);
             }
         }
 
@@ -1298,7 +1298,7 @@ var App = function () {
         key: 'save',
         value: function save() {
             try {
-                this.session.jt.log('App.save: ' + this.id);
+                global.jt.log('App.save: ' + this.id);
                 var toSave = this.shell();
                 this.session.saveDataFS(toSave, 'APP');
             } catch (err) {
@@ -1490,7 +1490,7 @@ var App = function () {
             var app = new App(session, json.id, session.jt);
 
             // Run app code.
-            var folder = path.join(session.jt.path, session.getOutputDir() + '/' + index + '_' + json.id);
+            var folder = path.join(global.jt.path, session.getOutputDir() + '/' + index + '_' + json.id);
             var appCode = Utils.readJS(folder + '/app.jtt');
             eval(appCode);
 

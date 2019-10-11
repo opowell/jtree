@@ -76,7 +76,7 @@ class Table {
     }
 
     getRow(id) {
-        return Utils.findByIdWOJQ(this.rows, id);
+        return Utils.findById(this.rows, id);
     }
 
     shell() {
@@ -98,7 +98,7 @@ class Table {
 
     save() {
         try {
-            this.session.jt.log('Table.save: ' + this.name);
+            global.jt.log('Table.save: ' + this.name);
             var toSave = {};
             toSave.name = this.name;
             toSave.idCounter = this.idCounter;

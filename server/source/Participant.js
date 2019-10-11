@@ -64,6 +64,10 @@ class Participant {
             'finishedApps',
             'updateScheduled'
         ];
+
+        this.gameIndices = [[-1, 0]];
+
+        this.gameIndex = -1;
     }
 
     /**
@@ -94,7 +98,7 @@ class Participant {
      */
     moveToNextStage() {
         if (this.player === null) {
-            this.session.participantMoveToNextApp(this);
+            this.session.participantMoveToNextGame(this);
         } else {
             this.player.endStage(true);
         }
@@ -179,10 +183,25 @@ class Participant {
         return this.session.getApp(this);
     }
 
+    getGamePeriod(game) {
+        let periodIndex = -1;
+
+        if (this.player != null && this.player.group.period.app.id === game.id) {
+            periodIndex = this.player.group.period.id - 1;
+        }
+
+        return periodIndex;
+
+        // if (this.periodIndices[game.roomId()] == null) {
+        //     this.periodIndices[game.roomId()] = -1;
+        // }
+        // return this.periodIndices[game.roomId()];
+    }
+
     endCurrentApp() {
 
         if (this.getApp() !== null) {
-            this.getApp().participantEnd(this);
+            this.getApp().participantEndInternal(this);
             this.finishedApps.push(this.getApp().getIdInSession());
         }
 
@@ -279,7 +298,12 @@ class Participant {
      * If the player is past this app, true.
      *
      */
-    isFinishedApp(app) {
+
+    incrementGame() {
+        this.gameIndex++;
+    }
+
+     isFinishedApp(app) {
 
         // Already finished this app.
         if (this.finishedApps.includes(app.getIdInSession())) {
@@ -376,6 +400,9 @@ class Participant {
     }
 
     setPlayer(player) {
+        let stageId = (player != null && player.stage != null) ? player.stage.id : 'null';
+        console.log('settting participant player: ' + this.id + ', ' + stageId);
+        player.updateGamePath();
         this.player = player;
         this.save();
         for (var i=0; i<this.clients.length; i++) {
@@ -384,7 +411,10 @@ class Participant {
             player.group.addClient(client);
             player.period().addClient(client);
         }
-        this.emit('participantSetPlayer', {player: player.shellWithParent()});
+        let shell = player.shellWithParent();
+        shell.game = null;
+        shell.stage = null;
+        this.emit('participantSetPlayer', {player: shell});
     }
 
     actuallyEmitUpdate() {
@@ -398,11 +428,19 @@ class Participant {
                 }
                 this.updateScheduled = false;
             } catch (err) {
+                console.log(err);
                 debugger;
             }
         }
     }
 
+    getGame() {
+        if (this.gameIndex < 0 || this.gameIndex >= this.session.gameTree.length) {
+            return null;
+        }
+        return this.session.gameTree[this.gameIndex];
+    }
+    
     emitUpdate() {
         this.updateScheduled = true;
     }
@@ -469,7 +507,7 @@ class Participant {
 
     save() {
         try {
-            this.session.jt.log('Participant.save: ' + this.id);
+            global.jt.log('Participant.save: ' + this.id);
             var localData = this.shellLocal();
             this.session.saveDataFS(localData, 'PARTICIPANT');
         } catch (err) {

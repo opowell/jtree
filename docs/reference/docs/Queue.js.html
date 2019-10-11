@@ -76,7 +76,7 @@ class Queue {
         var app = {appId: appId, options: options, indexInQueue: this.apps.length+1};
         this.apps.push(app);
         this.save();
-        this.jt.socketServer.sendOrQueueAdminMsg(null, 'queueAddApp', {queueId: this.id, app: app});
+        global.jt.socketServer.sendOrQueueAdminMsg(null, 'queueAddApp', {queueId: this.id, app: app});
     }
 
     shell() {
@@ -94,7 +94,7 @@ class Queue {
     */
     save() {
         try {
-            fs.writeJSONSync(this.jt.data.queuePath(this.id), this.shell(), {spaces: 4});
+            fs.writeJSONSync(global.jt.data.queuePath(this.id), this.shell(), {spaces: 4});
         } catch (err) {
             console.log(err);
         }

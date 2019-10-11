@@ -294,7 +294,7 @@ class App {
         var app = new App(session, json.id, session.jt);
 
         // Run app code.
-        var folder = path.join(session.jt.path, session.getOutputDir() + '/' + index + '_' + json.id);
+        var folder = path.join(global.jt.path, session.getOutputDir() + '/' + index + '_' + json.id);
         var appCode = Utils.readJS(folder + '/app.jtt');
         eval(appCode);
 
@@ -888,7 +888,7 @@ class App {
         metaData.description = this.description;
         metaData.appPath = this.appPath;
 
-        // var folder = path.join(this.jt.path, this.jt.settings.appFolders[0] + '/' + this.id);
+        // var folder = path.join(global.jt.path, global.jt.settings.appFolders[0] + '/' + this.id);
 
         try {
             metaData.appjs = Utils.readJS(this.appPath + '/app.jtt');
@@ -1309,7 +1309,7 @@ class App {
      */
     save() {
         try {
-            this.session.jt.log('App.save: ' + this.id);
+            global.jt.log('App.save: ' + this.id);
             var toSave = this.shell();
             this.session.saveDataFS(toSave, 'APP');
         } catch (err) {

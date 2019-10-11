@@ -68,11 +68,11 @@ class SocketServer {
             console.log('new id = ' + id);
         }
 
-        var admin = this.jt.data.getAdmin(id, pwd);
+        var admin = global.jt.data.getAdmin(id, pwd);
 
-        this.jt.log('socket connection: ' + socket.id + ', id=' + id + ', pwd=' + pwd + ', session=' + sessionId);
+        global.jt.log('socket connection: ' + socket.id + ', id=' + id + ', pwd=' + pwd + ', session=' + sessionId);
 
-        if (type === this.ADMIN_TYPE &amp;&amp; (admin !== null || this.jt.settings.adminLoginReq === false)) {
+        if (type === this.ADMIN_TYPE &amp;&amp; (admin !== null || global.jt.settings.adminLoginReq === false)) {
             this.addAdminClient(socket);
         } else if (roomId !== 'null') {
             this.addRoomClient(socket, id, roomId);
@@ -84,7 +84,7 @@ class SocketServer {
     addAdminClient(socket) {
         var sock = socket;
         var self = this;
-        var log = this.jt.log;
+        var log = global.jt.log;
         log('socket connection to ' + this.ADMIN_TYPE);
         socket.join(this.ADMIN_TYPE);
         socket.join('socket_' + sock.id);
@@ -135,22 +135,22 @@ class SocketServer {
     }
 
     addRoomClient(socket, pId, roomId) {
-        this.jt.log('server.addRoomClient: ' + socket.id + ', pId=' + pId + ', roomId=' + roomId);
+        global.jt.log('server.addRoomClient: ' + socket.id + ', pId=' + pId + ', roomId=' + roomId);
         try {
-            var room = this.jt.data.room(roomId);
+            var room = global.jt.data.room(roomId);
             room.addClient(socket, pId);
         } catch (err) {
-            this.jt.log('server.addRoomClient error:' + err + '\n' + err.stack);
+            global.jt.log('server.addRoomClient error:' + err + '\n' + err.stack);
         }
 
     }
 
     addParticipantClient(socket, pId, sessionId, roomId) {
-        this.jt.log('server.addClient: ' + socket.id + ', pId=' + pId + ', sId=' + sessionId + ', roomId=' + roomId);
+        global.jt.log('server.addClient: ' + socket.id + ', pId=' + pId + ', sId=' + sessionId + ', roomId=' + roomId);
         try {
-            var session = this.jt.data.getActiveSession(sessionId);
+            var session = global.jt.data.getActiveSession(sessionId);
             if (session === null) {
-                session = this.jt.data.getMostRecentActiveSession();
+                session = global.jt.data.getMostRecentActiveSession();
             }
 
             const client = session.addClient(socket, pId);
@@ -161,7 +161,7 @@ class SocketServer {
             }
 
         } catch (err) {
-            this.jt.log('server.addClient error:' + err + '\n' + err.stack);
+            global.jt.log('server.addClient error:' + err + '\n' + err.stack);
         }
     }
 
@@ -170,19 +170,19 @@ class SocketServer {
     }
 
     refreshAdmin(msgs, id, userId) {
-        this.jt.log('refreshAdmin: ' + id + ', userId = ' + userId);
+        global.jt.log('refreshAdmin: ' + id + ', userId = ' + userId);
 
         var ag = {};
-        ag.appFolders           = this.jt.settings.appFolders;
-        ag.apps                 = this.jt.data.appsMetaData;
-        ag.appsFull             = Utils.shells(this.jt.data.apps);
-        ag.predefinedQueues     = this.jt.settings.predefinedQueues;
-        ag.rooms                = Utils.shells(this.jt.data.rooms);
-        ag.queues                = Utils.shells(this.jt.data.queues);
-        ag.sessions             = this.jt.data.sessionsForUser(userId);
-        ag.jtreeLocalPath       = this.jt.path;
-        ag.settings             = this.jt.settings.shell();
-        ag.users                = Utils.shells(this.jt.data.users);
+        ag.appFolders           = global.jt.settings.appFolders;
+        ag.apps                 = global.jt.data.appsMetaData;
+        ag.appsFull             = Utils.shells(global.jt.data.apps);
+        ag.predefinedQueues     = global.jt.settings.predefinedQueues;
+        ag.rooms                = Utils.shells(global.jt.data.rooms);
+        ag.queues                = Utils.shells(global.jt.data.queues);
+        ag.sessions             = global.jt.data.sessionsForUser(userId);
+        ag.jtreeLocalPath       = global.jt.path;
+        ag.settings             = global.jt.settings.shell();
+        ag.users                = Utils.shells(global.jt.data.users);
 
         this.sendOrQueueAdminMsg(msgs, 'refreshAdmin', ag, id);
     }

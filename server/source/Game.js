@@ -380,7 +380,7 @@ class Game {
         var app = new Game(session, session.jt, json.id, json.parent);
 
         // Run app code.
-        // var folder = path.join(session.jt.path, session.getOutputDir() + '/' + index + '_' + json.id);
+        // var folder = path.join(global.jt.path, session.getOutputDir() + '/' + index + '_' + json.id);
         // var appCode = Utils.readJS(folder + '/app.jtt');
         // eval(appCode);
 
@@ -945,7 +945,7 @@ class Game {
 
         this.end();
 
-        let timeStamp = this.session.jt.settings.getConsoleTimeStamp();
+        let timeStamp = global.jt.settings.getConsoleTimeStamp();
         console.log(timeStamp + ' END   - APP   : ' + this.shortId);
 
         this.finished = true;
@@ -1156,9 +1156,9 @@ class Game {
             indexInQueue: this.apps.length + 1
         };
         this.subgames.push(app);
-        if (this.jt.socketServer != null) {
+        if (global.jt.socketServer != null) {
             this.save();
-            this.jt.socketServer.sendOrQueueAdminMsg(null, 'queueAddGame', {queueId: this.id, app: app});
+            global.jt.socketServer.sendOrQueueAdminMsg(null, 'queueAddGame', {queueId: this.id, app: app});
         }
     }
 
@@ -1266,7 +1266,7 @@ class Game {
         metaData.description = this.description;
         metaData.appPath = this.appPath;
 
-        // var folder = path.join(this.jt.path, this.jt.settings.appFolders[0] + '/' + this.id);
+        // var folder = path.join(global.jt.path, global.jt.settings.appFolders[0] + '/' + this.id);
         try {
             if (this.appPath.endsWith('.jtt') || this.appPath.endsWith('.js')) {
                 metaData.appjs = Utils.readJS(this.appPath);
@@ -1778,7 +1778,7 @@ class Game {
      */
     save() {
         try {
-            this.session.jt.log('Game.save: ' + this.id);
+            global.jt.log('Game.save: ' + this.id);
             var toSave = this.shell();
             this.session.saveDataFS(toSave, 'APP');
         } catch (err) {

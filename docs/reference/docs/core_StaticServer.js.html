@@ -57,8 +57,8 @@ class StaticServer {
         this.expApp = expApp;
 
         // FILES TO SERVE
-        expApp.use('', express.static(path.join(this.jt.path, jt.settings.participantUI)));
-        expApp.use('/help', express.static(path.join(this.jt.path, jt.settings.helpPath)));
+        expApp.use('', express.static(path.join(global.jt.path, jt.settings.participantUI)));
+        expApp.use('/help', express.static(path.join(global.jt.path, jt.settings.helpPath)));
         expApp.use('/admin', express.static(this.defaultAdminUIPath()));
         var adminUIs = fs.readdirSync(this.adminUIsPath());
         for (var i in adminUIs) {
@@ -67,8 +67,8 @@ class StaticServer {
                 expApp.use('/admin/' + adminUIs[i], express.static(pathToFolder));
             }
         }
-        expApp.use('/participant', express.static(path.join(this.jt.path, jt.settings.participantUI)));
-        expApp.use('/shared', express.static(path.join(this.jt.path, jt.settings.sharedUI)));
+        expApp.use('/participant', express.static(path.join(global.jt.path, jt.settings.participantUI)));
+        expApp.use('/shared', express.static(path.join(global.jt.path, jt.settings.sharedUI)));
 
         for (var i in jt.data.appsMetaData) {
             let metaData = jt.data.appsMetaData[i];
@@ -214,11 +214,11 @@ class StaticServer {
     }
 
     defaultAdminUIPath() {
-        return path.join(this.adminUIsPath(), this.jt.settings.defaultAdminUI);
+        return path.join(this.adminUIsPath(), global.jt.settings.defaultAdminUI);
     }
 
     adminUIsPath() {
-        return path.join(this.jt.path, this.jt.settings.adminUIsPath);
+        return path.join(global.jt.path, global.jt.settings.adminUIsPath);
     }
 
     /**
@@ -231,8 +231,8 @@ class StaticServer {
      * http://stackoverflow.com/questions/14177087/replace-a-string-in-a-file-with-nodejs
      */
     generateSharedJS() {
-        var fn = path.join(this.jt.path, this.jt.settings.clientJSTemplateFile) // file with marker
-        var newFN = path.join(this.jt.path, this.jt.settings.clientJSFile) // actual file to be sent to clients and admins
+        var fn = path.join(global.jt.path, global.jt.settings.clientJSTemplateFile) // file with marker
+        var newFN = path.join(global.jt.path, global.jt.settings.clientJSFile) // actual file to be sent to clients and admins
         try {
             fs.copySync(fn, newFN);
             replace({
@@ -257,12 +257,12 @@ class StaticServer {
     sendParticipantPage(req, res, pId, sessionId) {
         var session = null;
         if (sessionId == null || sessionId == undefined) {
-            session = this.jt.data.getMostRecentActiveSession();
+            session = global.jt.data.getMostRecentActiveSession();
         } else {
-            session = Utils.findByIdWOJQ(this.jt.data.sessions, sessionId);
+            session = Utils.findByIdWOJQ(global.jt.data.sessions, sessionId);
         }
         if (session === null) {
-            res.sendFile(path.resolve(this.jt.path, './' + this.jt.settings.participantUI + '/invalidSession.html'));
+            res.sendFile(path.resolve(global.jt.path, './' + global.jt.settings.participantUI + '/invalidSession.html'));
         } else {
             session.sendParticipantPage(req, res, pId);
         }

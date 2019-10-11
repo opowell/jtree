@@ -91,9 +91,9 @@ class Queue {
             indexInQueue: this.apps.length + 1
         };
         this.apps.push(app);
-        if (!this.dummy && this.jt.socketServer != null) {
+        if (!this.dummy && global.jt.socketServer != null) {
             this.save();
-            this.jt.socketServer.sendOrQueueAdminMsg(null, 'queueAddApp', {queueId: this.id, app: app});
+            global.jt.socketServer.sendOrQueueAdminMsg(null, 'queueAddApp', {queueId: this.id, app: app});
         }
     }
 
@@ -112,7 +112,7 @@ class Queue {
     */
     save() {
         try {
-            fs.writeJSONSync(this.jt.data.queuePath(this.id), this.shell(), {spaces: 4});
+            fs.writeJSONSync(global.jt.data.queuePath(this.id), this.shell(), {spaces: 4});
         } catch (err) {
             console.log(err);
         }

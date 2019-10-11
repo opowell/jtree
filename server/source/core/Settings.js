@@ -45,7 +45,7 @@ class Settings {
          this.loadSettings           = false;
          this.session = {};
          this.session.suggestedNumParticipants = 4;
-         this.session.allowClientsToCreateParticipants = false;
+         this.session.allowClientsToCreateParticipants = true;
          this.session.isValidPId = function(id) { // return true if the participant id is valid, false otherwise.
              return (
                 this.isValidPIdPxx(id) ||
@@ -96,7 +96,7 @@ class Settings {
 
          var settings = this; // so that settings can be modified without using 'jt.' prefix.
          try {
-            let settingsJSONPath = path.join(this.jt.path, 'settings.json');
+            let settingsJSONPath = path.join(global.jt.path, 'settings.json');
             if (fs.existsSync(settingsJSONPath)) {
                 var json = fs.readJSONSync(settingsJSONPath);
                 for (var i in json) {
@@ -109,9 +109,9 @@ class Settings {
              this.logMessage = err;
          }
          try {
-             let settingsJSPath = path.join(this.jt.path, 'settings.js');
+             let settingsJSPath = path.join(global.jt.path, 'settings.js');
             if (fs.existsSync(settingsJSPath)) {
-                var settingsFile = fs.readSync(path.join(this.jt.path, 'settings.js'));
+                var settingsFile = fs.readSync(path.join(global.jt.path, 'settings.js'));
                 console.log('loading custom settings from settings.js');
                 eval(settingsFile);
             }
@@ -157,7 +157,7 @@ class Settings {
      }
 
      save() {
-         Utils.writeJSON(path.join(this.jt.path, 'settings.json'), this.valsToSave);
+         Utils.writeJSON(path.join(global.jt.path, 'settings.json'), this.valsToSave);
      }
 
      setDefaultAdminPwd(curPwd, newPwd) {

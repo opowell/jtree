@@ -497,7 +497,7 @@ class Participant {
 
     save() {
         try {
-            this.session.jt.log('Participant.save: ' + this.id);
+            global.jt.log('Participant.save: ' + this.id);
             var localData = this.shellLocal();
             this.session.saveDataFS(localData, 'PARTICIPANT');
         } catch (err) {

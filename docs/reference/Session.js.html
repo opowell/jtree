@@ -83,7 +83,7 @@ class Session {
         */
         this.clients = [];
 
-        this.potentialParticipantIds = this.jt.settings.participantIds;
+        this.potentialParticipantIds = global.jt.settings.participantIds;
 
         this.caseSensitiveLabels = false;
 
@@ -105,9 +105,9 @@ class Session {
         /**
         * Whether or not clients can create a participant that does not exist yet.
         */
-        this.allowNewParts = this.jt.settings.allowClientsToCreateParticipants;
+        this.allowNewParts = global.jt.settings.allowClientsToCreateParticipants;
 
-        this.outputDelimiter = this.jt.settings.outputDelimiter;
+        this.outputDelimiter = global.jt.settings.outputDelimiter;
 
         /**
         * The apps in this session.
@@ -255,8 +255,8 @@ class Session {
     }
 
     canUserManage(userId) {
-        var user = this.jt.data.user(userId);
-        if (!this.jt.settings.multipleUsers) {
+        var user = global.jt.data.user(userId);
+        if (!global.jt.settings.multipleUsers) {
             return true;
         } else {
             if (user === null) {
@@ -288,7 +288,7 @@ class Session {
         }
 
         try {
-            var app = this.jt.data.loadApp(appPath, this, appPath, options);
+            var app = global.jt.data.loadApp(appPath, this, appPath, options);
         if (app !== null) {
             this.apps.push(app);
             if (app.appPath.endsWith('.jtt') || app.appPath.endsWith('.js')) {
@@ -320,7 +320,7 @@ class Session {
     }
 
     addQueue(qId) {
-        var queue = this.jt.data.queue(qId);
+        var queue = global.jt.data.queue(qId);
         if (queue !== null) {
             for (var i in queue.apps) {
                 try {
@@ -381,7 +381,7 @@ class Session {
         socket.join(this.roomId());
         participant.clientAdd(client);
         this.clients.push(client);
-        this.jt.socketServer.sendOrQueueAdminMsg(null, 'addClient', client.shell());
+        global.jt.socketServer.sendOrQueueAdminMsg(null, 'addClient', client.shell());
         this.io().to(socket.id).emit('logged-in', participant.shell());
         if (participant.player !== null) {
             participant.player.sendUpdate(socket.id);
@@ -391,11 +391,11 @@ class Session {
     }
 
     emitToAdmins(name, data) {
-        this.jt.socketServer.sendOrQueueAdminMsg(null, name, data);
+        global.jt.socketServer.sendOrQueueAdminMsg(null, name, data);
     }
 
     getOutputDir() {
-        return this.jt.settings.sessionsFolder + '/' + this.name;
+        return global.jt.settings.sessionsFolder + '/' + this.name;
     }
 
     /**
@@ -568,7 +568,7 @@ class Session {
     }
 
     participantUI() {
-        return this.jt.settings.participantUI;
+        return global.jt.settings.participantUI;
     }
 
     /**
@@ -581,11 +581,11 @@ class Session {
 
         // Not a participant yet
         if (participant == null) {
-            res.sendFile(path.join(this.jt.path, this.participantUI() + '/readyClient.html'));
+            res.sendFile(path.join(global.jt.path, this.participantUI() + '/readyClient.html'));
         }
         // Participant, but not in an app yet.
         else if (participant.getApp() == null) {
-            res.sendFile(path.join(this.jt.path, this.participantUI() + '/readyClient.html'));
+            res.sendFile(path.join(global.jt.path, this.participantUI() + '/readyClient.html'));
         }
         // participant in an app.
         else {
@@ -815,7 +815,7 @@ class Session {
     */
     save() {
         try {
-            this.jt.log('Session.save: ' + this.id);
+            global.jt.log('Session.save: ' + this.id);
             var localData = this.shell();
             this.saveDataFS(localData, 'SESSION');
             for (var i in this.apps) {
@@ -918,7 +918,7 @@ class Session {
     */
     clientRemove(socket) {
         var socketId = socket.id;
-        this.jt.log('removing client: ' + socketId);
+        global.jt.log('removing client: ' + socketId);
         for (var i=this.clients.length - 1; i>=0; i--) {
             var client = this.clients[i];
             if (client.id === socketId) {
@@ -926,7 +926,7 @@ class Session {
                     client.participant.clientRemove(client.id);
                 }
                 this.clients.splice(i, 1);
-                this.jt.socketServer.sendOrQueueAdminMsg(null, 'remove-client', client.shell());
+                global.jt.socketServer.sendOrQueueAdminMsg(null, 'remove-client', client.shell());
             }
         }
     }
@@ -960,13 +960,13 @@ class Session {
         }
 
         var participantId = pId;
-        this.jt.log('Session.participantCreate: ' + participantId);
+        global.jt.log('Session.participantCreate: ' + participantId);
         var participant = new Participant.new(participantId, this);
         participant.save();
         this.save();
         this.participants[participantId] = participant;
-        if (this.jt.socketServer != null) {
-            this.jt.socketServer.sendOrQueueAdminMsg(null, 'addParticipant', participant.shell());
+        if (global.jt.socketServer != null) {
+            global.jt.socketServer.sendOrQueueAdminMsg(null, 'addParticipant', participant.shell());
         }
         return participant;
     }
@@ -1053,7 +1053,7 @@ class Session {
     }
 
     participantBeginApp(participant) {
-        this.jt.log('Session.participantBeginApp: ' + participant.appIndex);
+        global.jt.log('Session.participantBeginApp: ' + participant.appIndex);
 
         if (participant.appIndex &lt; 1 || participant.appIndex > this.apps.length) {
             console.log('Session.participantBeginApp: INVALID appIndex');
@@ -1074,14 +1074,14 @@ class Session {
     }
 
     stageEndCheck(group) {
-        this.jt.log("checking to end stage for group " + group.id);
+        global.jt.log("checking to end stage for group " + group.id);
         this.clockUpdate();
         if (this.timeLeft &lt;= 0) {
             this.timeLeft = 0;
             this.clockStop();
             this.stageEnd(group);
         } else {
-            this.jt.log('not ending stage');
+            global.jt.log('not ending stage');
             this.clockTimerStart();
         }
     }
@@ -1110,7 +1110,7 @@ class Session {
     }
 
     io() {
-        return this.jt.io;
+        return global.jt.io;
     }
 
     /**

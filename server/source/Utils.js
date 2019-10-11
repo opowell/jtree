@@ -367,7 +367,7 @@ class Utils {
     }
 
     static getStageContents(app, stage) {
-        var fn = path.join(app.session.jt.path, 'apps/' + app + '/' + stage + '.html')
+        var fn = path.join(app.global.jt.path, 'apps/' + app + '/' + stage + '.html')
         var html = fs.readFileSync(fn, 'utf8');
         return html;
     }
@@ -385,24 +385,7 @@ class Utils {
         return fields;
     }
 
-    // http://stackoverflow.com/questions/7364150/find-object-by-id-in-an-array-of-javascript-objects
     static findById(array, id) {
-        if (array === null || array === undefined) {
-            return null;
-        }
-        var out = $.grep(array, function(e) {
-            return e !== undefined && e.id === id;
-        });
-        if (out.length > 0) {
-            return out[0];
-        }
-        else {
-            return null;
-        }
-    }
-
-    // Find by ID without JQuery ($)
-    static findByIdWOJQ(array, id) {
         for (let i in array) {
             if (array[i] !== undefined && array[i].id === id) {
                 return array[i];
@@ -411,9 +394,8 @@ class Utils {
         return null;
     }
 
-    // http://stackoverflow.com/questions/5767325/how-to-remove-a-particular-element-from-an-array-in-javascript
     static deleteById(array, id) {
-        for (var i = array.length-1; i>=0; i--) {
+        for (let i = array.length-1; i>=0; i--) {
             if(array[i].id === id) {
                 array.splice(i, 1);
             }
@@ -501,18 +483,18 @@ class Utils {
             return session;
         } else {
             if (ids.periodId === null || ids.periodId === undefined) {
-                return Utils.findByIdWOJQ(session.apps, ids.appId);
+                return Utils.findById(session.apps, ids.appId);
             } else {
-                var app = Utils.findByIdWOJQ(session.apps, ids.appId);
+                var app = Utils.findById(session.apps, ids.appId);
                 if (ids.groupId === null || ids.groupId === undefined) {
-                    return Utils.findByIdWOJQ(app.periods, ids.periodId);
+                    return Utils.findById(app.periods, ids.periodId);
                 } else {
-                    var period = Utils.findByIdWOJQ(app.periods, ids.periodId);
+                    var period = Utils.findById(app.periods, ids.periodId);
                     if (ids.playerId === null || ids.playerId === undefined) {
-                        return Utils.findByIdWOJQ(period.groups, ids.groupId);
+                        return Utils.findById(period.groups, ids.groupId);
                     } else {
-                        var group = Utils.findByIdWOJQ(period.groups, ids.groupId);
-                        return Utils.findByIdWOJQ(group.players, ids.playerId);
+                        var group = Utils.findById(period.groups, ids.groupId);
+                        return Utils.findById(group.players, ids.playerId);
                     }
                 }
             }

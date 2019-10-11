@@ -600,7 +600,7 @@ class Group {
 //                     player.justEndStage();
 //                 }
 //             }
-//             console.log(this.jt().settings.getConsoleTimeStamp() + ' END   - GROUP : ' + stage.id + ', ' + group.roomId());
+//             console.log(global.jt.settings.getConsoleTimeStamp() + ' END   - GROUP : ' + stage.id + ', ' + group.roomId());
 //             stage.groupEnd(group);
 //             this.attemptToStartNextStage();
 //         } else {
@@ -643,7 +643,7 @@ class Group {
         }
 
         try {
-            console.log(this.jt().settings.getConsoleTimeStamp() + ' START - GROUP : ' + stage.id + ', ' + this.roomId());
+            console.log(global.jt.settings.getConsoleTimeStamp() + ' START - GROUP : ' + stage.id + ', ' + this.roomId());
             stage.groupStart(this);
         } catch (err) {
             console.log(err.stack);
@@ -687,7 +687,7 @@ class Group {
                 player.endStage(false);
             }
         }
-        console.log(this.jt().settings.getConsoleTimeStamp() + ' END   - GROUP : ' + stage.id + ', ' + this.roomId());
+        console.log(global.jt.settings.getConsoleTimeStamp() + ' END   - GROUP : ' + stage.id + ', ' + this.roomId());
         this.stageEndedIndex = stage.indexInApp();
         stage.groupEnd(this);
 

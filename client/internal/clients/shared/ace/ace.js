@@ -212,7 +212,7 @@ ace.define("ace/lib/regexp",["require","exports","module"], function(require, ex
                        match[name] = match[i];
                 }
             }
-            if (!compliantLastIndexIncrement && this.global && !match[0].length && (this.lastIndex > match.index))
+            if (!compliantLastIndexIncrement && global && !match[0].length && (this.lastIndex > match.index))
                 this.lastIndex--;
         }
         return match;
@@ -220,7 +220,7 @@ ace.define("ace/lib/regexp",["require","exports","module"], function(require, ex
     if (!compliantLastIndexIncrement) {
         RegExp.prototype.test = function (str) {
             var match = real.exec.call(this, str);
-            if (match && this.global && !match[0].length && (this.lastIndex > match.index))
+            if (match && global && !match[0].length && (this.lastIndex > match.index))
                 this.lastIndex--;
             return !!match;
         };

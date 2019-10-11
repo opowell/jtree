@@ -399,7 +399,7 @@ class Stage {
      */
     save() {
         try {
-            this.session().jt.log('Stage.save: ' + this.id);
+            global.jt.log('Stage.save: ' + this.id);
             var toSave = this.shell();
     //        Utils.writeJSON(this.getOutputDir() + this.indexInApp() + '_' + this.id + '.json', toSave);
             this.session().saveDataFS(toSave, 'STAGE');

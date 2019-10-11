@@ -29,10 +29,9 @@ class Session {
     * - {@link Data#constructor}
     * - {@link Data#createSession}
     *
-    * @param  {Object} jt         Server object.
     * @param  {type} id               The id of the new session.
     */
-    constructor(jt, id, options) {
+    constructor(id, options) {
 
         if (options == null) {
             options = {};
@@ -42,12 +41,46 @@ class Session {
             options.createFolder = true;
         }
 
-        this.jt = jt;
         this.id = id;
         if (this.id === null || this.id === undefined) {
             this.id = Utils.getDate();
         }
         this.name = this.id;
+
+        this.initialState = {
+            timeStarted: 0,
+            started: false,
+            participants: [],
+            gameTree: [],
+            potentialParticipantIds: global.jt.settings.participantIds,
+            id: this.id,
+            stateId: 0,
+        };
+
+        if (this.initialState.nonObs == null) {
+            Object.defineProperty(this.initialState, "nonObs", {
+                enumerable: false,
+                value: {}
+            });
+        }
+
+        this.initialState.nonObs.session = this;
+        
+        /**
+         * Fields initially existing on "proxyObj" are not monitored.
+         */
+        let proxyObj = {
+            id: this.id,
+            messages: [],
+            messageLatest: true,
+            messageIndex: 0, // 0 means no messages, 1 is first message, etc.
+            clients: [],
+            state: this.initialState,
+            objectList: [],
+        }
+
+        this.proxy = proxyObj;
+        this.gameTree = this.proxy.state.gameTree;
 
         /**
         * A list of the clients connected to this session.
@@ -73,12 +106,12 @@ class Session {
         /**
         * Whether or not clients can create a participant that does not exist yet.
         */
-        this.allowNewParts = this.jt.settings.session.allowClientsToCreateParticipants;
+        this.allowNewParts = global.jt.settings.session.allowClientsToCreateParticipants;
 
-        this.outputDelimiter = this.jt.settings.outputDelimiter;
+        this.outputDelimiter = global.jt.settings.outputDelimiter;
 
-        for (let i in this.jt.settings.session) {
-            this[i] = this.jt.settings.session[i];
+        for (let i in global.jt.settings.session) {
+            this[i] = global.jt.settings.session[i];
         }
 
         /**
@@ -134,8 +167,8 @@ class Session {
     * @param  {type} json      The content of the session.
     * @return {Session}        The session described by the contents of json.
     */
-    static load(jt, folder, data) {
-        var session = new Session(jt, folder);
+    static load(folder, data) {
+        var session = new Session(folder);
         var all = fs.readFileSync(path.join(jt.path, jt.settings.sessionsFolder + '/' + folder + '/' + folder + '.gsf')).toString();
         var lines = all.split('\n');
 
@@ -146,7 +179,7 @@ class Session {
                     var json = JSON.parse(lines[i]);
                     switch (json.type) {
                         case 'SESSION':
-                        var newSession = new Session(jt, folder);
+                        var newSession = new Session(folder);
                         for (var j in json) {
                             newSession[j] = json[j];
                         }
@@ -221,8 +254,8 @@ class Session {
     }
 
     canUserManage(userId) {
-        var user = this.jt.data.user(userId);
-        if (!this.jt.settings.multipleUsers) {
+        var user = global.jt.data.user(userId);
+        if (!global.jt.settings.multipleUsers) {
             return true;
         } else {
             if (user === null) {
@@ -233,6 +266,10 @@ class Session {
                 return this.users.includes(userId);
             }
         }
+    }
+
+    getGSFFile() {
+        return this.getOutputDir() + '/' + this.id + '.json';
     }
 
     /**
@@ -254,10 +291,12 @@ class Session {
         }
 
         try {
-            var app = this.jt.data.loadApp(appPath, this, appPath, options);
+            var app = global.jt.data.loadApp(appPath, this, appPath, options);
         if (app !== null) {
             this.apps.push(app);
-            if (app.appPath.endsWith('.jtt') || app.appPath.endsWith('.js')) {
+            let game = app;
+            this.proxy.state.gameTree.push(game);
+            if (app.appPath.includes('.')) {
                 Utils.copyFile(app.appFilename, app.appDir, app.getOutputFN());
             } else {
                 Utils.copyFiles(path.parse(app.appPath).dir, app.getOutputFN());
@@ -279,6 +318,24 @@ class Session {
     }
     }
 
+    addGame(state, {filePath, options}) {
+        let fullPath = filePath;
+        if (typeof fullPath !== 'string') {
+            fullPath = path.join.apply(null, filePath);
+        }
+        var game = global.jt.data.loadGame(fullPath, state, options);
+        if (game !== null) {
+            state.gameTree.push(game);
+        }
+    }
+
+    setSessionLatest(value) {
+        this.proxy.messageLatest = value;
+        if (this.proxy.messageLatest) {
+            this.setMessageIndex(this.proxy.messages.length);
+        }
+    }
+    
     addUser(userId) {
         this.users.push(userId);
         this.save();
@@ -286,7 +343,7 @@ class Session {
     }
 
     addQueue(qId) {
-        var queue = this.jt.data.queue(qId);
+        var queue = global.jt.data.queue(qId);
         if (queue !== null) {
             for (var i in queue.apps) {
                 try {
@@ -347,7 +404,7 @@ class Session {
         socket.join(this.roomId());
         participant.clientAdd(client);
         this.clients.push(client);
-        this.jt.socketServer.sendOrQueueAdminMsg(null, 'addClient', client.shell());
+        global.jt.socketServer.sendOrQueueAdminMsg(null, 'addClient', client.shell());
         this.io().to(socket.id).emit('logged-in', participant.shell());
         if (participant.player !== null) {
             participant.player.sendUpdate(socket.id);
@@ -357,11 +414,11 @@ class Session {
     }
 
     emitToAdmins(name, data) {
-        this.jt.socketServer.sendOrQueueAdminMsg(null, name, data);
+        global.jt.socketServer.sendOrQueueAdminMsg(null, name, data);
     }
 
     getOutputDir() {
-        return this.jt.settings.sessionsFolder + '/' + this.name;
+        return global.jt.settings.sessionsFolder + '/' + this.name;
     }
 
     /**
@@ -371,7 +428,7 @@ class Session {
     * @param  {string} funcName The name of the function to evaluate on the client object.
     */
     pushMessage(obj, da, funcName) {
-        var msg = {obj: obj, data: da, fn: funcName, jt: this.jt, session: this};
+        var msg = {obj: obj, data: da, fn: funcName, jt: global.jt, session: this};
         this.asyncQueue.push(msg, this.messageCallback);
         //        var playerId = Player.genRoomId(da.player);
         //        var line = cl.participant.id + ', ' + cl.id + ', ' + playerId + ', ' + funcName + ', ' + JSON.stringify(da.data) + '\n';
@@ -379,7 +436,7 @@ class Session {
     }
 
     addMessageToStartOfQueue(obj, data, funcName) {
-        var msg = {obj: obj, data: data, fn: funcName, jt: this.jt, session: this};
+        var msg = {obj: obj, data: data, fn: funcName, jt: global.jt, session: this};
         this.asyncQueue.unshift(msg, this.messageCallback);
         //        var playerId = Player.genRoomId(da.player);
         //        var line = cl.participant.id + ', ' + cl.id + ', ' + playerId + ', ' + funcName + ', ' + JSON.stringify(da.data) + '\n';
@@ -534,7 +591,7 @@ class Session {
     }
 
     participantUI() {
-        return this.jt.settings.participantUI;
+        return global.jt.settings.participantUI;
     }
 
     /**
@@ -547,21 +604,33 @@ class Session {
 
         // Not a valid participant.
         if (!this.isValidPId(participantId)) {
-            res.sendFile(path.join(this.jt.path, this.participantUI() + '/enterId.html'));
+            res.sendFile(path.join(global.jt.path, this.participantUI() + '/enterId.html'));
         } 
         // Not a participant yet
         else if (participant == null) {
-            res.sendFile(path.join(this.jt.path, this.participantUI() + '/readyClient.html'));
+            res.sendFile(path.join(global.jt.path, this.participantUI() + '/readyClient.html'));
         }
         // Participant, but not in an app yet.
         else if (participant.getApp() == null) {
-            res.sendFile(path.join(this.jt.path, this.participantUI() + '/readyClient.html'));
+            res.sendFile(path.join(global.jt.path, this.participantUI() + '/readyClient.html'));
         }
         // participant in an app.
         else {
-            const app = participant.getApp();
-            app.sendParticipantPage(req, res, participant);
+            // const app = participant.getApp();
+            // app.sendParticipantPage(req, res, participant);
+            let html = this.getPage(participant);
+            res.send(html);
         }
+    }
+
+    getPage(participant) {
+        let html = '';
+        // let gameTree = this.proxy.__target.state.gameTree;
+        let gameTree = this.proxy.state.gameTree;
+        for (let g=0; g<gameTree.length; g++) {
+            html = html + gameTree[g].getHTML(participant);
+        }
+        return html;
     }
 
     /**
@@ -569,8 +638,6 @@ class Session {
     * @param  {number} num The number of participants to add.
     */
     addParticipants(num) {
-        let partsAdded = 0;
-
         // Search through the list of participantIds until one is found for which
         // no participant already exists.
         for (let i=0; i<num; i++) {
@@ -619,6 +686,84 @@ class Session {
         return fs.readFileSync(fn, 'utf8');
     }
 
+    loadMessageState(index) {
+
+        if (index >= this.proxy.messages.length) {
+            console.log('Error: asking for state ' + index + ' when only ' + this.proxy.messages.length + ' messages.');
+            return null;
+        }
+
+        if (index == -1) {
+            return this.initialState;
+        }
+
+        if (this.proxy.messages[index].state == null) {
+            let prevState = this.loadMessageState(index-1);
+
+            // Temporarily disable state storage.
+            let newState = clone(prevState);
+            Object.defineProperty(newState, "nonObs", {
+                enumerable: false,
+                value: clone(prevState.nonObs)
+            });
+            // let newState = prevState;
+
+            newState.stateId++;
+
+            // Copy participants to the new state proxy.
+            for (let i=0; i<newState.participants.length; i++) {
+                let part = newState.participants[i];
+                let proxy = part.getProxy();
+                newState.participants[i] = proxy;
+            }
+
+            // Make new state available immediately, and create proxy object for it.
+            while (newState.__target != null) {
+                newState = newState.__target;
+            }
+            this.proxy.messages[index].state = newState;
+
+            // Apply the message corresponding to this state.
+            this.processMessage(this.proxy.messages[index].state, this.proxy.messages[index]);
+        }
+
+        return this.proxy.messages[index].state;
+    }
+
+    processQueueMessage(msg, callback) {
+        let obj = msg.obj;
+        let data = msg.data;
+        let fn = msg.fn;
+        try {
+
+            if (fn !== 'endGame') {
+                data = Utils.parseFloatRec(data);
+            }
+            
+            // if (obj.canProcessMessage()) {
+                obj.addMessage(fn, data);
+                // obj[fn](data);
+            // } else {
+                // jt.log('Object cannot process message, skipping message "' + fn + '".');
+            // }
+        } catch (err) {
+            global.jt.log(err.stack);
+            debugger;
+            try {
+                global.jt.log('error processing message: ' + JSON.stringify(msg.data));
+            } catch (err2) {
+                global.jt.log('Error printing error: ' + msg.fn + ', ' + err2.stack);
+            }
+        }
+        callback();
+        return true;
+    }
+
+    processMessage(state, message) {
+        let func = eval('this["' + message.name + '"]').bind(this);
+        func(state, message.content);
+    }
+    
     emitParticipantUpdates() {
         // console.log('emitting updates');
         for (let p in this.participants) {
@@ -645,7 +790,31 @@ class Session {
         this.emit('setAllowNewParts', d);
     }
 
-    setAllowAdminPlay(b) {
+   /**
+    * participantMoveToNextGame - description
+    *
+    * CALLED FROM:
+    * - {@link Participant#moveToNextStage}.
+    *
+    * @param  {type} participant description
+    * @return {type}             description
+    */
+   participantMoveToNextGame(participant) {
+    if (participant.getGame() != null) {
+        participant.getGame().participantEndInternal(participant);
+    }
+
+    if (participant.gameIndex < participant.session.gameTree.length) {
+        participant.gameIndex++;
+        // participant.gameTree.push(participant.session.gameTree[participant.gameIndex]);
+        this.participantBeginApp(participant);
+    } else {
+        this.participantEnd(participant);
+        this.tryToEnd();
+    }
+}
+
+setAllowAdminPlay(b) {
         this.allowAdminClientsToPlay = b;
         let data = {sId: this.id, value: b};
         this.emit('setAllowAdminPlay', data);
@@ -732,11 +901,35 @@ class Session {
     advanceSlowest() {
         var parts = this.slowestParticipants();
         for (var i=0; i<parts.length; i++) {
-            parts[i].moveToNextStage();
+            this.participantMoveToNextGame(parts[i]);
         }
     }
 
-    slowestParticipants() {
+   /**
+    * participantMoveToNextGame - description
+    *
+    * CALLED FROM:
+    * - {@link Participant#moveToNextStage}.
+    *
+    * @param  {type} participant description
+    * @return {type}             description
+    */
+   participantMoveToNextGame(participant) {
+    if (participant.getGame() != null) {
+        participant.getGame().participantEnd(participant);
+    }
+
+    if (participant.gameIndex < participant.session.gameTree.length) {
+        participant.gameIndex++;
+        // participant.gameTree.push(participant.session.gameTree[participant.gameIndex]);
+        this.participantBeginApp(participant);
+    } else {
+        this.participantEnd(participant);
+        this.tryToEnd();
+    }
+}
+
+slowestParticipants() {
         var out = [];
         var minAppIndex = null;
         var minPeriodIndex = null;
@@ -774,7 +967,7 @@ class Session {
     */
     save() {
         try {
-            this.jt.log('Session.save: ' + this.id);
+            global.jt.log('Session.save: ' + this.id);
             var localData = this.shell();
             this.saveDataFS(localData, 'SESSION');
             for (var i in this.apps) {
@@ -786,15 +979,15 @@ class Session {
     }
 
     saveDataFS(d, type) {
-        try {
-            var a = JSON.stringify(d) + '\n';
-            var b = '"type":"' + type + '"' + this.outputDelimiter;
-            var position = 1;
-            var output = [a.slice(0, position), b, a.slice(position)].join('');
-            this.fileStream.write(output);
-        } catch (err) {
-            console.log('ERROR Session.saveDataFS: ' + err.stack);
-        }
+        // try {
+        //     var a = JSON.stringify(d) + '\n';
+        //     var b = '"type":"' + type + '"' + this.outputDelimiter;
+        //     var position = 1;
+        //     var output = [a.slice(0, position), b, a.slice(position)].join('');
+        //     this.fileStream.write(output);
+        // } catch (err) {
+        //     console.log('ERROR Session.saveDataFS: ' + err.stack);
+        // }
     }
 
     /**
@@ -812,6 +1005,9 @@ class Session {
             var field = fields[f];
             out[field] = this[field];
         }
+        out.gameTree = null;
+        out.proxy = null;
+        out.initialState = null;
         out.participants = {};
         for (var i in this.participants) {
             out.participants[i] = this.participants[i].shellAll();
@@ -849,6 +1045,9 @@ class Session {
         }
         out.clients = [];
         out.participants = [];
+        out.gameTree = null;
+        out.proxy = null;
+        out.initialState = null;
         return out;
     }
 
@@ -877,7 +1076,7 @@ class Session {
     */
     clientRemove(socket) {
         var socketId = socket.id;
-        this.jt.log('removing client: ' + socketId);
+        global.jt.log('removing client: ' + socketId);
         for (var i=this.clients.length - 1; i>=0; i--) {
             var client = this.clients[i];
             if (client.id === socketId) {
@@ -885,7 +1084,7 @@ class Session {
                     client.participant.clientRemove(client.id);
                 }
                 this.clients.splice(i, 1);
-                this.jt.socketServer.sendOrQueueAdminMsg(null, 'remove-client', client.shell());
+                global.jt.socketServer.sendOrQueueAdminMsg(null, 'remove-client', client.shell());
             }
         }
     }
@@ -896,17 +1095,20 @@ class Session {
     * @param  {type} participantId description
     * @return {type}               description
     */
-    participant(participantId) {
-        var participant = this.participants[participantId];
-        if (participant == null && this.allowNewParts && this.isValidPId(participantId)) {
-            participant = this.participantCreate(participantId);
-            if (this.started) {
-                participant.moveToNextStage();
-            }
+   participant(participantId) {
+    var participant = Utils.findById(this.proxy.state.participants, participantId);
+    if (participant == null && this.allowNewParts && this.isValidPId(participantId)) {
+        participant = this.participantCreate(participantId);
+        if (this.started) {
+            participant.moveToNextStage();
         }
-        return participant;
     }
+    return participant;
+}
 
+participantUI() {
+    return global.jt.settings.participantUI;
+}
     /**
     * participantCreate - description
     *
@@ -919,13 +1121,15 @@ class Session {
         }
 
         var participantId = pId;
-        this.jt.log('Session.participantCreate: ' + participantId);
+        global.jt.log('Session.participantCreate: ' + participantId);
         var participant = new Participant.new(participantId, this);
         participant.save();
         this.save();
         this.participants[participantId] = participant;
-        if (this.jt.socketServer != null) {
-            this.jt.socketServer.sendOrQueueAdminMsg(null, 'addParticipant', participant.shell());
+        this.proxy.state.participants.push(participant);
+        if (global.jt.socketServer != null) {
+            let shell = participant.shell();
+            global.jt.socketServer.sendOrQueueAdminMsg(null, 'addParticipant', shell);
         }
         return participant;
     }
@@ -952,7 +1156,7 @@ class Session {
     */
     participantMoveToNextApp(participant) {
         if (participant.getApp() != null) {
-            participant.getApp().participantEnd(participant);
+            participant.getApp().participantEndInternal(participant);
         }
 
         if (participant.appIndex < this.apps.length) {
@@ -960,7 +1164,7 @@ class Session {
             participant.save();
             this.participantBeginApp(participant);
         } else {
-            this.participantEnd(participant);
+            this.participantEndInternal(participant);
         }
         this.emitParticipantUpdates();
     }
@@ -1008,35 +1212,35 @@ class Session {
     }
 
     participantBeginApp(participant) {
-        this.jt.log('Session.participantBeginApp: ' + participant.appIndex);
+        global.jt.log('Session.participantBeginApp: ' + participant.gameIndex);
 
-        if (participant.appIndex < 1 || participant.appIndex > this.apps.length) {
-            console.log('Session.participantBeginApp: INVALID appIndex');
+        if (participant.gameIndex < 0 || participant.gameIndex >= participant.session.gameTree.length) {
+            console.log('Session.participantBeginApp: INVALID gameIndex');
             return false;
         }
 
-        var app = this.getApp(participant);
+        let game = participant.getGame();
 
         // If the app has not yet been started, reload it first.
-        if (!app.started) {
-            let newApp = app.reload();
-            this.apps[app.indexInSession() - 1] = newApp;
-            app = newApp;
-            app.start();
-        }
+        // if (!game.started) {
+        //     let newGame = game.reload();
+        //     participant.session.gameTree[game.indexInSession() - 1] = newGame;
+        //     game = newGame;
+        //     // app.start();
+        // }
 
-        app.participantBegin(participant);
+        game.participantBegin(participant);
     }
 
     stageEndCheck(group) {
-        this.jt.log("checking to end stage for group " + group.id);
+        global.jt.log("checking to end stage for group " + group.id);
         this.clockUpdate();
         if (this.timeLeft <= 0) {
             this.timeLeft = 0;
             this.clockStop();
             this.stageEnd(group);
         } else {
-            this.jt.log('not ending stage');
+            global.jt.log('not ending stage');
             this.clockTimerStart();
         }
     }
@@ -1065,7 +1269,7 @@ class Session {
     }
 
     io() {
-        return this.jt.io;
+        return global.jt.io;
     }
 
     /**

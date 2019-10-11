@@ -458,7 +458,7 @@ function storeFields(path, obj, outKeys, state) {
         typeof(obj[i]) === 'object' &&
         !Array.isArray(obj[i])
       ) {
-        storeFields(path + i + '.', obj[i], outKeys, state);
+        // storeFields(path + i + '.', obj[i], outKeys, state);
       } else {
         outKeys.push(path + i);
         state.allFields.push({

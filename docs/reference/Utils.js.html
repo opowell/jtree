@@ -395,7 +395,7 @@ class Utils {
     }
 
     static getStageContents(app, stage) {
-        var fn = path.join(app.session.jt.path, 'apps/' + app + '/' + stage + '.html')
+        var fn = path.join(app.global.jt.path, 'apps/' + app + '/' + stage + '.html')
         var html = fs.readFileSync(fn, 'utf8');
         return html;
     }

@@ -14,7 +14,7 @@ class App {
      * @param  {Session} session description
      * @param  {String} id      description
      */
-    constructor(session, jt, appPath, parent) {
+    constructor(session, appPath, parent) {
 
         /**
          * The unique identifier of this App. In order of precedence, the value is given by:
@@ -27,6 +27,8 @@ class App {
 
         this.parent = parent;
         this.superGame = parent;
+
+        this.showErrorsInLog = true;
 
         let id = appPath;
         // Strip folders.
@@ -47,11 +49,6 @@ class App {
         }
         this.shortId = id;
 
-
-        /**
-         * @type {jt}
-         */
-        this.jt = jt;
 
         /** Where the original definition of this app is stored on the server.*/
         this.appPath = appPath;
@@ -109,6 +106,14 @@ class App {
         this.textMarkerEnd = '}}}';
 
         this.useVue = true;
+        
+        /**
+         * How long clients have before stage is auto-submitted (from client, not from server).
+         * if <= 0, then no client timeout for this stage.
+         * @type number
+         * @default 0
+         */
+        this.clientDuration = 0;
 
         /**
          * The number of periods in this App.
@@ -363,9 +368,9 @@ class App {
      * @param  {type} appPath The path relative to the server process. i.e. /apps/my-app.jtt or /apps/my-complex-app/app.js
      * @return {App}          The given app.
      */
-    static newSansId(jt, appPath) {
+    static newSansId(appPath) {
         console.log('loading app with no session: ' + appPath);
-        var out = new App({}, jt, appPath);
+        var out = new App({}, appPath);
         return out;
     }
 
@@ -381,10 +386,10 @@ class App {
      */
     static load(json, session) {
         var index = json.sessionIndex;
-        var app = new App(session, json.id, session.jt, json.parent);
+        var app = new App(session, json.id, json.parent);
 
         // Run app code.
-        var folder = path.join(session.jt.path, session.getOutputDir() + '/' + index + '_' + json.id);
+        var folder = path.join(global.jt.path, session.getOutputDir() + '/' + index + '_' + json.id);
         var appCode = Utils.readJS(folder + '/app.jtt');
         eval(appCode);
 
@@ -460,7 +465,7 @@ class App {
             // Process the message.
             client[stageName + 'Process'] = function(data) {
 
-                app.jt.log('Server received auto-stage submission: ' + JSON.stringify(data));
+                global.jt.log('Server received auto-stage submission: ' + JSON.stringify(data));
 
                 if (client.player() === null) {
                     return false;
@@ -808,12 +813,12 @@ class App {
         // Load content of html file, if any.
         // Try app.htmlFile, id.html, and client.html.
         var htmlFile = app.htmlFile == null ? app.id + '.html' : app.htmlFile;
-        var filename = path.join(app.jt.path, '/apps/' + app.id + '/' + htmlFile);
+        var filename = path.join(global.jt.path, '/apps/' + app.id + '/' + htmlFile);
         if (fs.existsSync(filename)) {
             html = html + Utils.readTextFile(filename);
         } else {
             htmlFile = 'client.html';
-            filename = path.join(app.jt.path, '/apps/' + app.id + '/' + htmlFile);
+            filename = path.join(global.jt.path, '/apps/' + app.id + '/' + htmlFile);
             if (fs.existsSync(filename)) {
                 html = html + Utils.readTextFile(filename);
             }
@@ -1053,7 +1058,7 @@ class App {
 
         this.end();
 
-        let timeStamp = this.session.jt.settings.getConsoleTimeStamp();
+        let timeStamp = global.jt.settings.getConsoleTimeStamp();
         console.log(timeStamp + ' END   - APP   : ' + this.getIdInSession());
 
         this.finished = true;
@@ -1244,9 +1249,9 @@ class App {
             indexInQueue: this.apps.length + 1
         };
         this.subgames.push(app);
-        if (this.jt.socketServer != null) {
+        if (global.jt.socketServer != null) {
             this.save();
-            this.jt.socketServer.sendOrQueueAdminMsg(null, 'queueAddGame', {queueId: this.id, app: app});
+            global.jt.socketServer.sendOrQueueAdminMsg(null, 'queueAddGame', {queueId: this.id, app: app});
         }
     }
 
@@ -1359,7 +1364,7 @@ class App {
         metaData.errorPosition = this.errorPosition;
         metaData.errorLine = this.errorLine;
 
-        // var folder = path.join(this.jt.path, this.jt.settings.appFolders[0] + '/' + this.id);
+        // var folder = path.join(global.jt.path, global.jt.settings.appFolders[0] + '/' + this.id);
         try {
             if (this.appPath.includes('.')) {
                 metaData.appjs = Utils.readJS(this.appPath);
@@ -1376,7 +1381,7 @@ class App {
             metaData.clientHTML = '';
         }
 
-        var app = new App({}, this.jt, this.id);
+        var app = new App({}, this.id);
 
         metaData.stages = [];
         try {
@@ -1463,16 +1468,21 @@ class App {
     }
 
     reload() {
-        var app = new App(this.session, this.jt, this.id);
+        let app = new App(this.session, this.id);
         app.optionValues = this.optionValues;
-        for (var opt in app.optionValues) {
+        for (let opt in app.optionValues) {
             app[opt] = app.optionValues[opt];
         }
-        var appCode = Utils.readJS(this.appPath);
-        let game = app;
-        let treatment = app;
-        eval(appCode);
-        return app;
+        try {
+            let appCode = Utils.readJS(this.appPath);
+            let game = app;
+            let treatment = app;
+            eval(appCode);
+            return app;
+        } catch (err) {
+            // Error parsing code, or game not defined in file.
+            return this;
+        }
     }
 
     setOptionValue(name, value) {
@@ -1534,7 +1544,7 @@ class App {
      * @return {Game} The new game.
      */
     addSubGame(id) {
-        var subgame = new App(this.session, this.jt, id, this);
+        var subgame = new App(this.session, id, this);
         this.subgames.push(subgame);
         return subgame;
     }
@@ -1646,9 +1656,7 @@ class App {
         this.participantStart(participant);
         if (this.subgames.length > 0) {
             this.participantMoveToNextPeriod(participant);
-        } else {
-            this.participantMoveToNextPeriod(participant);
-        }
+        } 
 
         participant.emit('start-new-app'); /** refresh clients.*/
     }
@@ -1675,7 +1683,11 @@ class App {
      */
         // TODO: CHANGE
     participantBeginPeriod(participant) {
-        var prd = participant.periodIndex;
+        // var prd = participant.periodIndex;
+        var prd = participant.getGamePeriod(this);
+        // Move to next period
+        prd++;
+
         participant.emit('participantSetPeriodIndex', {periodIndex: participant.periodIndex});
 
         var period = this.getPeriod(prd);
@@ -1684,6 +1696,10 @@ class App {
         }
         period.participantBegin(participant);
     }
+
+    getClientDuration(player) {
+        return this.clientDuration;
+    };
 
         // An array of ids, one for each game in this game's ancestry.
         getGamePath() {
@@ -1759,11 +1775,13 @@ class App {
      * @param  {type} participant description
      * @return {type}             description
      */
-    // TODO: CHANGE
      participantMoveToNextPeriod(participant) {
-         // If in the last period of app, move to next app.
-         if (participant.periodIndex >= this.numPeriods - 1) {
-             this.session.participantMoveToNextApp(participant);
+
+        let periodIndex = participant.getGamePeriod(this);
+
+        // If in the last period of app, move to next app.
+         if (periodIndex >= this.numPeriods - 1) {
+             this.getFullSession().participantMoveToNextGame(participant);
          }
 
          // Move to the next period of this app.
@@ -1780,6 +1798,10 @@ class App {
          }
      }
 
+     getFullSession() {
+        return global.jt.data.getSession(this.session.id);
+    }
+
     /**
      * A participant finishes playing this app.
      *
@@ -1792,15 +1814,13 @@ class App {
      *
      * @param  {Participant} participant The participant.
      */
-        // TODO: CHANGE
-
     participantEndInternal(participant) {
         // for (var c in participant.clients) {
         //     var client = participant.clients[c];
         //     client.socket.leave(this.roomId());
         // }
         this.participantEnd(participant);
-        this.tryToEndApp();
+        this.tryToEndGame();
     }
 
     participantEnd(participant) {}
@@ -1860,7 +1880,7 @@ class App {
         if (prevPeriod === null) {
             return null;
         } else {
-            return Utils.findByIdWOJQ(prevPeriod.groups, group.id);
+            return Utils.findById(prevPeriod.groups, group.id);
         }
     }
 
@@ -1905,7 +1925,7 @@ class App {
      */
     save() {
         try {
-            this.session.jt.log('App.save: ' + this.id);
+            global.jt.log('App.save: ' + this.id);
             var toSave = this.shell();
             this.session.saveDataFS(toSave, 'APP');
         } catch (err) {
@@ -2180,15 +2200,12 @@ class App {
         }
     }
 
-// TODO: Change
     getNextPeriod(participant) {
-        if (participant.player != null) {
-            participant.periodIndex = participant.player.group.period.id - 1;
-        }
-        if (participant.periodIndex >= this.numPeriods - 1) {
+        let gamePeriod = participant.getGamePeriod(this);
+        if (gamePeriod >= this.numPeriods - 1) {
             return null;
         } else {
-            return this.getPeriod(participant.periodIndex+1);
+            return this.getPeriod(gamePeriod+1);
         }
     }
 

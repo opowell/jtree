@@ -126,7 +126,7 @@ class Table {
 
     save() {
         try {
-            this.session.jt.log('Table.save: ' + this.name);
+            global.jt.log('Table.save: ' + this.name);
             var toSave = {};
             toSave.name = this.name;
             toSave.idCounter = this.idCounter;

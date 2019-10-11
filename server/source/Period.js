@@ -21,6 +21,7 @@ class Period {
          * @type {App}
          */
         this.app = app;
+        this.game = app;
 
         /**
          * List of groups for this period.
@@ -28,7 +29,12 @@ class Period {
          * @default []
          */
         this.groups = [];
-
+        
+        this.superPeriod = null;
+        if (app.superGame != null) {
+            this.superPeriod = app.superGame.periods[app.superGame.periods.length-1];
+        }
+        
         /**
          * 'outputHide' fields are not included in output
          * @type {String[]}
@@ -102,39 +108,37 @@ class Period {
             console.log('Error: no group defined for ' + participant.id + ' in ' + this.roomId());
         }
 
-        var gr = null;
-        for (var g in this.groups) {
-            var group = this.groups[g];
-            if (group.id === groupId) {
-                gr = group;
-                break;
-            }
-        }
+        var gr = Utils.findById(this.groups, groupId)
         if (gr === null) {
             gr = new Group.new(groupId, this);
             gr.save();
             this.groups.push(gr);
+            gr = Utils.findById(this.groups, gr.id);
         }
         var player = gr.playerWithParticipant(participant);
         if (player === null) {
             // create player
             player = new Player.new(participant.id, participant, gr, gr.players.length+1);
             participant.players.push(player);
+            player = participant.players[participant.players.length-1];
             player.save();
             participant.save();
             gr.players.push(player);
             //            if (gr.players.length this.)
         }
+        player.stageIndex = 0;
+        player.subGame = this.game.subgames[player.stageIndex];
+        player.superGame = this.game;
+        player.stage = player.subGame;
+        player.game = player.superGame;
+        player.status = 'ready';
         participant.setPlayer(player);
 
         if (participant.player === null) {
             console.log('APP: error assigning group for participant ' + participant.id);
         }
 
-        participant.player.stageIndex = 0;
-        participant.player.stage = this.app.stages[0];
-        participant.player.status = 'ready';
-        participant.player.startStage(participant.player.stage);
+        player.startStage(player.stage);
     }
 
     getParticipantGroupId(participant) {
@@ -265,10 +269,6 @@ class Period {
         return fields;
     }
 
-    server() {
-        return this.session().jt;
-    }
-
     getOutputDir() {
         return this.app.getOutputFN() + '/periods/' + this.id;
     }
@@ -287,6 +287,7 @@ class Period {
             var field = fields[f];
             out[field] = this[field];
         }
+        out.game = null;
         out.app = this.app.shellWithParent();
         return out;
     }
@@ -323,7 +324,7 @@ class Period {
      */
     save() {
         try {
-            this.server().log('Period.save: ' + this.id);
+            global.jt.log('Period.save: ' + this.id);
             var toSave = this.shell();
             this.session().saveDataFS(toSave, 'PERIOD');
         } catch (err) {

@@ -28,20 +28,20 @@ class Msgs {
      * @param  {Socket} socket the client socket who sent the message.
      */
     addParticipants(d, socket) {
-        var session = this.jt.data.getSession(d.sId);
+        var session = global.jt.data.getSession(d.sId);
         var num = parseInt(d.number);
         session.addParticipants(num);
     }
 
     appSaveFileContents(d, socket) {
-        var app = this.jt.data.app(d.aId, d.options);
+        var app = global.jt.data.app(d.aId, d.options);
         app.setFileContents(d.content);
         app = app.reload();
-        this.jt.data.appsMetaData[d.aId] = app.metaData();
+        global.jt.data.appsMetaData[d.aId] = app.metaData();
     }
 
     getClients(data, socket) {
-        let clients = this.jt.data.getClients(data.sessionId);
+        let clients = global.jt.data.getClients(data.sessionId);
         var message = {cb: data.cb, clients: clients};
         socket.emit('dataMessage', message);
     }
@@ -54,13 +54,13 @@ class Msgs {
      * @return {Message}        A message object, which includes callback (cb) and data fields.
      */
     getAppMetadatas(cb, socket) {
-        var apps = this.jt.data.getApps();
+        var apps = global.jt.data.getApps();
         var metadatas = [];
         for (var i in apps) {
             metadatas.push(apps[i].metaData());
         }
         var message = {cb: cb, metadatas: metadatas};
-        this.jt.io.to('socket_' + socket.id).emit('dataMessage', message);
+        global.jt.io.to('socket_' + socket.id).emit('dataMessage', message);
     }
 
     /**
@@ -71,37 +71,37 @@ class Msgs {
      * @return {Message}        A message object, which includes callback (cb) and data fields.
      */
     getApp(data, socket) {
-        data.app = this.jt.data.getApp(data.appPath).shellWithChildren();
-        this.jt.io.to('socket_' + socket.id).emit('dataMessage', data);
+        data.app = global.jt.data.getApp(data.appPath).shellWithChildren();
+        global.jt.io.to('socket_' + socket.id).emit('dataMessage', data);
     }
 
     setAppContents(data, socket) {
-        fs.writeFileSync(path.join(this.jt.path, data.appPath), data.content);
+        fs.writeFileSync(path.join(global.jt.path, data.appPath), data.content);
         var outMessage = {};
         outMessage.appPath = data.appPath;
         outMessage.cb   = data.cb;
-        outMessage.app  = this.jt.data.getApp(data.appPath).shellWithChildren();
-        this.jt.io.to('socket_' + socket.id).emit('dataMessage', outMessage);
+        outMessage.app  = global.jt.data.getApp(data.appPath).shellWithChildren();
+        global.jt.io.to('socket_' + socket.id).emit('dataMessage', outMessage);
     }
 
     setSessionId(data, socket) {
-        var session = this.jt.data.getSession(data.oldId);
+        var session = global.jt.data.getSession(data.oldId);
         session.setId(data.newId);
-        this.jt.io.to('socket_' + socket.id).emit('setSessionId', data);
+        global.jt.io.to('socket_' + socket.id).emit('setSessionId', data);
     }
 
     renameApp(data, socket) {
         fs.renameSync(data.originalId, data.newId);
-        this.jt.data.appsMetaData[data.newId] = this.jt.data.appsMetaData[data.originalId];
-        delete this.jt.data.appsMetaData[data.originalId];
-        this.jt.data.appsMetaData[data.newId].appPath = data.newId;
-        this.jt.data.appsMetaData[data.newId].id = data.newId;
+        global.jt.data.appsMetaData[data.newId] = global.jt.data.appsMetaData[data.originalId];
+        delete global.jt.data.appsMetaData[data.originalId];
+        global.jt.data.appsMetaData[data.newId].appPath = data.newId;
+        global.jt.data.appsMetaData[data.newId].id = data.newId;
         let sep = '\\';
         if (data.newId.includes('/')) {
             sep = '/';
         }
         let lastFolderChar = data.newId.lastIndexOf(sep);
-        this.jt.data.appsMetaData[data.newId].shortId = data.newId.substring(lastFolderChar+1);
+        global.jt.data.appsMetaData[data.newId].shortId = data.newId.substring(lastFolderChar+1);
     }
 
     /*
@@ -113,78 +113,78 @@ class Msgs {
      * @param  {Socket} socket the client socket who sent the message.
      */
     setNumParticipants(d, socket) {
-        var session = this.jt.data.getSession(d.sId);
+        var session = global.jt.data.getSession(d.sId);
         var num = parseInt(d.number);
         session.setNumParticipants(num);
     }
 
     resetSession(d, socket) {
-        let session = this.jt.data.getSession(d.sId);
+        let session = global.jt.data.getSession(d.sId);
         session.reset();
-        this.jt.io.to('socket_' + socket.id).emit('openSession', session.shellWithChildren());
-        this.jt.data.lastOpenedSession = session;
+        global.jt.io.to('socket_' + socket.id).emit('openSession', session.shellWithChildren());
+        global.jt.data.lastOpenedSession = session;
     }
 
     appAddStage(d, socket) {
-        var session = this.jt.data.getApp(d.aId);
+        var session = global.jt.data.getApp(d.aId);
     }
 
     deleteParticipant(d, socket) {
-        var session = this.jt.data.getSession(d.sId);
+        var session = global.jt.data.getSession(d.sId);
         session.deleteParticipant(d.pId);
     }
 
     saveOutput(sId, socket) {
-        var session = this.jt.data.getSession(sId);
+        var session = global.jt.data.getSession(sId);
         session.saveOutput();
     }
 
     setDefaultAdminPwd(d, sock) {
-        this.jt.settings.setDefaultAdminPwd(d.curPwd, d.newPwd);
+        global.jt.settings.setDefaultAdminPwd(d.curPwd, d.newPwd);
     }
 
     setUsersMode(d, sock) {
-        this.jt.settings.setMultipleUsers(d);
+        global.jt.settings.setMultipleUsers(d);
     }
 
     createSessionAndAddApp(msgData, sock) {
         var appPath = msgData.appId;
         var options = msgData.options;
-        var session = this.jt.data.createSession(msgData.userId);
+        var session = global.jt.data.createSession(msgData.userId);
         session.resume();
-        this.jt.data.sessions.push(session);
+        global.jt.data.sessions.push(session);
         var d = {sId: session.id, appPath: appPath, options: options};
         this.sessionAddApp(d);
         this.openSession(session.id, sock);
     }
 
     createApp(appId, sock) {
-        var app = this.jt.data.createApp(appId);
+        var app = global.jt.data.createApp(appId);
         if (app !== null) {
-            this.jt.socketServer.emitToAdmins('createApp', app);
+            global.jt.socketServer.emitToAdmins('createApp', app);
         }
         return app;
     }
 
     createAppFromFile(data, sock) {
-        var app = this.jt.data.createApp(data.fn);
+        var app = global.jt.data.createApp(data.fn);
         app.setContents(data.contents);
         if (app !== null) {
-            this.jt.socketServer.emitToAdmins('createApp', app);
+            global.jt.socketServer.emitToAdmins('createApp', app);
         }
         return app;
     }
 
     updateAppPreview(d, socket) {
-        var app = this.jt.data.app(d.appId, d.options);
-        this.jt.io.to('socket_' + socket.id).emit('updateAppPreview', app.shellWithChildren());
+        var app = global.jt.data.app(d.appId, d.options);
+        global.jt.io.to('socket_' + socket.id).emit('updateAppPreview', app.shellWithChildren());
     }
 
     startSessionFromQueue(data, sock) {
-        var session = this.jt.data.createSession(data.userId);
+        var session = global.jt.data.createSession(data.userId);
         session.resume();
-        this.jt.data.sessions.push(session);
-        var queue = this.jt.data.queue(data.qId);
+        global.jt.data.sessions.push(session);
+        var queue = global.jt.data.queue(data.qId);
         if (queue.code == null) {
             for (var a in queue.apps) {
                 var app = queue.apps[a];
@@ -199,61 +199,61 @@ class Msgs {
     }
 
     createRoom(id, sock) {
-        var room = this.jt.data.createRoom(id);
+        var room = global.jt.data.createRoom(id);
         if (room !== null) {
-            this.jt.socketServer.emitToAdmins('createRoom', room.shell());
+            global.jt.socketServer.emitToAdmins('createRoom', room.shell());
         }
         return room;
     }
 
     createUser(data, sock) {
-        var user = this.jt.data.createUser(data.id, data.type);
+        var user = global.jt.data.createUser(data.id, data.type);
         if (user !== null) {
-            this.jt.socketServer.emitToAdmins('createUser', user.shell());
+            global.jt.socketServer.emitToAdmins('createUser', user.shell());
         }
         return user;
     }
 
     createQueue(id, sock) {
-        var queue = this.jt.data.createQueue(id);
+        var queue = global.jt.data.createQueue(id);
         if (queue !== null) {
-            this.jt.socketServer.emitToAdmins('createQueue', queue.shell());
+            global.jt.socketServer.emitToAdmins('createQueue', queue.shell());
         }
         return queue;
     }
 
     saveRoom(room, sock) {
-        this.jt.data.saveRoom(room);
-//        this.jt.socketServer.emitToAdmins('saveRoom', room);a
+        global.jt.data.saveRoom(room);
+//        global.jt.socketServer.emitToAdmins('saveRoom', room);a
     }
 
     deleteQueue(id, sock) {
-        this.jt.data.deleteQueue(id);
-        this.jt.socketServer.emitToAdmins('deleteQueue', id);
+        global.jt.data.deleteQueue(id);
+        global.jt.socketServer.emitToAdmins('deleteQueue', id);
     }
 
     deleteAppFromQueue(qId, aId, appIndex) {
-        var queue = this.jt.data.queue(qId);
+        var queue = global.jt.data.queue(qId);
         queue.deleteApp(aId, appIndex);
-        this.jt.socketServer.emitToAdmins('deleteAppFromQueue', {qId: qId, aId: aId, appIndex: appIndex});
+        global.jt.socketServer.emitToAdmins('deleteAppFromQueue', {qId: qId, aId: aId, appIndex: appIndex});
     }
 
     deleteApp(id, sock) {
-        this.jt.data.deleteApp(id);
-        this.jt.socketServer.emitToAdmins('deleteApp', id);
+        global.jt.data.deleteApp(id);
+        global.jt.socketServer.emitToAdmins('deleteApp', id);
     }
 
     saveAppHTML(app, sock) {
-        this.jt.data.saveApp(app);
-        var appInfo = this.jt.data.apps[app.id];
+        global.jt.data.saveApp(app);
+        var appInfo = global.jt.data.apps[app.id];
         appInfo.origId = app.origId;
-        this.jt.socketServer.emitToAdmins('appSaved', appInfo);
+        global.jt.socketServer.emitToAdmins('appSaved', appInfo);
     }
 
     deleteSession(d) {
-        var mypath = path.join(this.jt.path, this.jt.settings.sessionsFolder, d);
-        for (var i in this.jt.data.sessions) {
-            var session = this.jt.data.sessions[i];
+        var mypath = path.join(global.jt.path, global.jt.settings.sessionsFolder, d);
+        for (var i in global.jt.data.sessions) {
+            var session = global.jt.data.sessions[i];
             if (d === session.id) {
                 if (session.autoSaveTimer !== null) {
                     clearInterval(session.autoSaveTimer);
@@ -261,7 +261,7 @@ class Msgs {
                 if (session.fileStream !== null) {
                     session.fileStream.end();
                 }
-                this.jt.data.sessions.splice(i, 1);
+                global.jt.data.sessions.splice(i, 1);
                 break;
             }
         }
@@ -273,41 +273,41 @@ class Msgs {
             }
         } catch (err) {}
 
-        this.jt.socketServer.emitToAdmins('deleteSession', d);
+        global.jt.socketServer.emitToAdmins('deleteSession', d);
     }
 
     messages(data, sock) {
         for (var i=0; i<data.length; i++) {
             var msgName = data[i].msgName;
             var msgData = data[i].msgData;
-            this.jt.log('received message ' + msgName + ': ' + JSON.stringify(msgData));
+            global.jt.log('received message ' + msgName + ': ' + JSON.stringify(msgData));
             eval('this.' + msgName + "(msgData, sock)");
         }
     }
 
     openSession(sId, socket) {
-        var session = Utils.findByIdWOJQ(this.jt.data.sessions, sId);
+        var session = Utils.findById(global.jt.data.sessions, sId);
         if (session !== null && session !== undefined) {
             socket.join(session.roomId());
-            this.jt.io.to('socket_' + socket.id).emit('openSession', session.shellWithChildren());
-            this.jt.data.lastOpenedSession = session;
+            global.jt.io.to('socket_' + socket.id).emit('openSession', session.shellWithChildren());
+            global.jt.data.lastOpenedSession = session;
             // this.reloadClients();
             // Called from client-side.
         }
     }
 
     reloadApps(msg, socket) {
-        this.jt.data.reloadApps();
+        global.jt.data.reloadApps();
         if (msg == null) {
             msg = {
                 userId: ''
             }
         }
-        this.jt.socketServer.refreshAdmin(null, 'socket_' + socket.id, msg.userId);
+        global.jt.socketServer.refreshAdmin(null, 'socket_' + socket.id, msg.userId);
     }
 
     reloadClients() {
-        const clients = this.jt.data.participantClients;
+        const clients = global.jt.data.participantClients;
         for (let i=0; i<clients.length; i++) {
             try {
                 clients[i].reload();
@@ -326,23 +326,23 @@ class Msgs {
         if (data.appPath == null) {
             data.appPath = data.appId;
         }
-        this.jt.data.getSession(data.sId).addApp(data.appPath, data.options);
+        global.jt.data.getSession(data.sId).addApp(data.appPath, data.options);
     }
 
     sessionAddUser(d) {
-        this.jt.data.getSession(d.sId).addUser(d.uId);
+        global.jt.data.getSession(d.sId).addUser(d.uId);
     }
 
     sessionAddQueue(d) {
-        this.jt.data.getSession(d.sId).addQueue(d.qId);
+        global.jt.data.getSession(d.sId).addQueue(d.qId);
     }
 
     roomAddApp(d) {
-        this.jt.data.room(d.roomId).addApp(d.appId);
+        global.jt.data.room(d.roomId).addApp(d.appId);
     }
 
     queueAddApp(d) {
-        this.jt.data.queue(d.queueId).addApp(d.appId, d.options);
+        global.jt.data.queue(d.queueId).addApp(d.appId, d.options);
     }
 
     /*
@@ -351,7 +351,7 @@ class Msgs {
      * @param  {string} id The id of the session.
      */
     sessionStart(id) {
-        var session = Utils.findByIdWOJQ(this.jt.data.sessions, id);
+        var session = Utils.findById(global.jt.data.sessions, id);
         if (session !== null) {
             session.start();
         }
@@ -363,7 +363,7 @@ class Msgs {
      * @param  {string} id The id of the session.
      */
     sessionAdvanceSlowest(id) {
-        var session = Utils.findByIdWOJQ(this.jt.data.sessions, id);
+        var session = Utils.findById(global.jt.data.sessions, id);
         if (session !== null) {
             session.advanceSlowest();
         }
@@ -371,35 +371,35 @@ class Msgs {
     }
 
     sessionCreate(userId, sock) {
-        var session = this.jt.data.createSession(userId);
+        var session = global.jt.data.createSession(userId);
         session.resume();
-        this.jt.data.sessions.push(session);
+        global.jt.data.sessions.push(session);
         this.openSession(session.id, sock);
     }
 
     sessionDeleteApp(d) {
-        var session = Utils.findByIdWOJQ(this.jt.data.sessions, d.sId);
+        var session = Utils.findById(global.jt.data.sessions, d.sId);
         if (session !== null) {
             session.deleteApp(d);
         }
     }
 
     setAllowAdminPlay(d, socket) {
-        let session = Utils.findByIdWOJQ(this.jt.data.sessions, d.sessionId);
+        let session = Utils.findById(global.jt.data.sessions, d.sessionId);
         if (session != null) {
             session.setAllowAdminPlay(d.val);
         }
     }
 
     setSessionAppOption(d, socket) {
-        var session = Utils.findByIdWOJQ(this.jt.data.sessions, d.sId);
+        var session = Utils.findById(global.jt.data.sessions, d.sId);
         if (session !== null) {
             session.setAppOption(d.appId, d.i, d.name, d.value);
         }
     }
 
     setSessionAppOptions(d, socket) {
-        var session = Utils.findByIdWOJQ(this.jt.data.sessions, d.sId);
+        var session = Utils.findById(global.jt.data.sessions, d.sId);
         if (session !== null) {
             for (var i in d.options) {
                 session.setAppOption(d.appId, d.index, i, d.options[i]);
@@ -408,31 +408,31 @@ class Msgs {
     }
 
     sessionPause(id, sock) {
-        var session = Utils.findByIdWOJQ(this.jt.data.sessions, id);
+        var session = Utils.findById(global.jt.data.sessions, id);
         if (session !== null) {
             session.pause();
         }
     }
 
     sessionResume(id, sock) {
-        var session = Utils.findByIdWOJQ(this.jt.data.sessions, id);
+        var session = Utils.findById(global.jt.data.sessions, id);
         if (session !== null) {
             session.resume();
         }
     }
 
     setAllowNewParts(d, socket) {
-        var session = this.jt.data.getSession(d.sId);
+        var session = global.jt.data.getSession(d.sId);
         session.setAllowNewParts(d.value);
     }
 
     setCaseSensitiveLabels(d, socket) {
-        var session = this.jt.data.getSession(d.sId);
+        var session = global.jt.data.getSession(d.sId);
         session.setCaseSensitiveLabels(d.value);
     }
 
     setAutoplay(data) {
-        let session = this.jt.data.session(data.sId);
+        let session = global.jt.data.session(data.sId);
         if (session !== null) {
             let part = session.participants[data.pId];
             if (part !== undefined) {
@@ -444,7 +444,7 @@ class Msgs {
     }
 
     setAutoplayForAll(data) {
-        let session = this.jt.data.session(data.sId);
+        let session = global.jt.data.session(data.sId);
         if (session !== null) {
             for (let i in session.participants) {
                 session.participants[i].emit('setAutoplay', {val: data.val});
@@ -453,7 +453,7 @@ class Msgs {
     }
 
     setAutoplayDelay(data) {
-        let session = this.jt.data.session(data.sId);
+        let session = global.jt.data.session(data.sId);
         if (session !== null) {
             for (let i in session.participants) {
                 session.participants[i].emit('setAutoplayDelay', {val: data.val});

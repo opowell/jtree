@@ -9,7 +9,7 @@ class Logger {
 
         this.jt = jt;
 
-        let logPath = path.join(this.jt.path, jt.settings.logPath);
+        let logPath = path.join(global.jt.path, jt.settings.logPath);
         fs.ensureDirSync(logPath);
 
         this.logStream = fs.createWriteStream(path.join(logPath, jt.settings.getLogFilename()), {'flags': 'a'});
@@ -33,7 +33,7 @@ class Logger {
         var time = new Date().toString();
         this.logStream.write(time + ': ' + text + '\n');
 
-        if (this.jt.settings.logToConsole === true || forcePrintToConosle == true) {
+        if (global.jt.settings.logToConsole === true || forcePrintToConosle == true) {
             console.log(time + ': ' + text);
         }
     }

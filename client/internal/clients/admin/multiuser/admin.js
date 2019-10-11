@@ -146,7 +146,7 @@ jt.connected = function() {
         if (client.session.id === jt.data.session.id) {
             // console.log('add client: ' + client);
             jt.data.session.clients.push(client);
-            var participant = findByIdWOJQ(jt.data.session.participants, client.pId);
+            var participant = findById(jt.data.session.participants, client.pId);
             if (participant !== null) {
                 participant.numClients++;
                 $('.participant-' + client.pId + '-numClients').text(participant.numClients);
@@ -159,7 +159,7 @@ jt.connected = function() {
             console.log('remove client: ' + client);
             deleteById(jt.data.session.clients, client.id);
             removeClient(client.id);
-            var participant = findByIdWOJQ(jt.data.session.participants, client.pId);
+            var participant = findById(jt.data.session.participants, client.pId);
             if (participant != null) {
                 participant.numClients--;
                 $('.participant-' + client.pId + '-numClients').text(participant.numClients);

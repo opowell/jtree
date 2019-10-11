@@ -226,7 +226,7 @@ class Group {
         }
 
         try {
-            console.log(this.jt().settings.getConsoleTimeStamp() + ' START - GROUP : ' + stage.id + ', ' + group.roomId());
+            console.log(global.jt.settings.getConsoleTimeStamp() + ' START - GROUP : ' + stage.id + ', ' + group.roomId());
             stage.groupStart(group);
         } catch (err) {
             console.log(err.stack);
@@ -327,7 +327,7 @@ class Group {
                     player.justEndStage();
                 }
             }
-            console.log(this.jt().settings.getConsoleTimeStamp() + ' END   - GROUP : ' + stage.id + ', ' + group.roomId());
+            console.log(global.jt.settings.getConsoleTimeStamp() + ' END   - GROUP : ' + stage.id + ', ' + group.roomId());
             stage.groupEnd(group);
             this.attemptToStartNextStage();
         }

@@ -157,31 +157,14 @@ function decomposeId(id) {
     return out;
 }
 
-// http://stackoverflow.com/questions/7364150/find-object-by-id-in-an-array-of-javascript-objects
 function findById(array, id) {
-    if (array === null || array === undefined) {
-        return null;
-    }
-    var out = $.grep(array, function(e) {
-        return e !== undefined && e.id === id;
-    });
-    if (out.length > 0) {
-        return out[0];
-    }
-    else {
-        return null;
-    }
-}
-
-// Find by ID without JQuery ($)
-function findByIdWOJQ(array, id) {
-    for (i in array) {
-      if (array[i] !== undefined && array[i].id === id) {
-        return array[i];
+    for (let i in array) {
+        if (array[i] !== undefined && array[i].id === id) {
+          return array[i];
+        }
       }
-    }
-    return null;
-}
+      return null;
+  }
 
 // http://stackoverflow.com/questions/5767325/how-to-remove-a-particular-element-from-an-array-in-javascript
 function deleteById(array, id) {

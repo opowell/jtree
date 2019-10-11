@@ -339,9 +339,9 @@ msgs.sessionDeleteParticipant = function(md) {
 
 msgs.addParticipant = function(participant) {
     if (jt.data.session != null && participant.session.id === jt.data.session.id) {
-        console.log('add participant: ' + participant);
-        Vue.set(jt.data.session.participants, participant.id, participant);
-        jt.showParticipant(participant);
+        // console.log('add participant: ' + participant);
+        // Vue.set(jt.data.session.participants, participant.id, participant);
+        // jt.showParticipant(participant);
         //        viewParticipant(participant.id);
         // jt.view.updateNumParticipants();
     }

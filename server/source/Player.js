@@ -3,8 +3,7 @@
 const Utils     = require('./Utils.js');
 const path      = require('path');
 const clPlayer  = require('./client/clPlayer.js');
-const CircularJSON = require('./circularjson.js');
-
+const {stringify} = require('flatted/cjs');
 /** Class representing a player. */
 class Player {
 
@@ -94,6 +93,17 @@ class Player {
             'this',
             'type'
         ];
+
+        this.gamePath = '';
+
+    }
+
+    updateGamePath() {
+        let out = '';
+        if (this.subGame != null) {
+            out = this.subGame.getFullGamePath();
+        }
+        this.gamePath = out;
     }
 
     timeInStage() {
@@ -153,10 +163,6 @@ class Player {
         let timeStamp = this.timeStamp();
         console.log(timeStamp + ' START - PLAYER: ' + stage.id + ', ' + this.roomId());
         this['timeStart_' + stage.id] = timeStamp;
-    }
-
-    jt() {
-        return this.session().jt;
     }
 
     canProcessMessage() {
@@ -325,7 +331,7 @@ class Player {
     emit(name, dta) {
         dta.participantId = this.participant.id;
         dta.sessionId = this.session().id;
-        dta = CircularJSON.stringify(dta);
+        dta = stringify(dta);
         this.io().to(this.roomId()).emit(name, dta);
         this.session().emitToAdmins(name, dta);
     }
@@ -376,6 +382,9 @@ class Player {
             var field = fields[f];
             out[field] = this[field];
         }
+        out.subGame = null;
+        out.superGame = null;
+        out.game = null;
         out.group = this.group.shellWithParent();
         if (this.stage !== null && this.stage !== undefined) {
             out.stage = this.stage.shellWithParent();
@@ -425,7 +434,7 @@ class Player {
      */
     emitUpdate() {
         let data = this.shellWithChildren();
-        data = CircularJSON.stringify(data);
+        data = stringify(data);
         this.emit('playerUpdate', data);
     }
 
@@ -445,7 +454,7 @@ class Player {
         // client that is subscribed to the player.
         if (this.stage === null || this.stage.onPlaySendPlayer) {
             let data = new clPlayer.new(this);
-            data = CircularJSON.stringify(data);
+            data = stringify(data);
             this.io().to(channel).emit('playerUpdate', data);
         }
     }
@@ -533,7 +542,7 @@ class Player {
      */
     save() {
         try {
-            this.session().jt.log('Player.save: ' + this.roomId());
+            global.jt.log('Player.save: ' + this.roomId());
             var toSave = this.shell();
             this.session().saveDataFS(toSave, 'PLAYER');
         } catch (err) {
@@ -543,7 +552,7 @@ class Player {
 
     saveAndUpdate() {
         let data = this.asClPlayer();
-        data = CircularJSON.stringify(data);
+        data = stringify(data);
         this.io().to(this.roomId()).emit('playerUpdate', data);
         this.save();
     }
@@ -627,10 +636,13 @@ class Player {
 
 
     startStage(stage) {
-        this.group.startStage(this.stage);
-        if (!this.participant.canStartStage(stage)) {
+        this.group.startStage(stage);
+        if (!stage.canPlayerStart(this)) {
             return;
         }
+        // if (!this.participant.canStartStage(stage)) {
+        //     return;
+        // }
         if (this.stageIndex !== stage.indexInApp()) {
             this.stage = stage;
             this.stageIndex = stage.indexInApp();
@@ -677,7 +689,7 @@ class Player {
     }
 
     timeStamp() {
-        return this.jt().settings.getConsoleTimeStamp();
+        return global.jt.settings.getConsoleTimeStamp();
     }
 
     finishStage(endGroup) {
@@ -709,12 +721,15 @@ class Player {
         var nextPeriod = this.app().getNextPeriod(player.participant);
         if (nextStage !== null) {
             player.stage = nextStage;
+            player.updateGamePath();
             player.stageIndex++;
             player.status = 'ready';
             console.log(this.timeStamp() + ' READY - PLAYER: ' + this.stage.id + ', ' + this.roomId());
             player.startStage(player.stage);
         } else if (nextPeriod !== null) {
             player.participant.startPeriod(nextPeriod);
+        } else if (player.superPlayer != null) {
+            player.superPlayer.endStage();
         } else {
             this.emitUpdate2();
             player.participant.endCurrentApp();

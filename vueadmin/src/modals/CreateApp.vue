@@ -53,3 +53,13 @@ jt.createApp = function() {
 }
 
 </script>
+
+<style>
+.modal {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+}
+.modal-dialog.modal-xl {
+    max-width: unset;
+}
+</style>

@@ -63,9 +63,9 @@ class StaticServer {
 
         //////////////////////////////
         // FILES TO SERVE
-        expApp.use('', express.static(path.join(this.jt.path, jt.settings.participantUI)));
-        expApp.use('/help', express.static(path.join(this.jt.path, jt.settings.helpPath)));
-        expApp.use('/source', express.static(path.join(this.jt.path, jt.settings.adminUIsSharedPath)));
+        expApp.use('', express.static(path.join(global.jt.path, jt.settings.participantUI)));
+        expApp.use('/help', express.static(path.join(global.jt.path, jt.settings.helpPath)));
+        expApp.use('/source', express.static(path.join(global.jt.path, jt.settings.adminUIsSharedPath)));
         expApp.use('/admin', express.static(this.defaultAdminUIPath()));
         // expApp.use('/adminShared', express.static(this.adminUIsSharedPath()));
         var adminUIs = fs.readdirSync(this.adminUIsPath());
@@ -79,8 +79,8 @@ class StaticServer {
                 expApp.use('/admin/' + adminUIs[i], express.static(pathToFolder));
             }
         }
-        expApp.use('/participant', express.static(path.join(this.jt.path, jt.settings.participantUI)));
-        expApp.use('/shared', express.static(path.join(this.jt.path, jt.settings.sharedUI)));
+        expApp.use('/participant', express.static(path.join(global.jt.path, jt.settings.participantUI)));
+        expApp.use('/shared', express.static(path.join(global.jt.path, jt.settings.sharedUI)));
         for (let i in jt.data.queues) {
             let queue = jt.data.queues[i];
             if (fs.existsSync(queue.id)) {
@@ -259,8 +259,8 @@ class StaticServer {
 
         //////////////////////////////
         // Generate files used by clients.
-        this.generateSharedJS(this.jt.settings.clientJSTemplateFile, this.jt.settings.clientJSFile);
-        this.generateSharedJS(this.jt.settings.clientJSModuleTemplateFile, this.jt.settings.clientJSModuleFile);
+        this.generateSharedJS(global.jt.settings.clientJSTemplateFile, global.jt.settings.clientJSFile);
+        this.generateSharedJS(global.jt.settings.clientJSModuleTemplateFile, global.jt.settings.clientJSModuleFile);
         // If running in development mode, recompile client webpack.
         if (process.argv[0].indexOf('node') > -1) {
             this.generateClientModels();
@@ -270,8 +270,8 @@ class StaticServer {
     }
 
     generateClientModels() {
-//        var file = babel.transformFileSync(path.join(this.jt.path, "../server/source/App.js"), {});
-//        fs.writeFileSync(path.join(this.jt.path, 'internal/clients/admin/shared/models.js'), file.code);
+//        var file = babel.transformFileSync(path.join(global.jt.path, "../server/source/App.js"), {});
+//        fs.writeFileSync(path.join(global.jt.path, 'internal/clients/admin/shared/models.js'), file.code);
     }
 
     handleRequest(req, res) {
@@ -325,18 +325,18 @@ class StaticServer {
     }
 
     defaultAdminUIPath() {
-        return path.join(this.adminUIsPath(), this.jt.settings.defaultAdminUI);
+        return path.join(this.adminUIsPath(), global.jt.settings.defaultAdminUI);
     }
 
     adminUIsPath() {
-        return path.join(this.jt.path, this.jt.settings.adminUIsPath);
+        return path.join(global.jt.path, global.jt.settings.adminUIsPath);
     }
 
     /**
      * Folder containing content common to all admin UIs.
      */
     adminUIsSharedPath() {
-        return path.join(this.adminUIsPath(), this.jt.settings.adminUIsSharedPath);
+        return path.join(this.adminUIsPath(), global.jt.settings.adminUIsSharedPath);
     }
 
     /**
@@ -349,8 +349,8 @@ class StaticServer {
      * http://stackoverflow.com/questions/14177087/replace-a-string-in-a-file-with-nodejs
      */
     generateSharedJS(inFile, outFile) {
-        var fn = path.join(this.jt.path, inFile) // file with marker
-        var newFN = path.join(this.jt.path, outFile) // actual file to be sent to clients and admins
+        var fn = path.join(global.jt.path, inFile) // file with marker
+        var newFN = path.join(global.jt.path, outFile) // actual file to be sent to clients and admins
         try {
             fs.copySync(fn, newFN);
             replace({
@@ -375,9 +375,9 @@ class StaticServer {
     sendParticipantPage(req, res, pId, sessionId) {
         var session = null;
         if (sessionId == null || sessionId == undefined) {
-            session = this.jt.data.getMostRecentActiveSession();
+            session = global.jt.data.getMostRecentActiveSession();
         } else {
-            session = Utils.findByIdWOJQ(this.jt.data.sessions, sessionId);
+            session = Utils.findByIdWOJQ(global.jt.data.sessions, sessionId);
         }
 
         // If asked for a particular session, and that session:
@@ -386,12 +386,12 @@ class StaticServer {
         // If did not ask for particular session,
         // - send default start page.
         if (sessionId != null &amp;&amp; session === null) {
-            res.sendFile(path.resolve(this.jt.path, './' + this.jt.settings.participantUI + '/invalidSession.html'));
+            res.sendFile(path.resolve(global.jt.path, './' + global.jt.settings.participantUI + '/invalidSession.html'));
         } else {
             if (session != null) {
                 session.sendParticipantPage(req, res, pId);
             } else {
-                res.sendFile(path.join(this.jt.path, this.jt.settings.participantUI + '/readyClient.html'));
+                res.sendFile(path.join(global.jt.path, global.jt.settings.participantUI + '/readyClient.html'));
             }
         }
     }

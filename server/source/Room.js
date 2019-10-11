@@ -76,7 +76,7 @@ class Room {
     */
     addApp(appId) {
         this.apps.push(appId);
-        this.jt.socketServer.sendOrQueueAdminMsg(null, 'roomAddApp', {roomId: this.id, appId: appId});
+        global.jt.socketServer.sendOrQueueAdminMsg(null, 'roomAddApp', {roomId: this.id, appId: appId});
     }
 
     clientRemove(socket) {
@@ -84,7 +84,7 @@ class Room {
         var participant = this.participant(id);
         participant.removeClient(socket.id);
         socket.leave(this.roomId());
-        this.jt.socketServer.sendOrQueueAdminMsg(null, 'removeRoomClient', {cId: socket.id, pId: id, roomId: this.id});
+        global.jt.socketServer.sendOrQueueAdminMsg(null, 'removeRoomClient', {cId: socket.id, pId: id, roomId: this.id});
     }
 
     addClient(socket, participantId) {
@@ -105,12 +105,12 @@ class Room {
         participant.clients.push(client);
 
         socket.join(this.roomId());
-        this.jt.socketServer.sendOrQueueAdminMsg(null, 'addRoomClient', client.shell());
+        global.jt.socketServer.sendOrQueueAdminMsg(null, 'addRoomClient', client.shell());
         this.io().to(socket.id).emit('loggedIntoRoom', participantId);
     }
 
     io() {
-        return this.jt.io;
+        return global.jt.io;
     }
 
     participant(pId) {

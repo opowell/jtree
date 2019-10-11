@@ -63,7 +63,10 @@ import '@/webcomps/ViewAppEditModal.js'
 import '@/webcomps/ViewLogin.js'
 
 import '@/webcomps/Model.js'
-import '@/webcomps/circularjson.js'
+import jt from '@/webcomps/jtree.js'
+import {parse} from 'flatted/esm';
+
+jt.parse = parse;
 
 export default {
   name: 'App',

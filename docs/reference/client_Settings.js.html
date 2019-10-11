@@ -88,7 +88,7 @@ class Settings {
 
          var settings = this; // so that settings can be modified without using 'jt.' prefix.
          try {
-             var json = fs.readJSONSync(path.join(this.jt.path, 'internal/settings.js'));
+             var json = fs.readJSONSync(path.join(global.jt.path, 'internal/settings.js'));
              for (var i in json) {
                 console.log('loading setting: ' + i + ' ' + json[i]);
                 this[i] = json[i];
@@ -135,7 +135,7 @@ class Settings {
      }
 
      save() {
-         Utils.writeJSON(path.join(this.jt.path, 'internal/settings.js'), this.valsToSave);
+         Utils.writeJSON(path.join(global.jt.path, 'internal/settings.js'), this.valsToSave);
      }
 
      setDefaultAdminPwd(curPwd, newPwd) {
