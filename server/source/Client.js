@@ -1,4 +1,6 @@
 const Utils     = require('./Utils.js');
+// const Observer = require('micro-observer').Observer;
+
 /**
  * A client that is connected to a {@link Participant}.
  */
@@ -15,10 +17,9 @@ class Client {
          this.pId = null;
          this.participant = null;
          this.lastActivity = Utils.getDate(new Date());
-         this.socket = socket;
-         var sId = socket.id;
+         this.socketId = socket.id;
          socket.join(this.getChannelName());
-     }
+    }
 
      /**
       * @return The name of this client's channel, which is 'socket_<client.id>', where <client.id> is this client's id.
@@ -31,25 +32,6 @@ class Client {
          return true;
      }
 
-    /**
-     *
-     * @return {type}  description
-     */
-    shell() {
-        var out = {};
-        out.id = this.id;
-        out.ip = this.ip;
-        out.pId = this.pId;
-        if (this.participant != null) {
-            out.pId = this.participant.id;
-        }
-        out.lastActivity = this.lastActivity;
-        if (this.session != null) {
-            out.session = this.session.shell();
-        }
-        return out;
-    }
-
     /*
      * Registers a handler on the socket to respond to a message.
      *
@@ -58,7 +40,9 @@ class Client {
      * @return {type}         description
      */
     on(msgName, fn) {
-        this.socket.on(msgName, fn);
+        // let socket = jt.socketServer.getSocket(this.socketId);
+        // console.log('listening to ' + msgName);
+        this.getSocket().on(msgName, fn);
     }
 
     register(msgName, msgFunc) {
@@ -72,7 +56,7 @@ class Client {
 
     reload() {
         var dta = {};
-        this.session.io().to(this.getChannelName()).emit('start-new-app', dta);
+        global.jt.io.to(this.getChannelName()).emit('start-new-app', dta);
     }
 
     /**
@@ -113,6 +97,10 @@ class Client {
      */
     app() {
         return this.player().app();
+    }
+
+    getSocket() {
+        return global.jt.socketServer.getSocket(this.socketId);
     }
 
 }

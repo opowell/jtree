@@ -67,9 +67,10 @@ jt.checkIfLoaded = function() {
             jt.socketConnected();
         });
 
-        jt.socket.on('logged-in', function(partData) {
-            let participant = Flatted.parse(partData);
-            jt.setPId(participant.id, participant.session.id);
+        jt.socket.on('logged-in', function(participant) {
+            participant = Flatted.parse(participant);
+            sId = participant.session.id;
+            jt.setPId(participant.id, sId);
         });
 
         jt.socket.on('loggedIntoRoom', function(pId) {

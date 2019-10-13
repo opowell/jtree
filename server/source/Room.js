@@ -105,7 +105,7 @@ class Room {
         participant.clients.push(client);
 
         socket.join(this.roomId());
-        global.jt.socketServer.sendOrQueueAdminMsg(null, 'addRoomClient', client.shell());
+        global.jt.socketServer.sendOrQueueAdminMsg(null, 'addRoomClient', client);
         this.io().to(socket.id).emit('loggedIntoRoom', participantId);
     }
 
@@ -152,19 +152,6 @@ class Room {
         }
 
         return false;
-    }
-
-    shell() {
-        var out = {}
-        out.id             = this.id;
-        out.displayName    = this.displayName;
-        out.useSecureURLs  = this.useSecureURLs;
-        out.allowNewPIds   = this.allowNewPIds;
-        out.labels         = this.labels;
-        out.hashes         = this.hashes;
-        out.participants   = Utils.shells(this.participants);
-        out.apps           = this.apps;
-        return out;
     }
 
     genHashes() {

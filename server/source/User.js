@@ -35,14 +35,6 @@ class User {
         return user;
     }
 
-    shell() {
-        var out = {}
-        out.id              = this.id;
-        out.password        = this.password;
-        out.type            = this.type;
-        return out;
-    }
-
     matches(id, pwd) {
         return (
             this.id === id &&

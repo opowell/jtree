@@ -253,43 +253,6 @@ class Group {
         return Utils.findById(this.players, id);
     }
 
-    /**
-     * shell - description
-     *
-     * @return {type}  description
-     */
-    shellWithParent() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.period = this.period.shellWithParent();
-        out.numPlayers = this.players.length;
-        if (this.stageTimer !== undefined) {
-            out.stageTimerStart = this.stageTimer.timeStarted;
-            out.stageTimerDuration = this.stageTimer.duration;
-        } else {
-            out.timer = 'none';
-        }
-        out.tables = this.tables;
-        for (var i in this.tables) {
-            var name = this.tables[i];
-            if (this[name] != null) {
-                out[name] = this[name].shell();
-            }
-        }
-
-        return out;
-    }
-
-    shellForPlayerUpdate() {
-        var out = this.shellWithChildren();
-        out.period = this.period.shellWithParent();
-        return out;
-    }
-
     timeInStage() {
         if (this.stageTimer == null) {
             return 0;
@@ -303,7 +266,7 @@ class Group {
      * @return {type}  description
      */
     emitUpdate() {
-        this.emit('groupUpdate', this.shellWithChildren());
+        this.emit('groupUpdate', this);
     }
 
     /**
@@ -378,38 +341,6 @@ class Group {
         client.socket.join(this.roomId());
     }
 
-    /**
-     * shellAll - description
-     *
-     * @return {type}  description
-     */
-    shellWithChildren() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.period = this.period.id;
-        out.players = [];
-        for (var i in this.players) {
-            out.players[i] = this.players[i].shellWithChildren();
-        }
-        if (this.stageTimer !== undefined) {
-            out.stageTimerStart = this.stageTimer.timeStarted;
-            out.stageTimerDuration = this.stageTimer.duration;
-            out.stageTimerTimeLeft = this.stageTimer.timeLeft;
-        }
-        out.tables = this.tables;
-        for (var i in this.tables) {
-            var name = this.tables[i];
-            if (this[name] !== undefined) {
-                out[name] = this[name].shell();
-            }
-        }
-        return out;
-    }
-
     /*
      * getOutputDir - description
      *
@@ -420,37 +351,12 @@ class Group {
     }
 
     /**
-     * shellLocal - description
-     *
-     * @return {type}  description
-     */
-    shell() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.tables = this.tables;
-        if (this.stageTimer !== undefined) {
-            out.stageTimerStart = this.stageTimer.timeStarted;
-            out.stageTimerDuration = this.stageTimer.duration;
-            out.stageTimerTimeLeft = this.stageTimer.timeLeft;
-            out.stageTimerStageIndex = this.stageTimer.stageIndex;
-            out.stageTimerCallback = this.stageTimer.callback.toString();
-        }
-        out.periodId = this.period.id;
-        out.appIndex = this.app().indexInSession();
-        return out;
-    }
-
-    /**
      * save - description
      */
     save() {
         try {
             global.jt.log('Group.save: ' + this.roomId());
-            var toSave = this.shell();
+            var toSave = this;
             this.session().saveDataFS(toSave, 'GROUP');
             for (var i=0; i<this.tables.length; i++) {
                 var table = this[this.tables[i]];
@@ -543,7 +449,7 @@ class Group {
 //                             if (player.participant.clients.length > 0) {
 //                                 waitingForPlayers = true;
 //                                 if (endPlayers) {
-//                                     player.emit('endStage', player.shellWithParent());
+//                                     player.emit('endStage', player);
 //                                 }
 //                             }
 //                             // If not, end player immediately.
@@ -701,7 +607,7 @@ class Group {
                             if (forcePlayersToEnd) {
                                 // If any clients are connected, let player finish via call to "endStage".
                                 if (player.participant.clients.length > 0) {
-                                    player.emit('endStage', player.shellWithParent());
+                                    player.emit('endStage', player);
                                 }
                                 // If not, end player immediately.
                                 else {

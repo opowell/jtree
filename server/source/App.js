@@ -439,95 +439,25 @@ class App {
     *
     * @param  {Client} client The client who is connecting to this app.
     */
-    addClientDefault(client) {
-        client.socket.join(this.roomId());
+   addClientDefault(client) {
 
-        for (var i in this.messages) {
-            var msg = this.messages[i];
-            client.register(i, msg);
-        }
-
-        // Register for automatic stage messages.
-        var app = this;
-        for (var s in this.stages) {
-            var stageName = this.stages[s].name;
-
-            // Listen to message from clients.
-            client.on(stageName, function(data) { // stage messages are sent by default when submit button is clicked.
-                app.session.pushMessage(client, data.data, data.data.fnName);
-            });
-
-            // Queue message.
-            client[stageName] = function(data) {
-                app.session.pushMessage(client, data, data.fnName + 'Process');
-            }
-
-            // Process the message.
-            client[stageName + 'Process'] = function(data) {
-
-                global.jt.log('Server received auto-stage submission: ' + JSON.stringify(data));
-
-                if (client.player() === null) {
-                    return false;
-                }
-
-                if (client.player().stage.id !== data.fnName) {
-                    console.log('App.js, STAGE NAME DOES NOT MATCH: ' + client.player().stage.id + ' vs. ' + data.fnName + ', data=' + JSON.stringify(data));
-                    return false;
-                }
-
-                // TODO: Not parsing strings properly.
-                for (var property in data) {
-                    var value = data[property];
-
-                    if (value === 'true') {
-                        value = true;
-                    } else if (value === 'false') {
-                        value = false;
-                    } else if (!isNaN(value)) {
-                        value = parseFloat(value);
-                    }
-
-                    if (data.hasOwnProperty(property)) {
-                        if (property.startsWith('player.')) {
-                            var fieldName = property.substring('player.'.length);
-                            client.player()[fieldName] = value;
-                        } else if (property.startsWith('group.')) {
-                            var fieldName = property.substring('group.'.length);
-                            client.group()[fieldName] = value;
-                        } else if (property.startsWith('participant.')) {
-                            var fieldName = property.substring('participant.'.length);
-                            client.participant[fieldName] = value;
-                        } else if (property.startsWith('period.')) {
-                            var fieldName = property.substring('period.'.length);
-                            client.period()[fieldName] = value;
-                        } else if (property.startsWith('app.')) {
-                            var fieldName = property.substring('app.'.length);
-                            client.app()[fieldName] = value;
-                        }
-                    }
-                }
-                var endForGroup = true;
-                client.player().endStage(endForGroup);
-
-                this.session.emitParticipantUpdates();
-
-            };
-        }
-
-        // Load custom code, overwrite default stage submission behavior.
-        try {
-            this.addClient(client);
-        } catch(err) {
-            console.log(err);
-        }
-
-        for (var s in this.subgames) {
-            this.subgames[s].addClientDefault(client);
-        }
-
-
+    for (var i in this.messages) {
+        var msg = this.messages[i];
+        client.register(i, msg);
     }
+
+    // Load custom code, overwrite default stage submission behavior.
+    try {
+        this.addClient(client);
+    } catch(err) {
+        console.log(err);
+    }
+
+    for (var s in this.subgames) {
+        this.subgames[s].addClientDefault(client);
+    }
+
+}
 
     /** TODO */
     addStages(array) {
@@ -1925,9 +1855,8 @@ class App {
      */
     save() {
         try {
-            global.jt.log('App.save: ' + this.id);
-            var toSave = this.shell();
-            this.session.saveDataFS(toSave, 'APP');
+            // global.jt.log('App.save: ' + this.id);
+            this.session.saveDataFS(this, 'APP');
         } catch (err) {
             console.log('Error saving app ' + this.id + ': ' + err);
         }
@@ -2015,86 +1944,66 @@ class App {
         return true;
     }
 
-    /**
-     * A shell of this object. Excludes parent, includes child shells.
-     *
-     * CALLED FROM:
-     * - {@link Session#addApp}
-     *
-     * @return {type}  description
-     */
-    shellWithChildren() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            if (Utils.isFunction(this[field])) {
-                out['__func_' + field] = this[field].toString();
-            } else {
-                out[field] = this[field];
+    endGame(state, msgData) {
+
+        let {endForGroup, data, participantId} = msgData;
+
+        global.jt.log('Server received auto-game submission: ' + JSON.stringify(data));
+
+        // TODO: Not parsing strings properly.
+        /** console.log('msg: ' + JSON.stringify(data) + ', ' + client.player().roomId());*/
+        // var endForGroup = true;
+        // let participantId = client.participant.id;
+
+        let participant = Utils.findById(state.participants, participantId);
+        let player = participant.player;
+        let group = player.group;
+        let period = group.period;
+        let game = player.stage;
+
+        if (player === null) {
+            return false;
+        }
+
+        if (player.stage.id !== data.fnName) {
+            console.log('Game.js, GAME NAME DOES NOT MATCH: ' + participant.player.game.id + ' vs. ' + data.fnName + ', data=' + JSON.stringify(data));
+            return false;
+        }
+
+        for (var property in data) {
+            var value = data[property];
+
+            if (value === 'true') {
+                value = true;
+            } else if (value === 'false') {
+                value = false;
+            } else if (!isNaN(value)) {
+                value = parseFloat(value);
+            }
+
+            if (data.hasOwnProperty(property)) {
+                if (property.startsWith('player.')) {
+                    var fieldName = property.substring('player.'.length);
+                    player[fieldName] = value;
+                } else if (property.startsWith('group.')) {
+                    var fieldName = property.substring('group.'.length);
+                    group[fieldName] = value;
+                } else if (property.startsWith('participant.')) {
+                    var fieldName = property.substring('participant.'.length);
+                    participant[fieldName] = value;
+                } else if (property.startsWith('period.')) {
+                    var fieldName = property.substring('period.'.length);
+                    period[fieldName] = value;
+                } else if (property.startsWith('game.')) {
+                    var fieldName = property.substring('game.'.length);
+                    game[fieldName] = value;
+                }
             }
         }
-        out.indexInSession = this.indexInSession();
-        out.periods = [];
-        for (var i in this.periods) {
-            out.periods[i] = this.periods[i].shellWithChildren();
-        }
-        out.stages = [];
-        for (var i in this.stages) {
-            out.stages[i] = this.stages[i].shell();
-        }
-        out.options = this.options;
-        return out;
+        player.endStage(endForGroup);
     }
 
-    /**
-     * A shell of this object. Includes parent shell, excludes child shells.
-     *
-     * @return {type}  description
-     */
-    shellWithParent() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.session = this.session.shell();
-        out.numStages = this.stages.length;
-        out.vueComputedText = {};
-        for (let i in this.vueComputed) {
-            out.vueComputedText[i] = this.vueComputed[i].toString();
-        }
-        out.vueMethodsText = {};
-        for (let i in this.vueMethods) {
-            out.vueMethodsText[i] = this.vueMethods[i].toString();
-        }
-        for (let i in this.vueMethodsDefault) {
-            if (out.vueMethodsText[i] == null) {
-                out.vueMethodsText[i] = this.vueMethodsDefault[i].toString();
-            }
-        }
-        return out;
-    }
 
-    /**
-     * A shell of this object. Excludes parent and children. The shell is a simplified version of an object and any of its fields.
-     *
-     * CALLED FROM
-     * - {@link App#save}
-     *
-     * @return {Object}  description
-     */
-    shell() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.sessionIndex = this.indexInSession();
-        return out;
-    }
 
     /**
      * If all participants have finished the app, end the app ({@link App#end}).

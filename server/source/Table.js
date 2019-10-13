@@ -79,10 +79,6 @@ class Table {
         return Utils.findById(this.rows, id);
     }
 
-    shell() {
-        return this.rows;
-    }
-
     outputFields() {
         var fields = [];
         for (var r=0; r<this.rows.length; r++) {

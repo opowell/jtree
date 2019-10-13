@@ -18,19 +18,6 @@ class RoomClient {
          return 'socket_' + this.id;
      }
 
-    /**
-     *
-     * @return {type}  description
-     */
-    shell() {
-        var out = {};
-        out.id = this.id;
-        out.pId = this.participantId;
-        out.lastActivity = this.lastActivity;
-        out.roomId = this.room.id;
-        return out;
-    }
-
 }
 
 var exports = module.exports = {};

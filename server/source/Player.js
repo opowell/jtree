@@ -291,7 +291,7 @@ class Player {
     /**
      * matchesPlayer - description
      *
-     * @param  {type} plyrShell description
+     * @param  {type} p description
      * @return {boolean}           whether or not the inputted player matches this one.
      */
     matchesPlayer(p) {
@@ -341,100 +341,12 @@ class Player {
     }
 
     /**
-     * this - description
-     *
-     * @return {type}  description
-     */
-    shell() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.participantId = this.participant.id;
-        out.groupId = this.group.id;
-        out.periodId = this.period().id;
-        out.appIndex = this.app().indexInSession();
-        return out;
-    }
-
-    shellWithParticipant() {
-        var out = this.shellWithParent();
-        out.participant = this.participant.shell();
-        var group = this.group;
-        if (group.stageTimer !== undefined) {
-            out.stageTimerStart = group.stageTimer.timeStarted;
-            out.stageTimerDuration = group.stageTimer.duration;
-            out.stageTimerTimeLeft = group.stageTimer.timeLeft;
-            out.stageTimerRunning = group.stageTimer.running;
-        }
-        if (this.stage.clientDuration > 0) {
-            out.stageClientDuration = this.stage.clientDuration;
-        }
-        return out;
-    }
-
-    shellWithParent() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.subGame = null;
-        out.superGame = null;
-        out.game = null;
-        out.group = this.group.shellWithParent();
-        if (this.stage !== null && this.stage !== undefined) {
-            out.stage = this.stage.shellWithParent();
-        }
-        return out;
-    }
-
-    /**
-    * CALLED FROM
-    * - {@link Participant#shellAll}
-     *
-     * @return {type}  description
-     */
-     shellWithChildren() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.groupId = this.group.roomId();
-        out.roomId = this.roomId();
-        if (this.stage !== null && this.stage !== undefined) {
-            out.stageId = this.stage.id;
-        } else {
-            out.stageId = null;
-        }
-        out.participantId = this.participant.id;
-        if (this.group.stageTimer !== undefined) {
-            out.stageTimerStart = this.group.stageTimer.timeStarted;
-            out.stageTimerDuration = this.group.stageTimer.duration;
-            out.stageTimerTimeLeft = this.group.stageTimer.timeLeft;
-            out.stageTimerRunning = this.group.stageTimer.running;
-        }
-
-        if (this.stage != null && this.stage.clientDuration > 0) {
-            out.stageClientDuration = this.stage.clientDuration;
-        }
-
-        return out;
-    }
-
-    /**
      * emitUpdate - description
      *
      * @return {type}  description
      */
     emitUpdate() {
-        let data = this.shellWithChildren();
-        data = stringify(data);
+        let data = this;
         this.emit('playerUpdate', data);
     }
 
@@ -543,8 +455,7 @@ class Player {
     save() {
         try {
             global.jt.log('Player.save: ' + this.roomId());
-            var toSave = this.shell();
-            this.session().saveDataFS(toSave, 'PLAYER');
+            this.session().saveDataFS(this, 'PLAYER');
         } catch (err) {
             console.log('Error saving player ' + this.roomId() + ': ' + err + '\n' + err.stack);
         }

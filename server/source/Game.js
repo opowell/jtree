@@ -1779,7 +1779,7 @@ class Game {
     save() {
         try {
             global.jt.log('Game.save: ' + this.id);
-            var toSave = this.shell();
+            var toSave = this;
             this.session.saveDataFS(toSave, 'APP');
         } catch (err) {
             console.log('Error saving app ' + this.id + ': ' + err);
@@ -1867,102 +1867,6 @@ class Game {
         // Otherwise, return true.
         return true;
     }
-
-    /**
-     * A shell of this object. Excludes parent, includes child shells.
-     *
-     * CALLED FROM:
-     * - {@link Session#addGame}
-     *
-     * @return {type}  description
-     */
-    /**
-     * A shell of this object. Excludes parent, includes child shells.
-     *
-     * CALLED FROM:
-     * - {@link Session#addApp}
-     *
-     * @return {type}  description
-     */
-    // shellWithChildren() {
-    //     var out = {};
-    //     out.functions = [];
-    //     var fields = this.outputFields();
-    //     for (var f in fields) {
-    //         var field = fields[f];
-    //         if (Utils.isFunction(this[field])) {
-    //             out.functions.push({
-    //                 field: field,
-    //                 content: this[field].toString(),
-    //             });
-    //         } else {
-    //             out[field] = this[field];
-    //         }
-    //     }
-    //     out.indexInSession = this.indexInSession();
-    //     out.periods = [];
-    //     for (var i in this.periods) {
-    //         out.periods[i] = this.periods[i].shellWithChildren();
-    //     }
-    //     out.subgames = [];
-    //     for (var i in this.subgames) {
-    //         out.subgames[i] = this.subgames[i].shellWithChildren();
-    //     }
-    //     out.options = this.options;
-    //     return out;
-    // }
-    /**
-     * A shell of this object. Includes parent shell, excludes child shells.
-     *
-     * @return {type}  description
-     */
-    // shellWithParent() {
-    //     var out = {};
-    //     var fields = this.outputFields();
-    //     for (var f in fields) {
-    //         var field = fields[f];
-    //         out[field] = this[field];
-    //     }
-    //     out.session = this.session.shell();
-    //     out.numStages = this.stages.length;
-    //     out.vueComputedText = {};
-    //     for (let i in this.vueComputed) {
-    //         out.vueComputedText[i] = this.vueComputed[i].toString();
-    //     }
-    //     out.vueMethodsText = {};
-    //     for (let i in this.vueMethods) {
-    //         out.vueMethodsText[i] = this.vueMethods[i].toString();
-    //     }
-    //     for (let i in this.vueMethodsDefault) {
-    //         if (out.vueMethodsText[i] == null) {
-    //             out.vueMethodsText[i] = this.vueMethodsDefault[i].toString();
-    //         }
-    //     }
-    //     return out;
-    // }
-
-    /**
-     * A shell of this object. Excludes parent and children. The shell is a simplified version of an object and any of its fields.
-     *
-     * CALLED FROM
-     * - {@link Game#save}
-     *
-     * @return {Object}  description
-     */
-    // shell() {
-    //     var out = {};
-    //     var fields = this.outputFields();
-    //     for (var f in fields) {
-    //         var field = fields[f];
-    //         out[field] = this[field];
-    //     }
-    //     out.sessionIndex = this.indexInSession();
-    //     out.subgames = [];
-    //     for (let i in this.subgames) {
-    //         out.subgames.push(this.subgames[i].shell());
-    //     }
-    //     return out;
-    // }
 
     /**
      * If all participants have finished the app, end the app ({@link Game#end}).

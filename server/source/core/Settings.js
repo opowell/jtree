@@ -7,9 +7,7 @@ const Utils     = require('../Utils.js');
 /** Settings that can be set in the settings.json file */
 class Settings {
 
-     constructor(jt) {
-
-         this.jt = jt;
+     constructor() {
 
          this.admins                 = {};
          this.adminLoginReq          = false; // whether or not admins need to login.
@@ -53,6 +51,9 @@ class Settings {
              );
          }
          this.session.isValidPIdPxx = function(id) {
+             if (id == null) {
+                 return false;
+             }
              let regexp = /([P][0-9]+$)/i
              return id.match(regexp) != null;
          }
@@ -178,22 +179,11 @@ class Settings {
          var fields = [];
          for (var prop in this) {
              if (
-                 !Utils.isFunction(this[prop]) &&
-                 prop !== 'jt'
+                 !Utils.isFunction(this[prop])
              )
              fields.push(prop);
          }
          return fields;
-     }
-
-     shell() {
-         var out = {};
-         var fields = this.outputFields();
-         for (var i in fields) {
-             var field = fields[i];
-             out[field] = this[field];
-         }
-         return out;
      }
 
 }

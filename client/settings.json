@@ -2,5 +2,5 @@
     "useHTTPS": false,
     "defaultAdminPwd": "",
     "openAdminOnStart": false,
-    // "logToConsole": true
+    "logToConsole": true
 }

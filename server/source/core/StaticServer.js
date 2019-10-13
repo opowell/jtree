@@ -10,6 +10,7 @@ const bodyParser = require("body-parser");
 const session   = require('express-session');
 // const history   = require('connect-history-api-fallback');
 const apiRoutes = require("./api-routes")
+const {stringify} = require('flatted/cjs');
 
 const selfsigned = require('selfsigned');
 
@@ -80,11 +81,7 @@ class StaticServer {
 
         expApp.get('/api/sessions', function(req, res) {
             let sessions = self.jt.data.loadSessions();
-            let out = [];
-            for (let i=0; i<sessions.length; i++) {
-                out.push(sessions[i].shell());
-            }
-            res.send(out);
+            res.send(stringify(sessions));
         });
 
         expApp.get('/api/apps', function(req, res) {
@@ -98,11 +95,7 @@ class StaticServer {
 
         expApp.get('/api/clients', function(req, res) {
             let clients = self.jt.data.getClients(req.params.sessionId);
-            // let out = [];
-            // for (let i=0; i<clients.length; i++) {
-            //     out.push(clients[i].shell());
-            // }
-            res.send(clients);
+            res.send(stringify(clients));
         });
 
         expApp.get('/:pId', this.handleRequest.bind(this));

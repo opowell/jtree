@@ -97,14 +97,6 @@ class Queue {
         }
     }
 
-    shell() {
-        var out = {}
-        out.id             = this.id;
-        out.displayName    = this.displayName;
-        out.apps           = this.apps;
-        return out;
-    }
-
     /**
     * this - description
     *
@@ -112,7 +104,7 @@ class Queue {
     */
     save() {
         try {
-            fs.writeJSONSync(global.jt.data.queuePath(this.id), this.shell(), {spaces: 4});
+            fs.writeJSONSync(global.jt.data.queuePath(this.id), this, {spaces: 4});
         } catch (err) {
             console.log(err);
         }

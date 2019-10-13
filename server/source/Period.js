@@ -274,49 +274,11 @@ class Period {
     }
 
     // autoSave() {
-    //     Utils.writeJSON(this.app.getOutputFN() + '/periods/' + id + '/period.json', this.shell());
+    //     Utils.writeJSON(this.app.getOutputFN() + '/periods/' + id + '/period.json', this);
     //     for (var i in this.groups) {
     //         this.groups[i].autoSave();
     //     }
     // }
-
-    shellWithParent() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.game = null;
-        out.app = this.app.shellWithParent();
-        return out;
-    }
-
-    shellWithChildren() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.app = this.app.id;
-        out.groups = [];
-        for (var i in this.groups) {
-            out.groups[i] = this.groups[i].shellWithChildren();
-        }
-        return out;
-    }
-
-    shell() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.appIndex = this.app.indexInSession();
-        return out;
-    }
 
     /**
      * save - description
@@ -325,7 +287,7 @@ class Period {
     save() {
         try {
             global.jt.log('Period.save: ' + this.id);
-            var toSave = this.shell();
+            var toSave = this;
             this.session().saveDataFS(toSave, 'PERIOD');
         } catch (err) {
             console.log('Error saving period ' + this.id + ': ' + err);

@@ -1,4 +1,5 @@
 // EXTERNAL LIBRARIES
+document.write('<script src="/shared/flatted.js"></script>');
 document.write('<script src="/shared/HackTimer.min.js"></script>');
 document.write('<script src="/shared/HackTimerWorker.min.js"></script>');
 document.write('<script src="/shared/jquery-1.11.1.js"></script>');

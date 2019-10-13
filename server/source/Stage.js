@@ -340,51 +340,6 @@ class Stage {
         return fields;
     }
 
-    /**
-     * shellWithParent - description
-     *
-     * @return {type}  description
-     */
-    shellWithParent() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out['app.index'] = this.app.indexInSession();
-        out.app = this.app.shell();
-        out.superGame = null;
-        out.parent = null;
-        return out;
-    }
-
-    /**
-     * CALLED FROM:
-     * - {@link Stage#save}
-     * - {@link App#shellWithChildren}
-     *
-     * @return {type}  description
-     */
-    shell() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out['app.index'] = this.app.indexInSession();
-        out.canPlayerParticipate = this.canPlayerParticipate;
-
-        out.groupStart = this.groupStart.toString();
-        out.groupEnd = this.groupEnd.toString();
-        out.playerStart = this.playerStart.toString();
-        out.playerEnd = this.playerEnd.toString();
-        out.getGroupDuration = this.getGroupDuration.toString();
-
-        return out;
-    }
-
     getGroupDuration(group) {
         return this.duration;
     }
@@ -401,10 +356,9 @@ class Stage {
      */
     save() {
         try {
-            global.jt.log('Stage.save: ' + this.id);
-            var toSave = this.shell();
+            // global.jt.log('Stage.save: ' + this.id);
     //        Utils.writeJSON(this.getOutputDir() + this.indexInApp() + '_' + this.id + '.json', toSave);
-            this.session().saveDataFS(toSave, 'STAGE');
+            this.session().saveDataFS(this, 'STAGE');
         } catch (err) {
             console.log('Error saving stage ' + this.id + ': ' + err);
         }

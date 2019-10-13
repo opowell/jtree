@@ -125,14 +125,6 @@ class Utils {
             ids[z] = ids[z].join("");
     }        
 
-    static shells(list) {
-        var out = [];
-        for (var p in list) {
-            out.push(list[p].shell());
-        }
-        return out;
-    }
-
     static readJS(file) {
         // Empty white space to force conversion to UTF-8.
         return fs.readFileSync(file) + '';

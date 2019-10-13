@@ -1,6 +1,7 @@
 const fs        = require('fs-extra');
 const path      = require('path');
 const Utils     = require('../Utils.js');
+const {stringify} = require('flatted/cjs');
 
 /**
  * Messages that the server listens for from clients.
@@ -71,7 +72,7 @@ class Msgs {
      * @return {Message}        A message object, which includes callback (cb) and data fields.
      */
     getApp(data, socket) {
-        data.app = global.jt.data.getApp(data.appPath).shellWithChildren();
+        data.app = global.jt.data.getApp(data.appPath);
         global.jt.io.to('socket_' + socket.id).emit('dataMessage', data);
     }
 
@@ -80,7 +81,7 @@ class Msgs {
         var outMessage = {};
         outMessage.appPath = data.appPath;
         outMessage.cb   = data.cb;
-        outMessage.app  = global.jt.data.getApp(data.appPath).shellWithChildren();
+        outMessage.app  = global.jt.data.getApp(data.appPath);
         global.jt.io.to('socket_' + socket.id).emit('dataMessage', outMessage);
     }
 
@@ -121,7 +122,7 @@ class Msgs {
     resetSession(d, socket) {
         let session = global.jt.data.getSession(d.sId);
         session.reset();
-        global.jt.io.to('socket_' + socket.id).emit('openSession', session.shellWithChildren());
+        global.jt.io.to('socket_' + socket.id).emit('openSession', session);
         global.jt.data.lastOpenedSession = session;
     }
 
@@ -177,7 +178,7 @@ class Msgs {
 
     updateAppPreview(d, socket) {
         var app = global.jt.data.app(d.appId, d.options);
-        global.jt.io.to('socket_' + socket.id).emit('updateAppPreview', app.shellWithChildren());
+        global.jt.io.to('socket_' + socket.id).emit('updateAppPreview', app);
     }
 
     startSessionFromQueue(data, sock) {
@@ -201,7 +202,7 @@ class Msgs {
     createRoom(id, sock) {
         var room = global.jt.data.createRoom(id);
         if (room !== null) {
-            global.jt.socketServer.emitToAdmins('createRoom', room.shell());
+            global.jt.socketServer.emitToAdmins('createRoom', room);
         }
         return room;
     }
@@ -209,7 +210,7 @@ class Msgs {
     createUser(data, sock) {
         var user = global.jt.data.createUser(data.id, data.type);
         if (user !== null) {
-            global.jt.socketServer.emitToAdmins('createUser', user.shell());
+            global.jt.socketServer.emitToAdmins('createUser', user);
         }
         return user;
     }
@@ -217,7 +218,7 @@ class Msgs {
     createQueue(id, sock) {
         var queue = global.jt.data.createQueue(id);
         if (queue !== null) {
-            global.jt.socketServer.emitToAdmins('createQueue', queue.shell());
+            global.jt.socketServer.emitToAdmins('createQueue', queue);
         }
         return queue;
     }
@@ -289,7 +290,7 @@ class Msgs {
         var session = Utils.findById(global.jt.data.sessions, sId);
         if (session !== null && session !== undefined) {
             socket.join(session.roomId());
-            global.jt.io.to('socket_' + socket.id).emit('openSession', session.shellWithChildren());
+            global.jt.io.to('socket_' + socket.id).emit('openSession', stringify(session));
             global.jt.data.lastOpenedSession = session;
             // this.reloadClients();
             // Called from client-side.

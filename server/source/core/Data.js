@@ -6,6 +6,7 @@ const App = require('../App.js');
 const Room = require('../Room.js');
 const Queue = require('../Queue.js');
 const User = require('../User.js');
+const {stringify} = require('flatted/cjs');
 
 /** The data object. */
 class Data {
@@ -98,7 +99,7 @@ class Data {
         for (var i in this.sessions) {
             var session = this.sessions[i];
             if (session.canUserManage(userId)) {
-                out.push(session.shell());
+                out.push(session);
             }
         }
         return out;
@@ -110,12 +111,12 @@ class Data {
         if (sessionId != null) {
             if (session != null) {
                 for (let i=0; i<session.clients.length; i++) {
-                    out.push(session.clients[i].toShell());
+                    out.push(session.clients[i]);
                 }
             }
         } else {
             for (let i in this.participantClients) {
-                out.push(this.participantClients[i].shell());
+                out.push(this.participantClients[i]);
             }
         }
         return out;
@@ -170,7 +171,7 @@ class Data {
             let game = app;
             let treatment = app;
             eval(app.appjs); // jshint ignore:line
-            global.jt.log('loaded app ' + filePath);
+            // global.jt.log('loaded app ' + filePath);
         } catch (err) {
             if (
                 !filePath.endsWith('.jtt') ||
@@ -588,7 +589,7 @@ class Data {
         user.type = type;
 
         fs.ensureDirSync(this.usersPath());
-        Utils.writeJSON(this.userPath(user.id), user.shell());
+        Utils.writeJSON(this.userPath(user.id), stringify(user));
         return user;
     }
 
@@ -713,7 +714,7 @@ class Data {
             session.addUser(userId);
         }
         session.save();
-        global.jt.socketServer.emitToAdmins('addSession', session.shell());
+        global.jt.socketServer.emitToAdmins('addSession', session);
         return session;
     }
 

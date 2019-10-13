@@ -18,7 +18,7 @@ class clPlayer {
          * The group of this player.
          * @type string
          */
-        this.group = player.group.shellWithParent();
+        this.group = player.group;
         var group = player.group;
         if (group.stageTimer !== undefined) {
             this.stageTimerStart = group.stageTimer.timeStarted;
@@ -36,7 +36,7 @@ class clPlayer {
             this.stage = new clStage.new(player.stage);
 
             if (this.stage.updateObject === 'group') {
-                this.group = player.group.shellForPlayerUpdate();
+                this.group = player.group;
             }
         }
 

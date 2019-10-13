@@ -5,6 +5,7 @@ const socketIO  = require('socket.io');
 const Utils     = require('../Utils.js');
 const Client    = require('../Client.js');
 const Msgs      = require('./Msgs.js');
+const {stringify} = require('flatted/cjs');
 
 /** Handles socket connections */
 class SocketServer {
@@ -16,6 +17,15 @@ class SocketServer {
         this.msgs         = new Msgs.new(jt); // MESSAGES TO LISTEN FOR FROM CLIENTS
         jt.io = this.io;
         this.io.on('connection', this.onConnection.bind(this));
+
+        // List of sockets, stored here so that Clients can refer to them.
+        // Client objects cannot contain a direct reference to a socket object, since
+        // socket objects should not be cloned when cloning the state.
+        this.sockets = {};
+    }
+
+    getSocket(socketId) {
+        return this.sockets[socketId];
     }
 
     /**
@@ -25,29 +35,36 @@ class SocketServer {
      */
     onConnection(socket) {
 
-        var id          = socket.request._query.id; // participant or admin ID
-        var pwd         = socket.request._query.pwd;
-        var type        = socket.request._query.type; // ADMIN or PARTI
-        var sessionId   = socket.request._query.sessionId;
-        var roomId      = socket.request._query.roomId;
+        this.sockets[socket.id] = socket;
 
-        if (id === null || id === undefined || id === '') {
-            id = socket.request.connection._peername.address;
-            id = id.substring(id.lastIndexOf(':')+1);
-            console.log('new id = ' + id);
+        try {
+            var id          = socket.request._query.id; // participant or admin ID
+            var pwd         = socket.request._query.pwd;
+            var type        = socket.request._query.type; // ADMIN or PARTI
+            var sessionId   = socket.request._query.sessionId;
+            var roomId      = socket.request._query.roomId;
+    
+            if (id === null || id === undefined || id === '') {
+                id = socket.request.connection._peername.address;
+                id = id.substring(id.lastIndexOf(':')+1);
+                console.log('new id = ' + id);
+            }
+    
+            var admin = this.jt.data.getAdmin(id, pwd);
+    
+            this.jt.log('socket connection: ' + socket.id + ', id=' + id + ', pwd=' + pwd + ', session=' + sessionId);
+    
+            if (type === this.ADMIN_TYPE && (admin !== null || this.jt.settings.adminLoginReq === false)) {
+                this.addAdminClient(socket);
+            } else if (roomId !== 'null') {
+                this.addRoomClient(socket, id, roomId);
+            } else {
+                this.addParticipantClient(socket, id, sessionId, roomId);
+            }
+        } catch (err) {
+            this.jt.log(err);
         }
 
-        var admin = global.jt.data.getAdmin(id, pwd);
-
-        global.jt.log('socket connection: ' + socket.id + ', id=' + id + ', pwd=' + pwd + ', session=' + sessionId);
-
-        if (type === this.ADMIN_TYPE && (admin !== null || global.jt.settings.adminLoginReq === false)) {
-            this.addAdminClient(socket);
-        } else if (roomId !== 'null') {
-            this.addRoomClient(socket, id, roomId);
-        } else {
-            this.addParticipantClient(socket, id, sessionId, roomId);
-        }
     }
 
     addAdminClient(socket) {
@@ -91,7 +108,7 @@ class SocketServer {
         });
 
         socket.on('get-app', function(id) {
-            var toSend = self.jt.data.apps[id].shell();
+            var toSend = self.jt.data.apps[id];
             self.io.to(sock.id).emit('get-app', toSend);
         });
 
@@ -137,18 +154,18 @@ class SocketServer {
                 // No session, so notify manually.
                 client = new Client.new(socket, null);
                 client.pId = pId;
-                this.sendOrQueueAdminMsg(null, 'addClient', client.shell());
+                this.sendOrQueueAdminMsg(null, 'addClient', client);
                 let participant = {
                     id: pId,
                     session: {
                         id: 'none'
                     }
                 };
-                socket.emit('logged-in', participant);
+                socket.emit('logged-in', stringify(participant));
                 let socketServer = this;
                 socket.on('disconnect', function() {
-                    console.log('disconnect for ' + JSON.stringify(client.shell()));
-                    socketServer.sendOrQueueAdminMsg(null, 'removeClient', client.shell());
+                    console.log('disconnect for ' + JSON.stringify(client.id));
+                    socketServer.sendOrQueueAdminMsg(null, 'removeClient', client);
                     Utils.deleteById(socketServer.jt.data.participantClients, client.id);
                 });
             }
@@ -173,14 +190,14 @@ class SocketServer {
         var ag = {};
         ag.appFolders           = global.jt.settings.appFolders;
         ag.apps                 = global.jt.data.appsMetaData;
-        ag.appsFull             = Utils.shells(global.jt.data.apps);
+        ag.appsFull             = global.jt.data.apps;
         ag.predefinedQueues     = global.jt.settings.predefinedQueues;
-        ag.rooms                = Utils.shells(global.jt.data.rooms);
-        ag.queues                = Utils.shells(global.jt.data.queues);
+        ag.rooms                = global.jt.data.rooms;
+        ag.queues               = global.jt.data.queues;
         ag.sessions             = global.jt.data.sessionsForUser(userId);
         ag.jtreeLocalPath       = global.jt.path;
-        ag.settings             = global.jt.settings.shell();
-        ag.users                = Utils.shells(global.jt.data.users);
+        ag.settings             = global.jt.settings;
+        ag.users                = global.jt.data.users;
 
         this.sendOrQueueAdminMsg(msgs, 'refreshAdmin', ag, id);
     }
@@ -188,6 +205,7 @@ class SocketServer {
     // If msgs is null, sends the message immediately.
     // Otherwise, the messages is just added to msgs.
     sendOrQueueAdminMsg(msgs, msgName, msgData, channel) {
+        msgData = stringify(msgData);
         if (msgs == null || msgs == undefined) {
             if (channel == null || channel == undefined) {
                 channel = this.ADMIN_TYPE;
@@ -208,6 +226,7 @@ class SocketServer {
     }
 
     emitToAdmins(msgName, msgData) {
+        msgData = stringify(msgData);
         this.io.to(this.ADMIN_TYPE).emit(msgName, msgData);
     }
 

@@ -134,6 +134,26 @@ app.html = `
 </style>
 <script>
 
+jt.likertScale = function(field) {
+    var el = $('#' + field);
+    var minText = el.attr('likert-low');
+    var maxText = el.attr('likert-high');
+
+    var minTextEl = $('<div class="likertMinText likertText">').html(minText);
+    var maxTextEl = $('<div class="likertMaxText likertText">').html(maxText);
+
+    el.append(minTextEl);
+    for (var i=1; i<=7; i++) {
+        var option = $('<label for="' + field + i + '" class="likertScaleOption answer">');
+        var input = $("<input name='player." + field + "' type='radio' required value='" + i + "' id='" + field + i + "'>");
+        var label = $("<div>").text(i);
+        option.append(label);
+        option.append(input);
+        el.append(option);
+    }
+    el.append(maxTextEl);
+}
+
     jt.comprehension = function(field) {
         let el = $('#' + field);
         let taskName = el.attr('task-name');

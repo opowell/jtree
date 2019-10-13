@@ -4,7 +4,6 @@ let $ = window.jQuery
 import jt from '@/webcomps/jtree.js'
 import Utils from '@/webcomps/utilsFns.js'
 import server from '@/webcomps/msgsToServer.js'
-import Vue from 'vue'
 import store from '@/store.js'
 
 let findById = Utils.findById
@@ -217,8 +216,6 @@ msgs.participantSetPlayer = function(md) {
 msgs.playerUpdate = function(player) {
 //    var decompId = decomposeId(player.roomId);
 //    if (decompId.sessionId === jt.data.session.id) {
-
-    player = jt.parse(player);
 
     if (player.group.period.app.session.id === jt.data.session.id) {
         // var div = $('tr.participant-' + jt.safePId(player.id));

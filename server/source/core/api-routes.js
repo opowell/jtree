@@ -7,7 +7,7 @@ const fs        = require('fs-extra');
 const formidable = require('formidable');
 // const Game = require('../models/Game.js');
 // const rimraf = require("rimraf");
-const flatted = require('flatted');
+const {stringify} = require('flatted/cjs');
 
 let router = require('express').Router();
 
@@ -157,7 +157,7 @@ router.post('/session/addGame', function (req, res) {
             let treatment = app;
             let game = app;
             eval(app.appjs); // jshint ignore:line
-            console.log('loaded app ' + filePath);
+            // console.log('loaded app ' + filePath);
         } catch (err) {
             global.jt.log('Error loading app: ' + filePath);
             global.jt.log(err);
@@ -165,7 +165,7 @@ router.post('/session/addGame', function (req, res) {
         }
         let json = {
             success: true,
-            game: app.shellWithChildren(),
+            game: stringify(app),
         }
         res.json(json);
     }
@@ -265,7 +265,7 @@ router.get('/sessions', function (req, res) {
     let out = [];
     let sessions = global.jt.data.sessions;
     for (let i=0; i<sessions.length; i++) {
-        out.push(flatted.stringify(sessions[i].shell()));
+        out.push(stringify(sessions[i]));
     }
     res.json(out);
 });
@@ -275,7 +275,7 @@ router.get('/session/:sessionId', function (req, res) {
     let session = global.jt.data.getSession(sessionId);
     res.json({
         success: true,
-        session: session.shellWithChildren(),
+        session: strinfiy(session),
     });
 });
 

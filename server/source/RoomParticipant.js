@@ -9,13 +9,6 @@ class RoomParticipant {
          this.clients = [];
      }
 
-     shell() {
-         var out = {};
-         out.id = this.id;
-         out.clients = Utils.shells(this.clients);
-         return out;
-     }
-
      removeClient(sId) {
          for (var i in this.clients) {
              if (this.clients[i].id === sId) {

@@ -5,6 +5,7 @@ let $ = window.jQuery
 import Utils from '@/webcomps/utilsFns.js'
 import msgs from '@/webcomps/msgsFromServer.js'
 import store from '@/store.js'
+const {parse} = require('flatted/cjs');
 
 window.msgs = msgs;
 
@@ -182,6 +183,9 @@ jt.connected = function() {
         (function(i) {
             // eslint-disable-next-line no-unused-vars
             jt.socket.on(i, function(d) {
+                if (typeof d === 'string') {
+                    d = parse(d);
+                }
                 // console.log('received message ' + i + ': ' + JSON.stringify(d));
                 eval('window.msgs.' + i + "(d)");
             });
@@ -220,20 +224,20 @@ jt.connected = function() {
         }
     });
 
-    jt.socket.on('remove-client', function(client) {
-        let session = window.vue.$store.state.session;
-        if (session == null) {
-            return;
-        }
-        if (client.session.id === session.id) {
-            Utils.deleteById(session.clients, client.id);
-            jt.removeClient(client.id);
-            var participant = Utils.findById(session.participants, client.pId);
-            if (participant != null) {
-                participant.numClients--;
-            }
-        }
-    });
+    // jt.socket.on('remove-client', function(client) {
+    //     let session = window.vue.$store.state.session;
+    //     if (session == null) {
+    //         return;
+    //     }
+    //     if (client.session.id === session.id) {
+    //         Utils.deleteById(session.clients, client.id);
+    //         jt.removeClient(client.id);
+    //         var participant = Utils.findById(session.participants, client.pId);
+    //         if (participant != null) {
+    //             participant.numClients--;
+    //         }
+    //     }
+    // });
 
 // TODO: move all message functionality here
     jt.socket.on('messages', function(msgs) {

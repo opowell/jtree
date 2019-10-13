@@ -2,6 +2,7 @@ const Player    = require('./Player.js');
 const clPlayer  = require('./client/clPlayer.js');
 const Utils     = require('./Utils.js');
 const path      = require('path');
+const {stringify} = require('flatted/cjs');
 
 /**
  * A participant in the experiment.
@@ -344,6 +345,7 @@ class Participant {
         }
         dta.participantId = this.id;
         dta.sessionId = this.session.id;
+        dta = stringify(dta);
         this.session.io().to(this.roomId()).emit(name, dta);
 //        this.session.io().to(this.session.roomId()).emit(name, dta);
     }
@@ -354,13 +356,20 @@ class Participant {
 
     clientAdd(client) {
         this.clients.push(client);
-        client.socket.join(this.roomId());
-        if (this.player != null) {
-            this.player.addClient(client);
-            this.player.group.addClient(client);
-            this.player.group.period.addClient(client);
-            this.player.group.period.app.addClientDefault(client);
-        }
+        client.getSocket().join(this.roomId());
+        // client.getSocket().join(this.session.nonObs.session.roomId());
+
+        let session = global.jt.data.getSession(this.session.id);
+
+        // Listen to message from clients.
+        client.on('endGame', function(data) { // subgame messages are sent by default when submit button is clicked.
+            session.pushMessage(session, {
+                data: data.data,
+                endForGroup: true,
+                participantId: client.participant.id,
+            }, 'endGame');
+        });
+
     }
 
     outputFields() {
@@ -404,17 +413,34 @@ class Participant {
         console.log('settting participant player: ' + this.id + ', ' + stageId);
         player.updateGamePath();
         this.player = player;
-        this.save();
-        for (var i=0; i<this.clients.length; i++) {
-            var client = this.clients[i];
-            player.addClient(client);
-            player.group.addClient(client);
-            player.period().addClient(client);
+    }
+
+    getProxy() {
+        return this;
+    }
+
+    isFinishedGame(game) {
+        let gamePath = game.getGameIndices();
+        let player = this.getPlayer(gamePath);
+
+        if (player == null) {
+            return false;
         }
-        let shell = player.shellWithParent();
-        shell.game = null;
-        shell.stage = null;
-        this.emit('participantSetPlayer', {player: shell});
+
+        if (player.status === 'done') {
+            return true;
+        }
+
+        return false;
+    }
+
+    getPlayer(gamePath) {
+        let players = this.players;
+        for (let i=0; i<gamePath.length; i++) {
+            players = players[gamePath[i]]; // select sub-array of children from this game.
+            players = players[players.length-1]; // select last period of this subgame.
+        }
+        return players;
     }
 
     actuallyEmitUpdate() {
@@ -445,70 +471,10 @@ class Participant {
         this.updateScheduled = true;
     }
 
-    shell() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.numClients = this.clients.length;
-        if (this.player !== null) {
-            out.player = this.player.shellWithParent();
-        } else {
-            out.player = null;
-        }
-        out.numPoints = this.points();
-        out.session = this.session.shell();
-        return out;
-    }
-
-    shellAll() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.numClients = this.clients.length;
-        if (this.player != null) {
-            out.player = this.player.shellWithChildren();
-        } else {
-            out.player = null;
-        }
-        out.numPoints = this.points();
-        out.playerIds = [];
-        out.players = [];
-        for (var i in this.players) {
-            out.playerIds[i] = this.players[i].roomId();
-            out.players.push(this.players[i].shell());
-        }
-        return out;
-    }
-
-    shellLocal() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.playerIds = [];
-        for (var i in this.players) {
-            out.playerIds.push(this.players[i].compId());
-        }
-        out.playerIds = JSON.stringify(out.playerIds);
-        out.playerId = null;
-        if (this.player !== null) {
-            out.playerId = JSON.stringify(this.player.compId());
-        }
-        return out;
-    }
-
     save() {
         try {
             global.jt.log('Participant.save: ' + this.id);
-            var localData = this.shellLocal();
+            var localData = this;
             this.session.saveDataFS(localData, 'PARTICIPANT');
         } catch (err) {
             console.log('Error saving participant ' + this.id + ': ' + err + '\n' + err.stack);
