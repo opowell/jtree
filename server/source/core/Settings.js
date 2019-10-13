@@ -58,6 +58,9 @@ class Settings {
              return id.match(regexp) != null;
          }
          this.session.isValidPIdIP = function(id) {
+             if (id == null) {
+                 return false;
+             }
              let regexp = /[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/
              return id.match(regexp) != null;
          }

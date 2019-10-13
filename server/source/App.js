@@ -27,6 +27,10 @@ class App {
 
         this.parent = parent;
         this.superGame = parent;
+        if (this.superGame != null) {
+            this.waitToStart = parent.subGameWaitToStart;
+            this.waitToEnd = parent.subGameWaitToEnd;
+        }
 
         this.showErrorsInLog = true;
 
@@ -629,7 +633,7 @@ class App {
                     ${buttonCode}
                 ${formEnd}
             </span>
-            <span v-if='player.status == "waiting"' class='waiting-screen'>
+            <span v-if='["waiting", "done", "finished"].includes(player.status)' class='waiting-screen'>
                 ${app.waitingScreen}
             </span>
             ${subgamesHTML}

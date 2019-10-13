@@ -268,15 +268,23 @@ jt.mountVue = function(participant) {
     
         jt.vueModels = jt.getVueModels(participant, vueComputed);
 
-        jt.vue = new Vue({
-            el: '#jtree',
-            data: jt.vueModels,
-            computed: vueComputed,
-            methods: jt.vueMethods,
-            mounted: function() {
-                jt.setFormDefaults();
-            }
-        });
+        let jtreeEl = document.getElementById('jtree');
+
+        if (jtreeEl != null) {
+            jt.vue = new Vue({
+                el: jtreeEl,
+                data: jt.vueModels,
+                computed: vueComputed,
+                methods: jt.vueMethods,
+                mounted: function() {
+                    jt.setFormDefaults();
+                }
+            });
+        } else {
+            jt.vue = {};
+            jt.setFormDefaults();    
+        }
+
     } else {
         jt.vue = {};
         jt.setFormDefaults();
