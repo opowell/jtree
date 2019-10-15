@@ -201,25 +201,28 @@ class Participant {
 
     endCurrentApp() {
 
-        if (this.getApp() !== null) {
-            this.getApp().participantEndInternal(this);
-            this.finishedApps.push(this.getApp().getIdInSession());
+        if (this.getGame() !== null) {
+            this.getGame().participantEnd(this);
+            this.finishedApps.push(this.getGame().getIdInSession());
         }
 
         this.player = null;
 
-        this.appIndex++;
+        this.getFullSession().participantMoveToNextGame(this);
+        // this.incrementGame();
 
-        var nextApp = this.session.getApp(this);
-        if (nextApp != null) {
-            //nextApp.participantBegin(this);
-//            this.startApp(nextApp);
-            this.session.participantBeginApp(this);
-        } else {
-            this.endSession();
-        }
+        // var nextGame = this.getGame();
+        // if (nextGame != null) {
+        //     nextGame.participantBegin(this);
+        // } else {
+        //     this.endSession();
+        // }
     }
 
+    getFullSession() {
+        return global.jt.data.getSession(this.session.id);
+    }
+    
     endSession() {
         this.session.participantEnd(this);
         this.session.tryToEnd();
@@ -448,7 +451,7 @@ class Participant {
             try {
                 console.log('sending update for ' + this.id);
                 if (this.player !== null) {
-                    this.player.emit('playerUpdate', new clPlayer.new(this.player));
+                    this.player.emit('playerUpdate', this);
                 } else {
                     this.emit('start-new-app'); // refresh clients.
                 }
@@ -473,7 +476,7 @@ class Participant {
 
     save() {
         try {
-            global.jt.log('Participant.save: ' + this.id);
+            // global.jt.log('Participant.save: ' + this.id);
             var localData = this;
             this.session.saveDataFS(localData, 'PARTICIPANT');
         } catch (err) {

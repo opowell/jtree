@@ -331,8 +331,11 @@ class Player {
     emit(name, dta) {
         dta.participantId = this.participant.id;
         dta.sessionId = this.session().id;
-        dta = stringify(dta);
-        this.io().to(this.roomId()).emit(name, dta);
+        if (typeof dta !== 'string') {
+            dta = stringify(dta);
+        }
+        // this.io().to(this.roomId()).emit(name, dta);
+        this.io().to(this.participant.roomId()).emit(name, dta);
         this.session().emitToAdmins(name, dta);
     }
 
@@ -365,7 +368,8 @@ class Player {
         // usually either the player themselves or an individual
         // client that is subscribed to the player.
         if (this.stage === null || this.stage.onPlaySendPlayer) {
-            let data = new clPlayer.new(this);
+            // let data = new clPlayer.new(this);
+            let data = this;
             data = stringify(data);
             this.io().to(channel).emit('playerUpdate', data);
         }
@@ -454,7 +458,7 @@ class Player {
      */
     save() {
         try {
-            global.jt.log('Player.save: ' + this.roomId());
+            // global.jt.log('Player.save: ' + this.roomId());
             this.session().saveDataFS(this, 'PLAYER');
         } catch (err) {
             console.log('Error saving player ' + this.roomId() + ': ' + err + '\n' + err.stack);
@@ -607,11 +611,16 @@ class Player {
         this.status = 'finished';
         console.log(this.timeStamp() + ' FINISH- PLAYER: ' + this.stage.id + ', ' + this.roomId());
         let curRoomId = this.roomId();
+        let curGamePath = this.gamePath;
         let curStageIndex = this.stageIndex;
         if (endGroup) {
             this.group.endStage(this.stage);
         }
-        if (curRoomId == this.roomId() && curStageIndex === this.stageIndex) {
+        if (
+            curRoomId == this.roomId() && 
+            curStageIndex === this.stageIndex &&
+            curGamePath == this.gamePath)
+        {
             this.moveToNextStage();
         }
     }
@@ -632,6 +641,7 @@ class Player {
         var nextPeriod = this.app().getNextPeriod(player.participant);
         if (nextStage !== null) {
             player.stage = nextStage;
+            player.subGame = nextStage;
             player.updateGamePath();
             player.stageIndex++;
             player.status = 'ready';
@@ -642,9 +652,9 @@ class Player {
         } else if (player.superPlayer != null) {
             player.superPlayer.endStage();
         } else {
-            this.emitUpdate2();
             player.participant.endCurrentApp();
         }
+        this.emitUpdate2();
 
     } 
 

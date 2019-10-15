@@ -52,7 +52,7 @@ class SocketServer {
     
             var admin = this.jt.data.getAdmin(id, pwd);
     
-            this.jt.log('socket connection: ' + socket.id + ', id=' + id + ', pwd=' + pwd + ', session=' + sessionId);
+            // this.jt.log('socket connection: ' + socket.id + ', id=' + id + ', pwd=' + pwd + ', session=' + sessionId);
     
             if (type === this.ADMIN_TYPE && (admin !== null || this.jt.settings.adminLoginReq === false)) {
                 this.addAdminClient(socket);
@@ -70,8 +70,8 @@ class SocketServer {
     addAdminClient(socket) {
         var sock = socket;
         var self = this;
-        var log = global.jt.log;
-        log('socket connection to ' + this.ADMIN_TYPE);
+        let log = global.jt.log;
+        // global.jt.log('socket connection to ' + this.ADMIN_TYPE);
         socket.join(this.ADMIN_TYPE);
         socket.join('socket_' + sock.id);
 
@@ -99,7 +99,7 @@ class SocketServer {
         }
 
         socket.on('refreshAdmin', function(msg) {
-            log('Server.refreshAdmin: socket_' + sock.id);
+            // log('Server.refreshAdmin: socket_' + sock.id);
             self.refreshAdmin(null, 'socket_' + sock.id, msg.userId);
         });
 
@@ -139,7 +139,7 @@ class SocketServer {
     }
 
     addParticipantClient(socket, pId, sessionId, roomId) {
-        global.jt.log('server.addClient: ' + socket.id + ', pId=' + pId + ', sId=' + sessionId + ', roomId=' + roomId);
+        // global.jt.log('server.addClient: ' + socket.id + ', pId=' + pId + ', sId=' + sessionId + ', roomId=' + roomId);
         try {
             var session = global.jt.data.getActiveSession(sessionId);
             if (session === null) {
@@ -164,7 +164,7 @@ class SocketServer {
                 socket.emit('logged-in', stringify(participant));
                 let socketServer = this;
                 socket.on('disconnect', function() {
-                    console.log('disconnect for ' + JSON.stringify(client.id));
+                    // console.log('disconnect for ' + JSON.stringify(client.id));
                     socketServer.sendOrQueueAdminMsg(null, 'removeClient', client);
                     Utils.deleteById(socketServer.jt.data.participantClients, client.id);
                 });
@@ -185,7 +185,7 @@ class SocketServer {
     }
 
     refreshAdmin(msgs, id, userId) {
-        global.jt.log('refreshAdmin: ' + id + ', userId = ' + userId);
+        // global.jt.log('refreshAdmin: ' + id + ', userId = ' + userId);
 
         var ag = {};
         ag.appFolders           = global.jt.settings.appFolders;

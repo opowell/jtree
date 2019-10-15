@@ -5,6 +5,7 @@ import jt from '@/webcomps/jtree.js'
 import Utils from '@/webcomps/utilsFns.js'
 import server from '@/webcomps/msgsToServer.js'
 import store from '@/store.js'
+const {parse} = require('flatted/cjs');
 
 let findById = Utils.findById
 let objLength = Utils.objLength
@@ -216,6 +217,14 @@ msgs.participantSetPlayer = function(md) {
 msgs.playerUpdate = function(player) {
 //    var decompId = decomposeId(player.roomId);
 //    if (decompId.sessionId === jt.data.session.id) {
+
+    if (typeof player == 'string') {
+        player = parse(player);
+    }
+
+    if (player.player != null) {
+        player = player.player;
+    }
 
     if (player.group.period.app.session.id === jt.data.session.id) {
         // var div = $('tr.participant-' + jt.safePId(player.id));

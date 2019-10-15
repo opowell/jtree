@@ -145,7 +145,7 @@ class App {
                     <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
                     <meta name="viewport" content="width=device-width, initial-scale=1">
                 </head>
-                <body class='hidden'>
+                <body style='display: none'>
                     <div id='jtree'>
                         <p v-if='superGame.numPeriods > 1'>Period: {{period.id}}/{{superGame.numPeriods}}</p>
                         <p v-if='hasTimeout'>Time left (s): {{clock.totalSeconds}}</p>
@@ -193,7 +193,7 @@ class App {
 
         /** Shown on all client waiting screens if {@link Stage.useWaitingScreen} = true.
         */
-        this.waitingScreen = `
+        this.waitingScreenDefault = `
             <p>WAITING</p>
             <p>The experiment will continue soon.</p>
         `;
@@ -365,6 +365,14 @@ class App {
         this.finished = false;
     }
 
+    getWaitingScreen() {
+        if (this.subgames.length > 0) {
+            return '';
+        } else {
+            return this.waitingScreenDefault;
+        }
+    }
+
     /**
      * @static newSansId - return an app with the given path.
      *
@@ -528,8 +536,8 @@ class App {
         }
 
         /** If not in the last stage, return next stage.*/
-        if (stageInd < this.stages.length-1) {
-            return this.stages[stageInd+1];
+        if (stageInd < this.subgames.length-1) {
+            return this.subgames[stageInd+1];
         } else {
             return null;
         }
@@ -625,6 +633,8 @@ class App {
             buttonCode = '<button>OK</button>';
         }
 
+        let appWaitingScreen = app.getWaitingScreen();
+
         let screensHTML = `
         <span v-if='player.gamePath.includes("{{app.path}}")'>
             <span v-if='player.status == "playing"' class='playing-screen'>
@@ -634,7 +644,7 @@ class App {
                 ${formEnd}
             </span>
             <span v-if='["waiting", "done", "finished"].includes(player.status)' class='waiting-screen'>
-                ${app.waitingScreen}
+                ${appWaitingScreen}
             </span>
             ${subgamesHTML}
         </span>
@@ -650,7 +660,7 @@ class App {
                     <meta name="viewport" content="width=device-width, initial-scale=1">
                     <script type="text/javascript" src="/participant/jtree.js"></script>
                 </head>
-                <body class='hidden'>
+                <body style='display: none'>
                     <div id='jtree'>
                         <p v-if='game.numPeriods > 1'>Period: {{period.id}}/{{game.numPeriods}}</p>
                         <p v-if='hasTimeout'>Time left (s): {{clock.totalSeconds}}</p>
@@ -827,10 +837,10 @@ class App {
 
             var waitingScreenHTML = contentStart;
             if (stage.useAppWaitingScreen) {
-                waitingScreenHTML += app.waitingScreen;
+                waitingScreenHTML += app.getWaitingScreen();
             }
-            if (stage.waitingScreen != null) {
-                waitingScreenHTML += stage.waitingScreen;
+            if (stage.getWaitingScreen() != null) {
+                waitingScreenHTML += stage.getWaitingScreen();
             }
             waitingScreenHTML += contentEnd;
 
@@ -849,9 +859,6 @@ class App {
             html = html.replace('{{stages}}', stagesHTML);
         }
 
-        // if (html.includes('{{waiting-screens}}') && app.waitingScreen != null) {
-        //     html = html.replace('{{waiting-screens}}', app.waitingScreen);
-        // }
         html = html.replace('{{waiting-screens}}', waitingScreensHTML);
 
         // Replace {{ }} markers.
@@ -1592,7 +1599,7 @@ class App {
             this.participantMoveToNextPeriod(participant);
         } 
 
-        participant.emit('start-new-app'); /** refresh clients.*/
+        // participant.emit('start-new-app'); /** refresh clients.*/
     }
 
     canPlayerStart(player) {

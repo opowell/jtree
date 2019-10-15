@@ -431,6 +431,7 @@ class Session {
             // } else {
                 // jt.log('Object cannot process message, skipping message "' + fn + '".');
             // }
+            obj.emitParticipantUpdates();
         } catch (err) {
             global.jt.log(err.stack);
             debugger;
@@ -506,6 +507,8 @@ class Session {
             }
         }
         player.endStage(endForGroup);
+
+        participant.updateScheduled = true;
     }
 
     emitToAdmins(name, data) {
@@ -909,6 +912,10 @@ class Session {
             // } else {
                 // jt.log('Object cannot process message, skipping message "' + fn + '".');
             // }
+
+            // obj should always be Session object?
+            obj.emitParticipantUpdates();
+
         } catch (err) {
             global.jt.log(err.stack);
             debugger;
@@ -929,8 +936,8 @@ class Session {
     
     emitParticipantUpdates() {
         // console.log('emitting updates');
-        for (let p in this.participants) {
-            this.participants[p].actuallyEmitUpdate();
+        for (let p in this.proxy.state.participants) {
+            this.proxy.state.participants[p].actuallyEmitUpdate();
         }
     }
 
@@ -1178,7 +1185,7 @@ slowestParticipants() {
     */
     clientRemove(socket) {
         var socketId = socket.id;
-        global.jt.log('removing client: ' + socketId);
+        // global.jt.log('removing client: ' + socketId);
         for (var i=this.clients.length - 1; i>=0; i--) {
             var client = this.clients[i];
             if (client.id === socketId) {
@@ -1223,7 +1230,7 @@ participantUI() {
         }
 
         var participantId = pId;
-        global.jt.log('Session.participantCreate: ' + participantId);
+        // global.jt.log('Session.participantCreate: ' + participantId);
         var participant = new Participant.new(participantId, this);
         participant.save();
         this.save();
@@ -1362,6 +1369,9 @@ participantUI() {
                 value: this.started
             }]);
             this.advanceSlowest();
+        }
+        for (let p in this.participants) {
+            this.participants[p].emit('start-new-app'); /** refresh clients.*/
         }
     }
 

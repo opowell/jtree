@@ -164,7 +164,7 @@ class Game {
                     <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
                     <meta name="viewport" content="width=device-width, initial-scale=1">
                 </head>
-                <body class='hidden'>
+                <body style='display: none' class='hidden'>
                     <div id='jtree'>
                         <p v-if='superGame.numPeriods > 1'>Period: {{period.id}}/{{superGame.numPeriods}}</p>
                         <p v-if='hasTimeout'>Time left (s): {{clock.totalSeconds}}</p>
@@ -657,7 +657,7 @@ class Game {
                     <meta name="viewport" content="width=device-width, initial-scale=1">
                     <script type="text/javascript" src="/participant/jtree.js"></script>
                 </head>
-                <body class='hidden'>
+                <body style='display: none' class='hidden'>
                     <div id='jtree'>
                         <p v-if='game.numPeriods > 1'>Period: {{period.id}}/{{game.numPeriods}}</p>
                         <p v-if='hasTimeout'>Time left (s): {{clock.totalSeconds}}</p>
