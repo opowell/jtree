@@ -232,19 +232,19 @@ class StaticServer {
         //////////////////////////////
         // Generate files used by clients.
         this.generateSharedJS(this.jt.settings.clientJSTemplateFile, this.jt.settings.clientJSFile);
-        this.generateSharedJS(this.jt.settings.clientJSModuleTemplateFile, this.jt.settings.clientJSModuleFile);
+        // this.generateSharedJS(this.jt.settings.clientJSModuleTemplateFile, this.jt.settings.clientJSModuleFile);
         // If running in development mode, recompile client webpack.
-        if (process.argv[0].indexOf('node') > -1) {
-            this.generateClientModels();
-        }
+        // if (process.argv[0].indexOf('node') > -1) {
+        //     this.generateClientModels();
+        // }
         //////////////////////////////
 
     }
 
-    generateClientModels() {
-//        var file = babel.transformFileSync(path.join(this.jt.path, "../server/source/App.js"), {});
-//        fs.writeFileSync(path.join(this.jt.path, 'internal/clients/admin/shared/models.js'), file.code);
-    }
+//     generateClientModels() {
+// //        var file = babel.transformFileSync(path.join(this.jt.path, "../server/source/App.js"), {});
+// //        fs.writeFileSync(path.join(this.jt.path, 'internal/clients/admin/shared/models.js'), file.code);
+//     }
 
     handleRequest(req, res) {
         var jt = this.jt;
