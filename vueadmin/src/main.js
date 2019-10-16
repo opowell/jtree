@@ -34,7 +34,8 @@ import jt from '@/webcomps/jtree.js'
 import '@/webcomps/utilities.js'
 import '@/webcomps/View.js'
 import '@/webcomps/admin.js'
-import '@/webcomps/shared.js'
+document.write('<script src="/socket.io/socket.io.js"></script>');
+document.write('<script src="/shared/shared.js"></script>');
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
