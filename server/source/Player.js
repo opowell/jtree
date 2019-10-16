@@ -569,7 +569,8 @@ class Player {
                     this.status = 'playing';
                     this.recordStageStartTime(stage);
                     try {
-                        stage.playerStart(this);
+                        // stage.playerStart(this);
+                        stage.participantBegin(this.participant);
                     } catch(err) {
                         console.log(err + '\n' + err.stack);
                     }
@@ -592,15 +593,16 @@ class Player {
             this.status = 'done';
         }
 
-        if (!this.group.canPlayersEnd(this.stage)) {
+        if (endGroup && !this.group.canPlayersEnd(this.stage)) {
             this.emitUpdate2();
-            return;
+            this.group.endStage(this.stage, false);
+        } else {
+            console.log(this.timeStamp() + ' END   - PLAYER: ' + this.stage.id + ', ' + this.roomId());
+            this.stage.playerEnd(this);
+            this.emitUpdate2();
+            this.finishStage(endGroup);
         }
 
-        console.log(this.timeStamp() + ' END   - PLAYER: ' + this.stage.id + ', ' + this.roomId());
-        this.stage.playerEnd(this);
-        this.emitUpdate2();
-        this.finishStage(endGroup);
     }
 
     timeStamp() {

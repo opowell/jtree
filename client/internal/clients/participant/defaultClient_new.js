@@ -645,6 +645,9 @@ jt.defaultConnected = function() {
         } else {
             jt.updatePlayer(player.participant, true);
         }
+        Vue.nextTick(function() {
+            jt.setFormDefaults();    
+        });
     });
 
     // jt.socket.on('sessionUpdate', function(sessData) {

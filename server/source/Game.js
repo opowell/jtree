@@ -1247,6 +1247,7 @@ class Game {
      * @param  {number} prd The index to assign to the new period.
      */
     initPeriod(prd) {
+        console.log('create period for ' + this.id);
         var period = new Period.new(prd + 1, this);
         this.periods.push(period);
     }

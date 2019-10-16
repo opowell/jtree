@@ -383,6 +383,7 @@ let stateObj = {
   jtreeLocalPath: '',
 
   allFields: [],
+  sessionFields: {},
   fields: [
     {
         key: 'id',
@@ -451,21 +452,26 @@ for (let i=0; i<persistentSettings.length; i++) {
   }
 }
 
-function storeFields(path, obj, outKeys, state) {
+function storeFields(path, obj, outKeys, state, sessionId, foundObjs) {
   for (var i in obj) {
-    if (!outKeys.includes(path + i)) {
-      if (
-        typeof(obj[i]) === 'object' &&
-        !Array.isArray(obj[i])
-      ) {
-        // storeFields(path + i + '.', obj[i], outKeys, state);
-      } else {
-        outKeys.push(path + i);
-        state.allFields.push({
-            key: path + i,
-            label: path + i,
-        });
+    let childPath = path == '' ? i : path + '.' + i;
+    if (!outKeys.includes(childPath)) {
+
+      // For new objects, store their fields.
+      if (typeof(obj[i]) == 'object') {
+        if (!foundObjs.includes(obj[i])) {
+          foundObjs.push(obj[i]);
+          storeFields(childPath, obj[i], outKeys, state, sessionId, foundObjs);
+        }
+        continue;
       }
+
+      // For anything else, store it.
+      outKeys.push(childPath);
+      state.sessionFields[sessionId].push({
+        key: childPath,
+        label: childPath,
+      });
     }
   }
 
@@ -866,34 +872,34 @@ toggleRowChildren(state, {windowId, areaPath}) {
       state.shownPanel = (index - 0);
     },
     setParticipant (state, participant) {
-      Vue.set(state.session.participants, participant.id, participant);
-      this.commit('calcFields');
+      Vue.set(state.openSessions[participant.session.id].participants, participant.id, participant);
+      this.commit('calcFields', participant.session.id);
     },
-    calcFields(state) {
-      state.allFields.splice(0, state.allFields.length);
-      if (jt.settings.sessionShowFullLinks) {
-          state.allFields[1].key = 'full link';
-      } 
-  
-      let outKeys = []; // Track which fields have already been found.
-      for (let f in state.fields) {
-          state.allFields.push(state.fields[f]);
+    calcFields(state, sessionId) {
+        let session = state.openSessions[sessionId];
+        let foundObjs = [];
+        state.sessionFields[session.id].splice(0, state.sessionFields[session.id].length);
+        let outKeys = []; // Track which fields have already been found.
+        for (let f in state.fields) {
+          state.sessionFields[session.id].push(state.fields[f]);
           outKeys.push(state.fields[f].key);
-      }
-      if (state.session != null) {
-        for (let p in state.session.participants) {
-          let part = state.session.participants[p];
-          storeFields('', part, outKeys, state);
         }
-      }
+        if (jt.settings.sessionShowFullLinks) {
+          state.sessionFields[session.id][1].key = 'full link';
+      } 
+        for (let p in session.participants) {
+          let part = session.participants[p];
+          storeFields('', part, outKeys, state, session.id, foundObjs);
+        }
     },
     setSession (state, session) {
       state.session = session;
       state.openSessions[session.id] = session;
+      Vue.set(state.sessionFields, session.id, []);
       if (!state.openSessionIds.includes(session.id)) {
         state.openSessionIds.push(session.id);
       }
-      this.commit('calcFields');
+      this.commit('calcFields', session.id);
     },
     setSettings (state, settings) {
       state.settings = settings;

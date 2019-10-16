@@ -228,18 +228,8 @@ class StaticServer {
         //////////////////////////////
         // Generate files used by clients.
         this.generateSharedJS(global.jt.settings.clientJSTemplateFile, global.jt.settings.clientJSFile);
-        this.generateSharedJS(global.jt.settings.clientJSModuleTemplateFile, global.jt.settings.clientJSModuleFile);
-        // If running in development mode, recompile client webpack.
-        if (process.argv[0].indexOf('node') > -1) {
-            this.generateClientModels();
-        }
         //////////////////////////////
 
-    }
-
-    generateClientModels() {
-//        var file = babel.transformFileSync(path.join(global.jt.path, "../server/source/App.js"), {});
-//        fs.writeFileSync(path.join(global.jt.path, 'internal/clients/admin/shared/models.js'), file.code);
     }
 
     handleRequest(req, res) {

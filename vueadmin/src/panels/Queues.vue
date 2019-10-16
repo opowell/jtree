@@ -69,13 +69,13 @@ export default {
 jt.reloadQueues = function() {
     let appInfos = window.vue.$store.state.appInfos;
     appInfos.splice(0, appInfos.length)
-    jt.disableButton('reloadAppsBtn');
-    jt.addLog('Reloading Apps...');
+    jt.disableButton('reloadQueuesBtn');
+    jt.addLog('Reloading Queues...');
     let cb = function() {
-        jt.enableButton('reloadAppsBtn');
-        jt.addLog('FINISHED: Reloading Apps.');
+        jt.enableButton('reloadQueuesBtn');
+        jt.addLog('FINISHED: Reloading Queues.');
     }
-    jt.socket.emit("reloadApps", null, cb);
+    jt.socket.emit("reloadQueues", null, cb);
 }
 
 jt.showCreateQueueModal = function() {

@@ -286,7 +286,7 @@ class Period {
      */
     save() {
         try {
-            global.jt.log('Period.save: ' + this.id);
+            // global.jt.log('Period.save: ' + this.id);
             var toSave = this;
             this.session().saveDataFS(toSave, 'PERIOD');
         } catch (err) {

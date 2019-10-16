@@ -246,7 +246,8 @@ class Participant {
 
     startPeriod(period) {
         this.periodIndex = period.id - 1;
-        this.getApp().participantBeginPeriod(this);
+        this.player.game.participantBeginPeriod(this);
+        // this.getApp().participantBeginPeriod(this);
     }
 
     canProcessMessage() {
@@ -413,7 +414,7 @@ class Participant {
 
     setPlayer(player) {
         let stageId = (player != null && player.stage != null) ? player.stage.id : 'null';
-        console.log('settting participant player: ' + this.id + ', ' + stageId);
+        // console.log('settting participant player: ' + this.id + ', ' + stageId);
         player.updateGamePath();
         this.player = player;
     }
@@ -449,7 +450,7 @@ class Participant {
     actuallyEmitUpdate() {
         if (this.updateScheduled === true) {
             try {
-                console.log('sending update for ' + this.id);
+                // console.log('sending update for ' + this.id);
                 if (this.player !== null) {
                     this.player.emit('playerUpdate', this);
                 } else {

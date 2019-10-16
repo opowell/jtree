@@ -454,7 +454,7 @@ class Session {
 
         let {endForGroup, data, participantId} = msgData;
 
-        global.jt.log('Server received auto-game submission: ' + JSON.stringify(data));
+        // global.jt.log('Server received auto-game submission: ' + JSON.stringify(data));
 
         // TODO: Not parsing strings properly.
         /** console.log('msg: ' + JSON.stringify(data) + ', ' + client.player().roomId());*/
@@ -824,7 +824,12 @@ class Session {
         for (var h=0; h<headers.length; h++) {
             var header = headers[h];
             if (this[header] !== undefined) {
-                newLine += JSON.stringify(this[header]);
+                let value = this[header];
+                if (typeof value == 'object') {
+                    value = 'object';
+                }
+                // newLine += JSON.stringify(this[header]);
+                newLine += value;
             }
             if (h<headers.length-1) {
                 newLine += this.outputDelimiter;
@@ -838,8 +843,8 @@ class Session {
         try {
             fullText += 'SESSION\n';
             fullText += text.join('\n') + '\n';
-            for (var i=0; i<this.apps.length; i++) {
-                fullText += this.apps[i].saveOutput();
+            for (var i=0; i<this.gameTree.length; i++) {
+                fullText += this.gameTree[i].saveOutput();
             }
             fs.appendFileSync(fd, fullText);
         } catch(err) {
@@ -1320,7 +1325,7 @@ participantUI() {
     }
 
     participantBeginApp(participant) {
-        global.jt.log('Session.participantBeginApp: ' + participant.gameIndex);
+        // global.jt.log('Session.participantBeginApp: ' + participant.gameIndex);
 
         if (participant.gameIndex < 0 || participant.gameIndex >= participant.session.gameTree.length) {
             console.log('Session.participantBeginApp: INVALID gameIndex');

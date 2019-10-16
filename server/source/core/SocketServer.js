@@ -83,7 +83,7 @@ class SocketServer {
             (function(fnI) {
                 socket.on(fnI, function(d, cb) {
                     try {
-                        log('received message ' + fnI + ': ' + JSON.stringify(d));
+                        // log('received message ' + fnI + ': ' + JSON.stringify(d));
                         eval('self.msgs.' + fnI + "(d, sock)");
                         if (cb != null) {
                             cb(true);

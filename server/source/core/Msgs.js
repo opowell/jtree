@@ -281,7 +281,7 @@ class Msgs {
         for (var i=0; i<data.length; i++) {
             var msgName = data[i].msgName;
             var msgData = data[i].msgData;
-            global.jt.log('received message ' + msgName + ': ' + JSON.stringify(msgData));
+            // global.jt.log('received message ' + msgName + ': ' + JSON.stringify(msgData));
             eval('this.' + msgName + "(msgData, sock)");
         }
     }

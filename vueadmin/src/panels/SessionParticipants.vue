@@ -61,6 +61,14 @@ var playerFieldsToSkip = [
     'player.participantId',
     'player.sessionId',
     'numClients',
+    'outputHide',
+    'outputHideAuto',
+    'finishedApps',
+    'autoplay',
+    'gameIndices',
+    'gameIndex',
+    'updateScheduled',
+    'indexInSession',
 ];
 
 export default {
@@ -72,11 +80,12 @@ export default {
     } 
 
     let session = this.$store.state.session;
-    let participants = session != null ? session.participants : [];
+    let participants    = session == null ? [] : session.participants;
+    let fields          = this.$store.state.sessionFields[session.id];
     return {
       session: session,
       participants: participants,
-      storeFields: this.$store.state.allFields,
+      storeFields: fields,
       fieldsToSkip: playerFieldsToSkip,
       fields: [
             {

@@ -27,6 +27,10 @@ class App {
 
         this.parent = parent;
         this.superGame = parent;
+
+        this.waitToStart = true;
+        this.waitToEnd = true;
+
         if (this.superGame != null) {
             this.waitToStart = parent.subGameWaitToStart;
             this.waitToEnd = parent.subGameWaitToEnd;
@@ -544,6 +548,19 @@ class App {
 
     }
 
+    participantBeginPeriod(participant) {
+        var prd = participant.getGamePeriod(this);
+
+        // Move to next period
+        prd++;
+
+        var period = this.getPeriod(prd);
+        if (period === undefined) {
+            return false;
+        }
+        period.participantBegin(participant);
+    }
+
     /**
      * TODO
      * Get group ids for their current period
@@ -1021,6 +1038,14 @@ class App {
 
     saveOutput() {
 
+        if (this.subgames.length > 0) {
+            let out = '';
+            for (let i in this.subgames.length) {
+                out += this.subgames[i].saveOutput();
+            }
+            return out;
+        }
+
         //Create headers
         var appsHeaders = [];
         var appsSkip = ['id'];
@@ -1282,6 +1307,7 @@ class App {
      * @param  {number} prd The index to assign to the new period.
      */
     initPeriod(prd) {
+        // console.log('create period for ' + this.id);
         var period = new Period.new(prd + 1, this);
         period.save();
         this.periods.push(period);
@@ -1595,6 +1621,7 @@ class App {
             );
         }
         this.participantStart(participant);
+        this.playerStart(participant.player);
         if (this.subgames.length > 0) {
             this.participantMoveToNextPeriod(participant);
         } 
@@ -1932,7 +1959,7 @@ class App {
     canGroupStartDefault(group) {
 
         // If already started this stage, return false.
-        if (group.stageStartedIndex > this.indexInApp()) {
+        if (group.stageStartedIndex >= this.indexInApp()) {
             return false;
         }
 
@@ -1959,7 +1986,7 @@ class App {
 
         let {endForGroup, data, participantId} = msgData;
 
-        global.jt.log('Server received auto-game submission: ' + JSON.stringify(data));
+        // global.jt.log('Server received auto-game submission: ' + JSON.stringify(data));
 
         // TODO: Not parsing strings properly.
         /** console.log('msg: ' + JSON.stringify(data) + ', ' + client.player().roomId());*/

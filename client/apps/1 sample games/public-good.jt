@@ -17,8 +17,8 @@ var decideStage = pgg.addSubGame('decide');
 // TODO: "game" should refer to the current game, i.e. here it refers to "decide".
 decideStage.activeScreen = `
     <p>DECISION</p>
-    <p>Your endowment is {{superGame.endowment}} E$.</p>
-    <p>Your contribution (E$): <input name='player.contribution' required type='number' min='0' :max='superGame.endowment' step='1'></p>
+    <p>Your endowment is {{player.game.superGame.endowment}} E$.</p>
+    <p>Your contribution (E$): <input name='player.contribution' required type='number' min='0' :max='player.game.superGame.endowment' step='1'></p>
     <button>Make contribution</button>
 `;
 
@@ -33,7 +33,7 @@ resultsStage.groupStart = function(group) {
 }
 resultsStage.activeScreen = `
     <p>RESULTS</p>
-    <p>Your endowment was {{game.superGame.superGame.endowment}} E$. You contributed {{player.contribution}} E$.</p>
+    <p>Your endowment was {{player.game.superGame.endowment}} E$. You contributed {{player.contribution}} E$.</p>
     <p>In total, players in your group contributed {{group.contributions}} E$, thus the total amount produced was {{group.production | round(2)}} E$.</p>
     <p>Thus, your payoff in this period is {{player.points | round(2)}} E$.</p>
 `;

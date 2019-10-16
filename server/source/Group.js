@@ -75,7 +75,7 @@ class Group {
      * Returns the stage that this group is currently in.
      */
     stage() {
-        return this.app().stages[this.stageIndex];
+        return this.app().subgames[this.stageIndex];
     }
 
     /**
@@ -355,7 +355,7 @@ class Group {
      */
     save() {
         try {
-            global.jt.log('Group.save: ' + this.roomId());
+            // global.jt.log('Group.save: ' + this.roomId());
             var toSave = this;
             this.session().saveDataFS(toSave, 'GROUP');
             for (var i=0; i<this.tables.length; i++) {
@@ -395,6 +395,10 @@ class Group {
     }
 
     canPlayersEnd(stage) {
+
+        if (this.stageEndedIndex < stage.indexInApp()) {
+            return false;
+        }
 
         // If Group has already finished, do not allow players to finish. 
         if (this.stageEndedIndex >= stage.indexInApp()) {
@@ -555,27 +559,19 @@ class Group {
 
         this.clearStageTimer();
 
+        console.log(global.jt.settings.getConsoleTimeStamp() + ' END   - GROUP : ' + stage.id + ', ' + this.roomId());
+        this.stageEndedIndex = stage.indexInApp();
+        stage.groupEnd(this);
+
         for (var p in this.players) {
             var player = this.players[p];
             if (player.stage.id === stage.id && player.status !== 'finished') {
                 player.endStage(false);
             }
         }
-        console.log(global.jt.settings.getConsoleTimeStamp() + ' END   - GROUP : ' + stage.id + ', ' + this.roomId());
-        this.stageEndedIndex = stage.indexInApp();
-        stage.groupEnd(this);
-
-        if (stage.waitToEnd) {
-            for (var p in this.players) {
-                let player = this.players[p];
-                if (player.stageIndex === stage.indexInApp()) {
-                    player.moveToNextStage();
-                }
-            }
-        }
 
         this.stageIndex = stage.indexInApp() + 1;
-        if (this.stageIndex < this.app().stages.length) {
+        if (this.stageIndex < this.app().subgames.length) {
             // move group (and all its players) to next stage.
             this.startStage(this.stage());
         } else {
@@ -584,6 +580,15 @@ class Group {
                 this.players[p].moveToNextStage();
             }
         }
+
+        // if (stage.waitToEnd) {
+        //     for (var p in this.players) {
+        //         let player = this.players[p];
+        //         if (player.stageIndex === stage.indexInApp()) {
+        //             player.moveToNextStage();
+        //         }
+        //     }
+        // }
 
     }
 
