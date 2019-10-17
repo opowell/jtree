@@ -1,4 +1,3 @@
-const openurl       = require('openurl');
 const path          = require('path');
 
 const Logger        = require('./core/Logger.js');
@@ -56,20 +55,3 @@ jt.staticServer = new StaticServer.new(jt);
  * @type {SocketServer}
  */
 jt.socketServer = new SocketServer.new(jt);
-
-// pkg cannot include part of 'opn' package in executable.
-// const opn           = require('opn');
-if (jt.settings.openAdminOnStart) {
-//    opn('http://' + jt.staticServer.ip + ':' + jt.staticServer.port + '/admin');
-    try {
-        let protocol = 'http://';
-        if (jt.settings.useHTTPS) {
-            protocol = 'https://';
-        }
-        openurl.open(protocol + jt.staticServer.ip + ':' + jt.staticServer.port + '/admin');
-    } catch (err) {
-        
-    }
-}
-
-

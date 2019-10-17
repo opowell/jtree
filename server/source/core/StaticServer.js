@@ -11,6 +11,7 @@ const session   = require('express-session');
 // const history   = require('connect-history-api-fallback');
 const apiRoutes = require("./api-routes")
 const {stringify} = require('flatted/cjs');
+const openurl       = require('openurl');
 
 const selfsigned = require('selfsigned');
 
@@ -203,7 +204,7 @@ class StaticServer {
             this.server = https.createServer(options, expApp);
         }
 
-        let printServerInfo = function() {
+        this.server.on('listening', () => {
             let protocol = 'http://';
             if (jt.settings.useHTTPS) {
                 protocol = 'https://';
@@ -212,17 +213,46 @@ class StaticServer {
             jt.settings.server.ip = self.ip;
             jt.settings.server.port = self.port;
             console.log('jtree ' + jt.version + ', listening on ' + protocol + self.ip + ':' + self.port);
-        }
 
-        try {
-            this.server.listen(this.port, printServerInfo);
-        } catch (err) {
-            if (jt.settings.port === 80) {
-                jt.settings.port = 3000;
+            // pkg cannot include part of 'opn' package in executable.
+            // const opn           = require('opn');
+            if (jt.settings.openAdminOnStart) {
+                //    opn('http://' + jt.staticServer.ip + ':' + jt.staticServer.port + '/admin');
+                    try {
+                        let protocol = 'http://';
+                        if (jt.settings.useHTTPS) {
+                            protocol = 'https://';
+                        }
+                        openurl.open(protocol + this.ip + ':' + this.port + '/admin');
+                    } catch (err) {
+                        console.error(err);
+                    }
+                }
+  
+        });
+
+        let portsTried = [];
+
+        this.server.on('error', (e) => {
+            if (e.code === 'EADDRINUSE') {
+                portsTried.push(jt.settings.port);
+              this.server.close();
+              let nextPort = 80;
+              // On many OSses, ports below 1024 require admin access.
+                for (let i=1025; i<9999; i++) {
+                    if (!portsTried.includes(i)) {
+                        nextPort = i;
+                        break;
+                    }
+                }
+              console.log('Something is already running on port ' + jt.settings.port + '. Retrying on port ' + nextPort + '...');
+                jt.settings.port = nextPort;
                 this.port = jt.settings.port;
-                this.server.listen(this.port, printServerInfo);
+                this.server.listen(this.port);
             }
-        }
+          });
+
+        this.server.listen(this.port);
         //////////////////////////////
 
         //////////////////////////////
