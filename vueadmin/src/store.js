@@ -2,6 +2,8 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import jt from '@/webcomps/jtree.js'
 import createPersistedState from 'vuex-persistedstate'
+import 'jquery'
+let $ = window.jQuery
 
 Vue.use(Vuex)
 
@@ -452,30 +454,30 @@ for (let i=0; i<persistentSettings.length; i++) {
   }
 }
 
-function storeFields(path, obj, outKeys, state, sessionId, foundObjs) {
-  for (var i in obj) {
-    let childPath = path == '' ? i : path + '.' + i;
-    if (!outKeys.includes(childPath)) {
+// function storeFields(path, obj, outKeys, state, sessionId, foundObjs) {
+//   for (var i in obj) {
+//     let childPath = path == '' ? i : path + '.' + i;
+//     if (!outKeys.includes(childPath)) {
 
-      // For new objects, store their fields.
-      if (typeof(obj[i]) == 'object') {
-        if (!foundObjs.includes(obj[i])) {
-          foundObjs.push(obj[i]);
-          storeFields(childPath, obj[i], outKeys, state, sessionId, foundObjs);
-        }
-        continue;
-      }
+//       // For new objects, store their fields.
+//       if (typeof(obj[i]) == 'object') {
+//         if (!foundObjs.includes(obj[i])) {
+//           foundObjs.push(obj[i]);
+//           storeFields(childPath, obj[i], outKeys, state, sessionId, foundObjs);
+//         }
+//         continue;
+//       }
 
-      // For anything else, store it.
-      outKeys.push(childPath);
-      state.sessionFields[sessionId].push({
-        key: childPath,
-        label: childPath,
-      });
-    }
-  }
+//       // For anything else, store it.
+//       outKeys.push(childPath);
+//       state.sessionFields[sessionId].push({
+//         key: childPath,
+//         label: childPath,
+//       });
+//     }
+//   }
 
-} 
+// } 
 
 
 function checkWindowInfo(obj) {
@@ -593,9 +595,6 @@ function closeAreaMethod(state, areaPath, windowId) {
 // END From 0.8.0
 // *********************************
 
-
-import 'jquery'
-let $ = window.jQuery
 
 
 export default new Vuex.Store({
@@ -873,25 +872,25 @@ toggleRowChildren(state, {windowId, areaPath}) {
     },
     setParticipant (state, participant) {
       Vue.set(state.openSessions[participant.session.id].participants, participant.id, participant);
-      this.commit('calcFields', participant.session.id);
+      // this.commit('calcFields', participant.session.id);
     },
-    calcFields(state, sessionId) {
-        let session = state.openSessions[sessionId];
-        let foundObjs = [];
-        state.sessionFields[session.id].splice(0, state.sessionFields[session.id].length);
-        let outKeys = []; // Track which fields have already been found.
-        for (let f in state.fields) {
-          state.sessionFields[session.id].push(state.fields[f]);
-          outKeys.push(state.fields[f].key);
-        }
-        if (jt.settings.sessionShowFullLinks) {
-          state.sessionFields[session.id][1].key = 'full link';
-      } 
-        for (let p in session.participants) {
-          let part = session.participants[p];
-          storeFields('', part, outKeys, state, session.id, foundObjs);
-        }
-    },
+    // calcFields(state, sessionId) {
+    //     let session = state.openSessions[sessionId];
+    //     let foundObjs = [];
+    //     state.sessionFields[session.id].splice(0, state.sessionFields[session.id].length);
+    //     let outKeys = []; // Track which fields have already been found.
+    //     for (let f in state.fields) {
+    //       state.sessionFields[session.id].push(state.fields[f]);
+    //       outKeys.push(state.fields[f].key);
+    //     }
+    //     if (jt.settings.sessionShowFullLinks) {
+    //       state.sessionFields[session.id][1].key = 'full link';
+    //   } 
+    //     for (let p in session.participants) {
+    //       let part = session.participants[p];
+    //       storeFields('', part, outKeys, state, session.id, foundObjs);
+    //     }
+    // },
     setSession (state, session) {
       state.session = session;
       state.openSessions[session.id] = session;
@@ -899,7 +898,7 @@ toggleRowChildren(state, {windowId, areaPath}) {
       if (!state.openSessionIds.includes(session.id)) {
         state.openSessionIds.push(session.id);
       }
-      this.commit('calcFields', session.id);
+      // this.commit('calcFields', session.id);
     },
     setSettings (state, settings) {
       state.settings = settings;

@@ -1,5 +1,6 @@
 <template>
     <div style='padding: 5px; display: block'>
+        Field: <input type='text' v-model='field'>
       <table class='table table-hover table-bordered'>
           <thead>
             <tr>
@@ -9,11 +10,11 @@
             </tr>
           </thead>
           <tbody id='participants'>
-            <tr v-for='part in partsArray' :key='part.id'>
-              <td v-for='(header, index) in viewedFields' :key='index'>
-                  <span v-if='header.key == "link"' v-html="linkCol(part)"/>
+            <tr v-for='(obj, ind1) in objArray' :key='ind1'>
+              <td v-for='(header, ind2) in viewedFields' :key='ind2'>
+                  <span v-if='header.key == "link"' v-html="linkCol(obj)"/>
                   <span v-else>
-                    {{displayProp(part, header.key)}}
+                    {{displayProp(obj, header.key)}}
                   </span>
               </td>
             </tr>
@@ -27,55 +28,6 @@ import 'jquery'
 let $ = window.jQuery
 import jt from '@/webcomps/jtree.js'
 
-var playerFieldsToSkip = [
-    // 'session.initialState',
-    // 'session.proxy',
-    'session.asyncQueue',
-    'session.fileStream',
-    'session.outputHide',
-    // 'app',
-    // 'appIndex',
-    // 'clients',
-    // 'group',
-    // 'groupId',
-    // 'id',
-    // 'link',
-    // 'numPoints',
-    // 'participantId',
-    // 'period',
-    // 'roomId',
-    // 'sessionId',
-    // 'session',
-    // 'stageId',
-    // 'stage',
-    // 'stageIndex',
-    // 'stageTimerStart',
-    // 'stageTimerDuration',
-    // 'stageTimerTimeLeft',
-    // 'stageTimerRunning',
-    // 'status',
-    // 'time',
-    // 'participant',
-    // 'full link',
-    // 'playerIds',
-    // 'players',
-    // 'player.id',
-    // 'player.stageIndex',
-    // 'player.group',
-    // 'player.stage',
-    // 'player.participantId',
-    // 'player.sessionId',
-    // 'numClients',
-    // 'outputHide',
-    // 'outputHideAuto',
-    // 'finishedApps',
-    // 'autoplay',
-    // 'gameIndices',
-    // 'gameIndex',
-    // 'updateScheduled',
-    // 'indexInSession',
-];
-
 export default {
   name: 'ParticipantsTable',
   data() {
@@ -86,84 +38,96 @@ export default {
 
     let session = this.$store.state.session;
     let participants    = session == null ? [] : session.participants;
-    let fields          = this.$store.state.sessionFields[session.id];
     return {
+        field: 'partsArray',
       session: session,
       participants: participants,
-      storeFields: fields,
-      fieldsToSkip: playerFieldsToSkip,
       fields: [
-            {
-                key: 'id',
-                label: 'id',
-                sortable: true,
-            },
-            {
-                key: linkType,
-                label: 'link',
-            },
-            {
-                key: 'numClients',
-                label: 'clients',
-            },
-            {
-                key: 'appIndex',
-                label: 'app',
-            },
-            {
-                key: 'periodIndex',
-                label: 'period',
-            },
-            {
-                key: 'player.group.id',
-                label: 'group'
-            },
-            {
-                key: 'player.stage.id',
-                label: 'stage'
-            },
-            {
-                key: 'time',
-            },
-            {
-                key: 'player.status',
-                label: 'status'
-            },
+            // {
+            //     key: 'id',
+            //     label: 'id',
+            //     sortable: true,
+            // },
+            // {
+            //     key: linkType,
+            //     label: 'link',
+            // },
+            // {
+            //     key: 'numClients',
+            //     label: 'clients',
+            // },
+            // {
+            //     key: 'appIndex',
+            //     label: 'app',
+            // },
+            // {
+            //     key: 'periodIndex',
+            //     label: 'period',
+            // },
+            // {
+            //     key: 'player.group.id',
+            //     label: 'group'
+            // },
+            // {
+            //     key: 'player.stage.id',
+            //     label: 'stage'
+            // },
+            // {
+            //     key: 'time',
+            // },
+            // {
+            //     key: 'player.status',
+            //     label: 'status'
+            // },
         ],
     }
   },
-//   watch: {
-//       storeFields: function() {
-//           this.viewedFields();
-//       }
-//   },
     computed: {
         viewedFields() {
-            // console.log('recalculating viewed fields');
             let out = [];
+            let outKeys = [];
+            let foundObjs = [];
             for (let i in this.fields) {
                 out.push(this.fields[i]);
             }
-            for (let i in this.storeFields) {
-                checkStoreField: {
-                    let storeField = this.storeFields[i];
-                    let key = storeField.key;
-                    for (let j in this.fieldsToSkip) {
-                        if (key.startsWith(this.fieldsToSkip[j])) {
-                            break checkStoreField;
-                        }
-                    }
-                    out.push(storeField);
-                }
+            for (let p in this.objArray) {
+                let childObj = this.objArray[p];
+                this.findFields(childObj, '', out, outKeys, foundObjs);
             }
             return out;
         },
-        partsArray() {
-            let parts = [];
-            for (let p in this.participants) {
-                parts.push(this.participants[p]);
+        objArray() {
+            if (this.session == null) {
+                return null;
             }
-            return parts;
+            this.session.partsArray = [];
+            for (let i in this.session.participants) {
+                this.session.partsArray.push(this.session.participants[i]);
+            }
+            let paths = this.field.split('.');
+            let out = [this.session];
+            for (let i in paths) {
+                let nextPath = paths[i];
+                for (let j=0; j<out.length; j++) {
+                    let curObj = out[j];
+                    // If the field is an array, remove the current object and add the children.
+                    if (Array.isArray(curObj[nextPath])) {
+                        out.splice(j, 1);
+                        j--;
+                        for (let k in curObj[nextPath]) {
+                            out.push(curObj[nextPath][k]);
+                            j++;
+                        }
+                    } else {
+                        out[j] = curObj[nextPath];
+                    }
+                }
+            }
+            // let obj = this.session[this.field];
+            // for (let p in obj) {
+            //     out.push(obj[p]);
+            // }
+            return out;
         },
     },
   props: [
@@ -174,10 +138,62 @@ export default {
       this.panel.id = 'Session Participants';
   },
     methods: {
-        displayProp(participant, prop) {
+        findFields(obj, path, out, outKeys, foundObjs) {
+            foundObjs.push(obj);
+            for (let i in obj) {
+                let childPath = path == '' ? i : path + '.' + i;
+                if (!outKeys.includes(childPath)) {
+                    if (typeof(obj[i]) == 'object') {
+                        // if (Array.isArray(obj[i])) {
+                            outKeys.push(i);
+                            out.push({
+                                label: childPath,
+                                key: childPath,
+                            });
+                        // } else {
+                        //     if (!foundObjs.includes(obj[i])) {
+                        //         this.findFields(obj[i], childPath, out, outKeys, foundObjs);
+                        //     }
+                        // }
+                    } else {
+                        outKeys.push(childPath);
+                        out.push({
+                            label: childPath,
+                            key: childPath,
+                        });
+                    }
+                }
+            }
+        },
+        displayProp(obj, prop) {
             try {
-                let x = 'participant.' + prop;
-                return eval(x);
+                let x = 'obj.' + prop;
+                let value = eval(x);
+                if (value === undefined) {
+                    return 'undefined';
+                }
+                if (value === null) {
+                    return 'null';
+                }
+                if (Array.isArray(value)) {
+                    let allNonObjs = true;
+                    for (let i in value) {
+                        if (typeof(value[i]) == 'object') {
+                            allNonObs = false;
+                            break;
+                        }
+                    }
+                    if (allNonObjs) {
+                        return JSON.stringify(value);
+                    } else {
+                        return 'object';
+                    }
+                }
+                if (typeof(value) == 'object') {
+                    return 'object';
+                } else {
+                    return JSON.stringify(value);
+                }
             } catch (err) {
                 return '-';
             }
