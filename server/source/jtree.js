@@ -1,4 +1,3 @@
-const openurl       = require('openurl');
 const path          = require('path');
 
 const Logger        = require('./core/Logger.js');
@@ -15,7 +14,7 @@ const StaticServer  = require('./core/StaticServer.js');
 var jt = {};
 
 // The version of jtree, should match what is in buildJTree.bat
-jt.version = '0.8.2.1';
+jt.version = '0.8.2.2';
 
 /** Location of the server executable. All files should be relative to this.
 */
@@ -55,20 +54,3 @@ jt.staticServer = new StaticServer.new(jt);
  * @type {SocketServer}
  */
 jt.socketServer = new SocketServer.new(jt);
-
-// pkg cannot include part of 'opn' package in executable.
-// const opn           = require('opn');
-if (jt.settings.openAdminOnStart) {
-//    opn('http://' + jt.staticServer.ip + ':' + jt.staticServer.port + '/admin');
-    try {
-        let protocol = 'http://';
-        if (jt.settings.useHTTPS) {
-            protocol = 'https://';
-        }
-        openurl.open(protocol + jt.staticServer.ip + ':' + jt.staticServer.port + '/admin');
-    } catch (err) {
-        
-    }
-}
-
-
