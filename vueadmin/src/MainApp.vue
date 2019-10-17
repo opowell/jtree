@@ -31,11 +31,11 @@
     <ModalOpenQueue/>
     <ModalOpenSession/>
     <ModalSetAutoplayFreq/>
-      <div id='logMessage' class='popup' style='margin-top: 2rem; display: none'>
-        <div class='alert-box success'>
-          <div id='logMessageText'/>
-        </div>
+    <div id='logMessage' class='popup' style='margin-top: 2rem; display: none'>
+      <div class='alert-box success'>
+        <div id='logMessageText'/>
       </div>
+    </div>
   </div>
 </template>
 

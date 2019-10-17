@@ -82,6 +82,11 @@ export default {
         ],
     }
   },
+  watch: {
+      field: function(val) {
+          this.panel.id = 'Data: ' + val;
+      }
+  },
     computed: {
         viewedFields() {
             let out = [];
@@ -135,7 +140,7 @@ export default {
     'panel',
   ],
   mounted() {
-      this.panel.id = 'Session Participants';
+      this.panel.id = 'Data: Participants';
   },
     methods: {
         findFields(obj, path, out, outKeys, foundObjs) {
