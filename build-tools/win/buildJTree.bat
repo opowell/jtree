@@ -10,7 +10,7 @@ REM 2. Update README.md.
 REM 3. Update docs/README.md.
 REM 4. Commit to Github.
 
-set "vers=0.8.2.1"
+set "vers=0.8.2.2"
 
 REM ------- Prepare output folder.
 call del ".\release" /Q /F

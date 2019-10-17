@@ -2,6 +2,9 @@
 - Generic game trees.
 - Listen to incremental game changes via observer.
 
+##### 2019.10.17 - 0.8.2.2
+- FIXED: If default port (80 or 3000) is in use, try again with new port.
+
 ##### 2019.10.08 - 0.8.2.1
 - FIXED: Admin UI, broken link to shared.js.
 
