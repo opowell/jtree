@@ -654,6 +654,11 @@ class Player {
         } else if (player.superPlayer != null) {
             player.superPlayer.endStage();
         } else {
+            // let superGame = this.app().superGame;
+            // if (superGame == null) {
+            //     debugger;
+            // }
+            // superGame.moveParticipantToNext
             player.participant.endCurrentApp();
         }
         this.emitUpdate2();

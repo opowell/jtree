@@ -384,47 +384,6 @@ let stateObj = {
   settings: {},
   jtreeLocalPath: '',
 
-  allFields: [],
-  sessionFields: {},
-  fields: [
-    {
-        key: 'id',
-        label: 'id',
-        sortable: true,
-    },
-    {
-        key: 'link',
-        label: 'link',
-    },
-    {
-        key: 'numClients',
-        label: 'clients',
-    },
-    {
-        key: 'appIndex',
-        label: 'app',
-    },
-    {
-        key: 'periodIndex',
-        label: 'period',
-    },
-    {
-        key: 'player.group.id',
-        label: 'group'
-    },
-    {
-        key: 'player.stage.id',
-        label: 'stage'
-    },
-    {
-        key: 'time',
-    },
-    {
-        key: 'player.status',
-        label: 'status'
-    },
-  ],
-
   windows: [],                    // After panels are mounted, they register here. Order determines z-index.
   windowDescs: [],                // Information about created panels.
   containerHeight: 5000,
@@ -453,32 +412,6 @@ for (let i=0; i<persistentSettings.length; i++) {
     stateObj[setting.key] = setting.default;
   }
 }
-
-// function storeFields(path, obj, outKeys, state, sessionId, foundObjs) {
-//   for (var i in obj) {
-//     let childPath = path == '' ? i : path + '.' + i;
-//     if (!outKeys.includes(childPath)) {
-
-//       // For new objects, store their fields.
-//       if (typeof(obj[i]) == 'object') {
-//         if (!foundObjs.includes(obj[i])) {
-//           foundObjs.push(obj[i]);
-//           storeFields(childPath, obj[i], outKeys, state, sessionId, foundObjs);
-//         }
-//         continue;
-//       }
-
-//       // For anything else, store it.
-//       outKeys.push(childPath);
-//       state.sessionFields[sessionId].push({
-//         key: childPath,
-//         label: childPath,
-//       });
-//     }
-//   }
-
-// } 
-
 
 function checkWindowInfo(obj) {
   if (obj.panels          == null) obj.panels         = [];
@@ -871,8 +804,12 @@ toggleRowChildren(state, {windowId, areaPath}) {
       state.shownPanel = (index - 0);
     },
     setParticipant (state, participant) {
-      Vue.set(state.openSessions[participant.session.id].participants, participant.id, participant);
-      // this.commit('calcFields', participant.session.id);
+      let session = state.openSessions[participant.session.id];
+      session.participants[participant.id] = participant;
+      session.partsArray = [];
+      for (let i in session.participants) {
+          session.partsArray.push(session.participants[i]);
+      }
     },
     // calcFields(state, sessionId) {
     //     let session = state.openSessions[sessionId];
@@ -892,13 +829,15 @@ toggleRowChildren(state, {windowId, areaPath}) {
     //     }
     // },
     setSession (state, session) {
+      session.partsArray = [];
+      for (let i in session.participants) {
+          session.partsArray.push(session.participants[i]);
+      }
       state.session = session;
       state.openSessions[session.id] = session;
-      Vue.set(state.sessionFields, session.id, []);
       if (!state.openSessionIds.includes(session.id)) {
         state.openSessionIds.push(session.id);
       }
-      // this.commit('calcFields', session.id);
     },
     setSettings (state, settings) {
       state.settings = settings;

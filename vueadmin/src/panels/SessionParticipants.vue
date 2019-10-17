@@ -31,10 +31,10 @@ import jt from '@/webcomps/jtree.js'
 export default {
   name: 'ParticipantsTable',
   data() {
-    let linkType = 'link';
-    if (jt.settings != null && jt.settings.sessionShowFullLinks) {
-        linkType = 'full link';
-    } 
+    // let linkType = 'link';
+    // if (jt.settings != null && jt.settings.sessionShowFullLinks) {
+    //     linkType = 'full link';
+    // } 
 
     let session = this.$store.state.session;
     let participants    = session == null ? [] : session.participants;
@@ -100,28 +100,23 @@ export default {
             if (this.session == null) {
                 return null;
             }
-            this.session.partsArray = [];
-            for (let i in this.session.participants) {
-                this.session.partsArray.push(this.session.participants[i]);
-            }
             let paths = this.field.split('.');
             let out = [this.session];
             for (let i in paths) {
                 let nextPath = paths[i];
+                let newOut = [];
                 for (let j=0; j<out.length; j++) {
                     let curObj = out[j];
                     // If the field is an array, remove the current object and add the children.
                     if (Array.isArray(curObj[nextPath])) {
-                        out.splice(j, 1);
-                        j--;
                         for (let k in curObj[nextPath]) {
-                            out.push(curObj[nextPath][k]);
-                            j++;
+                            newOut.push(curObj[nextPath][k]);
                         }
                     } else {
-                        out[j] = curObj[nextPath];
+                        newOut.push(curObj[nextPath]);
                     }
                 }
+                out = newOut;
             }
             // let obj = this.session[this.field];
             // for (let p in obj) {
@@ -179,14 +174,14 @@ export default {
                     let allNonObjs = true;
                     for (let i in value) {
                         if (typeof(value[i]) == 'object') {
-                            allNonObs = false;
+                            allNonObjs = false;
                             break;
                         }
                     }
                     if (allNonObjs) {
                         return JSON.stringify(value);
                     } else {
-                        return 'object';
+                        return value.length;
                     }
                 }
                 if (typeof(value) == 'object') {
