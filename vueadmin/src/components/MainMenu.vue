@@ -138,11 +138,11 @@ export default {
                                     action: jt.showModal,
                                     clickData: 'openAppModal',
                                 },
-                                {
-                                    text: 'Queue',
-                                    action: jt.showModal,
-                                    clickData: 'openQueueModal',
-                                },
+                                // {
+                                //     text: 'Queue',
+                                //     action: jt.showModal,
+                                //     clickData: 'openQueueModal',
+                                // },
                                 {
                                     text: 'Session',
                                     action: jt.showModal,
@@ -162,11 +162,11 @@ export default {
                             action: this.showPanel,
                             clickData: 'ViewApps',
                         },
-                        {
-                            text: 'Queues',
-                            action: this.showPanel,
-                            clickData: 'ViewQueues',
-                        },
+                        // {
+                        //     text: 'Queues',
+                        //     action: this.showPanel,
+                        //     clickData: 'ViewQueues',
+                        // },
                         {
                             text: 'Sessions',
                             action: this.showPanel,
@@ -237,26 +237,6 @@ export default {
                             text: 'Manage',
                             action: this.showPanel,
                             clickData: 'ViewApps',
-                        },
-                    ]
-                },
-                {
-                    text: 'Queue',
-                    hasParent: false,
-                    children: [
-                        {
-                            text: 'New...',
-                            action: jt.showCreateQueueModal,
-                        },
-                        {
-                            text: 'Open...',
-                            action: jt.showModal,
-                            clickData: 'openQueueModal',
-                        },
-                        {
-                            text: 'Manage',
-                            action: this.showPanel,
-                            clickData: 'ViewQueues',
                         },
                     ]
                 },
