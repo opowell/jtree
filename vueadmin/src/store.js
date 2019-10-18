@@ -536,7 +536,6 @@ export default new Vuex.Store({
   })],
   state: stateObj,
   mutations: {
-
 // ****************************************
 // From 0.8.0
 deleteParticipant(state, pId) {

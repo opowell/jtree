@@ -1374,6 +1374,9 @@ participantUI() {
                 value: this.started
             }]);
             this.advanceSlowest();
+            for (let p in this.participants) {
+                this.participants[p].player.emitUpdate();
+            }
         }
         for (let p in this.participants) {
             this.participants[p].emit('start-new-app'); /** refresh clients.*/

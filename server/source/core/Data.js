@@ -270,9 +270,9 @@ class Data {
             var appDirContents = fs.readdirSync(dir);
 
             // Load folder as its own queue.
-            var folderQueue = new Queue.new(dir, this.jt);
-            folderQueue.dummy = true;
-            global.jt.log('loading folder queue ' + dir);
+            // var folderQueue = new Queue.new(dir, this.jt);
+            // folderQueue.dummy = true;
+            // global.jt.log('loading folder queue ' + dir);
 
             // Load individual apps and queues.
             for (var i in appDirContents) {
@@ -308,7 +308,7 @@ class Data {
                         if (app != null) {
                             this.apps[curPath] = app;
                             this.appsMetaData[curPath] = app.metaData();
-                            folderQueue.addApp(curPath);
+                            // folderQueue.addApp(curPath);
                         }
                     }
 
@@ -334,10 +334,10 @@ class Data {
                 }
             }
 
-            if (folderQueue.apps.length > 0) {
-                folderQueue.displayName = dir.substring(dir.lastIndexOf('\\')+1);
-                this.queues[dir] = folderQueue;
-            }
+            // if (folderQueue.apps.length > 0) {
+            //     folderQueue.displayName = dir.substring(dir.lastIndexOf('\\')+1);
+            //     this.queues[dir] = folderQueue;
+            // }
         }
     }
 

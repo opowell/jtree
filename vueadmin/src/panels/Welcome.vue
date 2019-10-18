@@ -7,10 +7,10 @@
           <div class='link' onclick='jt.showCreateAppModal()'>Create {{this.$store.state.appName}}...</div>
           <div class='link' onclick='jt.showModal("openAppModal")'>Open {{this.$store.state.appName}}...</div>
         </div>
-        <div>
+        <!-- <div>
           <div class='link' onclick='jt.showCreateQueueModal()'>Create Queue...</div>
           <div class='link' onclick='jt.showModal("openQueueModal")'>Open Queue...</div>
-        </div>
+        </div> -->
         <div>
           <div class='link' onclick='server.sessionCreate()'>Create Session</div>
           <div class='link' onclick='jt.showModal("openSessionModal")'>Open Session...</div>
