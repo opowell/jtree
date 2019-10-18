@@ -1,6 +1,6 @@
 game.description = 'Game: Players in a group contribute to a public good. Contributions are multiplied by a factor (> 1), then redistributed equally among all group members.';
 
-game.numRepetitions = 10;
+game.numRepetitions = 5;
 game.groupSize      = 4;
 game.endowment      = 20;
 game.factor         = 2;

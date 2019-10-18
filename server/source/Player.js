@@ -381,50 +381,23 @@ class Player {
      * @return {type}  description
      */
     isFinished() {
-        var actualPlyr = this.participant.player;
+        var actualPlyr = this;
 
-        // No active player.
-        if (actualPlyr === null) {
+        // Not yet in the group's current stage.
+        if (actualPlyr.group.stageIndex > this.stageIndex) {
             return false;
-        }
-
-        // Already past this app.
-        if (actualPlyr.group.period.app.indexInSession() > this.group.period.app.indexInSession()) {
+        } 
+        // Passed the group's current stage.
+        else if (actualPlyr.group.stageIndex < this.stageIndex) {
             return true;
         }
-        // Still in this app.
-        else if (actualPlyr.group.period.app.indexInSession() === this.group.period.app.indexInSession()) {
-            // Already past this period.
-            if (actualPlyr.group.period.id > this.group.period.id) {
+        // In the group's current stage. Check status.
+        else {
+            if (['finished', 'done'].includes(actualPlyr.status)) {
                 return true;
-            }
-            // Still in this period.
-            else if (actualPlyr.group.period.id === this.group.period.id) {
-                // Not yet in the group's current stage.
-                if (actualPlyr.group.stageIndex > this.stageIndex) {
-                    return false;
-                } 
-                // Passed the group's current stage.
-                else if (actualPlyr.group.stageIndex < this.stageIndex) {
-                    return true;
-                }
-                // In the group's current stage. Check status.
-                else {
-                    if (['finished', 'done'].includes(actualPlyr.status)) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-            }
-            // Not yet in this period.
-            else {
+            } else {
                 return false;
             }
-        }
-        // Not yet in this app.
-        else {
-            return false;
         }
     }
 
@@ -634,9 +607,26 @@ class Player {
         let stage = this.stage;
         let player = this;
 
-        // If this player is no longer active, do nothing.
-        if (player.participant.player == null || player.roomId() !== player.participant.player.roomId()) {
-            return;
+        // // If this player is no longer active, do nothing.
+        // if (player.participant.player == null || player.roomId() !== player.participant.player.roomId()) {
+        //     return;
+        // }
+
+        let superGame = player.app().superGame;
+        let superPlayer = null;
+        if (superGame != null) {
+            let lastPeriod = superGame.periods[superGame.periods.length-1];
+            findSuperPlayer: {
+                for (let g in lastPeriod.groups) {
+                    let gr = lastPeriod.groups[g];
+                    for (let p in gr.players) {
+                        if (gr.players[p].id === player.id) {
+                            superPlayer = gr.players[p];
+                            break findSuperPlayer;
+                        }
+                    }
+                }
+            }
         }
 
         var nextStage = this.app().getNextStageForPlayer(player);
@@ -651,8 +641,8 @@ class Player {
             player.startStage(player.stage);
         } else if (nextPeriod !== null) {
             player.participant.startPeriod(nextPeriod);
-        } else if (player.superPlayer != null) {
-            player.superPlayer.endStage();
+        } else if (superPlayer != null) {
+            superPlayer.endStage(true);
         } else {
             // let superGame = this.app().superGame;
             // if (superGame == null) {

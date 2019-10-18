@@ -535,9 +535,9 @@ class App {
     getNextStageForPlayer(player) {
         var stageInd = player.stageIndex;
 
-        if (player.stage.subgames.length > 0) {
-            return player.stage.subgames[0];
-        }
+        // if (player.stage.subgames.length > 0) {
+        //     return player.stage.subgames[0];
+        // }
 
         /** If not in the last stage, return next stage.*/
         if (stageInd < this.subgames.length-1) {
@@ -1603,14 +1603,6 @@ class App {
      */
     participantBegin(participant) {
 
-        for (var c in participant.clients) {
-            var client = participant.clients[c];
-            this.addClientDefault(client);
-        }
-
-        participant.periodIndex = -1;
-        participant.emit('participantSetAppIndex', {appIndex: this.indexInSession()});
-
         let duration = this.getParticipantDuration(participant);
         if (duration != null) {
             participant.appTimer = new Timer.new(
@@ -1620,13 +1612,12 @@ class App {
                 duration*1000
             );
         }
-        this.participantStart(participant);
+        // this.participantStart(participant);
         this.playerStart(participant.player);
         if (this.subgames.length > 0) {
             this.participantMoveToNextPeriod(participant);
         } 
 
-        // participant.emit('start-new-app'); /** refresh clients.*/
     }
 
     canPlayerStart(player) {
@@ -1754,11 +1745,6 @@ class App {
 
          // Move to the next period of this app.
          else {
-             // If not in the first period, end the previous period for this participant.
-             if (participant.periodIndex > -1) {
-                 participant.player.period().participantEnd(participant);
-             }
-
              // Move to next period.
              participant.periodIndex++;
              participant.save();

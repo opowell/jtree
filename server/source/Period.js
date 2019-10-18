@@ -48,26 +48,6 @@ class Period {
         return this.app.roomId() + '_period_' + this.id;
     }
 
-    /**
-     * participantEnd - description
-     *
-     * Called from:
-     * - {@link App#participantMoveToNextPeriod}
-     *
-     * @param  {type} participant description
-     * @return {type}             description
-     */
-    participantEnd(participant) {
-        for (var i=0; i<participant.clients.length; i++) {
-            var client = participant.clients[i];
-            client.socket.leave(this.roomId());
-            client.socket.leave(participant.player.roomId());
-            client.socket.leave(participant.player.group.roomId());
-        }
-        participant.period = null;
-        participant.player = null;
-    }
-
     playerByParticipantId(id) {
         for (var g in this.groups) {
             if (this.groups[g].playerByParticipantId(id) !== null) {

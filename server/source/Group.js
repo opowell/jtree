@@ -575,9 +575,11 @@ class Group {
             // move group (and all its players) to next stage.
             this.startStage(this.stage());
         } else {
-            // move all players to next period.
+            // move players to next period if necessary.
             for (var p in this.players) {
-                this.players[p].moveToNextStage();
+                if (this.players[p].participant.player.period().id === this.period.id) {
+                    this.players[p].moveToNextStage();
+                }
             }
         }
 
