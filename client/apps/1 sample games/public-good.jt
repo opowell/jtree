@@ -8,7 +8,7 @@ game.factor         = 2;
 var intro = game.addSubGame('intro');
 intro.activeScreen = `
     <p>WELCOME</p>
-    <p>Welcome to the experiment. You will play a repeated public goods game.</p>
+    <p>Welcome to the experiment. You will play a public goods game {{game.numRepetitions}} times in groups of {{game.groupSize}}. The endowment is {{game.endowment}} and the contribution multiplier is {{game.factor}}.</p>
 `;
 
 var pgg = game.addSubGame('pgg');
@@ -40,6 +40,7 @@ resultsStage.activeScreen = `
 
 var finish = game.addSubGame('finish');
 finish.activeScreen = `
-Thank you for your participation.
+<p>Thank you for your participation.</p>
 `
 finish.addOKButtonIfNone = false;
+{/* <p>Thank you for your participation. You earned {{participant.getPoints()}}.</p> */}

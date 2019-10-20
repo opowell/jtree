@@ -566,11 +566,11 @@ class App {
      * Get group ids for their current period
      */
     getGroupIdsForPeriod(period) {
-        var participants = this.session.participants;
+        var participants = this.session.proxy.state.participants;
         var numGroups = period.numGroups();
         var pIds = [];
         for (var p in participants) {
-            pIds.push(p);
+            pIds.push(participants[p].id);
         }
         // Group IDs.
         var gIds = [];
@@ -1087,8 +1087,8 @@ class App {
         }
         var participantHeaders = [];
         var participantSkip = ['id', 'points', 'periodIndex', 'appIndex'];
-        for (var i in this.session.participants) {
-            var participant = this.session.participants[i];
+        for (var i in this.session.proxy.state.participants) {
+            var participant = this.session.proxy.state.participants[i];
             var participantFields = participant.outputFields();
             Utils.getHeaders(participantFields, participantSkip, participantHeaders);
         }
@@ -1138,10 +1138,21 @@ class App {
             participantHeadersText += this.outputDelimiter + participantHeaders.join(this.outputDelimiter);
         }
         participantText.push(participantHeadersText);
-        var pIds = Object.keys(this.session.participants);
-        Utils.alphanumSort(pIds);
-        for (var i in pIds) {
-            var participant = this.session.participants[pIds[i]];
+
+        function compare( a, b ) {
+            if ( a.id < b.id ) {
+              return -1;
+            }
+            if ( a.id > b.id ) {
+              return 1;
+            }
+            return 0;
+          }
+
+          let participants = this.session.proxy.state.participants;
+          participants.sort(compare);
+        for (var i in participants) {
+            var participant = participants[i];
             var newLine = participant.id + this.outputDelimiter + participant.points();
             if (participantHeaders.length > 0) {
                 newLine += this.outputDelimiter;
@@ -1612,7 +1623,6 @@ class App {
                 duration*1000
             );
         }
-        // this.participantStart(participant);
         this.playerStart(participant.player);
         if (this.subgames.length > 0) {
             this.participantMoveToNextPeriod(participant);
@@ -2043,7 +2053,7 @@ class App {
         }
 
         var proceed = true;
-        var participants = this.session.participants;
+        var participants = this.session.proxy.state.participants;
         for (var p in participants) {
             var participant = participants[p];
             if (!participant.isFinishedGame(this)) {
@@ -2063,7 +2073,7 @@ class App {
         }
 
         var proceed = true;
-        var participants = this.session.participants;
+        var participants = this.session.proxy.state.participants;
         for (var p in participants) {
             var participant = participants[p];
             if (!participant.isFinishedApp(this)) {
@@ -2120,7 +2130,7 @@ class App {
         }
 
         var proceed = true;
-        var participants = this.session.participants;
+        var participants = this.session.proxy.state.participants;
         for (var p in participants) {
             var participant = participants[p];
             if (!participant.isFinishedGame(this)) {
@@ -2133,12 +2143,12 @@ class App {
         }
     }
 
-    getNextPeriod(participant) {
-        let gamePeriod = participant.getGamePeriod(this);
-        if (gamePeriod >= this.numPeriods - 1) {
+    getNextPeriod(player) {
+        let gamePeriod = player.group.period.id; // [1, periods.length]
+        if (gamePeriod >= this.numPeriods) {
             return null;
         } else {
-            return this.getPeriod(gamePeriod+1);
+            return this.getPeriod(gamePeriod); // this.periods[gamePeriod].
         }
     }
 

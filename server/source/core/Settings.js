@@ -67,10 +67,15 @@ class Settings {
          this.session.getNextAvailablePId = function(id) {
             for (var i=0; i<10000; i++) {
                 let pId = 'P' + (i+1);
-                let ptcptAlreadyExists = this.participants[pId] !== undefined;
-    
-                // No participant already exists, so create one.
+                let ptcptAlreadyExists = false;
+                for (let j in this.proxy.state.participants) {
+                    if (this.proxy.state.participants[j].id === pId) {
+                        ptcptAlreadyExists = true;
+                        break;
+                    }
+                }
                 if (!ptcptAlreadyExists) {
+                    // No participant already exists, so create one.
                     return pId;
                 }
             }

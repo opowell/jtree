@@ -539,7 +539,13 @@ export default new Vuex.Store({
 // ****************************************
 // From 0.8.0
 deleteParticipant(state, pId) {
-  Vue.delete(state.session.participants, pId);
+  let participants = state.session.proxy.state.participants; 
+  for (let i=0; i<participants.length; i++) {
+    if (participants[i].id === pId) {
+      Vue.delete(participants, i);
+      return;
+    }
+  }
 },
 setSessionId(state, sessionId) {
   state.sessionId = sessionId;
@@ -804,34 +810,17 @@ toggleRowChildren(state, {windowId, areaPath}) {
     },
     setParticipant (state, participant) {
       let session = state.openSessions[participant.session.id];
-      session.participants[participant.id] = participant;
-      session.partsArray = [];
-      for (let i in session.participants) {
-          session.partsArray.push(session.participants[i]);
+      if (session == null) {
+        return;
+      }
+      let participants = session.proxy.state.participants;
+      for (let i in participants) {
+        if (participants[i].id === participant.id) {
+          participants[i] = participant;
+        }
       }
     },
-    // calcFields(state, sessionId) {
-    //     let session = state.openSessions[sessionId];
-    //     let foundObjs = [];
-    //     state.sessionFields[session.id].splice(0, state.sessionFields[session.id].length);
-    //     let outKeys = []; // Track which fields have already been found.
-    //     for (let f in state.fields) {
-    //       state.sessionFields[session.id].push(state.fields[f]);
-    //       outKeys.push(state.fields[f].key);
-    //     }
-    //     if (jt.settings.sessionShowFullLinks) {
-    //       state.sessionFields[session.id][1].key = 'full link';
-    //   } 
-    //     for (let p in session.participants) {
-    //       let part = session.participants[p];
-    //       storeFields('', part, outKeys, state, session.id, foundObjs);
-    //     }
-    // },
     setSession (state, session) {
-      session.partsArray = [];
-      for (let i in session.participants) {
-          session.partsArray.push(session.participants[i]);
-      }
       state.session = session;
       state.openSessions[session.id] = session;
       if (!state.openSessionIds.includes(session.id)) {

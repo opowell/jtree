@@ -39,12 +39,6 @@ jt.removeCustomAppFolder = function(folder) {
 //     return div;
 // }
 
-jt.deleteParticipant = function(pId) {
-    $('.participant-' + pId).remove();
-    delete jt.data.session.participants[pId];
-    $('#deleteParticipantSelect option[value=' + pId + ']').remove();
-}
-
 jt.setQueue = function(event) {
     event.stopPropagation();
     console.log('set session queue: ' + event.data.id + ', name = ' + event.data.name);
@@ -89,11 +83,6 @@ jt.addPanelNew = function(title, type) {
 }
 
 jt.view = {};
-
-// jt.view.updateNumParticipants = function() {
-//     const numParts = Utils.objLength(jt.data.session.participants);
-//     $('#setNumParticipantsInput').val(numParts);
-// }
 
 jt.refresh = function(ag) {
     // console.log('refresh');
@@ -216,28 +205,13 @@ jt.connected = function() {
         if (client.session.id === jt.data.session.id) {
             // console.log('add client: ' + client);
             jt.data.session.clients.push(client);
-            var participant = Utils.findById(jt.data.session.participants, client.pId);
+            var participant = Utils.findById(jt.data.session.proxy.state.participants, client.pId);
             if (participant !== null) {
                 participant.numClients++;
                 $('.participant-' + client.pId + '-numClients').text(participant.numClients);
             }
         }
     });
-
-    // jt.socket.on('remove-client', function(client) {
-    //     let session = window.vue.$store.state.session;
-    //     if (session == null) {
-    //         return;
-    //     }
-    //     if (client.session.id === session.id) {
-    //         Utils.deleteById(session.clients, client.id);
-    //         jt.removeClient(client.id);
-    //         var participant = Utils.findById(session.participants, client.pId);
-    //         if (participant != null) {
-    //             participant.numClients--;
-    //         }
-    //     }
-    // });
 
 // TODO: move all message functionality here
     jt.socket.on('messages', function(msgs) {

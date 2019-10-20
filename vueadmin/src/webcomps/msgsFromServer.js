@@ -8,7 +8,6 @@ import store from '@/store.js'
 const {parse} = require('flatted/cjs');
 
 let findById = Utils.findById
-let objLength = Utils.objLength
 
 var msgs = {};
 
@@ -123,8 +122,8 @@ msgs.openSession = function(session) {
 
     const prevSession = jt.data.session;
     jt.data.session = session;
-    if (objLength(session.participants) === 0 && prevSession !== undefined) {
-        server.setNumParticipants(objLength(prevSession.participants));
+    if (session.proxy.state.participants.length === 0 && prevSession !== undefined) {
+        server.setNumParticipants(prevSession.proxy.state.participants.length);
     }
 
     if (prevSession !== undefined && prevSession.id !== session.id) {
@@ -154,7 +153,7 @@ msgs.addClient = function(md) {
         return;
     }
 
-    let participant = jt.data.session.participants[md.pId];
+    let participant = jt.data.session.proxy.state.participants[md.pId];
 
     if (participant == null) {
         return;
@@ -177,7 +176,7 @@ msgs.updateSessionId = function(d) {
 }
 
 msgs.participantSetAppIndex = function(md) {
-    var participant = jt.data.session.participants[md.participantId];
+    var participant = jt.data.session.proxy.state.participants[md.participantId];
     participant.appIndex = md.appIndex;
     jt.showPlayerCurApp(participant);
 }
@@ -187,14 +186,14 @@ msgs.participantSetGroupId = function(md) {
 }
 
 msgs.participantSetPeriodIndex = function(md) {
-    var participant = jt.data.session.participants[md.participantId];
+    var participant = jt.data.session.proxy.participants[md.participantId];
     participant.periodIndex = md.periodIndex;
     $('.participant-' + jt.safePId(md.participantId) + '-periodIndex').text(participant.periodIndex+1);
 }
 
 msgs.playerSetStageIndex = function(md) {
     try {
-        var participant = jt.data.session.participants[md.participantId];
+        var participant = jt.data.session.proxy.participants[md.participantId];
         participant.player.stageIndex = md.stageIndex;
         var app = jt.data.session.apps[participant.appIndex-1];
         if (app == null) {
@@ -210,7 +209,7 @@ msgs.playerSetStageIndex = function(md) {
     } catch (err) {}
 }
 msgs.participantSetPlayer = function(md) {
-    var participant = jt.data.session.participants[md.participantId];
+    var participant = jt.data.session.proxy.participants[md.participantId];
     participant.player = md.player;
     $('.participant-' + jt.safePId(md.participantId) + '-groupId').text(participant.player.group.id);
 }
@@ -239,7 +238,6 @@ msgs.playerUpdate = function(player) {
         let participant = player.participant;
         participant.player = player;
         delete player.participant;
-        // jt.data.session.participants[player.id] = participant;
         window.vue.$store.commit('setParticipant', participant);
 
         // jt.setParticipantPlayer(player.id, player, div);

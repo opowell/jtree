@@ -503,7 +503,7 @@ class Player {
         var app = session.apps[json.appIndex-1];
         var period = app.periods[json.periodId-1];
         var group = period.groups[json.groupId-1];
-        var participant = session.participants[playerId];
+        var participant = session.proxy.state.participants[playerId];
         var newPlayer = new Player(playerId, participant, group, json.idInGroup);
         for (var j in json) {
             newPlayer[j] = json[j];
@@ -539,6 +539,7 @@ class Player {
         if (this.group.canPlayersStart(this.stage)) {
             if (this.stage.canPlayerParticipate(this)) {
                 if (this.status === 'ready') {
+                    this.participant.setPlayer(this);
                     this.status = 'playing';
                     this.recordStageStartTime(stage);
                     try {
@@ -630,7 +631,7 @@ class Player {
         }
 
         var nextStage = this.app().getNextStageForPlayer(player);
-        var nextPeriod = this.app().getNextPeriod(player.participant);
+        var nextPeriod = this.app().getNextPeriod(player);
         if (nextStage !== null) {
             player.stage = nextStage;
             player.subGame = nextStage;
@@ -642,7 +643,9 @@ class Player {
         } else if (nextPeriod !== null) {
             player.participant.startPeriod(nextPeriod);
         } else if (superPlayer != null) {
-            superPlayer.endStage(true);
+            if (superPlayer.stage === this.app()) {
+                superPlayer.endStage(true);
+            }
         } else {
             // let superGame = this.app().superGame;
             // if (superGame == null) {

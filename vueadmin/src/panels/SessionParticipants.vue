@@ -37,9 +37,9 @@ export default {
     // } 
 
     let session = this.$store.state.session;
-    let participants    = session == null ? [] : session.participants;
+    let participants    = session == null ? [] : session.proxy.state.participants;
     return {
-        field: 'partsArray',
+        field: 'participants',
       session: session,
       participants: participants,
       fields: [

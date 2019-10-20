@@ -122,7 +122,7 @@ class Msgs {
     resetSession(d, socket) {
         let session = global.jt.data.getSession(d.sId);
         session.reset();
-        global.jt.io.to('socket_' + socket.id).emit('openSession', session);
+        global.jt.io.to('socket_' + socket.id).emit('openSession', stringify(session));
         global.jt.data.lastOpenedSession = session;
     }
 
@@ -435,7 +435,7 @@ class Msgs {
     setAutoplay(data) {
         let session = global.jt.data.session(data.sId);
         if (session !== null) {
-            let part = session.participants[data.pId];
+            let part = session.proxy.state.participants[data.pId];
             if (part !== undefined) {
                 part.emit('setAutoplay', {val: data.val});
             } else {
@@ -447,8 +447,8 @@ class Msgs {
     setAutoplayForAll(data) {
         let session = global.jt.data.session(data.sId);
         if (session !== null) {
-            for (let i in session.participants) {
-                session.participants[i].emit('setAutoplay', {val: data.val});
+            for (let i in session.proxy.state.participants) {
+                session.proxy.state.participants[i].emit('setAutoplay', {val: data.val});
             }
         }
     }
@@ -456,8 +456,8 @@ class Msgs {
     setAutoplayDelay(data) {
         let session = global.jt.data.session(data.sId);
         if (session !== null) {
-            for (let i in session.participants) {
-                session.participants[i].emit('setAutoplayDelay', {val: data.val});
+            for (let i in session.proxy.state.participants) {
+                session.proxy.state.participants[i].emit('setAutoplayDelay', {val: data.val});
             }
         }
     }

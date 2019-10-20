@@ -107,13 +107,13 @@ export default {
           return out;
       },
       numParts() {
-        return Object.keys(this.sessionParticipants).length;
+        return this.sessionParticipants.length;
       },
       sessionParticipants() {
           if (this.session == null) {
               return [];
           }
-          return this.session.participants;
+          return this.session.proxy.state.participants;
       },
       allowAdminClientsToPlay() {
           if (this.session == null) {

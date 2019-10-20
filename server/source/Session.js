@@ -96,7 +96,7 @@ class Session {
         * A list of participants in this session.
         * @type Object
         */
-        this.participants = {};
+        // this.participants = {};
 
         /**
         * The time at which this session was last started.
@@ -185,9 +185,9 @@ class Session {
                         for (var j in json) {
                             newSession[j] = json[j];
                         }
-                        newSession.participants = session.participants;
-                        for (let p in session.participants) {
-                            session.participants[p].session = newSession;
+                        newSession.proxy.state.participants = session.proxy.state.participants;
+                        for (let p in session.proxy.state.participants) {
+                            session.proxy.state.participants[p].session = newSession;
                         }
 
                         newSession.apps = [];
@@ -240,7 +240,7 @@ class Session {
                     var group = period.groups[gr];
                     for (var pl in group.players) {
                         var player = group.players[pl];
-                        var participant = session.participants[player.participantId];
+                        var participant = session.proxy.state.participants[player.participantId];
                         player.participant = participant;
                         participant.player = player;
                         participant.players.push(player);
@@ -356,8 +356,8 @@ class Session {
     }
 
     addAdminClient(socket) {
-        for (let i=0; i<this.participants.length; i++) {
-            addClient(socket, this.participants[i].id);
+        for (let i=0; i<this.proxy.state.participants.length; i++) {
+            addClient(socket, this.proxy.state.participants[i].id);
         }
     }
 
@@ -688,8 +688,8 @@ class Session {
         for (var t in timers) {
             timers[t].setRunning(b);
         }
-        for (var i in this.participants) {
-            var participant = this.participants[i];
+        for (var i in this.proxy.state.participants) {
+            var participant = this.proxy.state.participants[i];
             if (participant.player != null) {
                 participant.player.emitUpdate2();
             }
@@ -698,21 +698,22 @@ class Session {
 
     setId(id) {
         this.id = id;
-        for (var i in this.participants) {
-            var participant = this.participants[i];
+        for (var i in this.proxy.state.participants) {
+            var participant = this.proxy.state.participants[i];
             participant.refreshClients();
         }
     }
 
     reset() {
         this.started = false;
-        for (let i in this.participants) {
-            let participant = this.participants[i];
+        let participants = this.proxy.state.participants;
+        for (let i in participants) {
+            let participant = participants[i];
             participant.reset();
         }
-        for (let i=0; i<this.apps.length; i++) {
-            let app = this.apps[i];
-            this.apps[i] = app.reload();
+        for (let i=0; i<this.gameTree.length; i++) {
+            let app = this.gameTree[i];
+            this.gameTree[i] = app.reload();
         }
     }
 
@@ -951,7 +952,7 @@ class Session {
     * @param  {number} num The number of participants to have.
     */
     setNumParticipants(num) {
-        let change = num - Object.keys(this.participants).length;
+        let change = num - this.proxy.state.participants.length;
         if (change > 0) {
             this.addParticipants(change);
         } else if (change < 0) {
@@ -1006,7 +1007,7 @@ setAllowAdminPlay(b) {
     * @param  {number} num The number of participants to remove.
     */
     removeParticipants(num) {
-        const parts = this.participants;
+        const parts = this.proxy.state.participants;
         for (let i=0; i<num; i++) {
             let len = Object.keys(parts).length;
 
@@ -1021,9 +1022,16 @@ setAllowAdminPlay(b) {
     }
 
     deleteParticipant(pId) {
-        delete this.participants[pId];
-        let md = {sId: this.id, pId: pId};
-        this.emit('sessionDeleteParticipant', md);
+        let participants = this.proxy.state.participants;
+        for (let i=0; i<participants.length; i++) {
+            if (participants[i].id === pId) {
+                // delete participants[pId];
+                participants.splice(i, 1);
+                let md = {sId: this.id, pId: pId};
+                this.emit('sessionDeleteParticipant', md);
+                return;
+            }
+        }
     }
 
     /**
@@ -1109,8 +1117,8 @@ slowestParticipants() {
         var minAppIndex = null;
         var minPeriodIndex = null;
         var minStageIndex = null;
-        for (var i in this.participants) {
-            var part = this.participants[i];
+        for (var i in this.proxy.state.participants) {
+            var part = this.proxy.state.participants[i];
             if (minAppIndex === null || part.appIndex <= minAppIndex) {
                 if (minPeriodIndex === null || part.periodIndex <= minPeriodIndex) {
                     if (minStageIndex === null || part.stageIndex() <= minStageIndex) {
@@ -1239,7 +1247,7 @@ participantUI() {
         var participant = new Participant.new(participantId, this);
         participant.save();
         this.save();
-        this.participants[participantId] = participant;
+        // this.participants[participantId] = participant;
         this.proxy.state.participants.push(participant);
         if (global.jt.socketServer != null) {
             global.jt.socketServer.sendOrQueueAdminMsg(null, 'addParticipant', participant);
@@ -1303,7 +1311,7 @@ participantUI() {
     */
     tryToEnd() {
         var proceed = true;
-        var participants = this.participants;
+        var participants = this.proxy.state.participants;
         for (var p in participants) {
             var participant = participants[p];
             if (!participant.isFinishedSession()) {
@@ -1363,10 +1371,11 @@ participantUI() {
     }
 
     start() {
+        let participants = this.proxy.state.participants;
         if (!this.started) {
             this.started = true;
-            for (let p in this.participants) {
-                this.participantStart(this.participants[p]);
+            for (let p in participants) {
+                this.participantStart(participants[p]);
             }
             this.io().to(this.roomId()).emit('dataUpdate', [{
                 roomId: this.roomId(),
@@ -1374,12 +1383,14 @@ participantUI() {
                 value: this.started
             }]);
             this.advanceSlowest();
-            for (let p in this.participants) {
-                this.participants[p].player.emitUpdate();
+            for (let p in participants) {
+                if (participants[p].player != null) {
+                    participants[p].player.emitUpdate();
+                }
             }
         }
-        for (let p in this.participants) {
-            this.participants[p].emit('start-new-app'); /** refresh clients.*/
+        for (let p in participants) {
+            participants[p].emit('start-new-app'); /** refresh clients.*/
         }
     }
 

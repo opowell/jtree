@@ -536,7 +536,7 @@ class Game {
      * Get group ids for their current period
      */
     getGroupIdsForPeriod(period) {
-        var participants = this.session.participants;
+        var participants = this.session.proxy.state.participants;
         var numGroups = period.numGroups();
         var pIds = [];
         for (let i=0; i<participants.length; i++) {
@@ -999,8 +999,8 @@ class Game {
         }
         var participantHeaders = [];
         var participantSkip = ['id', 'points'];
-        for (var i in this.session.participants) {
-            var participant = this.session.participants[i];
+        for (var i in this.session.proxy.state.participants) {
+            var participant = this.session.proxy.state.participants[i];
             var participantFields = participant.outputFields();
             Utils.getHeaders(participantFields, participantSkip, participantHeaders);
         }
@@ -1050,9 +1050,8 @@ class Game {
             participantHeadersText += ',' + participantHeaders.join(',');
         }
         participantText.push(participantHeadersText);
-        var pIds = Object.keys(this.session.participants).sort();
-        for (var i in pIds) {
-            var participant = this.session.participants[pIds[i]];
+        for (var i in this.session.proxy.state.participants) {
+            var participant = this.session.proxy.state.participants[i];
             var newLine = participant.id + ',' + participant.points();
             if (participantHeaders.length > 0) {
                 newLine += ',';
@@ -1883,8 +1882,8 @@ class Game {
         }
 
         var proceed = true;
-        var participants = this.session.participants;
-        for (var p in participants) {
+        var participants = this.session.proxy.state.participants;
+        for (let p in participants) {
             var participant = participants[p];
             if (!participant.isFinishedGame(this)) {
                 proceed = false;

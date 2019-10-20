@@ -378,11 +378,14 @@ import store from '@/store.js'
 
 jt.viewAllParticipants = function() {
     let openPlayers = window.vue.$store.state.openPlayers;
-    openPlayers.splice(0, openPlayers.length);
-    for (var pId in jt.data.session.participants) {
-        var participant = jt.data.session.participants[pId];
-        openPlayers.push(participant);
-    }
+	openPlayers.splice(0, openPlayers.length);
+	window.vue.$nextTick(function() {
+		let participants = jt.data.session.proxy.state.participants;
+		for (var pId in participants) {
+			var participant = participants[pId];
+			openPlayers.push(participant);
+		}
+	});
 }
 
 jt.hideAllParticipants = function() {

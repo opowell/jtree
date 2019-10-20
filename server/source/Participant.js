@@ -29,7 +29,7 @@ class Participant {
          */
         this.session = session;
 
-        this.indexInSession = Object.keys(session.participants).length;
+        this.indexInSession = session.proxy.state.participants.length;
 
         /**
          * @type array
@@ -66,9 +66,6 @@ class Participant {
             'updateScheduled'
         ];
 
-        this.gameIndices = [[-1, 0]];
-
-        this.gameIndex = -1;
     }
 
     /**
@@ -89,7 +86,7 @@ class Participant {
                 newParticipant[j] = json[j];
             }
         }
-        session.participants[id] = newParticipant;
+        session.proxy.state.participants.push(newParticipant);
     }
 
     /**
@@ -140,6 +137,9 @@ class Participant {
          * @default 0
          */
         this.appIndex = 0;
+        this.gameIndex = -1;
+        this.gameIndices = [[-1, 0]];
+
 
         /**
          * List of app ids that this participant has completed.
@@ -232,22 +232,9 @@ class Participant {
         this.emit('reload');
     }
 
-    // startApp(app) {
-
-    //     // this.appIndex = app.indexInSession();
-    //     this.periodIndex = -1;
-    //     app.participantStart(this);
-    //     this.startPeriod(app.getNextPeriod(this));
-
-    //     this.emit('participantSetAppIndex', {appIndex: app.indexInSession()});
-    //     this.emit('start-new-app'); // refresh clients.
-    //     this.updateScheduled = false;
-    // }
-
     startPeriod(period) {
         this.periodIndex = period.id - 1;
         this.player.game.participantBeginPeriod(this);
-        // this.getApp().participantBeginPeriod(this);
     }
 
     canProcessMessage() {

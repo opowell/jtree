@@ -60,7 +60,7 @@ class Period {
     numGroups() {
         var ng = null;
         if (this.app.groupSize !== undefined) {
-            ng = Math.floor((Object.keys(this.session().participants).length - 1) / this.app.groupSize) + 1;
+            ng = Math.floor((this.session().proxy.state.participants.length - 1) / this.app.groupSize) + 1;
         } else if (this.app.numGroups != null) {
             ng = this.app.numGroups;
         } else {
@@ -139,13 +139,13 @@ class Period {
     // numGroups: number of groups into which players are split
     createGroups() {
         const app = this.app;
-        const participants = app.session.participants;
+        const participants = app.session.proxy.state.participants;
         const gIds = app.getGroupIdsForPeriod(this);
 
         // Create groups
         var pIds = [];
         for (var p in participants) {
-            pIds.push(p);
+            pIds.push(participants[p]);
         }
 
         let numGroups = this.numGroups();
@@ -166,7 +166,7 @@ class Period {
                 // [['P1', 'P2'], ['P3', 'P4'], ...]
                 for (var i=0; i<gIds[g].length; i++) {
                     var pId = gIds[g][i];
-                    var participant = participants[pId];
+                    let participant = Utils.findById(participants, pId);
                     var player = new Player.new(pId, participant, group, i+1);
                     participant.players.push(player);
                     player.save();
@@ -180,7 +180,7 @@ class Period {
                 // [['P1', 'P2'], ['P3', 'P4'], ...]
                 for (var i=0; i<gIds.length; i++) {
                     if (gIds[i] == group.id) {
-                        var participant = participants[pIds[i]];
+                        let participant = Utils.findById(participants, pIds[i]);
                         var player = new Player.new(pIds[i], participant, group, group.players.length+1);
                         participant.players.push(player);
                         player.save();
