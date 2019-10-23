@@ -96,6 +96,8 @@ class Player {
 
         this.gamePath = '';
 
+        this.subPlayers = [];
+
     }
 
     updateGamePath() {
@@ -332,7 +334,7 @@ class Player {
         dta.participantId = this.participant.id;
         dta.sessionId = this.session().id;
         if (typeof dta !== 'string') {
-            dta = stringify(dta);
+            dta = stringify(dta, global.jt.partReplacer);
         }
         // this.io().to(this.roomId()).emit(name, dta);
         this.io().to(this.participant.roomId()).emit(name, dta);
@@ -370,7 +372,7 @@ class Player {
         if (this.stage === null || this.stage.onPlaySendPlayer) {
             // let data = new clPlayer.new(this);
             let data = this;
-            data = stringify(data);
+            data = stringify(data, global.jt.partReplacer);
             this.io().to(channel).emit('playerUpdate', data);
         }
     }
@@ -440,7 +442,7 @@ class Player {
 
     saveAndUpdate() {
         let data = this.asClPlayer();
-        data = stringify(data);
+        data = stringify(data, global.jt.partReplacer);
         this.io().to(this.roomId()).emit('playerUpdate', data);
         this.save();
     }
@@ -583,6 +585,14 @@ class Player {
         return global.jt.settings.getConsoleTimeStamp();
     }
 
+    totalPoints() {
+        let total = this.points;
+        for (let i in this.subPlayers) {
+            total += this.subPlayers[i].totalPoints();
+        }
+        return total;
+    }
+
     finishStage(endGroup) {
         this.status = 'finished';
         console.log(this.timeStamp() + ' FINISH- PLAYER: ' + this.stage.id + ', ' + this.roomId());
@@ -641,6 +651,7 @@ class Player {
             console.log(this.timeStamp() + ' READY - PLAYER: ' + this.stage.id + ', ' + this.roomId());
             player.startStage(player.stage);
         } else if (nextPeriod !== null) {
+            // player.participant.player = player.superPlayer;
             player.participant.startPeriod(nextPeriod);
         } else if (superPlayer != null) {
             if (superPlayer.stage === this.app()) {

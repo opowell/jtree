@@ -173,7 +173,7 @@ jt.connected = function() {
             // eslint-disable-next-line no-unused-vars
             jt.socket.on(i, function(d) {
                 if (typeof d === 'string') {
-                    d = parse(d);
+                    d = parse(d, jt.reviverFn);
                 }
                 // console.log('received message ' + i + ': ' + JSON.stringify(d));
                 eval('window.msgs.' + i + "(d)");

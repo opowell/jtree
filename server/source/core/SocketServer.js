@@ -161,7 +161,7 @@ class SocketServer {
                         id: 'none'
                     }
                 };
-                socket.emit('logged-in', stringify(participant));
+                socket.emit('logged-in', stringify(participant, global.jt.partReplacer));
                 let socketServer = this;
                 socket.on('disconnect', function() {
                     // console.log('disconnect for ' + JSON.stringify(client.id));
@@ -205,7 +205,7 @@ class SocketServer {
     // If msgs is null, sends the message immediately.
     // Otherwise, the messages is just added to msgs.
     sendOrQueueAdminMsg(msgs, msgName, msgData, channel) {
-        msgData = stringify(msgData);
+        msgData = stringify(msgData, global.jt.partReplacer);
         if (msgs == null || msgs == undefined) {
             if (channel == null || channel == undefined) {
                 channel = this.ADMIN_TYPE;
@@ -226,7 +226,7 @@ class SocketServer {
     }
 
     emitToAdmins(msgName, msgData) {
-        msgData = stringify(msgData);
+        msgData = stringify(msgData, global.jt.partReplacer);
         this.io.to(this.ADMIN_TYPE).emit(msgName, msgData);
     }
 

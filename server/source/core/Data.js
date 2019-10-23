@@ -589,7 +589,7 @@ class Data {
         user.type = type;
 
         fs.ensureDirSync(this.usersPath());
-        Utils.writeJSON(this.userPath(user.id), stringify(user));
+        Utils.writeJSON(this.userPath(user.id), stringify(user, global.jt.partReplacer));
         return user;
     }
 

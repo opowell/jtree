@@ -165,7 +165,7 @@ router.post('/session/addGame', function (req, res) {
         }
         let json = {
             success: true,
-            game: stringify(app),
+            game: stringify(app, global.jt.partReplacer),
         }
         res.json(json);
     }
@@ -265,7 +265,7 @@ router.get('/sessions', function (req, res) {
     let out = [];
     let sessions = global.jt.data.sessions;
     for (let i=0; i<sessions.length; i++) {
-        out.push(stringify(sessions[i]));
+        out.push(stringify(sessions[i], global.jt.partReplacer));
     }
     res.json(out);
 });

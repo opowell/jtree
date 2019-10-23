@@ -11,6 +11,21 @@ jt.isNumber = function(o) {
   return ! isNaN (o-0) && o !== null && o !== "" && o !== false;
 }
 
+jt.printPlayerTree = function() {
+    jt.printPlayerArray('-', jt.vue.participant.playerTree);
+}
+
+// document.write('<script src="/shared/jquery-1.11.1.js"></script>');
+
+jt.printPlayerArray = function(indent, players) {
+    for (let i in players) {
+        console.log(indent + ' ' + players[i].game.id);
+        if (players[i].subPlayers != null) {
+            jt.printPlayerArray(indent + '-', players[i].subPlayers);
+        }
+    }
+}
+
 jt.formatValue = function(el, num) {
     var dec = $(el).attr('jt-decimals');
     if (dec !== undefined && jt.isNumber(num)) {
@@ -535,6 +550,7 @@ jt.updatePlayer = function(participant, updateVue) {
                 }
             };
             jt.vueModels = jt.getVueModels(participant, vueComputed);
+            // Object.setPrototypeOf(jt.vueModels.player, Player.prototype);
             jt.vue.player = jt.vueModels.player;
             jt.vue.group = jt.vueModels.group;
             jt.vue.period = jt.vueModels.period;

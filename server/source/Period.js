@@ -168,7 +168,7 @@ class Period {
                     var pId = gIds[g][i];
                     let participant = Utils.findById(participants, pId);
                     var player = new Player.new(pId, participant, group, i+1);
-                    participant.players.push(player);
+                    participant.addPlayer(player);
                     player.save();
                     participant.save();
                     group.players.push(player);
@@ -182,7 +182,7 @@ class Period {
                     if (gIds[i] == group.id) {
                         let participant = Utils.findById(participants, pIds[i]);
                         var player = new Player.new(pIds[i], participant, group, group.players.length+1);
-                        participant.players.push(player);
+                        participant.addPlayer(player);
                         player.save();
                         participant.save();
                         group.players.push(player);

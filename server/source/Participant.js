@@ -1,5 +1,5 @@
 const Player    = require('./Player.js');
-const clPlayer  = require('./client/clPlayer.js');
+// const clPlayer  = require('./client/clPlayer.js');
 const Utils     = require('./Utils.js');
 const path      = require('path');
 const {stringify} = require('flatted/cjs');
@@ -116,6 +116,7 @@ class Participant {
          * @default []
          */
         this.players = [];
+        this.playerTree = [];
 
         /**
          * The current player of this participant.
@@ -185,18 +186,15 @@ class Participant {
     }
 
     getGamePeriod(game) {
-        let periodIndex = -1;
 
         if (this.player != null && this.player.group.period.app.id === game.id) {
-            periodIndex = this.player.group.period.id - 1;
+            return this.player.group.period.id - 1;
+        // } else if (this.player != null && this.player.stage.id === game.id) {
+        //     return this.player.subPlayers.length;
+        } else {
+            return -1;
         }
 
-        return periodIndex;
-
-        // if (this.periodIndices[game.roomId()] == null) {
-        //     this.periodIndices[game.roomId()] = -1;
-        // }
-        // return this.periodIndices[game.roomId()];
     }
 
     endCurrentApp() {
@@ -235,6 +233,7 @@ class Participant {
     startPeriod(period) {
         this.periodIndex = period.id - 1;
         this.player.game.participantBeginPeriod(this);
+        // period.game.participantBeginPeriod(this);
     }
 
     canProcessMessage() {
@@ -336,7 +335,7 @@ class Participant {
         }
         dta.participantId = this.id;
         dta.sessionId = this.session.id;
-        dta = stringify(dta);
+        dta = stringify(dta, global.jt.partReplacer);
         this.session.io().to(this.roomId()).emit(name, dta);
 //        this.session.io().to(this.session.roomId()).emit(name, dta);
     }
@@ -404,6 +403,20 @@ class Participant {
         // console.log('settting participant player: ' + this.id + ', ' + stageId);
         player.updateGamePath();
         this.player = player;
+    }
+
+    addPlayer(player) {
+        this.players.push(player);
+        if (this.player != null) {
+            let superPlayer = this.player;
+            if (player.group != null && player.app() === superPlayer.app()) {
+                superPlayer = superPlayer.superPlayer;
+            }
+            player.superPlayer = superPlayer;
+            superPlayer.subPlayers.push(player);
+        } else {
+            this.playerTree.push(player);
+        }
     }
 
     getProxy() {

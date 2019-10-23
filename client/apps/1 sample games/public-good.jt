@@ -41,6 +41,10 @@ resultsStage.activeScreen = `
 var finish = game.addSubGame('finish');
 finish.activeScreen = `
 <p>Thank you for your participation.</p>
+<h4>Your earnings</h4>
+<div v-for='(sp, index) in player.subPlayers[1].subPlayers' :key='index'>
+    Period {{index+1}}: {{sp.points}} points.
+</div>
 `
 finish.addOKButtonIfNone = false;
 {/* <p>Thank you for your participation. You earned {{participant.getPoints()}}.</p> */}

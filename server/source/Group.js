@@ -285,7 +285,7 @@ class Group {
      * @param  {type} msgData  The data of the message.
      */
     emit(msgTitle, msgData) {
-        this.session().io().to(this.roomId()).emit(msgTitle, stringify(msgData));
+        this.session().io().to(this.roomId()).emit(msgTitle, stringify(msgData, global.jt.partReplacer));
     }
 
     /**

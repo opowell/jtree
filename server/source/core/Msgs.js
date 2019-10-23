@@ -122,7 +122,7 @@ class Msgs {
     resetSession(d, socket) {
         let session = global.jt.data.getSession(d.sId);
         session.reset();
-        global.jt.io.to('socket_' + socket.id).emit('openSession', stringify(session));
+        global.jt.io.to('socket_' + socket.id).emit('openSession', stringify(session, global.jt.partReplacer));
         global.jt.data.lastOpenedSession = session;
     }
 
@@ -290,7 +290,7 @@ class Msgs {
         var session = Utils.findById(global.jt.data.sessions, sId);
         if (session !== null && session !== undefined) {
             socket.join(session.roomId());
-            global.jt.io.to('socket_' + socket.id).emit('openSession', stringify(session));
+            global.jt.io.to('socket_' + socket.id).emit('openSession', stringify(session, global.jt.partReplacer));
             global.jt.data.lastOpenedSession = session;
             // this.reloadClients();
             // Called from client-side.

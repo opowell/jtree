@@ -9,6 +9,24 @@ const {parse} = require('flatted/cjs');
 
 let findById = Utils.findById
 
+jt.reviverFn = function(key, value) {
+    if (typeof(value) === 'string') {
+        if (value.startsWith('function ')) {
+            try {
+                let out = '';
+                eval('out = ' + value);
+                return out;
+            } catch (err) {
+                return 'native code';
+            }
+        } else {
+            return value;
+        }
+    } else {
+        return value;
+    }
+}
+
 var msgs = {};
 
 jt.msgs = msgs;
@@ -213,12 +231,13 @@ msgs.participantSetPlayer = function(md) {
     participant.player = md.player;
     $('.participant-' + jt.safePId(md.participantId) + '-groupId').text(participant.player.group.id);
 }
+
 msgs.playerUpdate = function(player) {
 //    var decompId = decomposeId(player.roomId);
 //    if (decompId.sessionId === jt.data.session.id) {
 
     if (typeof player == 'string') {
-        player = parse(player);
+        player = parse(player, jt.reviverFn);
     }
 
     if (player.player != null) {

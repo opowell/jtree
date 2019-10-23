@@ -4,6 +4,7 @@ const Utils     = require('./Utils.js');
 const fs        = require('fs-extra');
 const path      = require('path');
 const Timer     = require('./Timer.js');
+const Player    = require('./Player.js');
 
 /** Class that represents an app. */
 class App {
@@ -1624,6 +1625,8 @@ class App {
             );
         }
         this.playerStart(participant.player);
+        var player = new Player.new(participant.id, participant, null, -1);
+        participant.addPlayer(player);
         if (this.subgames.length > 0) {
             this.participantMoveToNextPeriod(participant);
         } 
@@ -2000,7 +2003,7 @@ class App {
         }
 
         if (player.stage.id !== data.fnName) {
-            console.log('Game.js, GAME NAME DOES NOT MATCH: ' + participant.player.game.id + ' vs. ' + data.fnName + ', data=' + JSON.stringify(data));
+            console.log('Game.js, GAME NAME DOES NOT MATCH: ' + participant.player.game.id + ' vs. ' + data.fnName + ', data=' + JSON.stringify(data, global.jt.partReplacer));
             return false;
         }
 

@@ -17,6 +17,14 @@ global.jt = jt;
 // The version of jtree, should match what is in buildJTree.bat
 jt.version = '0.8.3';
 
+jt.partReplacer = function(key, value) {
+    if (typeof value === 'function') {
+        return value.toString();
+    } else {
+        return value;
+    }
+}
+
 /** Location of the server executable. All files should be relative to this.
 */
 jt.path = undefined;
