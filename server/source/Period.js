@@ -99,7 +99,8 @@ class Period {
         if (player === null) {
             // create player
             player = new Player.new(participant.id, participant, gr, gr.players.length+1);
-            participant.players.push(player);
+            participant.addPlayer(player);
+            // participant.players.push(player);
             player = participant.players[participant.players.length-1];
             player.save();
             participant.save();
@@ -168,7 +169,6 @@ class Period {
                     var pId = gIds[g][i];
                     let participant = Utils.findById(participants, pId);
                     var player = new Player.new(pId, participant, group, i+1);
-                    participant.addPlayer(player);
                     player.save();
                     participant.save();
                     group.players.push(player);

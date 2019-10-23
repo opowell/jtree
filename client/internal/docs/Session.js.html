@@ -39,6 +39,8 @@ const Utils         = require('./Utils.js');
 const fs            = require('fs-extra');
 const path          = require('path');
 const async         = require('async');
+const {stringify} = require('flatted/cjs');
+const clone         = require('./clone.js');
 
 const PLAYER_STATUS_FINISHED = 'finished';
 const PLAYER_STATUS_PLAYING = 'playing';
@@ -57,10 +59,9 @@ class Session {
     * - {@link Data#constructor}
     * - {@link Data#createSession}
     *
-    * @param  {Object} jt         Server object.
     * @param  {type} id               The id of the new session.
     */
-    constructor(jt, id, options) {
+    constructor(id, options) {
 
         if (options == null) {
             options = {};
@@ -70,12 +71,46 @@ class Session {
             options.createFolder = true;
         }
 
-        this.jt = jt;
         this.id = id;
         if (this.id === null || this.id === undefined) {
             this.id = Utils.getDate();
         }
         this.name = this.id;
+
+        this.initialState = {
+            timeStarted: 0,
+            started: false,
+            participants: [],
+            gameTree: [],
+            potentialParticipantIds: global.jt.settings.participantIds,
+            id: this.id,
+            stateId: 0,
+        };
+
+        if (this.initialState.nonObs == null) {
+            Object.defineProperty(this.initialState, "nonObs", {
+                enumerable: false,
+                value: {}
+            });
+        }
+
+        this.initialState.nonObs.session = this;
+        
+        /**
+         * Fields initially existing on "proxyObj" are not monitored.
+         */
+        let proxyObj = {
+            id: this.id,
+            messages: [],
+            messageLatest: true,
+            messageIndex: 0, // 0 means no messages, 1 is first message, etc.
+            clients: [],
+            state: this.initialState,
+            objectList: [],
+        }
+
+        this.proxy = proxyObj;
+        this.gameTree = this.proxy.state.gameTree;
 
         /**
         * A list of the clients connected to this session.
@@ -83,17 +118,13 @@ class Session {
         */
         this.clients = [];
 
-        this.potentialParticipantIds = this.jt.settings.participantIds;
-
         this.caseSensitiveLabels = false;
-
-        this.suggestedNumParticipants = jt.settings.session.suggestedNumParticipants;
 
         /**
         * A list of participants in this session.
         * @type Object
         */
-        this.participants = {};
+        // this.participants = {};
 
         /**
         * The time at which this session was last started.
@@ -105,9 +136,13 @@ class Session {
         /**
         * Whether or not clients can create a participant that does not exist yet.
         */
-        this.allowNewParts = this.jt.settings.allowClientsToCreateParticipants;
+        this.allowNewParts = global.jt.settings.session.allowClientsToCreateParticipants;
 
-        this.outputDelimiter = this.jt.settings.outputDelimiter;
+        this.outputDelimiter = global.jt.settings.outputDelimiter;
+
+        for (let i in global.jt.settings.session) {
+            this[i] = global.jt.settings.session[i];
+        }
 
         /**
         * The apps in this session.
@@ -117,13 +152,7 @@ class Session {
 
         this.users = [];
 
-        /**
-         * Whether or not admin windows can play.
-         * Generally, during testing this can be test
-         */
-        this.allowAdminClientsToPlay = true;
-
-        this.asyncQueue = async.queue(this.processMessage, 1);
+        this.asyncQueue = async.queue(this.processQueueMessage, 1);
 
         // A filestream for writing to this session's object states.
         try {
@@ -168,8 +197,8 @@ class Session {
     * @param  {type} json      The content of the session.
     * @return {Session}        The session described by the contents of json.
     */
-    static load(jt, folder, data) {
-        var session = new Session(jt, folder);
+    static load(folder, data) {
+        var session = new Session(folder);
         var all = fs.readFileSync(path.join(jt.path, jt.settings.sessionsFolder + '/' + folder + '/' + folder + '.gsf')).toString();
         var lines = all.split('\n');
 
@@ -180,13 +209,13 @@ class Session {
                     var json = JSON.parse(lines[i]);
                     switch (json.type) {
                         case 'SESSION':
-                        var newSession = new Session(jt, folder);
+                        var newSession = new Session(folder);
                         for (var j in json) {
                             newSession[j] = json[j];
                         }
-                        newSession.participants = session.participants;
-                        for (let p in session.participants) {
-                            session.participants[p].session = newSession;
+                        newSession.proxy.state.participants = session.proxy.state.participants;
+                        for (let p in session.proxy.state.participants) {
+                            session.proxy.state.participants[p].session = newSession;
                         }
 
                         newSession.apps = [];
@@ -239,7 +268,7 @@ class Session {
                     var group = period.groups[gr];
                     for (var pl in group.players) {
                         var player = group.players[pl];
-                        var participant = session.participants[player.participantId];
+                        var participant = session.proxy.state.participants[player.participantId];
                         player.participant = participant;
                         participant.player = player;
                         participant.players.push(player);
@@ -255,8 +284,8 @@ class Session {
     }
 
     canUserManage(userId) {
-        var user = this.jt.data.user(userId);
-        if (!this.jt.settings.multipleUsers) {
+        var user = global.jt.data.user(userId);
+        if (!global.jt.settings.multipleUsers) {
             return true;
         } else {
             if (user === null) {
@@ -267,6 +296,10 @@ class Session {
                 return this.users.includes(userId);
             }
         }
+    }
+
+    getGSFFile() {
+        return this.getOutputDir() + '/' + this.id + '.json';
     }
 
     /**
@@ -288,10 +321,12 @@ class Session {
         }
 
         try {
-            var app = this.jt.data.loadApp(appPath, this, appPath, options);
+            var app = global.jt.data.loadApp(appPath, this, appPath, options);
         if (app !== null) {
             this.apps.push(app);
-            if (app.appPath.endsWith('.jtt') || app.appPath.endsWith('.js')) {
+            let game = app;
+            this.proxy.state.gameTree.push(game);
+            if (app.appPath.includes('.')) {
                 Utils.copyFile(app.appFilename, app.appDir, app.getOutputFN());
             } else {
                 Utils.copyFiles(path.parse(app.appPath).dir, app.getOutputFN());
@@ -305,7 +340,7 @@ class Session {
             // app.saveSelfAndChildren();
             this.save();
             if (this.emitMessages) {
-                this.emit('sessionAddApp', {sId: this.id, app: app.shellWithChildren()});
+                this.emit('sessionAddApp', {sId: this.id, app});
             }
         }
     } catch (err) {
@@ -313,6 +348,24 @@ class Session {
     }
     }
 
+    addGame(state, {filePath, options}) {
+        let fullPath = filePath;
+        if (typeof fullPath !== 'string') {
+            fullPath = path.join.apply(null, filePath);
+        }
+        var game = global.jt.data.loadGame(fullPath, state, options);
+        if (game !== null) {
+            state.gameTree.push(game);
+        }
+    }
+
+    setSessionLatest(value) {
+        this.proxy.messageLatest = value;
+        if (this.proxy.messageLatest) {
+            this.setMessageIndex(this.proxy.messages.length);
+        }
+    }
+    
     addUser(userId) {
         this.users.push(userId);
         this.save();
@@ -320,7 +373,7 @@ class Session {
     }
 
     addQueue(qId) {
-        var queue = this.jt.data.queue(qId);
+        var queue = global.jt.data.queue(qId);
         if (queue !== null) {
             for (var i in queue.apps) {
                 try {
@@ -331,8 +384,8 @@ class Session {
     }
 
     addAdminClient(socket) {
-        for (let i=0; i&lt;this.participants.length; i++) {
-            addClient(socket, this.participants[i].id);
+        for (let i=0; i&lt;this.proxy.state.participants.length; i++) {
+            addClient(socket, this.proxy.state.participants[i].id);
         }
     }
 
@@ -381,8 +434,8 @@ class Session {
         socket.join(this.roomId());
         participant.clientAdd(client);
         this.clients.push(client);
-        this.jt.socketServer.sendOrQueueAdminMsg(null, 'addClient', client.shell());
-        this.io().to(socket.id).emit('logged-in', participant.shell());
+        global.jt.socketServer.sendOrQueueAdminMsg(null, 'addClient', client);
+        this.io().to(socket.id).emit('logged-in', stringify(participant));
         if (participant.player !== null) {
             participant.player.sendUpdate(socket.id);
         }
@@ -390,12 +443,108 @@ class Session {
         return client;
     }
 
+    processQueueMessage(msg, callback) {
+        let obj = msg.obj;
+        let data = msg.data;
+        let fn = msg.fn;
+        try {
+
+            if (fn !== 'endGame') {
+                data = Utils.parseFloatRec(data);
+            }
+            
+            // if (obj.canProcessMessage()) {
+                obj.addMessage(fn, data);
+                // obj[fn](data);
+            // } else {
+                // jt.log('Object cannot process message, skipping message "' + fn + '".');
+            // }
+            obj.emitParticipantUpdates();
+        } catch (err) {
+            global.jt.log(err.stack);
+            debugger;
+            try {
+                global.jt.log('error processing message: ' + JSON.stringify(msg.data));
+            } catch (err2) {
+                global.jt.log('Error printing error: ' + msg.fn + ', ' + err2.stack);
+            }
+        }
+        callback();
+        return true;
+    }
+
+    processMessage(state, message) {
+        let func = eval('this["' + message.name + '"]').bind(this);
+        func(state, message.content);
+    }
+
+    endGame(state, msgData) {
+
+        let {endForGroup, data, participantId} = msgData;
+
+        // global.jt.log('Server received auto-game submission: ' + JSON.stringify(data));
+
+        // TODO: Not parsing strings properly.
+        /** console.log('msg: ' + JSON.stringify(data) + ', ' + client.player().roomId());*/
+        // var endForGroup = true;
+        // let participantId = client.participant.id;
+
+        let participant = Utils.findById(state.participants, participantId);
+        let player = participant.player;
+        let group = player.group;
+        let period = group.period;
+        let game = player.stage;
+
+        if (player === null) {
+            return false;
+        }
+
+        if (player.stage.id !== data.fnName) {
+            console.log('Session.js, GAME NAME DOES NOT MATCH: ' + participant.player.game.id + ' vs. ' + data.fnName + ', data=' + JSON.stringify(data));
+            return false;
+        }
+
+        for (var property in data) {
+            var value = data[property];
+
+            if (value === 'true') {
+                value = true;
+            } else if (value === 'false') {
+                value = false;
+            } else if (!isNaN(value)) {
+                value = parseFloat(value);
+            }
+
+            if (data.hasOwnProperty(property)) {
+                if (property.startsWith('player.')) {
+                    var fieldName = property.substring('player.'.length);
+                    player[fieldName] = value;
+                } else if (property.startsWith('group.')) {
+                    var fieldName = property.substring('group.'.length);
+                    group[fieldName] = value;
+                } else if (property.startsWith('participant.')) {
+                    var fieldName = property.substring('participant.'.length);
+                    participant[fieldName] = value;
+                } else if (property.startsWith('period.')) {
+                    var fieldName = property.substring('period.'.length);
+                    period[fieldName] = value;
+                } else if (property.startsWith('game.')) {
+                    var fieldName = property.substring('game.'.length);
+                    game[fieldName] = value;
+                }
+            }
+        }
+        player.endStage(endForGroup);
+
+        participant.updateScheduled = true;
+    }
+
     emitToAdmins(name, data) {
-        this.jt.socketServer.sendOrQueueAdminMsg(null, name, data);
+        global.jt.socketServer.sendOrQueueAdminMsg(null, name, data);
     }
 
     getOutputDir() {
-        return this.jt.settings.sessionsFolder + '/' + this.name;
+        return global.jt.settings.sessionsFolder + '/' + this.name;
     }
 
     /**
@@ -404,20 +553,88 @@ class Session {
     * @param  {type} da The data received from the client.
     * @param  {string} funcName The name of the function to evaluate on the client object.
     */
-    pushMessage(obj, da, funcName) {
-        var msg = {obj: obj, data: da, fn: funcName, jt: this.jt, session: this};
-        this.asyncQueue.push(msg, this.messageCallback);
+   pushMessage(obj, da, funcName) {
+    var msg = {obj: obj, data: da, fn: funcName};
+    this.asyncQueue.push(msg, this.messageCallback);
+}
+
+    addMessageToStartOfQueue(obj, data, funcName) {
+        var msg = {obj: obj, data: data, fn: funcName, jt: global.jt, session: this};
+        this.asyncQueue.unshift(msg, this.messageCallback);
         //        var playerId = Player.genRoomId(da.player);
         //        var line = cl.participant.id + ', ' + cl.id + ', ' + playerId + ', ' + funcName + ', ' + JSON.stringify(da.data) + '\n';
         //        fs.appendFileSync(this.getOutputDir() + '/messages.csv', line);
     }
 
-    addMessageToStartOfQueue(obj, data, funcName) {
-        var msg = {obj: obj, data: data, fn: funcName, jt: this.jt, session: this};
-        this.asyncQueue.unshift(msg, this.messageCallback);
-        //        var playerId = Player.genRoomId(da.player);
-        //        var line = cl.participant.id + ', ' + cl.id + ', ' + playerId + ', ' + funcName + ', ' + JSON.stringify(da.data) + '\n';
-        //        fs.appendFileSync(this.getOutputDir() + '/messages.csv', line);
+    addMessage(name, content) {
+        // console.log('adding message: ' + name + (content==null ? '' : (', ' + content)));
+        this.proxy.messages.push({
+            id: this.proxy.messages.length + 1,
+            name,
+            content,
+            state: null,
+        });
+        if (this.proxy.messageLatest) {
+            return this.setMessageIndex(this.proxy.messages.length);
+        }
+    }
+
+    setMessageIndex(index) {
+        this.proxy.messageIndex = index;
+        let state = this.loadMessageState(index-1);
+        while (state.__target != null) {
+            state = state.__target;
+        }
+        this.proxy.state = state;
+    }
+ 
+    loadMessageState(index) {
+
+        // TODO: Remove
+        this.processMessage(this.proxy.state, this.proxy.messages[index]);
+        return this.proxy.state;
+        // END: Remove.
+
+        if (index >= this.proxy.messages.length) {
+            console.log('Error: asking for state ' + index + ' when only ' + this.proxy.messages.length + ' messages.');
+            return null;
+        }
+
+        if (index == -1) {
+            return this.initialState;
+        }
+
+        if (this.proxy.messages[index].state == null) {
+            let prevState = this.loadMessageState(index-1);
+
+            // Temporarily disable state storage.
+            let newState = clone(prevState);
+            Object.defineProperty(newState, "nonObs", {
+                enumerable: false,
+                value: clone(prevState.nonObs)
+            });
+            // let newState = prevState;
+
+            newState.stateId++;
+
+            // Copy participants to the new state proxy.
+            for (let i=0; i&lt;newState.participants.length; i++) {
+                let part = newState.participants[i];
+                let proxy = part.getProxy();
+                newState.participants[i] = proxy;
+            }
+
+            // Make new state available immediately, and create proxy object for it.
+            while (newState.__target != null) {
+                newState = newState.__target;
+            }
+            this.proxy.messages[index].state = newState;
+
+            // Apply the message corresponding to this state.
+            this.processMessage(this.proxy.messages[index].state, this.proxy.messages[index]);
+        }
+
+        return this.proxy.messages[index].state;
     }
 
     processMessage(msg, callback) {
@@ -499,8 +716,8 @@ class Session {
         for (var t in timers) {
             timers[t].setRunning(b);
         }
-        for (var i in this.participants) {
-            var participant = this.participants[i];
+        for (var i in this.proxy.state.participants) {
+            var participant = this.proxy.state.participants[i];
             if (participant.player != null) {
                 participant.player.emitUpdate2();
             }
@@ -509,21 +726,22 @@ class Session {
 
     setId(id) {
         this.id = id;
-        for (var i in this.participants) {
-            var participant = this.participants[i];
+        for (var i in this.proxy.state.participants) {
+            var participant = this.proxy.state.participants[i];
             participant.refreshClients();
         }
     }
 
     reset() {
         this.started = false;
-        for (let i in this.participants) {
-            let participant = this.participants[i];
+        let participants = this.proxy.state.participants;
+        for (let i in participants) {
+            let participant = participants[i];
             participant.reset();
         }
-        for (let i=0; i&lt;this.apps.length; i++) {
-            let app = this.apps[i];
-            this.apps[i] = app.reload();
+        for (let i=0; i&lt;this.gameTree.length; i++) {
+            let app = this.gameTree[i];
+            this.gameTree[i] = app.reload();
         }
     }
 
@@ -568,7 +786,7 @@ class Session {
     }
 
     participantUI() {
-        return this.jt.settings.participantUI;
+        return global.jt.settings.participantUI;
     }
 
     /**
@@ -579,19 +797,35 @@ class Session {
     sendParticipantPage(req, res, participantId) {
         var participant = this.participant(participantId);
 
+        // Not a valid participant.
+        if (!this.isValidPId(participantId)) {
+            res.sendFile(path.join(global.jt.path, this.participantUI() + '/enterId.html'));
+        } 
         // Not a participant yet
-        if (participant == null) {
-            res.sendFile(path.join(this.jt.path, this.participantUI() + '/readyClient.html'));
+        else if (participant == null) {
+            res.sendFile(path.join(global.jt.path, this.participantUI() + '/readyClient.html'));
         }
         // Participant, but not in an app yet.
-        else if (participant.getApp() == null) {
-            res.sendFile(path.join(this.jt.path, this.participantUI() + '/readyClient.html'));
+        else if (participant.getGame() == null) {
+            res.sendFile(path.join(global.jt.path, this.participantUI() + '/readyClient.html'));
         }
         // participant in an app.
         else {
-            const app = participant.getApp();
-            app.sendParticipantPage(req, res, participant);
+            // const app = participant.getApp();
+            // app.sendParticipantPage(req, res, participant);
+            let html = this.getPage(participant);
+            res.send(html);
         }
+    }
+
+    getPage(participant) {
+        let html = '';
+        // let gameTree = this.proxy.__target.state.gameTree;
+        let gameTree = this.proxy.state.gameTree;
+        for (let g=0; g&lt;gameTree.length; g++) {
+            html = html + gameTree[g].getHTML(participant);
+        }
+        return html;
     }
 
     /**
@@ -599,24 +833,11 @@ class Session {
     * @param  {number} num The number of participants to add.
     */
     addParticipants(num) {
-        let partsAdded = 0;
-
         // Search through the list of participantIds until one is found for which
         // no participant already exists.
-        for (var i=0; i&lt;this.potentialParticipantIds.length; i++) {
-            let pId = this.potentialParticipantIds[i];
-            let ptcptAlreadyExists = this.participants[pId] !== undefined;
-
-            // No participant already exists, so create one.
-            if (!ptcptAlreadyExists) {
-                this.participantCreate(pId);
-                partsAdded++;
-
-                // Check if enough participants have been created. If yes, exit.
-                if (partsAdded >= num) {
-                    return;
-                }
-            }
+        for (let i=0; i&lt;num; i++) {
+            let newId = this.getNextAvailablePId();
+            this.participantCreate(newId);    
         }
     }
 
@@ -632,7 +853,12 @@ class Session {
         for (var h=0; h&lt;headers.length; h++) {
             var header = headers[h];
             if (this[header] !== undefined) {
-                newLine += JSON.stringify(this[header]);
+                let value = this[header];
+                if (typeof value == 'object') {
+                    value = 'object';
+                }
+                // newLine += JSON.stringify(this[header]);
+                newLine += value;
             }
             if (h&lt;headers.length-1) {
                 newLine += this.outputDelimiter;
@@ -646,8 +872,8 @@ class Session {
         try {
             fullText += 'SESSION\n';
             fullText += text.join('\n') + '\n';
-            for (var i=0; i&lt;this.apps.length; i++) {
-                fullText += this.apps[i].saveOutput();
+            for (var i=0; i&lt;this.gameTree.length; i++) {
+                fullText += this.gameTree[i].saveOutput();
             }
             fs.appendFileSync(fd, fullText);
         } catch(err) {
@@ -660,10 +886,92 @@ class Session {
         return fs.readFileSync(fn, 'utf8');
     }
 
+    loadMessageState(index) {
+
+        if (index >= this.proxy.messages.length) {
+            console.log('Error: asking for state ' + index + ' when only ' + this.proxy.messages.length + ' messages.');
+            return null;
+        }
+
+        if (index == -1) {
+            return this.initialState;
+        }
+
+        if (this.proxy.messages[index].state == null) {
+            let prevState = this.loadMessageState(index-1);
+
+            // Temporarily disable state storage.
+            let newState = clone(prevState);
+            Object.defineProperty(newState, "nonObs", {
+                enumerable: false,
+                value: clone(prevState.nonObs)
+            });
+            // let newState = prevState;
+
+            newState.stateId++;
+
+            // Copy participants to the new state proxy.
+            for (let i=0; i&lt;newState.participants.length; i++) {
+                let part = newState.participants[i];
+                let proxy = part.getProxy();
+                newState.participants[i] = proxy;
+            }
+
+            // Make new state available immediately, and create proxy object for it.
+            while (newState.__target != null) {
+                newState = newState.__target;
+            }
+            this.proxy.messages[index].state = newState;
+
+            // Apply the message corresponding to this state.
+            this.processMessage(this.proxy.messages[index].state, this.proxy.messages[index]);
+        }
+
+        return this.proxy.messages[index].state;
+    }
+
+    processQueueMessage(msg, callback) {
+        let obj = msg.obj;
+        let data = msg.data;
+        let fn = msg.fn;
+        try {
+
+            if (fn !== 'endGame') {
+                data = Utils.parseFloatRec(data);
+            }
+            
+            // if (obj.canProcessMessage()) {
+                obj.addMessage(fn, data);
+                // obj[fn](data);
+            // } else {
+                // jt.log('Object cannot process message, skipping message "' + fn + '".');
+            // }
+
+            // obj should always be Session object?
+            obj.emitParticipantUpdates();
+
+        } catch (err) {
+            global.jt.log(err.stack);
+            debugger;
+            try {
+                global.jt.log('error processing message: ' + JSON.stringify(msg.data));
+            } catch (err2) {
+                global.jt.log('Error printing error: ' + msg.fn + ', ' + err2.stack);
+            }
+        }
+        callback();
+        return true;
+    }
+
+    processMessage(state, message) {
+        let func = eval('this["' + message.name + '"]').bind(this);
+        func(state, message.content);
+    }
+    
     emitParticipantUpdates() {
         // console.log('emitting updates');
-        for (let p in this.participants) {
-            this.participants[p].actuallyEmitUpdate();
+        for (let p in this.proxy.state.participants) {
+            this.proxy.state.participants[p].actuallyEmitUpdate();
         }
     }
 
@@ -672,7 +980,7 @@ class Session {
     * @param  {number} num The number of participants to have.
     */
     setNumParticipants(num) {
-        let change = num - Object.keys(this.participants).length;
+        let change = num - this.proxy.state.participants.length;
         if (change > 0) {
             this.addParticipants(change);
         } else if (change &lt; 0) {
@@ -686,7 +994,31 @@ class Session {
         this.emit('setAllowNewParts', d);
     }
 
-    setAllowAdminPlay(b) {
+   /**
+    * participantMoveToNextGame - description
+    *
+    * CALLED FROM:
+    * - {@link Participant#moveToNextStage}.
+    *
+    * @param  {type} participant description
+    * @return {type}             description
+    */
+   participantMoveToNextGame(participant) {
+    if (participant.getGame() != null) {
+        participant.getGame().participantEndInternal(participant);
+    }
+
+    if (participant.gameIndex &lt; participant.session.gameTree.length) {
+        participant.gameIndex++;
+        // participant.gameTree.push(participant.session.gameTree[participant.gameIndex]);
+        this.participantBeginApp(participant);
+    } else {
+        this.participantEnd(participant);
+        this.tryToEnd();
+    }
+}
+
+setAllowAdminPlay(b) {
         this.allowAdminClientsToPlay = b;
         let data = {sId: this.id, value: b};
         this.emit('setAllowAdminPlay', data);
@@ -703,7 +1035,7 @@ class Session {
     * @param  {number} num The number of participants to remove.
     */
     removeParticipants(num) {
-        const parts = this.participants;
+        const parts = this.proxy.state.participants;
         for (let i=0; i&lt;num; i++) {
             let len = Object.keys(parts).length;
 
@@ -718,9 +1050,16 @@ class Session {
     }
 
     deleteParticipant(pId) {
-        delete this.participants[pId];
-        let md = {sId: this.id, pId: pId};
-        this.emit('sessionDeleteParticipant', md);
+        let participants = this.proxy.state.participants;
+        for (let i=0; i&lt;participants.length; i++) {
+            if (participants[i].id === pId) {
+                // delete participants[pId];
+                participants.splice(i, 1);
+                let md = {sId: this.id, pId: pId};
+                this.emit('sessionDeleteParticipant', md);
+                return;
+            }
+        }
     }
 
     /**
@@ -763,7 +1102,7 @@ class Session {
     * @param  {Object} d    The data of the message.
     */
     emit(name, d) {
-        this.io().to(this.roomId()).emit(name, d);
+        this.io().to(this.roomId()).emit(name, stringify(d));
     }
 
     /**
@@ -773,17 +1112,41 @@ class Session {
     advanceSlowest() {
         var parts = this.slowestParticipants();
         for (var i=0; i&lt;parts.length; i++) {
-            parts[i].moveToNextStage();
+            this.participantMoveToNextGame(parts[i]);
         }
     }
 
-    slowestParticipants() {
+   /**
+    * participantMoveToNextGame - description
+    *
+    * CALLED FROM:
+    * - {@link Participant#moveToNextStage}.
+    *
+    * @param  {type} participant description
+    * @return {type}             description
+    */
+   participantMoveToNextGame(participant) {
+    if (participant.getGame() != null) {
+        participant.getGame().participantEnd(participant);
+    }
+
+    if (participant.gameIndex &lt; participant.session.gameTree.length) {
+        participant.gameIndex++;
+        // participant.gameTree.push(participant.session.gameTree[participant.gameIndex]);
+        this.participantBeginApp(participant);
+    } else {
+        this.participantEnd(participant);
+        this.tryToEnd();
+    }
+}
+
+slowestParticipants() {
         var out = [];
         var minAppIndex = null;
         var minPeriodIndex = null;
         var minStageIndex = null;
-        for (var i in this.participants) {
-            var part = this.participants[i];
+        for (var i in this.proxy.state.participants) {
+            var part = this.proxy.state.participants[i];
             if (minAppIndex === null || part.appIndex &lt;= minAppIndex) {
                 if (minPeriodIndex === null || part.periodIndex &lt;= minPeriodIndex) {
                     if (minStageIndex === null || part.stageIndex() &lt;= minStageIndex) {
@@ -815,9 +1178,8 @@ class Session {
     */
     save() {
         try {
-            this.jt.log('Session.save: ' + this.id);
-            var localData = this.shell();
-            this.saveDataFS(localData, 'SESSION');
+            // global.jt.log('Session.save: ' + this.id);
+            this.saveDataFS(this, 'SESSION');
             for (var i in this.apps) {
                 this.apps[i].saveSelfAndChildren();
             }
@@ -827,70 +1189,16 @@ class Session {
     }
 
     saveDataFS(d, type) {
-        try {
-            var a = JSON.stringify(d) + '\n';
-            var b = '"type":"' + type + '"' + this.outputDelimiter;
-            var position = 1;
-            var output = [a.slice(0, position), b, a.slice(position)].join('');
-            this.fileStream.write(output);
-        } catch (err) {
-            console.log('ERROR Session.saveDataFS: ' + err.stack);
-        }
-    }
-
-    /**
-    * Creates a top-down shell of this {@link Session}. This includes all fields given by {@link Session.outputFields}, the participants, the apps and the clients.
-    *
-    * CALLED FROM:
-    * - {@link Msgs#openSession}.
-    *
-    * @return {type}  The shell of this session.
-    */
-    shellWithChildren() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.participants = {};
-        for (var i in this.participants) {
-            out.participants[i] = this.participants[i].shellAll();
-        }
-        out.apps = [];
-        for (var i in this.apps) {
-            out.apps[i] = this.apps[i].shellWithChildren();
-        }
-        out.clients = [];
-        for (var i in this.clients) {
-            out.clients[i] = this.clients[i].shell();
-        }
-        return out;
-    }
-
-    /**
-    * shell - description
-    *
-    * @return {type}  description
-    */
-    shell() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.numParticipants = Utils.objLength(this.participants);
-        out.numApps = Utils.objLength(this.apps);
-        out.appSequence = [];
-        for (var i in this.apps) {
-            try {
-                out.appSequence.push(this.apps[i].id);
-            } catch (err) {}
-        }
-        out.clients = [];
-        out.participants = [];
-        return out;
+        // Flatted.parse(d);
+        // try {
+        //     var a = JSON.stringify(d) + '\n';
+        //     var b = '"type":"' + type + '"' + this.outputDelimiter;
+        //     var position = 1;
+        //     var output = [a.slice(0, position), b, a.slice(position)].join('');
+        //     this.fileStream.write(output);
+        // } catch (err) {
+        //     console.log('ERROR Session.saveDataFS: ' + err.stack);
+        // }
     }
 
     /**
@@ -918,7 +1226,7 @@ class Session {
     */
     clientRemove(socket) {
         var socketId = socket.id;
-        this.jt.log('removing client: ' + socketId);
+        // global.jt.log('removing client: ' + socketId);
         for (var i=this.clients.length - 1; i>=0; i--) {
             var client = this.clients[i];
             if (client.id === socketId) {
@@ -926,7 +1234,7 @@ class Session {
                     client.participant.clientRemove(client.id);
                 }
                 this.clients.splice(i, 1);
-                this.jt.socketServer.sendOrQueueAdminMsg(null, 'remove-client', client.shell());
+                global.jt.socketServer.sendOrQueueAdminMsg(null, 'remove-client', client);
             }
         }
     }
@@ -937,17 +1245,20 @@ class Session {
     * @param  {type} participantId description
     * @return {type}               description
     */
-    participant(participantId) {
-        var participant = this.participants[participantId];
-        if (participant == null &amp;&amp; this.allowNewParts &amp;&amp; this.isValidPId(participantId)) {
-            participant = this.participantCreate(participantId);
-            if (this.started) {
-                participant.moveToNextStage();
-            }
+   participant(participantId) {
+    var participant = Utils.findById(this.proxy.state.participants, participantId);
+    if (participant == null &amp;&amp; this.allowNewParts &amp;&amp; this.isValidPId(participantId)) {
+        participant = this.participantCreate(participantId);
+        if (this.started) {
+            participant.moveToNextStage();
         }
-        return participant;
     }
+    return participant;
+}
 
+participantUI() {
+    return global.jt.settings.participantUI;
+}
     /**
     * participantCreate - description
     *
@@ -960,19 +1271,16 @@ class Session {
         }
 
         var participantId = pId;
-        this.jt.log('Session.participantCreate: ' + participantId);
+        // global.jt.log('Session.participantCreate: ' + participantId);
         var participant = new Participant.new(participantId, this);
         participant.save();
         this.save();
-        this.participants[participantId] = participant;
-        if (this.jt.socketServer != null) {
-            this.jt.socketServer.sendOrQueueAdminMsg(null, 'addParticipant', participant.shell());
+        // this.participants[participantId] = participant;
+        this.proxy.state.participants.push(participant);
+        if (global.jt.socketServer != null) {
+            global.jt.socketServer.sendOrQueueAdminMsg(null, 'addParticipant', participant);
         }
         return participant;
-    }
-
-    isValidPId(pId) {
-        return (pId != null &amp;&amp; this.allowNewParts) || this.potentialParticipantIds.includes(pId);
     }
 
     /**
@@ -997,7 +1305,7 @@ class Session {
     */
     participantMoveToNextApp(participant) {
         if (participant.getApp() != null) {
-            participant.getApp().participantEnd(participant);
+            participant.getApp().participantEndInternal(participant);
         }
 
         if (participant.appIndex &lt; this.apps.length) {
@@ -1005,7 +1313,7 @@ class Session {
             participant.save();
             this.participantBeginApp(participant);
         } else {
-            this.participantEnd(participant);
+            this.participantEndInternal(participant);
         }
         this.emitParticipantUpdates();
     }
@@ -1031,7 +1339,7 @@ class Session {
     */
     tryToEnd() {
         var proceed = true;
-        var participants = this.participants;
+        var participants = this.proxy.state.participants;
         for (var p in participants) {
             var participant = participants[p];
             if (!participant.isFinishedSession()) {
@@ -1053,35 +1361,35 @@ class Session {
     }
 
     participantBeginApp(participant) {
-        this.jt.log('Session.participantBeginApp: ' + participant.appIndex);
+        // global.jt.log('Session.participantBeginApp: ' + participant.gameIndex);
 
-        if (participant.appIndex &lt; 1 || participant.appIndex > this.apps.length) {
-            console.log('Session.participantBeginApp: INVALID appIndex');
+        if (participant.gameIndex &lt; 0 || participant.gameIndex >= participant.session.gameTree.length) {
+            console.log('Session.participantBeginApp: INVALID gameIndex');
             return false;
         }
 
-        var app = this.getApp(participant);
+        let game = participant.getGame();
 
         // If the app has not yet been started, reload it first.
-        if (!app.started) {
-            let newApp = app.reload();
-            this.apps[app.indexInSession() - 1] = newApp;
-            app = newApp;
-            app.start();
-        }
+        // if (!game.started) {
+        //     let newGame = game.reload();
+        //     participant.session.gameTree[game.indexInSession() - 1] = newGame;
+        //     game = newGame;
+        //     // app.start();
+        // }
 
-        app.participantBegin(participant);
+        game.participantBegin(participant);
     }
 
     stageEndCheck(group) {
-        this.jt.log("checking to end stage for group " + group.id);
+        global.jt.log("checking to end stage for group " + group.id);
         this.clockUpdate();
         if (this.timeLeft &lt;= 0) {
             this.timeLeft = 0;
             this.clockStop();
             this.stageEnd(group);
         } else {
-            this.jt.log('not ending stage');
+            global.jt.log('not ending stage');
             this.clockTimerStart();
         }
     }
@@ -1091,10 +1399,11 @@ class Session {
     }
 
     start() {
+        let participants = this.proxy.state.participants;
         if (!this.started) {
             this.started = true;
-            for (let p in this.participants) {
-                this.participantStart(this.participants[p]);
+            for (let p in participants) {
+                this.participantStart(participants[p]);
             }
             this.io().to(this.roomId()).emit('dataUpdate', [{
                 roomId: this.roomId(),
@@ -1102,6 +1411,14 @@ class Session {
                 value: this.started
             }]);
             this.advanceSlowest();
+            for (let p in participants) {
+                if (participants[p].player != null) {
+                    participants[p].player.emitUpdate();
+                }
+            }
+        }
+        for (let p in participants) {
+            participants[p].emit('start-new-app'); /** refresh clients.*/
         }
     }
 
@@ -1110,7 +1427,7 @@ class Session {
     }
 
     io() {
-        return this.jt.io;
+        return global.jt.io;
     }
 
     /**
@@ -1140,13 +1457,13 @@ exports.load        = Session.load;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Game.html">Game</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Oct 07 2019 12:21:03 GMT+0200 (Mitteleuropäische Sommerzeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Oct 23 2019 18:22:49 GMT+0200 (Mitteleuropäische Sommerzeit)
 </footer>
 
 <script> prettyPrint(); </script>

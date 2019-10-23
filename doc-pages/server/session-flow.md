@@ -1,14 +1,111 @@
-This tutorial describes the sequence of events that happen during an app. In particular, it points out the various functions that can be used to design an app. For more details about this procedure, see the <a href="tutorial-session-flow-details.html">advanced tutorial</a>.
+This tutorial describes the sequence of events that happen during a session. In particular, it points out the various functions that can be used to design an app. For more details about this procedure, see the <a href="tutorial-session-flow-details.html">advanced tutorial</a>.
 
-In a jtree app, participants progress through a series of periods and stages. Within each period repeats the stages. In doing so, they take the form of players and groups. Broadly speaking, each object calls `playerStart` (or `groupStart`) and `playerEnd` (or `groupEnd`) whenever a player (or group) begins or finishes that part of the experiment.
+In a session, participants play through a sequence of apps.
+When playing through an app, each participant:
 
-For example, in a simple app the sequence of events might be:
-1. stage1.groupStart(G1);
-2. stage1.playerStart(P1);
-3. stage1.playerStart(P2);
-4. stage1.playerEnd(P1);
-5. stage1.playerEnd(P2);
-6. stage1.groupEnd(G1);
+1. Starts the app, (`app.start()`)
+2. Plays through repetitions of the app's subgames, if any.
+3. Ends the app. (`app.end()`)
+
+The number of repetitions is `app.numPeriods`. A repetition is called a `period`. During a period, a participant:
+
+1. Starts the period (`app.startPeriod(i)`).
+2. Plays through each of the app's subgames.
+3. Ends the period (`app.endPeriod(i)`).
+
+Notice that the previous two definitions refer to each other. That is, playing through an app can include playing through periods, which include playing through apps. So playing through subgames takes place precisely as described in "playing through an app".
+
+For example, consider the following game structure:
+1. intro
+2. game [3 times]
+  1. decide
+  2. results
+3. conclusion
+
+The sequence of events would be:
+* intro.start()
+* intro.end()
+* game.start()
+  * game.startPeriod(1)
+    * decide.start()
+    * decide.end()
+    * results.start()
+    * results.end()
+  * game.endPeriod(1)
+  * game.startPeriod(2)
+    * decide.start()
+    * decide.end()
+    * results.start()
+    * results.end()
+  * game.endPeriod(2)
+  * game.startPeriod(3)
+    * decide.start()
+    * decide.end()
+    * results.start()
+    * results.end()
+  * game.endPeriod(3)
+* game.end()
+* conclusion.start()
+* conclusion.end()
+
+### Groups vs. Players
+Within each `period`-`app` pair, a participant is represented by a `player` object. Players form part of groups. Each function is first evaluated for the group, then for each of the players in the group.
+
+All participants begin in the same group. By default, groups play through periods independently of one another.
+
+A group `g` playing through an app `app` looks like:
+* `app.startGroup(g)`
+* For each player `p` in `g`:
+  * `app.startPlayer(p)`
+* Create subgroups.
+* For each subgroup `sg`, independently:
+  * For each period `i` in `1:app.numPeriods`:
+    * `app.startPeriodGroup(i, sg)`
+    * For each player `p` in `sg`:
+      * `app.startPeriodPlayer(p)`
+    * For each subgame `subApp` in `app`:
+      * `sg` plays through `subApp`.
+    * `app.endPeriodGroup(i, sg)`
+* `app.endGroup(g)`
+* For each player `p` in `g`:`
+  * `app.endPlayer(p)`
+
+Suppose in the example above that players play the `game` app in groups of two, and that the session contains four participants (`P1`, ..., `P4`). Then the actual sequence of events is:
+* intro.startGroup(G)
+* intro.startPlayer(G-P1)
+* intro.startPlayer(G-P2)
+* intro.endGroup(G)
+* intro.endPlayer(G-P1)
+* intro.endPlayer(G-P2)
+* game.startGroup(G)
+* game.startPlayer(G-P1)
+* game.startPlayer(G-P2)
+* For each repetition:
+* game.createGroups(G) -> G1, G2
+* game.startPeriodGroup(1, G1)
+* game.startPeriodPlayer(1, G1-P1)
+* game.startPeriodPlayer(1, G1-P2)
+* decide.startGroup(G1)
+* decide.startGroup(G1)
+* decide.end()
+* results.start()
+* results.end()
+* game.endPeriod(1)
+* game.startPeriod(2)
+    * decide.start()
+    * decide.end()
+    * results.start()
+    * results.end()
+  * game.endPeriod(2)
+  * game.startPeriod(3)
+    * decide.start()
+    * decide.end()
+    * results.start()
+    * results.end()
+  * game.endPeriod(3)
+* game.end()
+* conclusion.start()
+* conclusion.end()
 
 (Note that the order of the player functions (P1, P2) depends on how quickly each player progresses through the app.)
 

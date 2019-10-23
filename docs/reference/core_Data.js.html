@@ -34,7 +34,7 @@ const App = require('../App.js');
 const Room = require('../Room.js');
 const Queue = require('../Queue.js');
 const User = require('../User.js');
-const StackTracey = require('stacktracey');
+const {stringify} = require('flatted/cjs');
 
 /** The data object. */
 class Data {
@@ -127,7 +127,7 @@ class Data {
         for (var i in this.sessions) {
             var session = this.sessions[i];
             if (session.canUserManage(userId)) {
-                out.push(session.shell());
+                out.push(session);
             }
         }
         return out;
@@ -139,12 +139,12 @@ class Data {
         if (sessionId != null) {
             if (session != null) {
                 for (let i=0; i&lt;session.clients.length; i++) {
-                    out.push(session.clients[i].toShell());
+                    out.push(session.clients[i]);
                 }
             }
         } else {
             for (let i in this.participantClients) {
-                out.push(this.participantClients[i].shell());
+                out.push(this.participantClients[i]);
             }
         }
         return out;
@@ -177,7 +177,7 @@ class Data {
     
     loadApp(id, session, appPath, options) {
         var app = null;
-        app = new App.new(session, this.jt, appPath);
+        app = new App.new(session, appPath);
         app.givenOptions = options;
      //   app.shortId = id;
 
@@ -196,8 +196,10 @@ class Data {
             if (app.appjs.startsWith('//NOTSTANDALONEAPP')) {
                 return null;
             }
+            let game = app;
+            let treatment = app;
             eval(app.appjs); // jshint ignore:line
-            global.jt.log('loaded app ' + filePath);
+            // global.jt.log('loaded app ' + filePath);
         } catch (err) {
             if (
                 !filePath.endsWith('.jtt') ||
@@ -206,9 +208,6 @@ class Data {
                 return null;
             }
             app.hasError = true;
-            let stack = new StackTracey (err);
-            global.jt.log('Error loading app: ' + filePath, true);
-            global.jt.log(err, true);
             let lines = err.stack.split('\n');
             let index = lines[1].indexOf('&lt;anonymous>:');
             let position = lines[1].substring(index + '&lt;anonymous>:'.length);
@@ -224,9 +223,15 @@ class Data {
             if (isNaN(positionStr)) {
                 positionStr = 'unknown';
             }
-            global.jt.log('Line ' + line + ', position ' + positionStr, true);
             app.errorLine = line;
             app.errorPosition = positionStr;
+
+            if (app.showErrorsInLog) {
+                global.jt.log('Error loading app: ' + filePath, true);
+                global.jt.log(err, true);
+                global.jt.log('Line ' + line + ', position ' + positionStr, true);
+            }
+
         }
         return app;
     }
@@ -293,9 +298,9 @@ class Data {
             var appDirContents = fs.readdirSync(dir);
 
             // Load folder as its own queue.
-            var folderQueue = new Queue.new(dir, this.jt);
-            folderQueue.dummy = true;
-            global.jt.log('loading folder queue ' + dir);
+            // var folderQueue = new Queue.new(dir, this.jt);
+            // folderQueue.dummy = true;
+            // global.jt.log('loading folder queue ' + dir);
 
             // Load individual apps and queues.
             for (var i in appDirContents) {
@@ -322,13 +327,16 @@ class Data {
                     } else if (id.endsWith('.jtt')) {
                         isApp = true;
                         id = id.substring(0, id.length - '.jtt'.length);
-                    }
-                    if (isApp) {
+                } else if (id.endsWith('.jt')) {
+                    isApp = true;
+                    id = id.substring(0, id.length - '.jt'.length);
+                }
+                if (isApp) {
                         let app = this.loadApp(id, {}, curPath, {});
                         if (app != null) {
                             this.apps[curPath] = app;
                             this.appsMetaData[curPath] = app.metaData();
-                            folderQueue.addApp(curPath);
+                            // folderQueue.addApp(curPath);
                         }
                     }
 
@@ -336,7 +344,7 @@ class Data {
                     if (id.endsWith('.jtq')) {
                         var queue = Queue.loadJTQ(curPath, this.jt, dir);
                         queue.dummy = true;
-                        var session = new Session.new(this.jt, null);
+                        var session = new Session.new(null);
                         session.emitMessages = false;
                         session.queuePath = path.dirname(queue.id);
                         eval(queue.code);
@@ -354,10 +362,10 @@ class Data {
                 }
             }
 
-            if (folderQueue.apps.length > 0) {
-                folderQueue.displayName = dir.substring(dir.lastIndexOf('\\')+1);
-                this.queues[dir] = folderQueue;
-            }
+            // if (folderQueue.apps.length > 0) {
+            //     folderQueue.displayName = dir.substring(dir.lastIndexOf('\\')+1);
+            //     this.queues[dir] = folderQueue;
+            // }
         }
     }
 
@@ -412,7 +420,7 @@ class Data {
     }
 
     getApp(appPath, options) {
-        var app = App.newSansId(this.jt, appPath);
+        var app = App.newSansId(appPath);
 
         // Set options before running code.
         for (var i in options) {
@@ -501,11 +509,11 @@ class Data {
     }
 
     room(id) {
-        return Utils.findByIdWOJQ(this.rooms, id);
+        return Utils.findById(this.rooms, id);
     }
 
     queue(id) {
-        return Utils.findByIdWOJQ(this.queues, id);
+        return Utils.findById(this.queues, id);
     }
 
     loadRooms() {
@@ -609,7 +617,7 @@ class Data {
         user.type = type;
 
         fs.ensureDirSync(this.usersPath());
-        Utils.writeJSON(this.userPath(user.id), user.shell());
+        Utils.writeJSON(this.userPath(user.id), stringify(user, global.jt.partReplacer));
         return user;
     }
 
@@ -634,7 +642,7 @@ class Data {
 
         var session = null;
         var appPath = this.appPath(id);
-        var app = new App.new(session, this.jt, appPath);
+        var app = new App.new(session, appPath);
 
         fs.writeFileSync(this.appPath(id), '');
 
@@ -679,7 +687,7 @@ class Data {
             var pathToFolder = path.join(global.jt.path, global.jt.settings.sessionsFolder + '/' + folder + '/');
             global.jt.log('loading session: ' + folder);
             if (folder !== null &amp;&amp; fs.lstatSync(pathToFolder).isDirectory()) {
-                out = Session.load(this.jt, folder, this);
+                out = Session.load(folder, this);
             }
         } catch (err) {
             console.log('error loading session WS: ' + folder);
@@ -714,7 +722,7 @@ class Data {
     }
 
     getSession(sessionId) {
-        return Utils.findByIdWOJQ(this.sessions, sessionId);
+        return Utils.findById(this.sessions, sessionId);
     }
 
     /*
@@ -728,13 +736,13 @@ class Data {
      * @return {Session}        description
      */
     createSession(userId) {
-        var session = new Session.new(this.jt, null);
+        var session = new Session.new(null);
         session.setNumParticipants(session.suggestedNumParticipants);
         if (userId != null &amp;&amp; userId.length > 0) {
             session.addUser(userId);
         }
         session.save();
-        global.jt.socketServer.emitToAdmins('addSession', session.shell());
+        global.jt.socketServer.emitToAdmins('addSession', session);
         return session;
     }
 
@@ -753,7 +761,7 @@ class Data {
     }
 
     session(id) {
-        return Utils.findByIdWOJQ(this.sessions, id);
+        return Utils.findById(this.sessions, id);
     }
 
     isValidAdmin(id, pwd) {
@@ -799,13 +807,13 @@ exports.new = Data;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Game.html">Game</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Oct 07 2019 12:21:03 GMT+0200 (Mitteleuropäische Sommerzeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Oct 23 2019 18:22:48 GMT+0200 (Mitteleuropäische Sommerzeit)
 </footer>
 
 <script> prettyPrint(); </script>

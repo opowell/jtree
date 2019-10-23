@@ -35,13 +35,10 @@ const Utils     = require('../Utils.js');
 /** Settings that can be set in the settings.json file */
 class Settings {
 
-     constructor(jt) {
-
-         this.jt = jt;
+     constructor() {
 
          this.admins                 = {};
          this.adminLoginReq          = false; // whether or not admins need to login.
-         this.allowClientsToCreateParticipants = true; // default for new sessions
          this.autoSaveFreq           = 100000; // how often to save active sessions, in ms.
          this.logToConsole           = false;
          this.openAdminOnStart       = true; // whether or not the admin page should be opened when the server starts.
@@ -74,20 +71,57 @@ class Settings {
          this.loadSettings           = false;
          this.session = {};
          this.session.suggestedNumParticipants = 4;
+         this.session.allowClientsToCreateParticipants = true;
+         this.session.isValidPId = function(id) { // return true if the participant id is valid, false otherwise.
+             return (
+                this.isValidPIdPxx(id) ||
+                this.isValidPIdIP(id)
+             );
+         }
+         this.session.isValidPIdPxx = function(id) {
+             if (id == null) {
+                 return false;
+             }
+             let regexp = /([P][0-9]+$)/i
+             return id.match(regexp) != null;
+         }
+         this.session.isValidPIdIP = function(id) {
+             if (id == null) {
+                 return false;
+             }
+             let regexp = /[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/
+             return id.match(regexp) != null;
+         }
+         this.session.getNextAvailablePId = function(id) {
+            for (var i=0; i&lt;10000; i++) {
+                let pId = 'P' + (i+1);
+                let ptcptAlreadyExists = false;
+                for (let j in this.proxy.state.participants) {
+                    if (this.proxy.state.participants[j].id === pId) {
+                        ptcptAlreadyExists = true;
+                        break;
+                    }
+                }
+                if (!ptcptAlreadyExists) {
+                    // No participant already exists, so create one.
+                    return pId;
+                }
+            }
+            return null;
+         }
+
+        /**
+         * Whether or not admin windows can play.
+         * Generally, during testing this can be true.
+         */
+        this.session.allowAdminClientsToPlay = true;
+
  
          this.valsToSave = {};
 
          this.server = {};
 
          this.logMessage = null;
-
-         /**
-          * Pre-specified participant IDs.
-          */
-         this.participantIds         = [];
-         for (let i=1; i&lt;100; i++) {
-             this.participantIds.push('P' + i);
-         }
 
          // On Linux / Mac, ports below 1024 require sudo access.
          var isWin = process.platform === "win32";
@@ -99,7 +133,7 @@ class Settings {
 
          var settings = this; // so that settings can be modified without using 'jt.' prefix.
          try {
-            let settingsJSONPath = path.join(this.jt.path, 'settings.json');
+            let settingsJSONPath = path.join(global.jt.path, 'settings.json');
             if (fs.existsSync(settingsJSONPath)) {
                 var json = fs.readJSONSync(settingsJSONPath);
                 for (var i in json) {
@@ -112,9 +146,9 @@ class Settings {
              this.logMessage = err;
          }
          try {
-             let settingsJSPath = path.join(this.jt.path, 'settings.js');
+             let settingsJSPath = path.join(global.jt.path, 'settings.js');
             if (fs.existsSync(settingsJSPath)) {
-                var settingsFile = fs.readSync(path.join(this.jt.path, 'settings.js'));
+                var settingsFile = fs.readSync(path.join(global.jt.path, 'settings.js'));
                 console.log('loading custom settings from settings.js');
                 eval(settingsFile);
             }
@@ -160,7 +194,7 @@ class Settings {
      }
 
      save() {
-         Utils.writeJSON(path.join(this.jt.path, 'settings.json'), this.valsToSave);
+         Utils.writeJSON(path.join(global.jt.path, 'settings.json'), this.valsToSave);
      }
 
      setDefaultAdminPwd(curPwd, newPwd) {
@@ -181,22 +215,11 @@ class Settings {
          var fields = [];
          for (var prop in this) {
              if (
-                 !Utils.isFunction(this[prop]) &amp;&amp;
-                 prop !== 'jt'
+                 !Utils.isFunction(this[prop])
              )
              fields.push(prop);
          }
          return fields;
-     }
-
-     shell() {
-         var out = {};
-         var fields = this.outputFields();
-         for (var i in fields) {
-             var field = fields[i];
-             out[field] = this[field];
-         }
-         return out;
      }
 
 }
@@ -213,13 +236,13 @@ exports.new = Settings;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Game.html">Game</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Oct 07 2019 12:21:03 GMT+0200 (Mitteleuropäische Sommerzeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Oct 23 2019 18:22:49 GMT+0200 (Mitteleuropäische Sommerzeit)
 </footer>
 
 <script> prettyPrint(); </script>

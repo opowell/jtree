@@ -28,17 +28,141 @@
 </header>
 
 <article>
-    <p>This tutorial describes the sequence of events that happen during an app. In particular, it points out the various functions that can be used to design an app. For more details about this procedure, see the <a href="tutorial-session-flow-details.html">advanced tutorial</a>.</p>
-<p>In a jtree app, participants progress through a series of periods and stages. Within each period repeats the stages. In doing so, they take the form of players and groups. Broadly speaking, each object calls <code>playerStart</code> (or <code>groupStart</code>) and <code>playerEnd</code> (or <code>groupEnd</code>) whenever a player (or group) begins or finishes that part of the experiment.</p>
-<p>For example, in a simple app the sequence of events might be:</p>
+    <p>This tutorial describes the sequence of events that happen during a session. In particular, it points out the various functions that can be used to design an app. For more details about this procedure, see the <a href="tutorial-session-flow-details.html">advanced tutorial</a>.</p>
+<p>In a session, participants play through a sequence of apps.<br>When playing through an app, each participant:</p>
 <ol>
-<li>stage1.groupStart(G1);</li>
-<li>stage1.playerStart(P1);</li>
-<li>stage1.playerStart(P2);</li>
-<li>stage1.playerEnd(P1);</li>
-<li>stage1.playerEnd(P2);</li>
-<li>stage1.groupEnd(G1);</li>
+<li>Starts the app, (<code>app.start()</code>)</li>
+<li>Plays through repetitions of the app's subgames, if any.</li>
+<li>Ends the app. (<code>app.end()</code>)</li>
 </ol>
+<p>The number of repetitions is <code>app.numPeriods</code>. A repetition is called a <code>period</code>. During a period, a participant:</p>
+<ol>
+<li>Starts the period (<code>app.startPeriod(i)</code>).</li>
+<li>Plays through each of the app's subgames.</li>
+<li>Ends the period (<code>app.endPeriod(i)</code>).</li>
+</ol>
+<p>Notice that the previous two definitions refer to each other. That is, playing through an app can include playing through periods, which include playing through apps. So playing through subgames takes place precisely as described in &quot;playing through an app&quot;.</p>
+<p>For example, consider the following game structure:</p>
+<ol>
+<li>intro</li>
+<li>game [3 times]<ol>
+<li>decide</li>
+<li>results</li>
+</ol>
+</li>
+<li>conclusion</li>
+</ol>
+<p>The sequence of events would be:</p>
+<ul>
+<li>intro.start()</li>
+<li>intro.end()</li>
+<li>game.start()<ul>
+<li>game.startPeriod(1)<ul>
+<li>decide.start()</li>
+<li>decide.end()</li>
+<li>results.start()</li>
+<li>results.end()</li>
+</ul>
+</li>
+<li>game.endPeriod(1)</li>
+<li>game.startPeriod(2)<ul>
+<li>decide.start()</li>
+<li>decide.end()</li>
+<li>results.start()</li>
+<li>results.end()</li>
+</ul>
+</li>
+<li>game.endPeriod(2)</li>
+<li>game.startPeriod(3)<ul>
+<li>decide.start()</li>
+<li>decide.end()</li>
+<li>results.start()</li>
+<li>results.end()</li>
+</ul>
+</li>
+<li>game.endPeriod(3)</li>
+</ul>
+</li>
+<li>game.end()</li>
+<li>conclusion.start()</li>
+<li>conclusion.end()</li>
+</ul>
+<h3>Groups vs. Players</h3><p>Within each <code>period</code>-<code>app</code> pair, a participant is represented by a <code>player</code> object. Players form part of groups. Each function is first evaluated for the group, then for each of the players in the group.</p>
+<p>All participants begin in the same group. By default, groups play through periods independently of one another.</p>
+<p>A group <code>g</code> playing through an app <code>app</code> looks like:</p>
+<ul>
+<li><code>app.startGroup(g)</code></li>
+<li>For each player <code>p</code> in <code>g</code>:<ul>
+<li><code>app.startPlayer(p)</code></li>
+</ul>
+</li>
+<li>Create subgroups.</li>
+<li>For each subgroup <code>sg</code>, independently:<ul>
+<li>For each period <code>i</code> in <code>1:app.numPeriods</code>:<ul>
+<li><code>app.startPeriodGroup(i, sg)</code></li>
+<li>For each player <code>p</code> in <code>sg</code>:<ul>
+<li><code>app.startPeriodPlayer(p)</code></li>
+</ul>
+</li>
+<li>For each subgame <code>subApp</code> in <code>app</code>:<ul>
+<li><code>sg</code> plays through <code>subApp</code>.</li>
+</ul>
+</li>
+<li><code>app.endPeriodGroup(i, sg)</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>app.endGroup(g)</code></li>
+<li>For each player <code>p</code> in <code>g</code>:`<ul>
+<li><code>app.endPlayer(p)</code></li>
+</ul>
+</li>
+</ul>
+<p>Suppose in the example above that players play the <code>game</code> app in groups of two, and that the session contains four participants (<code>P1</code>, ..., <code>P4</code>). Then the actual sequence of events is:</p>
+<ul>
+<li>intro.startGroup(G)</li>
+<li>intro.startPlayer(G-P1)</li>
+<li>intro.startPlayer(G-P2)</li>
+<li>intro.endGroup(G)</li>
+<li>intro.endPlayer(G-P1)</li>
+<li>intro.endPlayer(G-P2)</li>
+<li>game.startGroup(G)</li>
+<li>game.startPlayer(G-P1)</li>
+<li>game.startPlayer(G-P2)</li>
+<li>For each repetition:</li>
+<li>game.createGroups(G) -&gt; G1, G2</li>
+<li>game.startPeriodGroup(1, G1)</li>
+<li>game.startPeriodPlayer(1, G1-P1)</li>
+<li>game.startPeriodPlayer(1, G1-P2)</li>
+<li>decide.startGroup(G1)</li>
+<li>decide.startGroup(G1)</li>
+<li>decide.end()</li>
+<li>results.start()</li>
+<li>results.end()</li>
+<li>game.endPeriod(1)</li>
+<li>game.startPeriod(2)<ul>
+<li>decide.start()</li>
+<li>decide.end()</li>
+<li>results.start()</li>
+<li>results.end()<ul>
+<li>game.endPeriod(2)</li>
+<li>game.startPeriod(3)</li>
+</ul>
+</li>
+<li>decide.start()</li>
+<li>decide.end()</li>
+<li>results.start()</li>
+<li>results.end()<ul>
+<li>game.endPeriod(3)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>game.end()</li>
+<li>conclusion.start()</li>
+<li>conclusion.end()</li>
+</ul>
 <p>(Note that the order of the player functions (P1, P2) depends on how quickly each player progresses through the app.)</p>
 <p>The logic of the app is implemented by overwriting each of these &quot;start&quot; and &quot;end&quot; methods.</p>
 <p>This is done in the app's source file. This file has access to the <code><a href="App.html">App</a></code> object, from which Stages can be created via the <a href="App.html#newStage"><code>App.newStage(id)</code></a> function. Periods can be customized by overwriting the <code>App.createPeriod(id)</code> method.</p>
@@ -83,13 +207,13 @@ Period.groupEnd(group)</code></pre><p>Within each period, players and groups pro
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Game.html">Game</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Oct 07 2019 12:21:04 GMT+0200 (Mitteleuropäische Sommerzeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Oct 23 2019 18:22:49 GMT+0200 (Mitteleuropäische Sommerzeit)
 </footer>
 
 <script> prettyPrint(); </script>

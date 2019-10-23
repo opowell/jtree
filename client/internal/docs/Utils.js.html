@@ -153,14 +153,6 @@ class Utils {
             ids[z] = ids[z].join("");
     }        
 
-    static shells(list) {
-        var out = [];
-        for (var p in list) {
-            out.push(list[p].shell());
-        }
-        return out;
-    }
-
     static readJS(file) {
         // Empty white space to force conversion to UTF-8.
         return fs.readFileSync(file) + '';
@@ -395,7 +387,7 @@ class Utils {
     }
 
     static getStageContents(app, stage) {
-        var fn = path.join(app.session.jt.path, 'apps/' + app + '/' + stage + '.html')
+        var fn = path.join(app.global.jt.path, 'apps/' + app + '/' + stage + '.html')
         var html = fs.readFileSync(fn, 'utf8');
         return html;
     }
@@ -413,24 +405,7 @@ class Utils {
         return fields;
     }
 
-    // http://stackoverflow.com/questions/7364150/find-object-by-id-in-an-array-of-javascript-objects
     static findById(array, id) {
-        if (array === null || array === undefined) {
-            return null;
-        }
-        var out = $.grep(array, function(e) {
-            return e !== undefined &amp;&amp; e.id === id;
-        });
-        if (out.length > 0) {
-            return out[0];
-        }
-        else {
-            return null;
-        }
-    }
-
-    // Find by ID without JQuery ($)
-    static findByIdWOJQ(array, id) {
         for (let i in array) {
             if (array[i] !== undefined &amp;&amp; array[i].id === id) {
                 return array[i];
@@ -439,9 +414,8 @@ class Utils {
         return null;
     }
 
-    // http://stackoverflow.com/questions/5767325/how-to-remove-a-particular-element-from-an-array-in-javascript
     static deleteById(array, id) {
-        for (var i = array.length-1; i>=0; i--) {
+        for (let i = array.length-1; i>=0; i--) {
             if(array[i].id === id) {
                 array.splice(i, 1);
             }
@@ -529,18 +503,18 @@ class Utils {
             return session;
         } else {
             if (ids.periodId === null || ids.periodId === undefined) {
-                return Utils.findByIdWOJQ(session.apps, ids.appId);
+                return Utils.findById(session.apps, ids.appId);
             } else {
-                var app = Utils.findByIdWOJQ(session.apps, ids.appId);
+                var app = Utils.findById(session.apps, ids.appId);
                 if (ids.groupId === null || ids.groupId === undefined) {
-                    return Utils.findByIdWOJQ(app.periods, ids.periodId);
+                    return Utils.findById(app.periods, ids.periodId);
                 } else {
-                    var period = Utils.findByIdWOJQ(app.periods, ids.periodId);
+                    var period = Utils.findById(app.periods, ids.periodId);
                     if (ids.playerId === null || ids.playerId === undefined) {
-                        return Utils.findByIdWOJQ(period.groups, ids.groupId);
+                        return Utils.findById(period.groups, ids.groupId);
                     } else {
-                        var group = Utils.findByIdWOJQ(period.groups, ids.groupId);
-                        return Utils.findByIdWOJQ(group.players, ids.playerId);
+                        var group = Utils.findById(period.groups, ids.groupId);
+                        return Utils.findById(group.players, ids.playerId);
                     }
                 }
             }
@@ -563,13 +537,13 @@ module.exports = Utils;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Game.html">Game</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Oct 07 2019 12:21:03 GMT+0200 (Mitteleuropäische Sommerzeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Oct 23 2019 18:22:49 GMT+0200 (Mitteleuropäische Sommerzeit)
 </footer>
 
 <script> prettyPrint(); </script>

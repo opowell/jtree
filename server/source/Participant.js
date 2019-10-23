@@ -186,8 +186,10 @@ class Participant {
     }
 
     getGamePeriod(game) {
-
-        if (this.player != null && this.player.group.period.app.id === game.id) {
+        if (this.player != null && this.player.group != null && this.player.group.period.app.id === game.id) {
+            if (this.player.group.period.id == null) {
+                return -1;
+            }
             return this.player.group.period.id - 1;
         // } else if (this.player != null && this.player.stage.id === game.id) {
         //     return this.player.subPlayers.length;
@@ -399,23 +401,32 @@ class Participant {
     }
 
     setPlayer(player) {
-        let stageId = (player != null && player.stage != null) ? player.stage.id : 'null';
+        // let stageId = (player != null && player.stage != null) ? player.stage.id : 'null';
         // console.log('settting participant player: ' + this.id + ', ' + stageId);
         player.updateGamePath();
-        this.player = player;
+        // this.player = player;
+        this.addPlayer(player);
     }
 
     addPlayer(player) {
-        this.players.push(player);
-        if (this.player != null) {
-            let superPlayer = this.player;
-            if (player.group != null && player.app() === superPlayer.app()) {
-                superPlayer = superPlayer.superPlayer;
+        try {
+            if (this.player === player) {
+                return;
             }
-            player.superPlayer = superPlayer;
-            superPlayer.subPlayers.push(player);
-        } else {
-            this.playerTree.push(player);
+            this.players.push(player);
+            if (this.player != null) {
+                let superPlayer = this.player;
+                if (player.group != null && superPlayer.group != null && player.app() === superPlayer.app()) {
+                    superPlayer = superPlayer.superPlayer;
+                }
+                player.superPlayer = superPlayer;
+                superPlayer.subPlayers.push(player);
+            } else {
+                this.playerTree.push(player);
+            }
+            this.player = player;
+        } catch (err) {
+            debugger;
         }
     }
 

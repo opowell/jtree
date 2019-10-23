@@ -485,7 +485,7 @@ class App {
 
     /**
      * Adds a stage, with contents loaded from .jtt file.
-     * @param {The name of the stage to add} name 
+     * @param {String} name The name of the stage to add
      */
     addStage(name) {
         var stage = this.newStage(name);
@@ -1624,9 +1624,14 @@ class App {
                 duration*1000
             );
         }
-        this.playerStart(participant.player);
-        var player = new Player.new(participant.id, participant, null, -1);
+        let group = {
+            period: {
+                app: this
+            }
+        }
+        var player = new Player.new(participant.id, participant, group, -1);
         participant.addPlayer(player);
+        this.playerStart(participant.player);
         if (this.subgames.length > 0) {
             this.participantMoveToNextPeriod(participant);
         } 
@@ -1660,7 +1665,7 @@ class App {
         // Move to next period
         prd++;
 
-        participant.emit('participantSetPeriodIndex', {periodIndex: participant.periodIndex});
+        // participant.emit('participantSetPeriodIndex', {periodIndex: participant.periodIndex});
 
         var period = this.getPeriod(prd);
         if (period === undefined) {

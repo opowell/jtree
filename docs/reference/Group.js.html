@@ -32,7 +32,7 @@ const Utils     = require('./Utils.js');
 const Table     = require('./Table.js');
 const fs        = require('fs-extra');
 const path      = require('path');
-const CircularJSON = require('./circularjson.js');
+const {parse, stringify} = require('flatted/cjs');
 
 /** A group of players playing in a {@link Period}. */
 class Group {
@@ -103,7 +103,7 @@ class Group {
      * Returns the stage that this group is currently in.
      */
     stage() {
-        return this.app().stages[this.stageIndex];
+        return this.app().subgames[this.stageIndex];
     }
 
     /**
@@ -200,10 +200,6 @@ class Group {
         return null;
     }
 
-    jt() {
-        return this.session().jt;
-    }
-
     canProcessMessage() {
         return true;
     }
@@ -282,44 +278,7 @@ class Group {
     }
 
     player(id) {
-        return Utils.findByIdWOJQ(this.players, id);
-    }
-
-    /**
-     * shell - description
-     *
-     * @return {type}  description
-     */
-    shellWithParent() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.period = this.period.shellWithParent();
-        out.numPlayers = this.players.length;
-        if (this.stageTimer !== undefined) {
-            out.stageTimerStart = this.stageTimer.timeStarted;
-            out.stageTimerDuration = this.stageTimer.duration;
-        } else {
-            out.timer = 'none';
-        }
-        out.tables = this.tables;
-        for (var i in this.tables) {
-            var name = this.tables[i];
-            if (this[name] != null) {
-                out[name] = this[name].shell();
-            }
-        }
-
-        return out;
-    }
-
-    shellForPlayerUpdate() {
-        var out = this.shellWithChildren();
-        out.period = this.period.shellWithParent();
-        return out;
+        return Utils.findById(this.players, id);
     }
 
     timeInStage() {
@@ -335,7 +294,7 @@ class Group {
      * @return {type}  description
      */
     emitUpdate() {
-        this.emit('groupUpdate', this.shellWithChildren());
+        this.emit('groupUpdate', this);
     }
 
     /**
@@ -354,7 +313,7 @@ class Group {
      * @param  {type} msgData  The data of the message.
      */
     emit(msgTitle, msgData) {
-        this.session().io().to(this.roomId()).emit(msgTitle, CircularJSON.stringify(msgData));
+        this.session().io().to(this.roomId()).emit(msgTitle, stringify(msgData, global.jt.partReplacer));
     }
 
     /**
@@ -410,38 +369,6 @@ class Group {
         client.socket.join(this.roomId());
     }
 
-    /**
-     * shellAll - description
-     *
-     * @return {type}  description
-     */
-    shellWithChildren() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.period = this.period.id;
-        out.players = [];
-        for (var i in this.players) {
-            out.players[i] = this.players[i].shellWithChildren();
-        }
-        if (this.stageTimer !== undefined) {
-            out.stageTimerStart = this.stageTimer.timeStarted;
-            out.stageTimerDuration = this.stageTimer.duration;
-            out.stageTimerTimeLeft = this.stageTimer.timeLeft;
-        }
-        out.tables = this.tables;
-        for (var i in this.tables) {
-            var name = this.tables[i];
-            if (this[name] !== undefined) {
-                out[name] = this[name].shell();
-            }
-        }
-        return out;
-    }
-
     /*
      * getOutputDir - description
      *
@@ -452,37 +379,12 @@ class Group {
     }
 
     /**
-     * shellLocal - description
-     *
-     * @return {type}  description
-     */
-    shell() {
-        var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
-        out.tables = this.tables;
-        if (this.stageTimer !== undefined) {
-            out.stageTimerStart = this.stageTimer.timeStarted;
-            out.stageTimerDuration = this.stageTimer.duration;
-            out.stageTimerTimeLeft = this.stageTimer.timeLeft;
-            out.stageTimerStageIndex = this.stageTimer.stageIndex;
-            out.stageTimerCallback = this.stageTimer.callback.toString();
-        }
-        out.periodId = this.period.id;
-        out.appIndex = this.app().indexInSession();
-        return out;
-    }
-
-    /**
      * save - description
      */
     save() {
         try {
-            this.session().jt.log('Group.save: ' + this.roomId());
-            var toSave = this.shell();
+            // global.jt.log('Group.save: ' + this.roomId());
+            var toSave = this;
             this.session().saveDataFS(toSave, 'GROUP');
             for (var i=0; i&lt;this.tables.length; i++) {
                 var table = this[this.tables[i]];
@@ -521,6 +423,10 @@ class Group {
     }
 
     canPlayersEnd(stage) {
+
+        if (this.stageEndedIndex &lt; stage.indexInApp()) {
+            return false;
+        }
 
         // If Group has already finished, do not allow players to finish. 
         if (this.stageEndedIndex >= stage.indexInApp()) {
@@ -575,7 +481,7 @@ class Group {
 //                             if (player.participant.clients.length > 0) {
 //                                 waitingForPlayers = true;
 //                                 if (endPlayers) {
-//                                     player.emit('endStage', player.shellWithParent());
+//                                     player.emit('endStage', player);
 //                                 }
 //                             }
 //                             // If not, end player immediately.
@@ -681,35 +587,38 @@ class Group {
 
         this.clearStageTimer();
 
+        console.log(global.jt.settings.getConsoleTimeStamp() + ' END   - GROUP : ' + stage.id + ', ' + this.roomId());
+        this.stageEndedIndex = stage.indexInApp();
+        stage.groupEnd(this);
+
         for (var p in this.players) {
             var player = this.players[p];
             if (player.stage.id === stage.id &amp;&amp; player.status !== 'finished') {
                 player.endStage(false);
             }
         }
-        console.log(global.jt.settings.getConsoleTimeStamp() + ' END   - GROUP : ' + stage.id + ', ' + this.roomId());
-        this.stageEndedIndex = stage.indexInApp();
-        stage.groupEnd(this);
 
-        if (stage.waitToEnd) {
+        this.stageIndex = stage.indexInApp() + 1;
+        if (this.stageIndex &lt; this.app().subgames.length) {
+            // move group (and all its players) to next stage.
+            this.startStage(this.stage());
+        } else {
+            // move players to next period if necessary.
             for (var p in this.players) {
-                let player = this.players[p];
-                if (player.stageIndex === stage.indexInApp()) {
-                    player.moveToNextStage();
+                if (this.players[p].participant.player.period().id === this.period.id) {
+                    this.players[p].moveToNextStage();
                 }
             }
         }
 
-        this.stageIndex = stage.indexInApp() + 1;
-        if (this.stageIndex &lt; this.app().stages.length) {
-            // move group (and all its players) to next stage.
-            this.startStage(this.stage());
-        } else {
-            // move all players to next period.
-            for (var p in this.players) {
-                this.players[p].moveToNextStage();
-            }
-        }
+        // if (stage.waitToEnd) {
+        //     for (var p in this.players) {
+        //         let player = this.players[p];
+        //         if (player.stageIndex === stage.indexInApp()) {
+        //             player.moveToNextStage();
+        //         }
+        //     }
+        // }
 
     }
 
@@ -733,7 +642,7 @@ class Group {
                             if (forcePlayersToEnd) {
                                 // If any clients are connected, let player finish via call to "endStage".
                                 if (player.participant.clients.length > 0) {
-                                    player.emit('endStage', player.shellWithParent());
+                                    player.emit('endStage', player);
                                 }
                                 // If not, end player immediately.
                                 else {
@@ -763,13 +672,13 @@ exports.load = Group.load;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Game.html">Game</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Oct 07 2019 12:21:03 GMT+0200 (Mitteleuropäische Sommerzeit)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Oct 23 2019 18:22:48 GMT+0200 (Mitteleuropäische Sommerzeit)
 </footer>
 
 <script> prettyPrint(); </script>
