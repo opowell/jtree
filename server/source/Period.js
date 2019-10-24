@@ -95,6 +95,12 @@ class Period {
          }
      }
 
+     recordPlayerStartTime(player) {
+        let timeStamp = Utils.timeStamp();
+        global.jt.log('START PERIOD - PLAYER: ' + this.app.id + ', ' + this.id + ', ' + player.id);
+        player['timeStart_' + this.id] = timeStamp;
+    }
+
     playerBegin(player) {
 
         this.groupBegin(player.group);
@@ -103,7 +109,7 @@ class Period {
             return;
         }
         player.startedPeriod = true;
-        global.jt.log('START PERIOD - PLAYER: ' + this.app.id + ', ' + this.id + ', ' + player.id);
+        this.recordPlayerStartTime(player);
 
         var groupId = this.getPlayerGroupId(player);
         if (groupId === null) {
@@ -134,10 +140,12 @@ class Period {
         player.superGame = this.game;
         player.stage = player.subGame;
         player.game = player.superGame;
-        player.status = 'playing';
         player.participant().setPlayer(player);
         if (player.stage != null) {
+            player.status = 'ready';
             player.stage.playerStartInternal(player);
+        } else {
+            player.status = 'playing';
         }
     }
 

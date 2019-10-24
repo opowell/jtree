@@ -465,13 +465,13 @@ class Session {
         let player = participant.player;
         let group = player.group;
         let period = group.period;
-        let game = player.stage;
+        let game = player.game;
 
         if (player === null) {
             return false;
         }
 
-        if (player.stage.id !== data.fnName) {
+        if (game.id !== data.fnName) {
             console.log('Session.js, GAME NAME DOES NOT MATCH: ' + participant.player.game.id + ' vs. ' + data.fnName + ', data=' + JSON.stringify(data));
             return false;
         }
@@ -506,7 +506,7 @@ class Session {
                 }
             }
         }
-        player.endStage(endForGroup);
+        game.playerEndInternal(player);
 
         participant.updateScheduled = true;
     }

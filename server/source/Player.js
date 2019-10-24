@@ -73,6 +73,7 @@ class Player {
         this.superPlayer.subPlayers.push(this);
 
         this.startedPeriod = false;
+        this.endedPeriod = false;
 
     }
 
@@ -94,6 +95,9 @@ class Player {
         return (this.status === 'playing');
     }
 
+    end() {
+        this.game.playerEndInternal(this);
+    }
 
     /**
      * roomId - description
@@ -162,7 +166,7 @@ class Player {
             dta = stringify(dta, global.jt.partReplacer);
         }
         // this.io().to(this.roomId()).emit(name, dta);
-        this.io().to(this.participant.roomId()).emit(name, dta);
+        this.io().to(this.participant().roomId()).emit(name, dta);
         this.session().emitToAdmins(name, dta);
     }
 
@@ -251,10 +255,6 @@ class Player {
         } else {
             return this.superPlayer.participant();
         }
-    }
-
-    timeStamp() {
-        return global.jt.settings.getConsoleTimeStamp();
     }
 
     totalPoints() {

@@ -77,6 +77,7 @@ class Group {
         this.stageEndedIndex = -1;
 
         this.startedPeriod = false;
+        this.endedPeriod = false;
 
     }
 
@@ -382,80 +383,6 @@ class Group {
             console.log(err.stack);
         }
     }
-
-//     checkIfWaitingToEnd(stage, endPlayers, canParticipate) {
-//         console.log('Group.checkIfWaitingToEnd: ' + this.roomId());
-//         this.showStatus();
-//         if (canParticipate == null) {
-//             canParticipate = true;
-//         }
-
-//         let group = this;
-//         // Wait for players to submit their forms.
-//         var waitingForPlayers = false;
-
-//         if (!canParticipate) {
-//             this.attemptToStartNextStage();
-//             return;
-//         }
-
-//         if (stage.waitOnTimerEnd) {
-//             for (var p in group.players) {
-//                 var player = group.players[p];
-//                     // If player is in an earlier stage, wait.
-//                     if (player.stage.indexInApp() < stage.indexInApp()) {
-//                         waitingForPlayers = true;
-//                     } else if (player.stage.indexInApp() > stage.indexInApp()) {
-//                         // If player is past this stage, proceed.
-//                     } else {
-//                         // If player is in this stage and not finished...
-//                         if (!player.isFinished()) {
-//                             // If any clients are connected, let player finish via call to "endStage".
-//                             if (player.participant.clients.length > 0) {
-//                                 waitingForPlayers = true;
-//                                 if (endPlayers) {
-//                                     player.emit('endStage', player);
-//                                 }
-//                             }
-//                             // If not, end player immediately.
-//                             else {
-//                                 if (endPlayers) {
-//                                     console.log('No connected clients for ' + player.id + ', ending immediately.');
-//                                     player.attemptToEndStage(false);
-//                                 } else {
-//                                     waitingForPlayers = true;
-//                                 }
-//                             }
-//                         }
-//                 }
-//             }
-//         }
-
-//         // If not waiting for any players, proceed without waiting for players to submit their forms.
-//         if (!waitingForPlayers) {
-//             for (var p in group.players) {
-//                 var player = group.players[p];
-//                 if (player.stage.id === stage.id && player.status !== 'done') {
-//                     player.justEndStage();
-//                 }
-//             }
-//             console.log(global.jt.settings.getConsoleTimeStamp() + ' END   - GROUP : ' + stage.id + ', ' + group.roomId());
-//             stage.groupEnd(group);
-//             this.attemptToStartNextStage();
-//         } else {
-// //             debugger;
-//         }
-
-//     }
-
-
-
-
-
-
-
-
-
 
     startStage(stage) {
 

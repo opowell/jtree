@@ -21,6 +21,10 @@ class Utils {
         }
     }
 
+    static timeStamp() {
+        return global.jt.settings.getConsoleTimeStamp();
+    }
+
     static count(elements, condition) {
         var count = 0;
         for (var i in elements) {

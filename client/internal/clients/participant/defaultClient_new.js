@@ -104,7 +104,7 @@ jt.setFormDefaults = function() {
                     event.preventDefault();
                     event.stopPropagation();
                     var values = {};
-                    var stageName = jt.vue.player.stage.id;
+                    var stageName = jt.vue.player.game.id;
                     values.fnName = stageName;
 
                     // INPUTS (includes input, select and checkboxes, but not buttons)
@@ -565,8 +565,8 @@ jt.updatePlayer = function(participant, updateVue) {
     let player = participant.player;
 
     if (player != null) {
-        if (player.stage != null) {
-            jt.setStageName(player.stage.id);
+        if (player.game != null) {
+            jt.setStageName(player.game.id);
         }
         if (player.stageTimerTimeLeft > 0) {
             // Must use timer duration. Cannot use server start time, since no guarantee that client time is the same.

@@ -1048,7 +1048,7 @@ class App {
         this.end();
 
         let timeStamp = global.jt.settings.getConsoleTimeStamp();
-        console.log(timeStamp + ' END   - APP   : ' + this.getIdInSession());
+        console.log(timeStamp + 'END   - APP   : ' + this.getIdInSession());
 
         this.finished = true;
 
@@ -1650,6 +1650,23 @@ class App {
         return true;
     }
 
+    canPlayerEnd(player) {
+        
+        if (player.endedPeriod) {
+            return false;
+        }
+
+        if (this.waitToEnd) {
+            for (let i in player.group.players) {
+                if (player.group.players[i].endedPeriod) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     getGroupDuration(group) {
         return this.duration;
     }
@@ -1888,34 +1905,43 @@ class App {
         return true;
     }
 
-    canGroupEnd(group, forcePlayersToEnd) {
+    canGroupEnd(group) {
+        return this.canGroupEndDefault(group);
+    }
 
-        var players = group.players;
+    canGroupEndDefault(group) {
 
-        // If already finished, return false.
+        if (group.endedPeriod) {
+            return false;
+        }
+
+        if (this.waitToEnd) {
+            for (let i in group.players) {
+                if (group.players[i].endedPeriod) {
+                    return false;
+                }
+            }
+        }
+
+        // If already ended this stage, return false.
         if (group.stageEndedIndex >= this.indexInApp()) {
             return false;
         }
 
-        if (this.waitToEnd && !forcePlayersToEnd) {
-            // PROCEED ONLY IF ALL PLAYERS ARE "finished" and in this stage.
-            for (var p in players) {
-                var player = players[p];
-
-                if (player.stageIndex > this.indexInApp()) {
-                    // Player is already past this stage?!
-                } else {
-                    // If other player is not finished, return false.
-                    if (player.stageIndex < this.indexInApp() || !player.isFinished()) {
-                        return false;
-                    }
+        if (this.waitToEnd) {
+            // If any player is not in this stage, then return false.
+            for (var p in group.players) {
+                var player = group.players[p];
+                if (player.stageIndex > this.indexInApp()
+                 || ['done', 'finished'].includes(player.status) === false
+                ) {
+                    return false;
                 }
             }
         } 
-
+        
         // Otherwise, return true.
         return true;
-
     }
 
     groupStartInternal(group) {
@@ -1961,24 +1987,40 @@ class App {
 
     }
 
-    timeStamp() {
-        return global.jt.settings.getConsoleTimeStamp();
+    groupEndInternal(group) {
+
+        if (!this.canGroupEnd(group)) {
+            return;
+        }
+
+        try {
+            global.jt.log('END   - GROUP : ' + this.id + ', ' + group.id);
+            group.stageEndedIndex = this.indexInApp();
+            this.groupEnd(group);
+        } catch (err) {
+            global.jt.log(err.stack);
+        }
+        for (var p in group.players) {
+            this.playerEndInternal(group.players[p]);
+        }
+
     }
 
     recordPlayerEndTime(player) {
-        let timeStamp = this.timeStamp();
+        let timeStamp = Utils.timeStamp();
         player['timeEnd_' + this.id] = timeStamp;
         if (player['timeStart_' + this.id] == null) {
             global.jt.log('Player ERROR, missing stage start time! Using end time.');
             player['timeStart_' + this.id] = timeStamp;
         }
         player['msInStage_' + this.id] = Utils.dateFromStr(timeStamp) - Utils.dateFromStr(player['timeStart_' + this.id]);
+        global.jt.log('END   - PLAYER: ' + this.id + ', ' + player.id);
     }
 
     recordPlayerStartTime(player) {
-        let timeStamp = this.timeStamp();
+        let timeStamp = Utils.timeStamp();
         global.jt.log('START - PLAYER: ' + this.id + ', ' + player.id);
-        this['timeStart_' + this.id] = timeStamp;
+        player['timeStart_' + this.id] = timeStamp;
     }
 
     canGroupPlayersStart(group) {
@@ -2011,7 +2053,7 @@ class App {
         }
 
         // If Group has already finished, do not allow players to finish. 
-        if (group.stageEndedIndex >= this.indexInApp()) {
+        if (group.stageEndedIndex > this.indexInApp()) {
             return false;
         }
 
@@ -2023,7 +2065,10 @@ class App {
         // If any player is not finished playing, return false.
         for (let p in group.players) {
             let player = group.players[p];
-            if (!player.isFinished()) {
+            if (
+                ['done', 'finished'].includes(player.status) == false
+             || player.stageEndedIndex > this.indexInApp()
+            ) {
                 return false;
             }
         }
@@ -2032,16 +2077,34 @@ class App {
         return true;
     }
 
+    playerEndInternal(player) {
+        player.status = 'done';
+        this.groupEndInternal(player.group);
+        if (!this.canPlayerEnd(player)) {
+            return;
+        }
+        if (this.canGroupPlayersEnd(player.group)) {
+            this.recordPlayerEndTime(player);
+            try {
+                this.playerEnd(player);
+            } catch(err) {
+                global.jt.log(err + '\n' + err.stack);
+            }
+            if (player.stageIndex < this.subgames.length-1) {
+                player.stageIndex++;
+                this.subgames[player.stageIndex].playerStartInternal(player);
+            } else {
+                player.superPlayer.end();
+            }
+        }
+        player.emitUpdate2();
+    }
+
     playerStartInternal(player) {
         this.groupStartInternal(player.group);
         if (!this.canPlayerStart(player)) {
             return;
         }
-        // if (this.stageIndex !== stage.indexInApp()) {
-        //     this.stage = stage;
-        //     this.stageIndex = stage.indexInApp();
-        //     this.status = 'ready';            
-        // }
         if (this.canGroupPlayersStart(player.group)) {
             if (this.canPlayerParticipate(player)) {
                 if (player.status === 'ready') {
@@ -2049,12 +2112,11 @@ class App {
                     player.status = 'playing';
                     this.recordPlayerStartTime(player);
                     try {
-                        // stage.playerStart(this);
                         this.playerStart(player);
                     } catch(err) {
-                        console.log(err + '\n' + err.stack);
+                        global.jt.log(err + '\n' + err.stack);
                     }
-                    if (this.numPeriods > 0 && this.canPlayerStartPeriods(player)) {
+                    if (this.canPlayerStartPeriods(player)) {
                         this.playerBeginPeriod(1, player);
                     } 
                     this.save();
@@ -2125,7 +2187,7 @@ class App {
             this.emitUpdate2();
             this.group.endStage(this.stage, false);
         } else {
-            console.log(this.timeStamp() + ' END   - PLAYER: ' + this.stage.id + ', ' + this.roomId());
+            global.jt.log('END   - PLAYER: ' + this.stage.id + ', ' + this.roomId());
             this.stage.playerEnd(this);
             this.emitUpdate2();
             this.finishStage(endGroup);
