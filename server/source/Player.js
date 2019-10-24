@@ -7,13 +7,13 @@ const {stringify} = require('flatted/cjs');
 /** Class representing a player. */
 class Player {
 
-    constructor(id, participant, group, idInGroup) {
+    constructor(id, parent, group, idInGroup) {
 
         /**
          * This player's participant.
          * @type {Participant}
          */
-        this.participant = participant;
+        this.superPlayer = parent;
 
         /**
          * This player's group.
@@ -66,37 +66,11 @@ class Player {
          */
         this.stage = null;
 
-        /**
-         * 'outputHide' fields are not included in output.
-         * @type Array
-         * @default []
-         * @private
-         */
-        this.outputHide = [];
-
-        /**
-         * 'outputHideAuto' fields are not included in output.
-         * @type {String[]}
-         * @private
-         */
-        this.outputHideAuto = [
-            'appIndex',
-            'group',
-            'groupId',
-            'outputHide',
-            'outputHideAuto',
-            'participant',
-            'periodId',
-            'stage',
-            'stageTimer',
-            'stageClientDuration',
-            'this',
-            'type'
-        ];
-
         this.gamePath = '';
 
         this.subPlayers = [];
+
+        this.superPlayer.subPlayers.push(this);
 
     }
 
@@ -110,61 +84,6 @@ class Player {
 
     timeInStage() {
         return this.group.timeInStage();
-    }
-
-    asClPlayer() {
-        return new clPlayer.new(this);
-    }
-
-    outputFields() {
-        var fields = [];
-        for (var prop in this) {
-            if (
-                !Utils.isFunction(this[prop]) &&
-                !this.outputHide.includes(prop) &&
-                !this.outputHideAuto.includes(prop)
-            )
-            fields.push(prop);
-        }
-        return fields;
-    }
-
-    // /**
-    //  * Move this player to their next stage.
-    //  *
-    //  * If this player is currently in a stage, call {@link Stage#playerEnd}.
-    //  * Otherwise, call {@link App#playerMoveToNextStage}.
-    //  *
-    //  * @return {type}  description
-    //  */
-    // moveToNextStage() {
-    //     console.log('player.moveToNextStage: ' + this.roomId());
-    //     this.session().printStatuses();
-
-    //     if (this.stage !== null) {
-    //         this.stage.playerEnd(this);
-    //     } else {
-    //         // TODO: Delete.
-    //         console.log('SHOULD NEVER HAPPEN??');
-    //         debugger;
-    //         this.app().playerMoveToNextStage(this);
-    //     }
-    // }
-
-    recordStageEndTime(stage) {
-        let timeStamp = this.timeStamp();
-        this['timeEnd_' + stage.id] = timeStamp;
-        if (this['timeStart_' + stage.id] == null) {
-            console.log('Player ERROR, missing stage start time! Using end time.');
-            this['timeStart_' + stage.id] = timeStamp;
-        }
-        this['msInStage_' + stage.id] = Utils.dateFromStr(timeStamp) - Utils.dateFromStr(this['timeStart_' + stage.id]);
-    }
-
-    recordStageStartTime(stage) {
-        let timeStamp = this.timeStamp();
-        console.log(timeStamp + ' START - PLAYER: ' + stage.id + ', ' + this.roomId());
-        this['timeStart_' + stage.id] = timeStamp;
     }
 
     canProcessMessage() {
@@ -181,33 +100,6 @@ class Player {
         return this.group.roomId() + '_player_' + this.id;
     }
 
-    static genRoomId(player) {
-        var sId     = player.group.period.app.session.id;
-        var aId     = player.group.period.app.id;
-        var prdId   = player.group.period.id;
-        var gId     = player.group.id;
-        var pId     = player.id;
-        return 'session_' + sId + '_app_' + aId + '_period_' + prdId + '_group_' + gId + '_period_' + pId;
-    }
-
-    /**
-     * appIndex - description
-     *
-     * @return {type}  description
-     */
-    appIndex() {
-        return this.participant.appIndex;
-    }
-
-    /**
-     * periodIndex - description
-     *
-     * @return {type}  description
-     */
-    periodIndex() {
-        return this.period().id;
-    }
-
     /**
      * period - description
      *
@@ -216,36 +108,6 @@ class Player {
     period() {
         return this.group.period;
     }
-
-    /**
-     * The next stage for this player.
-     **/
-    nextStage() {
-        var stageInd = this.stageIndex;
-
-        // If not in the last stage, return next stage.
-        if (stageInd < this.app().stages.length-1) {
-            return this.app().stages[stageInd+1];
-        }
-
-        // If in the last stage, but not the last period, return first stage (of next period).
-        else if (this.period().id < this.app().numPeriods) {
-            return this.app().stages[0];
-        }
-
-        // If not in the last app, return first stage of next app.
-        else {
-            var app = this.session().appFollowing(this.app());
-            if (app !== null && app.stages.length > 0) {
-                return app.stages[0];
-            }
-            // Otherwise, return null.
-            else {
-                return null;
-            }
-        }
-    }
-
 
     /**
      * otherPlayersInGroup - description
@@ -257,53 +119,12 @@ class Player {
     }
 
     /**
-     * addClient - description
-     *
-     * @param  {type} client description
-     */
-    addClient(client) {
-        client.socket.join(this.roomId());
-    }
-
-    /**
-     * compId - description
-     *
-     * @return {type}  description
-     */
-    compId() {
-        var out = {};
-        out.playerId = this.id;
-        out.groupId = this.group.id;
-        out.periodId = this.group.period.id;
-        out.appId = this.group.period.app.id;
-        out.sessionId = this.group.period.app.session.id;
-        out.roomId = this.roomId();
-        return out;
-    }
-
-    /**
      * app - description
      *
      * @return {@link App}  The app that this player is a member of.
      */
     app() {
         return this.period().app;
-    }
-
-    /**
-     * matchesPlayer - description
-     *
-     * @param  {type} p description
-     * @return {boolean}           whether or not the inputted player matches this one.
-     */
-    matchesPlayer(p) {
-        return (
-            p.id === this.id &&
-            p.group.id === this.group.id &&
-            p.group.period.id === this.group.period.id &&
-            p.group.period.app.id === this.app().id && // TODO: update to match index instead of ID
-            p.group.period.app.session.id === this.session().id
-        )
     }
 
     /**
@@ -356,7 +177,7 @@ class Player {
     }
 
     emitUpdate2() {
-        this.participant.emitUpdate();
+        this.participant().emitUpdate();
     }
 
     /**
@@ -378,56 +199,6 @@ class Player {
     }
 
     /**
-     * isFinished - description
-     *
-     * @return {type}  description
-     */
-    isFinished() {
-        var actualPlyr = this;
-
-        // Not yet in the group's current stage.
-        if (actualPlyr.group.stageIndex > this.stageIndex) {
-            return false;
-        } 
-        // Passed the group's current stage.
-        else if (actualPlyr.group.stageIndex < this.stageIndex) {
-            return true;
-        }
-        // In the group's current stage. Check status.
-        else {
-            if (['finished', 'done'].includes(actualPlyr.status)) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-    }
-
-    /**
-     * isReady - description
-     *
-     * @return {type}  description
-     */
-    isReady(stageIndex) {
-        var actualPlyr = this.participant.player;
-
-        // No active player.
-        if (actualPlyr == null || this.roomId() !== actualPlyr.roomId()) {
-            return false;
-        }
-
-        if (this.stageIndex !== stageIndex) {
-            return false;
-        }
-
-        if (this.status !== 'ready') {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      * save - description
      *
      */
@@ -445,49 +216,6 @@ class Player {
         data = stringify(data, global.jt.partReplacer);
         this.io().to(this.roomId()).emit('playerUpdate', data);
         this.save();
-    }
-
-    /**
-     * Is the player at least finished the given stage of the given period?
-     *
-     * Return false if any of the following are true:
-     * - the player is in a previous app.
-     * - the player is in the same app, but a previous period.
-     * - the player is in the same period, but a previous stage.
-     * - the player is in the same stage, but is still 'playing'.
-     *
-     * Otherwise return true.
-     *
-     * CALLED FROM:
-     * - {@link Stage#playerCanGroupProceedToNextStage}.
-     */
-
-    atLeastFinishedStage(stage, period) {
-
-        if (this.app().indexInSession() < period.app.indexInSession()) {
-            return false;
-        } else if (this.app().indexInSession() > period.app.indexInSession()) {
-            return true;
-        }
-
-        if (this.period().id < period.id) {
-            return false;
-        } else if (this.period().id > period.id) {
-            return true;
-        }
-
-        if (this.stageIndex < stage.indexInApp()) {
-            return false;
-        } else if (this.stageIndex > stage.indexInApp()) {
-            return true;
-        }
-
-        if (this.status === 'playing') {
-            return false;
-        }
-
-        return true;
-
     }
 
     /**
@@ -513,72 +241,12 @@ class Player {
         group.players[json.idInGroup-1] = newPlayer;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-    startStage(stage) {
-        this.group.startStage(stage);
-        if (!stage.canPlayerStart(this)) {
-            return;
-        }
-        // if (!this.participant.canStartStage(stage)) {
-        //     return;
-        // }
-        if (this.stageIndex !== stage.indexInApp()) {
-            this.stage = stage;
-            this.stageIndex = stage.indexInApp();
-            this.status = 'ready';            
-        }
-        if (this.group.canPlayersStart(this.stage)) {
-            if (this.stage.canPlayerParticipate(this)) {
-                if (this.status === 'ready') {
-                    this.participant.setPlayer(this);
-                    this.status = 'playing';
-                    this.recordStageStartTime(stage);
-                    try {
-                        // stage.playerStart(this);
-                        stage.participantBegin(this.participant);
-                    } catch(err) {
-                        console.log(err + '\n' + err.stack);
-                    }
-                    this.save();
-                }
-            } else {
-                this.finishStage(true);
-            }
-        }
-        this.emitUpdate2();
-    }
-
-    endStage(endGroup) {
-        if (endGroup == null) {
-            endGroup = true;
-        }
-
-        if (this.status === 'playing') {
-            this.recordStageEndTime(this.stage);
-            this.status = 'done';
-        }
-
-        if (endGroup && !this.group.canPlayersEnd(this.stage)) {
-            this.emitUpdate2();
-            this.group.endStage(this.stage, false);
+    participant() {
+        if (this.superPlayer.participant == null) {
+            return this.superPlayer;
         } else {
-            console.log(this.timeStamp() + ' END   - PLAYER: ' + this.stage.id + ', ' + this.roomId());
-            this.stage.playerEnd(this);
-            this.emitUpdate2();
-            this.finishStage(endGroup);
+            return this.superPlayer.participant();
         }
-
     }
 
     timeStamp() {
@@ -593,95 +261,8 @@ class Player {
         return total;
     }
 
-    finishStage(endGroup) {
-        this.status = 'finished';
-        console.log(this.timeStamp() + ' FINISH- PLAYER: ' + this.stage.id + ', ' + this.roomId());
-        let curRoomId = this.roomId();
-        let curGamePath = this.gamePath;
-        let curStageIndex = this.stageIndex;
-        if (endGroup) {
-            this.group.endStage(this.stage);
-        }
-        if (
-            curRoomId == this.roomId() && 
-            curStageIndex === this.stageIndex &&
-            curGamePath == this.gamePath)
-        {
-            this.moveToNextStage();
-        }
-    }
-
-    // If there is a next stage, enter it.
-    // Otherwise, if there is a next period, start it.
-    // Otherwise, end the current app.
-    moveToNextStage() {
-        let stage = this.stage;
-        let player = this;
-
-        // // If this player is no longer active, do nothing.
-        // if (player.participant.player == null || player.roomId() !== player.participant.player.roomId()) {
-        //     return;
-        // }
-
-        let superGame = player.app().superGame;
-        let superPlayer = null;
-        if (superGame != null) {
-            let lastPeriod = superGame.periods[superGame.periods.length-1];
-            findSuperPlayer: {
-                for (let g in lastPeriod.groups) {
-                    let gr = lastPeriod.groups[g];
-                    for (let p in gr.players) {
-                        if (gr.players[p].id === player.id) {
-                            superPlayer = gr.players[p];
-                            break findSuperPlayer;
-                        }
-                    }
-                }
-            }
-        }
-
-        var nextStage = this.app().getNextStageForPlayer(player);
-        var nextPeriod = this.app().getNextPeriod(player);
-        if (nextStage !== null) {
-            player.stage = nextStage;
-            player.subGame = nextStage;
-            player.updateGamePath();
-            player.stageIndex++;
-            player.status = 'ready';
-            console.log(this.timeStamp() + ' READY - PLAYER: ' + this.stage.id + ', ' + this.roomId());
-            player.startStage(player.stage);
-        } else if (nextPeriod !== null) {
-            // player.participant.player = player.superPlayer;
-            player.participant.startPeriod(nextPeriod);
-        } else if (superPlayer != null) {
-            if (superPlayer.stage === this.app()) {
-                superPlayer.endStage(true);
-            }
-        } else {
-            // let superGame = this.app().superGame;
-            // if (superGame == null) {
-            //     debugger;
-            // }
-            // superGame.moveParticipantToNext
-            player.participant.endCurrentApp();
-        }
-        this.emitUpdate2();
-
-    } 
-
-
-
-
-
-
-
-
-
-
-
 }
 
 var exports = module.exports = {};
 exports.new = Player;
 exports.load = Player.load;
-exports.genRoomId = Player.genRoomId;

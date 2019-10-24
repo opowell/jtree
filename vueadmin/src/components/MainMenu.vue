@@ -273,6 +273,7 @@ export default {
                             text: 'Reset',
                             action: server.resetSession,
                             disabled: 'this.$store.state.session == null',
+                            shortcut: 'Ctrl+U'
                         },
                         {
                             text: 'Download output',

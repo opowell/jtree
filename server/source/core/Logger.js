@@ -30,7 +30,7 @@ class Logger {
     * @param text The text to be written.
     */
     log(text, forcePrintToConosle) {
-        var time = new Date().toString();
+        var time = Utils.getDate();
         this.logStream.write(time + ': ' + text + '\n');
 
         if (global.jt.settings.logToConsole === true || forcePrintToConosle == true) {

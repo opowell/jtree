@@ -120,7 +120,7 @@ class Session {
         * The apps in this session.
         * @type Array
         */
-        this.apps = [];
+        // this.apps = [];
 
         this.users = [];
 
@@ -295,7 +295,7 @@ class Session {
         try {
             var app = global.jt.data.loadApp(appPath, this, appPath, options);
         if (app !== null) {
-            this.apps.push(app);
+            // this.apps.push(app);
             let game = app;
             this.proxy.state.gameTree.push(game);
             if (app.appPath.includes('.')) {
@@ -303,12 +303,14 @@ class Session {
             } else {
                 Utils.copyFiles(path.parse(app.appPath).dir, app.getOutputFN());
             }
-            if (this.apps.length == 1 &&
-                app.suggestedNumParticipants != null &&
-                this.suggestedNumParticipants == null) {
-                    this.suggestedNumParticipants = app.suggestedNumParticipants;
-                    this.setNumParticipants(app.suggestedNumParticipants);
-            }
+            if (
+                this.proxy.state.gameTree.length == 1
+            &&  app.suggestedNumParticipants != null
+            &&  this.suggestedNumParticipants == null
+            ) {
+                this.suggestedNumParticipants = app.suggestedNumParticipants;
+                this.setNumParticipants(app.suggestedNumParticipants);
+            }   
             // app.saveSelfAndChildren();
             this.save();
             if (this.emitMessages) {
@@ -684,10 +686,10 @@ class Session {
 
     setRunning(b) {
         this.isRunning = b;
-        var timers = this.timers();
-        for (var t in timers) {
-            timers[t].setRunning(b);
-        }
+        // var timers = this.timers();
+        // for (var t in timers) {
+        //     timers[t].setRunning(b);
+        // }
         for (var i in this.proxy.state.participants) {
             var participant = this.proxy.state.participants[i];
             if (participant.player != null) {
@@ -717,45 +719,45 @@ class Session {
         }
     }
 
-    timers() {
-        var out = [];
-        for (var a in this.apps) {
-            var app = this.apps[a];
-            for (var p in app.periods) {
-                var period = app.periods[p];
-                for (var g in period.groups) {
-                    var group = period.groups[g];
-                    if (group.stageTimer !== undefined) {
-                        out.push(group.stageTimer);
-                    }
-                    for (var pl in group.players) {
-                        var player = group.players[pl];
-                        if (player.stageTimer !== undefined) {
-                            out.push(player.stageTimer);
-                        }
-                    }
-                }
-            }
-        }
-        return out;
-    }
+    // timers() {
+    //     var out = [];
+    //     for (var a in this.apps) {
+    //         var app = this.apps[a];
+    //         for (var p in app.periods) {
+    //             var period = app.periods[p];
+    //             for (var g in period.groups) {
+    //                 var group = period.groups[g];
+    //                 if (group.stageTimer !== undefined) {
+    //                     out.push(group.stageTimer);
+    //                 }
+    //                 for (var pl in group.players) {
+    //                     var player = group.players[pl];
+    //                     if (player.stageTimer !== undefined) {
+    //                         out.push(player.stageTimer);
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     return out;
+    // }
 
     /**
     * Returns the {@link App} in the session app sequence that follows a reference {@link App}.
     * @param  {@link App} app The reference app.
     * @return {@link App}     The app in the session app sequence that follows the reference app.
     */
-    appFollowing(app) {
-        for (var i=0; i<this.apps.length; i++) {
-            if (this.apps[i] === app) {
-                if (i < this.apps.length-1) {
-                    return this.apps[i+1];
-                } else {
-                    return null;
-                }
-            }
-        }
-    }
+    // appFollowing(app) {
+    //     for (var i=0; i<this.apps.length; i++) {
+    //         if (this.apps[i] === app) {
+    //             if (i < this.apps.length-1) {
+    //                 return this.apps[i+1];
+    //             } else {
+    //                 return null;
+    //             }
+    //         }
+    //     }
+    // }
 
     participantUI() {
         return global.jt.settings.participantUI;
@@ -1084,7 +1086,11 @@ setAllowAdminPlay(b) {
     advanceSlowest() {
         var parts = this.slowestParticipants();
         for (var i=0; i<parts.length; i++) {
-            this.participantMoveToNextGame(parts[i]);
+            if (parts[i].player == null) {
+                this.gameTree[0].participantBegin(parts[i]);
+            } else {
+                parts[i].player.moveToNextGame();
+            }
         }
     }
 
@@ -1097,48 +1103,26 @@ setAllowAdminPlay(b) {
     * @param  {type} participant description
     * @return {type}             description
     */
-   participantMoveToNextGame(participant) {
-    if (participant.getGame() != null) {
-        participant.getGame().participantEnd(participant);
-    }
+//    participantMoveToNextGame(participant) {
+//     if (participant.getGame() != null) {
+//         participant.getGame().participantEnd(participant);
+//     }
 
-    if (participant.gameIndex < participant.session.gameTree.length) {
-        participant.gameIndex++;
-        // participant.gameTree.push(participant.session.gameTree[participant.gameIndex]);
-        this.participantBeginApp(participant);
-    } else {
-        this.participantEnd(participant);
-        this.tryToEnd();
-    }
-}
+//     if (participant.gameIndex < participant.session.gameTree.length) {
+//         participant.gameIndex++;
+//         // participant.gameTree.push(participant.session.gameTree[participant.gameIndex]);
+//         this.participantBeginApp(participant);
+//     } else {
+//         this.participantEnd(participant);
+//         this.tryToEnd();
+//     }
+// }
 
 slowestParticipants() {
         var out = [];
-        var minAppIndex = null;
-        var minPeriodIndex = null;
-        var minStageIndex = null;
         for (var i in this.proxy.state.participants) {
             var part = this.proxy.state.participants[i];
-            if (minAppIndex === null || part.appIndex <= minAppIndex) {
-                if (minPeriodIndex === null || part.periodIndex <= minPeriodIndex) {
-                    if (minStageIndex === null || part.stageIndex() <= minStageIndex) {
-                        if (minAppIndex === null || part.appIndex < minAppIndex) {
-                            minAppIndex = part.appIndex;
-                            minPeriodIndex = part.periodIndex;
-                            minStageIndex = part.stageIndex();
-                            out = [];
-                        } else if (minPeriodIndex === null || part.periodIndex < minPeriodIndex) {
-                            minPeriodIndex = part.periodIndex;
-                            minStageIndex = part.stageIndex();
-                            out = [];
-                        } else if (minStageIndex === null || part.stageIndex() < minStageIndex) {
-                            minStageIndex = part.stageIndex();
-                            out = [];
-                        }
-                        out.push(part);
-                    }
-                }
-            }
+            out.push(part);
         }
         return out;
     }
@@ -1261,10 +1245,10 @@ participantUI() {
     * @param  {type} p description
     * @return {type}   description
     */
-    playerRefresh(p) {
-        this.io().to(p).emit('set-stage-name', this.curStage().name);
-        this.curStage().onPlayerConnect(this.players[p]);
-    }
+    // playerRefresh(p) {
+    //     this.io().to(p).emit('set-stage-name', this.curStage().name);
+    //     this.curStage().onPlayerConnect(this.players[p]);
+    // }
 
     /**
     * participantMoveToNextApp - description
@@ -1275,20 +1259,20 @@ participantUI() {
     * @param  {type} participant description
     * @return {type}             description
     */
-    participantMoveToNextApp(participant) {
-        if (participant.getApp() != null) {
-            participant.getApp().participantEndInternal(participant);
-        }
+    // participantMoveToNextApp(participant) {
+    //     if (participant.getApp() != null) {
+    //         participant.getApp().participantEndInternal(participant);
+    //     }
 
-        if (participant.appIndex < this.apps.length) {
-            participant.appIndex++;
-            participant.save();
-            this.participantBeginApp(participant);
-        } else {
-            this.participantEndInternal(participant);
-        }
-        this.emitParticipantUpdates();
-    }
+    //     if (participant.appIndex < this.apps.length) {
+    //         participant.appIndex++;
+    //         participant.save();
+    //         this.participantBeginApp(participant);
+    //     } else {
+    //         this.participantEndInternal(participant);
+    //     }
+    //     this.emitParticipantUpdates();
+    // }
 
     /**
     * Overwrite to add custom functionality.
@@ -1296,10 +1280,10 @@ participantUI() {
     * @param  {type} participant description
     * @return {type}             description
     */
-    participantEnd(participant) {
-        //        console.log('Session.playerEnd: ' + participant.id);
-        //        this.io().to(participant.roomId()).emit('start-new-app'); // refresh clients.
-    }
+    // participantEnd(participant) {
+    //     //        console.log('Session.playerEnd: ' + participant.id);
+    //     //        this.io().to(participant.roomId()).emit('start-new-app'); // refresh clients.
+    // }
 
     /**
     * tryToEnd - description
@@ -1332,62 +1316,26 @@ participantUI() {
         return this.getOutputDir() + '/' + this.id + '.csv';
     }
 
-    participantBeginApp(participant) {
-        // global.jt.log('Session.participantBeginApp: ' + participant.gameIndex);
-
-        if (participant.gameIndex < 0 || participant.gameIndex >= participant.session.gameTree.length) {
-            console.log('Session.participantBeginApp: INVALID gameIndex');
-            return false;
-        }
-
-        let game = participant.getGame();
-
-        // If the app has not yet been started, reload it first.
-        // if (!game.started) {
-        //     let newGame = game.reload();
-        //     participant.session.gameTree[game.indexInSession() - 1] = newGame;
-        //     game = newGame;
-        //     // app.start();
-        // }
-
-        game.participantBegin(participant);
-    }
-
-    stageEndCheck(group) {
-        global.jt.log("checking to end stage for group " + group.id);
-        this.clockUpdate();
-        if (this.timeLeft <= 0) {
-            this.timeLeft = 0;
-            this.clockStop();
-            this.stageEnd(group);
-        } else {
-            global.jt.log('not ending stage');
-            this.clockTimerStart();
-        }
-    }
-
-    participantStart(participant) {
-        
-    }
-
     start() {
         let participants = this.proxy.state.participants;
         if (!this.started) {
+            global.jt.log('START SESSION: ' + this.id);
             this.started = true;
-            for (let p in participants) {
-                this.participantStart(participants[p]);
-            }
             this.io().to(this.roomId()).emit('dataUpdate', [{
                 roomId: this.roomId(),
                 field: 'started',
                 value: this.started
             }]);
-            this.advanceSlowest();
-            for (let p in participants) {
-                if (participants[p].player != null) {
-                    participants[p].player.emitUpdate();
-                }
+            let period = {
+                app: this.gameTree[0],
+                numPeriods: 1,
             }
+            let group = new Group.new('session', period);
+            for (let p in participants) {
+                let player = new Player.new(participants[p].id, participants[p], group, p);
+                group.players.push(player);
+            }
+            period.app.groupStartInternal(group);
         }
         for (let p in participants) {
             participants[p].emit('start-new-app'); /** refresh clients.*/
@@ -1406,13 +1354,13 @@ participantUI() {
      * Return the next app in the session for this participant, null if there are no more apps for this participant.
      * @param {Participant} participant 
      */
-    getApp(participant) {
-        if (participant.appIndex < 1 || participant.appIndex > this.apps.length) {
-            return null;
-        } else {
-            return this.apps[participant.appIndex - 1];
-        }
-    }
+    // getApp(participant) {
+    //     if (participant.appIndex < 1 || participant.appIndex > this.apps.length) {
+    //         return null;
+    //     } else {
+    //         return this.apps[participant.appIndex - 1];
+    //     }
+    // }
 
 }
 

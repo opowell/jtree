@@ -4,7 +4,7 @@ const path = require('path');
 const Session = require('../Session.js');
 const App = require('../App.js');
 const Room = require('../Room.js');
-const Queue = require('../Queue.js');
+// const Queue = require('../Queue.js');
 const User = require('../User.js');
 const {stringify} = require('flatted/cjs');
 
@@ -314,20 +314,20 @@ class Data {
 
                     // Queue / Session Config
                     if (id.endsWith('.jtq')) {
-                        var queue = Queue.loadJTQ(curPath, this.jt, dir);
-                        queue.dummy = true;
-                        var session = new Session.new(null);
-                        session.emitMessages = false;
-                        session.queuePath = path.dirname(queue.id);
-                        eval(queue.code);
-                        session.setNumParticipants(session.suggestedNumParticipants);
-                        let options = {};
-                        for (let i in session.apps) {
-                            queue.addApp(session.apps[i].id, options);
-                        }
-                        // queue.apps = session.apps;
-                        global.jt.log('loading file queue ' + curPath + ' with ' + queue.apps.length + ' apps');
-                        this.queues[curPath] = queue;
+                        // var queue = Queue.loadJTQ(curPath, this.jt, dir);
+                        // queue.dummy = true;
+                        // var session = new Session.new(null);
+                        // session.emitMessages = false;
+                        // session.queuePath = path.dirname(queue.id);
+                        // eval(queue.code);
+                        // session.setNumParticipants(session.suggestedNumParticipants);
+                        // let options = {};
+                        // for (let i in session.apps) {
+                        //     queue.addApp(session.apps[i].id, options);
+                        // }
+                        // // queue.apps = session.apps;
+                        // global.jt.log('loading file queue ' + curPath + ' with ' + queue.apps.length + ' apps');
+                        // this.queues[curPath] = queue;
                     }
                 } else if (curPathIsFolder) {
                     this.loadAppDir(curPath);

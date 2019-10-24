@@ -565,7 +565,7 @@ jt.updatePlayer = function(participant, updateVue) {
     let player = participant.player;
 
     if (player != null) {
-        if (player.stage !== undefined) {
+        if (player.stage != null) {
             jt.setStageName(player.stage.id);
         }
         if (player.stageTimerTimeLeft > 0) {

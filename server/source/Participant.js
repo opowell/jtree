@@ -66,6 +66,8 @@ class Participant {
             'updateScheduled'
         ];
 
+        this.subPlayers = [];
+
     }
 
     /**
@@ -183,20 +185,6 @@ class Participant {
             return null;
         }
         return this.session.getApp(this);
-    }
-
-    getGamePeriod(game) {
-        if (this.player != null && this.player.group != null && this.player.group.period.app.id === game.id) {
-            if (this.player.group.period.id == null) {
-                return -1;
-            }
-            return this.player.group.period.id - 1;
-        // } else if (this.player != null && this.player.stage.id === game.id) {
-        //     return this.player.subPlayers.length;
-        } else {
-            return -1;
-        }
-
     }
 
     endCurrentApp() {

@@ -14,12 +14,14 @@ class Group {
     * @param  {String} id     The id of this group.
     * @param  {Period} period The period this group belongs to.
     */
-    constructor(id, period) {
+    constructor(id, period, parent) {
         /**
          * this group's id
          * @type {String}
          */
         this.id = id;
+
+        this.superGroup = parent;
 
         /**
          * Each Group belongs to a single Period.
@@ -303,6 +305,9 @@ class Group {
      * @return {type}  description
      */
     roomId() {
+        if (this.period == null || this.period.roomId == null) {
+            return this.app().roomId() + '_period_none_group_' + this.id;
+        }
         return this.period.roomId() + '_group_' + this.id;
     }
 
@@ -369,57 +374,6 @@ class Group {
             console.log('Error saving group ' + this.id + ': ' + err);
             console.log(err.stack);
         }
-    }
-
-    canPlayersStart(stage) {
-        
-        if (this.stageStartedIndex >= stage.indexInApp()) {
-            return true;
-        }
-
-        // If do not need to wait for all players, return true.
-        if (!stage.waitToStart) {
-            return true;
-        }
-
-        // If any player is not ready, return false.
-        for (let p in this.players) {
-            let player = this.players[p];
-            if (!player.isReady(stage.indexInApp())) {
-                return false;
-            }
-        }
-
-        return true;
-
-    }
-
-    canPlayersEnd(stage) {
-
-        if (this.stageEndedIndex < stage.indexInApp()) {
-            return false;
-        }
-
-        // If Group has already finished, do not allow players to finish. 
-        if (this.stageEndedIndex >= stage.indexInApp()) {
-            return false;
-        }
-
-        // If do not need to wait for all players, return true.
-        if (!stage.waitToEnd) {
-            return true;
-        }
-
-        // If any player is not finished playing, return false.
-        for (let p in this.players) {
-            let player = this.players[p];
-            if (!player.isFinished()) {
-                return false;
-            }
-        }
-
-        // Otherwise, return true.
-        return true;
     }
 
 //     checkIfWaitingToEnd(stage, endPlayers, canParticipate) {

@@ -55,57 +55,60 @@ All participants begin in the same group. By default, groups play through period
 
 A group `g` playing through an app `app` looks like:
 * `app.startGroup(g)`
-* For each player `p` in `g`:
-  * `app.startPlayer(p)`
-* Create subgroups.
-* For each subgroup `sg`, independently:
-  * For each period `i` in `1:app.numPeriods`:
-    * `app.startPeriodGroup(i, sg)`
-    * For each player `p` in `sg`:
-      * `app.startPeriodPlayer(p)`
+* For each period `i` in `1:app.numPeriods`:
+  * `app.startPeriodGroup(i, g)`
+  * Create subgroups `subgroups` of `g`.
+  * For each subgroup `sg` in `subgroups`:
     * For each subgame `subApp` in `app`:
       * `sg` plays through `subApp`.
-    * `app.endPeriodGroup(i, sg)`
+  * `app.endPeriodGroup(i, g)`
 * `app.endGroup(g)`
-* For each player `p` in `g`:`
-  * `app.endPlayer(p)`
 
-Suppose in the example above that players play the `game` app in groups of two, and that the session contains four participants (`P1`, ..., `P4`). Then the actual sequence of events is:
+Suppose in the example above that players play the `game` app in groups of two, and that the session contains four participants (`P1`, ..., `P4`). Suppose the two subgroups of `game` are called `G1` and `G2`. Then the actual sequence of events is:
+
 * intro.startGroup(G)
-* intro.startPlayer(G-P1)
-* intro.startPlayer(G-P2)
+* intro.startPlayer(P1, ..., P4)
 * intro.endGroup(G)
-* intro.endPlayer(G-P1)
-* intro.endPlayer(G-P2)
+* intro.endPlayer(P1, ..., P4)
 * game.startGroup(G)
-* game.startPlayer(G-P1)
-* game.startPlayer(G-P2)
-* For each repetition:
-* game.createGroups(G) -> G1, G2
-* game.startPeriodGroup(1, G1)
-* game.startPeriodPlayer(1, G1-P1)
-* game.startPeriodPlayer(1, G1-P2)
-* decide.startGroup(G1)
-* decide.startGroup(G1)
-* decide.end()
-* results.start()
-* results.end()
-* game.endPeriod(1)
-* game.startPeriod(2)
-    * decide.start()
-    * decide.end()
-    * results.start()
-    * results.end()
-  * game.endPeriod(2)
-  * game.startPeriod(3)
-    * decide.start()
-    * decide.end()
-    * results.start()
-    * results.end()
-  * game.endPeriod(3)
-* game.end()
-* conclusion.start()
-* conclusion.end()
+* game.startPlayer(P1, ..., P4)
+* REPEAT1 FOR i=1:5
+* game.startPeriodGroup(i, G)
+* game.startPeriodPlayer(i, P1, ..., P4)
+* REPEAT2 FOR sg in subgroups
+* decide.startGroup(sg)
+* decide.startPlayer(sg.players)
+* decide.endGroup(sg)
+* decide.endPlayer(sg.players)
+* results.startGroup(sg)
+* results.startPlayer(sg.players)
+* results.endGroup(sg)
+* results.endPlayer(sg.players)
+* END REPEAT2
+* game.endPeriodGroup(i, G)
+* game.endPeriodPlayer(i, P1, ..., P4)
+* END REPEAT1
+* game.endGroup(G)
+* game.endPlayer(P1, ..., P4)
+* conclusion.startGroup(G)
+* conclusion.startPlayer(P1, ..., P4)
+* conclusion.endGroup(G)
+* conclusion.endPlayer(P1, ..., P4)
+
+This implies the following subgroup fields for each app:
+* G: Group
+* G-period-1:
+  * [Group, Group, Group]
+* intro: Group
+* intro-period: []
+* game: Group
+* game-period: [Group, Group]
+* decide: Group
+* decide-period: []
+* results: Group
+* results-period: []
+* conclusion: Group
+* conclusion-period: []
 
 (Note that the order of the player functions (P1, P2) depends on how quickly each player progresses through the app.)
 

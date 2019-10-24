@@ -77,15 +77,15 @@ class Period {
      * participantBegin - description
      *
      * Called from:
-     * - {@link participantBeginPeriod}
+     * - {@link playerBeginPeriod}
      *
-     * @param  {type} participant description
+     * @param  {type} player description
      * @return {type}             description
      */
-    participantBegin(participant) {
-        var groupId = this.getParticipantGroupId(participant);
+    playerBegin(player) {
+        var groupId = this.getPlayerGroupId(player);
         if (groupId === null) {
-            console.log('Error: no group defined for ' + participant.id + ' in ' + this.roomId());
+            console.log('Error: no group defined for ' + player.id + ' in ' + this.roomId());
         }
 
         var gr = Utils.findById(this.groups, groupId)
@@ -95,10 +95,10 @@ class Period {
             this.groups.push(gr);
             gr = Utils.findById(this.groups, gr.id);
         }
-        var player = gr.playerWithParticipant(participant);
+        var player = gr.playerWithParticipant(player);
         if (player === null) {
             // create player
-            player = new Player.new(participant.id, participant, gr, gr.players.length+1);
+            player = new Player.new(participant.id, player, gr, gr.players.length+1);
             participant.addPlayer(player);
             // participant.players.push(player);
             player = participant.players[participant.players.length-1];
@@ -122,7 +122,7 @@ class Period {
         player.startStage(player.stage);
     }
 
-    getParticipantGroupId(participant) {
+    getPlayerGroupId(participant) {
         if (this.groups.length !== this.numGroups()) {
             this.createGroups();
         }
