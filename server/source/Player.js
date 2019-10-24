@@ -72,12 +72,16 @@ class Player {
 
         this.superPlayer.subPlayers.push(this);
 
+        this.startedPeriod = false;
+
     }
 
     updateGamePath() {
         let out = '';
         if (this.subGame != null) {
             out = this.subGame.getFullGamePath();
+        } else {
+            out = this.superPlayer.gamePath;
         }
         this.gamePath = out;
     }
@@ -190,7 +194,7 @@ class Player {
         // channel: channel to send this player's data to,
         // usually either the player themselves or an individual
         // client that is subscribed to the player.
-        if (this.stage === null || this.stage.onPlaySendPlayer) {
+        if (this.stage == null || this.stage.onPlaySendPlayer) {
             // let data = new clPlayer.new(this);
             let data = this;
             data = stringify(data, global.jt.partReplacer);

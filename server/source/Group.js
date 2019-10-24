@@ -22,6 +22,10 @@ class Group {
         this.id = id;
 
         this.superGroup = parent;
+        if (parent != null) {
+            parent.subGroups.push(this);
+        }
+        this.subGroups = [];
 
         /**
          * Each Group belongs to a single Period.
@@ -71,6 +75,9 @@ class Group {
 
         this.stageStartedIndex = -1;
         this.stageEndedIndex = -1;
+
+        this.startedPeriod = false;
+
     }
 
     /**
@@ -127,7 +134,7 @@ class Group {
      */
     playerByParticipantId(id) {
         for (var i=0; i<this.players.length; i++) {
-            if (this.players[i].participant.id === id) {
+            if (this.players[i].id === id) {
                 return this.players[i];
             }
         }

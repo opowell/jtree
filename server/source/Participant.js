@@ -68,6 +68,8 @@ class Participant {
 
         this.subPlayers = [];
 
+        this.player = null;
+
     }
 
     /**
@@ -393,30 +395,31 @@ class Participant {
         // console.log('settting participant player: ' + this.id + ', ' + stageId);
         player.updateGamePath();
         // this.player = player;
-        this.addPlayer(player);
+        // this.addPlayer(player);
+        this.player = player;
     }
 
-    addPlayer(player) {
-        try {
-            if (this.player === player) {
-                return;
-            }
-            this.players.push(player);
-            if (this.player != null) {
-                let superPlayer = this.player;
-                if (player.group != null && superPlayer.group != null && player.app() === superPlayer.app()) {
-                    superPlayer = superPlayer.superPlayer;
-                }
-                player.superPlayer = superPlayer;
-                superPlayer.subPlayers.push(player);
-            } else {
-                this.playerTree.push(player);
-            }
-            this.player = player;
-        } catch (err) {
-            debugger;
-        }
-    }
+    // addPlayer(player) {
+    //     try {
+    //         if (this.player === player) {
+    //             return;
+    //         }
+    //         this.players.push(player);
+    //         if (this.player != null) {
+    //             let superPlayer = this.player;
+    //             if (player.group != null && superPlayer.group != null && player.app() === superPlayer.app()) {
+    //                 superPlayer = superPlayer.superPlayer;
+    //             }
+    //             player.superPlayer = superPlayer;
+    //             superPlayer.subPlayers.push(player);
+    //         } else {
+    //             this.playerTree.push(player);
+    //         }
+    //         this.player = player;
+    //     } catch (err) {
+    //         debugger;
+    //     }
+    // }
 
     getProxy() {
         return this;
@@ -464,10 +467,10 @@ class Participant {
     }
 
     getGame() {
-        if (this.gameIndex < 0 || this.gameIndex >= this.session.gameTree.length) {
+        if (this.player == null) {
             return null;
         }
-        return this.session.gameTree[this.gameIndex];
+        return this.player.superGame;
     }
     
     emitUpdate() {

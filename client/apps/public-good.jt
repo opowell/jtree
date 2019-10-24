@@ -1,7 +1,6 @@
 game.description = 'Game: Players in a group contribute to a public good. Contributions are multiplied by a factor (> 1), then redistributed equally among all group members.';
 
 game.numRepetitions = 5;
-game.groupSize      = 4;
 game.endowment      = 20;
 game.factor         = 2;
 
@@ -12,6 +11,7 @@ intro.activeScreen = `
 `;
 
 var pgg = game.addSubGame('pgg');
+pgg.groupSize = 2;
 pgg.numPeriods = game.numRepetitions;
 var decideStage = pgg.addSubGame('decide');
 // TODO: "game" should refer to the current game, i.e. here it refers to "decide".

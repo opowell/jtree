@@ -10,12 +10,14 @@ const path      = require('path');
 */
 class Period {
 
-    constructor(id, app) {
+    constructor(id, app, superGroup) {
         /**
          * Unique identifier for this participant.
          * @type {String}
          */
         this.id = id;
+
+        this.superGroup = superGroup;
 
         /**
          * @type {App}
@@ -60,7 +62,7 @@ class Period {
     numGroups() {
         var ng = null;
         if (this.app.groupSize !== undefined) {
-            ng = Math.floor((this.session().proxy.state.participants.length - 1) / this.app.groupSize) + 1;
+            ng = Math.floor((this.superGroup.players.length - 1) / this.app.groupSize) + 1;
         } else if (this.app.numGroups != null) {
             ng = this.app.numGroups;
         } else {
@@ -82,15 +84,35 @@ class Period {
      * @param  {type} player description
      * @return {type}             description
      */
+
+     groupBegin(group) {
+         if (!group.startedPeriod) {
+             group.startedPeriod = true;
+             global.jt.log('START PERIOD - GROUP: ' + this.app.id + ', ' + this.id + ', ' + group.id);
+             for (let p in group.players) {
+                 this.playerBegin(group.players[p]);
+             }
+         }
+     }
+
     playerBegin(player) {
+
+        this.groupBegin(player.group);
+
+        if (player.startedPeriod) {
+            return;
+        }
+        player.startedPeriod = true;
+        global.jt.log('START PERIOD - PLAYER: ' + this.app.id + ', ' + this.id + ', ' + player.id);
+
         var groupId = this.getPlayerGroupId(player);
         if (groupId === null) {
-            console.log('Error: no group defined for ' + player.id + ' in ' + this.roomId());
+            global.jt.log('Error: no group defined for ' + player.id + ' in ' + this.roomId());
         }
 
         var gr = Utils.findById(this.groups, groupId)
         if (gr === null) {
-            gr = new Group.new(groupId, this);
+            gr = new Group.new(groupId, this, player.group);
             gr.save();
             this.groups.push(gr);
             gr = Utils.findById(this.groups, gr.id);
@@ -98,12 +120,12 @@ class Period {
         var player = gr.playerWithParticipant(player);
         if (player === null) {
             // create player
-            player = new Player.new(participant.id, player, gr, gr.players.length+1);
-            participant.addPlayer(player);
+            player = new Player.new(player.id, player, gr, gr.players.length+1);
+            // participant.addPlayer(player);
             // participant.players.push(player);
-            player = participant.players[participant.players.length-1];
-            player.save();
-            participant.save();
+            // player = participant.players[participant.players.length-1];
+            // player.save();
+            // participant.save();
             gr.players.push(player);
             //            if (gr.players.length this.)
         }
@@ -112,23 +134,20 @@ class Period {
         player.superGame = this.game;
         player.stage = player.subGame;
         player.game = player.superGame;
-        player.status = 'ready';
-        participant.setPlayer(player);
-
-        if (participant.player === null) {
-            console.log('APP: error assigning group for participant ' + participant.id);
+        player.status = 'playing';
+        player.participant().setPlayer(player);
+        if (player.stage != null) {
+            player.stage.playerStartInternal(player);
         }
-
-        player.startStage(player.stage);
     }
 
-    getPlayerGroupId(participant) {
+    getPlayerGroupId(player) {
         if (this.groups.length !== this.numGroups()) {
             this.createGroups();
         }
         for (var g in this.groups) {
             var group = this.groups[g];
-            if (group.playerWithParticipant(participant) !== null) {
+            if (group.playerWithParticipant(player) !== null) {
                 return group.id;
             }
         }
@@ -140,7 +159,7 @@ class Period {
     // numGroups: number of groups into which players are split
     createGroups() {
         const app = this.app;
-        const participants = app.session.proxy.state.participants;
+        const participants = this.superGroup.players;
         const gIds = app.getGroupIdsForPeriod(this);
 
         // Create groups
@@ -182,7 +201,7 @@ class Period {
                     if (gIds[i] == group.id) {
                         let participant = Utils.findById(participants, pIds[i]);
                         var player = new Player.new(pIds[i], participant, group, group.players.length+1);
-                        participant.addPlayer(player);
+                        // participant.addPlayer(player);
                         player.save();
                         participant.save();
                         group.players.push(player);

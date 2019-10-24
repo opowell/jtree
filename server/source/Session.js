@@ -410,9 +410,7 @@ class Session {
         this.clients.push(client);
         global.jt.socketServer.sendOrQueueAdminMsg(null, 'addClient', client);
         this.io().to(socket.id).emit('logged-in', stringify(participant));
-        if (participant.player !== null) {
-            participant.player.sendUpdate(socket.id);
-        }
+        // participant.player.sendUpdate(socket.id);
 
         return client;
     }
@@ -1319,7 +1317,8 @@ participantUI() {
     start() {
         let participants = this.proxy.state.participants;
         if (!this.started) {
-            global.jt.log('START SESSION: ' + this.id);
+            global.jt.log('############################################');
+            global.jt.log('START - SESSIN: ' + this.id);
             this.started = true;
             this.io().to(this.roomId()).emit('dataUpdate', [{
                 roomId: this.roomId(),
@@ -1332,9 +1331,13 @@ participantUI() {
             }
             let group = new Group.new('session', period);
             for (let p in participants) {
-                let player = new Player.new(participants[p].id, participants[p], group, p);
+                let part = participants[p];
+                let player = new Player.new(part.id, part, group, p);
+                part.player = player;
                 group.players.push(player);
+                player.startedPeriod = true;
             }
+            group.startedPeriod = true;
             period.app.groupStartInternal(group);
         }
         for (let p in participants) {
