@@ -2010,10 +2010,11 @@ class App {
         let timeStamp = Utils.timeStamp();
         player['timeEnd_' + this.id] = timeStamp;
         if (player['timeStart_' + this.id] == null) {
-            global.jt.log('Player ERROR, missing stage start time! Using end time.');
-            player['timeStart_' + this.id] = timeStamp;
+            global.jt.log('Player ERROR, missing stage start time!');
+            player['msInStage_' + this.id] = 0;
+        } else {
+            player['msInStage_' + this.id] = Utils.dateFromStr(timeStamp) - Utils.dateFromStr(player['timeStart_' + this.id]);
         }
-        player['msInStage_' + this.id] = Utils.dateFromStr(timeStamp) - Utils.dateFromStr(player['timeStart_' + this.id]);
         global.jt.log('END   - PLAYER: ' + this.id + ', ' + player.id);
     }
 
