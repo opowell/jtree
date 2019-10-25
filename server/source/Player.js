@@ -70,8 +70,6 @@ class Player {
 
         this.subPlayers = [];
 
-        this.superPlayer.subPlayers.push(this);
-
         this.startedPeriod = false;
         this.endedPeriod = false;
 
@@ -79,9 +77,9 @@ class Player {
 
     endStage() {
         if (this.stage != null) {
-            this.stage.playerEndInternal(player);
+            this.stage.playerEndInternal(this);
         } else {
-            this.group.period.playerEndInternal(player);
+            this.group.period.playerEndInternal(this);
         }
     }
 
@@ -101,10 +99,6 @@ class Player {
 
     canProcessMessage() {
         return (this.status === 'playing');
-    }
-
-    end() {
-        this.game.playerEndInternal(this);
     }
 
     /**

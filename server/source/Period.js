@@ -18,6 +18,9 @@ class Period {
         this.id = id;
 
         this.superGroup = superGroup;
+        for (let p in superGroup.players) {
+            superGroup.players[p].subPlayers.push([]);
+        }
 
         /**
          * @type {App}
@@ -31,6 +34,7 @@ class Period {
          * @default []
          */
         this.groups = [];
+        this.superGroup.subGroups.push(this.groups);
         
         this.superPeriod = null;
         if (app.superGame != null) {
@@ -44,6 +48,9 @@ class Period {
         this.outputHide = ['stage', 'status', 'this', 'curAppId', 'periodTemp',
         'periodPerm', 'periodPermAuto', 'outputHide', 'app', 'groups', 'type',
         'stageTimerStart','stageTimerDuration','stageTimerTimeLeft','stageTimerStageIndex','stageTimerCallback','periodId','appIndex', 'gIds'];
+
+        this.waitToEnd = true;
+        this.waitToStart = true;
     }
 
     roomId() {
@@ -95,14 +102,150 @@ class Period {
          }
      }
 
+     recordPlayerEndTime(player) {
+        let timeStamp = Utils.timeStamp();
+        player['timeEnd'] = timeStamp;
+        if (player['timeStart'] == null) {
+            global.jt.log('Player ERROR, missing period start time!');
+            player['msInPeriod'] = 0;
+        } else {
+            player['msInPeriod'] = Utils.dateFromStr(timeStamp) - Utils.dateFromStr(player['timeStart']);
+        }
+        global.jt.log('END PERIOD - PLAYER: ' + this.app.id + ', ' + this.id + ', ' + player.id);
+    }
+
      recordPlayerStartTime(player) {
         let timeStamp = Utils.timeStamp();
         global.jt.log('START PERIOD - PLAYER: ' + this.app.id + ', ' + this.id + ', ' + player.id);
         player['timeStart'] = timeStamp;
     }
 
-    playerEnd(player) {
+    playerEnd(player) {}
+
+    groupEnd(group) {}
+
+    groupEndInternal(group) {
+
+        if (!this.canGroupEnd(group)) {
+            return;
+        }
+
+        try {
+            global.jt.log('END PERIOD - GROUP : ' + this.app.id + ', ' + this.id + ', ' + group.id);
+            group.endedPeriod = true;
+            this.groupEnd(group);
+        } catch (err) {
+            global.jt.log(err.stack);
+        }
+        for (var p in group.players) {
+            this.playerEndInternal(group.players[p]);
+        }
+
+    }
+
+    canPlayerEnd(player) {
         
+        if (player.endedPeriod) {
+            return false;
+        }
+
+        if (this.waitToEnd) {
+            for (let i in player.group.players) {
+                let plyr = player.group.players[i];
+                if (
+                    ['done', 'finished'].includes(plyr.status) === false
+                    || plyr.stageIndex < this.app.subgames.length - 1
+                ) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    canGroupPlayersEnd(group) {
+
+        if (!group.startedPeriod) {
+            return false;
+        }
+
+        // If Group has already finished, do not allow players to finish. 
+        if (!group.endedPeriod) {
+            return false;
+        }
+
+        // If do not need to wait for all players, return true.
+        if (!this.waitToEnd) {
+            return true;
+        }
+
+        // If any player is not finished playing, return false.
+        for (let p in group.players) {
+            let player = group.players[p];
+            if (
+                ['done', 'finished'].includes(player.status) === false
+                || player.stageIndex < this.app.subgames.length - 1
+            ) {
+                return false;
+            }
+        }
+                        
+        // Otherwise, return true.
+        return true;
+    }
+
+    canGroupEnd(group) {
+        return this.canGroupEndDefault(group);
+    }
+
+    canGroupEndDefault(group) {
+
+        if (group.endedPeriod) {
+            return false;
+        }
+
+        if (this.waitToEnd) {
+            for (let i in group.players) {
+                if (group.players[i].endedPeriod) {
+                    return false;
+                }
+            }
+        }
+
+        if (this.waitToEnd) {
+            // If any player is not in this stage, then return false.
+            for (var p in group.players) {
+                var player = group.players[p];
+                if (player.stageIndex < this.app.subgames.length - 1
+                 || player.status != 'done'
+                ) {
+                    return false;
+                }
+            }
+        } 
+
+        // Otherwise, return true.
+        return true;
+    }
+
+    playerEndInternal(player) {
+        player.status = 'done';
+        this.groupEndInternal(player.group);
+        if (!this.canPlayerEnd(player)) {
+            return;
+        }
+        if (this.canGroupPlayersEnd(player.group)) {
+            this.recordPlayerEndTime(player);
+            player.endedPeriod = true;
+            try {
+                this.playerEnd(player);
+            } catch(err) {
+                global.jt.log(err + '\n' + err.stack);
+            }
+            player.superPlayer.endStage();
+        }
+        player.emitUpdate2();        
     }
 
     playerBegin(player) {
@@ -147,13 +290,13 @@ class Period {
     // numGroups: number of groups into which players are split
     createGroups() {
         const app = this.app;
-        const participants = this.superGroup.players;
+        const players = this.superGroup.players;
         const gIds = app.getGroupIdsForPeriod(this);
 
         // Create groups
         var pIds = [];
-        for (var p in participants) {
-            pIds.push(participants[p]);
+        for (var p in players) {
+            pIds.push(players[p]);
         }
 
         let numGroups = this.numGroups();
@@ -173,10 +316,12 @@ class Period {
                 // [['P1', 'P2'], ['P3', 'P4'], ...]
                 for (var i=0; i<gIds[g].length; i++) {
                     var pId = gIds[g][i];
-                    let participant = Utils.findById(participants, pId);
-                    var player = new Player.new(pId, participant, group, i+1);
-                    player.save();
-                    participant.save();
+                    let superPlyr = Utils.findById(players, pId);
+                    let player = new Player.new(pId, superPlyr, group, i+1);
+                    if (superPlyr == null) {
+                        debugger;
+                    }
+                    superPlyr.subPlayers[superPlyr.subPlayers.length-1].push(player);
                     group.players.push(player);
                 }
                 group.allPlayersCreated = true;

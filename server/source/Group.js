@@ -22,9 +22,6 @@ class Group {
         this.id = id;
 
         this.superGroup = parent;
-        if (parent != null) {
-            parent.subGroups.push(this);
-        }
         this.subGroups = [];
 
         /**

@@ -557,7 +557,9 @@ class App {
     }
 
     groupBeginPeriod(periodNum, group) {
-        if (group.subGroups.length >= periodNum) {
+        if (
+            group.subGroups[group.stageStartedIndex] != null
+        &&  group.subGroups[group.stageStartedIndex].length >= periodNum) {
             return;
         }
        
@@ -592,11 +594,11 @@ class App {
      * Get group ids for their current period
      */
     getGroupIdsForPeriod(period) {
-        var participants = this.session.proxy.state.participants;
+        var players = period.superGroup.players;
         var numGroups = period.numGroups();
         var pIds = [];
-        for (var p in participants) {
-            pIds.push(participants[p].id);
+        for (var p in players) {
+            pIds.push(players[p].id);
         }
         // Group IDs.
         var gIds = [];
@@ -2067,7 +2069,7 @@ class App {
             let player = group.players[p];
             if (
                 ['done', 'finished'].includes(player.status) == false
-             || player.stageEndedIndex > this.indexInApp()
+             && player.stageIndex === this.indexInApp()
             ) {
                 return false;
             }
@@ -2076,6 +2078,8 @@ class App {
         // Otherwise, return true.
         return true;
     }
+
+    playerEnd(player) {}
 
     playerEndInternal(player) {
         player.status = 'done';
@@ -2090,11 +2094,17 @@ class App {
             } catch(err) {
                 global.jt.log(err + '\n' + err.stack);
             }
-            if (player.stageIndex < this.subgames.length-1) {
+            // If not in last subgame of parent game...
+            if (player.stageIndex < this.superGame.subgames.length-1) {
+                // Move to next subgame of parent game.
                 player.stageIndex++;
-                this.subgames[player.stageIndex].playerStartInternal(player);
-            } else {
-                player.superPlayer.end();
+                player.status = 'ready';
+                this.superGame.subgames[player.stageIndex].playerStartInternal(player);
+            } 
+            // Otherwise, finished all of parent game's subgames.
+            else {
+                // End parent player.
+                player.superPlayer.endStage();
             }
         }
         player.emitUpdate2();
