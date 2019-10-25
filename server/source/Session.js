@@ -506,7 +506,8 @@ class Session {
                 }
             }
         }
-        game.playerEndInternal(player);
+
+        player.endStage();
 
         participant.updateScheduled = true;
     }

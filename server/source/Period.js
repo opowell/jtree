@@ -98,7 +98,11 @@ class Period {
      recordPlayerStartTime(player) {
         let timeStamp = Utils.timeStamp();
         global.jt.log('START PERIOD - PLAYER: ' + this.app.id + ', ' + this.id + ', ' + player.id);
-        player['timeStart_' + this.id] = timeStamp;
+        player['timeStart'] = timeStamp;
+    }
+
+    playerEnd(player) {
+        
     }
 
     playerBegin(player) {
@@ -111,30 +115,6 @@ class Period {
         player.startedPeriod = true;
         this.recordPlayerStartTime(player);
 
-        var groupId = this.getPlayerGroupId(player);
-        if (groupId === null) {
-            global.jt.log('Error: no group defined for ' + player.id + ' in ' + this.roomId());
-        }
-
-        var gr = Utils.findById(this.groups, groupId)
-        if (gr === null) {
-            gr = new Group.new(groupId, this, player.group);
-            gr.save();
-            this.groups.push(gr);
-            gr = Utils.findById(this.groups, gr.id);
-        }
-        var player = gr.playerWithParticipant(player);
-        if (player === null) {
-            // create player
-            player = new Player.new(player.id, player, gr, gr.players.length+1);
-            // participant.addPlayer(player);
-            // participant.players.push(player);
-            // player = participant.players[participant.players.length-1];
-            // player.save();
-            // participant.save();
-            gr.players.push(player);
-            //            if (gr.players.length this.)
-        }
         player.stageIndex = 0;
         player.subGame = this.game.subgames[player.stageIndex];
         player.superGame = this.game;
@@ -185,8 +165,7 @@ class Period {
             }
         }
         for (var g=this.groups.length; g<numGroups; g++) {
-            var group = new Group.new(g+1, this);
-            group.save();
+            var group = new Group.new(g+1, this, this.superGroup);
             this.groups.push(group);
 
             if (gIds[g].length != null) {

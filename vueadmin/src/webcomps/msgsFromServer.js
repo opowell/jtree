@@ -245,23 +245,11 @@ msgs.playerUpdate = function(player) {
     }
 
     if (player.group.period.app.session.id === jt.data.session.id) {
-        // var div = $('tr.participant-' + jt.safePId(player.id));
-
-        // // Re-establish object links.
-        // player.participant.session = player.group.period.app.session;
-        // if (player.stage !== undefined) {
-        //     player.stage.app = player.group.period.app;
-        // }
-        // player.participant.player = player;
-
-        let participant = player.participant;
-        participant.player = player;
-        delete player.participant;
+        let participant = player;
+        while (participant.superPlayer != null) {
+            participant = participant.superPlayer;
+        }
         window.vue.$store.commit('setParticipant', participant);
-
-        // jt.setParticipantPlayer(player.id, player, div);
-//        $('.participant-' + player.id + '-periodIndex').text(decompId.periodId);
-        // $('.participant-' + jt.safePId(player.id) + '-periodIndex').text(player.group.period.id);
     }
 }
 

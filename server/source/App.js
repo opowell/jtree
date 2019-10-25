@@ -533,21 +533,21 @@ class App {
      * DUE TO:
      * {@link Stage.playerEnd}
      */
-    getNextStageForPlayer(player) {
-        var stageInd = player.stageIndex;
+    // getNextStageForPlayer(player) {
+    //     var stageInd = player.stageIndex;
 
-        // if (player.stage.subgames.length > 0) {
-        //     return player.stage.subgames[0];
-        // }
+    //     // if (player.stage.subgames.length > 0) {
+    //     //     return player.stage.subgames[0];
+    //     // }
 
-        /** If not in the last stage, return next stage.*/
-        if (stageInd < this.subgames.length-1) {
-            return this.subgames[stageInd+1];
-        } else {
-            return null;
-        }
+    //     /** If not in the last stage, return next stage.*/
+    //     if (stageInd < this.subgames.length-1) {
+    //         return this.subgames[stageInd+1];
+    //     } else {
+    //         return null;
+    //     }
 
-    }
+    // }
 
     getGamePeriod(player) {
         if (player.group == null || player.group.period == null) {
@@ -571,7 +571,6 @@ class App {
 
         for (let i in period.groups) {
             let periodGroup = period.groups[i];
-            group.subGroups.push(periodGroup);
             period.groupBegin(periodGroup);
         }
 
@@ -1980,7 +1979,7 @@ class App {
             try {
                 this.playerStartInternal(group.players[p]);
             } catch (err) {
-                console.log(err.stack);
+                global.jt.log(err.stack);
                 debugger;
             }
         }

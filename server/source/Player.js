@@ -77,6 +77,14 @@ class Player {
 
     }
 
+    endStage() {
+        if (this.stage != null) {
+            this.stage.playerEndInternal(player);
+        } else {
+            this.group.period.playerEndInternal(player);
+        }
+    }
+
     updateGamePath() {
         let out = '';
         if (this.subGame != null) {
@@ -247,6 +255,26 @@ class Player {
             newPlayer[j] = json[j];
         }
         group.players[json.idInGroup-1] = newPlayer;
+    }
+
+
+
+    getPlayerPath() {
+        let out = '';
+        if (this.superPlayer != null) {
+            if (this.superPlayer.getPlayerPath != null) {
+                out = this.superPlayer.getPlayerPath();
+            }
+            let index = -1;
+            for (let i in this.superPlayer.subPlayers) {
+                if (this.superPlayer.subPlayers[i] === this) {
+                    index = i;
+                    break;
+                }
+            }
+            out += '/' + index + '-' + this.group.period.app.id;
+        }
+        return out;
     }
 
     participant() {
