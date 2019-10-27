@@ -711,7 +711,7 @@ class App {
                 </head>
                 <body style='display: none'>
                     <div id='jtree'>
-                        <p v-if='game.numPeriods > 1'>Period: {{period.id}}/{{game.numPeriods}}</p>
+                        <p v-if='game.superGame.numPeriods > 1'>Period: {{period.id}}/{{game.superGame.numPeriods}}</p>
                         <p v-if='hasTimeout'>Time left (s): {{clock.totalSeconds}}</p>
                         ${screensHTML}
                     </div>
@@ -1350,10 +1350,9 @@ class App {
      * @param  {number} prd The index to assign to the new period.
      */
     initPeriod(prd, superGroup) {
-        // console.log('create period for ' + this.id);
         var period = new Period.new(prd + 1, this, superGroup);
-        period.save();
-        this.periods.push(period);
+        this.periods[prd].push(period);
+        return period;
     }
 
     /**
@@ -1657,6 +1656,10 @@ class App {
             return false;
         }
 
+        if (player.stageIndex > this.indexInApp()) {
+            return false;
+        }
+
         if (this.waitToEnd) {
             for (let i in player.group.players) {
                 if (player.group.players[i].endedPeriod) {
@@ -1728,9 +1731,15 @@ class App {
     
     getPeriod(index, group) {
         if (this.periods[index] == undefined) {
-            this.initPeriod(index, group);
+            this.periods[index] = [];
         }
-        return this.periods[index];
+        let superPeriod = this.periods[index];
+        for (let i in superPeriod) {
+            if (superPeriod[i].superGroup === group) {
+                return superPeriod[i];
+            }
+        }
+        return this.initPeriod(index, group);
     }
 
     /**
@@ -2182,29 +2191,6 @@ class App {
         }
         this.emitUpdate2();
     }
-
-    endStage(endGroup) {
-        if (endGroup == null) {
-            endGroup = true;
-        }
-
-        if (this.status === 'playing') {
-            this.recordStageEndTime(this.stage);
-            this.status = 'done';
-        }
-
-        if (endGroup && !this.group.canPlayersEnd(this.stage)) {
-            this.emitUpdate2();
-            this.group.endStage(this.stage, false);
-        } else {
-            global.jt.log('END   - PLAYER: ' + this.stage.id + ', ' + this.roomId());
-            this.stage.playerEnd(this);
-            this.emitUpdate2();
-            this.finishStage(endGroup);
-        }
-
-    }
-
 
     /**
      * Is the player at least finished the given stage of the given period?
