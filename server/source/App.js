@@ -1559,51 +1559,51 @@ class App {
     }
 
 
-    /**
-     * Returns the next stage for a given group in a given stage.
-     * 1. If stage is not the last stage of this app, return the next stage of this app.
-     * 2. If period is not the last period of this app, return the first stage of this app.
-     * 3. If app is not the last app of this session, return the first stage of the next app.
-     * 4. Otherwise, return null.
-     *
-     * TODO: Does the next stage have Stage.waitForGroup == true?
-     *
-     * CALLED FROM
-     * - {@link Stage#playerEnd}
-     * - {@link App#groupMoveToNextStage}
-     *
-     * @param  {Group} group The group
-     * @return {(null|Stage)} The next stage for this group, or null.
-     */
-    nextStageForGroup(group) {
-        var slowestPlayers = group.slowestPlayers();
-        return slowestPlayers[0].nextStage();
-    }
-    nextGameForGroup(group) {
-        var slowestPlayers = group.slowestPlayers();
-        return slowestPlayers[0].nextGame();
-    }
+    // /**
+    //  * Returns the next stage for a given group in a given stage.
+    //  * 1. If stage is not the last stage of this app, return the next stage of this app.
+    //  * 2. If period is not the last period of this app, return the first stage of this app.
+    //  * 3. If app is not the last app of this session, return the first stage of the next app.
+    //  * 4. Otherwise, return null.
+    //  *
+    //  * TODO: Does the next stage have Stage.waitForGroup == true?
+    //  *
+    //  * CALLED FROM
+    //  * - {@link Stage#playerEnd}
+    //  * - {@link App#groupMoveToNextStage}
+    //  *
+    //  * @param  {Group} group The group
+    //  * @return {(null|Stage)} The next stage for this group, or null.
+    //  */
+    // nextStageForGroup(group) {
+    //     var slowestPlayers = group.slowestPlayers();
+    //     return slowestPlayers[0].nextStage();
+    // }
+    // nextGameForGroup(group) {
+    //     var slowestPlayers = group.slowestPlayers();
+    //     return slowestPlayers[0].nextGame();
+    // }
 
-    /**
-     * Called when a player finishes a stage.
-     * By default, check whether everyone in group is finished.
-     * If yes, then advance to next stage ([this.session.gotoNextStage(player.group)]{@link Session.gotoNextStage}).
-     *
-     * @param  {Player} player description
-     */
-    onPlayerFinished(player) {
-        var proceed = true;
-        for (var p in player.group.players) {
-            var pId = player.group.players[p];
-            if (this.session.player(pId).status !== 'finished') {
-                proceed = false;
-                break;
-            }
-        }
-        if (proceed) {
-            this.session.gotoNextStage(player.group);
-        }
-    }
+    // /**
+    //  * Called when a player finishes a stage.
+    //  * By default, check whether everyone in group is finished.
+    //  * If yes, then advance to next stage ([this.session.gotoNextStage(player.group)]{@link Session.gotoNextStage}).
+    //  *
+    //  * @param  {Player} player description
+    //  */
+    // onPlayerFinished(player) {
+    //     var proceed = true;
+    //     for (var p in player.group.players) {
+    //         var pId = player.group.players[p];
+    //         if (this.session.player(pId).status !== 'finished') {
+    //             proceed = false;
+    //             break;
+    //         }
+    //     }
+    //     if (proceed) {
+    //         this.session.gotoNextStage(player.group);
+    //     }
+    // }
 
     /**
      * The names of fields to include in an export of this object. To be included, a field must:
@@ -1679,54 +1679,54 @@ class App {
         return this.clientDuration;
     };
 
-        // An array of ids, one for each game in this game's ancestry.
-        getGamePath() {
-            let out = [];
-            if (this.superGame != null) {
-                out = this.superGame.getGamePath();
-            }
-            out.push(this.roomId());
-            return out;
+    // An array of ids, one for each game in this game's ancestry.
+    getGamePath() {
+        let out = [];
+        if (this.superGame != null) {
+            out = this.superGame.getGamePath();
         }
-    
-        // An array of indices, one for each game in this game's ancestry.
-        // i.e. [0, 0, 1, 0]
-        getGameIndices() {
-            let out = [];
-            if (this.superGame != null) {
-                out = this.superGame.getGameIndices();
-            }
-            out.push(this.indexInSuperGame());
-            return out;
+        out.push(this.roomId());
+        return out;
+    }
+
+    // An array of indices, one for each game in this game's ancestry.
+    // i.e. [0, 0, 1, 0]
+    getGameIndices() {
+        let out = [];
+        if (this.superGame != null) {
+            out = this.superGame.getGameIndices();
         }
-    
-        indexInSuperGame() {
-            let gameTree = null;
-    
-            if (this.superGame == null) {
-                gameTree = this.session.gameTree;
-            } else {
-                gameTree = this.superGame.subgames;
-            }
-    
-            let thisTarget = this;
-            while (thisTarget.__target != null) {
-                thisTarget = thisTarget.__target;
-            }
-    
-            for (let i=0; i<gameTree.length; i++) {
-                let gameTarget = gameTree[i];
-                while (gameTarget.__target != null) {
-                    gameTarget = gameTarget.__target;
-                }
-                if (gameTarget === thisTarget) {
-                    return i;
-                }
-            }
-    
-            return -1;
-    
+        out.push(this.indexInSuperGame());
+        return out;
+    }
+
+    indexInSuperGame() {
+        let gameTree = null;
+
+        if (this.superGame == null) {
+            gameTree = this.session.gameTree;
+        } else {
+            gameTree = this.superGame.subgames;
         }
+
+        let thisTarget = this;
+        while (thisTarget.__target != null) {
+            thisTarget = thisTarget.__target;
+        }
+
+        for (let i=0; i<gameTree.length; i++) {
+            let gameTarget = gameTree[i];
+            while (gameTarget.__target != null) {
+                gameTarget = gameTarget.__target;
+            }
+            if (gameTarget === thisTarget) {
+                return i;
+            }
+        }
+
+        return -1;
+
+    }
     
     
     getPeriod(index, group) {
@@ -1877,21 +1877,6 @@ class App {
             }    
         } else {
             return this.session.roomId() + '_app_' + this.indexInSession() + '-' + this.id;
-        }
-    }
-
-    /**
-     * saveSelfAndChildren - description
-     *
-     * CALLED FROM:
-     * - {@link Session#addApp}
-
-     * @return {type}  description
-     */
-    saveSelfAndChildren() {
-        this.save();
-        for (var i in this.stages) {
-            this.stages[i].save();
         }
     }
 
@@ -2104,12 +2089,14 @@ class App {
                 global.jt.log(err + '\n' + err.stack);
             }
             // If not in last subgame of parent game...
-            if (player.stageIndex < this.superGame.subgames.length-1) {
+            if (player.stageIndex < player.superGame.subgames.length-1) {
                 // Move to next subgame of parent game.
                 player.stageIndex++;
                 player.status = 'ready';
-                this.superGame.subgames[player.stageIndex].playerStartInternal(player);
-            } 
+                player.superGame.subgames[player.stageIndex].playerStartInternal(player);
+            } else if (player.period().id < player.app().numPeriods) {
+                this.superGame.playerBeginPeriod(player.period().id+1, player);
+            }
             // Otherwise, finished all of parent game's subgames.
             else {
                 // End parent player.

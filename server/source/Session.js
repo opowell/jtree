@@ -1319,7 +1319,7 @@ participantUI() {
         let participants = this.proxy.state.participants;
         if (!this.started) {
             global.jt.log('############################################');
-            global.jt.log('START - SESSIN: ' + this.id);
+            global.jt.log('START - SESSION: ' + this.id);
             this.started = true;
             this.io().to(this.roomId()).emit('dataUpdate', [{
                 roomId: this.roomId(),
@@ -1335,6 +1335,7 @@ participantUI() {
                 let part = participants[p];
                 let player = new Player.new(part.id, part, group, p);
                 part.player = player;
+                part.playerTree.push(player);
                 group.players.push(player);
                 player.startedPeriod = true;
             }

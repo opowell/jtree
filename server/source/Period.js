@@ -258,17 +258,18 @@ class Period {
         player.startedPeriod = true;
         this.recordPlayerStartTime(player);
 
-        player.stageIndex = 0;
-        player.subGame = this.game.subgames[player.stageIndex];
         player.superGame = this.game;
-        player.stage = player.subGame;
         player.game = player.superGame;
-        player.participant().setPlayer(player);
-        if (player.stage != null) {
+        if (this.game.subgames.length > 0) {
+            player.stageIndex = 0;
+            player.subGame = this.game.subgames[player.stageIndex];
+            player.stage = player.subGame;
             player.status = 'ready';
+            player.participant().setPlayer(player);
             player.stage.playerStartInternal(player);
         } else {
             player.status = 'playing';
+            player.participant().setPlayer(player);
         }
     }
 

@@ -76,6 +76,11 @@ class Player {
     }
 
     endStage() {
+        // if (this.stage != null) {
+        //     this.stage.playerEndInternal(this);
+        if (this.stageIndex < this.app().subgames.length) {
+            this.stage = this.app().subgames[this.stageIndex];
+        }
         if (this.stage != null) {
             this.stage.playerEndInternal(this);
         } else {
@@ -85,8 +90,8 @@ class Player {
 
     updateGamePath() {
         let out = '';
-        if (this.subGame != null) {
-            out = this.subGame.getFullGamePath();
+        if (this.game != null) {
+            out = this.game.getFullGamePath();
         } else {
             out = this.superPlayer.gamePath;
         }

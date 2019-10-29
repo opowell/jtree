@@ -4,46 +4,49 @@ game.numRepetitions = 5;
 game.endowment      = 20;
 game.factor         = 2;
 
-var intro = game.addSubGame('intro');
+let intro = game.addSubGame('intro');
 intro.activeScreen = `
     <p>WELCOME</p>
     <p>Welcome to the experiment. You will play a public goods game {{game.superGame.numRepetitions}} times in groups of {{game.superGame.subgames[1].groupSize}}. The endowment is {{game.superGame.endowment}} and the contribution multiplier is {{game.superGame.factor}}.</p>
 `;
 
-var pgg = game.addSubGame('pgg');
+let pgg = game.addSubGame('pgg');
 pgg.groupSize = 2;
 pgg.numPeriods = game.numRepetitions;
-var decideStage = pgg.addSubGame('decide');
+let decideStage = pgg.addSubGame('decide');
 // TODO: "game" should refer to the current game, i.e. here it refers to "decide".
 decideStage.activeScreen = `
+    <p>Group {{group.superGroup.id}}</p>
     <p>DECISION</p>
     <p>Your endowment is {{game.superGame.superGame.endowment}} E$.</p>
     <p>Your contribution (E$): <input name='player.contribution' required type='number' min='0' :max='game.superGame.superGame.endowment' step='1'></p>
     <button>Make contribution</button>
 `;
 
-var resultsStage = pgg.addSubGame('results');
+let resultsStage = pgg.addSubGame('results');
+// "group" refers to the pgg group.
 resultsStage.groupStart = function(group) {
-    group.contributions = Utils.sum(group.players, 'contribution');
+    let decideGroup = group.subGroups[0][0];
+    group.contributions = Utils.sum(decideGroup.players, 'contribution');
     group.production = group.contributions * game.factor;
     group.prodPerPlayer = group.production / group.players.length;
     group.players.forEach(function(player) {
-        player.points = game.endowment - player.contribution + group.prodPerPlayer;
+        player.points = game.endowment - player.subPlayers[0][0].contribution + group.prodPerPlayer;
     });
 }
 resultsStage.activeScreen = `
     <p>RESULTS</p>
-    <p>Your endowment was {{game.superGame.endowment}} E$. You contributed {{player.contribution}} E$.</p>
-    <p>In total, players in your group contributed {{group.contributions}} E$, thus the total amount produced was {{group.production | round(2)}} E$.</p>
-    <p>Thus, your payoff in this period is {{player.points | round(2)}} E$.</p>
+    <p>Your endowment was {{game.superGame.superGame.endowment}} E$. You contributed {{player.superPlayer.subPlayers[0][0].contribution}} E$.</p>
+    <p>In total, players in your group contributed {{group.superGroup.contributions}} E$, thus the total amount produced was {{group.superGroup.production | round(2)}} E$.</p>
+    <p>Thus, your payoff in this period is {{player.superPlayer.points | round(2)}} E$.</p>
 `;
 
-var finish = game.addSubGame('finish');
+let finish = game.addSubGame('finish');
 finish.activeScreen = `
-<p>Thank you for your participation.</p>
-<h4>Your total earnings: XX</h4>
-<div v-for='(sp, index) in player.superPlayer.subPlayers[1].subPlayers' :key='index'>
-    Period {{index+1}}: {{sp.points | round(2)}} points.
-</div>
+    <p>Thank you for your participation.</p>
+    <h4>Your total earnings: XX</h4>
+    <div v-for='(sp, index) in player.subPlayers[0].subPlayers[0]' :key='index'>
+        Period {{index+1}}: {{sp.points | round(2)}} points.
+    </div>
 `
 finish.addOKButtonIfNone = false;
