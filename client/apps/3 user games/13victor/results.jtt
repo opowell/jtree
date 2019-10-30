@@ -1,0 +1,5 @@
+let results = app.newStage('results');
+results.activeScreen = `
+    <p>Part 1: {{participant.chosenPayouts[1]}}.</p>
+    <p>Part 2: {{participant.chosenPayouts[2]}}.</p>
+`
