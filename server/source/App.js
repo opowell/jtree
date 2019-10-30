@@ -1062,12 +1062,16 @@ class App {
                 var period = this.periods[i];
                 for (var j=0; j<period.groups.length; j++) {
                     var group = period.groups[j];
-                    var tabRows = group[table].rows;
-                    for (var r=0; r<tabRows.length; r++) {
-                        var row = tabRows[r];
-                        var newLine = period.id + this.outputDelimiter + group.id + this.outputDelimiter + row.id + this.outputDelimiter;
-                        newLine = this.appendValues(newLine, tableHeaders, row);
-                        groupTableText.push(newLine);
+                    try {
+                        var tabRows = group[table].rows;
+                        for (var r=0; r<tabRows.length; r++) {
+                            var row = tabRows[r];
+                            var newLine = period.id + this.outputDelimiter + group.id + this.outputDelimiter + row.id + this.outputDelimiter;
+                            newLine = this.appendValues(newLine, tableHeaders, row);
+                            groupTableText.push(newLine);
+                        }
+                    } catch (err) {
+                        
                     }
                 }
             }

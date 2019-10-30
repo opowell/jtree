@@ -445,15 +445,16 @@ jt.updatePlayer = function(player, updateVue) {
         // Add row to data object.
         if (jt[tableName + 'Add'] === undefined) {
             jt[tableName + 'Add'] = function(newRow) {
-                let table = jt.data.player.group[tableName];
+                newRow = JSON.parse(newRow);
+                let table = jt.vue.group[tableName];
                 for (let i in table) {
                     let row = table[i];
                     if (row.id === newRow.id) {
-                        table[i] = newRow;
+                        Vue.set(table, i, newRow);
                         return;
                     }
                 }
-                jt.data.player.group[tableName].push(newRow);
+                table.push(newRow);
             }
         }
 
@@ -466,7 +467,7 @@ jt.updatePlayer = function(player, updateVue) {
 
         if (jt[tableName + 'Remove'] === undefined) {
             jt[tableName + 'Remove'] = function(id) {
-                var table = jt.data.player.group[tableName];
+                var table = jt.vue.group[tableName];
                 for (var i=0; i<table.length; i++) {
                     var row = table[i];
                     if (row.id === id) {
@@ -487,9 +488,9 @@ jt.postUpdatePlayer = function() {}
 jt.messages = {}
 
 jt.defaultSocketConnected = function() {
-    var functionList = Object.getOwnPropertyNames(jt.messages);
-    for (var i in functionList) {
-        var fnI = functionList[i];
+    let functionList = Object.getOwnPropertyNames(jt.messages);
+    for (let i in functionList) {
+        let fnI = functionList[i];
         jt.socket.on(fnI, function(d, cb) {
             try {
                 d = jt.parse(d);

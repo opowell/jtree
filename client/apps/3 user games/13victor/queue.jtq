@@ -1,0 +1,29 @@
+let trainingBudgets = [[50, 50]];
+
+let realBudgets = [
+    [50, 100],
+    [75, 75],
+    [100, 50],
+];
+
+let shuffledBudgets = Utils.shuffle(realBudgets);
+
+// session.addApp('1_instructions.jtt');
+// session.addApp('counting.jtt', {
+//     budgets: trainingBudgets, 
+//     treatment: 'individual',
+//     training: 'yes',
+// });
+// session.addApp('2_instructions.jtt');
+// session.addApp('counting.jtt', {
+//     budgets: realBudgets, 
+//     treatment: 'individual',
+//     training: 'no',
+// });
+// session.addApp('3_instructions.jtt');
+session.addApp('counting.jtt', {
+    budgets: shuffledBudgets, 
+    treatment: 'pair',
+    training: 'no',
+});
+session.addApp('results.jtt');

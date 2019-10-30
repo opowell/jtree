@@ -2,6 +2,12 @@
 - Generic game trees.
 - Listen to incremental game changes via observer.
 
+##### 2019.10.17 - 0.8.2.3
+- CHANGED: AdminUI: default to old interface, added link to new (BETA) interface.
+- FIXED: defaultClient.js: set array values using Vue.set.
+- ADDED: new App (13victor).
+- FIXED: bug for listening to messages on client.
+
 ##### 2019.10.17 - 0.8.2.2
 - FIXED: If default port (80 or 3000) is in use, try again with new port.
 
