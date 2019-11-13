@@ -511,9 +511,9 @@ class Utils {
                 } else {
                     var period = Utils.findById(app.periods, ids.periodId);
                     if (ids.playerId === null || ids.playerId === undefined) {
-                        return Utils.findById(period.groups, ids.groupId);
+                        return Utils.findById(period.group.subGroups, ids.groupId);
                     } else {
-                        var group = Utils.findById(period.groups, ids.groupId);
+                        var group = Utils.findById(period.group.subGroups, ids.groupId);
                         return Utils.findById(group.players, ids.playerId);
                     }
                 }

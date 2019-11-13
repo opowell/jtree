@@ -362,8 +362,8 @@ class Utils {
         return out;
     }
 
-    static getGameContents(app, game) {
-        var fn = path.join(app.global.jt.path, 'apps/' + app + '/' + game + '.html')
+    static getStageContents(app, stage) {
+        var fn = path.join(app.global.jt.path, 'apps/' + app + '/' + stage + '.html')
         var html = fs.readFileSync(fn, 'utf8');
         return html;
     }

@@ -10,12 +10,17 @@ const path      = require('path');
 */
 class Period {
 
-    constructor(id, app) {
+    constructor(id, app, superGroup) {
         /**
          * Unique identifier for this participant.
          * @type {String}
          */
         this.id = id;
+
+        this.superGroup = superGroup;
+        // for (let p in superGroup.players) {
+        //     superGroup.players[p].subPlayers.push([]);
+        // }
 
         /**
          * @type {App}
@@ -28,7 +33,18 @@ class Period {
          * @type Array
          * @default []
          */
-        this.groups = [];
+        this.group = new Group.new(id, this, this.superGroup);
+        this.superGroup.subGroups.push(this.group);
+        for (let p in this.superGroup.players) {
+            let sp = this.superGroup.players[p];
+            let player = new Player.new(sp.id, sp, this.group, p+1);
+            this.group.players.push(player);
+        }
+        
+        this.superPeriod = null;
+        if (app.superGame != null) {
+            this.superPeriod = app.superGame.periods[app.superGame.periods.length-1];
+        }
         
         /**
          * 'outputHide' fields are not included in output
@@ -56,10 +72,10 @@ class Period {
         return null;
     }
 
-    numGroups(group) {
+    numGroups() {
         let ng = null;
         if (this.app.groupSize !== undefined) {
-            ng = Math.floor((group.players.length - 1) / this.app.groupSize) + 1;
+            ng = Math.floor((this.superGroup.players.length - 1) / this.app.groupSize) + 1;
         } else if (this.app.numGroups != null) {
             ng = this.app.numGroups;
         } else {
@@ -72,11 +88,10 @@ class Period {
         //let this.app.session.participants.length;
     }
 
-    groupBegin(group) {
+     groupBegin(group) {
          if (!group.startedPeriod) {
              group.startedPeriod = true;
-            //  global.jt.log('START PERIOD - GROUP: ' + this.app.id + ', ' + this.id + ', ' + group.id);
-
+             global.jt.log('START PERIOD - GROUP: ' + this.app.id + ', ' + this.id + ', ' + group.id);
              for (let p in group.players) {
                  this.playerBegin(group.players[p]);
              }
@@ -97,7 +112,7 @@ class Period {
 
      recordPlayerStartTime(player) {
         let timeStamp = Utils.timeStamp();
-        global.jt.log('START PERIOD - SUBPLAYER: ' + this.app.id + ', ' + this.id + ', ' + player.id);
+        global.jt.log('START PERIOD - PLAYER: ' + this.app.id + ', ' + this.id + ', ' + player.id);
         player['timeStart'] = timeStamp;
     }
 
@@ -135,7 +150,7 @@ class Period {
                 let plyr = player.group.players[i];
                 if (
                     ['done', 'finished'].includes(plyr.status) === false
-                    || plyr.gameIndex < this.app.subgames.length - 1
+                    || plyr.stageIndex < this.app.subgames.length - 1
                 ) {
                     return false;
                 }
@@ -166,7 +181,7 @@ class Period {
             let player = group.players[p];
             if (
                 ['done', 'finished'].includes(player.status) === false
-                || player.gameIndex < this.app.subgames.length - 1
+                || player.stageIndex < this.app.subgames.length - 1
             ) {
                 return false;
             }
@@ -198,7 +213,7 @@ class Period {
             // If any player is not in this stage, then return false.
             for (let p in group.players) {
                 let player = group.players[p];
-                if (player.gameIndex < this.app.subgames.length - 1
+                if (player.stageIndex < this.app.subgames.length - 1
                  || player.status != 'done'
                 ) {
                     return false;
@@ -224,7 +239,7 @@ class Period {
             } catch(err) {
                 global.jt.log(err + '\n' + err.stack);
             }
-            player.superPlayer.endGame();
+            player.superPlayer.endStage();
         }
         player.emitUpdate2();        
     }
@@ -239,13 +254,15 @@ class Period {
         player.startedPeriod = true;
         this.recordPlayerStartTime(player);
 
+        player.superGame = this.game;
+        player.game = player.superGame;
         if (this.game.subgames.length > 0) {
-            player.gameIndex = 0;
-            player.game = this.game.subgames[player.gameIndex];
-            player.updateGamePath();
+            player.stageIndex = 0;
+            player.subGame = this.game.subgames[player.stageIndex];
+            player.stage = player.subGame;
             player.status = 'ready';
             player.participant().setPlayer(player);
-            player.game.playerStartInternal(player);
+            player.stage.playerStartInternal(player);
         } else {
             player.status = 'playing';
             player.participant().setPlayer(player);
@@ -266,11 +283,12 @@ class Period {
     }
 
     // splits players into groups.
-    // group: group of players to split.
-    createGroups(group) {
+    // participants: list of participants, player.group variable points to a list of players in the current group
+    // numGroups: number of groups into which players are split
+    createGroups() {
         const app = this.app;
-        const players = group.players;
-        const gIds = app.getGroupIdsForPeriod(this, group);
+        const players = this.group.players;
+        const gIds = app.getGroupIdsForPeriod(this);
 
         // Create groups
         let pIds = [];
@@ -278,7 +296,7 @@ class Period {
             pIds.push(players[p]);
         }
 
-        let numGroups = this.numGroups(group);
+        let numGroups = this.numGroups();
         if (gIds[0].length != null) {
             numGroups = gIds.length;
         } else {
@@ -286,38 +304,39 @@ class Period {
                 numGroups = Math.max(numGroups, gIds[i]);
             }
         }
-        for (let g=group.subGroups.length; g<numGroups; g++) {
-            let newSG = new Group.new(g+1, this, group);
-            group.subGroups.push(newSG);
+        for (let g=this.group.subGroups.length; g<numGroups; g++) {
+            let group = new Group.new(g+1, this, this.group);
+
             if (gIds[g].length != null) {
                 // Label format
                 // [['P1', 'P2'], ['P3', 'P4'], ...]
                 for (let i=0; i<gIds[g].length; i++) {
                     let pId = gIds[g][i];
                     let superPlyr = Utils.findById(players, pId);
-                    let player = new Player.new(pId, superPlyr, newSG, i+1);
-                    player.type = 'game';
+                    let player = new Player.new(pId, superPlyr, group, i+1);
                     if (superPlyr == null) {
                         debugger;
                     }
                     superPlyr.subPlayers.push(player);
-                    newSG.players.push(player);
+                    group.players.push(player);
                 }
-                newSG.allPlayersCreated = true;
+                group.allPlayersCreated = true;
+                group.save();    
             } else {
                 // Numerical format
                 // [['P1', 'P2'], ['P3', 'P4'], ...]
                 for (let i=0; i<gIds.length; i++) {
                     if (gIds[i] == group.id) {
-                        let superPlyr = Utils.findById(players, pIds[i]);
-                        let player = new Player.new(pIds[i], superPlyr, newSG, newSG.players.length+1);
-                        superPlyr.subPlayers.push(player);
-                        player.type = 'game';
-                        newSG.players.push(player);
+                        let participant = Utils.findById(participants, pIds[i]);
+                        let player = new Player.new(pIds[i], participant, group, group.players.length+1);
+                        // participant.addPlayer(player);
+                        player.save();
+                        participant.save();
+                        group.players.push(player);
                     }
                 }
-                newSG.allPlayersCreated = true;
-                newSG.save();    
+                group.allPlayersCreated = true;
+                group.save();    
             }
         }
 

@@ -19,9 +19,10 @@ jt.printPlayerTree = function() {
 
 jt.printPlayerArray = function(indent, players) {
     for (let i in players) {
-        console.log(indent + ' ' + players[i].game.id);
-        if (players[i].subPlayers != null) {
-            jt.printPlayerArray(indent + '-', players[i].subPlayers);
+        let player = players[i];
+        console.log(indent + ' ' + (player.game==null ? '' : player.game.id));
+        if (player.subPlayers != null) {
+            jt.printPlayerArray(indent + '-', player.subPlayers);
         }
     }
 }
@@ -104,7 +105,7 @@ jt.setFormDefaults = function() {
                     event.preventDefault();
                     event.stopPropagation();
                     var values = {};
-                    var stageName = jt.vue.player.game.id;
+                    var stageName = jt.vue.game.id;
                     values.fnName = stageName;
 
                     // INPUTS (includes input, select and checkboxes, but not buttons)
@@ -341,6 +342,9 @@ jt.getVueModels = function(participant, computed) {
         vueModel.group = player.group;
         vueModel.period = player.group.period;
         vueModel.game = player.game;
+        if (player.game == null) {
+            vueModel.game = player.superPlayer.superPlayer.game;
+        }
         if (player.game != null) {
             vueModel.session = player.game.session;
         }

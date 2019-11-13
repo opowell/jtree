@@ -1,10 +1,10 @@
+// const Stage     = require('./Stage.js');
 const Period    = require('./Period.js');
 const Utils     = require('./Utils.js');
 const fs        = require('fs-extra');
 const path      = require('path');
 const Timer     = require('./Timer.js');
 const Player    = require('./Player.js');
-const Group     = require('./Group.js');
 
 /** Class that represents an app. */
 class App {
@@ -80,6 +80,13 @@ class App {
          */
         this.isStandaloneApp = true;
 
+        /**
+         * The stages of this app.
+         * @type Array
+         * @default []
+         */
+        this.stages = [];
+
         // From Game.js
         this.subgames = [];
         this.activeScreen = '';        
@@ -110,8 +117,8 @@ class App {
         this.useVue = true;
         
         /**
-         * How long clients have before game is auto-submitted (from client, not from server).
-         * if <= 0, then no client timeout for this game.
+         * How long clients have before stage is auto-submitted (from client, not from server).
+         * if <= 0, then no client timeout for this stage.
          * @type number
          * @default 0
          */
@@ -148,7 +155,7 @@ class App {
                         <p v-if='superGame.numPeriods > 1'>Period: {{period.id}}/{{superGame.numPeriods}}</p>
                         <p v-if='hasTimeout'>Time left (s): {{clock.totalSeconds}}</p>
                         <span v-if='player.status=="playing"'>
-                            {{subgames}}
+                            {{stages}}
                         </span>
                         <span v-if='["waiting", "finished", "done"].includes(player.status)'>
                             {{waiting-screens}}
@@ -234,6 +241,8 @@ class App {
          */
         this.waitForAll = true;
 
+        this.stageWaitToStart = true;
+        this.stageWaitToEnd = true;
         this.subGameWaitToStart = true;
         this.subGameWaitToEnd = true;
 
@@ -259,6 +268,7 @@ class App {
          * @type String
          * @default true
          */
+        this.stageWrapPlayingScreenInFormTag = 'onlyIfNoButton';
         this.subgameWrapPlayingScreenInFormTag = 'onlyIfNoButton';
         this.wrapPlayingScreenInFormTag = 'onlyIfNoButton';
 
@@ -291,23 +301,32 @@ class App {
         this.numGroups = undefined;
 
         /**
+         * Starts the stages of this App.
          * TODO:
          * @type string
-         * @default '<span v-show="game.id == '{{game.id}}'
+         * @default '<span jt-stage="{{stage.id}}">'
          */
+        // this.stageContentStart = '<span jt-stage="{{stage.id}}">';
+
+        this.stageContentStart = `
+            <span v-show="stage.id == '{{stage.id}}'">
+        `;
         this.subgameContentStart = `<span v-if="game.id == '{{game.id}}'">`;
 
 
         /**
-         * Ends the games of this App.
+         * Ends the stages of this App.
          * TODO:
          * @type string
          * @default '</span>'
          */
+        this.stageContentEnd = '</span>';
         this.subgameContentEnd = '</span>';
 
         //TODO:
         this.outputHideAuto = [
+            'stageContentStart',
+            'stageContentEnd',
             'subgameContentStart',
             'subgameContentEnd',
             'optionValues',
@@ -319,12 +338,14 @@ class App {
             'keyComparisons',
             'screen',
             'activeScreen',
+            'stageWrapPlayingScreenInFormTag',
             'subgameWrapPlayingScreenInFormTag',
             'waitForAll',
             'finished',
             'htmlFile',
             'this',
             'session',
+            'stages',
             'subgames',
             'outputHideAuto',
             'outputHide',
@@ -394,7 +415,7 @@ class App {
     *
     * - client subscribes to this App's channel.
     * - client registers custom messages it may send.
-    * - client registers automatic game submission messages it may send.
+    * - client registers automatic stage submission messages it may send.
     * - load custom behaviour [this.addClient]{@link App#addClient}.
     *
     * Called from:
@@ -409,7 +430,7 @@ class App {
         client.register(i, msg);
     }
 
-    // Load custom code, overwrite default game submission behavior.
+    // Load custom code, overwrite default stage submission behavior.
     try {
         this.addClient(client);
     } catch(err) {
@@ -423,18 +444,18 @@ class App {
 }
 
     /** TODO */
-    addGames(array) {
+    addStages(array) {
         for (let i=0; i<array.length; i++) {
-            this.addGame(array[i]);
+            this.addStage(array[i]);
         }
     }
 
     /**
-     * Adds a game, with contents loaded from .jtt file.
-     * @param {String} name The name of the game to add
+     * Adds a stage, with contents loaded from .jtt file.
+     * @param {String} name The name of the stage to add
      */
-    addGame(name) {
-        let game = this.newSubGame(name);
+    addStage(name) {
+        let stage = this.newStage(name);
         let fn = path.join(path.dirname(this.id), name);
         if (fs.existsSync(fn + '.jtt')) {
             fn = fn + '.jtt';
@@ -471,13 +492,29 @@ class App {
     groupStart(group) {}
     playerEnd(player) {}
     playerStart(player) {}
-    playerStartPeriod(player, period) {}
-    playerEndPeriod(player, period) {}
-    groupStartPeriod(group, period) {}
-    groupEndPeriod(group, period) {}
-    subGroupStartPeriod(group, period) {}
-    subGroupEndPeriod(group, period) {}
 
+
+    /**
+     * Get next stage for player in their current period. Return null if already at last stage of period.
+     *
+     * DUE TO:
+     * {@link Stage.playerEnd}
+     */
+    // getNextStageForPlayer(player) {
+    //     let stageInd = player.stageIndex;
+
+    //     // if (player.stage.subgames.length > 0) {
+    //     //     return player.stage.subgames[0];
+    //     // }
+
+    //     /** If not in the last stage, return next stage.*/
+    //     if (stageInd < this.subgames.length-1) {
+    //         return this.subgames[stageInd+1];
+    //     } else {
+    //         return null;
+    //     }
+
+    // }
 
     getGamePeriod(player) {
         if (player.group == null || player.group.period == null) {
@@ -487,43 +524,23 @@ class App {
     }
 
     groupBeginPeriod(periodNum, group) {
-
-        let period = this.getPeriod(periodNum-1);
-
-        if (group.subGroups.length < periodNum) {
-            let pg = new Group.new(group.id, period, group);
-            for (let p in group.players) {
-                let oldP = group.players[p];
-                let newP = new Player.new(oldP.id, oldP, pg, oldP.idInGroup);
-                oldP.subPlayers.push(newP);
-                newP.type = 'period';
-                pg.players.push(newP);
-            }
-            group.subGroups.push(pg);
+        if (
+            group.subGroups[periodNum-1] != null
+        ) {
+            return;
         }
-        let periodGroup = group.subGroups[periodNum-1];
-
-        if (periodGroup.subGroups.length < period.numGroups(periodGroup)) {
-            period.createGroups(periodGroup);
+       
+        let period = this.getPeriod(periodNum-1, group);
+        if (period === undefined) {
+            return;
+        }
+        if (period.group.subGroups.length < period.numGroups()) {
+            period.createGroups();
         }
 
-        global.jt.log('START PERIOD - GROUP: ' + this.id + ', ' + period.id + ', ' + periodGroup.id);
-        periodGroup.startedPeriod = true;
-        periodGroup.started = true;
-        this.groupStartPeriod(periodGroup, period);
-        for (let p in periodGroup.players) {
-            let periodPlayer = periodGroup.players[p];
-            global.jt.log('START PERIOD - PLAYER: ' + this.id + ', ' + period.id + ', ' + periodPlayer.id);
-            periodPlayer.startedPeriod = true;
-            periodPlayer.started = true;
-            this.playerStartPeriod(periodPlayer, period);
-        }
-
-        for (let i in periodGroup.subGroups) {
-            let periodSubGroup = periodGroup.subGroups[i];
-            global.jt.log('START PERIOD - SUBGROUP: ' + this.id + ', ' + period.id + ', ' + periodSubGroup.id);
-            this.subGroupStartPeriod(periodSubGroup, period);
-            period.groupBegin(periodSubGroup);
+        for (let i in period.group.subGroups) {
+            let periodGroup = period.group.subGroups[i];
+            period.groupBegin(periodGroup);
         }
 
     }
@@ -532,23 +549,20 @@ class App {
 
         this.groupBeginPeriod(periodNum, player.group);
 
-        let period = this.getPeriod(periodNum-1);
+        let period = this.getPeriod(periodNum-1, player.group);
         if (period === undefined) {
             return false;
         }
-
-        let periodPlayer = player.subPlayers[periodNum - 1];
-
-        period.playerBegin(periodPlayer);
+        period.playerBegin(player);
     }
 
     /**
      * TODO
      * Get group ids for their current period
      */
-    getGroupIdsForPeriod(period, group) {
-        let players = group.players;
-        let numGroups = period.numGroups(group);
+    getGroupIdsForPeriod(period) {
+        let players = period.superGroup.players;
+        let numGroups = period.numGroups();
         let pIds = [];
         for (let p in players) {
             pIds.push(players[p].id);
@@ -559,13 +573,12 @@ class App {
             gIds.push([]);
         }
 
-        // Remove any pIds of players who are already in a group.
-        for (let i=0; i<group.subGroups.length; i++) {
-            let subGroup = group.subGroups[i];
-            for (let j=0; j<subGroup.players.length; j++) {
-                gIds[i].push(subGroup.players[j].id);
+        for (let i=0; i<period.group.subGroups.length; i++) {
+            let group = period.group.subGroups[i];
+            for (let j=0; j<group.players.length; j++) {
+                gIds[i].push(group.players[j].id);
                 for (let k=0; k<pIds.length; k++) {
-                    if (pIds[k] == subGroup.players[j].id) {
+                    if (pIds[k] == group.players[j].id) {
                         pIds.splice(k, 1);
                     }
                 }
@@ -576,7 +589,7 @@ class App {
         let m = Math.floor((pIds.length-1) / numGroups) + 1;
 
         if (this.groupMatchingType === 'PARTNER_1122') {
-            for (let g=group.subGroups.length; g<numGroups; g++) {
+            for (let g=period.group.subGroups.length; g<numGroups; g++) {
                 for (let i=0; i<m; i++) {
                     gIds[g].push(pIds[0]);
                     pIds.splice(0, 1);
@@ -584,20 +597,20 @@ class App {
             }
         } else if (this.groupMatchingType === 'PARTNER_1212') {
             for (let i=0; i<m; i++) {
-                for (let g=group.subGroups.length; g<numGroups; g++) {
+                for (let g=period.group.subGroups.length; g<numGroups; g++) {
                     gIds[g].push(pIds[0]);
                     pIds.splice(0, 1);
                 }
             }
         } else if (this.groupMatchingType === 'PARTNER_RANDOM') {
             if (period.id === 1) {
-                period.getStrangerMatching(numGroups, pIds, gIds, m, group.subGroups.length);
+                period.getStrangerMatching(numGroups, pIds, gIds, m, period.group.subGroups.length);
             } else {
                 let prevPeriod = period.prevPeriod();
                 gIds = prevPeriod.groupIds();
             }
         } else if (this.groupMatchingType === 'STRANGER') {
-            period.getStrangerMatching(numGroups, pIds, gIds, m, group.subGroups.length);
+            period.getStrangerMatching(numGroups, pIds, gIds, m, period.group.subGroups.length);
         }
         return gIds;
     }
@@ -729,7 +742,7 @@ class App {
     }
 
     // TODO
-    parseSubGameTag(game, text) {
+    parseStageTag(game, text) {
         while (text.includes('{{')) {
             let start = text.indexOf('{{');
             let end = text.indexOf('}}');
@@ -744,7 +757,7 @@ class App {
 
     sendParticipantPage(req, res, participant) {
 
-        // Load dynamic version of app to allow for live editing of game html.
+        // Load dynamic version of app to allow for live editing of stage html.
         // let app = this;
         let app = this.reload();
 
@@ -776,42 +789,42 @@ class App {
             <span v-show='player.status == "playing"' class='playing-screen'>
                 ${app.activeScreen}
                 <div>
-                {{subgames}}
+                {{stages}}
                 </div>
             </span>
             `;
         }
 
-        if (!html.includes('{{subgames}}')) {
+        if (!html.includes('{{stages}}')) {
             html += `
             <span v-show='player.status == "playing"' class='playing-screen'>
-                {{subgames}}
+                {{stages}}
             </span>
             `;
         }
 
-        // Load game contents, if any.
-        let subgamesHTML = '';
+        // Load stage contents, if any.
+        let stagesHTML = '';
         let waitingScreensHTML = '';
-        for (let i=0; i<app.subgames.length; i++) {
-            let subgame = app.subgames[i];
-            let subgameHTML = '';
-            let contentStart = app.parseSubGameTag(game, app.subgameContentStart);
-            let contentEnd = app.parseSubGameTag(game, app.subgameContentStart);
-            if (subgame.content != null) {
-                subgameHTML = contentStart + '\n' + subgame.content + '\n' + contentEnd;
+        for (let i=0; i<app.stages.length; i++) {
+            let stage = app.stages[i];
+            let stageHTML = '';
+            let contentStart = app.parseStageTag(stage, app.stageContentStart);
+            let contentEnd = app.parseStageTag(stage, app.stageContentEnd);
+            if (stage.content != null) {
+                stageHTML = contentStart + '\n' + stage.content + '\n' + contentEnd;
             }
-            if (subgame.activeScreen != null) {
-                subgameHTML += app.parseSubgameTag(subgame, app.subgameContentStart)  + '\n';
+            if (stage.activeScreen != null) {
+                stageHTML += app.parseStageTag(stage, app.stageContentStart)  + '\n';
                 let wrapInForm = null;
-                if (subgame.wrapPlayingScreenInFormTag === 'yes') {
+                if (stage.wrapPlayingScreenInFormTag === 'yes') {
                     wrapInForm = true;
-                } else if (subgame.wrapPlayingScreenInFormTag === 'no') {
+                } else if (stage.wrapPlayingScreenInFormTag === 'no') {
                     wrapInForm = false;
-                } else if (subgame.wrapPlayingScreenInFormTag === 'onlyIfNoButton') {
+                } else if (stage.wrapPlayingScreenInFormTag === 'onlyIfNoButton') {
                     if (
-                        !subgame.activeScreen.includes('<button') ||
-                        subgame.addOKButtonIfNone
+                        !stage.activeScreen.includes('<button') ||
+                        stage.addOKButtonIfNone
                         ) {
                         wrapInForm = true;
                     } else {
@@ -819,31 +832,31 @@ class App {
                     }
                 }
                 if (wrapInForm) {
-                    subgameHTML += '<form>\n';
+                    stageHTML += '<form>\n';
                 }
-                subgameHTML += subgame.activeScreen + '\n';
-                if (subgame.addOKButtonIfNone) {
-                    if (!subgameHTML.includes('<button')) {
-                        subgameHTML += `<button>OK</button>`;
+                stageHTML += stage.activeScreen + '\n';
+                if (stage.addOKButtonIfNone) {
+                    if (!stageHTML.includes('<button')) {
+                        stageHTML += `<button>OK</button>`;
                     }
                 }
                 if (wrapInForm) {
-                    subgameHTML += '</form>\n';
+                    stageHTML += '</form>\n';
                 }
-                subgameHTML += app.parseSubGameTag(subgame, app.subgameContentEnd);
+                stageHTML += app.parseStageTag(stage, app.stageContentEnd);
             }
 
-            if (subgamesHTML.length > 0) {
-                subgamesHTML += '\n';
+            if (stagesHTML.length > 0) {
+                stagesHTML += '\n';
             }
-            subgamesHTML += subgameHTML;
+            stagesHTML += stageHTML;
 
             let waitingScreenHTML = contentStart;
-            if (subgame.useAppWaitingScreen) {
+            if (stage.useAppWaitingScreen) {
                 waitingScreenHTML += app.getWaitingScreen();
             }
-            if (subgame.getWaitingScreen() != null) {
-                waitingScreenHTML += subgame.getWaitingScreen();
+            if (stage.getWaitingScreen() != null) {
+                waitingScreenHTML += stage.getWaitingScreen();
             }
             waitingScreenHTML += contentEnd;
 
@@ -853,13 +866,13 @@ class App {
             waitingScreensHTML += waitingScreenHTML;
         }
 
-        let [strippedScripts, subgamesHTML1] = this.stripTag('script', subgamesHTML);
-        let [strippedStyles, subgamesHTML2] = this.stripTag('style', subgamesHTML1);
-        let [strippedLinks, subgamesHTML3] = this.stripTag('link', subgamesHTML2);
-        subgamesHTML = subgamesHTML3;
+        let [strippedScripts, stagesHTML1] = this.stripTag('script', stagesHTML);
+        let [strippedStyles, stagesHTML2] = this.stripTag('style', stagesHTML1);
+        let [strippedLinks, stagesHTML3] = this.stripTag('link', stagesHTML2);
+        stagesHTML = stagesHTML3;
 
-        if (html.includes('{{subgames}}')) {
-            html = html.replace('{{subgames}}', subgamesHTML);
+        if (html.includes('{{stages}}')) {
+            html = html.replace('{{stages}}', stagesHTML);
         }
 
         html = html.replace('{{waiting-screens}}', waitingScreensHTML);
@@ -923,12 +936,12 @@ class App {
         let out = `
         <script>
         jt.autoplay = function() {
-            switch (jt.vue.player.subgame.id) {
+            switch (jt.vue.player.stage.id) {
                 `;
-        for (let i=0; i<this.subgames.length; i++) {
+        for (let i=0; i<this.stages.length; i++) {
             out += `
-            case "${this.subgames[i].id}":
-                jt.autoplay_${this.subgames[i].id}();
+            case "${this.stages[i].id}":
+                jt.autoplay_${this.stages[i].id}();
                 break;
             `;
         }
@@ -937,11 +950,11 @@ class App {
             }
         }
         `
-        for (let i=0; i<this.subgames.length; i++) {
+        for (let i=0; i<this.stages.length; i++) {
             out += `
-                if (jt.autoplay_${this.subgames[i].id} == null) {
-                    jt.autoplay_${this.subgames[i].id} = function() {
-                        ${this.subgames[i].autoplay}
+                if (jt.autoplay_${this.stages[i].id} == null) {
+                    jt.autoplay_${this.stages[i].id} = function() {
+                        ${this.stages[i].autoplay}
                     };
                 }
             `;
@@ -977,7 +990,7 @@ class App {
     }
 
     // TODO
-    parseSubgameTag(game, text) {
+    parseStageTag(stage, text) {
         while (text.includes('{{')) {
             let start = text.indexOf('{{');
             let end = text.indexOf('}}');
@@ -1043,7 +1056,7 @@ class App {
         let playerHeaders = [];
         let periodSkip = ['id'];
         let groupSkip = ['id', 'allPlayersCreated'];
-        let playerSkip = ['status', 'gameIndex', 'id', 'participantId'];
+        let playerSkip = ['status', 'stageIndex', 'id', 'participantId'];
         let groupTables = [];
         let groupTableHeaders = {};
         for (let i=0; i<this.periods.length; i++) {
@@ -1226,6 +1239,29 @@ class App {
         return this.session.getOutputDir() + '/' + this.getIdInSession();
     }
 
+    /**
+     * - clear group's timer.
+     * - if next stage exists, let the group play it.
+     * - for each player in the group, call {@link App#playerMoveToNextStage}.
+     *
+     * @param  {Group} group
+     */
+    groupMoveToNextStage(group) {
+        group.clearStageTimer();
+        let nextStage = this.nextStageForGroup(group);
+
+        //If not at last stage of session, mvoe group to next stage.
+        if (nextStage !== null) {
+            nextStage.groupPlayDefault(group);
+        }
+
+        if (nextStage === null || nextStage.waitForGroup) {
+            for (let p in group.players) {
+                this.playerMoveToNextStage(group.players[p]);
+            }
+        }
+    }
+
     getIdInSession() {
         return this.indexInSession() + '_' + this.shortId;
     }
@@ -1280,9 +1316,9 @@ class App {
      *
      * @param  {number} prd The index to assign to the new period.
      */
-    initPeriod(prd) {
-        let period = new Period.new(prd + 1, this);
-        this.periods.push(period);
+    initPeriod(prd, superGroup) {
+        let period = new Period.new(prd + 1, this, superGroup);
+        this.periods[prd].push(period);
         return period;
     }
 
@@ -1323,16 +1359,16 @@ class App {
 
         let app = new App({}, this.id);
 
-        metaData.subgames = [];
+        metaData.stages = [];
         try {
             eval(metaData.appjs);
-            for (let i in app.subgames) {
-                metaData.subgames.push(app.subgames[i].id);
+            for (let i in app.stages) {
+                metaData.stages.push(app.stages[i].id);
             }
             metaData.numPeriods = app.numPeriods;
             metaData.options = app.options;
         } catch (err) {
-            metaData.subgames.push('unknown');
+            metaData.stages.push('unknown');
             metaData.numPeriods = 'unknown';
         }
 
@@ -1463,6 +1499,21 @@ class App {
 
 
     /**
+     * Creates a new {@link Stage} and adds it to the App.
+     *
+     * @param  {string} id The identifier of the stage.
+     * @return {Stage} The new stage.
+     */
+    newStage(id) {
+        if (id == null) {
+            id = 'stage' + (this.stages.length + 1);
+        }
+        let stage = new Stage.new(id, this);
+        this.stages.push(stage);
+        return stage;
+    }
+
+        /**
      * Create a new {@link Game} and add it as a subgame of the current Game.
      *
      * @param  {string} id The identifier of the game.
@@ -1474,6 +1525,52 @@ class App {
         return subgame;
     }
 
+
+    // /**
+    //  * Returns the next stage for a given group in a given stage.
+    //  * 1. If stage is not the last stage of this app, return the next stage of this app.
+    //  * 2. If period is not the last period of this app, return the first stage of this app.
+    //  * 3. If app is not the last app of this session, return the first stage of the next app.
+    //  * 4. Otherwise, return null.
+    //  *
+    //  * TODO: Does the next stage have Stage.waitForGroup == true?
+    //  *
+    //  * CALLED FROM
+    //  * - {@link Stage#playerEnd}
+    //  * - {@link App#groupMoveToNextStage}
+    //  *
+    //  * @param  {Group} group The group
+    //  * @return {(null|Stage)} The next stage for this group, or null.
+    //  */
+    // nextStageForGroup(group) {
+    //     let slowestPlayers = group.slowestPlayers();
+    //     return slowestPlayers[0].nextStage();
+    // }
+    // nextGameForGroup(group) {
+    //     let slowestPlayers = group.slowestPlayers();
+    //     return slowestPlayers[0].nextGame();
+    // }
+
+    // /**
+    //  * Called when a player finishes a stage.
+    //  * By default, check whether everyone in group is finished.
+    //  * If yes, then advance to next stage ([this.session.gotoNextStage(player.group)]{@link Session.gotoNextStage}).
+    //  *
+    //  * @param  {Player} player description
+    //  */
+    // onPlayerFinished(player) {
+    //     let proceed = true;
+    //     for (let p in player.group.players) {
+    //         let pId = player.group.players[p];
+    //         if (this.session.player(pId).status !== 'finished') {
+    //             proceed = false;
+    //             break;
+    //         }
+    //     }
+    //     if (proceed) {
+    //         this.session.gotoNextStage(player.group);
+    //     }
+    // }
 
     /**
      * The names of fields to include in an export of this object. To be included, a field must:
@@ -1526,7 +1623,7 @@ class App {
             return false;
         }
 
-        if (player.gameIndex > this.indexInApp()) {
+        if (player.stageIndex > this.indexInApp()) {
             return false;
         }
 
@@ -1599,12 +1696,47 @@ class App {
     }
     
     
-    getPeriod(index) {
+    getPeriod(index, group) {
         if (this.periods.length <= index) {
-            this.initPeriod(index);
+            this.initPeriod(index, group);
         }
         return this.periods[index];
     }
+
+    /**
+     * A participant moves to its next period.
+     *
+     * FUNCTIONALITY
+     * - If participant is currently in a period, end it ({@link Period.participantEnd}).
+     * - Increment participant's period index.
+     * - Save participant ({@link Participant.save}).
+     * - If participant is has finished all periods in this app, move to next app ({@link Session.participantMoveToNextApp}).
+     * - Otherwise, begin new period ({@link App.participantBeginPeriod}).
+     *
+     * CALLED FROM
+     * - {@link App#playerMoveToNextStage}
+     * - {@link App#participantBegin}
+     *
+     * @param  {type} participant description
+     * @return {type}             description
+     */
+     playerMoveToNextPeriod(player) {
+
+        let periodIndex = player.getGamePeriod(this);
+
+        // If in the last period of app, move to next app.
+         if (periodIndex >= this.numPeriods - 1) {
+            //  this.getFullSession().participantMoveToNextGame(participant);
+         }
+
+         // Move to the next period of this app.
+         else {
+             // Move to next period.
+             player.periodIndex++;
+             player.save();
+             this.playerBeginPeriod(player);
+         }
+     }
 
      getFullSession() {
         return global.jt.data.getSession(this.session.id);
@@ -1632,6 +1764,35 @@ class App {
     }
 
     participantEnd(participant) {}
+
+    // /**
+    //  * Move the player to their next stage.
+    //  *
+    //  * FUNCTIONALITY
+    //  * - if player has not finished all stages,
+    //  * -- set player status to 'playing'
+    //  * -- increment player's stage index.
+    //  * -- play next stage ({@link Stage#playerPlayDefault}).
+    //  * -- player emits update ({@link Player#emitUpdate2}).
+    //  * - otherwise, move participant to next period ([this.participantMoveToNextPeriod(player.participant)]{@link App#participantMoveToNextPeriod}).
+    //  *
+    //  * CALLED FROM
+    //  * - {@link App#groupMoveToNextStage}
+    //  *
+    //  * @param  {Player} player The player
+    //  * @return {type}        description
+    //  */
+    // playerMoveToNextStage(player) {
+    //     if (player.stageIndex < this.stages.length - 1) {
+    //         player.status = 'playing';
+    //         player.stageIndex++;
+    //         player.stage = this.stages[player.stageIndex];
+    //         player.stage.playerPlayDefault(player);
+    //         player.emitUpdate2();
+    //     } else {
+    //         this.participantMoveToNextPeriod(player.participant);
+    //     }
+    // }
 
     /**
      * Returns the player of the current player's participant from the previous period.
@@ -1718,16 +1879,16 @@ class App {
             }
         }
 
-        // If already ended this game, return false.
-        if (group.gameEndedIndex >= this.indexInApp()) {
+        // If already ended this stage, return false.
+        if (group.stageEndedIndex >= this.indexInApp()) {
             return false;
         }
 
         if (this.waitToEnd) {
-            // If any player is not in this game, then return false.
+            // If any player is not in this stage, then return false.
             for (let p in group.players) {
                 let player = group.players[p];
-                if (player.gameIndex > this.indexInApp()
+                if (player.stageIndex > this.indexInApp()
                  || ['done', 'finished'].includes(player.status) === false
                 ) {
                     return false;
@@ -1751,10 +1912,10 @@ class App {
 
         let groupDuration = this.getGroupDuration(group);
         if (groupDuration > 0) {
-            let timeOutCB = function(game) {
-                this.session().addMessageToStartOfQueue(this, game, 'forceEndGame');
-            }.bind(this, game);
-            this.gameTimer = new Timer.new(
+            let timeOutCB = function(stage) {
+                this.session().addMessageToStartOfQueue(this, stage, 'forceEndStage');
+            }.bind(this, stage);
+            this.stageTimer = new Timer.new(
                 timeOutCB,
                 groupDuration*1000,
                 this.indexInApp()
@@ -1763,7 +1924,7 @@ class App {
 
         try {
             global.jt.log('START - GROUP : ' + this.id + ', ' + group.id);
-            group.gameStartedIndex = this.indexInApp();
+            group.stageStartedIndex = this.indexInApp();
             this.groupStart(group);
         } catch (err) {
             global.jt.log(err.stack);
@@ -1790,7 +1951,7 @@ class App {
 
         try {
             global.jt.log('END   - GROUP : ' + this.id + ', ' + group.id);
-            group.gameEndedIndex = this.indexInApp();
+            group.stageEndedIndex = this.indexInApp();
             this.groupEnd(group);
         } catch (err) {
             global.jt.log(err.stack);
@@ -1805,10 +1966,10 @@ class App {
         let timeStamp = Utils.timeStamp();
         player['timeEnd_' + this.id] = timeStamp;
         if (player['timeStart_' + this.id] == null) {
-            global.jt.log('Player ERROR, missing game start time!');
-            player['msInGame_' + this.id] = 0;
+            global.jt.log('Player ERROR, missing stage start time!');
+            player['msInStage_' + this.id] = 0;
         } else {
-            player['msInGame_' + this.id] = Utils.dateFromStr(timeStamp) - Utils.dateFromStr(player['timeStart_' + this.id]);
+            player['msInStage_' + this.id] = Utils.dateFromStr(timeStamp) - Utils.dateFromStr(player['timeStart_' + this.id]);
         }
         global.jt.log('END   - PLAYER: ' + this.id + ', ' + player.id);
     }
@@ -1821,7 +1982,7 @@ class App {
 
     canGroupPlayersStart(group) {
         
-        if (group.gameStartedIndex >= this.indexInApp()) {
+        if (group.stageStartedIndex >= this.indexInApp()) {
             return true;
         }
 
@@ -1842,38 +2003,14 @@ class App {
 
     }
 
-    /**
-     * isReady - description
-     *
-     * @return {type}  description
-     */
-    isPlayerReady(player, gameIndex) {
-        let actualPlyr = player.participant().player;
-
-        // No active player.
-        if (actualPlyr == null || player !== actualPlyr) {
-            return false;
-        }
-
-        if (player.gameIndex !== gameIndex) {
-            return false;
-        }
-
-        if (player.status !== 'ready') {
-            return false;
-        }
-
-        return true;
-    }
-
     canGroupPlayersEnd(group) {
 
-        if (group.gameEndedIndex < this.indexInApp()) {
+        if (group.stageEndedIndex < this.indexInApp()) {
             return false;
         }
 
         // If Group has already finished, do not allow players to finish. 
-        if (group.gameEndedIndex > this.indexInApp()) {
+        if (group.stageEndedIndex > this.indexInApp()) {
             return false;
         }
 
@@ -1887,7 +2024,7 @@ class App {
             let player = group.players[p];
             if (
                 ['done', 'finished'].includes(player.status) == false
-             && player.gameIndex === this.indexInApp()
+             && player.stageIndex === this.indexInApp()
             ) {
                 return false;
             }
@@ -1912,14 +2049,24 @@ class App {
             } catch(err) {
                 global.jt.log(err + '\n' + err.stack);
             }
-            player.startNextGame();
+            // If not in last subgame of parent game...
+            if (player.stageIndex < player.superGame.subgames.length-1) {
+                // Move to next subgame of parent game.
+                player.startNextStage();
+            } else if (player.period().id < player.app().numPeriods) {
+                // player.superPlayer.startNextPeriod();
+                this.superGame.playerBeginPeriod(player.period().id+1, player.superPlayer);
+            }
+            // Otherwise, finished all of parent game's subgames.
+            else {
+                // End parent player.
+                player.superPlayer.endStage();
+            }
         }
         player.emitUpdate2();
     }
 
     playerStartInternal(player) {
-        player.game = this;
-        player.updateGamePath();
         this.groupStartInternal(player.group);
         if (!this.canPlayerStart(player)) {
             return;
@@ -1941,7 +2088,7 @@ class App {
                     this.save();
                 }
             } else {
-                this.finishGame(true);
+                this.finishStage(true);
             }
         }
         player.emitUpdate2();
@@ -1956,6 +2103,239 @@ class App {
             }
         }
         return true;
+    }
+
+    startStage(stage) {
+        this.group.startStage(stage);
+        if (!stage.canPlayerStart(this)) {
+            return;
+        }
+        // if (!this.participant.canStartStage(stage)) {
+        //     return;
+        // }
+        if (this.stageIndex !== stage.indexInApp()) {
+            this.stage = stage;
+            this.stageIndex = stage.indexInApp();
+            this.status = 'ready';            
+        }
+        if (this.group.canPlayersStart(this.stage)) {
+            if (this.stage.canPlayerParticipate(this)) {
+                if (this.status === 'ready') {
+                    this.participant.setPlayer(this);
+                    this.status = 'playing';
+                    this.recordStageStartTime(stage);
+                    try {
+                        // stage.playerStart(this);
+                        stage.participantBegin(this.participant);
+                    } catch(err) {
+                        console.log(err + '\n' + err.stack);
+                    }
+                    this.save();
+                }
+            } else {
+                this.finishStage(true);
+            }
+        }
+        this.emitUpdate2();
+    }
+
+    /**
+     * Is the player at least finished the given stage of the given period?
+     *
+     * Return false if any of the following are true:
+     * - the player is in a previous app.
+     * - the player is in the same app, but a previous period.
+     * - the player is in the same period, but a previous stage.
+     * - the player is in the same stage, but is still 'playing'.
+     *
+     * Otherwise return true.
+     *
+     * CALLED FROM:
+     * - {@link Stage#playerCanGroupProceedToNextStage}.
+     */
+    atLeastFinishedStage(stage, period) {
+
+        if (this.app().indexInSession() < period.app.indexInSession()) {
+            return false;
+        } else if (this.app().indexInSession() > period.app.indexInSession()) {
+            return true;
+        }
+
+        if (this.period().id < period.id) {
+            return false;
+        } else if (this.period().id > period.id) {
+            return true;
+        }
+
+        if (this.stageIndex < stage.indexInApp()) {
+            return false;
+        } else if (this.stageIndex > stage.indexInApp()) {
+            return true;
+        }
+
+        if (this.status === 'playing') {
+            return false;
+        }
+
+        return true;
+
+    }
+
+    /**
+     * isReady - description
+     *
+     * @return {type}  description
+     */
+    isPlayerReady(player, stageIndex) {
+        let actualPlyr = player.participant().player;
+
+        // No active player.
+        if (actualPlyr == null || player !== actualPlyr) {
+            return false;
+        }
+
+        if (player.stageIndex !== stageIndex) {
+            return false;
+        }
+
+        if (player
+            .status !== 'ready') {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * isFinished - description
+     *
+     * @return {type}  description
+     */
+    isFinished() {
+        let actualPlyr = this;
+
+        // Not yet in the group's current stage.
+        if (actualPlyr.group.stageIndex > this.stageIndex) {
+            return false;
+        } 
+        // Passed the group's current stage.
+        else if (actualPlyr.group.stageIndex < this.stageIndex) {
+            return true;
+        }
+        // In the group's current stage. Check status.
+        else {
+            if (['finished', 'done'].includes(actualPlyr.status)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+
+
+    finishPlayer(player, endGroup) {
+        player.status = 'finished';
+        global.jt.log('FINISH- PLAYER: ' + this.id + ', ' + player.roomId());
+        let curRoomId = player.roomId();
+        let curGamePath = player.gamePath;
+        let curStageIndex = player.stageIndex;
+        if (endGroup) {
+            player.group.endStage(this);
+        }
+        if (
+            curRoomId == player.roomId() && 
+            curStageIndex === player.stageIndex &&
+            curGamePath == player.gamePath)
+        {
+            this.movePlayerToNextStage(player);
+        }
+    }
+
+        // If there is a next stage, enter it.
+    // Otherwise, if there is a next period, start it.
+    // Otherwise, end the current app.
+    movePlayerToNextStage(player) {
+        let stage = this;
+
+        // // If this player is no longer active, do nothing.
+        // if (player.participant.player == null || player.roomId() !== player.participant.player.roomId()) {
+        //     return;
+        // }
+
+        let superGame = player.app().superGame;
+        let superPlayer = null;
+        if (superGame != null) {
+            let lastPeriod = superGame.periods[superGame.periods.length-1];
+            findSuperPlayer: {
+                for (let g in lastPeriod.group.subGroups) {
+                    let gr = lastPeriod.group.subGroups[g];
+                    for (let p in gr.players) {
+                        if (gr.players[p].id === player.id) {
+                            superPlayer = gr.players[p];
+                            break findSuperPlayer;
+                        }
+                    }
+                }
+            }
+        }
+
+        let nextStage = this.app().getNextStageForPlayer(player);
+        let nextPeriod = this.app().getNextPeriod(player);
+        if (nextStage !== null) {
+            player.stage = nextStage;
+            player.subGame = nextStage;
+            player.updateGamePath();
+            player.stageIndex++;
+            player.status = 'ready';
+            console.log(this.timeStamp() + ' READY - PLAYER: ' + this.stage.id + ', ' + this.roomId());
+            player.startStage(player.stage);
+        } else if (nextPeriod !== null) {
+            // player.participant.player = player.superPlayer;
+            player.participant.startPeriod(nextPeriod);
+        } else if (superPlayer != null) {
+            if (superPlayer.stage === this.app()) {
+                superPlayer.endStage(true);
+            }
+        } else {
+            // let superGame = this.app().superGame;
+            // if (superGame == null) {
+            //     debugger;
+            // }
+            // superGame.moveParticipantToNext
+            player.participant.endCurrentApp();
+        }
+        this.emitUpdate2();
+
+    } 
+
+        /**
+     * The next stage for this player.
+     **/
+    nextStage(player) {
+        let stageInd = player.stageIndex;
+
+        // If not in the last stage, return next stage.
+        if (stageInd < this.app().stages.length-1) {
+            return this.app().stages[stageInd+1];
+        }
+
+        // If in the last stage, but not the last period, return first stage (of next period).
+        else if (this.period().id < this.app().numPeriods) {
+            return this.app().stages[0];
+        }
+
+        // If not in the last app, return first stage of next app.
+        else {
+            let app = this.session().appFollowing(this.app());
+            if (app !== null && app.stages.length > 0) {
+                return app.stages[0];
+            }
+            // Otherwise, return null.
+            else {
+                return null;
+            }
+        }
     }
 
     indexInApp() {
@@ -1994,16 +2374,16 @@ class App {
             }
         }
 
-        // If already started this game, return false.
-        if (group.gameStartedIndex >= this.indexInApp()) {
+        // If already started this stage, return false.
+        if (group.stageStartedIndex >= this.indexInApp()) {
             return false;
         }
 
         if (this.waitToStart) {
-            // If any player is 1) not "ready" or 2) not in this game, then return false.
+            // If any player is 1) not "ready" or 2) not in this stage, then return false.
             for (let p in group.players) {
                 let player = group.players[p];
-                if (player.gameIndex < this.indexInApp()) {
+                if (player.stageIndex < this.indexInApp()) {
                     return false;
                 }
             }
@@ -2028,13 +2408,13 @@ class App {
         let player = participant.player;
         let group = player.group;
         let period = group.period;
-        let game = player.SubGame;
+        let game = player.stage;
 
         if (player === null) {
             return false;
         }
 
-        if (player.game.id !== data.fnName) {
+        if (player.stage.id !== data.fnName) {
             console.log('Game.js, GAME NAME DOES NOT MATCH: ' + participant.player.game.id + ' vs. ' + data.fnName + ', data=' + JSON.stringify(data, global.jt.partReplacer));
             return false;
         }
@@ -2069,7 +2449,7 @@ class App {
                 }
             }
         }
-        player.endGame(endForGroup);
+        player.endStage(endForGroup);
     }
 
 

@@ -55,7 +55,7 @@ class Group {
          * 'outputHideAuto' fields are not included in output.
          * @type {String[]}
          */
-        this.outputHideAuto = ['stage', 'status', 'outputHide', 'outputHideAuto', 'players', 'stageTimer', 'period', 'tables', 'type', 'gameIndex', 'gameEndedIndex'];
+        this.outputHideAuto = ['stage', 'status', 'outputHide', 'outputHideAuto', 'players', 'stageTimer', 'period', 'tables', 'type', 'stageIndex', 'stageEndedIndex'];
 
         /**
          * @type array
@@ -67,11 +67,11 @@ class Group {
          * @type number
          * @default 0
          */
-        this.game = 0;
+        this.stageIndex = 0;
 
 
-        this.gameStartedIndex = -1;
-        this.gameEndedIndex = -1;
+        this.stageStartedIndex = -1;
+        this.stageEndedIndex = -1;
 
         this.startedPeriod = false;
         this.endedPeriod = false;
@@ -82,7 +82,7 @@ class Group {
      * Returns the stage that this group is currently in.
      */
     stage() {
-        return this.app().subgames[this.gameIndex];
+        return this.app().subgames[this.stageIndex];
     }
 
     /**
@@ -111,7 +111,7 @@ class Group {
 
     slowestPlayers() {
         var out = [];
-        var minGameIndex = null;
+        var minStageIndex = null;
         for (var i in this.players) {
             var part = this.players[i];
             if (minStageIndex === null || part.stageIndex <= minStageIndex) {
@@ -287,6 +287,11 @@ class Group {
         }
     }
 
+    showStatus() {
+        console.log('Group ' + this.id + ': stageIndex=' + this.stageIndex + ', stageEndedIndex=' + this.stageEndedIndex);
+        this.session().printStatuses();
+    }
+
     /**
      * Returns the app this group is in.
      *
@@ -336,33 +341,33 @@ class Group {
         }
     }
 
-    startStage(game) {
+    startStage(stage) {
 
-        if (!game.canGroupParticipate(this)) {
-            this.endGame();
+        if (!stage.canGroupParticipate(this)) {
+            this.endStage();
         }
 
-        if (!game.canGroupStart(this)) {
+        if (!stage.canGroupStart(this)) {
             return;
         }
 
-        this.gameStartedIndex++;
-        this.gameIndex = game.indexInApp();
-        let groupDuration = game.getGroupDuration(this);
+        this.stageStartedIndex++;
+        this.stageIndex = stage.indexInApp();
+        let groupDuration = stage.getGroupDuration(this);
         if (groupDuration > 0) {
-            let timeOutCB = function(game) {
-                this.session().addMessageToStartOfQueue(this, game, 'forceEndGame');
-            }.bind(this, game);
-            this.gameTimer = new Timer.new(
+            let timeOutCB = function(stage) {
+                this.session().addMessageToStartOfQueue(this, stage, 'forceEndStage');
+            }.bind(this, stage);
+            this.stageTimer = new Timer.new(
                 timeOutCB,
                 groupDuration*1000,
-                game.indexInApp()
+                stage.indexInApp()
             );
         }
 
         try {
-            console.log(global.jt.settings.getConsoleTimeStamp() + ' START - GROUP : ' + game.id + ', ' + this.roomId());
-            game.groupStart(this);
+            console.log(global.jt.settings.getConsoleTimeStamp() + ' START - GROUP : ' + stage.id + ', ' + this.roomId());
+            stage.groupStart(this);
         } catch (err) {
             console.log(err.stack);
         }
@@ -371,54 +376,54 @@ class Group {
         } catch (err) {}
         for (var p in this.players) {
             try {
-                this.players[p].startGame(game);
+                this.players[p].startStage(stage);
             } catch (err) {}
         }
     }
 
-    forceEndGame(game) {
-        console.log('Group.forceEndGame: ' + game.id);
-        this.clearGameTimer();
-        this.endGame(game, true);
+    forceEndStage(stage) {
+        console.log('Group.forceEndStage: ' + stage.id);
+        this.clearStageTimer();
+        this.endStage(stage, true);
     }
 
-    endGame(game, forcePlayersToEnd) {
+    endStage(stage, forcePlayersToEnd) {
 
         if (forcePlayersToEnd == null) {
             forcePlayersToEnd = false;
         }
 
-        if (!game.canGroupEnd(this, forcePlayersToEnd)) {
+        if (!stage.canGroupEnd(this, forcePlayersToEnd)) {
             return;
         }
 
         // If waiting for any players, stop.
-        if (this.waitingForPlayersInGame(game, forcePlayersToEnd)) {
+        if (this.waitingForPlayersInStage(stage, forcePlayersToEnd)) {
             return;
         }
 
-        this.clearGameTimer();
+        this.clearStageTimer();
 
-        console.log(global.jt.settings.getConsoleTimeStamp() + ' END   - GROUP : ' + game.id + ', ' + this.roomId());
-        this.gameEndedIndex = game.indexInApp();
-        game.groupEnd(this);
+        console.log(global.jt.settings.getConsoleTimeStamp() + ' END   - GROUP : ' + stage.id + ', ' + this.roomId());
+        this.stageEndedIndex = stage.indexInApp();
+        stage.groupEnd(this);
 
         for (var p in this.players) {
             var player = this.players[p];
-            if (player.game.id === game.id && player.status !== 'finished') {
-                player.endGame(false);
+            if (player.stage.id === stage.id && player.status !== 'finished') {
+                player.endStage(false);
             }
         }
 
-        this.gameIndex = game.indexInApp() + 1;
-        if (this.gameIndex < this.app().subgames.length) {
+        this.stageIndex = stage.indexInApp() + 1;
+        if (this.stageIndex < this.app().subgames.length) {
             // move group (and all its players) to next stage.
-            this.startGame(this.game());
+            this.startStage(this.stage());
         } else {
             // move players to next period if necessary.
             for (var p in this.players) {
                 if (this.players[p].participant.player.period().id === this.period.id) {
-                    this.players[p].moveToNextGame();
+                    this.players[p].moveToNextStage();
                 }
             }
         }
@@ -437,15 +442,15 @@ class Group {
     // Check if this group is waiting for players to finish playing the given stage.
     // If it is, tell those players to end the stage.
     // Return whether or not any player
-    waitingForPlayersInGame(game, forcePlayersToEnd) {
+    waitingForPlayersInStage(stage, forcePlayersToEnd) {
         let waitingForPlayers = false;
-        if (game.waitOnTimerEnd) {
+        if (stage.waitOnTimerEnd) {
             for (var p in this.players) {
                 var player = this.players[p];
                     // If player is in an earlier stage, wait.
-                    if (player.game.indexInApp() < game.indexInApp()) {
+                    if (player.stage.indexInApp() < stage.indexInApp()) {
                         waitingForPlayers = true;
-                    } else if (player.game.indexInApp() > game.indexInApp()) {
+                    } else if (player.stage.indexInApp() > stage.indexInApp()) {
                         // If player is past this stage, proceed.
                     } else {
                         // If player is in this stage and not finished...
@@ -454,12 +459,12 @@ class Group {
                             if (forcePlayersToEnd) {
                                 // If any clients are connected, let player finish via call to "endStage".
                                 if (player.participant.clients.length > 0) {
-                                    player.emit('endGame', player);
+                                    player.emit('endStage', player);
                                 }
                                 // If not, end player immediately.
                                 else {
                                     console.log('No connected clients for ' + player.id + ', ending immediately.');
-                                    player.endGame(false);
+                                    player.endStage(false);
                                 }
                             }
                         }

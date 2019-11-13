@@ -134,6 +134,23 @@ class Participant {
         this.autoplay = false;
     }
 
+    canStartStage(stage) {
+        if (this.player === null) {
+            return false;
+        }
+
+        // Ready in this stage.
+        // TODO: Check whether correct period and app.
+        if (
+            this.player.stageIndex === stage.indexInApp() &&
+            this.player.status === 'ready'
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
     finishCurrentApp() {
         // ensure that they are in the last period and waiting
         if (this.player.group.period.id < this.getApp().numPeriods) {
@@ -212,6 +229,14 @@ class Participant {
             return null;
         } else {
             return this.player.stage.id;
+        }
+    }
+
+    stageIndex() {
+        if (this.player === null) {
+            return -1;
+        } else {
+            return this.player.stage.indexInApp();
         }
     }
 
@@ -421,7 +446,7 @@ class Participant {
         if (this.player == null) {
             return null;
         }
-        return this.player.game;
+        return this.player.superGame;
     }
     
     emitUpdate() {

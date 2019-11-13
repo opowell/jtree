@@ -1,9 +1,38 @@
 This tutorial describes the sequence of events that happen during a session. In particular, it points out the various functions that can be used to design an app. For more details about this procedure, see the <a href="tutorial-session-flow-details.html">advanced tutorial</a>.
 
+Games consist of content, periods and subgames. When a group or player plays an App, it is assigned sub elements.
+
+Within each Game, one subplayer for each period of the game:
+Subplayers: [Period 1 Player, Period 2 Player, ...]
+
+Within each Period, one subplayer for each subgame of the game:
+Subplayers: [Subgame 1 Player, Subgame 2 Player, ...]
+
+Groups are different, since one parent can be split into multiple children.
+Within each Game, one subgroup for each period of the game:
+Subgroups: [Period 1 Groups, Period 2 Groups, ...]
+
+Within each Period subgroup, one subgroup for each child of the parent:
+Subgroups: [Child 1 Group, Child 2 Group, ...]
+
+Within each Child subgroup, one subgroup for each subgame of the parent game.
+Subgroups: [Subgame 1, Subgame 2, ...]
+
+
+
+When a session is started, each participant is assigned a player object which are assigned into groups, and then those groups begin the first app of the session's game tree.
+
+Group begins App
+- Call app.groupStart(group)
+- For each player, call app.playerStart(player)
+
+
+
+app.playerStart(player)
 In a session, participants play through a sequence of apps.
 When playing through an app, each participant:
 
-1. Starts the app, (`app.start()`)
+1. Starts the app, (`app.playerStart()`)
 2. Plays through repetitions of the app's subgames, if any.
 3. Ends the app. (`app.end()`)
 

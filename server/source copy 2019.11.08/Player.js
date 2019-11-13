@@ -58,15 +58,15 @@ class Player {
          * @type number
          * @default 0
          */
-        this.gameIndex = 0
+        this.stageIndex = 0
 
         /**
-         * @type {App}
+         * @type {Stage}
          * @default null
          */
-        this.game = null;
+        this.stage = null;
 
-        this.gamePath = this.updateGamePath();
+        this.gamePath = '';
 
         this.subPlayers = [];
 
@@ -75,36 +75,16 @@ class Player {
 
     }
 
-    endGame() {
-        if (this.game != null) {
-            this.game.playerEndInternal(this); 
+    endStage() {
+        // if (this.stage != null) {
+        //     this.stage.playerEndInternal(this);
+        if (this.stageIndex < this.app().subgames.length) {
+            this.stage = this.app().subgames[this.stageIndex];
+        }
+        if (this.stage != null) {
+            this.stage.playerEndInternal(this);
         } else {
-            this.app().playerEndInternal(this);
-        }
-    }
-
-    startNextGame() {
-        // If this is a "period" player, move parent to next stage.
-        if (this.type == 'period') {
-            this.superPlayer.startNextGame();
-            return;
-        }
-
-        // This is a "game" player.
-        // If not in the last stage, move to next stage of parent.
-        if (this.gameIndex < this.app().subgames.length - 1) {
-            this.gameIndex++;
-            this.status = 'ready';
-            let nextApp = this.app().subgames[this.gameIndex];
-            nextApp.playerStartInternal(this);
-        } 
-        // Otherwise, if not in the last period, move to next period.
-        else if (this.period().id < this.app().numPeriods) {
-            this.superGame.playerBeginPeriod(player.period().id+1, player.superPlayer);
-        } 
-        // Otherwise, parent ends game.
-        else {
-            this.superPlayer.endGame();
+            this.group.period.playerEndInternal(this);
         }
     }
 
@@ -113,18 +93,13 @@ class Player {
         if (this.game != null) {
             out = this.game.getFullGamePath();
         } else {
-            if (this.superPlayer.updateGamePath == null) {
-                this.gamePath = '';
-                return;
-            }
-            this.superPlayer.updateGamePath();
             out = this.superPlayer.gamePath;
         }
         this.gamePath = out;
     }
 
-    timeInGame() {
-        return this.group.timeInGame();
+    timeInStage() {
+        return this.group.timeInStage();
     }
 
     canProcessMessage() {
@@ -230,7 +205,8 @@ class Player {
         // channel: channel to send this player's data to,
         // usually either the player themselves or an individual
         // client that is subscribed to the player.
-        if (this.game == null || this.game.onPlaySendPlayer) {
+        if (this.stage == null || this.stage.onPlaySendPlayer) {
+            // let data = new clPlayer.new(this);
             let data = this;
             data = stringify(data, global.jt.partReplacer);
             this.io().to(channel).emit('playerUpdate', data);
@@ -273,6 +249,13 @@ class Player {
             out += '/' + index + '-' + this.group.period.app.id;
         }
         return out;
+    }
+
+    startNextStage() {
+        this.stageIndex++;
+        this.status = 'ready';
+        this.game.subgames[this.stageIndex].playerStartInternal(this);
+
     }
 
     participant() {

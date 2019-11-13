@@ -8,6 +8,7 @@ const https     = require('https');
 const replace   = require("replace");
 const bodyParser = require("body-parser");
 const session   = require('express-session');
+// const history   = require('connect-history-api-fallback');
 const apiRoutes = require("./api-routes")
 const {stringify} = require('flatted/cjs');
 const openurl       = require('openurl');
@@ -296,7 +297,7 @@ class StaticServer {
                     }
                 }
         } else if (pId === 'favicon.ico') {
-            // jt.log('asking for favicon.ico');
+            jt.log('asking for favicon.ico');
         } else {
             this.sendParticipantPage(req, res, req.params.pId, undefined);
         }

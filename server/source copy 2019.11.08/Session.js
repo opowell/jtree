@@ -284,6 +284,16 @@ class Session {
             session.clientRemove(socket);
         });
 
+        socket.on('goto-next-stage', function(msg) {
+            var pId = msg.pId;
+            var stageId = msg.stageId;
+            var periodId = msg.periodId;
+            var participant = session.participant(pId);
+            if (participant.stageId() === stageId && participant.player.periodIndex() === periodId) {
+                participant.getApp().playerMoveToNextStage(participant.player);
+            }
+        });
+
         var participant = this.participant(participantId);
         if (participant === null || participant === undefined) {
             if (!this.allowNewParts) {
@@ -356,7 +366,7 @@ class Session {
         let player = participant.player;
         let group = player.group;
         let period = group.period;
-        let game = player.app();
+        let game = player.game;
 
         if (player === null) {
             return false;
@@ -398,7 +408,7 @@ class Session {
             }
         }
 
-        player.endGame();
+        player.endStage();
 
         participant.updateScheduled = true;
     }
@@ -509,7 +519,7 @@ class Session {
         let session = msg.session;
         try {
 
-            if (!['endGame', 'endApp', 'forceEndGame'].includes(fn)) {
+            if (!['endStage', 'endApp', 'forceEndStage'].includes(fn)) {
                 data = Utils.parseFloatRec(data);
             }
             
@@ -647,11 +657,13 @@ class Session {
             res.sendFile(path.join(global.jt.path, this.participantUI() + '/readyClient.html'));
         }
         // Participant, but not in an app yet.
-        else if (participant.player == null) {
+        else if (participant.getGame() == null) {
             res.sendFile(path.join(global.jt.path, this.participantUI() + '/readyClient.html'));
         }
         // participant in an app.
         else {
+            // const app = participant.getApp();
+            // app.sendParticipantPage(req, res, participant);
             let html = this.getPage(participant);
             res.send(html);
         }
@@ -1071,7 +1083,7 @@ slowestParticipants() {
     if (participant == null && this.allowNewParts && this.isValidPId(participantId)) {
         participant = this.participantCreate(participantId);
         if (this.started) {
-            participant.moveToNextGame();
+            participant.moveToNextStage();
         }
     }
     return participant;
@@ -1110,6 +1122,34 @@ participantUI() {
     * @param  {type} p description
     * @return {type}   description
     */
+    // playerRefresh(p) {
+    //     this.io().to(p).emit('set-stage-name', this.curStage().name);
+    //     this.curStage().onPlayerConnect(this.players[p]);
+    // }
+
+    /**
+    * participantMoveToNextApp - description
+    *
+    * CALLED FROM:
+    * - {@link Participant#moveToNextStage}.
+    *
+    * @param  {type} participant description
+    * @return {type}             description
+    */
+    // participantMoveToNextApp(participant) {
+    //     if (participant.getApp() != null) {
+    //         participant.getApp().participantEndInternal(participant);
+    //     }
+
+    //     if (participant.appIndex < this.apps.length) {
+    //         participant.appIndex++;
+    //         participant.save();
+    //         this.participantBeginApp(participant);
+    //     } else {
+    //         this.participantEndInternal(participant);
+    //     }
+    //     this.emitParticipantUpdates();
+    // }
 
     /**
     * Overwrite to add custom functionality.
@@ -1172,7 +1212,6 @@ participantUI() {
             for (let p in participants) {
                 let part = participants[p];
                 let player = new Player.new(part.id, part, group, p);
-                player.type = 'session';
                 part.player = player;
                 part.playerTree.push(player);
                 group.players.push(player);
