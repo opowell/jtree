@@ -490,6 +490,7 @@ class App {
 
         let period = this.getPeriod(periodNum-1);
 
+        // Create Period Group.
         if (group.subGroups.length < periodNum) {
             let pg = new Group.new(group.id, period, group);
             for (let p in group.players) {
@@ -499,6 +500,7 @@ class App {
                 newP.type = 'period';
                 pg.players.push(newP);
             }
+            group.type = 'period';
             group.subGroups.push(pg);
         }
         let periodGroup = group.subGroups[periodNum-1];
@@ -1803,6 +1805,21 @@ class App {
 
     recordPlayerEndTime(player) {
         let timeStamp = Utils.timeStamp();
+
+        if (player.type == 'period') {
+            player.timeEnd = timeStamp;
+            // player.msInGame = Utils.dateFromStr(timeStamp) - Utils.dateFromStr(player.timeStart);
+            global.jt.log('END PERIOD - PLAYER: ' + this.id + ', ' + player.id);
+            return;
+        }
+
+        if (player.game == null) {
+            player.timeEnd = timeStamp;
+            player.msInGame = Utils.dateFromStr(timeStamp) - Utils.dateFromStr(player.timeStart);
+            global.jt.log('END PERIOD - SUBPLAYER: ' + this.id + ', ' + player.id);
+            return;
+        }
+
         player['timeEnd_' + this.id] = timeStamp;
         if (player['timeStart_' + this.id] == null) {
             global.jt.log('Player ERROR, missing game start time!');

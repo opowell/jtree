@@ -252,18 +252,18 @@ class Period {
         }
     }
 
-    getPlayerGroupId(player) {
-        if (this.group.subGroups.length !== this.numGroups()) {
-            this.createGroups();
-        }
-        for (let g in this.group.subGroups) {
-            let group = this.group.subGroups[g];
-            if (group.playerWithParticipant(player) !== null) {
-                return group.id;
-            }
-        }
-        return null;
-    }
+    // getPlayerGroupId(player) {
+    //     if (this.group.subGroups.length !== this.numGroups()) {
+    //         this.createGroups();
+    //     }
+    //     for (let g in this.group.subGroups) {
+    //         let group = this.group.subGroups[g];
+    //         if (group.playerWithParticipant(player) !== null) {
+    //             return group.id;
+    //         }
+    //     }
+    //     return null;
+    // }
 
     // splits players into groups.
     // group: group of players to split.
@@ -288,6 +288,7 @@ class Period {
         }
         for (let g=group.subGroups.length; g<numGroups; g++) {
             let newSG = new Group.new(g+1, this, group);
+            newSG.type = 'child-period';
             group.subGroups.push(newSG);
             if (gIds[g].length != null) {
                 // Label format

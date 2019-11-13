@@ -8,14 +8,15 @@ Subplayers: [Period 1 Player, Period 2 Player, ...]
 Within each Period, one subplayer for each subgame of the game:
 Subplayers: [Subgame 1 Player, Subgame 2 Player, ...]
 
-Groups are different, since one parent can be split into multiple children.
-Within each Game, one subgroup for each period of the game:
+GROUP
+
+One subgroup for each period of the game:
 Subgroups: [Period 1 Groups, Period 2 Groups, ...]
 
-Within each Period subgroup, one subgroup for each child of the parent:
+One subgroup for number of groups in the period:
 Subgroups: [Child 1 Group, Child 2 Group, ...]
 
-Within each Child subgroup, one subgroup for each subgame of the parent game.
+One subgroup for each subgame of the parent game.
 Subgroups: [Subgame 1, Subgame 2, ...]
 
 

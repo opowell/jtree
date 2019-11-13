@@ -104,6 +104,22 @@ class Participant {
         }
     }
 
+    printGroupTree() {
+        this.printTreeArray(this.playerTree[0].group, '', 'subGroups');
+    }
+
+    printTrees() {
+        this.printTreeArray(this.playerTree, '', 'subPlayers');
+    }
+
+    printTreeArray(arr, indent, field) {
+        for (let p in arr) {
+            let plyr = arr[p];
+            console.log(indent + '.' + plyr.id);
+            this.printTreeArray(plyr[field], indent + '.', field); 
+        }
+    }
+
     printStatus() {
         if (this.player == null) {
             console.log(this.id + ' - no player');
