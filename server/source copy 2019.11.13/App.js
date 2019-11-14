@@ -9,35 +9,133 @@ const Group     = require('./Group.js');
 /** Class that represents an app. */
 class App {
 
+    /**
+     * Creates an App.
+     *
+     * @param  {Session} session description
+     * @param  {String} id      description
+     */
     constructor(session, appPath, parent) {
 
+        /**
+         * The unique identifier of this App. In order of precedence, the value is given by:
+         * - the explicit value in the .jtt file (if it has been set)
+         * - the name of the .jtt file (if it is not app.jtt or app.js)
+         * - the name of the folder containing the .jtt file
+         * @type {String}
+         */
         this.id = appPath;
+
+        this.parent = parent;
         this.superGame = parent;
+
         this.waitToStart = true;
         this.waitToEnd = true;
+
         if (this.superGame != null) {
             this.waitToStart = parent.subGameWaitToStart;
             this.waitToEnd = parent.subGameWaitToEnd;
         }
+
         this.showErrorsInLog = true;
-        this.shortId = this.getShortId(appPath);
+
+        let id = appPath;
+        // Strip folders.
+        if (id.lastIndexOf('/') > -1) {
+            this.appDir = id.substring(0, id.lastIndexOf('/'));
+            id = id.substring(id.lastIndexOf('/') + 1);
+        } else if (id.lastIndexOf('\\') > -1) {
+            this.appDir = id.substring(0, id.lastIndexOf('\\'));
+            id = id.substring(id.lastIndexOf('\\') + 1);
+        }
+        this.appFilename = id;
+        if (id.endsWith('.js')) {
+            id = id.substring(0, id.length - '.js'.length);
+        } else if (id.endsWith('.jt')) {
+            id = id.substring(0, id.length - '.jt'.length);
+        } else if (id.endsWith('.jtt')) {
+            id = id.substring(0, id.length - '.jtt'.length);
+        }
+        this.shortId = id;
+
+
+        /** Where the original definition of this app is stored on the server.*/
+        this.appPath = appPath;
+
+        this.started = false;
+
         this.outputDelimiter = ';';
         if (session != null) {
             this.outputDelimiter = session.outputDelimiter;
         }
+
+        /**
+         * The Session that this App belongs to.
+         * @type {Session}
+         */
         this.session = session;
+
+        /**
+         * 
+         */
         this.isStandaloneApp = true;
+
+        // From Game.js
         this.subgames = [];
         this.activeScreen = '';        
         this.addOKButtonIfNone = true;
         this.addFormIfNone = true;
+
+        /**
+         * The options of this app.
+         * @type Array
+         * @default []
+         */
         this.options = [];
+
+        /**
+         * The option values of this app.
+         * @type Object
+         * @default {}
+         */
         this.optionValues = {};
+
+        // If not null, the length of time a participant has to play this app.
         this.duration = null;
+
+        /** Used by the participant client to find and create dynamic text elements.*/
+        this.textMarkerBegin = '{{{';
+        this.textMarkerEnd = '}}}';
+
         this.useVue = true;
+        
+        /**
+         * How long clients have before game is auto-submitted (from client, not from server).
+         * if <= 0, then no client timeout for this game.
+         * @type number
+         * @default 0
+         */
         this.clientDuration = 0;
+
+        /**
+         * The number of periods in this App.
+         * @type number
+         * @default 1
+         */
         this.numPeriods = 1;
+
+        /**
+         * Inserts jtree functionality to the start of client.html
+         * @type boolean
+         * @default true
+         */
         this.insertJtreeRefAtStartOfClientHTML = true;
+
+        /**
+         * Shown on all client screens.
+         * @type String
+         * @default 
+         */ 
         this.html = `
             <!DOCTYPE html>
             <html>
@@ -60,62 +158,197 @@ class App {
                 </body>
             </html>
         `;
+
         this.periodText = 'Period'
+
         this.vueModels = {};
+
+        // Objects defined here are generated on the client, and accessible via "jt.vue.XXX", 
+        // where XXX is the name of the computed variable.
         this.vueComputed = {};
         this.vueMethods = {};
+
         this.vueMethodsDefaults = {
             checkForm: function (e) {
                 return true;
                 e.preventDefault();
             }
         }
+
         this.clientScripts = null;
+
+        // Paths of script tags.
         this.modifyPathsToIncludeId = true;
+
+        /** TODO:   */
         this.screen = '';
+
+        /** Shown on all client playing screens if {@link Stage.useAppActiveScreen} = true.
+        * @default null
+        */
+        // this.activeScreen = null;
+
+
+        /** Shown on all client waiting screens if {@link Stage.useWaitingScreen} = true.
+        */
         this.waitingScreenDefault = `
             <p>WAITING</p>
             <p>The experiment will continue soon.</p>
         `;
+
+        /** If 'htmlFile' is not null, content of 'htmlFile' is added to client content.
+         * Otherwise, if 'htmlFile' is null, content of this.id + ".html" is added to client content, if it exists.
+         */
         this.htmlFile = null;
+
+        /**
+         * The periods of this App.
+         * @type Array
+         * @default []
+         */
         this.periods = [];
+
+        /**
+        * Description of this App.
+        * @type String
+        * @default 'No description provided.'
+        */
         this.description = 'No description provided.';
+
+        /**
+         * Array of comparisons to show by default on Session -> Data tab.
+         * Each entry consists of:
+         * - field name (i.e. 'player.points')
+         * - x-axis object (i.e. 'player')
+         * - y-axis object (i.e. 'period')
+         * Field values are aggregated using the arithmetic mean as necessary (for example, if field is player.x, but x-axis is group, then table shows arithmetic mean of all player.x in a group).
+         * @type Array
+         * @default []
+         */
+        this.keyComparisons = [];
+
+        /**
+         * Whether or not to wait for all participants before starting the app.
+         * @type boolean
+         * @default true
+         */
+        this.waitForAll = true;
+
         this.subGameWaitToStart = true;
         this.subGameWaitToEnd = true;
+
+        /**
+         * The matching type to be used for groups in this App.
+         * @type string
+         * @default 'STRANGER'
+         */
         this.groupMatchingType = 'STRANGER';
+
+        /**
+         * Messages to listen for from clients.
+         * @type Object
+         * @default {}
+         */
         this.messages = {};
+
+        /**
+         * Set default value for Stage.wrapPlayingScreenInFormTag.
+         * If 'yes', then form is added.
+         * If 'no', no form is added.
+         * If 'onlyIfNoButton', then form is added only if page has no buttons.
+         * @type String
+         * @default true
+         */
         this.subgameWrapPlayingScreenInFormTag = 'onlyIfNoButton';
         this.wrapPlayingScreenInFormTag = 'onlyIfNoButton';
-        this.groupSize = undefined;
-        this.groupingType = undefined;
+
+        /**
+         * If defined, subjects are assigned randomly to groups of this size takes precedence over numGroups.
+         * @type number
+         * @default undefined
+         */
+         this.groupSize = undefined;
+
+         /**TODO:*/
+         this.groupingType = undefined;
+
+         /**
+          * Indicates whether or not the code for this app compiles to an error or not.
+          */
         this.hasError = false;
+
+         /**
+          * If not null and this is the first App in a Session, sets the initial number of players to this amount.
+          */
         this.suggestedNumPlayers = undefined;
+
+        /**
+         * if defined, subjects are split evenly into this number of groups
+         * overridden by groupSize.
+         * @type number
+         * @default undefined
+         */
         this.numGroups = undefined;
+
+        /**
+         * TODO:
+         * @type string
+         * @default '<span v-show="game.id == '{{game.id}}'
+         */
         this.subgameContentStart = `<span v-if="game.id == '{{game.id}}'">`;
+
+
+        /**
+         * Ends the games of this App.
+         * TODO:
+         * @type string
+         * @default '</span>'
+         */
         this.subgameContentEnd = '</span>';
+
+        //TODO:
+        this.outputHideAuto = [
+            'subgameContentStart',
+            'subgameContentEnd',
+            'optionValues',
+            'insertJtreeRefAtStartOfClientHTML',
+            'textMarkerBegin',
+            'textMarkerEnd',
+            'html',
+            'description',
+            'keyComparisons',
+            'screen',
+            'activeScreen',
+            'subgameWrapPlayingScreenInFormTag',
+            'waitForAll',
+            'finished',
+            'htmlFile',
+            'this',
+            'session',
+            'subgames',
+            'outputHideAuto',
+            'outputHide',
+            'periods',
+            'messages',
+            'folder',
+            'options',
+            'jt'
+        ];
+
+        //TODO:
+        /**
+         * @type array
+         * @default []
+         */
+        this.outputHide = [];
+
+        /** TODO: Description
+         * @type boolean
+         * @default false
+         */
+        this.finished = false;
     }
 
-    getShortId(appPath) {
-        let id = appPath;
-        // Strip folders.
-        if (id.lastIndexOf('/') > -1) {
-            this.appDir = id.substring(0, id.lastIndexOf('/'));
-            id = id.substring(id.lastIndexOf('/') + 1);
-        } else if (id.lastIndexOf('\\') > -1) {
-            this.appDir = id.substring(0, id.lastIndexOf('\\'));
-            id = id.substring(id.lastIndexOf('\\') + 1);
-        }
-        this.appFilename = id;
-        if (id.endsWith('.js')) {
-            id = id.substring(0, id.length - '.js'.length);
-        } else if (id.endsWith('.jt')) {
-            id = id.substring(0, id.length - '.jt'.length);
-        } else if (id.endsWith('.jtt')) {
-            id = id.substring(0, id.length - '.jtt'.length);
-        }
-        return id;
-    }
-    
     getWaitingScreen() {
         if (this.subgames.length > 0) {
             return '';
@@ -234,161 +467,25 @@ class App {
         }
     }
 
-    groupStart(group) {}
-    playerStart(player) {}
     groupEnd(group) {}
+    groupStart(group) {}
     playerEnd(player) {}
-    groupStartPeriod(group, period) {}
+    playerStart(player) {}
     playerStartPeriod(player, period) {}
-    groupEndPeriod(group, period) {}
     playerEndPeriod(player, period) {}
+    groupStartPeriod(group, period) {}
+    groupEndPeriod(group, period) {}
     subGroupStartPeriod(group, period) {}
-    subPlayerStartPeriod(player, period) {}
     subGroupEndPeriod(group, period) {}
-    subPlayerEndPeriod(player, period) {}
 
-    groupStartInternal(group) {
-        // if (!this.canGroupParticipate(this)) {
-        //     this.groupEndInternal();
-        // }
 
-        if (!this.canGroupStart(group)) {
-            return;
+    getGamePeriod(player) {
+        if (player.group == null || player.group.period == null) {
+            return -1;
         }
-
-        let groupDuration = this.getGroupDuration(group);
-        if (groupDuration > 0) {
-            let timeOutCB = function(game) {
-                this.session().addMessageToStartOfQueue(this, game, 'forceEndGame');
-            }.bind(this, game);
-            this.gameTimer = new Timer.new(
-                timeOutCB,
-                groupDuration*1000,
-                this.indexInApp()
-            );
-        }
-
-        try {
-            global.jt.log('START - GROUP : ' + this.id + ', ' + group.id);
-            group.started = true;
-            this.groupStart(group);
-        } catch (err) {
-            global.jt.log(err.stack);
-        }
-        for (let p in group.players) {
-            try {
-                this.playerStartInternal(group.players[p]);
-            } catch (err) {
-                global.jt.log(err.stack);
-                debugger;
-            }
-        }
-
+        return player.group.period.id - 1;
     }
 
-    canGroupStart(group) {
-        return this.canGroupStartDefault(group);
-    }
-
-    canGroupStartDefault(group) {
-
-        if (group.started) {
-            return false;
-        }
-
-        if (this.waitToStart) {
-            // If any player is not "ready", then return false.
-            for (let p in group.players) {
-                let player = group.players[p];
-                if (!player.ready) {
-                    return false;
-                }
-            }
-        } 
-        
-        // Otherwise, return true.
-        return true;
-    }
-
-    playerStartInternal(player) {
-        this.groupStartInternal(player.group);
-        if (!this.canPlayerStart(player)) {
-            return;
-        }
-        if (this.canGroupPlayersStart(player.group)) {
-            if (this.canPlayerParticipate(player)) {
-                if (player.status === 'ready') {
-                    player.participant().setPlayer(player);
-                    player.status = 'playing';
-                    this.recordPlayerStartTime(player);
-                    try {
-                        this.playerStart(player);
-                    } catch(err) {
-                        global.jt.log(err + '\n' + err.stack);
-                    }
-                    if (this.canPlayerStartPeriods(player)) {
-                        this.playerBeginPeriod(1, player);
-                    } 
-                    this.save();
-                }
-            } else {
-                this.finishGame(true);
-            }
-        }
-        player.emitUpdate2();
-    }
-
-    groupEndInternal(group) {
-
-    }
-
-    playerEndInternal(player) {
-
-    }
-
-    groupStartPeriodInternal(group, period) {
-
-    }
-
-    playerStartPeriodInternal(player, period) {
-
-    }
-
-    groupEndPeriodInternal(group, period) {
-
-    }
-
-    playerEndPeriodInternal(player, period) {
-
-    }
-
-    subGroupStartPeriodInternal(group, period) {
-
-    }
-
-    subPlayerStartPeriodInternal(player, period) {
-
-    }
-
-    subGroupEndPeriodInternal(group, period) {
-
-    }
-
-    subPlayerEndPeriodInternal(player, period) {
-
-    }
-
-
-
-
-
-
-
-
-
-
-
-    
     groupBeginPeriod(periodNum, group) {
 
         let period = this.getPeriod(periodNum-1);
@@ -1410,17 +1507,13 @@ class App {
 
     canPlayerStart(player) {
         
-        if (!player.ready) {
-            return false;
-        }
-
-        if (player.started) {
+        if (!player.startedPeriod) {
             return false;
         }
 
         if (this.waitToStart) {
             for (let i in player.group.players) {
-                if (!player.group.players[i].ready) {
+                if (!player.group.players[i].startedPeriod) {
                     return false;
                 }
             }
@@ -1648,48 +1741,48 @@ class App {
         return true;
     }
 
-    // groupStartInternal(group) {
+    groupStartInternal(group) {
 
-    //     if (!this.canGroupParticipate(this)) {
-    //         this.groupEndInternal();
-    //     }
+        if (!this.canGroupParticipate(this)) {
+            this.groupEndInternal();
+        }
 
-    //     if (!this.canGroupStart(group)) {
-    //         return;
-    //     }
+        if (!this.canGroupStart(group)) {
+            return;
+        }
 
-    //     let groupDuration = this.getGroupDuration(group);
-    //     if (groupDuration > 0) {
-    //         let timeOutCB = function(game) {
-    //             this.session().addMessageToStartOfQueue(this, game, 'forceEndGame');
-    //         }.bind(this, game);
-    //         this.gameTimer = new Timer.new(
-    //             timeOutCB,
-    //             groupDuration*1000,
-    //             this.indexInApp()
-    //         );
-    //     }
+        let groupDuration = this.getGroupDuration(group);
+        if (groupDuration > 0) {
+            let timeOutCB = function(game) {
+                this.session().addMessageToStartOfQueue(this, game, 'forceEndGame');
+            }.bind(this, game);
+            this.gameTimer = new Timer.new(
+                timeOutCB,
+                groupDuration*1000,
+                this.indexInApp()
+            );
+        }
 
-    //     try {
-    //         global.jt.log('START - GROUP : ' + this.id + ', ' + group.id);
-    //         group.gameStartedIndex = this.indexInApp();
-    //         this.groupStart(group);
-    //     } catch (err) {
-    //         global.jt.log(err.stack);
-    //     }
-    //     // try {
-    //     //     this.save();
-    //     // } catch (err) {}
-    //     for (let p in group.players) {
-    //         try {
-    //             this.playerStartInternal(group.players[p]);
-    //         } catch (err) {
-    //             global.jt.log(err.stack);
-    //             debugger;
-    //         }
-    //     }
+        try {
+            global.jt.log('START - GROUP : ' + this.id + ', ' + group.id);
+            group.gameStartedIndex = this.indexInApp();
+            this.groupStart(group);
+        } catch (err) {
+            global.jt.log(err.stack);
+        }
+        // try {
+        //     this.save();
+        // } catch (err) {}
+        for (let p in group.players) {
+            try {
+                this.playerStartInternal(group.players[p]);
+            } catch (err) {
+                global.jt.log(err.stack);
+                debugger;
+            }
+        }
 
-    // }
+    }
 
     groupEndInternal(group) {
 
@@ -1741,6 +1834,29 @@ class App {
         let timeStamp = Utils.timeStamp();
         global.jt.log('START - PLAYER: ' + this.id + ', ' + player.id);
         player['timeStart_' + this.id] = timeStamp;
+    }
+
+    canGroupPlayersStart(group) {
+        
+        if (group.gameStartedIndex >= this.indexInApp()) {
+            return true;
+        }
+
+        // If do not need to wait for all players, return true.
+        if (!this.waitToStart) {
+            return true;
+        }
+
+        // If any player is not ready, return false.
+        for (let p in group.players) {
+            let player = group.players[p];
+            if (!this.isPlayerReady(player, this.indexInApp())) {
+                return false;
+            }
+        }
+
+        return true;
+
     }
 
     /**
@@ -1825,23 +1941,25 @@ class App {
         if (!this.canPlayerStart(player)) {
             return;
         }
-        if (this.canPlayerParticipate(player)) {
-            if (player.status === 'ready') {
-                player.participant().setPlayer(player);
-                player.status = 'playing';
-                this.recordPlayerStartTime(player);
-                try {
-                    this.playerStart(player);
-                } catch(err) {
-                    global.jt.log(err + '\n' + err.stack);
+        if (this.canGroupPlayersStart(player.group)) {
+            if (this.canPlayerParticipate(player)) {
+                if (player.status === 'ready') {
+                    player.participant().setPlayer(player);
+                    player.status = 'playing';
+                    this.recordPlayerStartTime(player);
+                    try {
+                        this.playerStart(player);
+                    } catch(err) {
+                        global.jt.log(err + '\n' + err.stack);
+                    }
+                    if (this.canPlayerStartPeriods(player)) {
+                        this.playerBeginPeriod(1, player);
+                    } 
+                    this.save();
                 }
-                if (this.canPlayerStartPeriods(player)) {
-                    this.playerBeginPeriod(1, player);
-                } 
-                this.save();
+            } else {
+                this.finishGame(true);
             }
-        } else {
-            this.finishGame(true);
         }
         player.emitUpdate2();
     }
@@ -1875,6 +1993,43 @@ class App {
         }
     }
     
+    canGroupStart(group) {
+        return this.canGroupStartDefault(group);
+    }
+
+    canGroupStartDefault(group) {
+
+        if (!group.startedPeriod) {
+            return false;
+        }
+
+        if (this.waitToStart) {
+            for (let i in group.players) {
+                if (!group.players[i].startedPeriod) {
+                    return false;
+                }
+            }
+        }
+
+        // If already started this game, return false.
+        if (group.gameStartedIndex >= this.indexInApp()) {
+            return false;
+        }
+
+        if (this.waitToStart) {
+            // If any player is 1) not "ready" or 2) not in this game, then return false.
+            for (let p in group.players) {
+                let player = group.players[p];
+                if (player.gameIndex < this.indexInApp()) {
+                    return false;
+                }
+            }
+        } 
+        
+        // Otherwise, return true.
+        return true;
+    }
+
     endGame(state, msgData) {
 
         let {endForGroup, data, participantId} = msgData;

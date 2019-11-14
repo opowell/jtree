@@ -381,17 +381,13 @@ class Utils {
         return fields;
     }
 
-    static findByField(array, value, fieldName) {
+    static findById(array, id) {
         for (let i in array) {
-            if (array[i] !== undefined && array[i][fieldName] === value) {
+            if (array[i] !== undefined && array[i].id === id) {
                 return array[i];
             }
         }
         return null;
-    }
-
-    static findById(array, id) {
-        return Utils.findByField(array, id, 'id');
     }
 
     static deleteById(array, id) {

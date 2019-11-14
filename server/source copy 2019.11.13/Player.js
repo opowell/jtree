@@ -70,9 +70,8 @@ class Player {
 
         this.subPlayers = [];
 
-        this.ready = false;
-        this.started = false;
-        this.ended = false;
+        this.startedPeriod = false;
+        this.endedPeriod = false;
 
     }
 

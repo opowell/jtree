@@ -45,6 +45,19 @@ class Group {
         this.allPlayersCreated = false;
 
         /**
+         * 'outputHide' fields are not included in output.
+         * @type array
+         * @default []
+         */
+        this.outputHide = [];
+
+        /**
+         * 'outputHideAuto' fields are not included in output.
+         * @type {String[]}
+         */
+        this.outputHideAuto = ['stage', 'status', 'outputHide', 'outputHideAuto', 'players', 'stageTimer', 'period', 'tables', 'type', 'gameIndex', 'gameEndedIndex'];
+
+        /**
          * @type array
          * @default []
          */
@@ -56,9 +69,20 @@ class Group {
          */
         this.game = 0;
 
-        this.started = false;
-        this.ended = false;
 
+        this.gameStartedIndex = -1;
+        this.gameEndedIndex = -1;
+
+        this.startedPeriod = false;
+        this.endedPeriod = false;
+
+    }
+
+    /**
+     * Returns the stage that this group is currently in.
+     */
+    stage() {
+        return this.app().subgames[this.gameIndex];
     }
 
     /**
@@ -67,7 +91,12 @@ class Group {
      * @return {type}    the player where player.participant.id == id.
      */
     playerByParticipantId(id) {
-        return Utils.findById(this.players, id);
+        for (var i=0; i<this.players.length; i++) {
+            if (this.players[i].id === id) {
+                return this.players[i];
+            }
+        }
+        return null;
     }
 
     /**
@@ -102,7 +131,12 @@ class Group {
     }
 
     playerWithId(id) {
-        return Utils.findByField(this.players, id, 'idInGroup');
+        for (var i=0; i<this.players.length; i++) {
+            if (this.players[i].idInGroup === id) {
+                return this.players[i];
+            }
+        }
+        return null;
     }
 
     canProcessMessage() {
