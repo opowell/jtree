@@ -5,60 +5,18 @@ const Table     = require('./Table.js');
 const fs        = require('fs-extra');
 const path      = require('path');
 const {parse, stringify} = require('flatted/cjs');
+const Status    = require('./Status.js');
 
-/** A group of players playing in a {@link Period}. */
 class Group {
-    /**
-    * Create a new Group.
-    *
-    * @param  {String} id     The id of this group.
-    * @param  {Period} period The period this group belongs to.
-    */
     constructor(id, period, parent) {
-        /**
-         * this group's id
-         * @type {String}
-         */
         this.id = id;
-
         this.superGroup = parent;
         this.subGroups = [];
-
-        /**
-         * Each Group belongs to a single Period.
-         * @type {Period}
-         */
         this.period = period;
-
-        /**
-         * a list of the players in this group.
-         * @type array
-         * @default []
-         */
         this.players = [];
-
-        /**
-         * whether or not all players in this group have been created yet.
-         * @type boolean
-         * @default false
-         */
         this.allPlayersCreated = false;
-
-        /**
-         * @type array
-         * @default []
-         */
         this.tables = [];
-
-        /**
-         * @type number
-         * @default 0
-         */
-        this.game = 0;
-
-        this.started = false;
-        this.ended = false;
-
+        this.status
     }
 
     /**
