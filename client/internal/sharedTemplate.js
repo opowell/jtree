@@ -24,9 +24,6 @@ jt.serverURL = function() {
     }
 }
 
-// For Player only
-jt.alwaysShowAllStages = false;
-
 window.onload = function() {
     jt.checkIfLoaded();
 }
@@ -78,9 +75,6 @@ jt.checkIfLoaded = function() {
         jt.defaultConnected();
         jt.connected();
 
-        if (jt.alwaysShowAllStages) {
-            jt.showAllStages();
-        }
 }
 
 jt.defaultSocketConnected = function() {

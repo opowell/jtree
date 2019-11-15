@@ -804,12 +804,6 @@ jt.sendMessage = function(msgName, msgData) {
     jt.socket.emit(msgName, metaData);
 }
 
-jt.showAllStages = function() {
-    $('.jt-stage').each(function () {
-        this.classList.removeAttribute('hidden');
-    });
-}
-
 jt.showStage = function(s) {
     var el = $('#' + s);
     el.removeAttribute('hidden');
