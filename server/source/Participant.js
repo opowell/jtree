@@ -209,18 +209,6 @@ class Participant {
         this.emit('reload');
     }
 
-    // startApp(app) {
-
-    //     // this.appIndex = app.indexInSession();
-    //     this.periodIndex = -1;
-    //     app.participantStart(this);
-    //     this.startPeriod(app.getNextPeriod(this));
-
-    //     this.emit('participantSetAppIndex', {appIndex: app.indexInSession()});
-    //     this.emit('start-new-app'); // refresh clients.
-    //     this.updateScheduled = false;
-    // }
-
     startPeriod(period) {
         this.periodIndex = period.id - 1;
         this.getApp().participantBeginPeriod(this);

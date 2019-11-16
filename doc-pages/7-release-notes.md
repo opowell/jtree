@@ -2,6 +2,11 @@
 - Generic game trees.
 - Listen to incremental game changes via observer.
 
+#### 2019.11.15 - 0.8.3
+- remove "showAllStages" option.
+- focus modal inputs on show.
+- fix showNewApp / playerUpdate mix up at end of an App.
+
 ##### 2019.10.17 - 0.8.2.3
 - CHANGED: AdminUI: default to old interface, added link to new (BETA) interface.
 - FIXED: defaultClient.js: set array values using Vue.set.

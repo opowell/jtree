@@ -1,10 +1,10 @@
-jt.gotoNextStage = function() {
-    var msg = {};
-    msg.pId = data.player.participant.id;
-    msg.stageId = data.player.stage.id;
-    msg.periodId = data.player.group.period.id;
-    socket.emit('goto-next-stage', msg);
-}
+// jt.gotoNextStage = function() {
+//     var msg = {};
+//     msg.pId = data.player.participant.id;
+//     msg.stageId = data.player.stage.id;
+//     msg.periodId = data.player.group.period.id;
+//     socket.emit('goto-next-stage', msg);
+// }
 
 // https://stackoverflow.com/questions/1303646/check-whether-variable-is-number-or-string-in-javascript
 jt.isNumber = function(o) {
@@ -526,6 +526,7 @@ jt.defaultConnected = function() {
 
     // Listen for default messages from server.
     jt.socket.on('start-new-app', function(id) {
+        jt.socket.close();
         jt.forcedUnload = true;
         location.reload();
     });

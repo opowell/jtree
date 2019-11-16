@@ -1,15 +1,15 @@
 ## Getting started
 Download for your system, unzip and run.
 
-Latest version (2019.10.30): **0.8.2.3**
+Latest version (2019.10.30): **0.8.3**
 
-<a href='https://github.com/opowell/jtree/releases/latest/download/jtree-0.8.2.3-win.zip'>jtree for Windows</a>
+<a href='https://github.com/opowell/jtree/releases/latest/download/jtree-0.8.3-win.zip'>jtree for Windows</a>
 
-<a href='https://github.com/opowell/jtree/releases/latest/download/jtree-0.8.2.3-macos.zip'>jtree for Mac</a>
+<a href='https://github.com/opowell/jtree/releases/latest/download/jtree-0.8.3-macos.zip'>jtree for Mac</a>
 
-<a href='https://github.com/opowell/jtree/releases/latest/download/jtree-0.8.2.3-linux.zip'>jtree for Linux</a>
+<a href='https://github.com/opowell/jtree/releases/latest/download/jtree-0.8.3-linux.zip'>jtree for Linux</a>
 
-<a href='https://github.com/opowell/jtree/releases/latest/download/jtree-0.8.2.3-winxp.zip'>jtree for WindowsXP</a>
+<a href='https://github.com/opowell/jtree/releases/latest/download/jtree-0.8.3-winxp.zip'>jtree for WindowsXP</a>
 
 ![](double-auction.png)
 

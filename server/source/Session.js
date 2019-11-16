@@ -989,8 +989,6 @@ class Session {
     * @return {type}             description
     */
     participantEnd(participant) {
-        //        console.log('Session.playerEnd: ' + participant.id);
-        //        this.io().to(participant.roomId()).emit('start-new-app'); // refresh clients.
     }
 
     /**
