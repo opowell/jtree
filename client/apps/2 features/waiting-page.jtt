@@ -1,0 +1,12 @@
+app.description = 'Show how to implement a waiting page.';
+
+let stage1 = app.newStage('stage1');
+stage1.addOKButtonIfNone = false;
+stage1.activeScreen = `
+    This is a waiting stage. No one can progress until the admin presses "Advance slowest".
+`
+
+let stage2 = app.newStage('stage2');
+stage2.activeScreen = `
+    This is a normal stage, with an OK button to finish the stage.
+`

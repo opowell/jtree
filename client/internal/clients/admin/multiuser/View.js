@@ -4,6 +4,12 @@ jt.confirm = function(text, ifYes) {
     $('#confirmModal').modal('show');
 }
 
+jt.execIfEnter = function(event, fn) {
+    if (event.keyCode === 13) {
+        fn();
+    }
+}
+
 QueueAppDiv = function(app) {
     var text = app.appId;
     if (objLength(app.options) > 0) {

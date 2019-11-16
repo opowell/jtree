@@ -13,7 +13,7 @@ class SetAutoplayFreqModal extends HTMLElement {
                   <div class="modal-body">
                       <div>
                           Delay:
-                          <input id='setAutoplayFreq-input' style='width: 10em;' value='2000'>
+                          <input id='setAutoplayFreq-input' style='width: 10em;' value='2000' onkeyup='jt.execIfEnter(event, jt.updateAutoplayFreq)'>
                       </div>
                       <small class="form-text text-muted">An expression that returns the number of milliseconds to wait before autoplaying again.</small>
                   </div>
@@ -30,6 +30,7 @@ class SetAutoplayFreqModal extends HTMLElement {
 
 jt.showSetAutoplayFreqModal = function() {
     $('#setAutoplayFreqModal').modal('show');
+    $('#setAutoplayFreq-input').focus().select();
 }
 
 jt.updateAutoplayFreq = function() {
