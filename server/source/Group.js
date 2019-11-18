@@ -16,7 +16,7 @@ class Group {
         this.players = [];
         this.allPlayersCreated = false;
         this.tables = [];
-        this.status
+        this.status = Status.UNSET;
     }
 
     /**

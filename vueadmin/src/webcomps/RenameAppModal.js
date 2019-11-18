@@ -54,7 +54,6 @@ jt.renameApp = function() {
             let app = appInfos[i];
             if (app.id === originalId) {
                 app.id = newId;
-                app.appPath = newId;
                 let sep = '\\';
                 let lastFolderChar = newId.lastIndexOf(sep);
                 let lastPeriodChar = newId.lastIndexOf('.');

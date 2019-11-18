@@ -13,10 +13,7 @@ const path          = require('path');
 const async         = require('async');
 const {stringify} = require('flatted/cjs');
 const clone         = require('./clone.js');
-
-const PLAYER_STATUS_FINISHED = 'finished';
-const PLAYER_STATUS_PLAYING = 'playing';
-const PLAYER_STATUS_READY = 'ready';
+const Status    = require('./Status.js');
 
 /**
 * A session is a collection of apps and players.
@@ -199,10 +196,10 @@ class Session {
             // this.apps.push(app);
             let game = app;
             this.proxy.state.gameTree.push(game);
-            if (app.appPath.includes('.')) {
+            if (app.id.includes('.')) {
                 Utils.copyFile(app.appFilename, app.appDir, app.getOutputFN());
             } else {
-                Utils.copyFiles(path.parse(app.appPath).dir, app.getOutputFN());
+                Utils.copyFiles(path.parse(app.id).dir, app.getOutputFN());
             }
             if (
                 this.proxy.state.gameTree.length == 1
@@ -1176,9 +1173,9 @@ participantUI() {
                 part.player = player;
                 part.playerTree.push(player);
                 group.players.push(player);
-                player.startedPeriod = true;
+                player.status = Status.READY_TO_START;
             }
-            group.startedPeriod = true;
+            group.status = Status.READY_TO_START;
             period.app.groupStartInternal(group);
         }
         for (let p in participants) {

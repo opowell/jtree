@@ -5,6 +5,7 @@ const path      = require('path');
 const Timer     = require('./Timer.js');
 const Player    = require('./Player.js');
 const Group     = require('./Group.js');
+const Status    = require('./Status.js');
 
 /** Class that represents an app. */
 class App {
@@ -270,7 +271,7 @@ class App {
 
         try {
             global.jt.log('START - GROUP : ' + this.id + ', ' + group.id);
-            group.started = true;
+            group.status = Status.STARTED;
             this.groupStart(group);
         } catch (err) {
             global.jt.log(err.stack);
@@ -292,7 +293,7 @@ class App {
 
     canGroupStartDefault(group) {
 
-        if (group.started) {
+        if (group.status >= Status.STARTED) {
             return false;
         }
 
@@ -300,7 +301,7 @@ class App {
             // If any player is not "ready", then return false.
             for (let p in group.players) {
                 let player = group.players[p];
-                if (!player.ready) {
+                if (!player.status < Status.READY_TO_START) {
                     return false;
                 }
             }
@@ -317,9 +318,9 @@ class App {
         }
         if (this.canGroupPlayersStart(player.group)) {
             if (this.canPlayerParticipate(player)) {
-                if (player.status === 'ready') {
+                if (player.status === Status.READY_TO_START) {
                     player.participant().setPlayer(player);
-                    player.status = 'playing';
+                    player.status = Status.STARTED;
                     this.recordPlayerStartTime(player);
                     try {
                         this.playerStart(player);
@@ -413,14 +414,12 @@ class App {
         }
 
         global.jt.log('START PERIOD - GROUP: ' + this.id + ', ' + period.id + ', ' + periodGroup.id);
-        periodGroup.startedPeriod = true;
-        periodGroup.started = true;
+        periodGroup.status = Status.STARTED;
         this.groupStartPeriod(periodGroup, period);
         for (let p in periodGroup.players) {
             let periodPlayer = periodGroup.players[p];
             global.jt.log('START PERIOD - PLAYER: ' + this.id + ', ' + period.id + ', ' + periodPlayer.id);
-            periodPlayer.startedPeriod = true;
-            periodPlayer.started = true;
+            periodPlayer.status = Status.STARTED;
             this.playerStartPeriod(periodPlayer, period);
         }
 
@@ -551,7 +550,7 @@ class App {
                     ${buttonCode}
                 ${formEnd}
             </span>
-            <span v-if='["waiting", "done", "finished"].includes(player.status)' class='waiting-screen'>
+            <span v-if='[${Status.UNSET}, ${Status.READY_TO_START}, ${Status.READY_TO_END}].includes(player.status)' class='waiting-screen'>
                 ${appWaitingScreen}
             </span>
             ${subgamesHTML}
@@ -678,7 +677,7 @@ class App {
 
         if (app.activeScreen != null) {
             html += `
-            <span v-show='player.status == "playing"' class='playing-screen'>
+            <span v-show='player.status == ${Status.STARTED}' class='playing-screen'>
                 ${app.activeScreen}
                 <div>
                 {{subgames}}
@@ -689,7 +688,7 @@ class App {
 
         if (!html.includes('{{subgames}}')) {
             html += `
-            <span v-show='player.status == "playing"' class='playing-screen'>
+            <span v-show='player.status == ${Status.STARTED}' class='playing-screen'>
                 {{subgames}}
             </span>
             `;
@@ -768,17 +767,6 @@ class App {
         }
 
         html = html.replace('{{waiting-screens}}', waitingScreensHTML);
-
-        // Replace {{ }} markers.
-        let markerStart = app.textMarkerBegin;
-        let markerEnd = app.textMarkerEnd;
-        while (html.indexOf(markerStart) > -1) {
-            let ind1 = html.indexOf(markerStart);
-            let ind2 = html.indexOf(markerEnd);
-            let text = html.substring(ind1+markerStart.length, ind2);
-            let span = '<i jt-text="' + text + '" style="font-style: normal"></i>';
-            html = html.replace(markerStart + text + markerEnd, span);
-        }
 
         // Insert jtree functionality.
         if (app.insertJtreeRefAtStartOfClientHTML) {
@@ -1211,17 +1199,17 @@ class App {
 
         // let folder = path.join(global.jt.path, global.jt.settings.appFolders[0] + '/' + this.id);
         try {
-            if (this.appPath.includes('.')) {
-                metaData.appjs = Utils.readJS(this.appPath);
+            if (this.id.includes('.')) {
+                metaData.appjs = Utils.readJS(this.id);
             } else {
-                metaData.appjs = Utils.readJS(this.appPath + '/app.jtt');
+                metaData.appjs = Utils.readJS(this.id + '/app.jtt');
             }
         } catch (err) {
             metaData.appjs = '';
         }
 
         try {
-            metaData.clientHTML = Utils.readJS(this.appPath + '/client.html');
+            metaData.clientHTML = Utils.readJS(this.id + '/client.html');
         } catch (err) {
             metaData.clientHTML = '';
         }
@@ -1319,7 +1307,7 @@ class App {
             app[opt] = app.optionValues[opt];
         }
         try {
-            let appCode = Utils.readJS(this.appPath);
+            let appCode = Utils.readJS(this.id);
             let game = app;
             let treatment = app;
             eval(appCode);
@@ -1410,17 +1398,13 @@ class App {
 
     canPlayerStart(player) {
         
-        if (!player.ready) {
-            return false;
-        }
-
-        if (player.started) {
+        if (player.status != Status.READY_TO_START) {
             return false;
         }
 
         if (this.waitToStart) {
             for (let i in player.group.players) {
-                if (!player.group.players[i].ready) {
+                if (!player.group.players[i].status < Status.READY_TO_START) {
                     return false;
                 }
             }
