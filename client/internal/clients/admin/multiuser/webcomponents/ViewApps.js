@@ -34,11 +34,6 @@ jt.reloadApps = function() {
     jt.socket.emit("reloadApps", {});
 }
 
-jt.showCreateAppModal = function() {
-    $("#createAppModal").modal("show");
-    $('#create-app-input').focus();
-}
-
 function showAppInfos() {
     var appInfos = jt.data.appInfos;
     jt.enableButton('reloadAppsBtn', '<i class="fas fa-redo-alt"></i>&nbsp;&nbsp;reload');

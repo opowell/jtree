@@ -1,4 +1,4 @@
 let instructions = app.newStage('instructions');
 instructions.activeScreen = `
-    <p>Now play the game.</p>
+    <p>Part A.</p>
 `

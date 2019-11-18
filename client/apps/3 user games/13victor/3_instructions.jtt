@@ -1,4 +1,4 @@
 let instructions = app.newStage('instructions');
 instructions.activeScreen = `
-    <p>Now you play in pairs.</p>
+    <p>Part B.</p>
 `
