@@ -5,6 +5,7 @@ const path      = require('path');
 const Timer     = require('./Timer.js');
 const Player    = require('./Player.js');
 const Group     = require('./Group.js');
+const Status    = require('./Status.js');
 
 /** Class that represents an app. */
 class App {
@@ -49,10 +50,10 @@ class App {
                     <div id='jtree'>
                         <p v-if='superGame.numPeriods > 1'>Period: {{period.id}}/{{superGame.numPeriods}}</p>
                         <p v-if='hasTimeout'>Time left (s): {{clock.totalSeconds}}</p>
-                        <span v-if='player.status=="playing"'>
+                        <span v-if='player.status==${Status.STARTED}'>
                             {{subgames}}
                         </span>
-                        <span v-if='["waiting", "finished", "done"].includes(player.status)'>
+                        <span v-else>
                             {{waiting-screens}}
                         </span>
                     </div>
@@ -248,6 +249,10 @@ class App {
     subPlayerEndPeriod(player, period) {}
 
     groupStartInternal(group) {
+
+        if (group.status === Status.UNSET) {
+            group.status = Status.READY_TO_START;
+        }
         // if (!this.canGroupParticipate(this)) {
         //     this.groupEndInternal();
         // }
@@ -270,7 +275,7 @@ class App {
 
         try {
             global.jt.log('START - GROUP : ' + this.id + ', ' + group.id);
-            group.started = true;
+            group.status = Status.STARTED;
             this.groupStart(group);
         } catch (err) {
             global.jt.log(err.stack);
@@ -292,7 +297,7 @@ class App {
 
     canGroupStartDefault(group) {
 
-        if (group.started) {
+        if (group.status !== Status.READY_TO_START) {
             return false;
         }
 
@@ -300,7 +305,7 @@ class App {
             // If any player is not "ready", then return false.
             for (let p in group.players) {
                 let player = group.players[p];
-                if (!player.ready) {
+                if (player.status < Status.READY_TO_START) {
                     return false;
                 }
             }
@@ -413,14 +418,12 @@ class App {
         }
 
         global.jt.log('START PERIOD - GROUP: ' + this.id + ', ' + period.id + ', ' + periodGroup.id);
-        periodGroup.startedPeriod = true;
-        periodGroup.started = true;
+        periodGroup.status = Status.STARTED;
         this.groupStartPeriod(periodGroup, period);
         for (let p in periodGroup.players) {
             let periodPlayer = periodGroup.players[p];
             global.jt.log('START PERIOD - PLAYER: ' + this.id + ', ' + period.id + ', ' + periodPlayer.id);
-            periodPlayer.startedPeriod = true;
-            periodPlayer.started = true;
+            periodPlayer.status = Status.STARTED;
             this.playerStartPeriod(periodPlayer, period);
         }
 
@@ -428,6 +431,7 @@ class App {
             let periodSubGroup = periodGroup.subGroups[i];
             global.jt.log('START PERIOD - SUBGROUP: ' + this.id + ', ' + period.id + ', ' + periodSubGroup.id);
             this.subGroupStartPeriod(periodSubGroup, period);
+            periodSubGroup.status = Status.READY_TO_START;
             period.groupBegin(periodSubGroup);
         }
 
@@ -545,13 +549,13 @@ class App {
 
         let screensHTML = `
         <span v-if='player.gamePath.includes("{{app.path}}")'>
-            <span v-if='player.status == "playing"' class='playing-screen'>
+            <span v-if='player.status == ${Status.STARTED}' class='playing-screen'>
                 ${formStart}
                     ${app.activeScreen}
                     ${buttonCode}
                 ${formEnd}
             </span>
-            <span v-if='["waiting", "done", "finished"].includes(player.status)' class='waiting-screen'>
+            <span v-else class='waiting-screen'>
                 ${appWaitingScreen}
             </span>
             ${subgamesHTML}
@@ -678,7 +682,7 @@ class App {
 
         if (app.activeScreen != null) {
             html += `
-            <span v-show='player.status == "playing"' class='playing-screen'>
+            <span v-show='player.status == ${Status.STARTED}' class='playing-screen'>
                 ${app.activeScreen}
                 <div>
                 {{subgames}}
@@ -689,7 +693,7 @@ class App {
 
         if (!html.includes('{{subgames}}')) {
             html += `
-            <span v-show='player.status == "playing"' class='playing-screen'>
+            <span v-show='player.status == ${Status.STARTED}' class='playing-screen'>
                 {{subgames}}
             </span>
             `;
@@ -1410,17 +1414,13 @@ class App {
 
     canPlayerStart(player) {
         
-        if (!player.ready) {
-            return false;
-        }
-
-        if (player.started) {
+        if (player.status !== Status.READY_TO_START) {
             return false;
         }
 
         if (this.waitToStart) {
             for (let i in player.group.players) {
-                if (!player.group.players[i].ready) {
+                if (player.group.players[i].status < Status.READY_TO_START) {
                     return false;
                 }
             }
@@ -1431,7 +1431,7 @@ class App {
 
     canPlayerEnd(player) {
         
-        if (player.endedPeriod) {
+        if (player.status < Status.READY_TO_END) {
             return false;
         }
 
@@ -1441,7 +1441,7 @@ class App {
 
         if (this.waitToEnd) {
             for (let i in player.group.players) {
-                if (player.group.players[i].endedPeriod) {
+                if (player.group.players[i].status < Status.READY_TO_END) {
                     return false;
                 }
             }
@@ -1615,34 +1615,34 @@ class App {
 
     canGroupEndDefault(group) {
 
-        if (group.endedPeriod) {
+        if (group.status > Status.READY_TO_END) {
             return false;
         }
 
         if (this.waitToEnd) {
             for (let i in group.players) {
-                if (group.players[i].endedPeriod) {
+                if (group.players[i].status < Status.READY_TO_END) {
                     return false;
                 }
             }
         }
 
-        // If already ended this game, return false.
-        if (group.gameEndedIndex >= this.indexInApp()) {
-            return false;
-        }
+        // // If already ended this game, return false.
+        // if (group.gameEndedIndex >= this.indexInApp()) {
+        //     return false;
+        // }
 
-        if (this.waitToEnd) {
-            // If any player is not in this game, then return false.
-            for (let p in group.players) {
-                let player = group.players[p];
-                if (player.gameIndex > this.indexInApp()
-                 || ['done', 'finished'].includes(player.status) === false
-                ) {
-                    return false;
-                }
-            }
-        } 
+        // if (this.waitToEnd) {
+        //     // If any player is not in this game, then return false.
+        //     for (let p in group.players) {
+        //         let player = group.players[p];
+        //         if (player.gameIndex > this.indexInApp()
+        //          || ['done', 'finished'].includes(player.status) === false
+        //         ) {
+        //             return false;
+        //         }
+        //     }
+        // } 
         
         // Otherwise, return true.
         return true;
@@ -1801,12 +1801,15 @@ class App {
     playerEnd(player) {}
 
     playerEndInternal(player) {
-        player.status = 'done';
+        if (player.status < Status.READY_TO_END) {
+            player.status = Status.READY_TO_END;
+        }
         this.groupEndInternal(player.group);
         if (!this.canPlayerEnd(player)) {
             return;
         }
         if (this.canGroupPlayersEnd(player.group)) {
+            player.status = Status.ENDED;
             this.recordPlayerEndTime(player);
             try {
                 this.playerEnd(player);
@@ -1821,14 +1824,17 @@ class App {
     playerStartInternal(player) {
         player.game = this;
         player.updateGamePath();
+        if (player.status === Status.UNSET) {
+            player.status = Status.READY_TO_START;
+        }
         this.groupStartInternal(player.group);
         if (!this.canPlayerStart(player)) {
             return;
         }
         if (this.canPlayerParticipate(player)) {
-            if (player.status === 'ready') {
+            if (player.status === Status.READY_TO_START) {
                 player.participant().setPlayer(player);
-                player.status = 'playing';
+                player.status = Status.STARTED;
                 this.recordPlayerStartTime(player);
                 try {
                     this.playerStart(player);
@@ -1850,7 +1856,7 @@ class App {
         let group = player.group;
         for (let i in group.players) {
             let pl = group.players[i];
-            if (pl.status !== 'playing') {
+            if (pl.status < Status.STARTED) {
                 return false;
             }
         }

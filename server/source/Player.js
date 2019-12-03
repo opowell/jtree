@@ -3,6 +3,7 @@
 const Utils     = require('./Utils.js');
 const path      = require('path');
 const clPlayer  = require('./client/clPlayer.js');
+const Status    = require('./Status.js');
 const {stringify} = require('flatted/cjs');
 /** Class representing a player. */
 class Player {
@@ -52,7 +53,7 @@ class Player {
          * @type string
          * @default 'ready'
          */
-        this.status = 'ready';
+        this.status = Status.UNSET;
 
         /**
          * @type number
@@ -69,10 +70,6 @@ class Player {
         this.gamePath = this.updateGamePath();
 
         this.subPlayers = [];
-
-        this.ready = false;
-        this.started = false;
-        this.ended = false;
 
     }
 
@@ -129,7 +126,7 @@ class Player {
     }
 
     canProcessMessage() {
-        return (this.status === 'playing');
+        return (this.status === Status.STARTED);
     }
 
     /**

@@ -1,4 +1,5 @@
 const Player = require('./Player.js');
+const Status = require('./Status.js');
 const Group = require('./Group.js');
 const Utils = require('./Utils.js');
 const fs        = require('fs-extra');
@@ -73,8 +74,8 @@ class Period {
     }
 
     groupBegin(group) {
-         if (!group.startedPeriod) {
-             group.startedPeriod = true;
+         if (group.status === Status.READY_TO_START) {
+             group.status = Status.STARTED;
             //  global.jt.log('START PERIOD - GROUP: ' + this.app.id + ', ' + this.id + ', ' + group.id);
 
              for (let p in group.players) {
@@ -233,21 +234,21 @@ class Period {
 
         this.groupBegin(player.group);
 
-        if (player.startedPeriod) {
+        if (player.status !== Status.READY_TO_START) {
             return;
         }
-        player.startedPeriod = true;
+        player.status = Status.STARTED;
         this.recordPlayerStartTime(player);
 
         if (this.game.subgames.length > 0) {
             player.gameIndex = 0;
             player.game = this.game.subgames[player.gameIndex];
             player.updateGamePath();
-            player.status = 'ready';
+            player.status = Status.READY_TO_START;
             player.participant().setPlayer(player);
             player.game.playerStartInternal(player);
         } else {
-            player.status = 'playing';
+            player.status = Status.STARTED;
             player.participant().setPlayer(player);
         }
     }
@@ -298,6 +299,7 @@ class Period {
                     let superPlyr = Utils.findById(players, pId);
                     let player = new Player.new(pId, superPlyr, newSG, i+1);
                     player.type = 'game';
+                    player.status = Status.READY_TO_START;
                     if (superPlyr == null) {
                         debugger;
                     }
@@ -314,6 +316,7 @@ class Period {
                         let player = new Player.new(pIds[i], superPlyr, newSG, newSG.players.length+1);
                         superPlyr.subPlayers.push(player);
                         player.type = 'game';
+                        player.status = Status.READY_TO_START;
                         newSG.players.push(player);
                     }
                 }

@@ -7,16 +7,13 @@ const Group         = require('./Group.js');
 const Player        = require('./Player.js');
 const Client        = require('./Client.js');
 const Table         = require('./Table.js');
+const Status        = require('./Status.js');
 const Utils         = require('./Utils.js');
 const fs            = require('fs-extra');
 const path          = require('path');
 const async         = require('async');
 const {stringify} = require('flatted/cjs');
 const clone         = require('./clone.js');
-
-const PLAYER_STATUS_FINISHED = 'finished';
-const PLAYER_STATUS_PLAYING = 'playing';
-const PLAYER_STATUS_READY = 'ready';
 
 /**
 * A session is a collection of apps and players.
@@ -199,7 +196,7 @@ class Session {
             // this.apps.push(app);
             let game = app;
             this.proxy.state.gameTree.push(game);
-            if (app.appPath.includes('.')) {
+            if (app.appFilename.includes('.')) {
                 Utils.copyFile(app.appFilename, app.appDir, app.getOutputFN());
             } else {
                 Utils.copyFiles(path.parse(app.appPath).dir, app.getOutputFN());
@@ -354,12 +351,16 @@ class Session {
 
         let participant = Utils.findById(state.participants, participantId);
         let player = participant.player;
+
+        if (player == null) {
+            return false;
+        }
+
         let group = player.group;
         let period = group.period;
         let game = player.app();
-
-        if (player === null) {
-            return false;
+        if (player.game !== null) {
+            game = player.game;
         }
 
         if (game.id !== data.fnName) {
@@ -1173,12 +1174,13 @@ participantUI() {
                 let part = participants[p];
                 let player = new Player.new(part.id, part, group, p);
                 player.type = 'session';
+                player.status = Status.READY_TO_START;
                 part.player = player;
                 part.playerTree.push(player);
                 group.players.push(player);
-                player.startedPeriod = true;
+                // player.startedPeriod = true;
             }
-            group.startedPeriod = true;
+            // group.startedPeriod = true;
             period.app.groupStartInternal(group);
         }
         for (let p in participants) {

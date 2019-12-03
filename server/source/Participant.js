@@ -2,6 +2,7 @@ const Player    = require('./Player.js');
 // const clPlayer  = require('./client/clPlayer.js');
 const Utils     = require('./Utils.js');
 const path      = require('path');
+const Status    = require('./Status.js');
 const {stringify} = require('flatted/cjs');
 
 /**
@@ -400,7 +401,7 @@ class Participant {
             return false;
         }
 
-        if (player.status === 'done') {
+        if (player.status === Status.ENDED) {
             return true;
         }
 
