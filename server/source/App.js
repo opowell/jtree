@@ -1409,7 +1409,10 @@ class App {
 
         if (this.waitToStart) {
             for (let i in player.group.players) {
-                if (player.group.players[i].status < Status.READY_TO_START) {
+                if (
+                    player.group.players[i].status < Status.READY_TO_START &&
+                    player.gameIndex >= this.indexInApp()
+                ) {
                     return false;
                 }
             }
@@ -1424,9 +1427,9 @@ class App {
             return false;
         }
 
-        if (player.gameIndex > this.indexInApp()) {
-            return false;
-        }
+        // if (player.gameIndex > this.indexInApp()) {
+        //     return false;
+        // }
 
         if (this.waitToEnd) {
             for (let i in player.group.players) {
@@ -1610,7 +1613,10 @@ class App {
 
         if (this.waitToEnd) {
             for (let i in group.players) {
-                if (group.players[i].status < Status.READY_TO_END) {
+                if (
+                    group.players[i].status < Status.READY_TO_END &&
+                    group.players[i].gameIndex === this.indexInApp()
+                ) {
                     return false;
                 }
             }
@@ -1686,6 +1692,8 @@ class App {
             return;
         }
 
+        group.status = Status.ENDED;
+
         try {
             global.jt.log('END   - GROUP : ' + this.id + ', ' + group.id);
             group.gameEndedIndex = this.indexInApp();
@@ -1756,36 +1764,36 @@ class App {
         return true;
     }
 
-    canGroupPlayersEnd(group) {
+    // canGroupPlayersEnd(group) {
 
-        if (group.gameEndedIndex < this.indexInApp()) {
-            return false;
-        }
+    //     if (group.gameEndedIndex < this.indexInApp()) {
+    //         return false;
+    //     }
 
-        // If Group has already finished, do not allow players to finish. 
-        if (group.gameEndedIndex > this.indexInApp()) {
-            return false;
-        }
+    //     // If Group has already finished, do not allow players to finish. 
+    //     if (group.gameEndedIndex > this.indexInApp()) {
+    //         return false;
+    //     }
 
-        // If do not need to wait for all players, return true.
-        if (!this.waitToEnd) {
-            return true;
-        }
+    //     // If do not need to wait for all players, return true.
+    //     if (!this.waitToEnd) {
+    //         return true;
+    //     }
 
-        // If any player is not finished playing, return false.
-        for (let p in group.players) {
-            let player = group.players[p];
-            if (
-                ['done', 'finished'].includes(player.status) == false
-             && player.gameIndex === this.indexInApp()
-            ) {
-                return false;
-            }
-        }
+    //     // If any player is not finished playing, return false.
+    //     for (let p in group.players) {
+    //         let player = group.players[p];
+    //         if (
+    //             ['done', 'finished'].includes(player.status) == false
+    //          && player.gameIndex === this.indexInApp()
+    //         ) {
+    //             return false;
+    //         }
+    //     }
 
-        // Otherwise, return true.
-        return true;
-    }
+    //     // Otherwise, return true.
+    //     return true;
+    // }
 
     playerEnd(player) {}
 
@@ -1797,7 +1805,6 @@ class App {
         if (!this.canPlayerEnd(player)) {
             return;
         }
-        if (this.canGroupPlayersEnd(player.group)) {
             player.status = Status.ENDED;
             this.recordPlayerEndTime(player);
             try {
@@ -1806,7 +1813,6 @@ class App {
                 global.jt.log(err + '\n' + err.stack);
             }
             player.startNextGame();
-        }
         player.emitUpdate2();
     }
 
@@ -1853,9 +1859,9 @@ class App {
     }
 
     indexInApp() {
-        if (this.parent != null) {
-            for (let i in this.parent.subgames) {
-                if (this.parent.subgames[i].id === this.id) {
+        if (this.superGame != null) {
+            for (let i in this.superGame.subgames) {
+                if (this.superGame.subgames[i].id === this.id) {
                     return parseInt(i);
                 }
             }

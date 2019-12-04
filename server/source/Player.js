@@ -3,7 +3,6 @@
 const Utils     = require('./Utils.js');
 const path      = require('path');
 const clPlayer  = require('./client/clPlayer.js');
-const Status    = require('./Status.js');
 const {stringify} = require('flatted/cjs');
 const Status    = require('./Status.js');
 
@@ -94,7 +93,7 @@ class Player {
         // If not in the last stage, move to next stage of parent.
         if (this.gameIndex < this.app().subgames.length - 1) {
             this.gameIndex++;
-            this.status = 'ready';
+            this.status = Status.READY_TO_START;
             let nextApp = this.app().subgames[this.gameIndex];
             nextApp.playerStartInternal(this);
         } 
