@@ -199,7 +199,7 @@ class Session {
             if (app.appFilename.includes('.')) {
                 Utils.copyFile(app.appFilename, app.appDir, app.getOutputFN());
             } else {
-                Utils.copyFiles(path.parse(app.appPath).dir, app.getOutputFN());
+                Utils.copyFiles(path.parse(app.id).dir, app.getOutputFN());
             }
             if (
                 this.proxy.state.gameTree.length == 1

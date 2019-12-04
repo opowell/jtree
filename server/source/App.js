@@ -297,7 +297,7 @@ class App {
 
     canGroupStartDefault(group) {
 
-        if (group.status !== Status.READY_TO_START) {
+        if (group.status >= Status.STARTED) {
             return false;
         }
 
@@ -322,9 +322,9 @@ class App {
         }
         if (this.canGroupPlayersStart(player.group)) {
             if (this.canPlayerParticipate(player)) {
-                if (player.status === 'ready') {
+                if (player.status === Status.READY_TO_START) {
                     player.participant().setPlayer(player);
-                    player.status = 'playing';
+                    player.status = Status.STARTED;
                     this.recordPlayerStartTime(player);
                     try {
                         this.playerStart(player);
@@ -773,17 +773,6 @@ class App {
 
         html = html.replace('{{waiting-screens}}', waitingScreensHTML);
 
-        // Replace {{ }} markers.
-        let markerStart = app.textMarkerBegin;
-        let markerEnd = app.textMarkerEnd;
-        while (html.indexOf(markerStart) > -1) {
-            let ind1 = html.indexOf(markerStart);
-            let ind2 = html.indexOf(markerEnd);
-            let text = html.substring(ind1+markerStart.length, ind2);
-            let span = '<i jt-text="' + text + '" style="font-style: normal"></i>';
-            html = html.replace(markerStart + text + markerEnd, span);
-        }
-
         // Insert jtree functionality.
         if (app.insertJtreeRefAtStartOfClientHTML) {
             html = '<script type="text/javascript" src="/participant/jtree.js"></script>\n' + html;
@@ -1215,17 +1204,17 @@ class App {
 
         // let folder = path.join(global.jt.path, global.jt.settings.appFolders[0] + '/' + this.id);
         try {
-            if (this.appPath.includes('.')) {
-                metaData.appjs = Utils.readJS(this.appPath);
+            if (this.id.includes('.')) {
+                metaData.appjs = Utils.readJS(this.id);
             } else {
-                metaData.appjs = Utils.readJS(this.appPath + '/app.jtt');
+                metaData.appjs = Utils.readJS(this.id + '/app.jtt');
             }
         } catch (err) {
             metaData.appjs = '';
         }
 
         try {
-            metaData.clientHTML = Utils.readJS(this.appPath + '/client.html');
+            metaData.clientHTML = Utils.readJS(this.id + '/client.html');
         } catch (err) {
             metaData.clientHTML = '';
         }
@@ -1323,7 +1312,7 @@ class App {
             app[opt] = app.optionValues[opt];
         }
         try {
-            let appCode = Utils.readJS(this.appPath);
+            let appCode = Utils.readJS(this.id);
             let game = app;
             let treatment = app;
             eval(appCode);

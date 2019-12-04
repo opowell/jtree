@@ -5,6 +5,8 @@ const path      = require('path');
 const clPlayer  = require('./client/clPlayer.js');
 const Status    = require('./Status.js');
 const {stringify} = require('flatted/cjs');
+const Status    = require('./Status.js');
+
 /** Class representing a player. */
 class Player {
 
