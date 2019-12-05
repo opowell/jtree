@@ -343,14 +343,6 @@ class App {
         player.emitUpdate2();
     }
 
-    groupEndInternal(group) {
-
-    }
-
-    playerEndInternal(player) {
-
-    }
-
     groupStartPeriodInternal(group, period) {
 
     }
@@ -1410,8 +1402,8 @@ class App {
         if (this.waitToStart) {
             for (let i in player.group.players) {
                 if (
-                    player.group.players[i].status < Status.READY_TO_START &&
-                    player.gameIndex >= this.indexInApp()
+                    player.group.players[i].status < Status.READY_TO_START ||
+                    player.group.players[i].gameIndex < this.indexInApp()
                 ) {
                     return false;
                 }
@@ -1705,6 +1697,33 @@ class App {
             this.playerEndInternal(group.players[p]);
         }
 
+        this.groupStartNextGame(group);
+
+    }
+
+    groupStartNextGame(group) {
+        // If this is a "period" group, move parent to next stage.
+        if (group.type == 'period') {
+            this.groupStartNextGame(group.superGroup);
+            return;
+        }
+
+        // This is a "game" group.
+        // If not in the last game, move to next game of parent.
+        if (group.gameIndex < group.app().subgames.length - 1) {
+            group.gameIndex++;
+            group.status = Status.READY_TO_START;
+            let nextApp = group.app().subgames[this.gameIndex];
+            nextApp.groupStartInternal(this);
+        } 
+        // Otherwise, if not in the last period, move to next period.
+        else if (group.period().id < group.app().numPeriods) {
+            group.superGame.groupBeginPeriod(group.period().id+1, group.superGroup);
+        } 
+        // Otherwise, parent ends game.
+        else {
+            group.superGroup.game.groupEndInternal(group.superGroup);
+        }
     }
 
     recordPlayerEndTime(player) {

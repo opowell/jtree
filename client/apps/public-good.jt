@@ -5,16 +5,25 @@ game.endowment      = 20;
 game.factor         = 2;
 
 let intro = game.addSubGame('intro');
+intro.playerStart = function(player) {
+    console.log('play intro: ' + player.id);
+}
 intro.activeScreen = `
     <p>WELCOME</p>
     <p>Welcome to the experiment. You will play a public goods game {{game.superGame.numRepetitions}} times in groups of {{game.superGame.subgames[1].groupSize}}. The endowment is {{game.superGame.endowment}} and the contribution multiplier is {{game.superGame.factor}}.</p>
 `;
 
 let pgg = game.addSubGame('pgg');
+pgg.playerStart = function(player) {
+    console.log('play pgg: ' + player.id);
+}
 pgg.groupSize = 2;
 pgg.numPeriods = game.numRepetitions;
 let decideStage = pgg.addSubGame('decide');
 // TODO: "game" should refer to the current game, i.e. here it refers to "decide".
+decideStage.playerStart = function(player) {
+    console.log('play decide: ' + player.id);
+}
 decideStage.activeScreen = `
     <p>Group {{group.superGroup.id}}</p>
     <p>DECISION</p>
