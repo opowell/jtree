@@ -1395,6 +1395,13 @@ class App {
 
     canPlayerStart(player) {
         
+        if (
+            player.group.status < Status.STARTED ||
+            player.group.gameIndex < this.indexInApp())
+        {
+            return false;
+        }
+
         if (player.status !== Status.READY_TO_START) {
             return false;
         }
@@ -1718,7 +1725,7 @@ class App {
         } 
         // Otherwise, if not in the last period, move to next period.
         else if (group.period().id < group.app().numPeriods) {
-            group.superGame.groupBeginPeriod(group.period().id+1, group.superGroup);
+            group.superGame.groupBeginPeriod(group.period.id+1, group.superGroup);
         } 
         // Otherwise, parent ends game.
         else {
