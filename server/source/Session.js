@@ -1158,7 +1158,7 @@ participantUI() {
         let participants = this.proxy.state.participants;
         if (!this.started) {
             global.jt.log('############################################');
-            global.jt.log('START - SESSION: ' + this.id);
+            // global.jt.log('START - SESSION: ' + this.id);
             this.started = true;
             this.io().to(this.roomId()).emit('dataUpdate', [{
                 roomId: this.roomId(),

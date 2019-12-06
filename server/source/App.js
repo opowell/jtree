@@ -149,7 +149,7 @@ class App {
      * Overwrite to add custom functionality for when a {@link Client} starts this app.
      *
      * Called from:
-     * - {@link App#addClientDefault}.
+     * - {@link App#addClientInternal}.
      *
      * @param  {Client} client The client who is connecting to this app.
      */
@@ -170,7 +170,7 @@ class App {
     *
     * @param  {Client} client The client who is connecting to this app.
     */
-   addClientDefault(client) {
+   addClientInternal(client) {
 
     for (let i in this.messages) {
         let msg = this.messages[i];
@@ -185,7 +185,7 @@ class App {
     }
 
     for (let s in this.subgames) {
-        this.subgames[s].addClientDefault(client);
+        this.subgames[s].addClientInternal(client);
     }
 
 }
@@ -235,18 +235,45 @@ class App {
         }
     }
 
-    groupStart(group) {}
-    playerStart(player) {}
-    groupEnd(group) {}
-    playerEnd(player) {}
-    groupStartPeriod(group, period) {}
-    playerStartPeriod(player, period) {}
-    groupEndPeriod(group, period) {}
-    playerEndPeriod(player, period) {}
-    subGroupStartPeriod(group, period) {}
-    subPlayerStartPeriod(player, period) {}
-    subGroupEndPeriod(group, period) {}
-    subPlayerEndPeriod(player, period) {}
+    // When a player or group starts or ends this game.
+    groupStart(group) {
+        console.log('group start: ' + this.id + ', ' + group.id);
+    }
+    playerStart(player) {
+        console.log('player start: ' + this.id + ', ' + player.id);
+    }
+    groupEnd(group) {
+        console.log('group end: ' + this.id + ', ' + group.id);
+    }
+    playerEnd(player) {
+        console.log('player start: ' + this.id + ', ' + player.id);
+    }
+    // When a player or group starts or ends a period of this game.
+    groupStartPeriod(group, period) {
+        console.log('group start period: ' + this.id + ', ' + period.id + ', ' + group.id);
+    }
+    playerStartPeriod(player, period) {
+        console.log('player start period: ' + this.id + ', ' + period.id + ', ' + player.id);
+    }
+    groupEndPeriod(group, period) {
+        console.log('group end period: ' + this.id + ', ' + period.id + ', ' + group.id);
+    }
+    playerEndPeriod(player, period) {
+        console.log('player end period: ' + this.id + ', ' + period.id + ', ' + player.id);
+    }
+    // When a subplayer or subgroup starts or ends a period of this game.
+    subGroupStartPeriod(group, period) {
+        console.log('sub group start period: ' + this.id + ', ' + period.id + ', ' + group.id);
+    }
+    subPlayerStartPeriod(player, period) {
+        console.log('sub player start period: ' + this.id + ', ' + period.id + ', ' + player.id);
+    }
+    subGroupEndPeriod(group, period) {
+        console.log('sub group end period: ' + this.id + ', ' + period.id + ', ' + group.id);
+    }
+    subPlayerEndPeriod(player, period) {
+        console.log('sub player end period: ' + this.id + ', ' + period.id + ', ' + player.id);
+    }
 
     groupStartInternal(group) {
 
@@ -274,7 +301,7 @@ class App {
         }
 
         try {
-            global.jt.log('START - GROUP : ' + this.id + ', ' + group.id);
+            // global.jt.log('START - GROUP : ' + this.id + ', ' + group.id);
             group.status = Status.STARTED;
             this.groupStart(group);
         } catch (err) {
@@ -343,27 +370,11 @@ class App {
         player.emitUpdate2();
     }
 
-    groupStartPeriodInternal(group, period) {
-
-    }
-
-    playerStartPeriodInternal(player, period) {
-
-    }
-
     groupEndPeriodInternal(group, period) {
 
     }
 
     playerEndPeriodInternal(player, period) {
-
-    }
-
-    subGroupStartPeriodInternal(group, period) {
-
-    }
-
-    subPlayerStartPeriodInternal(player, period) {
 
     }
 
@@ -384,9 +395,19 @@ class App {
 
 
 
-
+    periodNumGroups(period, group) {
+        let ng = null;
+        if (period.app.groupSize !== undefined) {
+            ng = Math.floor((group.players.length - 1) / period.app.groupSize) + 1;
+        } else if (period.app.numGroups != null) {
+            ng = period.app.numGroups;
+        } else {
+            ng = 1; // by default, everyone in same group
+        }
+        return ng;
+    }
     
-    groupBeginPeriod(periodNum, group) {
+    groupStartPeriodInternal(periodNum, group) {
 
         let period = this.getPeriod(periodNum-1);
 
@@ -405,33 +426,109 @@ class App {
         }
         let periodGroup = group.subGroups[periodNum-1];
 
-        if (periodGroup.subGroups.length < period.numGroups(periodGroup)) {
-            period.createGroups(periodGroup);
+        if (periodGroup.subGroups.length < this.periodNumGroups(period, periodGroup)) {
+            this.periodCreateGroups(period, periodGroup);
         }
 
-        global.jt.log('START PERIOD - GROUP: ' + this.id + ', ' + period.id + ', ' + periodGroup.id);
+        // global.jt.log('START PERIOD - GROUP: ' + this.id + ', ' + period.id + ', ' + periodGroup.id);
         periodGroup.status = Status.STARTED;
         this.groupStartPeriod(periodGroup, period);
         for (let p in periodGroup.players) {
             let periodPlayer = periodGroup.players[p];
-            global.jt.log('START PERIOD - PLAYER: ' + this.id + ', ' + period.id + ', ' + periodPlayer.id);
+            // global.jt.log('START PERIOD - PLAYER: ' + this.id + ', ' + period.id + ', ' + periodPlayer.id);
             periodPlayer.status = Status.STARTED;
             this.playerStartPeriod(periodPlayer, period);
         }
 
         for (let i in periodGroup.subGroups) {
             let periodSubGroup = periodGroup.subGroups[i];
-            global.jt.log('START PERIOD - SUBGROUP: ' + this.id + ', ' + period.id + ', ' + periodSubGroup.id);
-            this.subGroupStartPeriod(periodSubGroup, period);
-            periodSubGroup.status = Status.READY_TO_START;
-            period.groupBegin(periodSubGroup);
+            // global.jt.log('START PERIOD - SUBGROUP: ' + this.id + ', ' + period.id + ', ' + periodSubGroup.id);
+            this.subGroupStartPeriodInternal(periodSubGroup, period);
         }
 
     }
 
-    playerBeginPeriod(periodNum, player) {
+        // splits players into groups.
+    // group: group of players to split.
+    periodCreateGroups(period, group) {
+        const app = period.app;
+        const players = group.players;
+        const gIds = app.getGroupIdsForPeriod(period, group);
 
-        this.groupBeginPeriod(periodNum, player.group);
+        // Create groups
+        let pIds = [];
+        for (let p in players) {
+            pIds.push(players[p]);
+        }
+
+        let numGroups = this.periodNumGroups(period, group);
+        if (gIds[0].length != null) {
+            numGroups = gIds.length;
+        } else {
+            for (let i in gIds) {
+                numGroups = Math.max(numGroups, gIds[i]);
+            }
+        }
+        for (let g=group.subGroups.length; g<numGroups; g++) {
+            let newSG = new Group.new(g+1, this, group);
+            newSG.type = 'child-period';
+            group.subGroups.push(newSG);
+            if (gIds[g].length != null) {
+                // Label format
+                // [['P1', 'P2'], ['P3', 'P4'], ...]
+                for (let i=0; i<gIds[g].length; i++) {
+                    let pId = gIds[g][i];
+                    let superPlyr = Utils.findById(players, pId);
+                    let player = new Player.new(pId, superPlyr, newSG, i+1);
+                    player.type = 'game';
+                    player.status = Status.READY_TO_START;
+                    if (superPlyr == null) {
+                        debugger;
+                    }
+                    superPlyr.subPlayers.push(player);
+                    newSG.players.push(player);
+                }
+                newSG.allPlayersCreated = true;
+            } else {
+                // Numerical format
+                // [['P1', 'P2'], ['P3', 'P4'], ...]
+                for (let i=0; i<gIds.length; i++) {
+                    if (gIds[i] == group.id) {
+                        let superPlyr = Utils.findById(players, pIds[i]);
+                        let player = new Player.new(pIds[i], superPlyr, newSG, newSG.players.length+1);
+                        superPlyr.subPlayers.push(player);
+                        player.type = 'game';
+                        player.status = Status.READY_TO_START;
+                        newSG.players.push(player);
+                    }
+                }
+                newSG.allPlayersCreated = true;
+                newSG.save();    
+            }
+        }
+
+    }
+
+    subGroupStartPeriodInternal(group, period) {
+        if (group.status < Status.READY_TO_START) {
+            group.status = Status.READY_TO_START;
+        }
+        if (group.status === Status.READY_TO_START) {
+            this.subGroupStartPeriod(group, period);
+            group.status = Status.STARTED;
+            for (let p in group.players) {
+                this.subPlayerStartPeriodInternal(group.players[p], period);
+            }
+        }
+    }
+
+    subPlayerStartInternal(player) {
+
+    }
+
+    playerStartPeriodInternal(periodNum, player) {
+
+        this.groupStartPeriodInternal(periodNum, player.group);
 
         let period = this.getPeriod(periodNum-1);
         if (period === undefined) {
@@ -449,7 +546,7 @@ class App {
      */
     getGroupIdsForPeriod(period, group) {
         let players = group.players;
-        let numGroups = period.numGroups(group);
+        let numGroups = this.periodNumGroups(period, group);
         let pIds = [];
         for (let p in players) {
             pIds.push(players[p].id);
@@ -703,7 +800,7 @@ class App {
                 subgameHTML = contentStart + '\n' + subgame.content + '\n' + contentEnd;
             }
             if (subgame.activeScreen != null) {
-                subgameHTML += app.parseSubgameTag(subgame, app.subgameContentStart)  + '\n';
+                subgameHTML += app.parseSubGameTag(subgame, app.subgameContentStart)  + '\n';
                 let wrapInForm = null;
                 if (subgame.wrapPlayingScreenInFormTag === 'yes') {
                     wrapInForm = true;
@@ -864,18 +961,6 @@ class App {
             text = text.substring(0, start) + text.substring(end);
         }
         return [strippedText, text];
-    }
-
-    // TODO
-    parseSubgameTag(game, text) {
-        while (text.includes('{{')) {
-            let start = text.indexOf('{{');
-            let end = text.indexOf('}}');
-            let curTag = text.substring(start + '{{'.length, end);
-            let value = eval(curTag);
-            text = text.replace('{{' + curTag + '}}', value);
-        }
-        return text;
     }
 
     /**
@@ -1146,21 +1231,6 @@ class App {
         }
         return -1;
     }
-    indexInSuperGame() {
-
-        if (this.superGame == null) {
-            return -1;
-        }
-
-        for (let i in this.superGame.subgames) {
-            if (this.superGame.subgames[i] === this) {
-                return parseInt(i) + 1;
-            }
-        }
-
-        return -1;
-    }
-
 
     /**
      * Creates a new period with the given id + 1, saves it and adds it to this App's periods.
@@ -1498,7 +1568,6 @@ class App {
 
     }
     
-    
     getPeriod(index) {
         if (this.periods.length <= index) {
             this.initPeriod(index);
@@ -1555,7 +1624,7 @@ class App {
      * @return TODO:{Player}        The previous player, if any.
      */
     previousGroup(group) {
-        let prevPeriod = group.period().prevPeriod();
+        let prevPeriod = group.period.prevPeriod();
         if (prevPeriod === null) {
             return null;
         } else {
@@ -1724,12 +1793,12 @@ class App {
             nextApp.groupStartInternal(this);
         } 
         // Otherwise, if not in the last period, move to next period.
-        else if (group.period().id < group.app().numPeriods) {
+        else if (group.period.id < group.app().numPeriods) {
             group.superGame.groupBeginPeriod(group.period.id+1, group.superGroup);
         } 
         // Otherwise, parent ends game.
         else {
-            group.superGroup.game.groupEndInternal(group.superGroup);
+            group.superGroup.app().groupEndInternal(group.superGroup);
         }
     }
 
@@ -1757,71 +1826,14 @@ class App {
         } else {
             player['msInGame_' + this.id] = Utils.dateFromStr(timeStamp) - Utils.dateFromStr(player['timeStart_' + this.id]);
         }
-        global.jt.log('END   - PLAYER: ' + this.id + ', ' + player.id);
+        // global.jt.log('END   - PLAYER: ' + this.id + ', ' + player.id);
     }
 
     recordPlayerStartTime(player) {
         let timeStamp = Utils.timeStamp();
-        global.jt.log('START - PLAYER: ' + this.id + ', ' + player.id);
+        // global.jt.log('START - PLAYER: ' + this.id + ', ' + player.id);
         player['timeStart_' + this.id] = timeStamp;
     }
-
-    /**
-     * isReady - description
-     *
-     * @return {type}  description
-     */
-    isPlayerReady(player, gameIndex) {
-        let actualPlyr = player.participant().player;
-
-        // No active player.
-        if (actualPlyr == null || player !== actualPlyr) {
-            return false;
-        }
-
-        if (player.gameIndex !== gameIndex) {
-            return false;
-        }
-
-        if (player.status !== 'ready') {
-            return false;
-        }
-
-        return true;
-    }
-
-    // canGroupPlayersEnd(group) {
-
-    //     if (group.gameEndedIndex < this.indexInApp()) {
-    //         return false;
-    //     }
-
-    //     // If Group has already finished, do not allow players to finish. 
-    //     if (group.gameEndedIndex > this.indexInApp()) {
-    //         return false;
-    //     }
-
-    //     // If do not need to wait for all players, return true.
-    //     if (!this.waitToEnd) {
-    //         return true;
-    //     }
-
-    //     // If any player is not finished playing, return false.
-    //     for (let p in group.players) {
-    //         let player = group.players[p];
-    //         if (
-    //             ['done', 'finished'].includes(player.status) == false
-    //          && player.gameIndex === this.indexInApp()
-    //         ) {
-    //             return false;
-    //         }
-    //     }
-
-    //     // Otherwise, return true.
-    //     return true;
-    // }
-
-    playerEnd(player) {}
 
     playerEndInternal(player) {
         if (player.status < Status.READY_TO_END) {
@@ -1863,7 +1875,39 @@ class App {
                     global.jt.log(err + '\n' + err.stack);
                 }
                 if (this.canPlayerStartPeriods(player)) {
-                    this.playerBeginPeriod(1, player);
+                    this.playerStartPeriodInternal(1, player);
+                } 
+                this.save();
+            }
+        } else {
+            this.finishGame(true);
+        }
+        player.emitUpdate2();
+    }
+
+    subPlayerStartPeriodInternal(player) {
+        player.game = this;
+        player.updateGamePath();
+
+        if (player.status === Status.UNSET) {
+            player.status = Status.READY_TO_START;
+        }
+        this.subGroupStartPeriodInternal(player.group);
+        if (!this.canPlayerStart(player)) {
+            return;
+        }
+        if (this.canPlayerParticipate(player)) {
+            if (player.status === Status.READY_TO_START) {
+                player.participant().setPlayer(player);
+                player.status = Status.STARTED;
+                this.recordPlayerStartTime(player);
+                try {
+                    this.subPlayerStartPeriod(player);
+                } catch(err) {
+                    global.jt.log(err + '\n' + err.stack);
+                }
+                if (this.canPlayerStartPeriods(player)) {
+                    this.playerStartPeriodInternal(1, player);
                 } 
                 this.save();
             }

@@ -285,7 +285,7 @@ class Group {
         }
 
         try {
-            console.log(global.jt.settings.getConsoleTimeStamp() + ' START - GROUP : ' + game.id + ', ' + this.roomId());
+            // console.log(global.jt.settings.getConsoleTimeStamp() + ' START - GROUP : ' + game.id + ', ' + this.roomId());
             game.groupStart(this);
         } catch (err) {
             console.log(err.stack);

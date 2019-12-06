@@ -1,6 +1,6 @@
 This tutorial describes the sequence of events that happen during a session. In particular, it points out the various functions that can be used to design an app. For more details about this procedure, see the <a href="tutorial-session-flow-details.html">advanced tutorial</a>.
 
-Games consist of content, periods and subgames. When a group or player plays an App, it is assigned sub elements.
+Games consist of content, periods and subgames. When a group or player plays a game, it is assigned sub elements.
 
 Within each Game, one subplayer for each period of the game:
 Subplayers: [Period 1 Player, Period 2 Player, ...]
@@ -18,6 +18,10 @@ Subgroups: [Child 1 Group, Child 2 Group, ...]
 
 One subgroup for each subgame of the parent game.
 Subgroups: [Subgame 1, Subgame 2, ...]
+
+* Group plays content of the Game.
+* For each Period of the Game, subgroup starts the period.
+* For number of groups in the Game, 
 
 
 
