@@ -97,6 +97,22 @@ class Queue {
         }
     }
 
+    parentFolderName() {
+        let x = this.id.split('\\');
+        if (x.length < 2) {
+            return 'noFolderSeparatorFound';
+        }
+        return x[x.length-2];
+    }
+
+    parentFolderFullName() {
+        let x = this.id.lastIndexOf('\\');
+        if (x === -1) {
+            return this.id;
+        }
+        return this.id.substring(0, x);
+    }
+
     shell() {
         var out = {}
         out.id             = this.id;
