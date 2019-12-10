@@ -350,6 +350,7 @@ class Player {
         out.groupId = this.group.id;
         out.periodId = this.period().id;
         out.appIndex = this.app().indexInSession();
+        out.roomId = this.roomId();
         return out;
     }
 
@@ -380,6 +381,7 @@ class Player {
         if (this.stage !== null && this.stage !== undefined) {
             out.stage = this.stage.shellWithParent();
         }
+        out.roomId = this.roomId();
         return out;
     }
 

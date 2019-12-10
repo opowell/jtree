@@ -468,8 +468,8 @@ class App {
                     return false;
                 }
 
-                if (client.player().stage.id !== data.fnName) {
-                    console.log('App.js, STAGE NAME DOES NOT MATCH: ' + client.player().stage.id + ' vs. ' + data.fnName + ', data=' + JSON.stringify(data));
+                if (client.player().roomId() !== data.playerRoomId) {
+                    console.log('App.js, PLAYER ROOM ID DOES NOT MATCH, skipping submission: ' + client.player().stage.id + ' vs. ' + data.fnName + ', data=' + JSON.stringify(data));
                     return false;
                 }
 

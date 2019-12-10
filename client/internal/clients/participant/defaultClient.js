@@ -111,6 +111,7 @@ jt.setFormDefaults = function() {
                     var values = {};
                     var stageName = jt.data.player.stage.id;
                     values.fnName = stageName;
+                    values.playerRoomId = jt.data.player.roomId;
 
                     // INPUTS (includes input, select and checkboxes, but not buttons)
                     // https://stackoverflow.com/questions/11855781/jquery-getting-data-from-form
