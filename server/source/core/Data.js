@@ -172,33 +172,34 @@ class Data {
             this.jt.log('loaded app ' + filePath);
         } catch (err) {
             if (
-                !filePath.endsWith('.jtt') ||
-                app.isStandaloneApp == false
+                !filePath.endsWith('.jtt')
             ) {
                 return null;
             }
-            app.hasError = true;
-            let stack = new StackTracey (err);
-            this.jt.log('Error loading app: ' + filePath, true);
-            this.jt.log(err, true);
-            let lines = err.stack.split('\n');
-            let index = lines[1].indexOf('<anonymous>:');
-            let position = lines[1].substring(index + '<anonymous>:'.length);
-            let start = 0;
-            let indexColon = position.indexOf(':', start);
-            let line = position.substring(start, indexColon);
-            start = start + indexColon + 1;
-            let indexParen = position.indexOf(')', start);
-            let positionStr = position.substring(start, indexParen);
-            if (isNaN(line)) {
-                line = 'unknown';
+            if (app.isStandaloneApp) {
+                app.hasError = true;
+                let stack = new StackTracey (err);
+                this.jt.log('Error loading app: ' + filePath, true);
+                this.jt.log(err, true);
+                let lines = err.stack.split('\n');
+                let index = lines[1].indexOf('<anonymous>:');
+                let position = lines[1].substring(index + '<anonymous>:'.length);
+                let start = 0;
+                let indexColon = position.indexOf(':', start);
+                let line = position.substring(start, indexColon);
+                start = start + indexColon + 1;
+                let indexParen = position.indexOf(')', start);
+                let positionStr = position.substring(start, indexParen);
+                if (isNaN(line)) {
+                    line = 'unknown';
+                }
+                if (isNaN(positionStr)) {
+                    positionStr = 'unknown';
+                }
+                this.jt.log('Line ' + line + ', position ' + positionStr, true);
+                app.errorLine = line;
+                app.errorPosition = positionStr;
             }
-            if (isNaN(positionStr)) {
-                positionStr = 'unknown';
-            }
-            this.jt.log('Line ' + line + ', position ' + positionStr, true);
-            app.errorLine = line;
-            app.errorPosition = positionStr;
         }
         return app;
     }

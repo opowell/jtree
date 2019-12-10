@@ -216,7 +216,7 @@ class StaticServer {
             console.log('###############################################');
             jt.settings.server.ip = self.ip;
             jt.settings.server.port = self.port;
-            console.log('jtree ' + jt.version + ', listening on ' + protocol + self.ip + ':' + self.port);
+            console.log('jtree ' + jt.version + ', listening on ' + protocol + self.ip + ':' + self.port + '/admin');
 
             // pkg cannot include part of 'opn' package in executable.
             // const opn           = require('opn');

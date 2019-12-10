@@ -1172,6 +1172,7 @@ class App {
         metaData.hasError = this.hasError;
         metaData.errorPosition = this.errorPosition;
         metaData.errorLine = this.errorLine;
+        metaData.isStandaloneApp = this.isStandaloneApp;
 
         // var folder = path.join(this.jt.path, this.jt.settings.appFolders[0] + '/' + this.id);
         try {

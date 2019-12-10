@@ -2,6 +2,10 @@
 - Generic game trees.
 - Listen to incremental game changes via observer.
 
+#### 2019.12.10 - 0.8.4
+- App option: App.isStandaloneApp or //NOTSTANDLONEAPP.
+
+
 #### 2019.11.15 - 0.8.3
 - remove "showAllStages" option.
 - focus modal inputs on show.

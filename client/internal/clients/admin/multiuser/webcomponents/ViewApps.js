@@ -40,6 +40,9 @@ function showAppInfos() {
     $('#appInfos').empty();
     for (var a in appInfos) {
         var app = appInfos[a];
+        if (!app.isStandaloneApp) {
+            continue;
+        }
         var row = jt.AppRow(app, {}, ['id', 'description']);
         row.click(function(ev) {
             if (
