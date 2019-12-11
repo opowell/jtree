@@ -1,6 +1,7 @@
-app.addSelectOption('treatment', ['individual', 'pair']);
-app.addTextOption('budgets', [80, 80]);
-app.addSelectOption('training', ['yes', 'no']);
+app.isStandaloneApp = false;
+app.addSelectOption('treatment', ['individual', 'pair'], 'Whether game is played individually or in pairs.');
+// app.addTextOption('budgets', [80, 80], 'Set of budgets to be played.');
+app.addSelectOption('training', ['yes', 'no'], 'Whether or not this app is training.');
 
 if (app.treatment === 'individual') {
     app.groupSize = 1;
@@ -73,8 +74,9 @@ let decisionStage = app.newStage('decision');
 decisionStage.addOKButtonIfNone = false;
 decisionStage.groupStart = function(group) {
     group.addTable('messages');
-    group.maxX = app.budgets[group.period.id - 1][0];
-    group.maxY = app.budgets[group.period.id - 1][1];
+    group.maxX = app.budgets[group.period.id - 1].maxX;
+    group.maxY = app.budgets[group.period.id - 1].maxY;
+    group.budgetId = app.budgets[group.period.id - 1].id;
 }
 decisionStage.playerStart = function(player) {
     player.myProposal = {x: '', y: ''};
@@ -321,7 +323,7 @@ app.participantEnd = function(participant) {
         participant.chosenGoods = [];
     }
 
-    let selectedGood = (Math.random() < 0.5) ? 'x' : 'y';
+    let selectedGood = (Math.random() < app.session.probSelX) ? 'x' : 'y';
     let p = Utils.randomInt(0, app.numPeriods);
     participant.chosenDecisions.push(p+1);
     participant.chosenGoods.push(selectedGood);

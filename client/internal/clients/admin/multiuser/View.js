@@ -102,31 +102,39 @@ AppOptionRow = function(option, app, options) {
 
 }
 
-AppOptionDiv = function(option, selected) {
-    var div = $('<div class="form-group option-div">');
-    var nameEl = $('<label for="view-app-option-' + option.name + '" class="option-label col-form-label">').text(option.name + ': ');
-    div.append(nameEl);
-    var tdSel = $('<div class="option-input">');
-    div.append(tdSel);
+EditOptionDivLabel = function(option) {
+    return $('<label for="view-app-option-' + option.name + '" class="option-label col-form-label">').text(option.name + ': ');
+}
+
+EditOptionDivInput = function(option, obj, optionVals) {
+    let selected = undefined;
+    if (obj[option.name] !== undefined) {
+        selected = obj[option.name];
+    }
+    if (option.defaultVal !== undefined) {
+        selected = option.defaultVal;
+    }
+    if (optionVals !== undefined && optionVals[option.name] !== undefined) {
+        selected = optionVals[option.name];
+    }
+    let el;
     switch (option.type) {
         case 'select':
-        var select = $('<select class="form-control view-app-option" app-option-name="' + option.name + '" id="view-app-option-' + option.name + '">');
-        tdSel.append(select);
+        el = $('<select class="view-app-option" app-option-name="' + option.name + '" id="view-app-option-' + option.name + '">');
         for (var j in option.values) {
             var optEl = $('<option value="' + option.values[j] + '">' + option.values[j] + '</option>');
             if (selected !== undefined && selected == option.values[j]) {
                 optEl.prop('selected', true);
             }
-            select.append(optEl);
+            el.append(optEl);
         }
         break;
         case 'text':
-            var input = $('<input type="text" class="form-control" app-option-name="' + option.name + '" id="view-app-option-' + option.name + '">');
-            input.val(option.defaultVal);
-            tdSel.append(input);
+            el = $('<input type="text" app-option-name="' + option.name + '" id="view-app-option-' + option.name + '">');
+            el.val(option.defaultVal);
             break;
         case 'number':
-            var tagText = '<input type="number" class="form-control"';
+            let tagText = '<input type="number" ';
             if (option.min !== null) {
                 tagText += ' min=' + option.min;
             }
@@ -142,12 +150,41 @@ AppOptionDiv = function(option, selected) {
             } else {
                 tagText += ' value=' + option.defaultVal;
             }
-            var input = $(tagText + ' class="view-app-option form-control" app-option-name="' + option.name + '" id="view-app-option-' + option.name + '">');
-            tdSel.append(input);
+            el = $(tagText + ' class="view-app-option" app-option-name="' + option.name + '" id="view-app-option-' + option.name + '">');
             break;
     }
+    return el;
+}
+
+EditOptionDiv = function(option, obj, optionVals) {
+    var div = $('<div class="form-group option-div">');
+    var nameEl = EditOptionDivLabel(option);
+    div.append(nameEl);
+    var tdSel = $('<div class="option-input">');
+    let input = EditOptionDivInput(option, obj, optionVals);
+    input.addClass('form-control');
+    tdSel.append(input);
+    div.append(tdSel);
     var descEl = $('<div class="col-form-label">').html(option.description);
     div.append(descEl);
+    return div;
+}
+
+OptionRow = function(option, obj, optionVals) {
+    var selected = undefined;
+    if (option.values !== undefined) {
+        selected = option.values[0];
+    }
+    if (option.defaultVal !== undefined) {
+        selected = option.defaultVal;
+    }
+    if (obj[option.name] !== undefined) {
+        selected = obj[option.name];
+    }
+    if (optionVals !== undefined && optionVals[option.name] !== undefined) {
+        selected = optionVals[option.name];
+    }
+    var div = $('<div style="white-space: initial">').text(option.name + ': ' + JSON.stringify(selected));
     return div;
 }
 
@@ -199,21 +236,7 @@ jt.AppRow = function(app, options, cols) {
                     // var optionsEl = $('<td style="display: flex; flex-wrap: wrap; padding-top: calc(.375rem - 1px);">');
                     var optionsEl = $('<td>');
                     for (var i in app.options) {
-                        var option = app.options[i];
-                        var selected = undefined;
-                        if (option.values !== undefined) {
-                            selected = option.values[0];
-                        }
-                        if (option.defaultVal !== undefined) {
-                            selected = option.defaultVal;
-                        }
-                        if (app[option.name] !== undefined) {
-                            selected = app[option.name];
-                        }
-                        if (options !== undefined && options[option.name] !== undefined) {
-                            selected = options[option.name];
-                        }
-                        var div = $('<div>').text(option.name + ': ' + selected);
+                        let div = new OptionRow(app.options[i], app, options);
                         optionsEl.append(div);
                     }
                     row.append(optionsEl);
@@ -222,17 +245,7 @@ jt.AppRow = function(app, options, cols) {
                 var optionsEl = $('<td style="display: flex; flex-wrap: wrap; padding-top: calc(.375rem - 1px);">');
                 for (var i in app.options) {
                     var option = app.options[i];
-                    var selected = undefined;
-                    if (app[option.name] !== undefined) {
-                        selected = app[option.name];
-                    }
-                    if (option.defaultVal !== undefined) {
-                        selected = option.defaultVal;
-                    }
-                    if (options !== undefined && options[option.name] !== undefined) {
-                        selected = options[option.name];
-                    }
-                    var div = AppOptionDiv(option, selected);
+                    var div = EditOptionDiv(option, app, options);
                     optionsEl.append(div);
                 }
                 row.append(optionsEl);

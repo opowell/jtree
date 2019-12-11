@@ -115,9 +115,11 @@ class Queue {
 
     shell() {
         var out = {}
-        out.id             = this.id;
-        out.displayName    = this.displayName;
-        out.apps           = this.apps;
+        out.id              = this.id;
+        out.displayName     = this.displayName;
+        out.apps            = this.apps;
+        out.options         = this.options;
+        out.optionValues    = this.optionValues;
         return out;
     }
 

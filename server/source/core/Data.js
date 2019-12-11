@@ -312,6 +312,8 @@ class Data {
                         for (let i in session.apps) {
                             queue.addApp(session.apps[i].id, options);
                         }
+                        queue.options = session.options;
+                        queue.optionValues = session.optionValues;
                         // queue.apps = session.apps;
                         this.jt.log('loading file queue ' + curPath + ' with ' + queue.apps.length + ' apps');
                         this.queues[curPath] = queue;

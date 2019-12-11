@@ -156,6 +156,10 @@ server.setNumParticipants = function(amt, cb) {
     $('#setNumParticipantsModal').modal('hide');
 }
 
+server.setSessionOption = function(obj, cb) {
+    jt.socket.emit('setSessionOption', obj, cb);
+}
+
 server.resetSession = function(cb) {
     var d = {};
     d.sId = jt.data.session.id;

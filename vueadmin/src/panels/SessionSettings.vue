@@ -31,16 +31,6 @@
                     </small>
                 </div>
             </div>
-            <div>Participant labels</div>
-            <div>
-                <div>
-                    <textarea id='setParticipantLabels' cols=80 rows=10></textarea>
-                </div>
-                <button type="button" class="btn btn-sm btn-primary" onclick='jt.setParticipantLabels();'>Set</button>
-                <small class="form-text text-muted">
-                    Each label should be seperated by a comma and/or new line. Setting the participant labels will turn off login of new participants and set the number of participants.
-                </small>
-            </div>
             <div>Login of new participants</div>
             <div>
                 <div class="form-check">

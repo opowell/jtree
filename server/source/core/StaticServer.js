@@ -56,7 +56,7 @@ class StaticServer {
         expApp.use('/shared', express.static(path.join(this.jt.path, jt.settings.sharedUI)));
         for (let i in jt.data.queues) {
             let queue = jt.data.queues[i];
-            console.log('serving files from ' + queue.parentFolderFullName() + ' as /' + queue.parentFolderName());
+            jt.log('serving files from ' + queue.parentFolderFullName() + ' as /' + queue.parentFolderName());
             expApp.use('/' + queue.parentFolderName(), express.static(queue.parentFolderFullName()));
         }
         // expApp.use(history());
