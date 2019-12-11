@@ -468,7 +468,7 @@ class App {
                     return false;
                 }
 
-                if (client.player().roomId() !== data.playerRoomId) {
+                if (client.player().roomId() !== data.playerRoomId || client.player().stage.id !== data.fnName) {
                     console.log('App.js, PLAYER ROOM ID DOES NOT MATCH, skipping submission: ' + client.player().stage.id + ' vs. ' + data.fnName + ', data=' + JSON.stringify(data));
                     return false;
                 }

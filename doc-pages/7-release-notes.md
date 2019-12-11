@@ -6,6 +6,7 @@
 - App option: App.isStandaloneApp or //NOTSTANDLONEAPP.
 - Stage submission: check for current player, instead of just current stage name.
 - disable folder queues.
+- Queue options.
 
 #### 2019.11.15 - 0.8.3
 - remove "showAllStages" option.
