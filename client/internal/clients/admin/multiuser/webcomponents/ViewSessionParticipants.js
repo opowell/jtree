@@ -236,8 +236,10 @@ function showParticipants(participants) {
                 },
                 partsArray() {
                     let parts = [];
-                    for (let p in this.data.session.participants) {
-                        parts.push(this.data.session.participants[p]);
+                    let ids = Object.keys(this.data.session.participants);
+                    alphanumSort(ids);
+                    for (let p in ids) {
+                        parts.push(this.data.session.participants[ids[p]]);
                     }
                     return parts;
                 },
