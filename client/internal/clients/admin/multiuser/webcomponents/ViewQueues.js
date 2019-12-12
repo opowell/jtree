@@ -20,6 +20,11 @@ class ViewQueues extends HTMLElement {
                         {{data.item.apps.length}}
                     </div>
                 </template>
+                <template slot="options" slot-scope="data">
+                    <div v-for='opt in data.item.options'>
+                        {{opt.name}}: {{curVal(opt, data.item, data.item.optionValues)}}
+                    </div>
+                </template>
                 <template slot="actions" slot-scope="data">
                     <button class="btn btn-outline-primary btn-sm" @click.stop @click='startSessionFromQueue(data.item.id)'>
                         <i class="fa fa-play" title="start new session with this queue"></i>
@@ -59,6 +64,10 @@ showQueues = function() {
                 {
                     key: 'appslist',
                     label: 'apps',
+                },
+                {
+                    key: 'options',
+                    label: 'options',
                 }
             ],
         },
@@ -72,6 +81,22 @@ showQueues = function() {
             startSessionFromQueue(id) {
                 server.startSessionFromQueue(id);
             },
+            curVal(opt, obj, optionVals) {
+                var selected = undefined;
+                if (opt.values !== undefined) {
+                    selected = opt.values[0];
+                }
+                if (opt.defaultVal !== undefined) {
+                    selected = opt.defaultVal;
+                }
+                if (obj[opt.name] !== undefined) {
+                    selected = obj[option.name];
+                }
+                if (optionVals !== undefined && optionVals[opt.name] !== undefined) {
+                    selected = optionVals[opt.name];
+                }
+                return selected;
+            },
         },
       });
 }
@@ -80,7 +105,7 @@ jt.startSessionFromQueue = function(id) {
     if (id === undefined) {
         id = $('#view-queue-id').text();
     }
-    server.startSessionFromQueue(id);
+    server.startSessionFromQueue(id, {});
 }
 
 jt.deleteQueueConfirm = function(id) {

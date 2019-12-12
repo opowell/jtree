@@ -1,15 +1,15 @@
 ## jtree
 Download for your system, unzip and run.
 
-Latest version (2019.11.15): **0.8.3**
+Latest version (2019.12.12): **0.8.4**
 
-<a href='https://github.com/opowell/jtree/releases/latest/download/jtree-0.8.3-win.zip'>jtree for Windows</a>
+<a href='https://github.com/opowell/jtree/releases/latest/download/jtree-0.8.4-win.zip'>jtree for Windows</a>
 
-<a href='https://github.com/opowell/jtree/releases/latest/download/jtree-0.8.3-macos.zip'>jtree for Mac</a>
+<a href='https://github.com/opowell/jtree/releases/latest/download/jtree-0.8.4-macos.zip'>jtree for Mac</a>
 
-<a href='https://github.com/opowell/jtree/releases/latest/download/jtree-0.8.3-linux.zip'>jtree for Linux</a>
+<a href='https://github.com/opowell/jtree/releases/latest/download/jtree-0.8.4-linux.zip'>jtree for Linux</a>
 
-<a href='https://github.com/opowell/jtree/releases/latest/download/jtree-0.8.3-winxp.zip'>jtree for WindowsXP</a>
+<a href='https://github.com/opowell/jtree/releases/latest/download/jtree-0.8.4-winxp.zip'>jtree for WindowsXP</a>
 
 #### Features
 - modern programming capabilities (functions; objects).

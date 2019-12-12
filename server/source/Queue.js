@@ -97,11 +97,29 @@ class Queue {
         }
     }
 
+    parentFolderName() {
+        let x = this.id.split('\\');
+        if (x.length < 2) {
+            return 'noFolderSeparatorFound';
+        }
+        return x[x.length-2];
+    }
+
+    parentFolderFullName() {
+        let x = this.id.lastIndexOf('\\');
+        if (x === -1) {
+            return this.id;
+        }
+        return this.id.substring(0, x);
+    }
+
     shell() {
         var out = {}
-        out.id             = this.id;
-        out.displayName    = this.displayName;
-        out.apps           = this.apps;
+        out.id              = this.id;
+        out.displayName     = this.displayName;
+        out.apps            = this.apps;
+        out.options         = this.options;
+        out.optionValues    = this.optionValues;
         return out;
     }
 

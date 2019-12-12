@@ -33,6 +33,7 @@ class ViewSessionApps extends HTMLElement {
 }
 
 function updateSessionApps() {
+
     $('#session-apps-table').empty();
     if (jt.data.session !== null && jt.data.session !== undefined) {
         for (var a in jt.data.session.apps) {

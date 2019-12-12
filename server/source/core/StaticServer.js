@@ -56,10 +56,8 @@ class StaticServer {
         expApp.use('/shared', express.static(path.join(this.jt.path, jt.settings.sharedUI)));
         for (let i in jt.data.queues) {
             let queue = jt.data.queues[i];
-            if (fs.existsSync(queue.id)) {
-                // console.log('serving files from ' + queue.id + ' as /' + queue.shortId);
-                expApp.use('/' + queue.shortId, express.static(queue.id));
-            }
+            jt.log('serving files from ' + queue.parentFolderFullName() + ' as /' + queue.parentFolderName());
+            expApp.use('/' + queue.parentFolderName(), express.static(queue.parentFolderFullName()));
         }
         // expApp.use(history());
 
@@ -216,7 +214,7 @@ class StaticServer {
             console.log('###############################################');
             jt.settings.server.ip = self.ip;
             jt.settings.server.port = self.port;
-            console.log('jtree ' + jt.version + ', listening on ' + protocol + self.ip + ':' + self.port);
+            console.log('jtree ' + jt.version + ', listening on ' + protocol + self.ip + ':' + self.port + '/admin');
 
             // pkg cannot include part of 'opn' package in executable.
             // const opn           = require('opn');

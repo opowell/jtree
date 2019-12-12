@@ -34,16 +34,6 @@ class ViewSessionSettings extends HTMLElement {
                         </small>
                     </div>
                 </div>
-                <div>Participant labels</div>
-                <div>
-                    <div>
-                        <textarea id='setParticipantLabels' cols=80 rows=10></textarea>
-                    </div>
-                    <button type="button" class="btn btn-sm btn-primary" onclick='setParticipantLabelss();'>Set</button>
-                    <small class="form-text text-muted">
-                        Each label should be seperated by a comma and/or new line. Setting the participant labels will turn off login of new participants and set the number of participants.
-                    </small>
-                </div>
                 <div>Login of new participants</div>
                 <div>
                     <div class="form-check">
@@ -69,21 +59,19 @@ class ViewSessionSettings extends HTMLElement {
                     </small>
                 </div>
 
-                    <div>
-                        Delete participant
-                    </div>
-                    <div>
-                        <select id='deleteParticipantSelect'></select>
-                        <button type="button" class="btn btn-sm btn-primary" onclick='deleteParticipantBtn();'>Delete</button>
-                        <small class="form-text text-muted">
-                            Delete the given participant from the session. Make sure to turn off login of new participants if you wish to prevent clients from re-creating this participant.
-                        </small>
-                    </div>
-                    <div>Labels</div>
-                    <div>This is the list of labels for participants.</div>
+                <div>
+                    Delete participant
                 </div>
-
+                <div>
+                    <select id='deleteParticipantSelect'></select>
+                    <button type="button" class="btn btn-sm btn-primary" onclick='deleteParticipantBtn();'>Delete</button>
+                    <small class="form-text text-muted">
+                        Delete the given participant from the session. Make sure to turn off login of new participants if you wish to prevent clients from re-creating this participant.
+                    </small>
+                </div>
             </div>
+
+        </div>
     `;
     }
 }

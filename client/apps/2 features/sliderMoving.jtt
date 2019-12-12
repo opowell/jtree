@@ -1,0 +1,162 @@
+app.numPeriods = app.session.decisionSituations.length;
+app.groupSize = 1;
+// Disable automatic modification of "src" attributes, instead the full path is pre-specified. Automation does not work with dynamic values yet.
+app.modifyPathsToIncludeId = false;
+
+app.html = `
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body class='hidden'>
+        <div id='jtree'>
+            <span v-show='player.status=="playing"'>
+                {{stages}}
+            </span>
+            <span v-show='["ready", "waiting", "finished", "done"].includes(player.status)'>
+                {{waiting-screens}}
+            </span>
+        </div>
+        {{scripts}}
+    </body>
+</html>
+`;
+
+let stage = app.newStage('hello');
+stage.playerStart = function(player) {
+    let sit = player.period().id-1;
+    let situation = app.session.decisionSituations[player.participant.decSitSequence[sit]];
+    player.situation = situation;
+    player.situationName = situation.name;
+    player.slider = -1;
+    if (player.period().id === 1) {
+        player.participant.latestPayoffs = [];
+    }
+}
+stage.activeScreen = `
+<p>There are two options: option A and option B which you see below. If this question is selected for payout, a lottery will determine which of the two options you get. You can now determine the probability with which each option is selected in this lottery. If you choose 0, option A has 0% probability of being selected and option B has a 100% probability of being selected in the lottery. If you choose 100, option A has a 100% probability of being selected and option B has a 0% probability of being selected. If you choose 70, option A has a 70% probability of being selected and option B has a 30% probability of being selected, and so on. You can either enter your preferred probability for option A in the field or adjust the slider.</p>
+<div style='display: flex; width: 100%'>
+    <img :src='"14anita/images/" + player.situation.optionA.filename'>
+    <span style='flex: 1 0 400px'></span>
+    <img :src='"14anita/images/" + player.situation.optionB.filename'>
+</div>
+
+<div style='display: flex; width: 100%'>
+    <span style='flex: 0 0 200px'><b>Option A</b></span>
+    <span style='flex: 1 0 400px'></span>
+    <span style='flex: 0 0 200px; text-align: right'><span><b>Option B</b></span>
+</div>
+<div style='width: 80%; padding-left: 10%; padding-right: 10%'>
+    <input 
+        id="slider" 
+        type="range" 
+        name='player.slider' 
+        min="0" 
+        max="100" 
+        step="1" 
+        oninput="showSliderVal(this.value)" 
+        onchange="showSliderVal(this.value)"
+        style='width: 100%;'>
+</div>
+<div style='display: flex; width: 100%'>
+    <span style='width: 70px'>
+        <input 
+            id='optionAInput' 
+            type='number' 
+            min='0' 
+            max='100' 
+            step='1' 
+            onchange="showSliderVal(this.value)"
+        >
+    </span>
+    <span style='flex: 1 1 500px'></span>
+    <span style='width: 70px'>
+        <span>{{player.slider == -1 ? '-' : (100 - player.slider)}}</span>
+    </span>
+</div>
+<div style='width: 100%; display: flex; justify-content: center'>
+<button :disabled='player.slider == -1'>OK</button>
+</div>
+<script>
+showSliderVal = function(val) {
+    jt.sliderSet = true;
+    clearInterval(jt.sliderTimer);
+    $("#optionAInput").val(val);
+    let x = val;
+    document.getElementById('slider').value = val;
+    jt.vue.player.slider = val;
+}
+
+jt.connected = function() {
+    jt.socket.on('playerUpdate', function(player) {
+        jt.sliderSet = false;
+        jt.tickingUp = Math.random() < 0.5;
+        jt.tickVal = 50 + (jt.tickingUp ? -1 : 1)*10;
+        jt.sliderIncr = 1;
+    
+        tick = function() {
+            if (!jt.sliderSet) {
+                let val = jt.tickVal;
+                if (val >= 100) {
+                    jt.tickingUp = false;
+                } else if (val <= 0) {
+                    jt.tickingUp = true;
+                }
+                if (jt.tickingUp) {
+                    val = val + jt.sliderIncr;
+                } else {
+                    val = val - jt.sliderIncr;
+                }
+    
+                document.getElementById('slider').value = val;
+                jt.tickVal = val;
+            }
+        }
+    
+        jt.sliderTimer = setInterval(tick, 100);
+    });
+}
+</script>
+<style>
+body {
+    max-width: unset;
+}
+#jtree {
+    width: 90%;
+}
+img {
+    height: 300px;
+}
+</style>
+`
+
+stage.autoplay = `
+    if (jt.vue.player.slider == -1) {
+        let x = Math.floor(Math.random()*101);
+        showSliderVal(x);
+    } else {
+        $('form').submit();
+    }
+`
+
+stage.playerEnd = function(player) {
+    player.draw = Math.random()*100;
+    if (player.draw <= player.slider) {
+        player.payoff = player.situation.optionA.text;
+    } else {
+        player.payoff = player.situation.optionB.text;
+    }
+
+    player.participant.latestPayoffs.push(player.payoff);
+    if (player.period().id == app.numPeriods) {
+        let round = Utils.randomInt(0, app.numPeriods);
+        let drawnPayoff = player.participant.latestPayoffs[round];
+        player.participant.payoffs.push({
+            round: round, 
+            payoff: drawnPayoff,
+            block: 'Block 2 Prob.'
+        });
+    }
+}

@@ -118,6 +118,11 @@ class Msgs {
         session.setNumParticipants(num);
     }
 
+    // setSessionOption(d, socket) {
+    //     let session = this.jt.data.getSession(d.sessionId);
+        
+    // }
+
     resetSession(d, socket) {
         let session = this.jt.data.getSession(d.sId);
         session.reset();
@@ -185,16 +190,21 @@ class Msgs {
         session.resume();
         this.jt.data.sessions.push(session);
         var queue = this.jt.data.queue(data.qId);
-        if (queue.code == null) {
-            for (var a in queue.apps) {
-                var app = queue.apps[a];
-                var d = {sId: session.id, appPath: app.appId, options: app.options};
-                this.sessionAddApp(d);
-            }
-        } else {
+        session.queue = queue;
+        let options = data.options;
+        for (let i in options) {
+            session[i] = options[i];
+        }
+        // if (queue.code == null) {
+        //     for (var a in queue.apps) {
+        //         var app = queue.apps[a];
+        //         var d = {sId: session.id, appPath: app.appId, options: app.options};
+        //         this.sessionAddApp(d);
+        //     }
+        // } else {
             session.queuePath = path.dirname(queue.id);
             eval(queue.code);
-        }
+        // }
         this.openSession(session.id, sock);
     }
 
@@ -394,7 +404,7 @@ class Msgs {
     setSessionAppOption(d, socket) {
         var session = Utils.findByIdWOJQ(this.jt.data.sessions, d.sId);
         if (session !== null) {
-            session.setAppOption(d.appId, d.i, d.name, d.value);
+            session.setOption(d.name, d.value);
         }
     }
 

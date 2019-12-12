@@ -87,12 +87,12 @@ jt.createQueue = function() {
     }
 }
 
-jt.startSessionFromQueue = function(id) {
-    if (id === undefined) {
-        id = $('#view-queue-id').text();
-    }
-    server.startSessionFromQueue(id);
-}
+// jt.startSessionFromQueue = function(id) {
+//     if (id === undefined) {
+//         id = $('#view-queue-id').text();
+//     }
+//     server.startSessionFromQueue(id);
+// }
 
 jt.deleteQueueConfirm = function(id) {
     if (id === undefined) {

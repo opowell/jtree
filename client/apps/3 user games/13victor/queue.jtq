@@ -1,29 +1,50 @@
-let trainingBudgets = [[50, 50]];
+let trainingBudgets = [{maxX: 50, maxY: 50, id: 1}];
 
-let realBudgets = [
-    [50, 100],
-    [75, 75],
-    [100, 50],
-];
+session.addNumberOption('probSelX', 0.5, 0, 1, 0.01, 'Probability of selecting good x for payment.');
+session.addNumberOption('budgetMax', 100, 100, 200, 1, 'Budget maximum.');
+
+let numBudgets = 50;
+let realBudgets = [];
+let min = 10;
+let mid = 50;
+for (let i=0; i<numBudgets; i++) {
+    let x = Utils.randomInt(min, session.budgetMax+1);
+    let y = Utils.randomInt(min, session.budgetMax+1);
+    if (x < mid && y < mid) {
+        if (Math.random() < 0.5) {
+            x += (min+session.budgetMax)/2;
+        } else {
+            y += (min+session.budgetMax)/2;
+        }
+    }
+    realBudgets.push({
+        maxX: x,
+        maxY: y,
+        id: i
+    });
+}
 
 let shuffledBudgets = Utils.shuffle(realBudgets);
 
 session.addApp('1_instructions.jtt');
 session.addApp('counting.jtt', {
-    budgets: trainingBudgets, 
     treatment: 'individual',
     training: 'yes',
+    budgets: trainingBudgets,
 });
+
 session.addApp('2_instructions.jtt');
 session.addApp('counting.jtt', {
-    budgets: realBudgets, 
     treatment: 'individual',
     training: 'no',
+    budgets: realBudgets,
 });
+
 session.addApp('3_instructions.jtt');
 session.addApp('counting.jtt', {
-    budgets: shuffledBudgets, 
     treatment: 'pair',
     training: 'no',
+    budgets: shuffledBudgets,
 });
+
 session.addApp('results.jtt');

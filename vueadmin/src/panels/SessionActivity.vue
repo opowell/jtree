@@ -92,6 +92,9 @@ jt.viewAllParticipants = function() {
 }
 
 jt.hideAllParticipants = function() {
+    if (this.openPlayers == null) {
+        return;
+    }
     this.openPlayers.splice(0, this.openPlayers.length);
 }
 

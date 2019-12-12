@@ -14,6 +14,8 @@ class clPlayer {
             this[field] = player[field];
         }
 
+        this.roomId = player.roomId();
+
         /**
          * The group of this player.
          * @type string

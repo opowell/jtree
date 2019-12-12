@@ -50,6 +50,20 @@ class Session {
         this.name = this.id;
 
         /**
+         * The options of this app.
+         * @type Array
+         * @default []
+         */
+        this.options = [];
+
+        /**
+         * The option values of this app.
+         * @type Object
+         * @default {}
+         */
+        this.optionValues = {};
+
+        /**
         * A list of the clients connected to this session.
         * @type Array
         */
@@ -120,7 +134,8 @@ class Session {
             'fileStream',
             'asyncQueue',
             // 'started',
-            'emitMessages'
+            'emitMessages',
+            'queue',
         ];
 
         this.emitMessages = true;
@@ -261,28 +276,29 @@ class Session {
 
         try {
             var app = this.jt.data.loadApp(appPath, this, appPath, options);
-        if (app !== null) {
-            this.apps.push(app);
-            if (app.appPath.endsWith('.jtt') || app.appPath.endsWith('.js')) {
-                Utils.copyFile(app.appFilename, app.appDir, app.getOutputFN());
-            } else {
-                Utils.copyFiles(path.parse(app.appPath).dir, app.getOutputFN());
+            if (app !== null) {
+                this.apps.push(app);
+                if (app.appPath.endsWith('.jtt') || app.appPath.endsWith('.js')) {
+                    Utils.copyFile(app.appFilename, app.appDir, app.getOutputFN());
+                } else {
+                    Utils.copyFiles(path.parse(app.appPath).dir, app.getOutputFN());
+                }
+                if (this.apps.length == 1 &&
+                    app.suggestedNumParticipants != null &&
+                    this.suggestedNumParticipants == null) {
+                        this.suggestedNumParticipants = app.suggestedNumParticipants;
+                        this.setNumParticipants(app.suggestedNumParticipants);
+                }
+                // app.saveSelfAndChildren();
+                this.save();
+                if (this.emitMessages) {
+                    this.emit('sessionAddApp', {sId: this.id, app: app.shellWithChildren()});
+                }
             }
-            if (this.apps.length == 1 &&
-                app.suggestedNumParticipants != null &&
-                this.suggestedNumParticipants == null) {
-                    this.suggestedNumParticipants = app.suggestedNumParticipants;
-                    this.setNumParticipants(app.suggestedNumParticipants);
-            }
-            // app.saveSelfAndChildren();
-            this.save();
-            if (this.emitMessages) {
-                this.emit('sessionAddApp', {sId: this.id, app: app.shellWithChildren()});
-            }
+            return app;
+        } catch (err) {
+            debugger;
         }
-    } catch (err) {
-        debugger;
-    }
     }
 
     addUser(userId) {
@@ -543,6 +559,70 @@ class Session {
         return this.jt.settings.participantUI;
     }
 
+    addNumberOption(name, defaultVal, min, max, step, description) {
+        // Add to list of options.
+        this.options.push({
+            type: 'number',
+            name: name,
+            min: min,
+            max: max,
+            step: step,
+            defaultVal: defaultVal,
+            description: description
+        });
+
+        // Add value, if does not already exist.
+        if (this[name] === undefined) {
+            this[name] = defaultVal;
+        }
+
+        // Value already exists, coerce if possible into one of the original option values.
+        else {
+            this.setOptionValue(name, this[name]);
+        }
+    }
+
+    addTextOption(name, defaultVal, description) {
+        // Add to list of options.
+        this.options.push({
+            type: 'text',
+            name: name,
+            defaultVal: defaultVal,
+            description: description
+        });
+
+        // Add value, if does not already exist.
+        if (this[name] === undefined) {
+            this[name] = defaultVal;
+        }
+
+        // Value already exists, coerce if possible into one of the original option values.
+        else {
+            this.setOptionValue(name, this[name]);
+        }
+    }
+
+    addSelectOption(optionName, optionVals, description) {
+
+        // Add to list of options.
+        this.options.push({
+            type: 'select',
+            name: optionName,
+            values: optionVals,
+            description: description
+        });
+
+        // Add value, if does not already exist.
+        if (this[optionName] === undefined) {
+            this[optionName] = optionVals[0];
+        }
+
+        // Value already exists, coerce if possible into one of the original option values.
+        else {
+            this.setOptionValue(optionName, this[optionName]);
+        }
+    }
+
     /**
     * Sends a page to a client (via the given HTTPResponse object).
     * @param  {HTTPRequest} req description
@@ -727,6 +807,39 @@ class Session {
             app.saveSelfAndChildren();
         }
     }
+
+    setOptionValue(name, value) {
+        this.optionValues[name] = value;
+        var correctedValue = value;
+        var isValid = false;
+        let foundOpt = false;
+        for (var opt in this.options) {
+            var option = this.options[opt];
+            if (option.name === name) {
+                foundOpt = true;
+                if (option.type === 'select') {
+                    for (var i in option.values) {
+                        if (option.values[i] == value) { // allow for coercion
+                            correctedValue = option.values[i];
+                            isValid = true;
+                            break;
+                        }
+                    }
+                } else if (option.type === 'number') {
+                    correctedValue = value - 0; /** coerce to number*/
+                    isValid = true;
+                    break;
+                } else if (option.type === 'text') {
+                    isValid = true;
+                    // no correction needed.
+                }
+            }
+        }
+        if (isValid || !foundOpt) {
+            this[name] = correctedValue;
+        }
+    }
+
 
     /**
     * Sends a message to all clients of this session.

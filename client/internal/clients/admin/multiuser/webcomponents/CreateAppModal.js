@@ -11,7 +11,7 @@ class CreateAppModal extends HTMLElement {
                       </button>
                   </div>
                   <div class="modal-body">
-                      Enter filename for new app: <input type="text" class="form-control" placeholder="Filename" id='create-app-input' name='feaojfweaofijw' onkeyup="jt.createAppKeyUp(event)" style='flex: 0 0 150px'>
+                      Enter filename for new app: <input type="text" class="form-control" placeholder="Filename" id='create-app-input' name='feaojfweaofijw' onkeyup="jt.execIfEnter(event, jt.createApp)" style='flex: 0 0 150px'>
                   </div>
                   <div class="modal-footer">
                       <button type="button" class="btn btn-sm btn-outline-primary" onclick='jt.createApp();'>Create</button>
@@ -25,11 +25,9 @@ class CreateAppModal extends HTMLElement {
 
 window.customElements.define('createapp-modal', CreateAppModal);
 
-jt.createAppKeyUp = function(e) {
-    var code = (e.keyCode ? e.keyCode : e.which);
-    if (code == 13) { //Enter keycode
-        jt.createApp();
-    }
+jt.showCreateAppModal = function() {
+    $("#createAppModal").modal("show");
+    $('#create-app-input').focus();
 }
 
 jt.createApp = function() {

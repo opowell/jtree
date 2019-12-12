@@ -16,7 +16,16 @@ server.createRoom   = function(id)  { jt.socket.emit('createRoom'      , id); }
 server.createApp   = function(id, cb)  { jt.socket.emit('createApp'      , id, cb); }
 server.createQueue   = function(id)  { jt.socket.emit('createQueue'      , id); }
 server.saveRoom     = function(room) { jt.socket.emit('saveRoom', room); }
-server.startSessionFromQueue = function(id) { jt.socket.emit('startSessionFromQueue', {qId: id, userId: Cookies.get('userId')}); }
+server.startSessionFromQueue = function(id, opts) { 
+    jt.socket.emit(
+        'startSessionFromQueue', 
+        {
+            qId: id, 
+            userId: Cookies.get('userId'),
+            options: opts
+        }
+    );
+}
 server.createAppFromFile    = function(fn, contents) { jt.socket.emit('createAppFromFile', {fn: fn, contents: contents})}
 server.saveOutput = function() { jt.socket.emit('saveOutput', jt.data.session.id); }
 server.deleteQueue = function(id) { jt.socket.emit('deleteQueue', id); }
@@ -154,6 +163,10 @@ server.setNumParticipants = function(amt, cb) {
     d.number = amt;
     jt.socket.emit('setNumParticipants', d, cb);
     $('#setNumParticipantsModal').modal('hide');
+}
+
+server.setSessionOption = function(obj, cb) {
+    jt.socket.emit('setSessionOption', obj, cb);
 }
 
 server.resetSession = function(cb) {

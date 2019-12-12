@@ -172,33 +172,34 @@ class Data {
             this.jt.log('loaded app ' + filePath);
         } catch (err) {
             if (
-                !filePath.endsWith('.jtt') ||
-                app.isStandaloneApp == false
+                !filePath.endsWith('.jtt')
             ) {
                 return null;
             }
-            app.hasError = true;
-            let stack = new StackTracey (err);
-            this.jt.log('Error loading app: ' + filePath, true);
-            this.jt.log(err, true);
-            let lines = err.stack.split('\n');
-            let index = lines[1].indexOf('<anonymous>:');
-            let position = lines[1].substring(index + '<anonymous>:'.length);
-            let start = 0;
-            let indexColon = position.indexOf(':', start);
-            let line = position.substring(start, indexColon);
-            start = start + indexColon + 1;
-            let indexParen = position.indexOf(')', start);
-            let positionStr = position.substring(start, indexParen);
-            if (isNaN(line)) {
-                line = 'unknown';
+            if (app.isStandaloneApp) {
+                app.hasError = true;
+                let stack = new StackTracey (err);
+                this.jt.log('Error loading app: ' + filePath, true);
+                this.jt.log(err, true);
+                let lines = err.stack.split('\n');
+                let index = lines[1].indexOf('<anonymous>:');
+                let position = lines[1].substring(index + '<anonymous>:'.length);
+                let start = 0;
+                let indexColon = position.indexOf(':', start);
+                let line = position.substring(start, indexColon);
+                start = start + indexColon + 1;
+                let indexParen = position.indexOf(')', start);
+                let positionStr = position.substring(start, indexParen);
+                if (isNaN(line)) {
+                    line = 'unknown';
+                }
+                if (isNaN(positionStr)) {
+                    positionStr = 'unknown';
+                }
+                this.jt.log('Line ' + line + ', position ' + positionStr, true);
+                app.errorLine = line;
+                app.errorPosition = positionStr;
             }
-            if (isNaN(positionStr)) {
-                positionStr = 'unknown';
-            }
-            this.jt.log('Line ' + line + ', position ' + positionStr, true);
-            app.errorLine = line;
-            app.errorPosition = positionStr;
         }
         return app;
     }
@@ -264,11 +265,6 @@ class Data {
         if (Utils.isDirectory(dir)) {
             var appDirContents = fs.readdirSync(dir);
 
-            // Load folder as its own queue.
-            var folderQueue = new Queue.new(dir, this.jt);
-            folderQueue.dummy = true;
-            this.jt.log('loading folder queue ' + dir);
-
             // Load individual apps and queues.
             for (var i in appDirContents) {
                 var curPath = path.join(dir, appDirContents[i]);
@@ -300,7 +296,6 @@ class Data {
                         if (app != null) {
                             this.apps[curPath] = app;
                             this.appsMetaData[curPath] = app.metaData();
-                            folderQueue.addApp(curPath);
                         }
                     }
 
@@ -317,6 +312,8 @@ class Data {
                         for (let i in session.apps) {
                             queue.addApp(session.apps[i].id, options);
                         }
+                        queue.options = session.options;
+                        queue.optionValues = session.optionValues;
                         // queue.apps = session.apps;
                         this.jt.log('loading file queue ' + curPath + ' with ' + queue.apps.length + ' apps');
                         this.queues[curPath] = queue;
@@ -326,10 +323,6 @@ class Data {
                 }
             }
 
-            if (folderQueue.apps.length > 0) {
-                folderQueue.displayName = dir.substring(dir.lastIndexOf('\\')+1);
-                this.queues[dir] = folderQueue;
-            }
         }
     }
 
