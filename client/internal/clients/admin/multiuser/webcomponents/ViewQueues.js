@@ -105,7 +105,7 @@ jt.startSessionFromQueue = function(id) {
     if (id === undefined) {
         id = $('#view-queue-id').text();
     }
-    server.startSessionFromQueue(id);
+    server.startSessionFromQueue(id, {});
 }
 
 jt.deleteQueueConfirm = function(id) {

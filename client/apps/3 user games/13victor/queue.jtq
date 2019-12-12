@@ -1,4 +1,4 @@
-let trainingBudgets = [[50, 50]];
+let trainingBudgets = [{maxX: 50, maxY: 50, id: 1}];
 
 session.addNumberOption('probSelX', 0.5, 0, 1, 0.01, 'Probability of selecting good x for payment.');
 session.addNumberOption('budgetMax', 100, 100, 200, 1, 'Budget maximum.');
@@ -27,24 +27,24 @@ for (let i=0; i<numBudgets; i++) {
 let shuffledBudgets = Utils.shuffle(realBudgets);
 
 session.addApp('1_instructions.jtt');
-let app1 = session.addApp('counting.jtt', {
+session.addApp('counting.jtt', {
     treatment: 'individual',
     training: 'yes',
+    budgets: trainingBudgets,
 });
-app1.budgets = trainingBudgets, 
 
 session.addApp('2_instructions.jtt');
-let app2 = session.addApp('counting.jtt', {
+session.addApp('counting.jtt', {
     treatment: 'individual',
     training: 'no',
+    budgets: realBudgets,
 });
-app2.budgets = realBudgets;
 
 session.addApp('3_instructions.jtt');
-let app3 = session.addApp('counting.jtt', {
+session.addApp('counting.jtt', {
     treatment: 'pair',
     training: 'no',
+    budgets: shuffledBudgets,
 });
-app3.budgets = shuffledBudgets;
 
 session.addApp('results.jtt');

@@ -14,7 +14,7 @@ class ViewQueue extends HTMLElement {
     <br><br>
 
     <div class="btn-group mb-3">
-        <button class="btn btn-primary btn-sm" onclick='jt.startSessionFromQueue()'>
+        <button class="btn btn-primary btn-sm" onclick='jt.startSessionFromQueueWithOptions()'>
             <i class="fa fa-play"></i>&nbsp;&nbsp;Start session
         </button>
     </div>
@@ -44,6 +44,19 @@ class ViewQueue extends HTMLElement {
 </div>
         `;
     }
+}
+
+jt.startSessionFromQueueWithOptions = function() {
+    let id = $('#view-queue-id').text();
+    let opts = {};
+    let els = $('.view-app-option');
+    for (let i=0; i<els.length; i++) {
+        let el = els[i];
+        let name = $(el).attr('app-option-name');
+        let val = $('#view-app-option-' + name).val();
+        opts[name] = val;
+    }
+    server.startSessionFromQueue(id, opts);
 }
 
 showQueueOptions = function() {

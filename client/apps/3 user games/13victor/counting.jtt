@@ -1,6 +1,6 @@
 app.isStandaloneApp = false;
 app.addSelectOption('treatment', ['individual', 'pair'], 'Whether game is played individually or in pairs.');
-// app.addTextOption('budgets', [80, 80], 'Set of budgets to be played.');
+app.addTextOption('budgets', [80, 80], 'Set of budgets to be played.');
 app.addSelectOption('training', ['yes', 'no'], 'Whether or not this app is training.');
 
 if (app.treatment === 'individual') {

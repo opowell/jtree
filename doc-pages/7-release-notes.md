@@ -2,7 +2,7 @@
 - Generic game trees.
 - Listen to incremental game changes via observer.
 
-#### 2019.12.10 - 0.8.4
+#### 2019.12.12 - 0.8.4
 - App option: App.isStandaloneApp or //NOTSTANDLONEAPP.
 - Stage submission: check for current player, instead of just current stage name.
 - disable folder queues.

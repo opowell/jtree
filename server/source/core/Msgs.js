@@ -191,6 +191,10 @@ class Msgs {
         this.jt.data.sessions.push(session);
         var queue = this.jt.data.queue(data.qId);
         session.queue = queue;
+        let options = data.options;
+        for (let i in options) {
+            session[i] = options[i];
+        }
         // if (queue.code == null) {
         //     for (var a in queue.apps) {
         //         var app = queue.apps[a];
