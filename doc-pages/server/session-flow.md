@@ -1,3 +1,35 @@
+Player P plays a game G:
+* G.playerStart(P)
+* For 1 to G.numPeriods:
+  * Create Period R.
+  * Create Player PR as subplayer of P.
+  * G.playerStartPeriod(PR, R).
+  * For 1 to G.subgames.length:
+    * Current subgame SG.
+    * Create Player PS as subplayer of PR.
+    * PS plays SG.
+  * G.playerEndPeriod(PR, R).
+* G.playerEnd(P)
+
+
+Group R plays a game G:
+* G.groupStart(R)
+* Split R into subgroups.
+* For 1 to G.numPeriods, for each subgroup:
+  * Create Period P.
+  * Current subgroup: SR.
+  * Create GROUP GRR as subgroup of SGR.
+  * G.groupStartPeriod(GRR, R).
+  * For 1 to G.subgames.length:
+    * Current subgame SG.
+    * Create GROUP GRS as subgroup of GRR.
+    * GRS plays SG.
+  * G.playerEndPeriod(PR, R).
+* G.groupEnd(GR)
+
+
+
+
 This tutorial describes the sequence of events that happen during a session. In particular, it points out the various functions that can be used to design an app. For more details about this procedure, see the <a href="tutorial-session-flow-details.html">advanced tutorial</a>.
 
 Games consist of content, periods and subgames. When a group or player plays a game, it is assigned sub elements.

@@ -470,7 +470,7 @@ class App {
             }
         }
         for (let g=group.subGroups.length; g<numGroups; g++) {
-            let newSG = new Group.new(g+1, this, group);
+            let newSG = new Group.new(g+1, period, group);
             newSG.type = 'child-period';
             group.subGroups.push(newSG);
             if (gIds[g].length != null) {
@@ -537,7 +537,10 @@ class App {
 
         let periodPlayer = player.subPlayers[periodNum - 1];
 
-        period.playerBegin(periodPlayer);
+        if (period.game.subgames.length > 0) {
+            let firstSubGame = period.game.subgames[0];
+            firstSubGame.playerStartInternal(periodPlayer);
+        }
     }
 
     /**
@@ -1885,14 +1888,14 @@ class App {
         player.emitUpdate2();
     }
 
-    subPlayerStartPeriodInternal(player) {
+    subPlayerStartPeriodInternal(player, period) {
         player.game = this;
         player.updateGamePath();
 
         if (player.status === Status.UNSET) {
             player.status = Status.READY_TO_START;
         }
-        this.subGroupStartPeriodInternal(player.group);
+        this.subGroupStartPeriodInternal(player.group, period);
         if (!this.canPlayerStart(player)) {
             return;
         }
@@ -1902,12 +1905,15 @@ class App {
                 player.status = Status.STARTED;
                 this.recordPlayerStartTime(player);
                 try {
-                    this.subPlayerStartPeriod(player);
+                    this.subPlayerStartPeriod(player, period);
                 } catch(err) {
                     global.jt.log(err + '\n' + err.stack);
                 }
                 if (this.canPlayerStartPeriods(player)) {
-                    this.playerStartPeriodInternal(1, player);
+                    if (period.game.subgames.length > 0) {
+                        let firstSubGame = period.game.subgames[0];
+                        firstSubGame.playerStartInternal(periodPlayer);
+                    }
                 } 
                 this.save();
             }

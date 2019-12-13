@@ -1169,7 +1169,7 @@ participantUI() {
                 app: this.gameTree[0],
                 numPeriods: 1,
             }
-            let group = new Group.new('session', period);
+            let group = new Group.new('session', period, null);
             for (let p in participants) {
                 let part = participants[p];
                 let player = new Player.new(part.id, part, group, p);
