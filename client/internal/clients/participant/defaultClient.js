@@ -155,7 +155,7 @@ jt.submitFormData = function(values) {
     values.playerRoomId = jt.data.player.roomId;
     console.log('submitting form with values ' + JSON.stringify(values));
     try {
-        jt.vue.app.onSubmit();
+        eval(jt.vue.app.onSubmit);
     } catch (err) {
 
     }

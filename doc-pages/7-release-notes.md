@@ -2,9 +2,10 @@
 - Generic game trees.
 - Listen to incremental game changes via observer.
 
-#### 2019.12.12 - 0.8.5
+#### 2019.12.13 - 0.8.5
 - Sort participants.
 - Submit form on autoplay.
+- Change App.onSubmit to a string, instead of a function, that gets evaluated when a stage is submitted.
 
 #### 2019.12.12 - 0.8.4
 - App option: App.isStandaloneApp or //NOTSTANDLONEAPP.

@@ -66,9 +66,9 @@ class App {
         this.shortId = id;
 
 
-        this.onSubmit = function() {
+        this.onSubmit = `
             jt.popupMessage('Submitting...');
-        };
+        `;
 
         /**
          * @type {jt}
