@@ -32,7 +32,11 @@ class ViewSessionActivity extends HTMLElement {
 document.write('<script src="/admin/multiuser/webcomponents/SetAutoplayFreqModal.js"></script>');
 
 function viewAllParticipants() {
-    for (var pId in jt.data.session.participants) {
+    let ids = Object.keys(jt.data.session.participants);
+    alphanumSort(ids);
+
+    for (var i in ids) {
+        let pId = ids[i];
         var participant = jt.data.session.participants[pId];
         viewParticipant(participant.id);
     }

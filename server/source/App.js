@@ -66,6 +66,10 @@ class App {
         this.shortId = id;
 
 
+        this.onSubmit = `
+            jt.popupMessage('Submitting...');
+        `;
+
         /**
          * @type {jt}
          */
@@ -1630,6 +1634,18 @@ class App {
         }
     }
 
+    copyFieldsTo(obj) {
+        var fields = this.outputFields();
+        for (var f in fields) {
+            var field = fields[f];
+            if (Utils.isFunction(this[field])) {
+                obj['__func_' + field] = this[field].toString();
+            } else {
+                obj[field] = this[field];
+            }
+        }
+    }
+
     /**
      * A shell of this object. Excludes parent, includes child shells.
      *
@@ -1640,15 +1656,7 @@ class App {
      */
     shellWithChildren() {
         var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            if (Utils.isFunction(this[field])) {
-                out['__func_' + field] = this[field].toString();
-            } else {
-                out[field] = this[field];
-            }
-        }
+        this.copyFieldsTo(out);
         out.indexInSession = this.indexInSession();
         out.periods = [];
         for (var i in this.periods) {
@@ -1669,11 +1677,7 @@ class App {
      */
     shellWithParent() {
         var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
+        this.copyFieldsTo(out);
         out.session = this.session.shell();
         out.numStages = this.stages.length;
         out.vueComputedText = {};
@@ -1702,11 +1706,7 @@ class App {
      */
     shell() {
         var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
+        this.copyFieldsTo(out);
         out.sessionIndex = this.indexInSession();
         return out;
     }
