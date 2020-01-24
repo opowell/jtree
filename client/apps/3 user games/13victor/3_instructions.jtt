@@ -1,5 +1,0 @@
-app.isStandaloneApp = false;
-let instructions = app.newStage('instructions');
-instructions.activeScreen = `
-    <p>Part B.</p>
-`

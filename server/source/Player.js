@@ -97,7 +97,14 @@ class Player {
     }
 
     timeInStage() {
-        return this.group.timeInStage();
+        if (this.group.stageTimer != null) {
+            return this.group.timeInStage();
+        } else {
+            let startTime = this['timeStart_' + this.stage.id];
+            let curTime = this.timeStamp();
+            let diff = Utils.diffDates(startTime, curTime);
+            return diff;
+        }
     }
 
     asClPlayer() {
