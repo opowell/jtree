@@ -2,6 +2,10 @@
 - Generic game trees.
 - Listen to incremental game changes via observer.
 
+#### 2020.01.24 - 0.8.6
+- Queue options respect limits.
+- Method to get player time in stage.
+
 #### 2019.12.13 - 0.8.5
 - Sort participants.
 - Submit form on autoplay.

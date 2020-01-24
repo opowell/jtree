@@ -1,0 +1,34 @@
+DONE
+- two exchange rates, one for example payoff, other for other parts, show on results screen.
+- remove budget max option (always 100).
+- budgets: 1 intersection 50-100, other 10-100
+- smaller chart for individual, larger for group.
+- remove "MATCH" buttons
+- "Partner" header --> blue
+- remove highcharts credits
+- END BARGAINING --> "NEXT DECISION"
+- line up boxes (add in extra space).
+- "My share of the eventually agreed X"
+- slider handle --> same as partner indicator
+- to the left of slider handle, dark grey.
+- group decision: show boxes, but grey out, until both players choose.
+- only allow subsequent choices once both players have made initial choice.
+- after chat message, remove text from input.
+- random initial slider values.
+- chat, keep timestamp
+- add new proposal timestamp
+- two options, factor e1 and e2.
+- 3 treatments.
+- queue options: min/max on number options.
+- queue option: indiv. first / pair first.
+- remove proposal options if exog proposals treatment.
+ 
+TODO
+- random starting place for crosshair, track.
+- click anywhere on graph for selection.
+- reload queue after changing options.
+
+
+ 
+ 
+ 

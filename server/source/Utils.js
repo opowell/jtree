@@ -320,6 +320,32 @@ class Utils {
         return date.year + date.formattedMonth + date.formattedDay + "-" +  date.formattedHour + date.formattedMinute + date.formattedSecond + '-' + date.formattedMS;
     }
 
+    static diffDates(d1, d2) {
+        let d1Obj = this.getDateObj(d1).getTime();
+        let d2Obj = this.getDateObj(d2).getTime();
+        let diff = d2Obj - d1Obj;
+        return diff;
+    }
+
+    static getDateObj(dateString) {
+        let year = dateString.substring(0, 4) - 0;
+        let month = dateString.substring(4, 6) - 0;
+        let day = dateString.substring(6, 8) - 0;
+        let hour = dateString.substring(9, 11) - 0;
+        let minute = dateString.substring(11, 13) - 0;
+        let sec = dateString.substring(13, 15) - 0;
+        let millisecond = dateString.substring(16) - 0;
+        return new Date(
+            year,
+            month,
+            day,
+            hour,
+            minute,
+            sec,
+            millisecond
+        );
+    }
+
     static dateFromStr(str) {
         str = 
             str.substring(0, 4) + '-' + 
