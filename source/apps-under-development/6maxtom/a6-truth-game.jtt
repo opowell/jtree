@@ -1,0 +1,530 @@
+let page1 = app.newStage('page1');
+page1.activeScreen = `
+
+<h4 style="font-family:calibri;">Information zur Entschädigung</h4>
+<p style="font-family:calibri;"> Sie werden sich im Folgenden in die Rolle eines CEO versetzen müssen. Die finanzielle Entschädigung, die sie am Ende des Experiments erhalten, ist an den Lohn des CEO gekoppelt.<br>
+<br>
+Höherer Lohn für den CEO bedeutet höhere Entschädigung für Sie.<br>
+<br>
+Zusätzlich werden einige Zwischenfragen gestellt, die bei einer Falsch-Antwort einen Abzug von je 1 CHF zur Folge haben. Die Fragen sind jedoch durch aufmerksames Lesen gut zu beantworten.<br>
+<br>
+Sie erhalten bei vollständiger Teilnahme auf jeden Fall 8 CHF ausbezahlt.</p>
+`;
+
+let page2 = app.newStage('page2');
+page2.activeScreen = `
+<h4 style="font-family:calibri;">General Information</h4>
+<p style="font-family:calibri;">Please note:<br>
+• Please read the instructions for each task carefully.<br>
+• Please answer all questions.<br>
+• Please answer openly. Only your personal view counts, and there are no right or wrong answers (except for the clearly labeled questions
+checking understanding)</p>
+`;
+
+let page3 = app.newStage('page3');
+page3.activeScreen = `
+<h4 style="font-family:calibri;">Information zur Entschädigung</h4>
+<p style="font-family:calibri;"> Sie werden sich im Folgenden in die Rolle eines CEO versetzen müssen. 
+    Die finanzielle Entschädigung, die sie am Ende des Experiments erhalten, ist an den Lohn des CEO gekoppelt.<<br>
+<br>
+Höherer Lohn für den CEO bedeutet höhere Entschädigung für Sie.<br>
+<br>
+Zusätzlich werden einige Zwischenfragen gestellt, die bei einer Falsch-Antwort einen Abzug von je 1 CHF zur Folge haben. 
+Die Fragen sind jedoch durch aufmerksames Lesen gut zu beantworten. <br>
+<br>
+Sie erhalten bei vollständiger Teilnahme auf jeden Fall 8 CHF ausbezahlt. </p>
+`;
+
+let page4 = app.newStage('page4');
+page4.activeScreen = `
+<h4 style="font-family:calibri;">Einleitung</h4>
+<p style="font-family:calibri;">Lesen Sie nun bitte folgende Situationsbeschreibung sorgfältig durch.<br>
+<br>
+Stellen Sie sich vor...<br>
+<br>
+Sie sind der Chief Executive Officer (CEO) der Firma Castor AG. Die Castor AG ist ein börsenkotiertes Unternehmen. 
+Alle Ihre Aktionäre sind langfristige Investoren. Es gehört zu Ihren Aufgaben, die Aktionäre jedes Quartal über die 
+Geschäftstätigkeiten und den erreichten Gewinn pro Aktie zu informieren.<br>
+<br>
+Das nächste Quartalsende, zu dem Sie wieder Bericht erstatten müssen, steht kurz bevor. <br>
+<br>
+Ihr Gehalt setzt sich aus einer fixen und einer flexiblen Lohnkomponente zusammen. Die flexible Komponente ist ein Bonus, 
+der vom bekannt gegebenen Gewinn abhängt. Je höher der ausgewiesene Gewinn pro Aktie, desto grösser ist auch Ihr Bonus.
+<br>
+<br>
+Der Markt schätzt den Gewinn mit 35 Rappen pro Aktie ein. Dies ist den Aktionären bekannt.
+<br>
+<br>
+Als CEO kennen Sie die wahren Erträge der Castor AG - der Markt hingegen nicht. Sie wissen, dass ein Gewinn von 31 Rappen pro Aktie den tatsächlichen Wert des Unternehmens genauer widerspiegeln würde.
+<br>
+<br>
+Es ist Ihre Entscheidung, ob Sie auf legale Weise eine buchhalterische Veränderung 
+vornehmen und so einen Gewinn von 35 anstatt 31 Rappen pro Aktie bekannt geben.
+<br>
+<br>
+Sie wissen, dass die Aktionäre den Finanzbericht Ihrer Firma genau verfolgen.
+</p>
+`;
+
+let page5 = app.newStage('page5');
+page5.activeScreen = `
+<p style="font-family:calibri;"> Vor den eigentlichen Entscheidungsfragen, werden Ihnen auf der folgenden Seite einige Zwischenfragen gestellt.<br>
+<br>
+Bitte beachten Sie, dass jede Falsch-Antwort einen Abzug von 1 CHF in der Gesamtentschädigung zur Folge hat.<br>
+<br>
+Alle Fragen müssen korrekt beantwortet sein, bevor Sie mit dem Experiment fortfahren können.
+</p>
+`;
+
+let page6 = app.newStage('page6');
+page6.activeScreen = `
+<h4 style="font-family:calibri;">Zwischenfragen</h4>
+<p style="font-family:calibri;">Wie hoch schätzt der Markt den Gewinn pro Aktie für die Castor AG ein?</p>
+<input name='player.radio1' type='radio' value='30 cents' id='radio1'>
+<label for='radio1' style="font-family:calibri;">30 cents</label><br>
+<input name='player.radio1' type='radio' value='31 cents' id='radio2'>
+<label for='radio2' style="font-family:calibri;">31 cents</label><br>
+<input name='player.radio1' type='radio' value='35 cents' id='radio3'>
+<label for='radio3' style="font-family:calibri;">35 cents</label>
+<br>
+<p style="font-family:calibri;">Wie hoch wäre der Gewinn pro Aktie der Castor AG gemäss der internen Buchhaltung?</p>   
+<input name='player.radio2' type='radio' value='30 cents<' id='radio1'>
+<label for='radio1' style="font-family:calibri;">30 cents</label><br>
+<input name='player.radio2' type='radio' value='31 cents' id='radio2'>
+<label for='radio2' style="font-family:calibri;">31 cents</label><br>
+<input name='player.radio2' type='radio' value='35 cents' id='radio3'>
+<label for='radio3' style="font-family:calibri;">35 cents</label>
+<br>
+<p style="font-family:calibri;">Bei welchem ausgewiesenen Gewinn pro Aktie würden Sie als CEO einen geringeren Bonus erhalten?</p>
+<input name='player.radio3' type='radio' value='bei 31 cents Gewinn pro Aktie' id='radio1'>
+<label for='radio1' style="font-family:calibri;">bei 31 cents Gewinn pro Aktie</label><br>
+<input name='player.radio3' type='radio' value='bei 35 cents Gewinn pro Aktie' id='radio2'>
+<label for='radio2' style="font-family:calibri;">bei 35 cents Gewinn pro Aktie</label><br>
+<p style="font-family:calibri;">Können Sie als CEO einen Gewinn bekannt geben, der vom tatsächlichen Gewinn abweicht?       </p>
+<input name='player.radio4' type='radio' value='yes' id='radio1'>
+<label for='radio1' style="font-family:calibri;">Ja</label><br>
+<input name='player.radio4' type='radio' value='no' id='radio2'>
+<label for='radio2' style="font-family:calibri;">Nein</label><br>
+<p style="font-family:calibri;">Ihr Gehalt als CEOs ist...</p>
+<input name='player.radio5' type='radio' value='Abhängig vom bekanntgegebenen Gewinn pro Aktie ' id='radio1'>
+<label for='radio1' style="font-family:calibri;">Abhängig vom bekanntgegebenen Gewinn pro Aktie </label><br>
+<input name='player.radio5' type='radio' value='Unabhängig vom bekanntgegebenen Gewinn pro Aktie' id='radio2'>
+<label for='radio2' style="font-family:calibri;">Unabhängig vom bekanntgegebenen Gewinn pro Aktie    </label><br>
+<br>
+`;
+
+let page7 = app.newStage('page7');  
+page7.activeScreen = `
+<p style="font-family:calibri;">Ein Quartal ist vergangen und Sie müssen heute wieder einen Report veröffentlichen. 
+Der Markt schätzt den Gewinn wieder auf 35 Rappen pro Aktie. Sie wissen, dass ein Gewinn von 31 Rappen pro Aktie eigentlich den Wert des Unternehmens genauer widerspiegeln würde.<br>
+<br>
+Im Folgenden sind wieder fünf mögliche Situationen dargestellt, bei welchen Sie jeweils eine Alternative anklicken müssen.
+<br>
+</p>
+<p style="font-family:calibri;">Welchen Gewinn pro Aktie geben Sie bekannt? 
+(Bitte entscheiden Sie sich bei jeder der fünf Situationen jeweils für eine Alternative.)</p>
+<input name='player.radio6' type='radio' value='31 cents pro Aktie' id='radio1'>
+<label for='radio1' style="font-family:calibri;">31 cents pro Aktie - Dafür erhielten Sie einen Bonus von 60,000 CHF (resp. 0.30 CHF)*</label><br>
+<input name='player.radio6' type='radio' value='35 cents pro Aktie' id='radio2'>
+<label for='radio2' style="font-family:calibri;">35 cents pro Aktie - Dafür erhielten Sie einen Bonus von CHF 300,000 (CHF 1.50) *</label><br>
+<br>
+<p style="font-family:calibri;">Welchen Gewinn pro Aktie geben Sie bekannt?</p>
+<input name='player.radio7' type='radio' value='31 cents pro Aktie' id='radio1'>
+<label for='radio1' style="font-family:calibri;">31 cents pro Aktie - Dafür erhielten Sie einen Bonus von CHF 120,000 (CHF 0.60)*</label><br>
+<input name='player.radio7' type='radio' value='35 cents pro Aktie' id='radio2'>
+<label for='radio2' style="font-family:calibri;">35 cents pro Aktie - Dafür erhielten Sie einen Bonus von CHF 300,000 (CHF 1.50) *</label><br>
+<br>
+<p style="font-family:calibri;">Welchen Gewinn pro Aktie geben Sie bekannt?</p>
+<input name='player.radio8' type='radio' value='31 cents pro Aktie' id='radio1'>
+<label for='radio1' style="font-family:calibri;">31 cents pro Aktie - Dafür erhielten Sie einen Bonus von CHF 180,000 (CHF 0.90)*</label><br>
+<input name='player.radio8' type='radio' value='35 cents pro Aktie' id='radio2'>
+<label for='radio2' style="font-family:calibri;">35 cents pro Aktie - Dafür erhielten Sie einen Bonus von CHF 300,000 (CHF 1.50) *</label><br>
+<br>
+<p style="font-family:calibri;">Welchen Gewinn pro Aktie geben Sie bekannt?</p>
+<input name='player.radio9' type='radio' value='31 cents pro Aktie' id='radio1'>
+<label for='radio1' style="font-family:calibri;">31 cents pro Aktie - Dafür erhielten Sie einen Bonus von CHF 240,000 (CHF 1.20)*</label><br>
+<input name='player.radio9' type='radio' value='35 cents pro Aktie' id='radio2'>
+<label for='radio2' style="font-family:calibri;">35 cents pro Aktie - Dafür erhielten Sie einen Bonus von CHF 300,000 (CHF 1.50) *</label><br>
+<br>
+<p style="font-family:calibri;">Welchen Gewinn pro Aktie geben Sie bekannt?</p>
+<input name='player.radio10' type='radio' value='31 cents pro Aktie' id='radio1'>
+<label for='radio1' style="font-family:calibri;">31 cents pro Aktie - Dafür erhielten Sie einen Bonus von CHF 300,000 (CHF 1.50) *</label><br>
+<input name='player.radio10' type='radio' value='35 cents pro Aktie' id='radio2'>
+<label for='radio2' style="font-family:calibri;">35 cents pro Aktie - Dafür erhielten Sie einen Bonus von CHF 300,000 (CHF 1.50) *</label><br>
+<br>
+<p style="font-family:calibri;">* Entspricht dem umgerechneten Bonus, den Sie am Ende des Experiments erhalten.     </p>
+`;
+
+let page8 = app.newStage('page8');
+page8.activeScreen = `
+<p style="font-family:calibri;" >Im Folgenden interessiert uns, in welcher Weise sich aus 
+Ihrer subjektiven Sicht die beiden Entscheidungsalternativen 31 Rappen vs. 35 Rappen Gewinn pro Aktie voneinander unterscheiden.<br>
+<br>
+Inwiefern bewerten Sie die Entscheidung 31 Rappen Gewinn pro Aktie bekannt zu geben als…
+</p>
+
+<table>
+<tr>
+<th>&emsp;</th>
+<th>&ensp;-2&ensp;</th>
+<th>&ensp;-1&ensp;</th>
+<th>&ensp;0&ensp;</th>
+<th>&ensp;+1&ensp;</th>
+<th>&ensp;+2&ensp;</th>
+<th>&emsp;&emsp;</th>
+</tr>
+<tr>
+<td>unehrlich</td>
+<th><input name='player.radio11' type='radio' required value='honest score 1' id='radio1'></th>
+<th><input name='player.radio11' type='radio' required value='honest score 2' id='radio2'></th>
+<th><input name='player.radio11' type='radio' required value='honest score 3' id='radio3'></th>
+<th><input name='player.radio11' type='radio' required value='honest score 4' id='radio4'></th>
+<th><input name='player.radio11' type='radio' required value='honest score 5' id='radio5'></th>
+<td>&emsp;&emsp;&emsp;ehrlich</td>
+</tr>
+<tr>
+<th>&emsp;</th>
+<th>&ensp;-2&ensp;</th>
+<th>&ensp;-1&ensp;</th>
+<th>&ensp;0&ensp;</th>
+<th>&ensp;+1&ensp;</th>
+<th>&ensp;+2&ensp;</th>
+<th>&emsp;</th>
+</tr>
+<tr>
+<td>manipulativ</td>
+<th><input name='player.radio12' type='radio' required value='not manipulative score 1' id='radio1'></th>
+<th><input name='player.radio12' type='radio' required value='not manipulative score 2' id='radio2'></th>
+<th><input name='player.radio12' type='radio' required value='not manipulative score 3' id='radio3'></th>
+<th><input name='player.radio12' type='radio' required value='not manipulative score 4' id='radio4'></th>
+<th><input name='player.radio12' type='radio' required value='not manipulative score 5' id='radio5'></th>
+<td>&emsp;&emsp;&emsp;nicht manipulativ</td>
+</tr>
+<tr>
+<th>&emsp;</th>
+<th>&ensp;-2&ensp;</th>
+<th>&ensp;-1&ensp;</th>
+<th>&ensp;0&ensp;</th>
+<th>&ensp;+1&ensp;</th>
+<th>&ensp;+2&ensp;</th>
+<th>&emsp;&emsp;</th>
+</tr>
+<tr>
+<td>persönlich finanzieller Verlust</td>
+<th><input name='player.radio13' type='radio' required value='Verlust2' id='radio1'></th>
+<th><input name='player.radio13' type='radio' required value='Verlust1' id='radio2'></th>
+<th><input name='player.radio13' type='radio' required value='0' id='radio3'></th>
+<th><input name='player.radio13' type='radio' required value='Gewinn1' id='radio4'></th>
+<th><input name='player.radio13' type='radio' required value='Gewinn2' id='radio5'></th>
+<td>&emsp;&emsp;&emsp; persönlich finanzieller Gewinn</td>
+</tr>
+<tr>
+<th>&emsp;</th>
+<th>&ensp;-2&ensp;</th>
+<th>&ensp;-1&ensp;</th>
+<th>&ensp;0&ensp;</th>
+<th>&ensp;+1&ensp;</th>
+<th>&ensp;+2&ensp;</th>
+<th>&emsp;</th>
+</tr>
+<tr>
+<td>kurzfristig gewinnorientiert</td>
+<th><input name='player.radio14' type='radio' required value='kurzfristig2' id='radio1'></th>
+<th><input name='player.radio14' type='radio' required value='kurzfristig1' id='radio2'></th>
+<th><input name='player.radio14' type='radio' required value='0' id='radio3'></th>
+<th><input name='player.radio14' type='radio' required value='langfristig1' id='radio4'></th>
+<th><input name='player.radio14' type='radio' required value='langfristig2' id='radio5'></th>
+<td>&emsp;&emsp;&emsp; langfristig gewinnorientiert</td>
+</tr>
+<tr>
+<th>&emsp;</th>
+<th>&ensp;-2&ensp;</th>
+<th>&ensp;-1&ensp;</th>
+<th>&ensp;0&ensp;</th>
+<th>&ensp;+1&ensp;</th>
+<th>&ensp;+2&ensp;</th>
+<th>&emsp;&emsp;</th>
+</tr>
+<tr>
+<td>langfristig schädigend für manche Interessensgruppen (z.B. Aktionäre, Angestellte, Lieferanten)</td>
+<th><input name='player.radio15' type='radio' required value='schädigend2' id='radio1'></th>
+<th><input name='player.radio15' type='radio' required value='schädigend1' id='radio2'></th>
+<th><input name='player.radio15' type='radio' required value='0' id='radio3'></th>
+<th><input name='player.radio15' type='radio' required value='nicht schädigend1' id='radio4'></th>
+<th><input name='player.radio15' type='radio' required value='nicht schädigend2' id='radio5'></th>
+<td>&emsp;&emsp;&emsp; langfristig nicht schädigend für manche Interessensgruppen (z.B. Aktionäre, Angestellte, Lieferanten)</td>
+</tr>
+</table>
+`;
+
+let page9 = app.newStage('page9');
+page9.activeScreen = `
+<p style="font-family:calibri;">Inwiefern bewerten Sie die Entscheidung 35 Rappen Gewinn pro Aktie bekannt zu geben als…    </p>
+
+<table>
+<tr>
+<th>&emsp;</th>
+<th>&ensp;-2&ensp;</th>
+<th>&ensp;-1&ensp;</th>
+<th>&ensp;0&ensp;</th>
+<th>&ensp;+1&ensp;</th>
+<th>&ensp;+2&ensp;</th>
+<th>&emsp;&emsp;</th>
+</tr>
+<tr>
+<td>unehrlich</td>
+<th><input name='player.radio16' type='radio' required value='honest score 1' id='radio1'></th>
+<th><input name='player.radio16' type='radio' required value='honest score 2' id='radio2'></th>
+<th><input name='player.radio16' type='radio' required value='honest score 3' id='radio3'></th>
+<th><input name='player.radio16' type='radio' required value='honest score 4' id='radio4'></th>
+<th><input name='player.radio16' type='radio' required value='honest score 5' id='radio5'></th>
+<td>&emsp;&emsp;&emsp;ehrlich</td>
+</tr>
+<tr>
+<th>&emsp;</th>
+<th>&ensp;-2&ensp;</th>
+<th>&ensp;-1&ensp;</th>
+<th>&ensp;0&ensp;</th>
+<th>&ensp;+1&ensp;</th>
+<th>&ensp;+2&ensp;</th>
+<th>&emsp;</th>
+</tr>
+<tr>
+<td>manipulativ</td>
+<th><input name='player.radio17' type='radio' required value='not manipulative score 1' id='radio1'></th>
+<th><input name='player.radio17' type='radio' required value='not manipulative score 2' id='radio2'></th>
+<th><input name='player.radio17' type='radio' required value='not manipulative score 3' id='radio3'></th>
+<th><input name='player.radio17' type='radio' required value='not manipulative score 4' id='radio4'></th>
+<th><input name='player.radio17' type='radio' required value='not manipulative score 5' id='radio5'></th>
+<td>&emsp;&emsp;&emsp;nicht manipulativ</td>
+</tr>
+<tr>
+<th>&emsp;</th>
+<th>&ensp;-2&ensp;</th>
+<th>&ensp;-1&ensp;</th>
+<th>&ensp;0&ensp;</th>
+<th>&ensp;+1&ensp;</th>
+<th>&ensp;+2&ensp;</th>
+<th>&emsp;&emsp;</th>
+</tr>
+<tr>
+<td>persönlich finanzieller Verlust</td>
+<th><input name='player.radio18' type='radio' required value='Verlust2' id='radio1'></th>
+<th><input name='player.radio18' type='radio' required value='Verlust1' id='radio2'></th>
+<th><input name='player.radio18' type='radio' required value='0' id='radio3'></th>
+<th><input name='player.radio18' type='radio' required value='Gewinn1' id='radio4'></th>
+<th><input name='player.radio18' type='radio' required value='Gewinn2' id='radio5'></th>
+<td>&emsp;&emsp;&emsp; persönlich finanzieller Gewinn</td>
+</tr>
+<tr>
+<th>&emsp;</th>
+<th>&ensp;-2&ensp;</th>
+<th>&ensp;-1&ensp;</th>
+<th>&ensp;0&ensp;</th>
+<th>&ensp;+1&ensp;</th>
+<th>&ensp;+2&ensp;</th>
+<th>&emsp;</th>
+</tr>
+<tr>
+<td>kurzfristig gewinnorientiert</td>
+<th><input name='player.radio19' type='radio' required value='kurzfristig2' id='radio1'></th>
+<th><input name='player.radio19' type='radio' required value='kurzfristig1' id='radio2'></th>
+<th><input name='player.radio19' type='radio' required value='0' id='radio3'></th>
+<th><input name='player.radio19' type='radio' required value='langfristig1' id='radio4'></th>
+<th><input name='player.radio19' type='radio' required value='langfristig2' id='radio5'></th>
+<td>&emsp;&emsp;&emsp; langfristig gewinnorientiert</td>
+</tr>
+<tr>
+<th>&emsp;</th>
+<th>&ensp;-2&ensp;</th>
+<th>&ensp;-1&ensp;</th>
+<th>&ensp;0&ensp;</th>
+<th>&ensp;+1&ensp;</th>
+<th>&ensp;+2&ensp;</th>
+<th>&emsp;&emsp;</th>
+</tr>
+<tr>
+<td>langfristig schädigend für manche Interessensgruppen (z.B. Aktionäre, Angestellte, Lieferanten)</td>
+<th><input name='player.radio20' type='radio' required value='schädigend2' id='radio1'></th>
+<th><input name='player.radio20' type='radio' required value='schädigend1' id='radio2'></th>
+<th><input name='player.radio20' type='radio' required value='0' id='radio3'></th>
+<th><input name='player.radio20' type='radio' required value='nicht schädigend1' id='radio4'></th>
+<th><input name='player.radio20' type='radio' required value='nicht schädigend2' id='radio5'></th>
+<td>&emsp;&emsp;&emsp; langfristig nicht schädigend für manche Interessensgruppen (z.B. Aktionäre, Angestellte, Lieferanten)</td>
+</tr>
+</table>
+<br>
+`;
+
+let page10 = app.newStage('page10');
+page10.activeScreen = `
+<h4 style="font-family:calibri;">Einleitung</h4>
+<p style="font-family:calibri;">Lesen Sie bitte nun folgende Situationsbeschreibung sorgfältig durch.<br>
+<br>
+Stellen Sie sich vor...<br>
+<br>
+Sie sind der Chief Executive Officer (CEO) einer Firma. Ihr Gehalt setzt sich aus einer fixen und einer flexiblen Lohnkomponente zusammen. 
+Die flexible Komponente ist ein Bonus, der vom erzielten Gewinn abhängt. 
+<br>
+<br>
+Sie haben die Möglichkeit durch Ihr zeitliches Engagement den Gewinn pro Aktie positiv zu beeinflussen. 
+Je länger Sie arbeiten, und dadurch zusätzliche Zeit aufwenden, umso mehr Geld verdienen Sie (am Ende des Experiments).
+</p>
+`;
+
+let page11 = app.newStage('page11');
+page11.activeScreen = `
+<h4 style="font-family:calibri;">Calculations</h4>
+<p style="font-family:calibri;">Mit der folgenden Aufgabe können Sie durch Ihr zeitliches Engagement den Gewinn pro Aktie und damit Ihren Lohn als CEO positiv beeinflussen.<br>
+    <br>
+    Dazu müssen Sie fünf Rechnungsblöcke bearbeiten – Sie entscheiden dabei für jeden Block, ob Sie 1 einfache oder 5 einfache Rechnungen lösen möchten. 
+    5 Rechnungen zu lösen dauert ca. fünfmal länger als 1 Rechnung zu lösen – dafür bekommen Sie mehr Lohn. Die Belohnung, die Sie für 1 resp. 5 gelöste Rechnungen erhalten, wird dabei variiert. 
+    <br>
+<br>
+Zusätzlich erhalten Sie für jede richtig gelöste Rechnung 0.20 CHF. 
+</p>
+`;
+
+let page12 = app.newStage('page12');
+page12.activeScreen = `
+<p style="font-family:calibri;">Vor den eigentlichen Entscheidungsfragen werden Ihnen auf der folgenden Seite einige Zwischenfragen gestellt.<br>
+<br>
+Bitte beachten Sie, dass jede Falsch-Antwort einen Abzug von 1 CHF in der Gesamtentschädigung zur Folge hat.
+<br>
+<br>	
+Alle Fragen müssen korrekt beantwortet sein, bevor Sie mit dem Experiment fortfahren können.
+</p>
+`;
+
+let page13 = app.newStage('page13');
+page13.activeScreen = `
+<h4 style="font-family:calibri;">Zwischenfragen</h4>
+<p style="font-family:calibri;">Können Sie als CEO den Gewinn beeinflussen?</p>
+<input name='player.radio21' type='radio' value='Ja' id='radio1'>
+<label for='radio1' style="font-family:calibri;">Ja</label><br>
+<input name='player.radio21' type='radio' value='Nein' id='radio2'>
+<label for='radio2' style="font-family:calibri;">Nein</label><br>
+<br>
+<p style="font-family:calibri;">Ihr Gehalt als CEOs ist ... </p>
+<input name='player.radio22' type='radio' value='abhängig vom erzielten Gewinn pro Aktie' id='radio1'>
+<label for='radio1' style="font-family:calibri;">abhängig vom erzielten Gewinn pro Aktie</label><br>
+<input name='player.radio22' type='radio' value='unabhängig vom erzielten Gewinn pro Aktie' id='radio2'>
+<label for='radio2' style="font-family:calibri;">unabhängig vom erzielten Gewinn pro Aktie</label><br>
+<br>
+<p style="font-family:calibri;">Ihr Gehalt als CEO ist höher, wenn Sie …</p>
+<input name='player.radio23' type='radio' value='1 Rechnung lösen' id='radio1'>
+<label for='radio1' style="font-family:calibri;">1 Rechnung lösen</label><br>
+<input name='player.radio23' type='radio' value='5 Rechnung lösen' id='radio2'>
+<label for='radio2' style="font-family:calibri;">5 Rechnungen lösen</label><br>
+<br>
+`;
+
+let page14 = app.newStage('page14');
+page14.activeScreen = `
+<p style="font-family:calibri;">Es folgt ein Überblick über die Belohnung der einzelnen Rechnungsblöcke.<br>
+<br>
+Sie sehen im Folgenden einen Überblick über die 5 Rechnungsblöcke und deren Belohnung, 
+die Sie im Anschluss an zwei Beispielsrechnungen bearbeiten müssen. Für jeden Block werden Sie sich entscheiden müssen, 
+ob Sie 1 Rechnung oder 5 Rechnungen lösen wollen. Die Belohnungen müssen Sie sich nicht merken, da sie jeweils eingeblendet werden.</p>
+`;
+
+let page15 = app.newStage('page15');
+page15.activeScreen = `
+<p style="font-family:calibri;">
+        <br>
+        <br>
+        Im Folgenden sind wieder fünf mögliche Situationen dargestellt, bei welchen Sie jeweils eine Alternative anklicken müssen.<br>
+        Sie sehen im Folgenden einen Überblick über die 5 Rechnungsblöcke und deren Belohnung, die Sie im Anschluss an zwei Beispielsrechnungen bearbeiten müssen. 
+        Für jeden Block werden Sie sich entscheiden müssen, ob Sie 1 Rechnung oder 5 Rechnungen lösen wollen. 
+        Die Belohnungen müssen Sie sich nicht merken, da sie jeweils eingeblendet werden.
+        </p>
+        <p style="font-family:calibri;">Block 1</p>
+        <input name='player.radio24' type='radio' value='31 cents pro Aktie' id='radio1'>
+        <label for='radio1' style="font-family:calibri;">1 Rechnung    -  Dafür erhielten Sie einen Bonus von 60,000 CHF (resp. 0.30 CHF)*</label><br>
+        <input name='player.radio24' type='radio' value='35 cents pro Aktie' id='radio2'>
+        <label for='radio2' style="font-family:calibri;">5 Rechnungen  -  Dafür erhielten Sie einen Bonus von CHF 300,000 (CHF 1.50)*</label><br>
+        <br>
+        <p style="font-family:calibri;">Which earnings will you announce?
+        (Please choose one alternative in each of the five situations.)</p>
+        <input name='player.radio25' type='radio' value='31 cents pro Aktie' id='radio1'>
+        <label for='radio1' style="font-family:calibri;">31 cents pro Aktie - Dafür erhielten Sie einen Bonus von CHF 120,000 (CHF 0.60)*</label><br>
+        <input name='player.radio25' type='radio' value='35 cents pro Aktie' id='radio2'>
+        <label for='radio2' style="font-family:calibri;">35 cents pro Aktie - Dafür erhielten Sie einen Bonus von CHF 300,000 (CHF 1.50) *</label><br>
+        <br>
+        <p style="font-family:calibri;">Which earnings will you announce?
+        (Please choose one alternative in each of the five situations.)</p>
+        <input name='player.radio26' type='radio' value='31 cents pro Aktie' id='radio1'>
+        <label for='radio1' style="font-family:calibri;">31 cents pro Aktie - Dafür erhielten Sie einen Bonus von CHF 180,000 (CHF 0.90)*</label><br>
+        <input name='player.radio26' type='radio' value='35 cents pro Aktie' id='radio2'>
+        <label for='radio2' style="font-family:calibri;">35 cents pro Aktie - Dafür erhielten Sie einen Bonus von CHF 300,000 (CHF 1.50) *</label><br>
+        <br>
+        <p style="font-family:calibri;">Which earnings will you announce?
+        (Please choose one alternative in each of the five situations.)</p>
+        <input name='player.radio27' type='radio' value='31 cents pro Aktie' id='radio1'>
+        <label for='radio1' style="font-family:calibri;">31 cents pro Aktie - Dafür erhielten Sie einen Bonus von CHF 240,000 (CHF 1.20)*</label><br>
+        <input name='player.radio27' type='radio' value='35 cents pro Aktie' id='radio2'>
+        <label for='radio2' style="font-family:calibri;">35 cents pro Aktie - Dafür erhielten Sie einen Bonus von CHF 300,000 (CHF 1.50) *</label><br>
+        <br>
+        <p style="font-family:calibri;">Which earnings will you announce?
+        (Please choose one alternative in each of the five situations.)</p>
+        <input name='player.radio28' type='radio' value='31 cents pro Aktie' id='radio1'>
+        <label for='radio1' style="font-family:calibri;">31 cents pro Aktie - Dafür erhielten Sie einen Bonus von CHF 300,000 (CHF 1.50) *</label><br>
+        <input name='player.radio28' type='radio' value='35 cents pro Aktie' id='radio2'>
+        <label for='radio2' style="font-family:calibri;">35 cents pro Aktie - Dafür erhielten Sie einen Bonus von CHF 300,000 (CHF 1.50) *</label><br>
+        <br>
+        <p style="font-family:calibri;">* Entspricht dem umgerechneten Bonus, den Sie am Ende des Experiments erhalten.     </p>
+`;
+
+let page16 = app.newStage('page16');
+page16.activeScreen = `
+<h4 style="font-family:calibri;">Beispielsrechnungen</h4>
+<p style="font-family:calibri;">Im Folgenden werden Ihnen zwei Beispielsrechnungen gezeigt, welche Sie nicht lösen müssen. 
+Die nachfolgenden Rechnungen haben denselben Schwierigkeitsgrad wie die Beispielsrechnungen.</p>
+<p style="font-family:calibri;">3 + 4 – 5 + 8 + 3 – 9 = 	Resultat: 4</p>
+<p style="font-family:calibri;">15 + 3 – 4 + 18 + 6 – 12 = 	Resultat: 26</p>
+`;
+
+let page17 = app.newStage('page17');
+page17.activeScreen = `
+<p style="font-family:calibri;">2 + 27 – 7 + 3 – 9 – 3 = &emsp;&emsp; Result:
+<input name='player.number1' type='number' required min='13' max='13' step='1' style="font-family:calibri;"></p>
+<p style="font-family:calibri;">34 – 5 + 16 – 7 – 12 – 2 = &emsp;&emsp; Result:
+<input name='player.number2' type='number' required min='24' max='24' step='1' style="font-family:calibri;"></p>
+<p style="font-family:calibri;">1 + 35 + 2 – 5 + 9 – 6 = &emsp;&emsp; Result:
+<input name='player.number3' type='number' required min='36' max='36' step='1' style="font-family:calibri;"></p>
+<p style="font-family:calibri;">11 – 7 + 26 – 2 + 4 – 5 =&emsp;&emsp; Result:
+<input name='player.number4' type='number' required min='27' max='27' step='1' style="font-family:calibri;"></p>
+<p style="font-family:calibri;">93 – 31 + 5 + 7 – 9 + 2 = &emsp;&emsp; Result:
+<input name='player.number5' type='number' required min='67' max='67' step='1' style="font-family:calibri;"></p>
+`;
+
+
+
+app.waitingScreen = `
+<h4>RESPONSES</h4>
+<p><b>Wie hoch schätzt der Markt den Gewinn pro Aktie für die Castor AG ein?: </b>{{player.radio1}}</p>
+<p><b>Wie hoch wäre der Gewinn pro Aktie der Castor AG gemäss der internen Buchhaltung?: </b>{{player.radio2}}</p>
+<p><b>Bei welchem ausgewiesenen Gewinn pro Aktie würden Sie als CEO einen geringeren Bonus erhalten?: </b>{{player.radio3}}</p>
+<p><b>Können Sie als CEO einen Gewinn bekannt geben, der vom tatsächlichen Gewinn abweicht?: </b>{{player.radio4}}</p>
+<p><b>Ihr Gehalt als CEOs ist...</b>{{player.radio5}}</p>
+<p><b>Welchen Gewinn pro Aktie geben Sie bekannt? (Bitte entscheiden Sie sich bei jeder der fünf Situationen jeweils für eine Alternative.): </b>{{player.radio6}}</p>
+<p><b>Welchen Gewinn pro Aktie geben Sie bekannt?: </b>{{player.radio7}}</p>
+<p><b>Welchen Gewinn pro Aktie geben Sie bekannt?: </b>{{player.radio8}}</p>
+<p><b>Welchen Gewinn pro Aktie geben Sie bekannt?: </b>{{player.radio9}}</p>
+<p><b>Welchen Gewinn pro Aktie geben Sie bekannt?: </b>{{player.radio10}}</p>
+<p><b>Inwiefern bewerten Sie die Entscheidung 31 Rappen Gewinn pro Aktie bekannt zu geben als… ehrlich   </p>: </b>{{player.radio11}}</p>
+<p><b>Inwiefern bewerten Sie die Entscheidung 31 Rappen Gewinn pro Aktie bekannt zu geben als… nicht manipulativ  </p>: </b>{{player.radio12}}</p>
+<p><b>Inwiefern bewerten Sie die Entscheidung 31 Rappen Gewinn pro Aktie bekannt zu geben als… persönlich finanzieller Gewinn  </p>: </b>{{player.radio13}}</p>
+<p><b>Inwiefern bewerten Sie die Entscheidung 31 Rappen Gewinn pro Aktie bekannt zu geben als… langfristig   </p>: </b>{{player.radio14}}</p>
+<p><b>Inwiefern bewerten Sie die Entscheidung 31 Rappen Gewinn pro Aktie bekannt zu geben als… langfistig nicht schädigend für manche Interessensgruppen</p>: </b>{{player.radio15}}</p>
+<p><b>Inwiefern bewerten Sie die Entscheidung 35 Rappen Gewinn pro Aktie bekannt zu geben als… ehrlich   </p>: </b>{{player.radio16}}</p>
+<p><b>Inwiefern bewerten Sie die Entscheidung 35 Rappen Gewinn pro Aktie bekannt zu geben als… nicht manipulativ  </p>: </b>{{player.radio17}}</p>
+<p><b>Inwiefern bewerten Sie die Entscheidung 35 Rappen Gewinn pro Aktie bekannt zu geben als… persönlich finanzieller Gewinn  </p>: </b>{{player.radio18}}</p>
+<p><b>Inwiefern bewerten Sie die Entscheidung 35 Rappen Gewinn pro Aktie bekannt zu geben als… langfristig   </p>: </b>{{player.radio19}}</p>
+<p><b>Inwiefern bewerten Sie die Entscheidung 35 Rappen Gewinn pro Aktie bekannt zu geben als… langfistig nicht schädigend für manche Interessensgruppen</p>: </b>{{player.radio20}}</p>
+<p><b>Können Sie als CEO den Gewinn beeinflussen?: </b>{{player.radio21}}</p>
+<p><b>Ihr Gehalt als CEO ist höher, wenn Sie …: </b>{{player.radio22}}</p>
+<p><b>Ihr Gehalt als CEOs ist ...: </b>{{player.radio23}}</p>
+<p><b>1 oder 5 rechnungen</b>{{player.radio24}}</p>
+<p><b>Und nun noch eine letzte für uns wichtige Frage: Haben Sie die Studie sorgfältig bearbeitet?        : </b>{{player.radio56}}</p>
+`;

@@ -61,6 +61,7 @@ class Settings {
          try {
              var json = fs.readJSONSync(path.join(this.jt.path, 'internal/settings.json'));
              for (var i in json) {
+                 console.log('loading setting: ' + i + ' ' + json[i]);
                  this[i] = json[i];
              }
          } catch (err) {
@@ -73,6 +74,7 @@ class Settings {
          //     } catch (err) {
          //         this.port = 3000;
          //     }
+            console.log('no port given, searching for one.');
             openport.find(function(err, port) {
                 if (err) { console.log(err); return; }
                 this.port = port;

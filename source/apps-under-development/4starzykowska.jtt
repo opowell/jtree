@@ -1,20 +1,17 @@
-// Array of questions. Each row is a sub-array consisting of: 1) the duration, 2) the question, and 3) the answer.
+app.description = 'Players answer questions under time pressure, rewarded according to different payment schemes.';
+app.author = 'opowell@gmail.com';
+
+// Array of questions. Each row is a sub-array consisting of: 1) the question, 2) the answer, and 3) the time given for that question.
 app.allQuestions = [
-    [100, 'What is 25-2?',        23],
-    [60, 'What is 1+2?',         3],
-    [50, 'What is 6+4?',         10],
-    [40, 'What is 2x3?',         6],
-    [100, 'What is 10-3?',        8],
-    [110, 'What day is it today?',               'Monday'],
-    [60, 'Which direction is north?',           'North'],
-    [70, 'Where are you now?',                  'Here']
+    ['25-2' ,        23, ],
+    ['1+2',         3],
+    ['6+4',         10],
+    ['2x3',         6],
+    ['10-3',        8],
+    ['What day is it today?',               'Monday'],
+    ['Which direction is north?',           'North'],
+    ['Where are you now?',                  'Here']
 ]; // 500
-app.ATTENTION_DURATION = 3; // # of seconds to show "Attention - next question coming" warning.
-app.SCHEME_TEST = 0;
-app.SCHEME_PIECE = 1;
-app.SCHEME_CHOICE = 2;
-app.SCHEME_NONMON = 3;
-app.SCHEME_TOURN = 4;
 
 app.insertJtreeRefAtStartOfClientHTML = false;
 app.html = `
@@ -44,6 +41,50 @@ app.html = `
         padding: 1rem;
     }
 
+    .answer {
+        min-width: 30rem;
+        padding: 1rem;
+    }
+
+    .likertScale {
+        display: flex;
+        background-color: #eee;
+        width: auto;
+        flex-wrap: nowrap;
+        align-items: baseline;
+    }
+
+    .likertScaleOption {
+        min-width: unset;
+        padding: unset;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1 1 auto;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
+
+    .answer:hover {
+        background-color: #fff;
+    }
+
+    .likertText {
+        margin: 0rem;
+        padding: 0rem;
+        padding-top: 1rem;
+        width: 120px;
+    }
+
+    .likertMinText {
+        text-align: right;
+        padding-right: 0.5rem;
+    }
+
+    .likertMaxText {
+        padding-left: 0.5rem;
+    }
+
     * {
         font-size: 1.2rem !important;
     }
@@ -54,32 +95,36 @@ app.html = `
 </style>
 </head>
 <body>
-<span jt-status='playing' style='display: flex; flex-direction: column; align-items: center;'>
+<div id='jtree'>
+<span v-show='player.status === "playing"' style='display: flex; flex-direction: column; align-items: center;'>
 
     <div>
         {{stages}}
     </div>
 
 </span>
-<span jt-status='waiting' style='display: flex; flex-direction: column; align-items: center;'>
+<span v-show='player.status === "waiting"' style='display: flex; flex-direction: column; align-items: center;'>
     <h4>Waiting</h4>
     <p>Proszê czekaæ.</p>
 </span>
+</div>
+
 </body>
 </html>
 `;
 
 // question indices to use for each block
-// first block is the test questions, which are the same for all subjects.
-app.qIndices = [];
-app.qIndices[app.SCHEME_TEST] = [1, 2]
-app.qIndices[app.SCHEME_PIECE] = [3, 4]
-app.qIndices[app.SCHEME_CHOICE] = [5, 3]
-app.qIndices[app.SCHEME_NONMON] = [7, 6]
-app.qIndices[app.SCHEME_TOURN] = [5, 8]
-app.numTestQs = app.qIndices[app.SCHEME_TEST].length;
+app.qIndices = [
+    [1, 2], // Test questions
+    [5, 3],
+    [2, 4],
+    [7, 6],
+    [8, 5]
+];
+app.numTestQs = app.qIndices[0].length;
 
-// Record the periods in which new blocks start and end.
+app.schemes = ['test', 'flatrate', 'piecerate', 'tournament', 'choice'];
+
 app.startPeriods = [1];
 app.endPeriods = [];
 var curPrd = 1;
@@ -93,8 +138,8 @@ for (var i=0; i<app.qIndices.length-1; i++) {
 app.numPeriods = curPrd;
 
 // 24 participants, each one gets a different ordering
-app.schemeOrders    = Utils.permutations([1, 2, 3, 4]); // test added manually at start for every player
-app.questionOrders  = Utils.permutations([1, 2, 3, 4]); // 
+app.schemeOrders    = Utils.permutations([1, 2, 3, 4]);
+app.questionOrders  = Utils.permutations([1, 2, 3, 4]);
 
 var invitationStage     = app.newStage('invitation');
 var informationStage    = app.newStage('information');
@@ -102,6 +147,8 @@ var attentionStage      = app.newStage('attention');
 var questionStage       = app.newStage('question');
 var showAnsStage        = app.newStage('answer');
 var askdiffStage        = app.newStage('difficulty');
+var endInfoStage        = app.newStage('end-info');
+var paymentInfoStage    = app.newStage('payment-info');
 var perfStage           = app.newStage('subj-perf');
 
 // INVITATION STAGE
@@ -120,7 +167,7 @@ invitationStage.playerStart = function(player) {
 
     participant.scores = [];
 
-    participant.block = -1;
+    participant.block            = -1;
 }
 invitationStage.content = `
     <h4>INVITATION</h4>
@@ -138,26 +185,24 @@ informationStage.playerStart = function(player) {
     participant.block++;
     participant.curQIndex = 0;
     participant.scheme = participant.schemeOrder[participant.block];
+    participant.schemeText = player.app().schemes[participant.scheme];
     participant.questionIds = participant.questionOrder[participant.block];
     participant.scores.push(0);
 }
 informationStage.content = `
 <h4>INFORMATION</h4>
 <p>Block: {{participant.block}}.
-<div jt-displayIf="participant.scheme == app.SCHEME_TEST">
-    <p>THESE ARE TEST QUESTIONS</p>
+<div v-show="participant.schemeText == 'test'">
     <p>Na kolejnych ekranach zobaczysz kilka pytañ próbnych.</p>
     <p>Ich celem jest zaznajomienie Ciê z charakterem pytañ, z którymi bêdziesz mia³ do czynienia w etapach, za które mo¿esz otrzymaæ wynagrodzenie.</p>
     <p>WeŸ pod uwagê, ¿e w pytaniach próbnych bêdziesz mia³ trochê wiêcej czasu na udzielenie odpowiedzi, ni¿ w tych sk³adaj¹cych siê na w³aœciw¹ czêœæ eksperymentu.</p>
     <form><button>OK</button></form>
 </div>
-<div jt-displayIf='participant.scheme == app.SCHEME_PIECE'>
-    <h4>PIECE</h4>
+<div v-show='participant.schemeText == "piecerate"'>
     Za ka¿d¹ poprawn¹ odpowiedŸ otrzymasz 4 z³.
     <form><button>OK</button></form>
 </div>
-<div jt-displayIf='participant.scheme == app.SCHEME_CHOICE'>
-    <h4>CHOICE</h4>
+<div v-show='participant.schemeText == "choice"'>
     Uczestnicy zostali losowo przydzieleni do czteroosobowych grup. Wybierz preferowany schemat wynagrodzenia:<br>
     <br>
     Opcja A: Za ka¿d¹ poprawn¹ odpowiedŸ otrzymasz 2 z³.<br>
@@ -199,13 +244,11 @@ informationStage.content = `
 
     Uwaga: Grupy zosta³y ju¿ wylosowane. Oznacza to, ze jeœli wybierzesz opcjê B, to Twój wynik niekoniecznie bêdzie porównywany akurat z wynikami osób, które tak¿e wola³y opcjê B.
 </div>
-<div jt-displayIf='participant.scheme == app.SCHEME_NONMON'>
-    <h4>NONMONETARY</h4>
+<div v-show='participant.schemeText == "flatrate"'>
     W tym etapie Twoje wynagrodzenie NIE jest uzale¿nione od liczby Twoich poprawnych odpowiedzi. Niezale¿nie od udzielonych odpowiedzi za ten etap otrzymasz 40 z³.
     <form><button>OK</button></form>
 </div>
-<div jt-displayIf='participant.scheme == app.SCHEME_TOURN'>
-    <h4>TOURNAMENT</h4>
+<div v-show='participant.schemeText == "tournament"'>
     W tym bloku bêdziesz rywalizowaæ z innymi uczestnikami eksperymentu.<br>
     <br>
     Wynik jaki osi¹gniesz w tym bloku zostanie porównany z wynikami 3 losowo wybranych osób. Dotyczy to ka¿dego uczestnika eksperymentu. Za ka¿d¹ poprawn¹ odpowiedŸ otrzymasz 16 z³ pod warunkiem, ¿e Twój wynik bêdzie lepszy od wyniku ka¿dej z tych 3 osób. W przeciwnym razie otrzymasz zero.<br>
@@ -232,32 +275,30 @@ attentionStage.content = `
     <h4>ATTENTION</h4>
     <p>Time: {{clock.seconds}}</p>
 `;
-attentionStage.clientDuration = app.ATTENTION_DURATION;
+attentionStage.clientDuration = 3;
 
 // SHOW QUESTION
 questionStage.playerStart = function(player) {
     var participant = player.participant;
     player.qIndex = player.app().qIndices[participant.block][participant.curQIndex];
-    player.questionDuration = player.app().allQuestions[player.qIndex][0];
-    player.question = player.app().allQuestions[player.qIndex][1];
-    player.correctAnswer = player.app().allQuestions[player.qIndex][2];
+    player.question = player.app().allQuestions[player.qIndex][0];
+    player.correctAnswer = player.app().allQuestions[player.qIndex][1];
     participant.curQIndex++;
 }
+
+app.vueComputed.tickerWidth = function() {
+    var ms = this.clock.milliseconds;
+    var secs = this.clock.seconds - 0;
+    return (secs + ms/1000)*100/(this.stage.clientDuration) + '%';
+}
+
 questionStage.content = `
     <h4>QUESTION</h4>
     <p>Time: {{clock.seconds}}</p>
-    <div style='width: 100%; border: 1px solid #000;'>
-        <div id='questionTicker' style='height: 10px; background-color: #000'></div>
-    </div>
     <p>{{player.question}}</p>
-    <script>
-        jt.onClockUpdate = function() {
-            var clock = jt.getClock(jt.data.timeLeft);
-            var ms = clock.milliseconds;
-            var secs = clock.seconds - 0;
-            $('#questionTicker').css('width', (secs + ms/1000)*100/(jt.data.player.stageClientDuration) + '%');
-        }
-    </script>
+    <div style='width: 100%; border: 1px solid #000;'>
+        <div id='questionTicker' v-bind:style='{width: tickerWidth}' style='height: 20px; background-color: #000'></div>
+    </div>
     <br>
     <form>
     <input name='player.answer' autocomplete="off"></input>
@@ -265,9 +306,7 @@ questionStage.content = `
     <button>OK</button>
     </form>
 `;
-questionStage.getClientDuration = function(player) {
-    return player.questionDuration;
-};
+questionStage.clientDuration = 6;
 questionStage.playerEnd = function(player) {
     var participant = player.participant;
     if (player.answer === player.correctAnswer) {
@@ -291,87 +330,33 @@ askdiffStage.canPlayerParticipate = function(player) {
 }
 askdiffStage.content = `
     <h4>HOW DIFFICULT</h4>
-    <form>
     <p>How difficult was the question (1 = easy, 8 = hard)?</p>
+    <form>
     <input required name='player.difficulty' min=1 max=8 type=number autocomplete="off"></input>
-    <p>How difficult was this question for men and women?</p>
-    <select required name='player.genderdiff'>
-        <option value=1>zdecydowanie ³atwiejsze dla mê¿czyzn</option>
-        <option value=2>raczej ³atwiejsze dla mê¿czyzn</option>
-        <option value=3>zapewne porównywalnie ³atwe dla kobiet i mê¿czyzn</option>
-        <option value=4>raczej ³atwiejsze dla kobiet</option>
-        <option value=5>zdecydowanie ³atwiejsze dla kobiet</option>
-    </select>
     <br>
     <button>OK</button>
     </form>
 `;
 
+endInfoStage.canPlayerParticipate = function(player) {
+    return player.app().endPeriods.includes(player.period().id);
+}
+endInfoStage.content = `
+<h4>END INFO</h4>
+<p v-show='period.id == app.numTestQs'>You have finished the test questions.</p>
+<p v-show='period.id > app.numTestQs'>You have finished block {{participant.block}} of 4.</p>
+<form><button>OK</button></form>
+`;
+
+paymentInfoStage.content = `
+<h4>PAYMENT INFO</h4>
+<form><button>OK</button></form>
+`
+
 perfStage.canPlayerParticipate = function(player) {
-    return (
-        player.app().endPeriods.includes(player.period().id));
+    return player.app().endPeriods.includes(player.period().id);
 }
 perfStage.content = `
-<h4>PERFORMANCE EVALUATION</h4>
-<div jt-displayIf='participant.scheme == app.SCHEME_TEST'>
-    <h4>TEST QUESTIONS</h4>
-    <p>You have finished the test questions.</p>
-    <form><button>OK</button></form>
-</div>
-<div jt-displayIf='participant.scheme == app.SCHEME_CHOICE'>
-    <h4>CHOICE</h4>
-    <p>Oceñ jak Twoim zdaniem poradzi³eœ sobie w tym bloku pytañ. Jeœli odgadniesz poprawnie, otrzymasz dodatkowe 3 z³.</p>
-    <form>
-        <select required name='player.perfevalchoice'>
-            <option value=1>osi¹gn¹³em/am najwy¿szy wynik w grupie</option>
-            <option value=2>osi¹gn¹³em/am drugi wynik w grupie</option>
-            <option value=3>osi¹gn¹³em/am trzeci wynik w grupie</option>
-            <option value=4>osi¹gn¹³em/am ostatni wynik w grupie</option>
-        </select>
-        <button>OK</button>
-    </form>
-</div>
-<div jt-displayIf='participant.scheme == app.SCHEME_PIECE'>
-    <h4>PIECE</h4>
-    <p>WyobraŸ sobie, ¿e teraz ³¹czymy losowo uczestników eksperymentu w czteroosobowe grupy.
-    Gdybyœ mia³ w takiej sytuacji oceniæ jak poradzi³eœ sobie w tym bloku pytañ na tle swojej grupy, to jak oceni³byœ swój wynik?
-    Jeœli odgadniesz poprawnie, otrzymasz dodatkowe 3 z³.</p>
-    <form>
-        <select required name='player.perfevalpiece'>
-            <option value=1>osi¹gn¹³em/am najwy¿szy wynik w grupie</option>
-            <option value=2>osi¹gn¹³em/am drugi wynik w grupie</option>
-            <option value=3>osi¹gn¹³em/am trzeci wynik w grupie</option>
-            <option value=4>osi¹gn¹³em/am ostatni wynik w grupie</option>
-        </select>
-        <button>OK</button>
-    </form>
-</div>
-<div jt-displayIf='participant.scheme == app.SCHEME_NONMON'>
-    <h4>NON MONETARY</h4>
-    <p>WyobraŸ sobie, ¿e teraz ³¹czymy losowo uczestników eksperymentu w czteroosobowe grupy.
-    Gdybyœ mia³ w takiej sytuacji oceniæ jak poradzi³eœ sobie w tym bloku pytañ na tle swojej grupy, to jak oceni³byœ swój wynik?
-    Jeœli odgadniesz poprawnie, otrzymasz dodatkowe 3 z³.</p>
-    <form>
-        <select required name='player.perfevalnonmon'>
-            <option value=1>osi¹gn¹³em/am najwy¿szy wynik w grupie</option>
-            <option value=2>osi¹gn¹³em/am drugi wynik w grupie</option>
-            <option value=3>osi¹gn¹³em/am trzeci wynik w grupie</option>
-            <option value=4>osi¹gn¹³em/am ostatni wynik w grupie</option>
-        </select>
-        <button>OK</button>
-        </form>
-</div>
-<div jt-displayIf='participant.scheme == app.SCHEME_TOURN'>
-    <h4>TOURNAMENT</h4>
-    <p>Oceñ jak Twoim zdaniem poradzi³eœ sobie w tym bloku pytañ. Jeœli odgadniesz poprawnie, otrzymasz dodatkowe 3 z³.</p>
-    <form>
-        <select required name='player.perfevaltourn'>
-            <option value=1>osi¹gn¹³em/am najwy¿szy wynik w grupie</option>
-            <option value=2>osi¹gn¹³em/am drugi wynik w grupie</option>
-            <option value=3>osi¹gn¹³em/am trzeci wynik w grupie</option>
-            <option value=4>osi¹gn¹³em/am ostatni wynik w grupie</option>
-        </select>
-        <button>OK</button>
-    </form>
-</div>
+<h4>PERFORMANCE</h4>
+<form><button>OK</button></form>
 `

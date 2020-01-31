@@ -1,0 +1,578 @@
+let page18 = app.newStage('page18');
+page18.activeScreen = `
+<p style="font-family:calibri;">Wir möchten Ihnen noch einige Fragen stellen, bei welchen Ihre persönliche Meinung gefragt ist. 
+        Bitte beantworten Sie diese daher nicht aus der Sicht eines CEOs, sondern aus Ihrer persönlichen Perspektive.</p>
+        
+        <p style="font-family:calibri;">Sie finden einen 50 Franken Geldschein auf der Strasse. Sie haben keine Möglichkeit, den Besitzer zu identifizieren, 
+        es ist daher völlig korrekt und moralisch unbedenklich, dass Sie den Geldschein behalten.<br>
+        <br>
+        Denken Sie an einen etwa gleich vermögenden Kollegen (eine Kollegin), der (die) auch etwa gleich viel verdient.<br>
+        <br>
+        Würden Sie sagen, dass Sie im Vergleich zu diesem Kollegen (dieser Kollegin) die gefundenen 50 Franken schätzen.
+        </p>
+        
+        <input name='player.radio29' type='radio' value='viel mehr' id='radio1'>
+        <label for='radio1' style="font-family:calibri;">viel mehr</label><br>
+        <input name='player.radio29' type='radio' value='mehr' id='radio2'>
+        <label for='radio2' style="font-family:calibri;">mehr</label><br>
+        <input name='player.radio29' type='radio' value='gleich viel' id='radio3'>
+        <label for='radio3' style="font-family:calibri;">gleich viel</label><br>
+        <input name='player.radio29' type='radio' value='weniger' id='radio4'>
+        <label for='radio4' style="font-family:calibri;">weniger</label><br>
+        <input name='player.radio29' type='radio' value='viel weniger' id='radio5'>
+        <label for='radio5' style="font-family:calibri;">viel weniger</label><br><br>
+`;
+
+let page19 = app.newStage('page19');
+page19.activeScreen = `
+<p style="font-family:calibri;">CEOs haben die Möglichkeit, bei den Reports an ihre Aktionäre Informationen zu verändern. 
+        Einige sehen darin eine Verletzung des Ehrlichkeitsprinzips, andere sehen darin die Wahrung persönlicher Interessen. 
+        Wie denken Sie über den Wert Ehrlichkeit in einer solchen Situation?
+    <br>
+    <br>
+    Beim Wert ‚Ehrlichkeit‘…
+    </p>
+    
+    <p style="font-family:calibri;">... geht es um etwas, das man nicht opfern sollte, egal wie hoch der (finanzielle oder sonstige) Nutzen ist. </p>
+    <table>
+    <tr>
+    <th>&emsp;</th>
+    <th>&ensp;1&ensp;</th>
+    <th>&ensp;2&ensp;</th>
+    <th>&ensp;3&ensp;</th>
+    <th>&ensp;4&ensp;</th>
+    <th>&ensp;5&ensp;</th>
+    <th>&ensp;6&ensp;</th>
+    <th>&ensp;7&ensp;</th>
+    <th>&emsp;&emsp;</th>
+    </tr>
+    <tr>
+    <td>&emsp;Stimme gar nicht zu </td>
+    <th><input name='player.radio30' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+    <th><input name='player.radio30' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+    <th><input name='player.radio30' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+    <th><input name='player.radio30' type='radio' required value='Neutral' id='radio4'></th>
+    <th><input name='player.radio30' type='radio' required value='stimme zu1' id='radio5'></th>
+    <th><input name='player.radio30' type='radio' required value='stimme zu2' id='radio6'></th>
+    <th><input name='player.radio30' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>&emsp;stimme sehr zu</td>
+    </tr>
+    </table>
+    <p style="font-family:calibri;">… finde ich es richtig, Kosten-Nutzen Abwägungen zu machen.
+    </p>
+    <table>
+    <tr>
+    <th>&emsp;</th>
+    <th>&ensp;1&ensp;</th>
+    <th>&ensp;2&ensp;</th>
+    <th>&ensp;3&ensp;</th>
+    <th>&ensp;4&ensp;</th>
+    <th>&ensp;5&ensp;</th>
+    <th>&ensp;6&ensp;</th>
+    <th>&ensp;7&ensp;</th>
+    <th>&emsp;&emsp;</th>
+    </tr>
+    <tr>
+        <td>&emsp;Stimme gar nicht zu </td>
+        <th><input name='player.radio31' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+        <th><input name='player.radio31' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+        <th><input name='player.radio31' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+        <th><input name='player.radio31' type='radio' required value='Neutral' id='radio4'></th>
+        <th><input name='player.radio31' type='radio' required value='stimme zu1' id='radio5'></th>
+        <th><input name='player.radio31' type='radio' required value='stimme zu2' id='radio6'></th>
+        <th><input name='player.radio31' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>&emsp;stimme sehr zu</td>
+    </tr>
+    </table>
+    <p style="font-family:calibri;">… geht es um etwas, das man nicht mit einem Geldwert beziffern kann.
+    </p>
+    <table>
+    <tr>
+    <th>&emsp;</th>
+    <th>&ensp;1&ensp;</th>
+    <th>&ensp;2&ensp;</th>
+    <th>&ensp;3&ensp;</th>
+    <th>&ensp;4&ensp;</th>
+    <th>&ensp;5&ensp;</th>
+    <th>&ensp;6&ensp;</th>
+    <th>&ensp;7&ensp;</th>
+    <th>&emsp;&emsp;</th>
+    </tr>
+    <tr>
+        <td>&emsp;Stimme gar nicht zu </td>
+        <th><input name='player.radio32' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+        <th><input name='player.radio32' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+        <th><input name='player.radio32' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+        <th><input name='player.radio32' type='radio' required value='Neutral' id='radio4'></th>
+        <th><input name='player.radio32' type='radio' required value='stimme zu1' id='radio5'></th>
+        <th><input name='player.radio32' type='radio' required value='stimme zu2' id='radio6'></th>
+        <th><input name='player.radio32' type='radio' required value='stimme zu3' id='radio7'></th>
+    <td>&emsp;stimme sehr zu</td>
+    </tr>
+    </table>
+    <p style="font-family:calibri;">… kann ich flexibel sein, wenn es die Situation verlangt.</p>
+    <table>
+    <tr>
+    <th>&emsp;</th>
+    <th>&ensp;1&ensp;</th>
+    <th>&ensp;2&ensp;</th>
+    <th>&ensp;3&ensp;</th>
+    <th>&ensp;4&ensp;</th>
+    <th>&ensp;5&ensp;</th>
+    <th>&ensp;6&ensp;</th>
+    <th>&ensp;7&ensp;</th>
+    <th>&emsp;&emsp;</th>
+    </tr>
+    <tr>
+    <td>&emsp;Stimme gar nicht zu </td>
+    <th><input name='player.radio33' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+    <th><input name='player.radio33' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+    <th><input name='player.radio33' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+    <th><input name='player.radio33' type='radio' required value='Neutral' id='radio4'></th>
+    <th><input name='player.radio33' type='radio' required value='stimme zu1' id='radio5'></th>
+    <th><input name='player.radio33' type='radio' required value='stimme zu2' id='radio6'></th>
+    <th><input name='player.radio33' type='radio' required value='stimme zu3' id='radio7'></th>
+    <td>&emsp;stimme sehr zu</td>
+    </tr>
+    </table>
+    
+    <br><br>
+    <br><br>
+    <br><br>
+`;
+
+let page20 = app.newStage('page20');
+page20.activeScreen = `
+<p style="font-family:calibri;">Please answer the following questions to the best of your ability. The
+        items below represent concepts people identify with. As such, there are no
+        right or wrong answers, only personal responses.</p>
+        <p style="font-family:calibri;">1. Der erste Eindruck, den ich von anderen Menschen gewinne, bewahrheitet sich meistens.     </p>
+        <table>
+        <tr>
+        <td>Stimme gar nicht zu </td>
+        <th><input name='player.radio34' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+        <th><input name='player.radio34' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+        <th><input name='player.radio34' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+        <th><input name='player.radio34' type='radio' required value='Neutral' id='radio4'></th>
+        <th><input name='player.radio34' type='radio' required value='stimme zu1' id='radio5'></th>
+        <th><input name='player.radio34' type='radio' required value='stimme zu2' id='radio6'></th>
+        <th><input name='player.radio34' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>Stimme sehr zu</td>
+        </tr>
+        </table>
+        <p style="font-family:calibri;">2. Ich bin nicht immer mir selber gegenüber ganz ehrlich gewesen.     </p>
+        <table>
+        <tr>
+        <td>Stimme gar nicht zu </td>
+        <th><input name='player.radio35' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+        <th><input name='player.radio35' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+        <th><input name='player.radio35' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+        <th><input name='player.radio35' type='radio' required value='Neutral' id='radio4'></th>
+        <th><input name='player.radio35' type='radio' required value='stimme zu1' id='radio5'></th>
+        <th><input name='player.radio35' type='radio' required value='stimme zu2' id='radio6'></th>
+        <th><input name='player.radio35' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>Stimme sehr zu</td>
+        </tr>
+        </table>
+        <p style="font-family:calibri;">3. Ich weiss immer, warum ich etwas mag.     </p>
+        <table>
+        <tr>
+        <td>Stimme gar nicht zu </td>
+        <th><input name='player.radio36' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+        <th><input name='player.radio36' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+        <th><input name='player.radio36' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+        <th><input name='player.radio36' type='radio' required value='Neutral' id='radio4'></th>
+        <th><input name='player.radio36' type='radio' required value='stimme zu1' id='radio5'></th>
+        <th><input name='player.radio36' type='radio' required value='stimme zu2' id='radio6'></th>
+        <th><input name='player.radio36' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>Stimme sehr zu</td>
+        </tr>
+        </table>
+        <p style="font-family:calibri;">4. Es fällt mir schwer, einen beunruhigenden Gedanken beiseite zu drängen.
+            </p>
+        <table>
+        <tr>
+        <td>Stimme gar nicht zu </td>
+        <th><input name='player.radio37' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+        <th><input name='player.radio37' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+        <th><input name='player.radio37' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+        <th><input name='player.radio37' type='radio' required value='Neutral' id='radio4'></th>
+        <th><input name='player.radio37' type='radio' required value='stimme zu1' id='radio5'></th>
+        <th><input name='player.radio37' type='radio' required value='stimme zu2' id='radio6'></th>
+        <th><input name='player.radio37' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>Stimme sehr zu</td>
+        </tr>
+        </table>
+        <p style="font-family:calibri;">5. Manchmal verpasse ich etwas, weil ich mich einfach nicht schnell genug entscheiden kann.    </p>
+        <table>
+        <tr>
+        <td>Stimme gar nicht zu </td>
+        <th><input name='player.radio38' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+        <th><input name='player.radio38' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+        <th><input name='player.radio38' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+        <th><input name='player.radio38' type='radio' required value='Neutral' id='radio4'></th>
+        <th><input name='player.radio38' type='radio' required value='stimme zu1' id='radio5'></th>
+        <th><input name='player.radio38' type='radio' required value='stimme zu2' id='radio6'></th>
+        <th><input name='player.radio38' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>Stimme sehr zu</td>
+        </tr>
+        </table>
+        <p style="font-family:calibri;">6. Ich bin ein vollkommen rational denkender Mensch.</p>
+        <table>
+        <tr>
+        <td>Stimme gar nicht zu </td>
+        <th><input name='player.radio39' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+        <th><input name='player.radio39' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+        <th><input name='player.radio39' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+        <th><input name='player.radio39' type='radio' required value='Neutral' id='radio4'></th>
+        <th><input name='player.radio39' type='radio' required value='stimme zu1' id='radio5'></th>
+        <th><input name='player.radio39' type='radio' required value='stimme zu2' id='radio6'></th>
+        <th><input name='player.radio39' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>Stimme sehr zu</td>
+        </tr>
+        </table>
+        <p style="font-family:calibri;">7. Ich kann Kritik selten vertragen.    </p>
+        <table>
+        <tr>
+        <td>Stimme gar nicht zu </td>
+        <th><input name='player.radio40' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+        <th><input name='player.radio40' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+        <th><input name='player.radio40' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+        <th><input name='player.radio40' type='radio' required value='Neutral' id='radio4'></th>
+        <th><input name='player.radio40' type='radio' required value='stimme zu1' id='radio5'></th>
+        <th><input name='player.radio40' type='radio' required value='stimme zu2' id='radio6'></th>
+        <th><input name='player.radio40' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>Stimme sehr zu</td>
+        </tr>
+        </table>
+        <p style="font-family:calibri;">8. Ich bin mir meiner Urteile sehr sicher.    </p>
+        <table>
+        <tr>
+        <td>Stimme gar nicht zu </td>
+        <th><input name='player.radio41' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+        <th><input name='player.radio41' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+        <th><input name='player.radio41' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+        <th><input name='player.radio41' type='radio' required value='Neutral' id='radio4'></th>
+        <th><input name='player.radio41' type='radio' required value='stimme zu1' id='radio5'></th>
+        <th><input name='player.radio41' type='radio' required value='stimme zu2' id='radio6'></th>
+        <th><input name='player.radio41' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>Stimme sehr zu</td>
+        </tr>
+        </table>
+        <p style="font-family:calibri;">9. An meinen Fähigkeiten als Liebhaber/in habe ich schon gelegentlich gezweifelt.    </p>
+        <table>
+        <tr>
+        <td>Stimme gar nicht zu </td>
+        <th><input name='player.radio42' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+        <th><input name='player.radio42' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+        <th><input name='player.radio42' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+        <th><input name='player.radio42' type='radio' required value='Neutral' id='radio4'></th>
+        <th><input name='player.radio42' type='radio' required value='stimme zu1' id='radio5'></th>
+        <th><input name='player.radio42' type='radio' required value='stimme zu2' id='radio6'></th>
+        <th><input name='player.radio42' type='radio' required value='stimme zu3' id='radio7'></th>
+        <td>Stimme sehr zu</td>
+        </tr>
+        </table>
+<p style="font-family:calibri;">10. Ich weiss nicht immer die Gründe für meine Handlungen        .</p>
+<table>
+<tr>
+<td>Stimme gar nicht zu </td>
+<th><input name='player.radio43' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+<th><input name='player.radio43' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+<th><input name='player.radio43' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+<th><input name='player.radio43' type='radio' required value='Neutral' id='radio4'></th>
+<th><input name='player.radio43' type='radio' required value='stimme zu1' id='radio5'></th>
+<th><input name='player.radio43' type='radio' required value='stimme zu2' id='radio6'></th>
+<th><input name='player.radio43' type='radio' required value='stimme zu3' id='radio7'></th>
+<td>Stimme sehr zu</td>
+</tr>
+</table><br>
+`;
+
+let page21 = app.newStage('page21');
+page21.activeScreen = `
+<p style="font-family:calibri;">11. Manchmal lüge ich, wenn ich muss.    </p>
+<table>
+<tr>
+<td>Stimme gar nicht zu </td>
+<th><input name='player.radio44' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+<th><input name='player.radio44' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+<th><input name='player.radio44' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+<th><input name='player.radio44' type='radio' required value='Neutral' id='radio4'></th>
+<th><input name='player.radio44' type='radio' required value='stimme zu1' id='radio5'></th>
+<th><input name='player.radio44' type='radio' required value='stimme zu2' id='radio6'></th>
+<th><input name='player.radio44' type='radio' required value='stimme zu3' id='radio7'></th>
+<td>Stimme sehr zu</td>
+</tr>
+</table>
+<p style="font-family:calibri;">12. Es ist schon einmal vorgekommen, dass ich jemanden ausgenutzt habe.    </p>
+<table>
+<tr>
+<td>Stimme gar nicht zu </td>
+<th><input name='player.radio45' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+<th><input name='player.radio45' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+<th><input name='player.radio45' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+<th><input name='player.radio45' type='radio' required value='Neutral' id='radio4'></th>
+<th><input name='player.radio45' type='radio' required value='stimme zu1' id='radio5'></th>
+<th><input name='player.radio45' type='radio' required value='stimme zu2' id='radio6'></th>
+<th><input name='player.radio45' type='radio' required value='stimme zu3' id='radio7'></th>
+<td>Stimme sehr zu</td>
+</tr>
+</table>
+<p style="font-family:calibri;">13. Ich fluche niemals.    </p>
+<table>
+<tr>
+<td>Stimme gar nicht zu </td>
+<th><input name='player.radio46' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+<th><input name='player.radio46' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+<th><input name='player.radio46' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+<th><input name='player.radio46' type='radio' required value='Neutral' id='radio4'></th>
+<th><input name='player.radio46' type='radio' required value='stimme zu1' id='radio5'></th>
+<th><input name='player.radio46' type='radio' required value='stimme zu2' id='radio6'></th>
+<th><input name='player.radio46' type='radio' required value='stimme zu3' id='radio7'></th>
+<td>Stimme sehr zu</td>
+</tr>
+</table>
+<p style="font-family:calibri;">14. Manchmal zahle ich es lieber anderen heim, als dass ich vergebe und vergesse.    </p>
+<table>
+<tr>
+<td>Stimme gar nicht zu </td>
+<th><input name='player.radio47' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+<th><input name='player.radio47' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+<th><input name='player.radio47' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+<th><input name='player.radio47' type='radio' required value='Neutral' id='radio4'></th>
+<th><input name='player.radio47' type='radio' required value='stimme zu1' id='radio5'></th>
+<th><input name='player.radio47' type='radio' required value='stimme zu2' id='radio6'></th>
+<th><input name='player.radio47' type='radio' required value='stimme zu3' id='radio7'></th>
+<td>Stimme sehr zu</td>
+</tr>
+</table>
+<p style="font-family:calibri;">15. Ich habe schon einmal Zuviel Wechselgeld herausbekommen, ohne es der Verkäuferin zu sagen.    </p>
+<table>
+<tr>
+<td>Stimme gar nicht zu </td>
+<th><input name='player.radio48' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+<th><input name='player.radio48' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+<th><input name='player.radio48' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+<th><input name='player.radio48' type='radio' required value='Neutral' id='radio4'></th>
+<th><input name='player.radio48' type='radio' required value='stimme zu1' id='radio5'></th>
+<th><input name='player.radio48' type='radio' required value='stimme zu2' id='radio6'></th>
+<th><input name='player.radio48' type='radio' required value='stimme zu3' id='radio7'></th>
+<td>Stimme sehr zu</td>
+</tr>
+</table>
+<p style="font-family:calibri;">16. Ich gebe grundsätzlich alles an, was ich zu verzollen habe.     </p>
+<table>
+<tr>
+<td>Stimme gar nicht zu </td>
+<th><input name='player.radio49' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+<th><input name='player.radio49' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+<th><input name='player.radio49' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+<th><input name='player.radio49' type='radio' required value='Neutral' id='radio4'></th>
+<th><input name='player.radio49' type='radio' required value='stimme zu1' id='radio5'></th>
+<th><input name='player.radio49' type='radio' required value='stimme zu2' id='radio6'></th>
+<th><input name='player.radio49' type='radio' required value='stimme zu3' id='radio7'></th>
+<td>Stimme sehr zu</td>
+</tr>
+</table>
+<p style="font-family:calibri;">17. Manchmal fahre ich schneller, als es erlaubt ist.     </p>
+<table>
+<tr>
+<td>Stimme gar nicht zu </td>
+<th><input name='player.radio50' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+<th><input name='player.radio50' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+<th><input name='player.radio50' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+<th><input name='player.radio50' type='radio' required value='Neutral' id='radio4'></th>
+<th><input name='player.radio50' type='radio' required value='stimme zu1' id='radio5'></th>
+<th><input name='player.radio50' type='radio' required value='stimme zu2' id='radio6'></th>
+<th><input name='player.radio50' type='radio' required value='stimme zu3' id='radio7'></th>
+<td>Stimme sehr zu</td>
+</tr>
+</table>
+<p style="font-family:calibri;">18. Ich habe Dinge getan, von denen ich anderen nichts erzähle.     </p>
+<table>
+<tr>
+<td>Stimme gar nicht zu </td>
+<th><input name='player.radio51' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+<th><input name='player.radio51' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+<th><input name='player.radio51' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+<th><input name='player.radio51' type='radio' required value='Neutral' id='radio4'></th>
+<th><input name='player.radio51' type='radio' required value='stimme zu1' id='radio5'></th>
+<th><input name='player.radio51' type='radio' required value='stimme zu2' id='radio6'></th>
+<th><input name='player.radio51' type='radio' required value='stimme zu3' id='radio7'></th>
+<td>Stimme sehr zu</td>
+</tr>
+</table>
+<p style="font-family:calibri;">19. Ich nehme niemals Dinge an mich, die mir nicht gehören.     </p>
+<table>
+<tr>
+<td>Stimme gar nicht zu </td>
+<th><input name='player.radio52' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+<th><input name='player.radio52' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+<th><input name='player.radio52' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+<th><input name='player.radio52' type='radio' required value='Neutral' id='radio4'></th>
+<th><input name='player.radio52' type='radio' required value='stimme zu1' id='radio5'></th>
+<th><input name='player.radio52' type='radio' required value='stimme zu2' id='radio6'></th>
+<th><input name='player.radio52' type='radio' required value='stimme zu3' id='radio7'></th>
+<td>Stimme sehr zu</td>
+</tr>
+</table>
+<p style="font-family:calibri;">20. Ich bin schon einmal wegen einer angeblichen Krankheit nicht zur Arbeit oder Schule gegangen.    </p>
+<table>
+<tr>
+<td>Stimme gar nicht zu </td>
+<th><input name='player.radio53' type='radio' required value='stimme nicht zu3' id='radio1'></th>
+<th><input name='player.radio53' type='radio' required value='stimme nicht zu2' id='radio2'></th>
+<th><input name='player.radio53' type='radio' required value='stimme nicht zu1' id='radio3'></th>
+<th><input name='player.radio53' type='radio' required value='Neutral' id='radio4'></th>
+<th><input name='player.radio53' type='radio' required value='stimme zu1' id='radio5'></th>
+<th><input name='player.radio53' type='radio' required value='stimme zu2' id='radio6'></th>
+<th><input name='player.radio53' type='radio' required value='stimme zu3' id='radio7'></th>
+<td>Stimme sehr zu</td>
+</tr>
+</table><br>
+`;
+
+let page22 = app.newStage('page22');
+page22.activeScreen = `
+<p style="font-family:calibri;">Haben Sie kürzlich wissenschaftliche Artikel oder Zeitungsartikel über CEOs gelesen?</p>
+<input name='player.radio54' type='radio' value='Ja' id='radio1'>
+<label for='radio1' style="font-family:calibri;">Ja</label><br>
+<input name='player.radio54' type='radio' value='Nein' id='radio2'>
+<label for='radio2' style="font-family:calibri;">Nein</label><br>
+<input name='player.radio54' type='radio' value='Kann mich nicht mehr erinnern' id='radio2'>
+<label for='radio2' style="font-family:calibri;">Kann mich nicht mehr erinnern</label><br>
+
+<p style="font-family:calibri;">Wenn ja, in welchem Licht wurden die CEOs dargestellt? (Question is only displayed, when the answer is „yes“)</p>
+<table>
+<tr>
+<td style="font-family:calibri;">Negativ </td>
+<th><input name='player.radio55' type='radio' required value='Neg3' id='radio1'></th>
+<th><input name='player.radio55' type='radio' required value='Neg2' id='radio2'></th>
+<th><input name='player.radio55' type='radio' required value='Neg1' id='radio3'></th>
+<th><input name='player.radio55' type='radio' required value='Neutral' id='radio4'></th>
+<th><input name='player.radio55' type='radio' required value='Pos1' id='radio5'></th>
+<th><input name='player.radio55' type='radio' required value='Pos2' id='radio6'></th>
+<th><input name='player.radio55' type='radio' required value='Pos3' id='radio7'></th>
+<td style="font-family:calibri;" >Positiv</td>
+</tr>
+</table><br>
+`;
+
+let page23 = app.newStage('page23');
+page23.activeScreen = `
+<p style="font-family:calibri;">Und nun noch eine letzte für uns wichtige Frage:<br>
+<br> 
+Haben Sie die Studie sorgfältig bearbeitet?    
+</p>
+<input name='player.radio56' type='radio' value='Ja' id='radio1'>
+<label for='radio1' style="font-family:calibri;">Ja</label><br>
+<input name='player.radio56' type='radio' value='Nein' id='radio2'>
+<label for='radio2' style="font-family:calibri;">Nein</label><br><br>
+`;
+
+let page24 = app.newStage('page24');
+page24.activeScreen = `
+<h4 style="font-family:calibri;">Thank you for your participation!</h4>
+`;
+
+app.description = 'Questionnaire.';
+
+// DEFINE STAGES
+var questionsStage = app.newStage('questions');
+questionsStage.activeScreen = `
+<script>
+showSliderVal = function(val) {
+    $("#sliderVal").text(val);
+}
+</script>
+
+<p><b>Total errors from Part 1:</b> {{player.participant.totalErrors}}.</p>
+
+
+ <!DOCTYPE html>
+<html>
+<head>
+<style>
+div {
+    background-color: AliceBlue;
+    width: 1500px;
+    border: 25px solid LightSteelBlue;
+    padding: 25px;
+    margin: 25px;
+}
+body {background-color: AliceBlue;}
+h1   {color: blue;}
+p    {color: black;}
+</style>
+</head>
+<body>
+
+<input name='player.text' type='text'>
+<br><br>
+
+
+<p>2. Type in an email address:</p>
+<input name='player.email' required type='email'>
+<br><br>
+
+<p>3. Type in a lot of text:</p>
+<textarea name='player.longtext' rows=5 cols=40></textarea>
+<br><br>
+
+<p>4. Select a choice from a dropdown:</p>
+<select name='player.dropdown' required>
+    <option value="dropdown1">Dropdown 1</option>
+    <option value="dropdown2">Dropdown 2</option>
+    <option value="dropdown3">Dropdown 3</option>
+    <option value="dropdown4">Dropdown 4</option>
+</select>
+<br><br>
+
+<p>5. Select a choice from a list:</p>
+<select name='player.list' required size=4>
+    <option value="list1">List 1</option>
+    <option value="list2">List 2</option>
+    <option value="list3">List 3</option>
+    <option value="list4">List 4</option>
+</select>
+<br><br>
+
+<p>9. Choose a number from a slider:</p>
+<b>0</b> <input id="slider" type="range" name='player.slider' min="0" max="100" step="10" oninput="showSliderVal(this.value)" onchange="showSliderVal(this.value)"> <b>100</b><br>
+<span>Current Slider Value: <span id="sliderVal">-</span></span>
+<br><br>
+`;
+
+app.waitingScreen = `
+<h4>RESPONSES</h4>
+<p><b>Würden Sie sagen, dass Sie im Vergleich zu diesem Kollegen (dieser Kollegin) die gefundenen 50 Franken schätzen.: </b>{{player.radio29}}</p>
+<p><b>Beim Wert ‚‚Ehrlichkeit… geht es um etwas, das man nicht opfern sollte, egal wie hoch der (finanzielle oder sonstige) Nutzen ist.: </b>{{player.radio30}}</p>
+<p><b>Beim Wert ‚‚Ehrlichkeit… geht es um etwas, finde ich es richtig, Kosten-Nutzen Abwägungen zu machen.: </b>{{player.radio32}}</p>
+<p><b>Beim Wert ‚‚Ehrlichkeit… geht es um etwas, geht es um etwas, das man nicht mit einem Geldwert beziffern kann.</b>{{player.radio32}}</p>
+<p><b>Beim Wert ‚‚Ehrlichkeit… geht es um etwas, kann ich flexibel sein, wenn es die Situation verlangt.</b>{{player.radio33}}</p>
+<p><b>1.Der erste Eindruck, den ich von anderen Menschen gewinne, bewahrheitet sich meistens.   : </b>{{player.radio34}}</p>
+<p><b>2.Ich bin nicht immer mir selber gegenüber ganz ehrlich gewesen.    : </b>{{player.radio35}}</p>
+<p><b>3. Ich weiss immer, warum ich etwas mag.    : </b>{{player.radio36}}</p>
+<p><b>4. Es fällt mir schwer, einen beunruhigenden Gedanken beiseite zu drängen.    : </b>{{player.radio37}}</p>
+<p><b>5. Manchmal verpasse ich etwas, weil ich mich einfach nicht schnell genug entscheiden kann.    : </b>{{player.radio38}}</p>
+<p><b>6. Ich bin ein vollkommen rational denkender Mensch.    : </b>{{player.radio39}}</p>
+<p><b>7. Ich kann Kritik selten vertragen.    : </b>{{player.radio40}}</p>
+<p><b>8. Ich bin mir meiner Urteile sehr sicher.    : </b>{{player.radio41}}</p>
+<p><b>9. An meinen Fähigkeiten als Liebhaber/in habe ich schon gelegentlich gezweifelt.   : </b>{{player.radio42}}</p>
+<p><b>10. Ich weiss nicht immer die Gründe für meine Handlungen.     : </b>{{player.radio43}}</p>
+<p><b>11. Manchmal lüge ich, wenn ich muss.    : </b>{{player.radio44}}</p>
+<p><b>12. Es ist schon einmal vorgekommen, dass ich jemanden ausgenutzt habe.    : </b>{{player.radio45}}</p>
+<p><b>13. Ich fluche niemals.    : </b>{{player.radio46}}</p>
+<p><b>14. Manchmal zahle ich es lieber anderen heim, als dass ich vergebe und vergesse.    : </b>{{player.radio47}}</p>
+<p><b>15. Ich habe schon einmal zuviel Wechselgeld herausbekommen, ohne es der Verkäuferin zu sagen.    : </b>{{player.radio48}}</p>
+<p><b>16. Ich gebe grundsätzlich alles an, was ich zu verzollen habe.     : </b>{{player.radio49}}</p>
+<p><b>17. Manchmal fahre ich schneller, als es erlaubt ist.     : </b>{{player.radio50}}</p>
+<p><b>18. Ich habe Dinge getan, von denen ich anderen nichts erzähle. : </b>{{player.radio51}}</p>
+<p><b>19. Ich nehme niemals Dinge an mich, die mir nicht gehören.: </b>{{player.radio52}}</p>
+<p><b>20. Ich bin schon einmal wegen einer angeblichen Krankheit nicht zur Arbeit oder Schule gegangen.: </b>{{player.radio53}}</p>
+<p><b>Haben Sie kürzlich wissenschaftliche Artikel oder Zeitungsartikel über CEOs gelesen?        : </b>{{player.radio54}}</p>
+<p><b>Wenn ja, in welchem Licht wurden die CEOs dargestellt? (Question is only displayed, when the answer is „yes“) Positiv : </b>{{player.radio55}}</p>
+<p><b>Und nun noch eine letzte für uns wichtige Frage: Haben Sie die Studie sorgfältig bearbeitet?        : </b>{{player.radio56}}</p>
+`;
+

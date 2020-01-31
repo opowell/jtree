@@ -210,6 +210,7 @@ class StaticServer {
         this.ip = ip.address();
         this.server = http.Server(expApp);
         try {
+            console.log('attempting to start server on ' + this.ip + ':' + this.port);
             this.server.listen(this.port, function() {
                 console.log('###############################################');
                 console.log('jtree ' + jt.version + ', listening on ' + self.ip + ':' + self.port);

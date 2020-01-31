@@ -160,7 +160,7 @@ class SessionV2 {
             if (applyChanges) {
                 jt.socketServer.io.to(thisSession.roomId()).emit('objChange', msg);
             } else {
-                debugger;
+                // debugger;
             }
 
             thisSession.save();

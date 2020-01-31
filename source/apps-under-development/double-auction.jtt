@@ -5,6 +5,7 @@ app.tradingTime = 120;
 app.divs        = [0, 8, 28, 60];
 app.endowmentShares = 3;
 app.endowmentCash = 24*app.numPeriods*app.endowmentShares;
+app.stageWrapPlayingScreenInFormTag = 'no';
 
 app.vueComputed = {
     offersOpen: function() {
@@ -82,6 +83,9 @@ tradingStage.activeScreen = `
     </p>
     <div>Trades:
         <div v-for='trade in trades' class='trade'>{{trade.price}}</div>
+    </div>
+    <div>Chart:
+        <canvas id="chart" width="800" height="400"></canvas>
     </div>
 `;
 

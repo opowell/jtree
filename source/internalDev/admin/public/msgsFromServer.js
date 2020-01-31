@@ -104,6 +104,8 @@ try {
                 jt.replaceLinksWithObjects(change.arguments);
             }
 
+            console.log(change.path + ', length = ' + vue.$store.state.session.objectList.length);
+
             break;
 
         case 'set-prop':
@@ -238,17 +240,20 @@ msgs.designApp = function(sessData) {
     msgs.openSession(sessData, windowType);
 }
 
-msgs.openSession = function(sessionLink, windowType) {
+msgs.openSession = function(sessData, windowType) {
 
     if (windowType == null) {
         windowType = 'run';
     }
 
-    sessionLink = JSON.parse(sessionLink, jt.dataReviver);
+    let sessionLink = sessData.link;
 
     for (let i in participantTimers) {
         clearInterval(participantTimers[i]);
     }
+
+    window.vue.$store.state.session.objectList = sessData.objects;
+    jt.replaceLinksWithObjects(sessData.objects);
 
     let actualSession = jt.replaceLinksWithObjects(sessionLink);
     const prevSession = vue.$store.state.session;

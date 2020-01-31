@@ -290,7 +290,12 @@ class Msgs {
         var session = Utils.findById(this.jt.data.sessions, sId);
         if (session !== null && session !== undefined) {
             socket.join(session.roomId());
-            this.jt.io.to('socket_' + socket.id).emit(clientCommand, this.jt.flatten(session.shell()));
+            let link = session.shell();
+            let msgData = {
+                link, 
+                objects: session.proxy.objectList.__target
+            };
+            this.jt.io.to('socket_' + socket.id).emit(clientCommand, msgData);
             this.jt.data.lastOpenedSession = session;
         }
     }
@@ -335,7 +340,6 @@ class Msgs {
     openGameAsNewSession(data, socket) {
         let userId = ''; // TODO
         var session = this.jt.data.createSession(userId);
-        socket.join(session.roomId());
         session.addMessage(
             'addGame',
             data
@@ -345,6 +349,7 @@ class Msgs {
         //     1
         // );
         this.openSession(session.id, socket, 'designApp');
+        socket.join(session.roomId());
     }
 
 

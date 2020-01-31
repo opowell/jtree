@@ -153,7 +153,6 @@ jt.replaceExistingObjectsWithLinks = function(object, existingObjects, originalE
                 existingObjects.push(...newObjectsOL);
             }
         }
-        
 
         return '__link__' + index;
     

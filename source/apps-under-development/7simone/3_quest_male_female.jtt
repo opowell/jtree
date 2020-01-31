@@ -1,0 +1,97 @@
+app.description = 'Simple questionnaire.';
+app.waitForAll = false;
+app.groupSize = 1;
+app.waitingScreen = `
+    <p>Thank you for your participation!</p>
+    <p> Please click on the link below to return to prolific.</p>
+    <a href="https://app.prolific.ac/submissions/complete?cc=5Z6R31O9">https://app.prolific.ac/submissions/complete?cc=5Z6R31O9</a> 
+   	`;
+app.questions = [
+    "New ideas and projects sometimes distract him/her from previous ones.",
+    "He/She is helpful and unselfish with others.",
+    "Setbacks don't discourage him/her.",
+    "In conversations, he/she looks to talk about things of interest to both him/her and the other person.",
+    "He/She has been obsessed with a certain idea or project for a short time but later lost interest.",
+    "He/She is logical and systematic.",
+    "He/She is a hard worker.",
+    "He/She often sets a goal but later chooses to pursue a different one.",
+    "He/She bases decisions on a careful evaluation of all the available information.",
+    "He/She has difficulty maintaining his/her focus on projects that take more than a few months to complete.",
+    "He/She remains calm and rational under pressure.",
+    "Please tick the box saying &quot; More like a female &quot;.",
+    "He/She is considerate and kind to almost everyone.",
+    "He/She finishes whatever he/she begins."
+];
+
+app.questionCodes = [
+    'G1',
+    'IS1',
+    'G2',
+    'IS2',
+    'G3',
+    'A1',
+    'G4',
+    'G5',
+    'A2',
+    'G6',
+    'A3',
+    'check',	
+    'IS3',
+    'G7'
+]
+
+
+app.answers = [
+    "Very much like a male",
+    "More like a male",
+    "More like a female",
+    "Very much like a female"
+];
+
+var stage = app.newStage('questions');
+stage.activeScreen = `
+<style>
+body {
+    max-width: unset;
+}
+</style>
+<h4>You will now see a series of statements. This survey was developed as a tool for identifying perceptions about gender. Please rate the following statements depending on whether you find it more likely to describe a male or a female. There are no right or wrong answers. This is all about what you believe.</h4>
+`;
+for (let j=0; j<app.questions.length; j++) {
+    let a = `<p>${j+1}. ${app.questions[j]}</p>`;
+    for (let k=0; k<app.answers.length; k++) {
+        let name = `${app.questionCodes[j]}`;
+        let id = `${name}_radio${k+1}`;
+        a += `
+        <input name='player.${name}' type='radio' required value='${k+1}' id='${id}'>
+        <label for='${id}'>${app.answers[k]}</label>
+        `;
+    }
+    stage.activeScreen += eval('`' + a + '<br><br>`');
+}
+
+var stage2 = app.newStage('questions2');
+stage2.activeScreen = `
+<h4>Finally we kindly ask you to fill out a short questionnaire about yourself.</h4>
+<p>1. How old are you (in years)?</p>
+<input name='player.age' type='text' required>
+<br><br>
+<p>What is your gender?</p>
+<input name='player.Gender' type='radio' required value='0' id='Gender0'>
+<label for='Gender0'>Female</label>
+<input name='player.Gender' type='radio' required value='1' id='Gender1'>
+<label for='Gender1'>Male</label>
+<input name='player.Gender' type='radio' required value='2' id='Gender2'>
+<label for='Gender2'>Prefer not to say</label>
+<input name='player.Gender' type='radio' required value='3' id='Gender3'>
+<label for='Gender3'>Prefer to self describe</label>
+<input name='player.Gender_self' type='text'>
+<br><br>
+<p>Please enter your Prolific ID</p>
+<input name='player.ProlificID' type='text' required>
+<br><br>
+`;
+
+let stage3 = app.newStage('stage3');
+stage3.activeScreen = app.waitingScreen;
+stage3.addOKButtonIfNone = false;
