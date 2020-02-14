@@ -26,14 +26,15 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>const fs        = require('fs-extra');
-const Utils     = require('../Utils.js');
-const path      = require('path');
-const Session   = require('../Session.js');
-const App       = require('../App.js');
-const Room      = require('../Room.js');
-const Queue     = require('../Queue.js');
-const User      = require('../User.js');
+            <pre class="prettyprint source linenums"><code>const fs = require('fs-extra');
+const Utils = require('../Utils.js');
+const path = require('path');
+const Session = require('../Session.js');
+const App = require('../App.js');
+const Room = require('../Room.js');
+const Queue = require('../Queue.js');
+const User = require('../User.js');
+const StackTracey = require('stacktracey');
 
 /** The data object. */
 class Data {
@@ -47,10 +48,11 @@ class Data {
     constructor(jt) {
 
         /*
-        * The server.
+         * The server.
          * @type Object
          */
         this.jt = jt;
+        jt.data = this;
 
         this.lastOpenedSession = null;
 
@@ -58,32 +60,35 @@ class Data {
          * The last time the server was on, {@link Data#loadLastTimeOn}.
          * @type number
          */
-        this.lastTimeOn     = this.loadLastTimeOn();
+        this.lastTimeOn = this.loadLastTimeOn();
 
-        /*
+                /*
          * The list of available apps, loaded from the contents of the {@link Settings#appsFolder} folder.
          * @type Object
          */
 
-        this.apps = {};
-        this.appsMetaData = {};
-
-        this.loadApps();
+        this.reloadApps();
 
         /*
          * Available [Sessions]{@link Session}, loaded from the contents of the 'sessions' folder.
          * Sorted in ascending order according to time created.
          * @type Array of {@link Session}.
          */
-        this.sessions = this.loadSessions();
+        this.sessions = [];
+        if (jt.settings.loadSessions) {
+            this.sessions = this.loadSessions();
+        }
 
         this.rooms = this.loadRooms();
-
-        this.queues = this.loadQueues();
 
         this.users = this.loadUsers();
 
         this.storeTimeInfo();
+
+        // Participant clients with no session IDs.
+        // Reload them when a new session is opened.
+        this.participantClients = [];
+
     }
 
     /*
@@ -109,7 +114,7 @@ class Data {
         if (this.lastOpenedSession !== null) {
             return this.lastOpenedSession;
         }
-        for (var i=this.sessions.length-1; i>=0; i--) {
+        for (var i = this.sessions.length - 1; i >= 0; i--) {
             if (this.sessions[i].active === true) {
                 return this.sessions[i];
             }
@@ -123,6 +128,23 @@ class Data {
             var session = this.sessions[i];
             if (session.canUserManage(userId)) {
                 out.push(session.shell());
+            }
+        }
+        return out;
+    }
+
+    getClients(sessionId) {
+        let out = [];
+        let session = this.getSession(sessionId);
+        if (sessionId != null) {
+            if (session != null) {
+                for (let i=0; i&lt;session.clients.length; i++) {
+                    out.push(session.clients[i].toShell());
+                }
+            }
+        } else {
+            for (let i in this.participantClients) {
+                out.push(this.participantClients[i].shell());
             }
         }
         return out;
@@ -152,24 +174,117 @@ class Data {
             return this.apps[id];
         }
     }
-
+    
     loadApp(id, session, appPath, options) {
         var app = null;
-        var app = new App.new(session, id, this.jt, appPath);
+        app = new App.new(session, this.jt, appPath);
+        app.givenOptions = options;
+     //   app.shortId = id;
 
         // Set options before running code.
-        for (var i in options) {
+         for (var i in options) {
             app.setOptionValue(i, options[i]);
         }
 
+        let filePath = appPath;
+        if (!fs.existsSync(appPath) &amp;&amp; session.queuePath != null) {
+            filePath = path.join(session.queuePath, appPath);
+        }
+
         try {
-            eval(fs.readFileSync(appPath) + '');
+            app.appjs = fs.readFileSync(filePath) + '';
+            if (app.appjs.startsWith('//NOTSTANDALONEAPP')) {
+                return null;
+            }
+            eval(app.appjs); // jshint ignore:line
+            this.jt.log('loaded app ' + filePath);
         } catch (err) {
-            this.jt.log('Data.loadApp: ' + appPath);
-            this.jt.log(err);
-            app = null;
+            if (
+                !filePath.endsWith('.jtt')
+            ) {
+                return null;
+            }
+            if (app.isStandaloneApp) {
+                app.hasError = true;
+                let stack = new StackTracey (err);
+                this.jt.log('Error loading app: ' + filePath, true);
+                this.jt.log(err, true);
+                let lines = err.stack.split('\n');
+                let index = lines[1].indexOf('&lt;anonymous>:');
+                let position = lines[1].substring(index + '&lt;anonymous>:'.length);
+                let start = 0;
+                let indexColon = position.indexOf(':', start);
+                let line = position.substring(start, indexColon);
+                start = start + indexColon + 1;
+                let indexParen = position.indexOf(')', start);
+                let positionStr = position.substring(start, indexParen);
+                if (isNaN(line)) {
+                    line = 'unknown';
+                }
+                if (isNaN(positionStr)) {
+                    positionStr = 'unknown';
+                }
+                this.jt.log('Line ' + line + ', position ' + positionStr, true);
+                app.errorLine = line;
+                app.errorPosition = positionStr;
+            }
         }
         return app;
+    }
+
+    getAppsFromDir(dir) {
+        var out = [];
+        if (Utils.isDirectory(dir)) {
+            var appDirContents = fs.readdirSync(dir);
+            for (var i in appDirContents) {
+                var curPath = path.join(dir, appDirContents[i]);
+                var curPathIsFile = fs.lstatSync(curPath).isFile();
+                var curPathIsFolder = fs.lstatSync(curPath).isDirectory();
+                if (curPathIsFile) {
+                    console.log('check queue: ' + id);
+
+                    var id = appDirContents[i];
+
+                    let isApp = false;
+                    // Treatment / App
+                    if (id == 'app.js' || id == 'app.jtt') {
+                        isApp = true;
+                        // Take id from path name.
+                        if (dir.lastIndexOf('/') > -1) {
+                            id = dir.substring(dir.lastIndexOf('/') + 1);
+                        } else if (dir.lastIndexOf('\\') > -1) {
+                            id = dir.substring(dir.lastIndexOf('\\') + 1);
+                        }
+                    }
+                    if (id.endsWith('.js')) {
+                        isApp = true;
+                        id = id.substring(0, id.length - '.js'.length);
+                    } else if (id.endsWith('.jtt')) {
+                        isApp = true;
+                        id = id.substring(0, id.length - '.jtt'.length);
+                    }
+                    if (isApp) {
+                        let app = this.loadApp(id, null, curPath, {});
+                        if (app != null) {
+                            // this.apps[id] = app;
+                            // this.appsMetaData[id] = app.metaData();
+                            out.push(app);
+                        }
+                    }
+
+                    // Queue / Session Config
+                    if (id.endsWith('.jtq')) {
+                        id = id.substring(0, id.indexOf('.jtq'));
+                        var queue = Queue.loadJTQ(id, this.jt, curPath);
+                        console.log('loading queue ' + queue.id);
+                        out.push(queue);
+                    }
+                } else if (curPathIsFolder) {
+                    out = out.concat(this.getAppsFromDir(curPath));
+                }
+            }
+        }
+        return out;
     }
 
     // Search for *.js and *.jtt files. Load as apps.
@@ -177,43 +292,74 @@ class Data {
     loadAppDir(dir) {
         if (Utils.isDirectory(dir)) {
             var appDirContents = fs.readdirSync(dir);
+
+            // Load individual apps and queues.
             for (var i in appDirContents) {
                 var curPath = path.join(dir, appDirContents[i]);
                 var curPathIsFile = fs.lstatSync(curPath).isFile();
                 var curPathIsFolder = fs.lstatSync(curPath).isDirectory();
-                if ((curPath.endsWith('.js') || curPath.endsWith('.jtt')) &amp;&amp; curPathIsFile) {
+                if (curPathIsFile) {
                     var id = appDirContents[i];
+
+                    let isApp = false;
+                    // Treatment / App
                     if (id == 'app.js' || id == 'app.jtt') {
+                        isApp = true;
                         // Take id from path name.
                         if (dir.lastIndexOf('/') > -1) {
-                            id = dir.substring(dir.lastIndexOf('/')+1);
+                            id = dir.substring(dir.lastIndexOf('/') + 1);
                         } else if (dir.lastIndexOf('\\') > -1) {
-                            id = dir.substring(dir.lastIndexOf('\\')+1);
+                            id = dir.substring(dir.lastIndexOf('\\') + 1);
                         }
                     }
                     if (id.endsWith('.js')) {
-                        id = id.substring(0, id.length-'.js'.length);
+                        isApp = true;
+                        id = id.substring(0, id.length - '.js'.length);
                     } else if (id.endsWith('.jtt')) {
-                        id = id.substring(0, id.length-'.jtt'.length);
+                        isApp = true;
+                        id = id.substring(0, id.length - '.jtt'.length);
                     }
-                    let app = this.loadApp(id, null, curPath, {});
-                    if (app != null) {
-                        this.apps[id] = app;
-                        this.appsMetaData[id] = app.metaData();
+                    if (isApp) {
+                        let app = this.loadApp(id, {}, curPath, {});
+                        if (app != null) {
+                            this.apps[curPath] = app;
+                            this.appsMetaData[curPath] = app.metaData();
+                        }
+                    }
+
+                    // Queue / Session Config
+                    if (id.endsWith('.jtq')) {
+                        var queue = Queue.loadJTQ(curPath, this.jt, dir);
+                        queue.dummy = true;
+                        var session = new Session.new(this.jt, null);
+                        session.emitMessages = false;
+                        session.queuePath = path.dirname(queue.id);
+                        eval(queue.code);
+                        session.setNumParticipants(session.suggestedNumParticipants);
+                        let options = {};
+                        for (let i in session.apps) {
+                            queue.addApp(session.apps[i].id, options);
+                        }
+                        queue.options = session.options;
+                        queue.optionValues = session.optionValues;
+                        // queue.apps = session.apps;
+                        this.jt.log('loading file queue ' + curPath + ' with ' + queue.apps.length + ' apps');
+                        this.queues[curPath] = queue;
                     }
                 } else if (curPathIsFolder) {
                     this.loadAppDir(curPath);
                 }
             }
+
         }
     }
 
     saveRoom(room) {
         this.deleteRoom(room.originalId);
         var newRoom = new Room.new(room.id, this.jt);
-        newRoom.displayName     = room.displayName;
-        newRoom.labels          = room.labels;
-        newRoom.useSecureURLs   = room.useSecureURLs;
+        newRoom.displayName = room.displayName;
+        newRoom.labels = room.labels;
+        newRoom.useSecureURLs = room.useSecureURLs;
         this.createRoomFromRoom(newRoom);
     }
 
@@ -233,11 +379,14 @@ class Data {
 
     deleteApp(id) {
         try {
-            fs.removeSync(this.appPath(id));
+            if (!id.startsWith(this.jt.path)) {
+                id = this.appPath(id);                
+            }
+            fs.removeSync(id);
             delete this.apps[id];
             delete this.appsMetaData[id];
         } catch (err) {
-            debugger;
+            this.jt.log(err);
         }
     }
 
@@ -255,26 +404,36 @@ class Data {
         }
     }
 
+    getApp(appPath, options) {
+        var app = App.newSansId(this.jt, appPath);
+
+        // Set options before running code.
+        for (var i in options) {
+            app.setOptionValue(i, options[i]);
+        }
+
+        try {
+            app.appjs = fs.readFileSync(appPath) + '';
+            eval(app.appjs); // jshint ignore:line
+        } catch (err) {
+            this.jt.log('Error loading app: ' + appPath);
+            this.jt.log(err);
+            app = null;
+        }
+        return app;
+    }
+
+    reloadApps() {
+        this.apps = {};
+        this.appsMetaData = {};
+        this.queues = [];
+        this.loadApps();
+    }
+
     loadApps() {
         for (var i in this.jt.settings.appFolders) {
             var folder = this.jt.settings.appFolders[i];
             this.loadAppDir(path.join(this.jt.path, folder));
-        }
-    }
-
-    saveApp(appToSave) {
-        try {
-            var origFolder = this.appPath(appToSave.origId);
-            var newFolder = this.appPath(appToSave.id);
-            fs.renameSync(origFolder, newFolder);
-            var appjsPath = path.join(newFolder, 'app.jtt')
-            fs.writeFileSync(appjsPath, appToSave.appjs);
-            var appjsPath = path.join(newFolder, 'client.html')
-            fs.writeFileSync(appjsPath, appToSave.clientHTML);
-            delete this.apps[appToSave.origId];
-            this.apps[appToSave.id] = this.loadAppMetaData(appToSave.id, newFolder);
-        } catch (err) {
-
         }
     }
 
@@ -292,7 +451,7 @@ class Data {
         const sessPath = path.join(this.jt.path, this.jt.settings.sessionsFolder);
         fs.ensureDirSync(sessPath);
 
-        var dirContents = fs.readdirSync(sessPath)
+        var dirContents = fs.readdirSync(sessPath);
         for (var i in dirContents) {
             try {
                 var folder = dirContents[i];
@@ -308,7 +467,6 @@ class Data {
                     }
                 }
             } catch (err) {
-                debugger;
                 jt.log(err);
             }
         }
@@ -324,7 +482,7 @@ class Data {
     }
 
     queuePath(id) {
-        return path.join(this.queuesPath(), id + '.json');
+        return path.join(this.jt.path, this.jt.settings.appFolders[0], id);
     }
 
     roomsPath() {
@@ -333,10 +491,6 @@ class Data {
 
     usersPath() {
         return path.join(this.jt.path, this.jt.settings.usersPath);
-    }
-
-    queuesPath() {
-        return path.join(this.jt.path, this.jt.settings.queuesPath);
     }
 
     room(id) {
@@ -473,11 +627,9 @@ class Data {
 
         var session = null;
         var appPath = this.appPath(id);
-        var app = new App.new(session, id, this.jt, appPath);
+        var app = new App.new(session, this.jt, appPath);
 
-        fs.mkdirSync(this.appPath(id));
-        fs.writeFileSync(this.appPath(id) + '/app.jtt', '');
-        fs.writeFileSync(this.appPath(id) + '/client.html', '');
+        fs.writeFileSync(this.appPath(id), '');
 
         this.apps[app.id] = app;
         this.appsMetaData[app.id] = app.metaData();
@@ -524,7 +676,7 @@ class Data {
             }
         } catch (err) {
             console.log('error loading session WS: ' + folder);
-    //        console.log(err);
+            //        console.log(err);
         }
         return out;
     }
@@ -533,8 +685,7 @@ class Data {
         var out = Date.now();
         try {
             out = fs.readJSONSync(this.js.settings.serverTimeInfoFilename);
-        } catch (err) {
-        }
+        } catch (err) {}
         this.jt.log("last time on: " + out);
         return out;
     }
@@ -570,13 +721,14 @@ class Data {
      * @return {Session}        description
      */
     createSession(userId) {
-        var sess = new Session.new(this.jt, null);
+        var session = new Session.new(this.jt, null);
+        session.setNumParticipants(session.suggestedNumParticipants);
         if (userId != null &amp;&amp; userId.length > 0) {
-            sess.addUser(userId);
+            session.addUser(userId);
         }
-        sess.save();
-        this.jt.socketServer.emitToAdmins('addSession', sess.shell());
-        return sess;
+        session.save();
+        this.jt.socketServer.emitToAdmins('addSession', session.shell());
+        return session;
     }
 
     getAdmin(id, pwd) {
@@ -646,7 +798,7 @@ exports.new = Data;
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jul 25 2018 16:58:19 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Fri Feb 14 2020 22:43:17 GMT+0100 (Central European Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

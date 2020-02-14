@@ -1,7 +1,7 @@
 <template>
   <div style='display: flex; flex-direction: column;'>
       <div style='font-size: 1rem;'>Welcome to <span style='font-weight: bold'>jtree</span>.</div>
-      <div style='font-size: 1rem; padding-top: 1rem; color: #888; padding-bottom: 1rem;'>0.8.6</div>
+      <div style='font-size: 1rem; padding-top: 1rem; color: #888; padding-bottom: 1rem;'>0.8.7</div>
       <!-- <div style='margin-bottom: 1rem;'>What would you like to do?</div> -->
       <div style='display: flex'>
         <div style=''>

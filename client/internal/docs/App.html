@@ -169,7 +169,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="App.js.html">App.js</a>, <a href="App.js.html#line9">line 9</a>
+        <a href="App.js.html">App.js</a>, <a href="App.js.html#line17">line 17</a>
     </li></ul></dd>
     
 
@@ -179,6 +179,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -856,7 +858,8 @@
 
 
 <div class="description">
-    <p>If 'htmlFile' is not null, content of 'htmlFile' is added to client content.<br>Otherwise, if 'htmlFile' is null, content of this.id + &quot;.html&quot; is added to client content, if it exists.</p>
+    <p>If 'htmlFile' is not null, content of 'htmlFile' is added to client content.<br>
+Otherwise, if 'htmlFile' is null, content of this.id + &quot;.html&quot; is added to client content, if it exists.</p>
 </div>
 
 
@@ -1198,11 +1201,13 @@
 
 
 <div class="description">
-    <p>Array of comparisons to show by default on Session -&gt; Data tab.<br>Each entry consists of:</p>
+    <p>Array of comparisons to show by default on Session -&gt; Data tab.<br>
+Each entry consists of:</p>
 <ul>
 <li>field name (i.e. 'player.points')</li>
 <li>x-axis object (i.e. 'player')</li>
-<li>y-axis object (i.e. 'period')<br>Field values are aggregated using the arithmetic mean as necessary (for example, if field is player.x, but x-axis is group, then table shows arithmetic mean of all player.x in a group).</li>
+<li>y-axis object (i.e. 'period')<br>
+Field values are aggregated using the arithmetic mean as necessary (for example, if field is player.x, but x-axis is group, then table shows arithmetic mean of all player.x in a group).</li>
 </ul>
 </div>
 
@@ -1357,7 +1362,8 @@
 
 
 <div class="description">
-    <p>if defined, subjects are split evenly into this number of groups<br>overridden by groupSize.</p>
+    <p>if defined, subjects are split evenly into this number of groups<br>
+overridden by groupSize.</p>
 </div>
 
 
@@ -1949,7 +1955,8 @@
 
 
 <div class="description">
-    <p>Ends the stages of this App.<br>TODO:</p>
+    <p>Ends the stages of this App.<br>
+TODO:</p>
 </div>
 
 
@@ -2026,7 +2033,8 @@
 
 
 <div class="description">
-    <p>Starts the stages of this App.<br>TODO:</p>
+    <p>Starts the stages of this App.<br>
+TODO:</p>
 </div>
 
 
@@ -2180,7 +2188,10 @@
 
 
 <div class="description">
-    <p>Set default value for Stage.wrapPlayingScreenInFormTag.<br>If 'yes', then form is added.<br>If 'no', no form is added.<br>If 'onlyIfNoButton', then form is added only if page has no buttons.</p>
+    <p>Set default value for Stage.wrapPlayingScreenInFormTag.<br>
+If 'yes', then form is added.<br>
+If 'no', no form is added.<br>
+If 'onlyIfNoButton', then form is added only if page has no buttons.</p>
 </div>
 
 
@@ -2667,6 +2678,8 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
@@ -2830,6 +2843,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -3009,6 +3024,8 @@
 
 
 
+
+
         
             
 
@@ -3136,6 +3153,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -3284,6 +3303,8 @@
 
 
 
+
+
         
             
 
@@ -3370,6 +3391,8 @@
 
 
 
+
+
         
             
 
@@ -3384,7 +3407,8 @@
 
 
 <div class="description">
-    <p>TODO<br>Get group ids for their current period</p>
+    <p>TODO<br>
+Get group ids for their current period</p>
 </div>
 
 
@@ -3456,6 +3480,8 @@
 
 
 
+
+
         
             
 
@@ -3471,7 +3497,8 @@
 
 <div class="description">
     <p>Get next stage for player in their current period. Return null if already at last stage of period.</p>
-<p>DUE TO:<br>Stage.playerEnd</p>
+<p>DUE TO:<br>
+Stage.playerEnd</p>
 </div>
 
 
@@ -3525,6 +3552,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -3607,6 +3636,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -3715,6 +3746,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -3872,6 +3905,8 @@
 
 
 
+
+
         
             
 
@@ -3936,6 +3971,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -4115,6 +4152,8 @@
 
 
 
+
+
         
             
 
@@ -4210,6 +4249,8 @@
 
 
 
+
+
         
             
 
@@ -4278,6 +4319,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -4435,6 +4478,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -4617,6 +4662,8 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
@@ -4661,7 +4708,9 @@
 
 
 <div class="description">
-    <p>Called when a player finishes a stage.<br>By default, check whether everyone in group is finished.<br>If yes, then advance to next stage (this.session.gotoNextStage(player.group)).</p>
+    <p>Called when a player finishes a stage.<br>
+By default, check whether everyone in group is finished.<br>
+If yes, then advance to next stage (this.session.gotoNextStage(player.group)).</p>
 </div>
 
 
@@ -4782,6 +4831,8 @@
 
 
 
+
+
         
             
 
@@ -4855,6 +4906,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -5037,6 +5090,8 @@
 
 
 
+
+
         
             
 
@@ -5163,6 +5218,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -5325,6 +5382,8 @@
 
 
 
+
+
         
             
 
@@ -5455,6 +5514,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -5625,6 +5686,8 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
@@ -5769,6 +5832,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -5939,6 +6004,8 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
@@ -6034,6 +6101,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -6164,6 +6233,8 @@
 
 
 
+
+
         
             
 
@@ -6236,6 +6307,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -6361,6 +6434,8 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
@@ -6473,6 +6548,8 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
@@ -6568,6 +6645,8 @@
 
     
 </dl>
+
+
 
 
 
@@ -6693,6 +6772,8 @@
 
 
 
+
+
 <h5>Returns:</h5>
 
         
@@ -6736,13 +6817,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Jan 24 2020 16:57:25 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Fri Feb 14 2020 22:43:17 GMT+0100 (Central European Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

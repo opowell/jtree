@@ -28,85 +28,349 @@
 </header>
 
 <article>
-    <h5>0.6.0</h5><ul>
+    <h5>PLANNED</h5>
+<ul>
+<li>Generic game trees.</li>
+<li>Listen to incremental game changes via observer.</li>
+</ul>
+<h4>2020.02.14 - 0.8.7</h4>
+<ul>
+<li>Remove some user games.</li>
+<li>Add Linux compilation scripts.</li>
+</ul>
+<h4>2020.01.24 - 0.8.6</h4>
+<ul>
+<li>Queue options respect limits.</li>
+<li>Method to get player time in stage.</li>
+</ul>
+<h4>2019.12.13 - 0.8.5</h4>
+<ul>
+<li>Sort participants.</li>
+<li>Submit form on autoplay.</li>
+<li>Change App.onSubmit to a string, instead of a function, that gets evaluated when a stage is submitted.</li>
+</ul>
+<h4>2019.12.12 - 0.8.4</h4>
+<ul>
+<li>App option: App.isStandaloneApp or //NOTSTANDLONEAPP.</li>
+<li>Stage submission: check for current player, instead of just current stage name.</li>
+<li>disable folder queues.</li>
+<li>Queue options.</li>
+</ul>
+<h4>2019.11.15 - 0.8.3</h4>
+<ul>
+<li>remove &quot;showAllStages&quot; option.</li>
+<li>focus modal inputs on show.</li>
+<li>fix showNewApp / playerUpdate mix up at end of an App.</li>
+</ul>
+<h5>2019.10.17 - 0.8.2.3</h5>
+<ul>
+<li>CHANGED: AdminUI: default to old interface, added link to new (BETA) interface.</li>
+<li>FIXED: defaultClient.js: set array values using Vue.set.</li>
+<li>ADDED: new App (13victor).</li>
+<li>FIXED: bug for listening to messages on client.</li>
+</ul>
+<h5>2019.10.17 - 0.8.2.2</h5>
+<ul>
+<li>FIXED: If default port (80 or 3000) is in use, try again with new port.</li>
+</ul>
+<h5>2019.10.08 - 0.8.2.1</h5>
+<ul>
+<li>FIXED: Admin UI, broken link to shared.js.</li>
+</ul>
+<h5>2019.10.08 - 0.8.2</h5>
+<ul>
+<li>FIXED: Help tutorials.</li>
+</ul>
+<h4>2019.10.07 - 0.8.1</h4>
+<ul>
+<li>Windowed Admin interface.</li>
+</ul>
+<h5>2019.09.24 - 0.7.17</h5>
+<ul>
+<li>FIXED: # clients not updating.</li>
+<li>ADDED: show apps with errors.</li>
+<li>ADDED, Settings: suggestedNumParticipants.</li>
+<li>ADDED: features/chat app.</li>
+<li>REMOVED: features/messaging app.</li>
+<li>FIXED: samples/double-auction-fancy app.</li>
+<li>CHANGED, Group: automatically stringify and parse message data.</li>
+<li>ADDED: messages object on client.<br>
+Admin UI</li>
+<li>ADDED: Restart session (with same Apps).</li>
+<li>ADDED: feedback on button clicks.</li>
+<li>ADDED: feature app, adding external library.</li>
+<li>ADDED: feature chart app.</li>
+</ul>
+<h5>2019.09.19 - 0.7.16</h5>
+<ul>
+<li>ADDED: option to serve files over HTTPS instead of HTTP.</li>
+<li>FIXED: allow socket connections from outside local network.</li>
+<li>CHANGED: custom settings now located in <em>jtree/settings.json</em>.</li>
+<li>FIXED: edit App, set variable values.</li>
+<li>FIXED, Admin UI: reload apps.</li>
+<li>ADDED: messaging sample app.</li>
+<li>ADDED: table sample app.</li>
+<li>ADDED, setting: loadSessions (false by default).</li>
+</ul>
+<h5>2019.09.07 - 0.7.15</h5>
+<ul>
+<li>FIXED, Participant: calculate points scored in an app / session.</li>
+<li>FIXED, Player.js: check for whether player is already finished a particular stage.</li>
+<li>FIXED, 1natalia app: outcome for ultimatum game &amp; strategy method.</li>
+<li>FIXED, double-auction-bootstrap app: proper check for available inventory.</li>
+</ul>
+<h5>2019.09.06 - 0.7.14</h5>
+<ul>
+<li>UPDATED: double-auction-bootstrap app.</li>
+<li>UPDATED: 11simone app.</li>
+<li>UPDATED: Admin UI, Apps view, shortened id length.</li>
+<li>UPDATED, App.js: added check if jt.autoplay exists before creating it.</li>
+<li>UPDATED, Admin UI: Display number of apps in queue properly.</li>
+</ul>
+<h5>2019.09.04 - 0.7.13</h5>
+<ul>
+<li>UPDATED: double auction app.</li>
+</ul>
+<h5>2019.09.02 - 0.7.12</h5>
+<ul>
+<li>FIXED: buttons store values for multiple periods.</li>
+<li>FIXED: passing methods to Vue on client.</li>
+<li>FIXED: removed 'updateScheduled' for Participant output.</li>
+<li>ADDED: Stage.showTimer field.</li>
+<li>ADDED: Session.allowAdminClientsToPlay field.</li>
+<li>UPDATED: &quot;11simone&quot; app.</li>
+<li>REMOVED: unused client files.</li>
+</ul>
+<h5>2019.08.28 - 0.7.11</h5>
+<ul>
+<li>REMOVED: unused client files.</li>
+<li>FIXED: bug that cleared inputs when other players finished a stage.</li>
+<li>UPDATED: &quot;11simone&quot; app.</li>
+</ul>
+<h5>2019.08.27 - 0.7.10</h5>
+<ul>
+<li>fix for ending stages automatically after timeout.</li>
+</ul>
+<h5>2019.07.06 - 0.7.8</h5>
+<ul>
+<li>script for updating version numbers.</li>
+<li>remove releases from repo.</li>
+<li>added &quot;10ali&quot; user app.</li>
+<li>added &quot;queue&quot; demo app.</li>
+<li>added &quot;randomizedQuest&quot; demo app.</li>
+<li>added &quot;outputDelimiter&quot; field to &quot;Session&quot;, &quot;App&quot; and &quot;Settings&quot; objects.</li>
+<li>remove “Data” Session tab.</li>
+<li>fix duration timeouts.</li>
+<li>remove log statements from all apps</li>
+<li>re-add code to prompt during page unload</li>
+</ul>
+<h5>2019.04.22 - 0.7.7</h5>
+<ul>
+<li>send circular data in messages.</li>
+<li>menu collapses at smaller width.</li>
+</ul>
+<h5>2019.04.10 - 0.7.6</h5>
+<ul>
+<li>clean up icons.</li>
+<li>fix &quot;double auction&quot; app.</li>
+<li>re-organize apps folder.</li>
+</ul>
+<h5>2019.03.29 - 0.7.5</h5>
+<ul>
+<li>Added: display version on Home tab.</li>
+<li>Fix: &quot;test&quot; player no longer created.</li>
+<li>Cleaned up menu.</li>
+</ul>
+<h5>2019.03.28 - 0.7.4</h5>
+<ul>
+<li>Disable autocomplete on forms.</li>
+<li>Stop players advancing two periods by accident.</li>
+</ul>
+<h5>2018.12.28 - 0.7.3</h5>
+<ul>
+<li>Apps are reloaded just before first participant starts them.</li>
+<li>Admin UIs must be explcitly added to build.</li>
+<li>Removed unused admin UI files.</li>
+</ul>
+<h5>2018.12.20 - 0.7.2</h5>
+<ul>
+<li>Fix: Apps not ending correctly.</li>
+</ul>
+<h5>2018.12.20 - 0.7.1</h5>
+<ul>
+<li>catch errors in admin UI.</li>
+<li>Fix: Groups end stages with duration correctly.</li>
+<li>remove duplicate participant updates.</li>
+</ul>
+<h4>2018.12.07 - 0.7.0</h4>
+<ul>
+<li>fix stage engine</li>
+<li>sort participants alphanumerically when downloading output</li>
+</ul>
+<h5>2018.11.28 - 0.6.13</h5>
+<ul>
+<li>app randomization via queue (session.getApp(participant). See &quot;random-order&quot; app.</li>
+<li>Admin UI: fix Participants table showing blank spaces.</li>
+<li>Stage.autoplay: write autoplay code for each stage individually.</li>
+<li>App.periodText: text to display for &quot;Period&quot;.</li>
+</ul>
+<h5>2018.11.21 - 0.6.12</h5>
+<ul>
+<li>update <code>3james</code> app to work with latest release.</li>
+<li>update <code>7simone</code> app to include two timers.</li>
+<li>clients run two seperate timers (stage.duration and stage.clientDuration).</li>
+</ul>
+<h5>2018.11.16 - 0.6.11</h5>
+<ul>
+<li>Fixed font size for smaller screens (phones).</li>
+<li>App order is customizable (Session.getApp(participant)).</li>
+<li>Added Utils.drawRandomly function.</li>
+<li>Added App.end() function.</li>
+<li>Queues can be defined programmatically (i.e. &quot;session.addApp(...)&quot;);</li>
+</ul>
+<h5>2018.11.14 - 0.6.10</h5>
+<ul>
+<li>Session: fixed &quot;Download&quot; button.</li>
+</ul>
+<h5>2018.11.08 - 0.6.9</h5>
+<ul>
+<li>Added &quot;Stage.getGroupDuration(group)&quot; function to allow stage duration to be dynamic.</li>
+<li>Allow editing of session ids.</li>
+</ul>
+<h5>2018.10.31 - 0.6.8</h5>
+<ul>
+<li>Fix for Queue options.</li>
+<li>Added &quot;timeElapsed&quot; field to client.</li>
+</ul>
+<h5>2018.10.22 - 0.6.7</h5>
+<ul>
+<li>Added fields: App.stageWaitToStart, App.stageWaitToEnd.</li>
+<li>Fix for Queues in admin UI.</li>
+</ul>
+<h5>2018.10.16 - 0.6.6</h5>
+<ul>
+<li>Queues turned on by default.</li>
+<li>Record time spent in each stage.</li>
+</ul>
+<h5>2018.09.27 - 0.6.5</h5>
+<ul>
+<li>Integrate Vue.js on clients.</li>
+<li>Added: Double auction app.</li>
+</ul>
+<h5>0.6.4</h5>
+<ul>
+<li>Added Stage.getClientDuration(player) function.</li>
+</ul>
+<h5>0.6.2</h5>
+<ul>
+<li>Documentation for App.id and using static files.</li>
+<li>Removed console error for missing settings.js file.</li>
+</ul>
+<h5>0.6.1</h5>
+<ul>
+<li>Cleaned up extra files.</li>
+</ul>
+<h5>0.6.0</h5>
+<ul>
 <li>Show # of participants in UI.</li>
 <li>various model fixes.</li>
 </ul>
-<h5>0.5.4</h5><ul>
+<h5>0.5.4</h5>
+<ul>
 <li>Fixed docs.</li>
 <li>Client: fixed duration timer not displaying correctly.</li>
 </ul>
-<h5>0.5.3</h5><ul>
+<h5>0.5.3</h5>
+<ul>
 <li>Add: Client onClockUpdate function.</li>
 </ul>
-<h5>0.5.2</h5><ul>
+<h5>0.5.2</h5>
+<ul>
 <li>Fix: Participant fields not being saved on App end.</li>
 </ul>
-<h5>0.5.1</h5><ul>
+<h5>0.5.1</h5>
+<ul>
 <li>added Stage.clientDuration property.</li>
 </ul>
-<h4>0.5.0</h4><ul>
+<h4>0.5.0</h4>
+<ul>
 <li>fix for multiple periods.</li>
 </ul>
-<h5>0.4.9</h5><ul>
+<h5>0.4.9</h5>
+<ul>
 <li>save session data</li>
 </ul>
-<h5>0.4.8</h5><ul>
+<h5>0.4.8</h5>
+<ul>
 <li>catch errors when parsing client values.</li>
 <li>save session data on demand.</li>
 <li>fix to display participant points properly.</li>
 </ul>
-<h5>0.4.7</h5><ul>
+<h5>0.4.7</h5>
+<ul>
 <li>fix to reload apps on participant connect.</li>
 </ul>
-<h5>0.4.6</h5><ul>
+<h5>0.4.6</h5>
+<ul>
 <li>participant IDs can include '.' character.</li>
 </ul>
-<h5>0.4.5</h5><ul>
+<h5>0.4.5</h5>
+<ul>
 <li>load apps from .js and .jtt files.</li>
 </ul>
-<h5>0.4.4</h5><ul>
+<h5>0.4.4</h5>
+<ul>
 <li>fixes</li>
 </ul>
-<h5>0.4.3</h5><ul>
+<h5>0.4.3</h5>
+<ul>
 <li>added Stag Hunt game</li>
 <li>app UI: use brackets &quot;{}&quot; to indicate text that should be dynamic. Configurable in App.textMarkerBegin and App.textMarkerEnd.</li>
 <li>started work on WindowUI.</li>
 </ul>
-<h5>0.4.2</h5><ul>
+<h5>0.4.2</h5>
+<ul>
 <li>do not set attribute on 'jt-enabledIf' tags on client.</li>
 <li>update to Double Auction (LNF) app</li>
 </ul>
-<h5>0.4.1</h5><ul>
+<h5>0.4.1</h5>
+<ul>
 <li>shortcut to make client previews full screen screen</li>
 <li>update to Double Auction (LNF) app</li>
 </ul>
-<h4>0.4.0</h4><ul>
+<h4>0.4.0</h4>
+<ul>
 <li>User functionality.</li>
 <li>various fixes.</li>
 </ul>
-<h5>0.3.3</h5><ul>
+<h5>0.3.3</h5>
+<ul>
 <li>added &quot;description&quot; field to App Options.</li>
 <li>allow connections without explicit Participant ID.</li>
 <li>hide / show Queues.</li>
 </ul>
-<h5>0.3.2</h5><ul>
+<h5>0.3.2</h5>
+<ul>
 <li>refactoring admin UI.</li>
 <li>App &quot;2peter&quot;: changed grouping to &quot;stranger&quot;.</li>
 </ul>
-<h5>0.3.1</h5><ul>
+<h5>0.3.1</h5>
+<ul>
 <li>minor changes to some default apps.</li>
 </ul>
-<h4>0.3.0</h4><ul>
+<h4>0.3.0</h4>
+<ul>
 <li>split session page into tabs.</li>
 <li>added &quot;Data&quot; tab to session page.</li>
 <li>group buttons.</li>
 <li>added breakpoint to participant css.</li>
 </ul>
-<h5>0.2.5</h5><ul>
+<h5>0.2.5</h5>
+<ul>
 <li>participant UI: improvement to mobile view.</li>
 </ul>
-<h5>0.2.4</h5><ul>
+<h5>0.2.4</h5>
+<ul>
 <li>fixed: in sessions with repeats of the same app, the last player in the session would skip first instance of the app.</li>
 <li>added: client autoplay now uses player.id in text fields.</li>
 <li>added: queues prompt on delete.</li>
@@ -114,79 +378,98 @@
 <li>changed, autoplay: if no empty input field is found, click random submit button.</li>
 <li>tidied up documentation a bit</li>
 </ul>
-<h5>0.2.3</h5><ul>
+<h5>0.2.3</h5>
+<ul>
 <li>bug fix: timers not ending stages correctly</li>
 <li>added: delete session.</li>
 </ul>
-<h5>0.2.2</h5><ul>
+<h5>0.2.2</h5>
+<ul>
 <li>fixed: would not start without valid settings.js file.</li>
 </ul>
-<h5>0.2.1</h5><ul>
+<h5>0.2.1</h5>
+<ul>
 <li>include example Queue</li>
 </ul>
-<h4>0.2.0</h4><ul>
+<h4>0.2.0</h4>
+<ul>
 <li>fix session flow</li>
 <li>added app options</li>
 <li>added queues</li>
 <li>various Admin UI improvements</li>
 </ul>
-<h5>0.1.4</h5><ul>
+<h5>0.1.4</h5>
+<ul>
 <li>UI improvements</li>
 <li>started work on rooms</li>
 <li>changed participation links to be either 1) server/pId, or 2) server/session/sId/pId</li>
 </ul>
-<h5>0.1.3</h5><ul>
+<h5>0.1.3</h5>
+<ul>
 <li>added: switching between admin UIs via URL.</li>
 <li>added: menu to admin UI</li>
 <li>added: placeholders for rooms and users</li>
 <li>fixed: bug in autoplay that played hidden inputs.</li>
 <li>fixed: sessions in admin UIs showing participants from other sessions.</li>
 </ul>
-<h5>0.1.2</h5><ul>
+<h5>0.1.2</h5>
+<ul>
 <li>bug fix: expiry of group timers now use session message queue.</li>
 <li>app finished: public goods with punishment</li>
 </ul>
-<h5>0.1.1</h5><ul>
+<h5>0.1.1</h5>
+<ul>
 <li>added stage timers back to default apps.</li>
 <li>fixed bug with displaying timers on clients.</li>
 <li>fixed bugs with stage flow.</li>
 </ul>
-<h4>0.1.0</h4><ul>
+<h4>0.1.0</h4>
+<ul>
 <li>fixed stage flow pattern to match docs.</li>
 </ul>
-<h5>0.0.11</h5><ul>
+<h5>0.0.11</h5>
+<ul>
 <li>bug fix: clients could not use &quot;participant&quot; object.</li>
 </ul>
-<h5>0.0.10</h5><ul>
+<h5>0.0.10</h5>
+<ul>
 <li>can delete participants from admin interface.</li>
 <li>added &quot;allow new participants&quot; setting to sessions.</li>
 </ul>
-<h5>0.0.9</h5><ul>
+<h5>0.0.9</h5>
+<ul>
 <li>changed participant links to be x.x.x.x/PID</li>
 <li>added participantIds setting, allows to specify the PIDs to use on the server.</li>
 </ul>
-<h5>0.0.8</h5><ul>
+<h5>0.0.8</h5>
+<ul>
 <li>added 3 games: Beauty Contest, Market Entry Game, and Travellers Dilemma.</li>
 <li>added help.</li>
 </ul>
-<h5>0.0.7</h5><ul>
+<h5>0.0.7</h5>
+<ul>
 <li>updated version number</li>
 </ul>
-<h5>0.0.5</h5><p>** clients</p>
+<h5>0.0.5</h5>
+<p>** clients</p>
 <ul>
 <li>added &quot;jt-value&quot; functionality, lets you set elements to expressions instead of single variables.</li>
 <li>added &quot;jt-displayIf&quot; functionality, lets you dynamically hide or show elements.</li>
 <li>added &quot;real-effort-sums&quot; app.</li>
 </ul>
-<h5>0.0.1</h5><p>** server</p>
+<h5>0.0.1</h5>
+<p>** server</p>
 <ul>
-<li>fixed bug with stage timers expiring multiple times.<br>** clients</li>
+<li>fixed bug with stage timers expiring multiple times.<br>
+** clients</li>
 <li>added missing sharedTemplate.js file.</li>
-<li>hide stage content on load.<br>** general</li>
+<li>hide stage content on load.<br>
+** general</li>
 <li>changed default port to 80.</li>
 <li>hide port from participant urls if it is 80.</li>
 </ul>
-<h4>0.0.0</h4><ul>
+<h4>0.0.0</h4>
+<ul>
 <li>initial release</li>
 </ul>
 </article>
@@ -202,7 +485,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jul 25 2018 16:58:19 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Fri Feb 14 2020 22:43:18 GMT+0100 (Central European Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

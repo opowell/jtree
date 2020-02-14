@@ -36,7 +36,8 @@
 </ul>
 <p>Second, you can specify how to fill up groups in case the number of participants does not match groupSize x numGroups.</p>
 <ul>
-<li><a href="App.html#groupingType"><code>app.groupingType</code></a>: either<ul>
+<li><a href="App.html#groupingType"><code>app.groupingType</code></a>: either
+<ul>
 <li>FULL (default): as many full groups are made as possible, with the remainder in a non-full group.</li>
 <li>EVEN: groups are filled up sequentially, making size of all groups as equal as possible.</li>
 </ul>
@@ -44,7 +45,8 @@
 </ul>
 <p>Third, several types of matching procedures can be used:</p>
 <ul>
-<li><a href="App.html#groupMatchingType"><code>app.groupMatchingType</code></a>:<ul>
+<li><a href="App.html#groupMatchingType"><code>app.groupMatchingType</code></a>:
+<ul>
 <li><code>PARTNER_1122</code>: group 1 is filled first, then group 2, etc.</li>
 <li><code>PARTNER_1212</code>: each group is assigned one player, then each group is assigned a second player, etc.</li>
 <li><code>PARTNER_RANDOM</code>: Stranger matching in first period, in later periods the matching from the previous period is used.</li>
@@ -60,7 +62,9 @@ app.groupIds = [
 ]
 app.getGroupIdsForPeriod = function(period) {
   return this.groupIds[period.id-1] // one row of app.groupIds
-}</code></pre><p>In period 1, the first two participants will be in group 1, and the third and fourth participants will be in group 2.</p>
+}
+</code></pre>
+<p>In period 1, the first two participants will be in group 1, and the third and fourth participants will be in group 2.</p>
 <p>Alternatively, if the returned object is an array of sub-arrays, then each sub-array is treated as a list of participant IDs for a given group in the period. The following example gives the same matching as in the previous case.</p>
 <pre class="prettyprint source lang-javascript"><code>// app.js
 app.groupIds = [
@@ -69,7 +73,8 @@ app.groupIds = [
 ]
 app.getGroupIdsForPeriod = function(period) {
   return this.groupIds[period.id-1] // one row of app.groupIds
-}</code></pre>
+}
+</code></pre>
 </article>
 
 </section>
@@ -77,13 +82,13 @@ app.getGroupIdsForPeriod = function(period) {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Jan 24 2020 16:57:26 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Fri Feb 14 2020 22:43:18 GMT+0100 (Central European Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

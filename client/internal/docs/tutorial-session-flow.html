@@ -48,33 +48,37 @@
 App.participantStart(participant)
 // Clients are updated via a &quot;startNewApp&quot; message.
 // Participants go through the Periods of the App.
-App.participantEnd(participant)</code></pre><p>Within the app, participants go through a series of periods. At the beginning of the period, participants are assigned to a player, and the players are assigned to groups, according to the output of <a href="App.html#getGroupIdsForPeriod"><code>App.getGroupIdsForPeriod(period)</code></a>. Thus, each period calls the following functions:</p>
+App.participantEnd(participant)
+</code></pre>
+<p>Within the app, participants go through a series of periods. At the beginning of the period, participants are assigned to a player, and the players are assigned to groups, according to the output of <a href="App.html#getGroupIdsForPeriod"><code>App.getGroupIdsForPeriod(period)</code></a>. Thus, each period calls the following functions:</p>
 <pre class="prettyprint source lang-javascript"><code>App.getGroupIdsForPeriod(period)
 Period.groupStart(group)
 Period.playerStart(player)
 // Players go through the stages of the app.
 Period.playerEnd(player)
-Period.groupEnd(group)</code></pre><p>Within each period, players and groups progress through the stages of the app. Within each stage, the following functions are called for the groups and players:</p>
+Period.groupEnd(group)
+</code></pre>
+<p>Within each period, players and groups progress through the stages of the app. Within each stage, the following functions are called for the groups and players:</p>
 <ol>
 <li><code>player.status</code> is set to <code>'ready'</code>.</li>
 <li>If <code>Stage.waitToStart == true</code> and not all players in group are ready, stop.</li>
 <li>If <code>Stage.groupStart(group)</code> has not already been called, call it.</li>
-<li>If <code>Stage.canPlayerParticipate(player)</code> is true:<ol>
+<li>If <code>Stage.canPlayerParticipate(player)</code> is true:</li>
 <li><code>player.status</code> is set to <code>'playing'</code>.</li>
 <li><code>Stage.playerStart(player)</code> is called.</li>
 <li>Players are shown the active screen.</li>
 <li><code>player.status</code> is set to <code>'done'</code>.</li>
 <li>If <code>Stage.waitToEnd == true</code> and not all players in group are done, stop.</li>
 <li><code>Stage.playerEnd(player)</code> is called.</li>
-</ol>
-</li>
 <li><code>player.status</code> is set to <code>'finished'</code>.</li>
 <li>Player begins from step 1 for next stage in session, if any.</li>
 <li>Once all players in the group have ended the stage, <code>Stage.groupEnd(group)</code> is called.</li>
 <li>Group begins procedure for next stage in session, if any.</li>
 </ol>
 <p>When a session is started, all players begin the first app of the session.</p>
-<p>If <a href="Stage.html#waitToStart"><code>Stage.waitToStart</code></a> is <code>true</code>, no player can start the stage (Step 3) until all players in the group are ready.<br>If <a href="Stage.html#waitToEnd"><code>Stage.waitToEnd</code></a> is <code>true</code>, no player can end the stage (Step 9) until all players in the group are finished.<br>As soon as a player ends the stage, they move to the next stage in the session (if there is one) and begin again at the first step of this procedure.</p>
+<p>If <a href="Stage.html#waitToStart"><code>Stage.waitToStart</code></a> is <code>true</code>, no player can start the stage (Step 3) until all players in the group are ready.<br>
+If <a href="Stage.html#waitToEnd"><code>Stage.waitToEnd</code></a> is <code>true</code>, no player can end the stage (Step 9) until all players in the group are finished.<br>
+As soon as a player ends the stage, they move to the next stage in the session (if there is one) and begin again at the first step of this procedure.</p>
 <p>Groups belong to Periods. This means that whenever a stage has <code>waitToStart</code> as false, groups can &quot;start&quot; that stage before finishing one or more of the group's previous stages.</p>
 </article>
 
@@ -83,13 +87,13 @@ Period.groupEnd(group)</code></pre><p>Within each period, players and groups pro
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Jan 24 2020 16:57:26 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Fri Feb 14 2020 22:43:18 GMT+0100 (Central European Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

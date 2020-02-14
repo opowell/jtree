@@ -89,7 +89,7 @@ class Utils {
      * @param  {type} destDir description
      * @return {type}           description
      */
-    static copyFiles(sourceDir, destDir, jt) {
+    static copyFiles(sourceDir, destDir) {
         fs.ensureDirSync(destDir);
         try {
           fs.copySync(sourceDir, destDir);
@@ -97,6 +97,61 @@ class Utils {
           console.error(err);
         }
     }
+
+    /**
+     * CALLED FROM:
+     * - {@link Session#addApp}
+     *
+     * @param  {type} sourceDir description
+     * @param  {type} destDir description
+     * @return {type}           description
+     */
+    static copyFile(fn, sourceDir, destDir) {
+        fs.ensureDirSync(destDir);
+        try {
+          fs.copySync(path.join(sourceDir, fn), path.join(destDir, fn));
+        } catch (err) {
+          console.error(err);
+        }
+    }
+
+    // http://www.davekoelle.com/files/alphanum.js
+    // Sort alphanumerically in place.
+    static alphanumSort(ids) {
+        let caseInsensitive = true;
+        for (var z = 0, t; t = ids[z]; z++) {
+            ids[z] = new Array();
+            var x = 0, y = -1, n = 0, i, j;
+        
+            while (i = (j = t.charAt(x++)).charCodeAt(0)) {
+            var m = (i == 46 || (i >=48 &amp;&amp; i &lt;= 57));
+            if (m !== n) {
+                ids[z][++y] = "";
+                n = m;
+            }
+            ids[z][y] += j;
+            }
+        }
+        
+        ids.sort(function(a, b) {
+            for (var x = 0, aa, bb; (aa = a[x]) &amp;&amp; (bb = b[x]); x++) {
+            if (caseInsensitive) {
+                aa = aa.toLowerCase();
+                bb = bb.toLowerCase();
+            }
+            if (aa !== bb) {
+                var c = Number(aa), d = Number(bb);
+                if (c == aa &amp;&amp; d == bb) {
+                return c - d;
+                } else return (aa > bb) ? 1 : -1;
+            }
+            }
+            return a.length - b.length;
+        });
+        
+        for (var z = 0; z &lt; ids.length; z++)
+            ids[z] = ids[z].join("");
+    }        
 
     static shells(list) {
         var out = [];
@@ -125,7 +180,7 @@ class Utils {
         try {
             return jsonfile.readFileSync(file);
         } catch(err) {
-            return null;
+            return 'JSON error';
         }
     }
 
@@ -208,6 +263,23 @@ class Utils {
      return result;
     }
 
+    static drawRandomly(data, options) {
+        let out = [];
+        let elementsLeft = [];
+        for (let i in data) {
+            elementsLeft.push(data[i]);
+        }
+        for (let i=0; i&lt;options.numDraws; i++) {
+            if (options.withReplacement) {
+                out.push(this.randomEl(data));
+            } else {
+                // let el = this.ran
+                // TODO.
+            }
+        }
+        return out;
+    }
+
     static shuffle(array) {
 
         // https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array
@@ -274,6 +346,44 @@ class Utils {
     static getDate() {
         var date = this.getDateObject();
         return date.year + date.formattedMonth + date.formattedDay + "-" +  date.formattedHour + date.formattedMinute + date.formattedSecond + '-' + date.formattedMS;
+    }
+
+    static diffDates(d1, d2) {
+        let d1Obj = this.getDateObj(d1).getTime();
+        let d2Obj = this.getDateObj(d2).getTime();
+        let diff = d2Obj - d1Obj;
+        return diff;
+    }
+
+    static getDateObj(dateString) {
+        let year = dateString.substring(0, 4) - 0;
+        let month = dateString.substring(4, 6) - 0;
+        let day = dateString.substring(6, 8) - 0;
+        let hour = dateString.substring(9, 11) - 0;
+        let minute = dateString.substring(11, 13) - 0;
+        let sec = dateString.substring(13, 15) - 0;
+        let millisecond = dateString.substring(16) - 0;
+        return new Date(
+            year,
+            month,
+            day,
+            hour,
+            minute,
+            sec,
+            millisecond
+        );
+    }
+
+    static dateFromStr(str) {
+        str = 
+            str.substring(0, 4) + '-' + 
+            str.substring(4, 6) + '-' + 
+            str.substring(6, 8) + 'T' + 
+            str.substring(9, 11) + ':' + 
+            str.substring(11, 13) + ':' + 
+            str.substring(13, 15) + '.' + 
+            str.substring(16, 19);
+        return new Date(str);
     }
 
     static min(array, field) {
@@ -378,9 +488,8 @@ class Utils {
             parsedObjs = [];
         }
         try {
-            var floatVal = parseFloat(data, 10);
-            if (!isNaN(floatVal)) {
-                data = floatVal;
+            if (Utils.isNumeric(data)) {
+                data = parseFloat(data, 10);
             } else if (typeof data === 'object') {
                 parsedObjs.push(data);
                 for (var i in data) {
@@ -463,6 +572,10 @@ class Utils {
             }
         }
     }
+
+    static isNumeric(n) {
+        return !isNaN(parseFloat(n)) &amp;&amp; isFinite(n);
+    }
 }
 
 module.exports = Utils;
@@ -482,7 +595,7 @@ module.exports = Utils;
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jul 25 2018 16:58:19 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Fri Feb 14 2020 22:43:17 GMT+0100 (Central European Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

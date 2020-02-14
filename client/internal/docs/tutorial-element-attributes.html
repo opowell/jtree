@@ -30,11 +30,16 @@
 <article>
     <p>jtree allows you to customize the behavior of HTML elements using special attributes. Any attribute that begins with <code>jt-</code> will be updated whenever a player update is received.</p>
 <p>Attributes take the form of <code>jt-&lt;name&gt;=&quot;&lt;expression&gt;&quot;</code>. The expression can be a single variable (i.e. <code>'period.id'</code>), or a longer expression that includes several variables (i.e. <code>'period.id + player.points'</code>). It has access to <code>player</code>, <code>group</code>, <code>period</code>, <code>app</code>, <code>session</code> and <code>stage</code> objects. The particular behavior of the update depends on the value of <code>&lt;name&gt;</code>.</p>
-<h3><code>jt-displayIf</code></h3><p>Adding this attribute to an element dynamically hides and shows the element whenever player data is changed. If the value of this attribute returns <code>true</code>, the element is shown. Otherwise, the element is hidden. All such elements can be refreshed by calling the function <code>jt.evaluateDisplayConditions()</code>.</p>
-<h3><code>jt-text</code> or <code>jt-value</code></h3><p>The text value of the element is replaced by the value of the expression.</p>
-<h3><code>jt-html</code></h3><p>The HTML value of the element is replaced by the value of the expression.</p>
-<h3><code>jt-decimals</code></h3><p>The element's text is formatted to the given number of decimal places.</p>
-<h3><code>jt-&lt;attribute&gt;</code></h3><p>Any other attribute of this form will create a new attribute on the element with the name <code>&lt;attribute&gt;</code> and a value equal to the evaluated expression. This is useful, for example, when a number input should have a dynamic minimum and/or maximum value. </p>
+<h3><code>jt-displayIf</code></h3>
+<p>Adding this attribute to an element dynamically hides and shows the element whenever player data is changed. If the value of this attribute returns <code>true</code>, the element is shown. Otherwise, the element is hidden. All such elements can be refreshed by calling the function <code>jt.evaluateDisplayConditions()</code>.</p>
+<h3><code>jt-text</code> or <code>jt-value</code></h3>
+<p>The text value of the element is replaced by the value of the expression.</p>
+<h3><code>jt-html</code></h3>
+<p>The HTML value of the element is replaced by the value of the expression.</p>
+<h3><code>jt-decimals</code></h3>
+<p>The element's text is formatted to the given number of decimal places.</p>
+<h3><code>jt-&lt;attribute&gt;</code></h3>
+<p>Any other attribute of this form will create a new attribute on the element with the name <code>&lt;attribute&gt;</code> and a value equal to the evaluated expression. This is useful, for example, when a number input should have a dynamic minimum and/or maximum value.</p>
 </article>
 
 </section>
@@ -42,13 +47,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Jan 24 2020 16:57:26 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Fri Feb 14 2020 22:43:17 GMT+0100 (Central European Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -60,13 +60,36 @@ class Session {
     * @param  {Object} jt         Server object.
     * @param  {type} id               The id of the new session.
     */
-    constructor(jt, id) {
+    constructor(jt, id, options) {
+
+        if (options == null) {
+            options = {};
+        }
+
+        if (options.createFolder == null) {
+            options.createFolder = true;
+        }
+
         this.jt = jt;
         this.id = id;
         if (this.id === null || this.id === undefined) {
             this.id = Utils.getDate();
         }
         this.name = this.id;
+
+        /**
+         * The options of this app.
+         * @type Array
+         * @default []
+         */
+        this.options = [];
+
+        /**
+         * The option values of this app.
+         * @type Object
+         * @default {}
+         */
+        this.optionValues = {};
 
         /**
         * A list of the clients connected to this session.
@@ -77,6 +100,8 @@ class Session {
         this.potentialParticipantIds = this.jt.settings.participantIds;
 
         this.caseSensitiveLabels = false;
+
+        this.suggestedNumParticipants = jt.settings.session.suggestedNumParticipants;
 
         /**
         * A list of participants in this session.
@@ -96,6 +121,8 @@ class Session {
         */
         this.allowNewParts = this.jt.settings.allowClientsToCreateParticipants;
 
+        this.outputDelimiter = this.jt.settings.outputDelimiter;
+
         /**
         * The apps in this session.
         * @type Array
@@ -103,6 +130,12 @@ class Session {
         this.apps = [];
 
         this.users = [];
+
+        /**
+         * Whether or not admin windows can play.
+         * Generally, during testing this can be test
+         */
+        this.allowAdminClientsToPlay = true;
 
         this.asyncQueue = async.queue(this.processMessage, 1);
 
@@ -128,8 +161,12 @@ class Session {
             'apps',
             'fileStream',
             'asyncQueue',
-            'started'
+            // 'started',
+            'emitMessages',
+            'queue',
         ];
+
+        this.emitMessages = true;
 
     }
 
@@ -259,15 +296,36 @@ class Session {
     *
     * @param  {string} appId The ID of the app to add to this session.
     */
-    addApp(appId, options) {
-        var appPath = this.jt.data.appsMetaData[appId].appPath;
-        var app = this.jt.data.loadApp(appId, this, appPath, options);
-        if (app !== null) {
-            this.apps.push(app);
-            Utils.copyFiles(path.parse(app.appPath).dir, app.getOutputFN(), this.jt);
-            // app.saveSelfAndChildren();
-            this.save();
-            this.emit('sessionAddApp', {sId: this.id, app: app.shellWithChildren()});
+    addApp(appPath, options) {
+
+        if (this.queuePath != null &amp;&amp; !appPath.startsWith(this.queuePath)) {
+            appPath = path.join(this.queuePath, appPath);
+        }
+
+        try {
+            var app = this.jt.data.loadApp(appPath, this, appPath, options);
+            if (app !== null) {
+                this.apps.push(app);
+                if (app.appPath.endsWith('.jtt') || app.appPath.endsWith('.js')) {
+                    Utils.copyFile(app.appFilename, app.appDir, app.getOutputFN());
+                } else {
+                    Utils.copyFiles(path.parse(app.appPath).dir, app.getOutputFN());
+                }
+                if (this.apps.length == 1 &amp;&amp;
+                    app.suggestedNumParticipants != null &amp;&amp;
+                    this.suggestedNumParticipants == null) {
+                        this.suggestedNumParticipants = app.suggestedNumParticipants;
+                        this.setNumParticipants(app.suggestedNumParticipants);
+                }
+                // app.saveSelfAndChildren();
+                this.save();
+                if (this.emitMessages) {
+                    this.emit('sessionAddApp', {sId: this.id, app: app.shellWithChildren()});
+                }
+            }
+            return app;
+        } catch (err) {
+            debugger;
         }
     }
 
@@ -320,7 +378,7 @@ class Session {
             var periodId = msg.periodId;
             var participant = session.participant(pId);
             if (participant.stageId() === stageId &amp;&amp; participant.player.periodIndex() === periodId) {
-                participant.app().playerMoveToNextStage(participant.player);
+                participant.getApp().playerMoveToNextStage(participant.player);
             }
         });
 
@@ -339,7 +397,7 @@ class Session {
         socket.join(this.roomId());
         participant.clientAdd(client);
         this.clients.push(client);
-        this.jt.socketServer.sendOrQueueAdminMsg(null, 'add-client', client.shell());
+        this.jt.socketServer.sendOrQueueAdminMsg(null, 'addClient', client.shell());
         this.io().to(socket.id).emit('logged-in', participant.shell());
         if (participant.player !== null) {
             participant.player.sendUpdate(socket.id);
@@ -363,15 +421,15 @@ class Session {
     * @param  {string} funcName The name of the function to evaluate on the client object.
     */
     pushMessage(obj, da, funcName) {
-        var msg = {obj: obj, data: da, fn: funcName, jt: this.jt};
+        var msg = {obj: obj, data: da, fn: funcName, jt: this.jt, session: this};
         this.asyncQueue.push(msg, this.messageCallback);
         //        var playerId = Player.genRoomId(da.player);
         //        var line = cl.participant.id + ', ' + cl.id + ', ' + playerId + ', ' + funcName + ', ' + JSON.stringify(da.data) + '\n';
         //        fs.appendFileSync(this.getOutputDir() + '/messages.csv', line);
     }
 
-    addMessageToStartOfQueue(obj, da, funcName) {
-        var msg = {obj: obj, data: da, fn: funcName, jt: this.jt};
+    addMessageToStartOfQueue(obj, data, funcName) {
+        var msg = {obj: obj, data: data, fn: funcName, jt: this.jt, session: this};
         this.asyncQueue.unshift(msg, this.messageCallback);
         //        var playerId = Player.genRoomId(da.player);
         //        var line = cl.participant.id + ', ' + cl.id + ', ' + playerId + ', ' + funcName + ', ' + JSON.stringify(da.data) + '\n';
@@ -383,12 +441,16 @@ class Session {
         let data = msg.data;
         let fn = msg.fn;
         let jt = msg.jt;
+        let session = msg.session;
         try {
-            if (fn !== 'endStage') {
+
+            if (!['endStage', 'endApp', 'forceEndStage'].includes(fn)) {
                 data = Utils.parseFloatRec(data);
             }
+            
             if (obj.canProcessMessage()) {
                 obj[fn](data);
+                session.emitParticipantUpdates();
                 //            }
                 //            if (client.player() !== null &amp;&amp; client.player().matchesPlayer(player) &amp;&amp; client.player().status === 'playing') {
                 //                if (client.player() !== null) {
@@ -455,7 +517,29 @@ class Session {
         }
         for (var i in this.participants) {
             var participant = this.participants[i];
-            participant.player.emitUpdate2();
+            if (participant.player != null) {
+                participant.player.emitUpdate2();
+            }
+        }
+    }
+
+    setId(id) {
+        this.id = id;
+        for (var i in this.participants) {
+            var participant = this.participants[i];
+            participant.refreshClients();
+        }
+    }
+
+    reset() {
+        this.started = false;
+        for (let i in this.participants) {
+            let participant = this.participants[i];
+            participant.reset();
+        }
+        for (let i=0; i&lt;this.apps.length; i++) {
+            let app = this.apps[i];
+            this.apps[i] = app.reload();
         }
     }
 
@@ -503,6 +587,70 @@ class Session {
         return this.jt.settings.participantUI;
     }
 
+    addNumberOption(name, defaultVal, min, max, step, description) {
+        // Add to list of options.
+        this.options.push({
+            type: 'number',
+            name: name,
+            min: min,
+            max: max,
+            step: step,
+            defaultVal: defaultVal,
+            description: description
+        });
+
+        // Add value, if does not already exist.
+        if (this[name] === undefined) {
+            this[name] = defaultVal;
+        }
+
+        // Value already exists, coerce if possible into one of the original option values.
+        else {
+            this.setOptionValue(name, this[name]);
+        }
+    }
+
+    addTextOption(name, defaultVal, description) {
+        // Add to list of options.
+        this.options.push({
+            type: 'text',
+            name: name,
+            defaultVal: defaultVal,
+            description: description
+        });
+
+        // Add value, if does not already exist.
+        if (this[name] === undefined) {
+            this[name] = defaultVal;
+        }
+
+        // Value already exists, coerce if possible into one of the original option values.
+        else {
+            this.setOptionValue(name, this[name]);
+        }
+    }
+
+    addSelectOption(optionName, optionVals, description) {
+
+        // Add to list of options.
+        this.options.push({
+            type: 'select',
+            name: optionName,
+            values: optionVals,
+            description: description
+        });
+
+        // Add value, if does not already exist.
+        if (this[optionName] === undefined) {
+            this[optionName] = optionVals[0];
+        }
+
+        // Value already exists, coerce if possible into one of the original option values.
+        else {
+            this.setOptionValue(optionName, this[optionName]);
+        }
+    }
+
     /**
     * Sends a page to a client (via the given HTTPResponse object).
     * @param  {HTTPRequest} req description
@@ -516,12 +664,12 @@ class Session {
             res.sendFile(path.join(this.jt.path, this.participantUI() + '/readyClient.html'));
         }
         // Participant, but not in an app yet.
-        else if (participant.app() === null) {
+        else if (participant.getApp() == null) {
             res.sendFile(path.join(this.jt.path, this.participantUI() + '/readyClient.html'));
         }
         // participant in an app.
         else {
-            const app = participant.app();
+            const app = participant.getApp();
             app.sendParticipantPage(req, res, participant);
         }
     }
@@ -559,7 +707,7 @@ class Session {
         var fields = this.outputFields();
         Utils.getHeaders(fields, skip, headers);
         var text = [];
-        text.push(headers.join(','));
+        text.push(headers.join(this.outputDelimiter));
         var newLine = '';
         for (var h=0; h&lt;headers.length; h++) {
             var header = headers[h];
@@ -567,18 +715,36 @@ class Session {
                 newLine += JSON.stringify(this[header]);
             }
             if (h&lt;headers.length-1) {
-                newLine += ',';
+                newLine += this.outputDelimiter;
             }
         }
         text.push(newLine);
 
         var fn = this.csvFN() + ' - manual save at ' + Utils.getDate() + '.csv';
-        fs.appendFileSync(fn, 'SESSION\n');
-        fs.appendFileSync(fn, text.join('\n') + '\n');
-        for (var i=0; i&lt;this.apps.length; i++) {
-            this.apps[i].saveOutput(fn);
+        let fullText = '';
+        let fd = fs.openSync(fn, 'a');
+        try {
+            fullText += 'SESSION\n';
+            fullText += text.join('\n') + '\n';
+            for (var i=0; i&lt;this.apps.length; i++) {
+                fullText += this.apps[i].saveOutput();
+            }
+            fs.appendFileSync(fd, fullText);
+        } catch(err) {
+            console.log('error writing session: ' + this.id);
+            debugger;
+        } finally {
+            fs.closeSync(fd);
         }
+
         return fs.readFileSync(fn, 'utf8');
+    }
+
+    emitParticipantUpdates() {
+        // console.log('emitting updates');
+        for (let p in this.participants) {
+            this.participants[p].actuallyEmitUpdate();
+        }
     }
 
     /**
@@ -598,6 +764,12 @@ class Session {
         this.allowNewParts = b;
         var d = {sId: this.id, value: b};
         this.emit('setAllowNewParts', d);
+    }
+
+    setAllowAdminPlay(b) {
+        this.allowAdminClientsToPlay = b;
+        let data = {sId: this.id, value: b};
+        this.emit('setAllowAdminPlay', data);
     }
 
     setCaseSensitiveLabels(b) {
@@ -663,6 +835,39 @@ class Session {
             app.saveSelfAndChildren();
         }
     }
+
+    setOptionValue(name, value) {
+        this.optionValues[name] = value;
+        var correctedValue = value;
+        var isValid = false;
+        let foundOpt = false;
+        for (var opt in this.options) {
+            var option = this.options[opt];
+            if (option.name === name) {
+                foundOpt = true;
+                if (option.type === 'select') {
+                    for (var i in option.values) {
+                        if (option.values[i] == value) { // allow for coercion
+                            correctedValue = option.values[i];
+                            isValid = true;
+                            break;
+                        }
+                    }
+                } else if (option.type === 'number') {
+                    correctedValue = value - 0; /** coerce to number*/
+                    isValid = true;
+                    break;
+                } else if (option.type === 'text') {
+                    isValid = true;
+                    // no correction needed.
+                }
+            }
+        }
+        if (isValid || !foundOpt) {
+            this[name] = correctedValue;
+        }
+    }
+
 
     /**
     * Sends a message to all clients of this session.
@@ -737,7 +942,7 @@ class Session {
     saveDataFS(d, type) {
         try {
             var a = JSON.stringify(d) + '\n';
-            var b = '"type":"' + type + '",';
+            var b = '"type":"' + type + '"' + this.outputDelimiter;
             var position = 1;
             var output = [a.slice(0, position), b, a.slice(position)].join('');
             this.fileStream.write(output);
@@ -847,6 +1052,12 @@ class Session {
     */
     participant(participantId) {
         var participant = this.participants[participantId];
+        if (participant == null &amp;&amp; this.allowNewParts &amp;&amp; this.isValidPId(participantId)) {
+            participant = this.participantCreate(participantId);
+            if (this.started) {
+                participant.moveToNextStage();
+            }
+        }
         return participant;
     }
 
@@ -867,12 +1078,14 @@ class Session {
         participant.save();
         this.save();
         this.participants[participantId] = participant;
-        this.jt.socketServer.sendOrQueueAdminMsg(null, 'addParticipant', participant.shell());
+        if (this.jt.socketServer != null) {
+            this.jt.socketServer.sendOrQueueAdminMsg(null, 'addParticipant', participant.shell());
+        }
         return participant;
     }
 
     isValidPId(pId) {
-        return this.allowNewParts || this.potentialParticipantIds.includes(pId);
+        return (pId != null &amp;&amp; this.allowNewParts) || this.potentialParticipantIds.includes(pId);
     }
 
     /**
@@ -896,8 +1109,8 @@ class Session {
     * @return {type}             description
     */
     participantMoveToNextApp(participant) {
-        if (participant.app() !== null) {
-            participant.app().participantEnd(participant);
+        if (participant.getApp() != null) {
+            participant.getApp().participantEnd(participant);
         }
 
         if (participant.appIndex &lt; this.apps.length) {
@@ -907,6 +1120,7 @@ class Session {
         } else {
             this.participantEnd(participant);
         }
+        this.emitParticipantUpdates();
     }
 
     /**
@@ -916,8 +1130,6 @@ class Session {
     * @return {type}             description
     */
     participantEnd(participant) {
-        //        console.log('Session.playerEnd: ' + participant.id);
-        //        this.io().to(participant.roomId()).emit('start-new-app'); // refresh clients.
     }
 
     /**
@@ -959,7 +1171,16 @@ class Session {
             return false;
         }
 
-        var app = this.apps[participant.appIndex-1];
+        var app = this.getApp(participant);
+
+        // If the app has not yet been started, reload it first.
+        if (!app.started) {
+            let newApp = app.reload();
+            this.apps[app.indexInSession() - 1] = newApp;
+            app = newApp;
+            app.start();
+        }
+
         app.participantBegin(participant);
     }
 
@@ -976,9 +1197,21 @@ class Session {
         }
     }
 
+    participantStart(participant) {
+        
+    }
+
     start() {
         if (!this.started) {
             this.started = true;
+            for (let p in this.participants) {
+                this.participantStart(this.participants[p]);
+            }
+            this.io().to(this.roomId()).emit('dataUpdate', [{
+                roomId: this.roomId(),
+                field: 'started',
+                value: this.started
+            }]);
             this.advanceSlowest();
         }
     }
@@ -991,11 +1224,15 @@ class Session {
         return this.jt.io;
     }
 
-    getNextApp(participant) {
-        if (participant.appIndex >= this.apps.length) {
+    /**
+     * Return the next app in the session for this participant, null if there are no more apps for this participant.
+     * @param {Participant} participant 
+     */
+    getApp(participant) {
+        if (participant.appIndex &lt; 1 || participant.appIndex > this.apps.length) {
             return null;
         } else {
-            return this.apps[participant.appIndex];
+            return this.apps[participant.appIndex - 1];
         }
     }
 
@@ -1020,7 +1257,7 @@ exports.load        = Session.load;
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jul 25 2018 16:58:19 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Fri Feb 14 2020 22:43:17 GMT+0100 (Central European Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>
