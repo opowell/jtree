@@ -38,15 +38,14 @@ Latest version (2020.02.14): **0.8.7**
 <a href='https://opowell.github.io/jtree'>opowell.github.io/jtree</a>
 
 #### USER EXPERIMENTS
-
-<a href='https://www.github.com/opowell/1natalia'>1natalia (University of Vienna, Ural Federal University)</a>
-<a href='https://www.github.com/opowell/2peter'>2peter (Vienna University of Economics and Business)</a>
-<a href='https://www.github.com/opowell/3james'>3james (University of Vienna, Vienna University of Economics and Business)</a>
-<a href='https://www.github.com/opowell/5mariana'>5mariana (Vienna University of Economics and Business)</a>
-<a href='https://www.github.com/opowell/6maxtom'>6maxtom (Vienna University of Economics and Business)</a>
-<a href='https://www.github.com/opowell/7simone'>7simone (Vienna University of Economics and Business)</a>
-<a href='https://www.github.com/opowell/8jelena'>8jelena (Vienna University of Economics and Business)</a>
-<a href='https://www.github.com/opowell/9natalia'>9natalia (University of Vienna)</a>
-<a href='https://www.github.com/opowell/10ali'>10ali (Vienna University of Economics and Business)</a>
-<a href='https://www.github.com/opowell/11simone'>11simone (Vienna University of Economics and Business)</a>
+<a href='https://www.github.com/opowell/1natalia'>1natalia (University of Vienna, Ural Federal University)</a><br>
+<a href='https://www.github.com/opowell/2peter'>2peter (Vienna University of Economics and Business)</a><br>
+<a href='https://www.github.com/opowell/3james'>3james (University of Vienna, Vienna University of Economics and Business)</a><br>
+<a href='https://www.github.com/opowell/5mariana'>5mariana (Vienna University of Economics and Business)</a><br>
+<a href='https://www.github.com/opowell/6maxtom'>6maxtom (Vienna University of Economics and Business)</a><br>
+<a href='https://www.github.com/opowell/7simone'>7simone (Vienna University of Economics and Business)</a><br>
+<a href='https://www.github.com/opowell/8jelena'>8jelena (Vienna University of Economics and Business)</a><br>
+<a href='https://www.github.com/opowell/9natalia'>9natalia (University of Vienna)</a><br>
+<a href='https://www.github.com/opowell/10ali'>10ali (Vienna University of Economics and Business)</a><br>
+<a href='https://www.github.com/opowell/11simone'>11simone (Vienna University of Economics and Business)</a><br>
 
