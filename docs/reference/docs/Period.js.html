@@ -57,7 +57,10 @@ class Period {
          */
         this.groups = [];
 
-        // 'outputHide' fields are not included in output
+        /**
+         * 'outputHide' fields are not included in output
+         * @type {String[]}
+         */
         this.outputHide = ['stage', 'status', 'this', 'curAppId', 'periodTemp',
         'periodPerm', 'periodPermAuto', 'outputHide', 'app', 'groups', 'type',
         'stageTimerStart','stageTimerDuration','stageTimerTimeLeft','stageTimerStageIndex','stageTimerCallback','periodId','appIndex', 'gIds'];
@@ -100,11 +103,10 @@ class Period {
         var ng = null;
         if (this.app.groupSize !== undefined) {
             ng = Math.floor((Object.keys(this.session().participants).length - 1) / this.app.groupSize) + 1;
-        } else {
+        } else if (this.app.numGroups != null) {
             ng = this.app.numGroups;
-            if (ng === undefined) {
-                ng = 1; // by default, everyone in same group
-            }
+        } else {
+            ng = 1; // by default, everyone in same group
         }
         return ng;
     }
@@ -157,9 +159,10 @@ class Period {
             console.log('APP: error assigning group for participant ' + participant.id);
         }
 
-//        this.app.playerMoveToNextStage(participant.player);
-        participant.player.setStage(0);
-        participant.player.attemptToStartStage();
+        participant.player.stageIndex = 0;
+        participant.player.stage = this.app.stages[0];
+        participant.player.status = 'ready';
+        participant.player.startStage(participant.player.stage);
     }
 
     getParticipantGroupId(participant) {
@@ -181,7 +184,6 @@ class Period {
     createGroups() {
         const app = this.app;
         const participants = app.session.participants;
-        const numGroups = this.numGroups();
         const gIds = app.getGroupIdsForPeriod(this);
 
         // Create groups
@@ -190,25 +192,51 @@ class Period {
             pIds.push(p);
         }
 
-        for (var g=0; g&lt;numGroups; g++) {
+        let numGroups = this.numGroups();
+        if (gIds[0].length != null) {
+            numGroups = gIds.length;
+        } else {
+            for (let i in gIds) {
+                numGroups = Math.max(numGroups, gIds[i]);
+            }
+        }
+        for (var g=this.groups.length; g&lt;numGroups; g++) {
             var group = new Group.new(g+1, this);
             group.save();
             this.groups.push(group);
-            for (var i=0; i&lt;gIds[g].length; i++) {
-                var pId = gIds[g][i];
-                var participant = participants[pId];
-                var player = new Player.new(pId, participant, group, i+1);
-                participant.players.push(player);
-                player.save();
-                participant.save();
-                group.players.push(player);
+
+            if (gIds[g].length != null) {
+                // Label format
+                // [['P1', 'P2'], ['P3', 'P4'], ...]
+                for (var i=0; i&lt;gIds[g].length; i++) {
+                    var pId = gIds[g][i];
+                    var participant = participants[pId];
+                    var player = new Player.new(pId, participant, group, i+1);
+                    participant.players.push(player);
+                    player.save();
+                    participant.save();
+                    group.players.push(player);
+                }
+                group.allPlayersCreated = true;
+                group.save();    
+            } else {
+                // Numerical format
+                // [['P1', 'P2'], ['P3', 'P4'], ...]
+                for (var i=0; i&lt;gIds.length; i++) {
+                    if (gIds[i] == group.id) {
+                        var participant = participants[pIds[i]];
+                        var player = new Player.new(pIds[i], participant, group, group.players.length+1);
+                        participant.players.push(player);
+                        player.save();
+                        participant.save();
+                        group.players.push(player);
+                    }
+                }
+                group.allPlayersCreated = true;
+                group.save();    
             }
-            group.allPlayersCreated = true;
-            group.save();
-//            if (this.app.stages[0].canGroupPlay(group)) {
-            //    this.app.stages[0].groupPlayDefault(group);
-//            }
         }
+
     }
 
     groupIds() {
@@ -232,8 +260,8 @@ class Period {
         }
     }
 
-    getStrangerMatching(numGroups, pIds, gIds, m) {
-        for (var g=0; g&lt;numGroups; g++) {
+    getStrangerMatching(numGroups, pIds, gIds, m, numCurrentGroups) {
+        for (var g=numCurrentGroups; g&lt;numGroups; g++) {
             for (var i=0; i&lt;m; i++) {
                 if (pIds.length &lt; 1) {
                     return;
@@ -376,7 +404,7 @@ exports.load = Period.load;
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jul 25 2018 16:58:19 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Fri Feb 14 2020 22:43:17 GMT+0100 (Central European Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -72,6 +72,8 @@ class Stage {
          */
         this.duration 	= 0;
 
+        this.showTimer = true;
+
         /**
          * How long clients have before stage is auto-submitted (from client, not from server).
          * if &lt;= 0, then no client timeout for this stage.
@@ -81,18 +83,18 @@ class Stage {
         this.clientDuration = 0;
 
         /**
-         * Wait for all players in group before players and group can start this stage.
+         * Wait for all players in group to be 'ready' before calling [Stage.groupStart(group)]{@link stage#groupStart} and [Stage.playerStart(player)]{@link stage#groupStart} are called.
          * @type boolean
          * @default true
          */
-        this.waitToStart = true;
+        this.waitToStart = app.stageWaitToStart;
 
         /**
-         * Group waits for all players to finish stage before calling [stage.groupEnd(group)]{@link stage#groupEnd}.
+         * Wait for all players in group to be 'finished' or 'done' before calling [Stage.groupEnd(group)]{@link stage#groupEnd} and [Stage.playerStart(player)]{@link stage#groupEnd} are called.
          * @type boolean
          * @default true
          */
-        this.waitToEnd = true;
+        this.waitToEnd = app.stageWaitToEnd;
 
         /**
          * when starting stage for a player, send 'player' object or not.
@@ -103,7 +105,7 @@ class Stage {
         this.onPlaySendPlayer = true;
 
         /**
-         * how far up the tree should be sent on update.
+         * how far up the tree should be sent on update. More data comes at cost of higher latency.
          * possible values: 'player', 'group'
          * @type string
          * @default 'player'
@@ -130,7 +132,7 @@ class Stage {
         this.useAppWaitingScreen = true;
 
         /**
-         *  TODO:
+         *  Wrap stage playing screens in a &lt;form> tag or not.
          */
         this.wrapPlayingScreenInFormTag = app.stageWrapPlayingScreenInFormTag;
 
@@ -140,6 +142,10 @@ class Stage {
          * @default []
          */
         this.outputHide = [];
+
+        this.addOKButtonIfNone = true;
+
+        this.waitingScreen = null;
 
         /**
          * 'outputHideAuto' fields are not included in output.
@@ -182,6 +188,10 @@ class Stage {
          */
         this.repetitions = 1;
 
+        this.autoplay = `
+            jt.defaultAutoplay();
+        `
+
     }
 
     /**
@@ -217,83 +227,71 @@ class Stage {
     }
 
     canGroupStart(group) {
+        return this.canGroupStartDefault(group);
+    }
 
-        var players = group.players;
+    canGroupStartDefault(group) {
 
-        if (this.waitToStart) {
-            // PROCEED ONLY IF ALL PLAYERS ARE "ready" and in this stage.
-            for (var p in players) {
-                var player = players[p];
-
-                // Stop if player is either:
-                // 1) not in this stage, or
-                // 2) not ready.
-                if (!player.participant.canStartStage(this)) {
-                    return false;
-                }
-
-            }
-        } else {
-            // PROCEED ONLY IF NO PLAYER HAS ALREADY STARTED PLAYING this stage.
-            for (var p in players) {
-                var player = players[p];
-
-                // If other player is in this stage and not ready, or already past this stage, return false.
-                if (
-                    (player.stageIndex === this.indexInApp() &amp;&amp; player.status !== 'ready') ||
-                    (player.stageIndex > this.indexInApp())
-                ) {
-                    return false;
-                }
-
-            }
+        // If already started this stage, return false.
+        if (group.stageStartedIndex >= this.indexInApp()) {
+            return false;
         }
 
+        // // If not finished a previous stage, return false.
+        // if (group.stageEndedIndex &lt; this.indexInApp() - 1) {
+        //     return false;
+        // }
+
+        if (this.waitToStart) {
+            // If any player is 1) not "ready" or 2) not in this stage, then return false.
+            for (var p in group.players) {
+                var player = group.players[p];
+                if (player.stageIndex !== this.indexInApp() || player.status !== 'ready') {
+                    return false;
+                }
+            }
+        } 
+        
+        // Otherwise, return true.
         return true;
     }
 
+    getClientDuration(player) {
+        return this.clientDuration;
+    };
+
     newStage(id) {
-        var stage = new Stage.new(id, this.app, this.stages.length);
+        var stage = new Stage.new(id, this.app);
         this.stages.push(stage);
         return stage;
     }
 
-    canGroupEnd(group) {
+    canGroupEnd(group, forcePlayersToEnd) {
 
         var players = group.players;
 
         // If already finished, return false.
-        if (group.stageFinishedIndex >= this.indexInApp()) {
+        if (group.stageEndedIndex >= this.indexInApp()) {
             return false;
         }
 
-        if (this.waitToEnd) {
+        if (this.waitToEnd &amp;&amp; !forcePlayersToEnd) {
             // PROCEED ONLY IF ALL PLAYERS ARE "finished" and in this stage.
             for (var p in players) {
                 var player = players[p];
 
-                // If other player is not finished, return false.
-                if (player.stageIndex !== this.indexInApp() || !player.isFinished()) {
-                    return false;
+                if (player.stageIndex > this.indexInApp()) {
+                    // Player is already past this stage?!
+                } else {
+                    // If other player is not finished, return false.
+                    if (player.stageIndex &lt; this.indexInApp() || !player.isFinished()) {
+                        return false;
+                    }
                 }
-
             }
-        } else {
-            // PROCEED ONLY IF NO PLAYER HAS ALREADY FINISHED this stage.
-            for (var p in players) {
-                var player = players[p];
+        } 
 
-                // If other player is in this stage and not finished, or not even in this stage yet, return false.
-                if (
-                    (player.stageIndex === this.indexInApp() &amp;&amp; !player.isFinished()) ||
-                    (player.stageIndex &lt; this.indexInApp())
-                ) {
-                    return false;
-                }
-
-            }
-        }
-
+        // Otherwise, return true.
         return true;
 
     }
@@ -408,8 +406,13 @@ class Stage {
         out.groupEnd = this.groupEnd.toString();
         out.playerStart = this.playerStart.toString();
         out.playerEnd = this.playerEnd.toString();
+        out.getGroupDuration = this.getGroupDuration.toString();
 
         return out;
+    }
+
+    getGroupDuration(group) {
+        return this.duration;
     }
 
     getOutputDir() {
@@ -454,7 +457,7 @@ exports.load = Stage.load;
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jul 25 2018 16:58:19 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Fri Feb 14 2020 22:43:17 GMT+0100 (Central European Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

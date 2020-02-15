@@ -2,6 +2,10 @@
 - Generic game trees.
 - Listen to incremental game changes via observer.
 
+#### 2020.02.14 - 0.8.7
+- Remove some user games.
+- Add Linux compilation scripts.
+
 #### 2020.01.24 - 0.8.6
 - Queue options respect limits.
 - Method to get player time in stage.

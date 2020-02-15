@@ -26,13 +26,12 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>// @flow
-
-const Stage     = require('./Stage.js');
+            <pre class="prettyprint source linenums"><code>const Stage     = require('./Stage.js');
 const Period    = require('./Period.js');
 const Utils     = require('./Utils.js');
 const fs        = require('fs-extra');
 const path      = require('path');
+const Timer     = require('./Timer.js');
 
 /** Class that represents an app. */
 class App {
@@ -43,13 +42,61 @@ class App {
      * @param  {Session} session description
      * @param  {String} id      description
      */
-    constructor(session, id, jt, appPath) {
+    constructor(session, jt, appPath) {
 
         /**
-         * The unique identifier of this App.
+         * The unique identifier of this App. In order of precedence, the value is given by:
+         * - the explicit value in the .jtt file (if it has been set)
+         * - the name of the .jtt file (if it is not app.jtt or app.js)
+         * - the name of the folder containing the .jtt file
          * @type {String}
          */
-        this.id = id;
+        this.id = appPath;
+
+        let id = appPath;
+        if (id.includes('app.js') || id.includes('app.jtt')) {
+            let str = null;
+            if (id.includes('app.js')) {
+                str = 'app.js';
+            } else if (id.includes('app.jtt')) {
+                str = 'app.jtt';
+            }
+            id = id.substring(0, id.lastIndexOf(str));
+
+           // Strip trailing slashes.
+            if (id.endsWith('/')) {
+                id = id.substring(0, id.lastIndexOf('/'));
+            } else if (id.endsWith('\\')) {
+                id = id.substring(0, id.lastIndexOf('\\'));
+            }
+            // Cut all but last part of path.
+            if (id.lastIndexOf('/') > -1) {
+                id = id.substring(id.lastIndexOf('/') + 1);
+            } else if (id.lastIndexOf('\\') > -1) {
+                id = id.substring(id.lastIndexOf('\\') + 1);
+            }
+        } else {
+            // Strip folders.
+            if (id.lastIndexOf('/') > -1) {
+                this.appDir = id.substring(0, id.lastIndexOf('/'));
+                id = id.substring(id.lastIndexOf('/') + 1);
+            } else if (id.lastIndexOf('\\') > -1) {
+                this.appDir = id.substring(0, id.lastIndexOf('\\'));
+                id = id.substring(id.lastIndexOf('\\') + 1);
+            }
+            this.appFilename = id;
+            if (id.endsWith('.js')) {
+                id = id.substring(0, id.length - '.js'.length);
+            } else if (id.endsWith('.jtt')) {
+                id = id.substring(0, id.length - '.jtt'.length);
+            }
+        }
+        this.shortId = id;
+
+
+        this.onSubmit = `
+            jt.popupMessage('Submitting...');
+        `;
 
         /**
          * @type {jt}
@@ -59,12 +106,23 @@ class App {
         /** Where the original definition of this app is stored on the server.*/
         this.appPath = appPath;
 
+        this.started = false;
+
+        this.outputDelimiter = ';';
+        if (session != null) {
+            this.outputDelimiter = session.outputDelimiter;
+        }
+
         /**
          * The Session that this App belongs to.
          * @type {Session}
          */
         this.session = session;
 
+        /**
+         * 
+         */
+        this.isStandaloneApp = true;
 
         /**
          * The stages of this app.
@@ -87,9 +145,14 @@ class App {
          */
         this.optionValues = {};
 
+        // If not null, the length of time a participant has to play this app.
+        this.duration = null;
+
         /** Used by the participant client to find and create dynamic text elements.*/
-        this.textMarkerBegin = '{{';
-        this.textMarkerEnd = '}}';
+        this.textMarkerBegin = '{{{';
+        this.textMarkerEnd = '}}}';
+
+        this.useVue = true;
 
         /**
          * The number of periods in this App.
@@ -105,25 +168,54 @@ class App {
          */
         this.insertJtreeRefAtStartOfClientHTML = true;
 
-        /** Shown on all client screens.*/
+        /**
+         * Shown on all client screens.
+         * @type String
+         * @default 
+         */ 
         this.html = `
             &lt;!DOCTYPE html>
             &lt;html>
                 &lt;head>
                     &lt;meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+                    &lt;meta name="viewport" content="width=device-width, initial-scale=1">
                 &lt;/head>
-                &lt;body>
-                    &lt;p>Period: {{period.id}}/{{app.numPeriods}}&lt;/p>
-                    &lt;p id='time-remaining-div'>Time left: {{clock.minutes}}:{{clock.seconds}}&lt;/p>
-                    &lt;span jt-status='active'>
-                        {{stages}}
-                    &lt;/span>
-                    &lt;span jt-status='waiting'>
-                        {{waiting-screen}}
-                    &lt;/span>
+                &lt;body class='hidden'>
+                    &lt;div id='jtree'>
+                        &lt;p v-show='app.numPeriods > 1'>{{ app.periodText }}: {{period.id}}/{{app.numPeriods}}&lt;/p>
+                        &lt;p v-show='hasTimeout &amp;&amp; stage.showTimer'>Time left (s): {{clock.totalSeconds}}&lt;/p>
+                        &lt;span v-show='player.status=="playing"'>
+                            {{stages}}
+                        &lt;/span>
+                        &lt;span v-show='["ready", "waiting", "finished", "done"].includes(player.status)'>
+                            {{waiting-screens}}
+                        &lt;/span>
+                    &lt;/div>
+                    {{scripts}}
                 &lt;/body>
             &lt;/html>
         `;
+
+        this.periodText = 'Period'
+
+        this.vueModels = {};
+
+        // Objects defined here are generated on the client, and accessible via "jt.vue.XXX", 
+        // where XXX is the name of the computed variable.
+        this.vueComputed = {};
+        this.vueMethods = {};
+
+        this.vueMethodsDefaults = {
+            checkForm: function (e) {
+                return true;
+                e.preventDefault();
+            }
+        }
+
+        this.clientScripts = null;
+
+        // Paths of script tags.
+        this.modifyPathsToIncludeId = true;
 
         /** TODO:   */
         this.screen = '';
@@ -179,6 +271,9 @@ class App {
          */
         this.waitForAll = true;
 
+        this.stageWaitToStart = true;
+        this.stageWaitToEnd = true;
+
         /**
          * The matching type to be used for groups in this App.
          * @type string
@@ -194,11 +289,14 @@ class App {
         this.messages = {};
 
         /**
-         * TODO: Description
-         * @type boolean
+         * Set default value for Stage.wrapPlayingScreenInFormTag.
+         * If 'yes', then form is added.
+         * If 'no', no form is added.
+         * If 'onlyIfNoButton', then form is added only if page has no buttons.
+         * @type String
          * @default true
          */
-        this.stageWrapPlayingScreenInFormTag = true;
+        this.stageWrapPlayingScreenInFormTag = 'onlyIfNoButton';
 
         /**
          * If defined, subjects are assigned randomly to groups of this size takes precedence over numGroups.
@@ -209,6 +307,16 @@ class App {
 
          /**TODO:*/
          this.groupingType = undefined;
+
+         /**
+          * Indicates whether or not the code for this app compiles to an error or not.
+          */
+        this.hasError = false;
+
+         /**
+          * If not null and this is the first App in a Session, sets the initial number of players to this amount.
+          */
+        this.suggestedNumPlayers = undefined;
 
         /**
          * if defined, subjects are split evenly into this number of groups
@@ -224,7 +332,12 @@ class App {
          * @type string
          * @default '&lt;span jt-stage="{{stage.id}}">'
          */
-        this.stageContentStart = '&lt;span jt-stage="{{stage.id}}">';
+        // this.stageContentStart = '&lt;span jt-stage="{{stage.id}}">';
+
+        this.stageContentStart = `
+            &lt;span v-show="stage.id == '{{stage.id}}'">
+        `;
+
 
         /**
          * Ends the stages of this App.
@@ -247,7 +360,6 @@ class App {
             'keyComparisons',
             'screen',
             'activeScreen',
-            'waitingScreen',
             'stageWrapPlayingScreenInFormTag',
             'waitForAll',
             'finished',
@@ -259,11 +371,10 @@ class App {
             'outputHide',
             'periods',
             'messages',
-            'type',
             'folder',
             'options',
-            'jt',
-            'appPath'];
+            'jt'
+        ];
 
         //TODO:
         /**
@@ -277,6 +388,19 @@ class App {
          * @default false
          */
         this.finished = false;
+    }
+
+    /**
+     * @static newSansId - return an app with the given path.
+     *
+     * @param  {type} jt      description
+     * @param  {type} appPath The path relative to the server process. i.e. /apps/my-app.jtt or /apps/my-complex-app/app.js
+     * @return {App}          The given app.
+     */
+    static newSansId(jt, appPath) {
+        console.log('loading app with no session: ' + appPath);
+        var out = new App({}, jt, appPath);
+        return out;
     }
 
     /**
@@ -310,6 +434,13 @@ class App {
         }
 
         session.apps[index-1] = app;
+    }
+
+    /**
+     * Returns the amount of time this participant has to play this app.
+     */
+    getParticipantDuration(participant) {
+        return this.duration;
     }
 
     /**
@@ -369,8 +500,8 @@ class App {
                     return false;
                 }
 
-                if (client.player().stage.id !== data.fnName) {
-                    console.log('App.js, STAGE NAME DOES NOT MATCH: ' + client.player().stage.id + ' vs. ' + data.fnName + ', data=' + JSON.stringify(data));
+                if (client.player().roomId() !== data.playerRoomId || client.player().stage.id !== data.fnName) {
+                    console.log('App.js, PLAYER ROOM ID DOES NOT MATCH, skipping submission: ' + client.player().stage.id + ' vs. ' + data.fnName + ', data=' + JSON.stringify(data));
                     return false;
                 }
 
@@ -405,9 +536,11 @@ class App {
                         }
                     }
                 }
-                /** console.log('msg: ' + JSON.stringify(data) + ', ' + client.player().roomId());*/
-                var attemptToEndForGroup = true;
-                client.player().attemptToEndStage(attemptToEndForGroup);
+                var endForGroup = true;
+                client.player().endStage(endForGroup);
+
+                this.session.emitParticipantUpdates();
+
             };
         }
 
@@ -427,10 +560,18 @@ class App {
         }
     }
 
-    // TODO
+    /**
+     * Adds a stage, with contents loaded from .jtt file.
+     * @param {The name of the stage to add} name 
+     */
     addStage(name) {
         var stage = this.newStage(name);
-        var fn = 'apps/' + this.id + '/' + name + '.js';
+        var fn = path.join(path.dirname(this.id), name);
+        if (fs.existsSync(fn + '.jtt')) {
+            fn = fn + '.jtt';
+        } else if (fs.existsSync(fn + '.js')) {
+            fn = fn + '.js';
+        }
         try {
             eval(Utils.readJS(fn));
         } catch (err) {
@@ -449,9 +590,9 @@ class App {
     }
 
     //TODO
-    setFileContents(filename, contents) {
+    setFileContents(contents) {
         try {
-            fs.writeFileSync('apps/' + this.id + '/' + filename, contents);
+            fs.writeFileSync(this.id, contents);
         } catch (err) {
             console.log(err);
         }
@@ -492,11 +633,23 @@ class App {
             gIds.push([]);
         }
 
+        for (let i=0; i&lt;period.groups.length; i++) {
+            let group = period.groups[i];
+            for (let j=0; j&lt;group.players.length; j++) {
+                gIds[i].push(group.players[j].id);
+                for (let k=0; k&lt;pIds.length; k++) {
+                    if (pIds[k] == group.players[j].id) {
+                        pIds.splice(k, 1);
+                    }
+                }
+            }
+        }
+
         // Calculate number of elements per group
         var m = Math.floor((pIds.length-1) / numGroups) + 1;
 
         if (this.groupMatchingType === 'PARTNER_1122') {
-            for (var g=0; g&lt;numGroups; g++) {
+            for (var g=this.groups.length; g&lt;numGroups; g++) {
                 for (var i=0; i&lt;m; i++) {
                     gIds[g].push(pIds[0]);
                     pIds.splice(0, 1);
@@ -504,20 +657,20 @@ class App {
             }
         } else if (this.groupMatchingType === 'PARTNER_1212') {
             for (var i=0; i&lt;m; i++) {
-                for (var g=0; g&lt;numGroups; g++) {
+                for (var g=this.groups.length; g&lt;numGroups; g++) {
                     gIds[g].push(pIds[0]);
                     pIds.splice(0, 1);
                 }
             }
         } else if (this.groupMatchingType === 'PARTNER_RANDOM') {
             if (period.id === 1) {
-                period.getStrangerMatching(numGroups, pIds, gIds, m);
+                period.getStrangerMatching(numGroups, pIds, gIds, m, period.groups.length);
             } else {
                 var prevPeriod = period.prevPeriod();
                 gIds = prevPeriod.groupIds();
             }
         } else if (this.groupMatchingType === 'STRANGER') {
-            period.getStrangerMatching(numGroups, pIds, gIds, m);
+            period.getStrangerMatching(numGroups, pIds, gIds, m, period.groups.length);
         }
         return gIds;
     }
@@ -553,7 +706,7 @@ class App {
 
         if (app.activeScreen != null) {
             html += `
-            &lt;span jt-status='playing' class='playing-screen'>
+            &lt;span v-show='player.status == "playing"' class='playing-screen'>
                 ${app.activeScreen}
                 &lt;div>
                 {{stages}}
@@ -564,7 +717,7 @@ class App {
 
         if (!html.includes('{{stages}}')) {
             html += `
-            &lt;span jt-status='playing' class='playing-screen'>
+            &lt;span v-show='player.status == "playing"' class='playing-screen'>
                 {{stages}}
             &lt;/span>
             `;
@@ -572,39 +725,80 @@ class App {
 
         // Load stage contents, if any.
         var stagesHTML = '';
+        var waitingScreensHTML = '';
         for (var i=0; i&lt;app.stages.length; i++) {
             var stage = app.stages[i];
+            var stageHTML = '';
+            var contentStart = app.parseStageTag(stage, app.stageContentStart);
+            var contentEnd = app.parseStageTag(stage, app.stageContentEnd);
             if (stage.content != null) {
-                if (stagesHTML.length > 0) {
-                    stagesHTML = stagesHTML + '\n';
-                }
-                var contentStart = app.parseStageTag(stage, app.stageContentStart);
-                var contentEnd = app.parseStageTag(stage, app.stageContentEnd);
-                stagesHTML = stagesHTML + contentStart + '\n' + stage.content + '\n' + contentEnd;
+                stageHTML = contentStart + '\n' + stage.content + '\n' + contentEnd;
             }
             if (stage.activeScreen != null) {
-                if (stagesHTML.length > 0) {
-                    stagesHTML = stagesHTML + '\n';
+                stageHTML += app.parseStageTag(stage, app.stageContentStart)  + '\n';
+                let wrapInForm = null;
+                if (stage.wrapPlayingScreenInFormTag === 'yes') {
+                    wrapInForm = true;
+                } else if (stage.wrapPlayingScreenInFormTag === 'no') {
+                    wrapInForm = false;
+                } else if (stage.wrapPlayingScreenInFormTag === 'onlyIfNoButton') {
+                    if (
+                        !stage.activeScreen.includes('&lt;button') ||
+                        stage.addOKButtonIfNone
+                        ) {
+                        wrapInForm = true;
+                    } else {
+                        wrapInForm = false;
+                    }
                 }
-                stagesHTML += app.parseStageTag(stage, app.stageContentStart)  + '\n';
-                var wrapInForm = stage.wrapPlayingScreenInFormTag;
                 if (wrapInForm) {
-                    stagesHTML += '&lt;form>\n';
+                    stageHTML += '&lt;form>\n';
                 }
-                stagesHTML += stage.activeScreen + '\n';
+                stageHTML += stage.activeScreen + '\n';
+                if (stage.addOKButtonIfNone) {
+                    if (!stageHTML.includes('&lt;button')) {
+                        stageHTML += `&lt;button>OK&lt;/button>`;
+                    }
+                }
                 if (wrapInForm) {
-                    stagesHTML += '&lt;/form>\n';
+                    stageHTML += '&lt;/form>\n';
                 }
-                stagesHTML += app.parseStageTag(stage, app.stageContentEnd);
+                stageHTML += app.parseStageTag(stage, app.stageContentEnd);
             }
+
+            if (stagesHTML.length > 0) {
+                stagesHTML += '\n';
+            }
+            stagesHTML += stageHTML;
+
+            var waitingScreenHTML = contentStart;
+            if (stage.useAppWaitingScreen) {
+                waitingScreenHTML += app.waitingScreen;
+            }
+            if (stage.waitingScreen != null) {
+                waitingScreenHTML += stage.waitingScreen;
+            }
+            waitingScreenHTML += contentEnd;
+
+            if (waitingScreensHTML.length > 0) {
+                waitingScreensHTML += '\n';
+            }
+            waitingScreensHTML += waitingScreenHTML;
         }
+
+        let [strippedScripts, stagesHTML1] = this.stripTag('script', stagesHTML);
+        let [strippedStyles, stagesHTML2] = this.stripTag('style', stagesHTML1);
+        let [strippedLinks, stagesHTML3] = this.stripTag('link', stagesHTML2);
+        stagesHTML = stagesHTML3;
+
         if (html.includes('{{stages}}')) {
             html = html.replace('{{stages}}', stagesHTML);
         }
 
-        if (html.includes('{{waiting-screen}}') &amp;&amp; app.waitingScreen != null) {
-            html = html.replace('{{waiting-screen}}', app.waitingScreen);
-        }
+        // if (html.includes('{{waiting-screens}}') &amp;&amp; app.waitingScreen != null) {
+        //     html = html.replace('{{waiting-screens}}', app.waitingScreen);
+        // }
+        html = html.replace('{{waiting-screens}}', waitingScreensHTML);
 
         // Replace {{ }} markers.
         var markerStart = app.textMarkerBegin;
@@ -622,8 +816,100 @@ class App {
             html = '&lt;script type="text/javascript" src="/participant/jtree.js">&lt;/script>\n' + html;
         }
 
+        let scriptsHTML = strippedLinks + '\n' + strippedStyles + '\n' + strippedScripts;
+        if (app.clientScripts != null) {
+            if (!app.clientScripts.trim().startsWith('&lt;script')) {
+                scriptsHTML = '&lt;script>' + app.clientScripts + '&lt;/script>';
+            } else {
+                scriptsHTML = app.clientScripts;                
+            }
+        }
+        scriptsHTML += this.getAutoplayScript();
+        
+        if (html.includes('{{scripts}}')) {
+            html = html.replace('{{scripts}}', scriptsHTML);
+        }
+
+        if (this.modifyPathsToIncludeId) {
+            let prefixes = ['href', 'src'];
+            for (let ind in prefixes) {
+                let i = prefixes[ind];
+                // Temporary fix, do not change anything that starts with '/' or 'http'.
+                html = html.replace(new RegExp(i + '="\\/', 'gmi'), i + 'XXX="');
+                html = html.replace(new RegExp(i + "='\\/", "gmi"), i + "XXX='");
+                html = html.replace(new RegExp(i + '="http', 'gmi'), i + 'XXXhttp="');
+                html = html.replace(new RegExp(i + "='http", "gmi"), i + "XXXhttp='");
+    
+                // Replace all other paths.
+                html = html.replace(new RegExp(i + '="', 'gmi'), i + '="./' + this.shortId + '/');
+                html = html.replace(new RegExp(i + "='", "gmi"), i + "='./" + this.shortId + '/');
+    
+                // Revert fix.
+                html = html.replace(new RegExp(i + 'XXX="', 'gmi'), i + '="/');
+                html = html.replace(new RegExp(i + "XXX='", "gmi"), i + "='/");
+                html = html.replace(new RegExp(i + 'XXXhttp="', 'gmi'), i + '="http');
+                html = html.replace(new RegExp(i + "XXXhttp='", "gmi"), i + "='http");
+            }
+        }
         // Return to client.
         res.send(html);
+    }
+
+    getAutoplayScript() {
+        let out = `
+        &lt;script>
+        jt.autoplay = function() {
+            switch (jt.vue.player.stage.id) {
+                `;
+        for (let i=0; i&lt;this.stages.length; i++) {
+            out += `
+            case "${this.stages[i].id}":
+                jt.autoplay_${this.stages[i].id}();
+                break;
+            `;
+        }
+
+        out += `
+            }
+        }
+        `
+        for (let i=0; i&lt;this.stages.length; i++) {
+            out += `
+                if (jt.autoplay_${this.stages[i].id} == null) {
+                    jt.autoplay_${this.stages[i].id} = function() {
+                        ${this.stages[i].autoplay}
+                    };
+                }
+            `;
+        }
+
+        out += `
+        &lt;/script>`;
+
+        return out;
+    }
+
+    stripTag(tagName, text) {
+        let strippedText = '';
+        while (text.includes('&lt;' + tagName)) {
+            let start = text.indexOf('&lt;' + tagName);
+            if (start == -1) {
+                break;
+            }
+            let nextStart = text.indexOf('&lt;' + tagName, start + tagName.length + 1);
+            let endTag = '/' + tagName + '>';
+            let end = text.indexOf(endTag, start) + endTag.length;
+            if (end == -1 || (nextStart > -1 &amp;&amp; end > nextStart)) {
+                endTag = '>';
+                end = text.indexOf(endTag, start) + endTag.length;
+            } 
+            if (end == -1 + endTag.length) {
+                break;
+            }
+            strippedText += text.substring(start, end);
+            text = text.substring(0, start) + text.substring(end);
+        }
+        return [strippedText, text];
     }
 
     // TODO
@@ -648,16 +934,31 @@ class App {
      * CALLED FROM
      * - {@link App#tryToEndApp}
      */
-    end() {
+    internalEnd() {
 
+        this.end();
+
+        let timeStamp = this.session.jt.settings.getConsoleTimeStamp();
+        console.log(timeStamp + ' END   - APP   : ' + this.getIdInSession());
 
         this.finished = true;
 
-        this.saveOutput(this.session.csvFN());
+        let fd = fs.openSync(this.session.csvFN(), 'a');
+
+        try {
+            fs.appendFileSync(fd, this.saveOutput());
+        } catch(err) {
+            console.log('error writing app: ' + this.id);
+            debugger;
+        } finally {
+            fs.closeSync(fd);
+        }   
 
     }
 
-    saveOutput(fn) {
+    end() {}
+
+    saveOutput() {
 
         //Create headers
         var appsHeaders = [];
@@ -708,15 +1009,15 @@ class App {
 
         //Create data
         var appsText = [];
-        appsText.push('id,' + appsHeaders.join(','));
-        var newLine = this.id + ',';
+        appsText.push('id' + this.outputDelimiter + appsHeaders.join(this.outputDelimiter));
+        var newLine = this.id + this.outputDelimiter;
         for (var h=0; h&lt;appsHeaders.length; h++) {
             var header = appsHeaders[h];
             if (this[header] !== undefined) {
                 newLine += JSON.stringify(this[header]);
             }
             if (h&lt;appsHeaders.length-1) {
-                newLine += ',';
+                newLine += this.outputDelimiter;
             }
         }
         appsText.push(newLine);
@@ -724,93 +1025,101 @@ class App {
         var periodText = [];
         var groupText = [];
         var playerText = [];
-        groupText.push('period.id,group.id,' + groupHeaders.join(','));
-        playerText.push('period.id,group.id,participant.id,' + playerHeaders.join(','));
+        groupText.push('period.id' + this.outputDelimiter + 'group.id' + this.outputDelimiter + groupHeaders.join(this.outputDelimiter));
+        playerText.push('period.id' + this.outputDelimiter + 'group.id' + this.outputDelimiter + 'participant.id' + this.outputDelimiter + playerHeaders.join(this.outputDelimiter));
         for (var i=0; i&lt;this.periods.length; i++) {
             var period = this.periods[i];
-            var newLine = period.id + ',';
+            var newLine = period.id + this.outputDelimiter;
             newLine = this.appendValues(newLine, periodHeaders, period);
             periodText.push(newLine);
             for (var j=0; j&lt;period.groups.length; j++) {
                 var group = period.groups[j];
-                var newLine = period.id + ',' + group.id + ',';
+                var newLine = period.id + this.outputDelimiter + group.id + this.outputDelimiter;
                 newLine = this.appendValues(newLine, groupHeaders, group);
                 groupText.push(newLine);
                 for (var k=0; k&lt;group.players.length; k++) {
                     var player = group.players[k];
                     var participant = player.participant;
-                    var newLine = period.id + ',' + group.id + ',' + participant.id + ',';
+                    var newLine = period.id + this.outputDelimiter + group.id + this.outputDelimiter + participant.id + this.outputDelimiter;
                     newLine = this.appendValues(newLine, playerHeaders, player);
                     playerText.push(newLine);
                 }
             }
         }
         var participantText = [];
-        var participantHeadersText = 'id,points';
+        var participantHeadersText = 'id' + this.outputDelimiter + 'points';
         if (participantHeaders.length > 0) {
-            participantHeadersText += ',' + participantHeaders.join(',');
+            participantHeadersText += this.outputDelimiter + participantHeaders.join(this.outputDelimiter);
         }
         participantText.push(participantHeadersText);
-        var pIds = Object.keys(this.session.participants).sort();
+        var pIds = Object.keys(this.session.participants);
+        Utils.alphanumSort(pIds);
         for (var i in pIds) {
             var participant = this.session.participants[pIds[i]];
-            var newLine = participant.id + ',' + participant.points();
+            var newLine = participant.id + this.outputDelimiter + participant.points();
             if (participantHeaders.length > 0) {
-                newLine += ',';
+                newLine += this.outputDelimiter;
             }
             for (var h=0; h&lt;participantHeaders.length; h++) {
                 var header = participantHeaders[h];
                 if (participant[header] !== undefined) {
-                    newLine += participant[header];
+                    newLine += JSON.stringify(participant[header]);
                 }
                 if (h&lt;participantHeaders.length-1) {
-                    newLine += ',';
+                    newLine += this.outputDelimiter;
                 }
             }
             participantText.push(newLine);
         }
 
         // WRITE OUTPUT
-        fs.appendFileSync(fn, 'APP ' + this.indexInSession() + '_' + this.id + '\n');
-        fs.appendFileSync(fn, appsText.join('\n') + '\n');
+        let fullText = '';
+        fullText += 'APP ' + this.indexInSession() + '_' + this.id + '\n';
+        fullText += appsText.join('\n') + '\n';
         if (periodHeaders.length > 0) {
-            fs.appendFileSync(fn, 'PERIODS\n');
-            fs.appendFileSync(fn, periodText.join('\n') + '\n');
+            fullText += 'PERIODS\n';
+            fullText += periodText.join('\n') + '\n';
         }
         if (groupHeaders.length > 0) {
-            fs.appendFileSync(fn, 'GROUPS\n');
-            fs.appendFileSync(fn, groupText.join('\n') + '\n');
+            fullText += 'GROUPS\n';
+            fullText += groupText.join('\n') + '\n';
         }
 
         for (var t=0; t&lt;groupTables.length; t++) {
             var groupTableText = [];
             var table = groupTables[t];
             var tableHeaders = groupTableHeaders[table];
-            groupTableText.push('period.id,group.id,id,' + tableHeaders.join(','));
+            groupTableText.push('period.id' + this.outputDelimiter + 'group.id' + this.outputDelimiter + 'id' + this.outputDelimiter + tableHeaders.join(this.outputDelimiter));
             for (var i=0; i&lt;this.periods.length; i++) {
                 var period = this.periods[i];
                 for (var j=0; j&lt;period.groups.length; j++) {
                     var group = period.groups[j];
-                    var tabRows = group[table].rows;
-                    for (var r=0; r&lt;tabRows.length; r++) {
-                        var row = tabRows[r];
-                        var newLine = period.id + ',' + group.id + ',' + row.id + ',';
-                        newLine = this.appendValues(newLine, tableHeaders, row);
-                        groupTableText.push(newLine);
+                    try {
+                        var tabRows = group[table].rows;
+                        for (var r=0; r&lt;tabRows.length; r++) {
+                            var row = tabRows[r];
+                            var newLine = period.id + this.outputDelimiter + group.id + this.outputDelimiter + row.id + this.outputDelimiter;
+                            newLine = this.appendValues(newLine, tableHeaders, row);
+                            groupTableText.push(newLine);
+                        }
+                    } catch (err) {
+                        
                     }
                 }
             }
-            fs.appendFileSync(fn, groupTables[t].toUpperCase() + '\n');
-            fs.appendFileSync(fn, groupTableText.join('\n') + '\n');
+            fullText += groupTables[t].toUpperCase() + '\n';
+            fullText += groupTableText.join('\n') + '\n';
         }
 
         if (playerHeaders.length > 0) {
-            fs.appendFileSync(fn, 'PLAYERS\n');
-            fs.appendFileSync(fn, playerText.join('\n') + '\n');
+            fullText += 'PLAYERS\n';
+            fullText += playerText.join('\n') + '\n';
         }
 
-        fs.appendFileSync(fn, 'PARTICIPANTS\n');
-        fs.appendFileSync(fn, participantText.join('\n') + '\n');
+        fullText += 'PARTICIPANTS\n';
+        fullText += participantText.join('\n') + '\n';
+
+        return fullText;
 
     }
 
@@ -818,7 +1127,7 @@ class App {
      * @return {string}  Session path + {@link App#indexInSession} + '_' + app.id
      */
     getOutputFN() {
-        return this.session.getOutputDir() + '/' + this.indexInSession() + '_' + this.id;
+        return this.session.getOutputDir() + '/' + this.getIdInSession();
     }
 
     /**
@@ -842,6 +1151,10 @@ class App {
                 this.playerMoveToNextStage(group.players[p]);
             }
         }
+    }
+
+    getIdInSession() {
+        return this.indexInSession() + '_' + this.shortId;
     }
 
     /**
@@ -884,14 +1197,22 @@ class App {
         metaData.numPeriods = this.numPeriods;
         metaData.groupSize = this.groupSize;
         metaData.id = this.id;
+        metaData.shortId = this.shortId;
         metaData.title = this.title;
         metaData.description = this.description;
         metaData.appPath = this.appPath;
+        metaData.hasError = this.hasError;
+        metaData.errorPosition = this.errorPosition;
+        metaData.errorLine = this.errorLine;
+        metaData.isStandaloneApp = this.isStandaloneApp;
 
         // var folder = path.join(this.jt.path, this.jt.settings.appFolders[0] + '/' + this.id);
-
         try {
-            metaData.appjs = Utils.readJS(this.appPath + '/app.jtt');
+            if (this.appPath.endsWith('.jtt') || this.appPath.endsWith('.js')) {
+                metaData.appjs = Utils.readJS(this.appPath);
+            } else {
+                metaData.appjs = Utils.readJS(this.appPath + '/app.jtt');
+            }
         } catch (err) {
             metaData.appjs = '';
         }
@@ -902,7 +1223,7 @@ class App {
             metaData.clientHTML = '';
         }
 
-        var app = new App(null, this.id);
+        var app = new App({}, this.jt, this.id);
 
         metaData.stages = [];
         try {
@@ -989,7 +1310,7 @@ class App {
     }
 
     reload() {
-        var app = new App(this.session, this.id, this.jt);
+        var app = new App(this.session, this.jt, this.id);
         app.optionValues = this.optionValues;
         for (var opt in app.optionValues) {
             app[opt] = app.optionValues[opt];
@@ -1003,9 +1324,11 @@ class App {
         this.optionValues[name] = value;
         var correctedValue = value;
         var isValid = false;
+        let foundOpt = false;
         for (var opt in this.options) {
             var option = this.options[opt];
             if (option.name === name) {
+                foundOpt = true;
                 if (option.type === 'select') {
                     for (var i in option.values) {
                         if (option.values[i] == value) { // allow for coercion
@@ -1024,7 +1347,7 @@ class App {
                 }
             }
         }
-        if (isValid) {
+        if (isValid || !foundOpt) {
             this[name] = correctedValue;
         }
     }
@@ -1036,7 +1359,10 @@ class App {
      * @return {Stage} The new stage.
      */
     newStage(id) {
-        var stage = new Stage.new(id, this, this.stages.length);
+        if (id == null) {
+            id = 'stage' + (this.stages.length + 1);
+        }
+        var stage = new Stage.new(id, this);
         this.stages.push(stage);
         return stage;
     }
@@ -1104,6 +1430,13 @@ class App {
         return fields;
     }
 
+    start() {
+        if (this.started) {
+            return;
+        }
+        this.started = true;
+    }
+
     /**
      * Called when a participant begins this app.
      * - For each of the [Clients]{@link Client} of this participant, call {@link App.addClientDefault}.
@@ -1124,6 +1457,15 @@ class App {
         participant.periodIndex = -1;
         participant.emit('participantSetAppIndex', {appIndex: this.indexInSession()});
 
+        let duration = this.getParticipantDuration(participant);
+        if (duration != null) {
+            participant.appTimer = new Timer.new(
+                function() {
+                    participant.session.addMessageToStartOfQueue(participant, {}, 'endCurrentApp');
+                },
+                duration*1000
+            );
+        }
         this.participantStart(participant);
         this.participantMoveToNextPeriod(participant);
 
@@ -1209,42 +1551,45 @@ class App {
      *
      * @param  {Participant} participant The participant.
      */
-    participantEnd(participant) {
+    participantEndInternal(participant) {
         // for (var c in participant.clients) {
         //     var client = participant.clients[c];
         //     client.socket.leave(this.roomId());
         // }
+        this.participantEnd(participant);
         this.tryToEndApp();
     }
 
-    /**
-     * Move the player to their next stage.
-     *
-     * FUNCTIONALITY
-     * - if player has not finished all stages,
-     * -- set player status to 'playing'
-     * -- increment player's stage index.
-     * -- play next stage ({@link Stage#playerPlayDefault}).
-     * -- player emits update ({@link Player#emitUpdate2}).
-     * - otherwise, move participant to next period ([this.participantMoveToNextPeriod(player.participant)]{@link App#participantMoveToNextPeriod}).
-     *
-     * CALLED FROM
-     * - {@link App#groupMoveToNextStage}
-     *
-     * @param  {Player} player The player
-     * @return {type}        description
-     */
-    playerMoveToNextStage(player) {
-        if (player.stageIndex &lt; this.stages.length - 1) {
-            player.status = 'playing';
-            player.stageIndex++;
-            player.stage = this.stages[player.stageIndex];
-            player.stage.playerPlayDefault(player);
-            player.emitUpdate2();
-        } else {
-            this.participantMoveToNextPeriod(player.participant);
-        }
-    }
+    participantEnd(participant) {}
+
+    // /**
+    //  * Move the player to their next stage.
+    //  *
+    //  * FUNCTIONALITY
+    //  * - if player has not finished all stages,
+    //  * -- set player status to 'playing'
+    //  * -- increment player's stage index.
+    //  * -- play next stage ({@link Stage#playerPlayDefault}).
+    //  * -- player emits update ({@link Player#emitUpdate2}).
+    //  * - otherwise, move participant to next period ([this.participantMoveToNextPeriod(player.participant)]{@link App#participantMoveToNextPeriod}).
+    //  *
+    //  * CALLED FROM
+    //  * - {@link App#groupMoveToNextStage}
+    //  *
+    //  * @param  {Player} player The player
+    //  * @return {type}        description
+    //  */
+    // playerMoveToNextStage(player) {
+    //     if (player.stageIndex &lt; this.stages.length - 1) {
+    //         player.status = 'playing';
+    //         player.stageIndex++;
+    //         player.stage = this.stages[player.stageIndex];
+    //         player.stage.playerPlayDefault(player);
+    //         player.emitUpdate2();
+    //     } else {
+    //         this.participantMoveToNextPeriod(player.participant);
+    //     }
+    // }
 
     /**
      * Returns the player of the current player's participant from the previous period.
@@ -1317,6 +1662,18 @@ class App {
         }
     }
 
+    copyFieldsTo(obj) {
+        var fields = this.outputFields();
+        for (var f in fields) {
+            var field = fields[f];
+            if (Utils.isFunction(this[field])) {
+                obj['__func_' + field] = this[field].toString();
+            } else {
+                obj[field] = this[field];
+            }
+        }
+    }
+
     /**
      * A shell of this object. Excludes parent, includes child shells.
      *
@@ -1327,15 +1684,7 @@ class App {
      */
     shellWithChildren() {
         var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            if (Utils.isFunction(this[field])) {
-                out['__func_' + field] = this[field].toString();
-            } else {
-                out[field] = this[field];
-            }
-        }
+        this.copyFieldsTo(out);
         out.indexInSession = this.indexInSession();
         out.periods = [];
         for (var i in this.periods) {
@@ -1356,13 +1705,22 @@ class App {
      */
     shellWithParent() {
         var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
+        this.copyFieldsTo(out);
         out.session = this.session.shell();
         out.numStages = this.stages.length;
+        out.vueComputedText = {};
+        for (let i in this.vueComputed) {
+            out.vueComputedText[i] = this.vueComputed[i].toString();
+        }
+        out.vueMethodsText = {};
+        for (let i in this.vueMethods) {
+            out.vueMethodsText[i] = this.vueMethods[i].toString();
+        }
+        for (let i in this.vueMethodsDefault) {
+            if (out.vueMethodsText[i] == null) {
+                out.vueMethodsText[i] = this.vueMethodsDefault[i].toString();
+            }
+        }
         return out;
     }
 
@@ -1376,11 +1734,7 @@ class App {
      */
     shell() {
         var out = {};
-        var fields = this.outputFields();
-        for (var f in fields) {
-            var field = fields[f];
-            out[field] = this[field];
-        }
+        this.copyFieldsTo(out);
         out.sessionIndex = this.indexInSession();
         return out;
     }
@@ -1389,7 +1743,7 @@ class App {
      * If all participants have finished the app, end the app ({@link App#end}).
      *
      * CALLED FROM
-     * - {@link App#participantEnd}
+     * - {@link App#participantEndInternal}
      *
      * @return {type}  description
      */
@@ -1408,7 +1762,7 @@ class App {
             }
         }
         if (proceed) {
-            this.end();
+            this.internalEnd();
         }
     }
 
@@ -1435,7 +1789,7 @@ class App {
             }
 
             if (i&lt;headers.length-1) {
-                newLine += ',';
+                newLine += this.outputDelimiter;
             }
         }
         return newLine;
@@ -1451,6 +1805,9 @@ class App {
     participantStart(participant) {}
 
     getNextPeriod(participant) {
+        if (participant.player != null) {
+            participant.periodIndex = participant.player.group.period.id - 1;
+        }
         if (participant.periodIndex >= this.numPeriods - 1) {
             return null;
         } else {
@@ -1463,6 +1820,7 @@ class App {
 var exports = module.exports = {};
 exports.new = App;
 exports.load = App.load;
+exports.newSansId = App.newSansId;
 </code></pre>
         </article>
     </section>
@@ -1479,7 +1837,7 @@ exports.load = App.load;
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Jul 25 2018 16:58:19 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Fri Feb 14 2020 22:43:17 GMT+0100 (Central European Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>
