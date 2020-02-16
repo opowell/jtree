@@ -127,4 +127,9 @@ Vue.config.productionTip = false
 window.vue = new Vue({
   store,
   render: h => h(MainApp),
+  mounted() {
+    if (store.state.windowDescs.length === 0) {
+      store.dispatch('resetWindows');
+    }
+  },
 }).$mount('#app')

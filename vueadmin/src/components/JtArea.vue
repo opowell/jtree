@@ -184,6 +184,7 @@ import JtSpacer from './JtSpacer.vue';
 import SettingsPanel            from '@/panels/Settings.vue'
 import ViewApp                  from '@/panels/App.vue'
 import ViewApps                 from '@/panels/Apps.vue'
+import FilesPanel               from '@/panels/Files.vue'
 import ViewWelcome              from '@/panels/Welcome.vue'
 import ViewLog                  from '@/panels/Log.vue'
 import ViewQueue                from '@/panels/Queue.vue'
@@ -212,7 +213,7 @@ export default {
     ViewSessionControls,
     ViewSessionParticipants,
     ViewSessionSettings,
-    // FilesPanel,
+    FilesPanel,
     // GameTreePanel,
     // GamesPanel,
     // SessionInfoPanel,

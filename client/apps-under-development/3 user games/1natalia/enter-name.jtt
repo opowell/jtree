@@ -1,7 +1,0 @@
-app.description = 'Players can enter an id or name.';
-
-let inputStage = app.newStage('input');
-inputStage.activeScreen = `
-<p>INPUT YOUR NAME</p>
-<input name='participant.name' required type='text'>
-`;

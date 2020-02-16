@@ -6,13 +6,15 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "build-watch": "vue-cli-service build-watch --dest ..\\client\\internal\\clients\\admin\\vue"
+    "build-watch": "vue-cli-service build-watch --dest ..\\client\\internal\\clients\\admin\\vue",
+    "build-watch-mac": "vue-cli-service build-watch --dest ../client/internal/clients/admin/vue"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.25",
     "@fortawesome/free-regular-svg-icons": "^5.11.2",
     "@fortawesome/free-solid-svg-icons": "^5.11.2",
     "@fortawesome/vue-fontawesome": "^0.1.7",
+    "axios": "^0.19.2",
     "bootstrap-vue": "^2.0.2",
     "core-js": "^2.6.5",
     "flatted": "^2.0.1",

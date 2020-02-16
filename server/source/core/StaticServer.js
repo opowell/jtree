@@ -101,6 +101,11 @@ class StaticServer {
             res.send(clients);
         });
 
+        expApp.get('/api/folder', async function(req, res) {
+            let contents = await self.jt.data.getFolderContents(req.query.path);
+            res.send(contents);
+        });
+
         expApp.get('/:pId', this.handleRequest.bind(this));
         expApp.post('/:pId', this.handleRequest.bind(this));
 

@@ -122,6 +122,24 @@ class Data {
         return out;
     }
 
+    async getFolderContents(selPath) {
+        if (selPath === '.') {
+            selPath = this.jt.path;            
+        }
+        let contents = await fs.readdir(selPath);
+        let out = [];
+        for (let index in contents) {
+            let filename = contents[index];
+            const stat = await fs.lstat(path.resolve(selPath, filename));
+            let isFolder = stat.isDirectory();
+            out.push({
+                name: filename,
+                isFolder,
+            })
+        }
+        return out;
+    };
+
     /*
      * FUNCTIONALITY
      * write current time to disk

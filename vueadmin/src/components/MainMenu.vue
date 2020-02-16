@@ -119,6 +119,11 @@ export default {
                             clickData: 'ViewApps',
                         },
                         {
+                            text: 'Files',
+                            action: this.showPanel,
+                            clickData: 'FilesPanel',
+                        },
+                        {
                             text: 'Queues',
                             action: this.showPanel,
                             clickData: 'ViewQueues',
