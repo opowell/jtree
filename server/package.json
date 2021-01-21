@@ -27,7 +27,7 @@
     "replace": "^0.3.0",
     "selfsigned": "^1.10.6",
     "selfsigned-ca": "^2.0.1",
-    "socket.io": "^2.0.4",
+    "socket.io": "^2.4.0",
     "stacktracey": "^1.2.117",
     "syc": "^2.0.5"
   },
