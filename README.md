@@ -49,3 +49,12 @@ Latest version (2020.02.14): **0.8.7**
 <a href='https://www.github.com/opowell/10ali'>10ali (Vienna University of Economics and Business)</a><br>
 <a href='https://www.github.com/opowell/11simone'>11simone (Vienna University of Economics and Business)</a><br>
 
+#### Development
+1. Clone project.
+2. Install server files.
+   1. cd server
+   2. pnpm i
+3. Start server
+   1. cd client
+   2. node ../server/source/jtree.js
+
