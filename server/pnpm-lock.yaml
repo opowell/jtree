@@ -6,19 +6,19 @@ settings:
 
 dependencies:
   async:
-    specifier: ^2.6.0
+    specifier: ^2.6.4
     version: 2.6.4
   body-parser:
-    specifier: ^1.18.2
+    specifier: ^1.20.2
     version: 1.20.2
   connect-history-api-fallback:
-    specifier: ^1.5.0
+    specifier: ^1.6.0
     version: 1.6.0
   express:
-    specifier: ^4.16.2
+    specifier: ^4.18.2
     version: 4.18.2
   express-session:
-    specifier: ^1.15.6
+    specifier: ^1.18.0
     version: 1.18.0
   fs-extra:
     specifier: ^5.0.0
@@ -27,16 +27,16 @@ dependencies:
     specifier: ^0.0.0
     version: 0.0.0
   ip:
-    specifier: ^1.1.5
+    specifier: ^1.1.8
     version: 1.1.8
   jsonfile:
     specifier: ^4.0.0
     version: 4.0.0
   node:
-    specifier: ^11.4.0
+    specifier: ^11.15.0
     version: 11.15.0
   object-hash:
-    specifier: ^1.2.0
+    specifier: ^1.3.1
     version: 1.3.1
   openport:
     specifier: ^0.0.4
@@ -51,7 +51,7 @@ dependencies:
     specifier: ^0.12.7
     version: 0.12.7
   pem:
-    specifier: ^1.14.2
+    specifier: ^1.14.8
     version: 1.14.8
   public-ip:
     specifier: ^3.2.0
@@ -60,16 +60,16 @@ dependencies:
     specifier: ^0.3.0
     version: 0.3.0
   selfsigned:
-    specifier: ^1.10.6
+    specifier: ^1.10.14
     version: 1.10.14
   selfsigned-ca:
     specifier: ^2.0.1
     version: 2.0.1
   socket.io:
-    specifier: ^2.0.4
+    specifier: ^2.5.0
     version: 2.5.0
   stacktracey:
-    specifier: ^1.2.117
+    specifier: ^1.2.127
     version: 1.2.127
   syc:
     specifier: ^2.0.5
