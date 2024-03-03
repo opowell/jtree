@@ -6,7 +6,6 @@ const App = require('../App.js');
 const Room = require('../Room.js');
 const Queue = require('../Queue.js');
 const User = require('../User.js');
-const StackTracey = require('stacktracey');
 
 /** The data object. */
 class Data {
@@ -178,7 +177,6 @@ class Data {
             }
             if (app.isStandaloneApp) {
                 app.hasError = true;
-                let stack = new StackTracey (err);
                 this.jt.log('Error loading app: ' + filePath, true);
                 this.jt.log(err, true);
                 let lines = err.stack.split('\n');

@@ -28,7 +28,6 @@
     "selfsigned": "^1.10.14",
     "selfsigned-ca": "^2.0.1",
     "socket.io": "^2.5.0",
-    "stacktracey": "^1.2.127",
     "syc": "^2.0.5"
   },
   "devDependencies": {
