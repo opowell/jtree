@@ -1,0 +1,5 @@
+app.activeScreen = `
+    <p>DECISION</p>
+    <p>Your endowment is {{app.endowment}} E$.</p>
+    <p>Your contribution (E$): <input name='player.contribution' required type='number' min='0' :max='app.endowment' step='1'></p>
+`;

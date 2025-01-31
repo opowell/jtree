@@ -53,6 +53,7 @@ class StaticServer {
             }
         }
         expApp.use('/participant', express.static(path.join(this.jt.path, jt.settings.participantUI)));
+        console.log('serving shared', path.join(this.jt.path, jt.settings.sharedUI))
         expApp.use('/shared', express.static(path.join(this.jt.path, jt.settings.sharedUI)));
         for (let i in jt.data.queues) {
             let queue = jt.data.queues[i];

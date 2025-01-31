@@ -6,7 +6,8 @@ const App = require('../App.js');
 const Room = require('../Room.js');
 const Queue = require('../Queue.js');
 const User = require('../User.js');
-
+const { loadDefaultApp } = require('./data/loadDefaultApp.js')
+const { getIdFromDirectory } = require('./data/getIdFromDirectory.js')
 /** The data object. */
 class Data {
 
@@ -146,7 +147,8 @@ class Data {
         }
     }
     
-    loadApp(id, session, appPath, options) {
+  loadApp(id, session, appPath, options) {
+    console.log('load', appPath, options)
         var app = null;
         app = new App.new(session, this.jt, appPath);
         app.givenOptions = options;
@@ -177,8 +179,8 @@ class Data {
             }
             if (app.isStandaloneApp) {
                 app.hasError = true;
-                this.jt.log('Error loading app: ' + filePath, true);
-                this.jt.log(err, true);
+                // this.jt.log('Error loading app: ' + filePath, true);
+                // this.jt.log(err, true);
                 let lines = err.stack.split('\n');
                 let index = lines[1].indexOf('<anonymous>:');
                 let position = lines[1].substring(index + '<anonymous>:'.length);
@@ -194,7 +196,7 @@ class Data {
                 if (isNaN(positionStr)) {
                     positionStr = 'unknown';
                 }
-                this.jt.log('Line ' + line + ', position ' + positionStr, true);
+                // this.jt.log('Line ' + line + ', position ' + positionStr, true);
                 app.errorLine = line;
                 app.errorPosition = positionStr;
             }
@@ -258,11 +260,11 @@ class Data {
     }
 
     // Search for *.js and *.jtt files. Load as apps.
-    // Search folders.
+    // Search subfolders.
     loadAppDir(dir) {
         if (Utils.isDirectory(dir)) {
-            var appDirContents = fs.readdirSync(dir);
-
+          var appDirContents = fs.readdirSync(dir);
+          const loadedDefaultApp = loadDefaultApp(dir)
             // Load individual apps and queues.
             for (var i in appDirContents) {
                 var curPath = path.join(dir, appDirContents[i]);
@@ -274,13 +276,8 @@ class Data {
                     let isApp = false;
                     // Treatment / App
                     if (id == 'app.js' || id == 'app.jtt') {
-                        isApp = true;
-                        // Take id from path name.
-                        if (dir.lastIndexOf('/') > -1) {
-                            id = dir.substring(dir.lastIndexOf('/') + 1);
-                        } else if (dir.lastIndexOf('\\') > -1) {
-                            id = dir.substring(dir.lastIndexOf('\\') + 1);
-                        }
+                      isApp = true;
+                      id = getIdFromDirectory(dir)
                     }
                     if (id.endsWith('.js')) {
                         isApp = true;

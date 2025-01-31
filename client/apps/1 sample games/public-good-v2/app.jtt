@@ -1,0 +1,6 @@
+app.description = 'Players in a group contribute to a public good. Contributions are multiplied by a factor (> 1), then redistributed equally among all group members.';
+
+app.numPeriods  = 10;
+app.groupSize   = 4;
+app.endowment   = 20;
+app.factor      = 2;
