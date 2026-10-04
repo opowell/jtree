@@ -1,0 +1,443 @@
+/* The look of z-Tree: a Windows program of the classic kind. A grey desktop
+   holding white child windows, black-ruled tables, a dotted stage tree and
+   grey dialogs with their buttons down the right. Menus and the child
+   windows' frames are appfr's, in its `windows` theme. */
+
+:root {
+  --zt-font: 'Segoe UI', Tahoma, 'Microsoft Sans Serif', system-ui, sans-serif;
+  --zt-mono: Consolas, 'Lucida Console', ui-monospace, monospace;
+  --zt-text: #000;
+  --zt-muted: #6d6d6d;
+  --zt-window: #fff;
+  --zt-face: #f0f0f0;
+  --zt-face-2: #e1e1e1;
+  --zt-border: #adadad;
+  --zt-border-dark: #7a7a7a;
+  --zt-desktop: #ababab;
+  --zt-select: #0078d7;
+  --zt-select-text: #fff;
+  --zt-select-soft: #cce8ff;
+  --zt-grid-line: #000;
+  --zt-active: #c42b1c;
+  --zt-ok: #107c10;
+}
+
+html, body, #app {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--zt-face);
+  color: var(--zt-text);
+  font: 12px/1.35 var(--zt-font);
+  overflow: hidden;
+}
+
+button, input, select, textarea {
+  font: inherit;
+  color: inherit;
+}
+
+/* ------------------------------------------------------------ main window */
+
+.zt {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--zt-face);
+  --dc-sans: var(--zt-font);
+}
+
+.zt-caption {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  padding: 0 10px;
+  background: #fff;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.zt-caption__icon { width: 18px; height: 18px; flex: 0 0 auto; }
+.zt-caption__text { overflow: hidden; text-overflow: ellipsis; }
+
+.zt-menubar {
+  flex: 0 0 auto;
+  background: #fff;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.zt-toolbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  padding: 2px 4px;
+  background: var(--zt-face);
+  border-bottom: 1px solid var(--zt-border);
+}
+.zt-toolbar__sep {
+  width: 1px;
+  height: 18px;
+  margin: 0 4px;
+  background: var(--zt-border);
+}
+.zt-toolbar button {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+}
+.zt-toolbar button:hover:not(:disabled) { border-color: #a0c8ea; background: #e5f1fb; }
+.zt-toolbar button:disabled { opacity: 0.35; cursor: default; }
+.zt-toolbar svg { width: 16px; height: 16px; }
+
+.zt-desktop {
+  flex: 1 1 auto;
+  min-height: 0;
+  position: relative;
+  background: var(--zt-desktop);
+}
+.zt-desktop { overflow: hidden; }
+.zt-desktop > * { height: 100%; box-sizing: border-box; }
+
+/* appfr's desktop, coloured and edged as an MDI client area. */
+.zt { color-scheme: light; }
+.zt-desktop .dc-window { background: var(--zt-desktop); }
+.zt-desktop .dc-space[data-dc-space='desktop'] {
+  background: var(--zt-desktop);
+  border: 0;
+  border-radius: 0;
+  box-shadow: inset 1px 1px 0 #808080;
+}
+
+.zt-status {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  height: 22px;
+  padding: 1px 2px;
+  background: var(--zt-face);
+  border-top: 1px solid var(--zt-border);
+  font-size: 12px;
+}
+.zt-status__pane {
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  border: 1px solid;
+  border-color: var(--zt-border) #fff #fff var(--zt-border);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.zt-status__pane--main { flex: 1 1 auto; border-color: transparent; }
+.zt-status__pane--off { color: var(--zt-active); }
+
+.zt-empty-desktop {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #5d5d5d;
+  pointer-events: none;
+  font-size: 13px;
+  text-align: center;
+}
+
+/* --------------------------------------------------------- child windows */
+
+.zt-win {
+  height: 100%;
+  overflow: auto;
+  background: var(--zt-window);
+  color: var(--zt-text);
+}
+
+/* ------------------------------------------------------------------ grid */
+
+.zt-grid {
+  border-collapse: collapse;
+  table-layout: fixed;
+  user-select: none;
+  font-size: 13px;
+  background: var(--zt-window);
+}
+.zt-grid th,
+.zt-grid td {
+  border: 1px solid var(--zt-grid-line);
+  padding: 2px 6px;
+  height: 22px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: normal;
+  cursor: default;
+}
+.zt-grid thead th { position: sticky; top: 0; background: var(--zt-window); z-index: 1; }
+.zt-grid .zt-grid__corner,
+.zt-grid .zt-grid__rowhead {
+  width: 8px;
+  min-width: 8px;
+  max-width: 8px;
+  padding: 0;
+  background: var(--zt-window);
+}
+.zt-grid .zt-grid__corner { position: sticky; left: 0; z-index: 2; }
+.zt-grid .zt-grid__rowhead { position: sticky; left: 0; z-index: 1; }
+.zt-grid [data-selected='true'] {
+  background: #000;
+  color: #fff;
+}
+.zt-grid td[data-dim='true'] { color: var(--zt-muted); }
+.zt-grid td[data-toggle='true'] { cursor: pointer; }
+.zt-grid__filler td { border: 0; height: auto; }
+
+/* ------------------------------------------------------------------ tree */
+
+.zt-tree {
+  padding: 4px 6px 12px;
+  font-size: 13px;
+  outline: none;
+  min-width: max-content;
+}
+.zt-tree ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.zt-tree ul ul { margin-left: 9px; }
+.zt-tree li {
+  position: relative;
+  padding-left: 18px;
+}
+/* The dotted lines joining a branch to its parent. */
+.zt-tree ul ul > li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-left: 1px dotted #808080;
+}
+.zt-tree ul ul > li:last-child::before { bottom: auto; height: 11px; }
+.zt-tree ul ul > li::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 11px;
+  width: 14px;
+  border-top: 1px dotted #808080;
+}
+.zt-tree__row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  white-space: nowrap;
+}
+.zt-tree__toggle {
+  position: absolute;
+  left: -5px;
+  top: 6px;
+  z-index: 1;
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border: 1px solid #919191;
+  background: #fff;
+  cursor: pointer;
+  font-size: 0;
+  color: transparent;
+}
+/* The minus, and the upright that makes it a plus while the branch is closed. */
+.zt-tree__toggle::before,
+.zt-tree__toggle::after {
+  content: '';
+  position: absolute;
+  background: #333;
+}
+.zt-tree__toggle::before { left: 1px; right: 1px; top: 3px; height: 1px; }
+.zt-tree__toggle[data-closed='true']::after { top: 1px; bottom: 1px; left: 3px; width: 1px; }
+.zt-tree > ul > li > .zt-tree__toggle { left: 2px; }
+.zt-tree > ul > li { padding-left: 16px; }
+.zt-tree__icon { width: 16px; height: 16px; flex: 0 0 auto; }
+.zt-tree__label {
+  padding: 0 3px;
+  border: 1px dotted transparent;
+  cursor: default;
+}
+.zt-tree__label[data-selected='true'] {
+  background: var(--zt-select);
+  color: var(--zt-select-text);
+}
+.zt-tree:focus-within .zt-tree__label[data-selected='true'] { border-color: #000; }
+.zt-tree__note { color: inherit; }
+.zt-tree__hook { color: var(--zt-muted); font-size: 11px; margin-left: 6px; }
+.zt-tree__label[data-kind='line'] { font-family: var(--zt-mono); font-size: 12px; }
+.zt-tree__label[data-kind='error'] { color: var(--zt-active); }
+
+/* --------------------------------------------------------------- dialogs */
+
+.zt-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.08);
+}
+.zt-dialog {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  min-width: 260px;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 24px);
+  background: var(--zt-face);
+  border: 1px solid #6d8fb8;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
+  font-size: 12px;
+}
+.zt-dialog__title {
+  display: flex;
+  align-items: center;
+  height: 30px;
+  padding-left: 10px;
+  background: #fff;
+  user-select: none;
+  cursor: default;
+  flex: 0 0 auto;
+}
+.zt-dialog__title span { flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.zt-dialog__close {
+  width: 44px;
+  height: 30px;
+  border: 0;
+  background: transparent;
+  font-size: 16px;
+  cursor: pointer;
+}
+.zt-dialog__close:hover { background: #e81123; color: #fff; }
+.zt-dialog__main {
+  display: flex;
+  gap: 14px;
+  padding: 12px;
+  overflow: auto;
+  min-height: 0;
+}
+.zt-dialog__main--stacked { flex-direction: column; }
+.zt-dialog__body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.zt-dialog__buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+.zt-dialog__buttons--row {
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.zt-btn {
+  min-width: 75px;
+  height: 23px;
+  padding: 0 10px;
+  border: 1px solid var(--zt-border);
+  background: var(--zt-face-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.zt-btn:hover:not(:disabled) { border-color: #0078d7; background: #e5f1fb; }
+.zt-btn:focus-visible { outline: 1px dotted #000; outline-offset: -4px; }
+.zt-btn--default { border-color: #0078d7; border-width: 2px; }
+.zt-btn:disabled { color: #a0a0a0; cursor: default; }
+
+/* Dialog fields: a label column, then the field. */
+.zt-form {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 6px 10px;
+  align-items: center;
+}
+.zt-form > label { text-align: right; }
+.zt-form > label.zt-form__top { align-self: start; padding-top: 3px; }
+.zt-form .zt-form__full { grid-column: 1 / -1; }
+.zt-field {
+  height: 23px;
+  padding: 0 4px;
+  border: 1px solid var(--zt-border);
+  background: #fff;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.zt-field:focus { outline: none; border-color: var(--zt-select); }
+.zt-field:disabled, .zt-field[readonly] { background: var(--zt-face); color: #555; }
+textarea.zt-field {
+  height: auto;
+  padding: 3px 4px;
+  font-family: var(--zt-mono);
+  font-size: 12px;
+  line-height: 1.45;
+  resize: vertical;
+  tab-size: 4;
+  white-space: pre;
+}
+.zt-group {
+  border: 1px solid #dcdcdc;
+  padding: 8px 10px 10px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.zt-group legend { padding: 0 3px; }
+.zt-check { display: flex; align-items: center; gap: 6px; }
+.zt-check input { margin: 0; }
+.zt-hint { color: var(--zt-muted); margin: 0; }
+.zt-msg { display: flex; gap: 14px; align-items: flex-start; max-width: 460px; }
+.zt-msg svg { width: 32px; height: 32px; flex: 0 0 auto; }
+.zt-msg p { margin: 0; white-space: pre-wrap; }
+
+/* A file list, as the Open dialog shows one. */
+.zt-files {
+  border: 1px solid var(--zt-border);
+  background: #fff;
+  overflow: auto;
+  height: 260px;
+  user-select: none;
+}
+.zt-files__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 1px 6px;
+  height: 20px;
+  white-space: nowrap;
+  cursor: default;
+}
+.zt-files__row[data-selected='true'] { background: var(--zt-select-soft); outline: 1px solid #99d1ff; }
+.zt-files__row svg { width: 16px; height: 16px; flex: 0 0 auto; }
+.zt-files__row small { color: var(--zt-muted); margin-left: auto; padding-left: 16px; }
+
+.zt-leaf { height: 100%; display: flex; flex-direction: column; background: #fff; }
+.zt-leaf__bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px;
+  background: var(--zt-face);
+  border-bottom: 1px solid var(--zt-border);
+  flex: 0 0 auto;
+}
+.zt-leaf__bar .zt-btn { min-width: 0; height: 21px; }
+.zt-leaf__bar span { flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--zt-muted); }
+.zt-leaf iframe { flex: 1 1 auto; border: 0; width: 100%; background: #fff; }

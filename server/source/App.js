@@ -1780,7 +1780,7 @@ class App {
         if (participant.player != null) {
             participant.periodIndex = participant.player.group.period.id - 1;
         }
-        if (participant.periodIndex >= this.numPeriods - 1) {
+        if (participant.periodIndex >= this.numPeriods - 1 || this.stopAfterPeriod === true) {
             return null;
         } else {
             return this.getPeriod(participant.periodIndex+1);

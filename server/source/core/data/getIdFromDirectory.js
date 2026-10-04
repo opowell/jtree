@@ -1,10 +1,11 @@
 const getIdFromDirectory = dir => {
+  let id = dir
   if (dir.lastIndexOf('/') > -1) {
     id = dir.substring(dir.lastIndexOf('/') + 1)
   } else if (dir.lastIndexOf('\\') > -1) {
     id = dir.substring(dir.lastIndexOf('\\') + 1)
   }
+  return id
 }
 
-const exports = module.exports = {}
-exports.getIdFromDirectory = getIdFromDirectory
+module.exports = { getIdFromDirectory }
