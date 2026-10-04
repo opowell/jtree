@@ -32,5 +32,5 @@ class ViewSessionControls extends HTMLElement {
 window.customElements.define('view-session-controls', ViewSessionControls);
 
 jt.downloadOutput = function() {
-    window.open("/session-download/" + jt.data.session.id, "_blank", "");
+    window.open(jt.basePath + "/session-download/" + jt.data.session.id, "_blank", "");
 }

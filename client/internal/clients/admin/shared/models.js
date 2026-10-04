@@ -542,7 +542,7 @@ var App = function () {
 
             // Insert jtree functionality.
             if (app.insertJtreeRefAtStartOfClientHTML) {
-                html = '<script type="text/javascript" src="/participant/jtree.js"></script>\n' + html;
+                html = '<script type="text/javascript" src="' + jt.basePath + '/participant/jtree.js"></script>\n' + html;
             }
 
             // Return to client.

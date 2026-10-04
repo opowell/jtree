@@ -40,6 +40,7 @@ class Settings {
          this.autoplayDelay          = 'randomInt(4,8)*1000';
          this.outputDelimiter        = ';';
          this.useHTTPS               = false;
+         this.basePath               = '/jtree'; // route everything is served under; '' for the root. JAS sets it from the app's route.
          this.httpsCertificateFile   = 'certificate.pem';
          this.defaultAdminPwd        = undefined;
          this.sessionShowFullLinks   = false;

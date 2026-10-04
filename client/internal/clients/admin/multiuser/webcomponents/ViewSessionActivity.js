@@ -29,7 +29,7 @@ class ViewSessionActivity extends HTMLElement {
     }
 }
 
-document.write('<script src="/admin/multiuser/webcomponents/SetAutoplayFreqModal.js"></script>');
+document.write('<script src="' + jt.basePath + '/admin/multiuser/webcomponents/SetAutoplayFreqModal.js"></script>');
 
 function viewAllParticipants() {
     let ids = Object.keys(jt.data.session.participants);

@@ -14,14 +14,24 @@ jt.data.CLOCK_FREQUENCY = 100; // in ms
 
 jt.serverIP = '{{{SERVER_IP}}}';
 jt.serverPort = '{{{SERVER_PORT}}}';
+jt.basePath = '{{{BASE_PATH}}}'; // where jtree is served, e.g. '/jtree'; '' at the root
 jt.server = {};
 
 jt.serverURL = function() {
     if (jt.serverPort === '80') {
-        return jt.serverIP;
+        return jt.serverIP + jt.basePath;
     } else {
-        return jt.serverIP + ':' + jt.serverPort;
+        return jt.serverIP + ':' + jt.serverPort + jt.basePath;
     }
+}
+
+// The page's path below jt.basePath, e.g. '/session/S1/P1'.
+jt.localPath = function() {
+    var p = location.pathname;
+    if (p.indexOf(jt.basePath + '/') === 0) {
+        p = p.substring(jt.basePath.length);
+    }
+    return p;
 }
 
 window.onload = function() {
@@ -51,13 +61,15 @@ jt.checkIfLoaded = function() {
         var roomId = jt.getRoomId();
 
         var query = {
+            path: jt.basePath + '/socket.io',
             query: 'id=' + pId +
             '&pwd=' + pwd +
             '&type=' + type +
             '&sessionId=' + sId +
             '&roomId=' + roomId
         };
-        jt.socket = io(jt.serverIP + ':' + jt.serverPort, query);
+        // The server that sent this page, whichever of its addresses the page was opened on.
+        jt.socket = io(query);
         jt.socket.on('connect', function() {
             console.log('client.socket connected socketId=' + jt.socket.id);
             jt.defaultSocketConnected();
@@ -87,14 +99,14 @@ jt.socketConnected = function() {
 
 jt.isAdmin = function() {
     return (
-        window.location.pathname.includes('/admin')
+        jt.localPath().startsWith('/admin')
     );
 }
 
 jt.getSessionId = function() {
     var sId = jt.getURLParameter('sId');
-    if (location.pathname.includes('/session/')) {
-        var totheright = location.pathname.substring('/session/'.length);
+    if (jt.localPath().startsWith('/session/')) {
+        var totheright = jt.localPath().substring('/session/'.length);
         var nextSlashIndex = totheright.indexOf('/');
         if (nextSlashIndex > 0) {
             sId = totheright.substring(0, nextSlashIndex);
@@ -105,8 +117,8 @@ jt.getSessionId = function() {
 
 jt.getRoomId = function() {
     var out = jt.getURLParameter('roomId');
-    if (location.pathname.includes('/room/')) {
-        var totheright = location.pathname.substring('/room/'.length);
+    if (jt.localPath().startsWith('/room/')) {
+        var totheright = jt.localPath().substring('/room/'.length);
         var nextSlashIndex = totheright.indexOf('/');
         if (nextSlashIndex > 0) {
             out = totheright.substring(0, nextSlashIndex);
@@ -120,12 +132,12 @@ jt.getPId = function() {
     if (pId === null && !jt.isAdmin()) {
         var toSkip;
         // Location is /session/sessionId/pId
-        if (location.pathname.startsWith('/session/')) {
+        if (jt.localPath().startsWith('/session/')) {
             toSkip = '/session/' + jt.getSessionId() + '/';
         }
 
         // /room/roomId/pId
-        else if (location.pathname.startsWith('/room/')) {
+        else if (jt.localPath().startsWith('/room/')) {
             toSkip = '/room/' + jt.getRoomId() + '/';
         }
 
@@ -133,7 +145,7 @@ jt.getPId = function() {
         else {
             toSkip = '/';
         }
-        var whatsLeft = location.pathname.substring(toSkip.length);
+        var whatsLeft = jt.localPath().substring(toSkip.length);
 
         // .../pId/hash
         if (whatsLeft.indexOf('/') > 0) {
@@ -160,7 +172,7 @@ jt.setPId = function(newPId, newSId) {
     if (type !== null) {
         props += '&type=' + type;
     }
-    var newURL = window.location.protocol + '//' + window.location.host + props;
+    var newURL = window.location.protocol + '//' + window.location.host + jt.basePath + props;
 //    if (window.location.href !== newURL) {
     if (newPId !== pId) {
         window.location.href = newURL;

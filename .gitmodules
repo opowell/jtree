@@ -1,0 +1,4 @@
+[submodule "vendor/jas"]
+	path = vendor/jas
+	url = https://github.com/opowell/jas.git
+	ignore = untracked

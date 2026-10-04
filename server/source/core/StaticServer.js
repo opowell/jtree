@@ -2,7 +2,7 @@ const express   = require('express');
 const path      = require('path');
 const fs        = require('fs-extra');
 const Utils     = require('../Utils.js');
-const ip        = require('ip');
+const os        = require('os');
 const http      = require('http');
 const https     = require('https');
 const replace   = require("replace");
@@ -13,6 +13,65 @@ const openurl       = require('openurl');
 
 const selfsigned = require('selfsigned');
 
+
+/**
+ * Rewrites root-absolute URLs (src="/shared/...", href='/admin/...', action="/admin") in HTML
+ * responses to sit under basePath, so pages written for the root work wherever jtree is served.
+ * Applies to every HTML page: jtree's own, and experiment apps' stages.
+ */
+function prefixHtmlUrls(basePath) {
+    if (basePath === '') {
+        return function(req, res, next) { next(); };
+    }
+    var escaped = basePath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    var rootUrl = new RegExp('\\b(src|href|action)(\\s*=\\s*)(["\'])\\/(?!\\/|' + escaped.substring(1) + '\\/)', 'gi');
+    return function(req, res, next) {
+        var write = res.write;
+        var end = res.end;
+        var chunks = [];
+        var isHtml = function() {
+            return /^text\/html/.test(res.getHeader('Content-Type') || '');
+        };
+        res.write = function(chunk, encoding) {
+            if (!isHtml()) {
+                return write.apply(res, arguments);
+            }
+            chunks.push(Buffer.from(chunk, encoding));
+            return true;
+        };
+        res.end = function(chunk, encoding) {
+            if (!isHtml() || req.method === 'HEAD') {
+                return end.apply(res, arguments);
+            }
+            if (chunk != null && typeof chunk !== 'function') {
+                chunks.push(Buffer.from(chunk, encoding));
+            }
+            var html = Buffer.concat(chunks).toString('utf8').replace(rootUrl, '$1$2$3' + basePath + '/');
+            if (!res.headersSent) {
+                res.setHeader('Content-Length', Buffer.byteLength(html));
+            }
+            return end.call(res, html);
+        };
+        next();
+    };
+}
+
+/**
+ * The first non-internal IPv4 address, so links given to participants work from other machines
+ * on the network. Loopback aliases (e.g. 10.x addresses on lo0) count as internal.
+ */
+function lanAddress() {
+    var interfaces = os.networkInterfaces();
+    for (var name in interfaces) {
+        var addresses = interfaces[name] || [];
+        for (var i = 0; i < addresses.length; i++) {
+            if (addresses[i].family === 'IPv4' && !addresses[i].internal) {
+                return addresses[i].address;
+            }
+        }
+    }
+    return 'localhost';
+}
 
 /** Server for static files */
 class StaticServer {
@@ -30,6 +89,8 @@ class StaticServer {
                 saveUninitialized: true
             }
         ))
+        // After the session, whose own res.end wrapper sends the headers early: this one must run first.
+        expApp.use(prefixHtmlUrls(jt.basePath));
 
         var self = this;
         this.expApp = expApp;
@@ -85,12 +146,7 @@ class StaticServer {
         });
 
         expApp.get('/api/apps', function(req, res) {
-            let apps = self.jt.data.getApps();
-            let out = [];
-            for (let i=0; i<apps.length; i++) {
-                out.push(apps[i].metaData());
-            }
-            res.send(out);
+            res.send(Object.values(self.jt.data.appsMetaData));
         });
 
         expApp.get('/api/clients', function(req, res) {
@@ -106,8 +162,11 @@ class StaticServer {
         expApp.post('/:pId', this.handleRequest.bind(this));
 
         expApp.get('/room/:rId', function(req, res) {
-            res.cookie('roomId', req.params.rId);
             var room = self.jt.data.room(req.params.rId);
+            if (room == null) {
+                return self.sendNoRoom(res, req.params.rId);
+            }
+            res.cookie('roomId', req.params.rId);
             res.cookie('roomDN', room.displayName);
             res.cookie('hasSecret', room.useSecureURLs);
             res.sendFile(path.join(self.jt.path, self.jt.settings.clientUI, '/room.html'));
@@ -115,14 +174,20 @@ class StaticServer {
 
         expApp.get('/session-download/:sId', function(req, res) {
             var session = self.jt.data.session(req.params.sId);
+            if (session == null) {
+                return res.status(404).type('text').send('There is no session "' + req.params.sId + '".');
+            }
             var out = session.saveOutput();
-            res.setHeader('Content-disposition', 'attachment; filename=' + session.csvFN());
+            res.setHeader('Content-disposition', 'attachment; filename=' + path.basename(session.csvFN()));
             res.set('Content-Type', 'text/csv');
             res.status(200).send(out);
         });
 
         expApp.get('/room/:rId/:pId', function(req, res) {
             var room = self.jt.data.room(req.params.rId);
+            if (room == null) {
+                return self.sendNoRoom(res, req.params.rId);
+            }
             if (room.isValidPId(req.params.pId, req.params.hash)) {
                 res.sendFile(path.join(self.jt.path, self.jt.settings.participantUI + '/readyClient.html'));
             } else {
@@ -152,7 +217,7 @@ class StaticServer {
               if(err) {
                 return next(err);
               } else {
-                return res.redirect('/admin');
+                return res.redirect(jt.basePath + '/admin');
               }
             });
           }
@@ -171,7 +236,7 @@ class StaticServer {
             let pathToFolder = path.join(this.adminUIsPath(), adminUIs[i]);
             if (fs.lstatSync(pathToFolder).isDirectory()) {
                 expApp.get('/admin/' + adminUIs[i], function(req, res) {
-                    var ui = req.originalUrl.substring('/admin/'.length);
+                    var ui = req.path.substring('/admin/'.length);
                     var id = req.query.id;
                     var pwd = req.query.pwd;
                     var admin = jt.data.getAdmin(id, pwd);
@@ -189,8 +254,53 @@ class StaticServer {
 
         //////////////////////////////
         // START SERVER
+        // Hosted by another program (see jtree.js), attach to its server; otherwise listen on our own.
+        if (jt.httpServer != null) {
+            this.attach(jt.httpServer);
+        } else {
+            this.listen();
+        }
+        //////////////////////////////
+
+    }
+
+    /**
+     * Serve from a server owned by a hosting program (e.g. JAS), which mounts {@link StaticServer#expApp}
+     * and decides the port.
+     */
+    attach(httpServer) {
+        var jt = this.jt;
+        this.server = httpServer;
+        this.ip = lanAddress();
+        if (jt.settings.useHTTPS) {
+            console.log('jtree: useHTTPS is ignored, the hosting server decides the protocol');
+        }
+        this.server.on('listening', () => {
+            this.port = this.server.address().port;
+            jt.settings.port = this.port;
+            jt.settings.server.ip = this.ip;
+            jt.settings.server.port = this.port;
+            console.log('jtree ' + jt.version + ', admin on http://localhost:' + this.port + jt.basePath + '/admin');
+            this.generateSharedJS(jt.settings.clientJSTemplateFile, jt.settings.clientJSFile);
+        });
+    }
+
+    listen() {
+        var jt = this.jt;
+        var self = this;
+        var expApp = this.expApp;
+
+        // Serve under jt.basePath, and send visitors to the root there.
+        if (jt.basePath !== '') {
+            expApp = express();
+            expApp.use(jt.basePath, this.expApp);
+            expApp.get('/', function(req, res) {
+                res.redirect(jt.basePath + '/');
+            });
+        }
+
         this.port = jt.settings.port;
-        this.ip = ip.address();
+        this.ip = lanAddress();
 
 
         if (jt.settings.useHTTPS == false) {
@@ -215,7 +325,7 @@ class StaticServer {
             console.log('###############################################');
             jt.settings.server.ip = self.ip;
             jt.settings.server.port = self.port;
-            console.log('jtree ' + jt.version + ', listening on ' + protocol + self.ip + ':' + self.port + '/admin');
+            console.log('jtree ' + jt.version + ', listening on ' + protocol + self.ip + ':' + self.port + jt.basePath + '/admin');
 
             // pkg cannot include part of 'opn' package in executable.
             // const opn           = require('opn');
@@ -226,7 +336,7 @@ class StaticServer {
                         if (jt.settings.useHTTPS) {
                             protocol = 'https://';
                         }
-                        openurl.open(protocol + this.ip + ':' + this.port + '/admin');
+                        openurl.open(protocol + this.ip + ':' + this.port + jt.basePath + '/admin');
                     } catch (err) {
                         console.error(err);
                     }
@@ -260,7 +370,6 @@ class StaticServer {
         // Generate files used by clients.
         this.generateSharedJS(this.jt.settings.clientJSTemplateFile, this.jt.settings.clientJSFile);
         //////////////////////////////
-
     }
 
 //     generateClientModels() {
@@ -271,12 +380,12 @@ class StaticServer {
     handleRequest(req, res) {
         var jt = this.jt;
         let pId = req.params.pId;
-        let adminCall = req.originalUrl === '/admin/' || req.originalUrl === '/admin';
+        let adminCall = req.path === '/admin/' || req.path === '/admin';
         var adminUIs = fs.readdirSync(this.adminUIsPath());
         for (let i in adminUIs) {
             let pathToFolder = path.join(this.adminUIsPath(), adminUIs[i]);
             if (fs.lstatSync(pathToFolder).isDirectory()) {
-                if (req.originalUrl === '/admin/' + adminUIs[i]) {
+                if (req.path === '/admin/' + adminUIs[i]) {
                     adminCall = true;
                     break;
                 }
@@ -309,12 +418,16 @@ class StaticServer {
         }
     }
 
+    sendNoRoom(res, rId) {
+        res.status(404).type('text').send('There is no room "' + rId + '".');
+    }
+
     getAdminPath(req) {
-        let defaultUI = req.originalUrl === '/admin/' || req.originalUrl === '/admin';
+        let defaultUI = req.path === '/admin/' || req.path === '/admin';
         if (defaultUI) {
             return path.join(this.defaultAdminUIPath());
         } else {
-            return path.join(this.adminUIsPath(), req.originalUrl);
+            return path.join(this.adminUIsPath(), req.path);
         }
     }
 
@@ -357,6 +470,13 @@ class StaticServer {
             replace({
                 regex: '{{{SERVER_PORT}}}',
                 replacement: this.port,
+                paths: [newFN],
+                recursive: true,
+                silent: true,
+            });
+            replace({
+                regex: '{{{BASE_PATH}}}',
+                replacement: this.jt.basePath,
                 paths: [newFN],
                 recursive: true,
                 silent: true,

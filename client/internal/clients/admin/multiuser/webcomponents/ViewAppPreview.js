@@ -15,8 +15,8 @@ class ViewAppPreview extends HTMLElement {
     }
 }
 
-document.write('<link rel="stylesheet" type="text/css" href="/admin/multiuser/webcomponents/ViewAppPreview.css">');
-document.write('<script src="/admin/multiuser/webcomponents/AppSetVariableModal.js"></script>');
+document.write('<link rel="stylesheet" type="text/css" href="' + jt.basePath + '/admin/multiuser/webcomponents/ViewAppPreview.css">');
+document.write('<script src="' + jt.basePath + '/admin/multiuser/webcomponents/AppSetVariableModal.js"></script>');
 
 jt.updateAppPreview = function() {
     $('#editAppOptionsModal').modal('hide');

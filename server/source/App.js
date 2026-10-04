@@ -390,7 +390,7 @@ class App {
         var app = new App(session, json.id, session.jt);
 
         // Run app code.
-        var folder = path.join(session.jt.path, session.getOutputDir() + '/' + index + '_' + json.id);
+        var folder = path.join(session.getOutputDir(), index + '_' + json.id);
         var appCode = Utils.readJS(folder + '/app.jtt');
         eval(appCode);
 

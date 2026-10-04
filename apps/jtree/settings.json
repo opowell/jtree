@@ -1,0 +1,6 @@
+{
+  "route": "/jtree",
+  "clients": [],
+  "static": false,
+  "servers": "./server.js"
+}

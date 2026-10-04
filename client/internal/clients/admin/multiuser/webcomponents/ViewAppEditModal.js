@@ -27,10 +27,10 @@ class ViewAppEditorModal extends HTMLElement {
 }
 
 // Ref: http://blog.codebender.cc/2015/09/25/developer-says-handling-multiple-sessions-with-ace-editor/
-document.write('<link rel="stylesheet" type="text/css" href="/admin/multiuser/webcomponents/codeEditor/main.css">');
-document.write('<script src="/admin/multiuser/webcomponents/codeEditor/editorUI.js"></script>');
-document.write('<script src="/admin/multiuser/webcomponents/codeEditor/fileManager.js"></script>');
-document.write('<script src="/admin/multiuser/webcomponents/codeEditor/editor.js"></script>');
+document.write('<link rel="stylesheet" type="text/css" href="' + jt.basePath + '/admin/multiuser/webcomponents/codeEditor/main.css">');
+document.write('<script src="' + jt.basePath + '/admin/multiuser/webcomponents/codeEditor/editorUI.js"></script>');
+document.write('<script src="' + jt.basePath + '/admin/multiuser/webcomponents/codeEditor/fileManager.js"></script>');
+document.write('<script src="' + jt.basePath + '/admin/multiuser/webcomponents/codeEditor/editor.js"></script>');
 
 jt.appSaveFileContentsFromEditor = function() {
     var editor = ace.edit("app-editor");

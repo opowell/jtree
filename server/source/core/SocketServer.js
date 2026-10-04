@@ -10,7 +10,11 @@ const Msgs      = require('./Msgs.js');
 class SocketServer {
 
     constructor(jt) {
-        this.io = socketIO(jt.staticServer.server);
+        // On a server shared with other apps (see jtree.js), leave WebSocket upgrades for other paths alone.
+        this.io = socketIO(jt.staticServer.server, {
+            path: jt.basePath + '/socket.io',
+            destroyUpgrade: jt.httpServer == null,
+        });
         this.jt = jt;
         this.ADMIN_TYPE = 'ADMIN';
         this.msgs         = new Msgs.new(jt); // MESSAGES TO LISTEN FOR FROM CLIENTS

@@ -26,7 +26,7 @@ class MainMenu extends HTMLElement {
                       </span>
                   </li>
                   <li class="nav-item">
-                      <a class="nav-link" href="/help/index.html" target='_blank'>
+                      <a class="nav-link" href="${jt.basePath}/help/index.html" target='_blank'>
                           Help
                       </a>
                   </li>

@@ -16,14 +16,14 @@ class ViewSession extends HTMLElement {
     }
 }
 
-document.write('<script src="/admin/multiuser/webcomponents/ViewSessionActivity.js"></script>');
-document.write('<script src="/admin/multiuser/webcomponents/ViewSessionApps.js"></script>');
-document.write('<script src="/admin/multiuser/webcomponents/ViewSessionControls.js"></script>');
-document.write('<script src="/admin/multiuser/webcomponents/ViewSessionParticipants.js"></script>');
-document.write('<script src="/admin/multiuser/webcomponents/ViewSessionResults.js"></script>');
-document.write('<script src="/admin/multiuser/webcomponents/ViewSessionSettings.js"></script>');
-document.write('<script src="/admin/multiuser/webcomponents/ViewSessionTabs.js"></script>');
-document.write('<script src="/admin/multiuser/webcomponents/ViewSessionUsers.js"></script>');
+document.write('<script src="' + jt.basePath + '/admin/multiuser/webcomponents/ViewSessionActivity.js"></script>');
+document.write('<script src="' + jt.basePath + '/admin/multiuser/webcomponents/ViewSessionApps.js"></script>');
+document.write('<script src="' + jt.basePath + '/admin/multiuser/webcomponents/ViewSessionControls.js"></script>');
+document.write('<script src="' + jt.basePath + '/admin/multiuser/webcomponents/ViewSessionParticipants.js"></script>');
+document.write('<script src="' + jt.basePath + '/admin/multiuser/webcomponents/ViewSessionResults.js"></script>');
+document.write('<script src="' + jt.basePath + '/admin/multiuser/webcomponents/ViewSessionSettings.js"></script>');
+document.write('<script src="' + jt.basePath + '/admin/multiuser/webcomponents/ViewSessionTabs.js"></script>');
+document.write('<script src="' + jt.basePath + '/admin/multiuser/webcomponents/ViewSessionUsers.js"></script>');
 
 deleteParticipantBtn = function() {
     var pId = $('#deleteParticipantSelect').val();

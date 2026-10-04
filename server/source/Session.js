@@ -383,7 +383,7 @@ class Session {
     }
 
     getOutputDir() {
-        return this.jt.settings.sessionsFolder + '/' + this.name;
+        return path.join(this.jt.path, this.jt.settings.sessionsFolder, this.name);
     }
 
     /**

@@ -216,7 +216,7 @@ jt.connected = function() {
 jt.socketConnected = function() {
     server.refreshAdmin();
 
-    ace.config.set("basePath", "/shared/ace");
+    ace.config.set("basePath", jt.basePath + "/shared/ace");
 
     // var editor = ace.edit("edit-app-appjs");
     // var editorCH = ace.edit("edit-app-clienthtml");
