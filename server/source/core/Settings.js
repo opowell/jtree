@@ -1,7 +1,5 @@
 const path      = require('path');
 const fs        = require('fs-extra');
-//const getportsync  = require('get-port-sync');
-const openport  = require('openport');
 const Utils     = require('../Utils.js');
 
 /** Settings that can be set in the settings.json file */
@@ -11,8 +9,8 @@ class Settings {
 
          this.jt = jt;
 
-         this.admins                 = {};
-         this.adminLoginReq          = false; // whether or not admins need to login.
+         // Admin access, see AdminAuth: without a password, only from the computer running jtree.
+         this.admins                 = {}; // extra admin logins, {id: {pwd: '...'}}
          this.allowClientsToCreateParticipants = true; // default for new sessions
          this.autoSaveFreq           = 100000; // how often to save active sessions, in ms.
          this.logToConsole           = false;
@@ -22,9 +20,7 @@ class Settings {
 
          this.clientJSFile           = 'internal/clients/shared/shared.js';
          this.clientJSTemplateFile   = 'internal/sharedTemplate.js';
-         this.clientJSModuleFile           = '../vueadmin/src/webcomps/shared.js';
-         this.clientJSModuleTemplateFile   = 'internal/sharedTemplateModule.js';
-         this.defaultAdminUI         = 'multiuser';
+         this.defaultAdminUI         = 'v2'; // folder in adminUIsPath served at /admin; others at /admin/<folder>
          this.participantUI          = 'internal/clients/participant';
          this.clientUI               = 'internal/clients/participant';
          this.adminUIsPath           = 'internal/clients/admin';
@@ -42,7 +38,7 @@ class Settings {
          this.useHTTPS               = false;
          this.basePath               = '/jtree'; // route everything is served under; '' for the root. JAS sets it from the app's route.
          this.httpsCertificateFile   = 'certificate.pem';
-         this.defaultAdminPwd        = undefined;
+         this.defaultAdminPwd        = undefined; // admin password; set it to use the admin from other computers
          this.sessionShowFullLinks   = false;
          this.loadSettings           = false;
          this.session = {};
@@ -76,7 +72,7 @@ class Settings {
             if (fs.existsSync(settingsJSONPath)) {
                 var json = fs.readJSONSync(settingsJSONPath);
                 for (var i in json) {
-                    console.log('loading custom setting: ' + i + ' = ' + json[i]);
+                    console.log('loading custom setting: ' + i + ' = ' + (/pwd|password/i.test(i) ? '********' : JSON.stringify(json[i])));
                     this[i] = json[i];
                 }
             }
@@ -87,7 +83,7 @@ class Settings {
          try {
              let settingsJSPath = path.join(this.jt.path, 'settings.js');
             if (fs.existsSync(settingsJSPath)) {
-                var settingsFile = fs.readSync(path.join(this.jt.path, 'settings.js'));
+                var settingsFile = fs.readFileSync(settingsJSPath, 'utf8');
                 console.log('loading custom settings from settings.js');
                 eval(settingsFile);
             }
@@ -96,19 +92,10 @@ class Settings {
             this.logMessage = err;
         }
 
-         if (this.port === undefined) {
-         //     try {
-         //         this.port = getPortSync();
-         //     } catch (err) {
-         //         this.port = 3000;
-         //     }
-            openport.find(function(err, port) {
-                if (err) { console.log(err); return; }
-                this.port = port;
-            });
+         // PORT, as JAS and the launchers use, wins over settings.json.
+         if (process.env.PORT) {
+             this.port               = parseInt(process.env.PORT);
          }
-
-
      }
 
      /**
@@ -162,6 +149,7 @@ class Settings {
          return fields;
      }
 
+     /** The settings sent to admin pages, without passwords. */
      shell() {
          var out = {};
          var fields = this.outputFields();
@@ -169,6 +157,13 @@ class Settings {
              var field = fields[i];
              out[field] = this[field];
          }
+         out.defaultAdminPwd = this.defaultAdminPwd ? '********' : undefined;
+         out.admins = {};
+         for (var id in this.admins) {
+             out.admins[id] = { pwd: '********' };
+         }
+         out.valsToSave = Object.assign({}, this.valsToSave);
+         delete out.valsToSave.defaultAdminPwd;
          return out;
      }
 

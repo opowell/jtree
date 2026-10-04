@@ -2,6 +2,15 @@
 - Generic game trees.
 - Listen to incremental game changes via observer.
 
+#### 0.9.0 (unreleased)
+- Downloads bundle Node.js (current LTS) and run through JAS: unpack and run `start.command` (macOS), `start.cmd` (Windows) or `start.sh` (Linux). Native Apple Silicon build. Windows XP and 32-bit Windows are no longer supported.
+- Admin access: without an admin password, the admin interface only opens on the computer running jtree. Set `defaultAdminPwd` in `settings.json` to log in from other computers. Previously any participant could connect as an admin.
+- Session output downloads and `/api` need admin access.
+- New default admin interface at `/admin` (admin2), which runs without a build step. The previous one is at `/admin/multiuser`. The Vue 2 "beta" admin is removed.
+- Server: socket.io 4, Express 5, Node.js 22 or later. Unused dependencies removed.
+- Participant page: jQuery 3.7.1 (with jQuery Migrate, for code written for jQuery 1.x) and Vue 2.7.16. The old files stay in `/shared` for apps that load them.
+- `PORT` environment variable sets the port.
+
 #### 2020.02.14 - 0.8.7
 - Remove some user games.
 - Add Linux compilation scripts.

@@ -76,6 +76,13 @@ jt.checkIfLoaded = function() {
             jt.socketConnected();
         });
 
+        // An admin page whose login has run out (e.g. jtree restarted): log in again.
+        jt.socket.on('connect_error', function(err) {
+            if (err && err.message === 'jtree: admin login required') {
+                location.href = jt.basePath + '/admin/login?next=' + encodeURIComponent(location.pathname + location.search);
+            }
+        });
+
         jt.socket.on('logged-in', function(participant) {
             jt.setPId(participant.id, participant.session.id);
         });

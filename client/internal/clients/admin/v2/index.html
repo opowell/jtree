@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="favicon.ico" />
+    <title>jtree admin</title>
+    <!-- No build step: boot.js compiles src/ in the browser with vue3-sfc-loader. Root-absolute
+         URLs get jtree's route (e.g. /jtree) from the server; the import map is written here. -->
+    <script>
+      (function () {
+        var base = location.pathname.replace(/\/admin(\/.*)?$/, '')
+        var map = document.createElement('script')
+        map.type = 'importmap'
+        map.textContent = JSON.stringify({
+          imports: {
+            'vue': base + '/shared/vue-3.5.43/vue.esm-browser.prod.js',
+            'vue3-sfc-loader': base + '/shared/vue3-sfc-loader-0.9.5/vue3-sfc-loader.esm.js',
+            'header-content-layout': base + '/shared/header-content-layout-0.43.0/index.js',
+          },
+        })
+        document.currentScript.after(map)
+      })()
+    </script>
+    <link rel="stylesheet" href="/shared/header-content-layout-0.43.0/style.css" />
+    <link rel="stylesheet" href="src/styles.css" />
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/shared/circular-json-0.5.9.min.js"></script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="boot.js"></script>
+  </body>
+</html>

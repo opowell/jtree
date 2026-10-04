@@ -80,7 +80,7 @@ class Room {
     }
 
     clientRemove(socket) {
-        var id          = socket.request._query.id; // participant or admin ID
+        var id          = socket.handshake.query.id; // participant or admin ID
         var participant = this.participant(id);
         participant.removeClient(socket.id);
         socket.leave(this.roomId());

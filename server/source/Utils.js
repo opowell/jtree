@@ -1,6 +1,5 @@
 const fs        = require('fs-extra');
 const path      = require('path');
-const jsonfile  = require('jsonfile');
 
 /**
  * Set of utility functions.
@@ -150,7 +149,7 @@ class Utils {
     */
     static readJSON(file) {
         try {
-            return jsonfile.readFileSync(file);
+            return fs.readJsonSync(file);
         } catch(err) {
             return 'JSON error';
         }

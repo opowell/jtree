@@ -1,0 +1,14 @@
+{
+  "name": "jtree-admin2",
+  "private": true,
+  "description": "Optional: type-checks src/. The admin runs without installing anything (see README.md).",
+  "scripts": {
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "devDependencies": {
+    "header-content-layout": "github:opowell/appfr#06c71e0a7e872ec6b0e527c3958b8de544660398",
+    "typescript": "^5.7",
+    "vue": "3.5.43",
+    "vue-tsc": "^2.2"
+  }
+}

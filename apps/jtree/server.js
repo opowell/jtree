@@ -16,16 +16,12 @@ export default (router, app, httpServer) => {
   const jt = jtree.start({ path: path.join(root, 'client'), basePath: route, httpServer })
   const expApp = jt.staticServer.expApp
 
-  // jtree's Express 4 app swaps the request and response prototypes for its
-  // own, so put JAS's (Express 5) back on anything it passes on. Express 5
-  // reads req.query from a getter on its prototype, which Express 4's lacks:
-  // pin the parsed query on the request so it survives the swap.
+  // jtree's Express app swaps the request and response prototypes for its own
+  // (it is a separate copy of Express), so put JAS's back on anything it passes on.
   router.use(route, (req, res, next) => {
     const reqProto = Object.getPrototypeOf(req)
     const resProto = Object.getPrototypeOf(res)
-    Object.defineProperty(req, 'query', { value: req.query, writable: true, configurable: true, enumerable: true })
     expApp(req, res, (err) => {
-      delete req.query
       Object.setPrototypeOf(req, reqProto)
       Object.setPrototypeOf(res, resProto)
       next(err)

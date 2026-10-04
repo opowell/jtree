@@ -21,13 +21,14 @@ if [ ! -f "$DIR/vendor/jas/jas.sh" ]; then
   git -C "$DIR" submodule update --init --recursive
 fi
 
-# jtree's own server dependencies (express 4, socket.io 2, ...) are not committed.
+# jtree's own server dependencies (express, socket.io, ...) are not committed;
+# release archives ship them installed.
 if [ ! -d "$DIR/server/node_modules" ]; then
   echo 'jtree: installing server dependencies'
   if command -v pnpm >/dev/null 2>&1; then
-    (cd "$DIR/server" && pnpm install)
+    (cd "$DIR/server" && pnpm install --prod)
   else
-    (cd "$DIR/server" && npm install)
+    (cd "$DIR/server" && npm install --omit=dev)
   fi
 fi
 

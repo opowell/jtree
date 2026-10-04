@@ -291,7 +291,11 @@ class Msgs {
             var msgName = data[i].msgName;
             var msgData = data[i].msgData;
             this.jt.log('received message ' + msgName + ': ' + JSON.stringify(msgData));
-            eval('this.' + msgName + "(msgData, sock)");
+            if (!Msgs.names().includes(msgName)) {
+                this.jt.log('ignoring unknown message ' + msgName);
+                continue;
+            }
+            this[msgName](msgData, sock);
         }
     }
 
@@ -471,7 +475,84 @@ class Msgs {
         }
     }
 
+    /*
+     * startTreatment - Appends an app to the session and starts it at once for
+     * the given participants (all of them when none are given), the way z-Tree
+     * starts a treatment for the selected clients. Participants still playing
+     * an earlier app are left where they are.
+     *
+     * @param {string} d.sId the id of the session.
+     * @param {string} d.appId the app to start.
+     * @param {Object} [d.options] options for the app.
+     * @param {string[]} [d.pIds] the participants to start it for.
+     */
+    startTreatment(d) {
+        let session = this.jt.data.getSession(d.sId);
+        let app = session.addApp(d.appId, d.options || {});
+        if (app == null) {
+            return;
+        }
+        let appIndex = session.apps.length;
+        let pIds = d.pIds != null && d.pIds.length > 0 ? d.pIds : Object.keys(session.participants);
+        if (!session.started) {
+            session.started = true;
+            session.emit('dataUpdate', [{roomId: session.roomId(), field: 'started', value: true}]);
+        }
+        for (let i in pIds) {
+            let participant = session.participants[pIds[i]];
+            if (participant == null || participant.player != null) {
+                continue;
+            }
+            participant.appIndex = appIndex;
+            participant.save();
+            session.participantBeginApp(participant);
+        }
+        session.emitParticipantUpdates();
+    }
+
+    /*
+     * leaveStage - Moves the given participants out of the stage they are
+     * playing, as if they had submitted it. See {@link Player#endStage}.
+     *
+     * @param {string} d.sId the id of the session.
+     * @param {string[]} d.pIds the participants.
+     */
+    leaveStage(d) {
+        let session = this.jt.data.getSession(d.sId);
+        for (let i in d.pIds) {
+            let participant = session.participants[d.pIds[i]];
+            if (participant != null && participant.player != null) {
+                participant.player.endStage(true);
+            }
+        }
+        session.emitParticipantUpdates();
+    }
+
+    /*
+     * setStopAfterPeriod - Ends an app of the session once its current period
+     * is over, instead of going on to the next period.
+     *
+     * @param {string} d.sId the id of the session.
+     * @param {number} d.appIndex the app's (1-based) position in the session.
+     * @param {boolean} d.value whether to stop.
+     */
+    setStopAfterPeriod(d) {
+        let session = this.jt.data.getSession(d.sId);
+        let app = session.apps[d.appIndex - 1];
+        if (app != null) {
+            app.stopAfterPeriod = d.value === true;
+        }
+    }
+
 }
+
+/** The messages admins may send: the methods above. */
+Msgs.names = function() {
+    return Object.getOwnPropertyNames(Msgs.prototype).filter((name) => {
+        return name !== 'constructor' && typeof Msgs.prototype[name] === 'function';
+    });
+};
 
 var exports = module.exports = {};
 exports.new = Msgs;
+exports.names = Msgs.names;

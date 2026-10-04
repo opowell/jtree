@@ -1,6 +1,3 @@
-build-tools/7z.dll
-build-tools/7z.exe
-client/internal/clients/admin/vue
 client/internal/clients/shared/shared.js
 client/internal/docs
 client/internal/logs
@@ -9,6 +6,8 @@ client/sessions
 client/settings.json
 client/users
 release
+dist
+/internal
 server/node_modules
 
 .vscode
@@ -18,5 +17,5 @@ desktop.ini
 
 node_modules
 server/internal
-client/internal/clients/admin/vue/app.js
-vueadmin/src/webcomps/shared.js
+
+client/internal/clients/admin/ztree

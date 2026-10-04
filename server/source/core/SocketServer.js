@@ -1,24 +1,39 @@
-const path      = require('path');
-const fs        = require('fs-extra');
-const socketIO  = require('socket.io');
+const { Server } = require('socket.io');
 
 const Utils     = require('../Utils.js');
 const Client    = require('../Client.js');
 const Msgs      = require('./Msgs.js');
+
+/** Error sent to an admin socket that is not logged in; admin pages then go to the login page. */
+const ADMIN_LOGIN_REQUIRED = 'jtree: admin login required';
 
 /** Handles socket connections */
 class SocketServer {
 
     constructor(jt) {
         // On a server shared with other apps (see jtree.js), leave WebSocket upgrades for other paths alone.
-        this.io = socketIO(jt.staticServer.server, {
+        this.io = new Server(jt.staticServer.server, {
             path: jt.basePath + '/socket.io',
             destroyUpgrade: jt.httpServer == null,
+            // socket.io 2 accepted messages up to 100 MB; admins send whole app files.
+            maxHttpBufferSize: 1e8,
+            // Experiment pages that load an old socket.io client of their own.
+            allowEIO3: true,
         });
         this.jt = jt;
         this.ADMIN_TYPE = 'ADMIN';
         this.msgs         = new Msgs.new(jt); // MESSAGES TO LISTEN FOR FROM CLIENTS
         jt.io = this.io;
+
+        // Admin sockets carry the login of the page that opened them (see AdminAuth).
+        const auth = jt.staticServer.auth;
+        this.io.engine.use(auth.sessionMiddleware);
+        this.io.use((socket, next) => {
+            if (socket.handshake.query.type === this.ADMIN_TYPE && !auth.isAuthorized(socket.request)) {
+                return next(new Error(ADMIN_LOGIN_REQUIRED));
+            }
+            next();
+        });
         this.io.on('connection', this.onConnection.bind(this));
     }
 
@@ -29,23 +44,22 @@ class SocketServer {
      */
     onConnection(socket) {
 
-        var id          = socket.request._query.id; // participant or admin ID
-        var pwd         = socket.request._query.pwd;
-        var type        = socket.request._query.type; // ADMIN or PARTI
-        var sessionId   = socket.request._query.sessionId;
-        var roomId      = socket.request._query.roomId;
+        var query       = socket.handshake.query;
+        var id          = query.id; // participant or admin ID
+        var type        = query.type; // ADMIN or PARTI
+        var sessionId   = query.sessionId;
+        var roomId      = query.roomId;
 
         if (id === null || id === undefined || id === '') {
-            id = socket.request.connection._peername.address;
+            id = socket.handshake.address;
             id = id.substring(id.lastIndexOf(':')+1);
             console.log('new id = ' + id);
         }
 
-        var admin = this.jt.data.getAdmin(id, pwd);
+        this.jt.log('socket connection: ' + socket.id + ', id=' + id + ', type=' + type + ', session=' + sessionId);
 
-        this.jt.log('socket connection: ' + socket.id + ', id=' + id + ', pwd=' + pwd + ', session=' + sessionId);
-
-        if (type === this.ADMIN_TYPE && (admin !== null || this.jt.settings.adminLoginReq === false)) {
+        // Only authorized admins get this far with type ADMIN (see the constructor).
+        if (type === this.ADMIN_TYPE) {
             this.addAdminClient(socket);
         } else if (roomId !== 'null') {
             this.addRoomClient(socket, id, roomId);
@@ -62,27 +76,21 @@ class SocketServer {
         socket.join(this.ADMIN_TYPE);
         socket.join('socket_' + sock.id);
 
-        // syc.connect(socket);
-
-        var functionList = Object.getOwnPropertyNames(Object.getPrototypeOf(this.msgs));
-        for (var i in functionList) {
-            var fnI = functionList[i];
-            (function(fnI) {
-                socket.on(fnI, function(d, cb) {
-                    try {
-                        log('received message ' + fnI + ': ' + JSON.stringify(d));
-                        eval('self.msgs.' + fnI + "(d, sock)");
-                        if (cb != null) {
-                            cb(true);
-                        }
-                    } catch (err) {
-                        console.log("Error: " + err + "\n" + err.stack);
-                        if (cb != null) {
-                            cb(false);
-                        }
+        for (const fnI of Msgs.names()) {
+            socket.on(fnI, function(d, cb) {
+                try {
+                    log('received message ' + fnI + ': ' + JSON.stringify(d));
+                    self.msgs[fnI](d, sock);
+                    if (typeof cb === 'function') {
+                        cb(true);
                     }
-                });
-            })(fnI);
+                } catch (err) {
+                    console.log("Error: " + err + "\n" + err.stack);
+                    if (typeof cb === 'function') {
+                        cb(false);
+                    }
+                }
+            });
         }
 
         socket.on('refreshAdmin', function(msg) {
@@ -100,10 +108,6 @@ class SocketServer {
             self.refreshAdmin(null, 'socket_' + sock.id, msg.userId);
         });
 
-        socket.on('get-var', function(a) {
-            log('getting variable ' + a + ': ' + global[a]);
-        });
-
         socket.on('get-app', function(id) {
             var toSend = self.jt.data.apps[id].shell();
             self.io.to(sock.id).emit('get-app', toSend);
@@ -116,10 +120,6 @@ class SocketServer {
 
         socket.on('refresh-apps', function(msg) {
             self.jt.data.apps = self.jt.data.loadApps();
-        });
-
-        socket.on('add-app-folder', function(folder) {
-            self.data.addAppFolder(folder);
         });
 
     }

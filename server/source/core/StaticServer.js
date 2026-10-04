@@ -1,17 +1,25 @@
 const express   = require('express');
 const path      = require('path');
 const fs        = require('fs-extra');
-const Utils     = require('../Utils.js');
 const os        = require('os');
+const Utils     = require('../Utils.js');
 const http      = require('http');
 const https     = require('https');
-const replace   = require("replace");
-const bodyParser = require("body-parser");
-const session   = require('express-session');
-// const history   = require('connect-history-api-fallback');
-const openurl       = require('openurl');
-
+const { spawn } = require('child_process');
 const selfsigned = require('selfsigned');
+
+const AdminAuth = require('./AdminAuth.js');
+
+/** Opens a URL in the default browser. */
+function openUrl(url) {
+    var command = { darwin: 'open', win32: 'cmd' }[process.platform] || 'xdg-open';
+    var args = process.platform === 'win32' ? ['/c', 'start', '""', url] : [url];
+    var child = spawn(command, args, { detached: true, stdio: 'ignore' });
+    child.on('error', function(err) {
+        console.log('jtree: could not open a browser (' + err.message + '), open ' + url);
+    });
+    child.unref();
+}
 
 
 /**
@@ -79,16 +87,11 @@ class StaticServer {
     constructor(jt) {
         this.jt = jt;
         var expApp = express();
-        expApp.use(bodyParser.urlencoded({extended : true}));
-        // expApp.use(history());
-        expApp.use(session(
-            {
-                secret: 'keyboard cat',
-                cookie: { maxAge: 60000 },
-                resave: false,
-                saveUninitialized: true
-            }
-        ))
+        expApp.use(express.urlencoded({extended : true}));
+
+        /** Who may use the admin interface, see {@link AdminAuth}. */
+        this.auth = new AdminAuth.new(jt);
+        expApp.use(this.auth.sessionMiddleware);
         // After the session, whose own res.end wrapper sends the headers early: this one must run first.
         expApp.use(prefixHtmlUrls(jt.basePath));
 
@@ -96,22 +99,31 @@ class StaticServer {
         this.expApp = expApp;
 
         //////////////////////////////
+        // ADMIN LOGIN
+        expApp.get('/admin/login', (req, res) => this.auth.sendLoginPage(req, res));
+        // Older login forms post to /admin.
+        expApp.post(['/admin/login', '/admin'], (req, res) => this.auth.login(req, res));
+        expApp.use(['/admin', '/api', '/session-download', '/source'], this.auth.requireAdmin());
+        //////////////////////////////
+
+        //////////////////////////////
         // FILES TO SERVE
-        expApp.use('', express.static(path.join(this.jt.path, jt.settings.participantUI)));
+        expApp.use(express.static(path.join(this.jt.path, jt.settings.participantUI)));
         expApp.use('/help', express.static(path.join(this.jt.path, jt.settings.helpPath)));
         expApp.use('/source', express.static(path.join(this.jt.path, jt.settings.adminUIsSharedPath)));
-        expApp.use('/admin', express.static(this.defaultAdminUIPath()));
-        // expApp.use('/adminShared', express.static(this.adminUIsSharedPath()));
-        var adminUIs = fs.readdirSync(this.adminUIsPath());
+        // Admin interfaces may be TypeScript and Vue files that the browser compiles (admin/v2),
+        // which would otherwise go out as video/mp2t and application/octet-stream.
+        var adminStatic = (dir) => express.static(dir, {
+            setHeaders: (res, filePath) => {
+                if (/\.(ts|vue)$/.test(filePath)) {
+                    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+                }
+            },
+        });
+        expApp.use('/admin', adminStatic(this.defaultAdminUIPath()));
+        var adminUIs = this.adminUIs();
         for (var i in adminUIs) {
-            // Skip shared folder.
-            // if (adminUIs[i] == 'shared') {
-            //     continue;
-            // }
-            var pathToFolder = path.join(this.adminUIsPath(), adminUIs[i]);
-            if (fs.lstatSync(pathToFolder).isDirectory()) {
-                expApp.use('/admin/' + adminUIs[i], express.static(pathToFolder));
-            }
+            expApp.use('/admin/' + adminUIs[i], adminStatic(path.join(this.adminUIsPath(), adminUIs[i])));
         }
         expApp.use('/participant', express.static(path.join(this.jt.path, jt.settings.participantUI)));
         console.log('serving shared', path.join(this.jt.path, jt.settings.sharedUI))
@@ -121,7 +133,6 @@ class StaticServer {
             jt.log('serving files from ' + queue.parentFolderFullName() + ' as /' + queue.parentFolderName());
             expApp.use('/' + queue.parentFolderName(), express.static(queue.parentFolderFullName()));
         }
-        // expApp.use(history());
 
         // END FILE SERVING
         //////////////////////////////
@@ -156,6 +167,11 @@ class StaticServer {
             //     out.push(clients[i].shell());
             // }
             res.send(clients);
+        });
+
+        // The default admin interface, when its folder has no index.html for express.static to find.
+        expApp.get(['/admin', '/admin/'], (req, res) => {
+            res.sendFile(path.join(this.defaultAdminUIPath(), 'admin.html'));
         });
 
         expApp.get('/:pId', this.handleRequest.bind(this));
@@ -231,22 +247,15 @@ class StaticServer {
             self.sendParticipantPage(req, res, req.params.pId, req.params.sId);
         });
 
-        // Admin interfaces
+        // Admin interfaces without an index.html, e.g. /admin/multiuser.
         for (let i in adminUIs) {
-            let pathToFolder = path.join(this.adminUIsPath(), adminUIs[i]);
-            if (fs.lstatSync(pathToFolder).isDirectory()) {
-                expApp.get('/admin/' + adminUIs[i], function(req, res) {
-                    var ui = req.path.substring('/admin/'.length);
-                    var id = req.query.id;
-                    var pwd = req.query.pwd;
-                    var admin = jt.data.getAdmin(id, pwd);
-                    if (admin == null && jt.settings.adminLoginReq === true) {
-                        res.sendFile(path.join(jt.staticServer.adminUIsPath(), ui, 'invalidAdminLogin.html'));
-                    } else {
-                        res.sendFile(path.join(jt.staticServer.adminUIsPath(), ui, 'admin.html'));
-                    }
-                });
-            }
+            let adminHtml = path.join(this.adminUIsPath(), adminUIs[i], 'admin.html');
+            expApp.get('/admin/' + adminUIs[i], function(req, res, next) {
+                if (!fs.existsSync(adminHtml)) {
+                    return next();
+                }
+                res.sendFile(adminHtml);
+            });
         }
         // END REQUESTS
         //////////////////////////////
@@ -280,8 +289,15 @@ class StaticServer {
             jt.settings.port = this.port;
             jt.settings.server.ip = this.ip;
             jt.settings.server.port = this.port;
-            console.log('jtree ' + jt.version + ', admin on http://localhost:' + this.port + jt.basePath + '/admin');
+            let protocol = this.server instanceof https.Server ? 'https://' : 'http://';
+            let adminUrl = protocol + 'localhost:' + this.port + jt.basePath + '/admin/';
+            console.log('jtree ' + jt.version);
+            console.log('  admin:        ' + adminUrl);
+            console.log('  participants: ' + protocol + this.ip + ':' + this.port + jt.basePath + '/');
             this.generateSharedJS(jt.settings.clientJSTemplateFile, jt.settings.clientJSFile);
+            if (jt.settings.openAdminOnStart) {
+                openUrl(adminUrl);
+            }
         });
     }
 
@@ -301,47 +317,34 @@ class StaticServer {
 
         this.port = jt.settings.port;
         this.ip = lanAddress();
+        let protocol = jt.settings.useHTTPS ? 'https://' : 'http://';
 
-
-        if (jt.settings.useHTTPS == false) {
-            this.server = http.Server(expApp);
+        // HTTPS gets a self-signed certificate, made before listening; the server is
+        // made now so that socket.io can attach to it.
+        let ready = Promise.resolve();
+        if (jt.settings.useHTTPS) {
+            this.server = https.createServer(expApp);
+            ready = selfsigned.generate([{ name: 'commonName', value: this.ip }], { days: 365 }).then((pems) => {
+                this.server.setSecureContext({ key: pems.private, cert: pems.cert });
+            });
         } else {
-
-            var attrs = [{ name: 'commonName', value: this.ip }];
-            var pems = selfsigned.generate(attrs, { days: 365 });
-            let options = {
-                key: pems.private,
-                cert: pems.cert,
-            }
-
-            this.server = https.createServer(options, expApp);
+            this.server = http.createServer(expApp);
         }
 
         this.server.on('listening', () => {
-            let protocol = 'http://';
-            if (jt.settings.useHTTPS) {
-                protocol = 'https://';
-            }
-            console.log('###############################################');
             jt.settings.server.ip = self.ip;
             jt.settings.server.port = self.port;
-            console.log('jtree ' + jt.version + ', listening on ' + protocol + self.ip + ':' + self.port + jt.basePath + '/admin');
-
-            // pkg cannot include part of 'opn' package in executable.
-            // const opn           = require('opn');
+            // Admin opens from this computer without a password (see AdminAuth), so point it at localhost.
+            let adminUrl = protocol + 'localhost:' + this.port + jt.basePath + '/admin/';
+            console.log('###############################################');
+            console.log('jtree ' + jt.version);
+            console.log('  admin:        ' + adminUrl);
+            console.log('  participants: ' + protocol + this.ip + ':' + this.port + jt.basePath + '/');
+            // After listening: an occupied port moves this.port.
+            this.generateSharedJS(jt.settings.clientJSTemplateFile, jt.settings.clientJSFile);
             if (jt.settings.openAdminOnStart) {
-                //    opn('http://' + jt.staticServer.ip + ':' + jt.staticServer.port + '/admin');
-                    try {
-                        let protocol = 'http://';
-                        if (jt.settings.useHTTPS) {
-                            protocol = 'https://';
-                        }
-                        openurl.open(protocol + this.ip + ':' + this.port + jt.basePath + '/admin');
-                    } catch (err) {
-                        console.error(err);
-                    }
-                }
-  
+                openUrl(adminUrl);
+            }
         });
 
         let portsTried = [];
@@ -365,11 +368,10 @@ class StaticServer {
             }
           });
 
-        this.server.listen(this.port);
-        //////////////////////////////
-        // Generate files used by clients.
-        this.generateSharedJS(this.jt.settings.clientJSTemplateFile, this.jt.settings.clientJSFile);
-        //////////////////////////////
+        ready.then(() => this.server.listen(this.port), (err) => {
+            console.error('jtree: could not make an HTTPS certificate: ' + err);
+            process.exit(1);
+        });
     }
 
 //     generateClientModels() {
@@ -378,61 +380,34 @@ class StaticServer {
 //     }
 
     handleRequest(req, res) {
-        var jt = this.jt;
-        let pId = req.params.pId;
-        let adminCall = req.path === '/admin/' || req.path === '/admin';
-        var adminUIs = fs.readdirSync(this.adminUIsPath());
-        for (let i in adminUIs) {
-            let pathToFolder = path.join(this.adminUIsPath(), adminUIs[i]);
-            if (fs.lstatSync(pathToFolder).isDirectory()) {
-                if (req.path === '/admin/' + adminUIs[i]) {
-                    adminCall = true;
-                    break;
-                }
-            }
+        if (req.params.pId === 'favicon.ico') {
+            return res.status(404).end();
         }
-        if (adminCall) {
-                var id = req.body.uId;
-                var pwd = req.body.pwd;
-                var adminUser = jt.data.isValidAdmin(id, pwd);
-                if (
-                    adminUser !== null
-                ) {
-                    if (adminUser !== 'defaultAdmin') {
-                        adminUser.sessionIds.push(req.session.id);
-                        req.session.userId = adminUser.id;
-                        res.cookie('userId', adminUser.id);
-                    }
-                    res.sendFile(this.getAdminPath(req) + '/admin.html');
-                } else {
-                    if (jt.settings.multipleUsers) {
-                        res.sendFile(this.defaultAdminUIPath() + '/adminLogin.html');
-                    } else {
-                        res.sendFile(this.defaultAdminUIPath() + '/defaultAdminLogin.html');
-                    }
-                }
-        } else if (pId === 'favicon.ico') {
-            jt.log('asking for favicon.ico');
-        } else {
-            this.sendParticipantPage(req, res, req.params.pId, undefined);
-        }
+        this.sendParticipantPage(req, res, req.params.pId, undefined);
     }
 
     sendNoRoom(res, rId) {
         res.status(404).type('text').send('There is no room "' + rId + '".');
     }
 
-    getAdminPath(req) {
-        let defaultUI = req.path === '/admin/' || req.path === '/admin';
-        if (defaultUI) {
-            return path.join(this.defaultAdminUIPath());
-        } else {
-            return path.join(this.adminUIsPath(), req.path);
-        }
+    /** Names of the admin interfaces: the folders in {@link Settings#adminUIsPath}. */
+    adminUIs() {
+        return fs.readdirSync(this.adminUIsPath()).filter((name) => {
+            return fs.statSync(path.join(this.adminUIsPath(), name)).isDirectory();
+        });
     }
 
+    /** The admin interface served at /admin: {@link Settings#defaultAdminUI}, or multiuser if that one is missing. */
     defaultAdminUIPath() {
-        return path.join(this.adminUIsPath(), this.jt.settings.defaultAdminUI);
+        var ui = path.join(this.adminUIsPath(), this.jt.settings.defaultAdminUI);
+        if (!fs.existsSync(ui)) {
+            if (!this.warnedNoDefaultAdminUI) {
+                this.warnedNoDefaultAdminUI = true;
+                console.log('jtree: there is no admin interface "' + this.jt.settings.defaultAdminUI + '" in ' + this.adminUIsPath() + ', serving multiuser at /admin');
+            }
+            return path.join(this.adminUIsPath(), 'multiuser');
+        }
+        return ui;
     }
 
     adminUIsPath() {
@@ -448,39 +423,17 @@ class StaticServer {
 
     /**
      * Generates "shared.js", to be used by all clients to connect to server.
-     * 1. Create a copy of 'sharedTemplate.js'.
-     * 2. Overwrite the serverURL variable with the IP + port of the current machine.
-     *
-     * References:
-     * http://stackoverflow.com/questions/3653065/get-local-ip-address-in-node-js
-     * http://stackoverflow.com/questions/14177087/replace-a-string-in-a-file-with-nodejs
+     * Copies 'sharedTemplate.js', filling in this machine's IP, the port and the route.
      */
     generateSharedJS(inFile, outFile) {
         var fn = path.join(this.jt.path, inFile) // file with marker
         var newFN = path.join(this.jt.path, outFile) // actual file to be sent to clients and admins
         try {
-            fs.copySync(fn, newFN);
-            replace({
-                regex: '{{{SERVER_IP}}}',
-                replacement: this.ip,
-                paths: [newFN],
-                recursive: true,
-                silent: true,
-            });
-            replace({
-                regex: '{{{SERVER_PORT}}}',
-                replacement: this.port,
-                paths: [newFN],
-                recursive: true,
-                silent: true,
-            });
-            replace({
-                regex: '{{{BASE_PATH}}}',
-                replacement: this.jt.basePath,
-                paths: [newFN],
-                recursive: true,
-                silent: true,
-            });
+            var text = fs.readFileSync(fn, 'utf8')
+                .replaceAll('{{{SERVER_IP}}}', this.ip)
+                .replaceAll('{{{SERVER_PORT}}}', String(this.port))
+                .replaceAll('{{{BASE_PATH}}}', this.jt.basePath);
+            fs.writeFileSync(newFN, text);
         } catch (err) {
             console.error(err);
         }

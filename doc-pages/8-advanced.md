@@ -19,8 +19,8 @@ The jtree project is divided into parts roughly based on its folder structure:
     - the game engine, which puts players through stages.
     - static content server, for serving files.
     - websocket server, for sending and receiving websocket messages.
-- vueadmin:
-    - source files for the "vue" admin UI.
+- client/internal/clients/admin/v2:
+    - the admin UI (Vue 3), compiled in the browser, with no build step.
 
 ### Contributing
 

@@ -1,0 +1,72 @@
+name: Release
+
+# Push a tag v<version> (matching server/package.json) to publish the download
+# archives as a GitHub release. Run by hand to get them as build artifacts.
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Check tag matches server/package.json version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          version="$(node -p "require('./server/package.json').version")"
+          if [ "$tag" != "$version" ]; then
+            echo "tag $GITHUB_REF_NAME does not match server/package.json version $version" >&2
+            exit 1
+          fi
+
+      - name: Build release archives
+        run: node build-tools/build-release.mjs
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" --title "jtree $GITHUB_REF_NAME" --notes-file - <<'NOTES'
+          Download the archive for your computer, unpack it, and run `start.command` (macOS), `start.cmd` (Windows) or `start.sh` (Linux). The admin page opens in your browser.
+
+          | Archive | For |
+          | --- | --- |
+          | `jtree-win-x64.zip` | Windows |
+          | `jtree-darwin-arm64.tar.gz` | macOS, Apple Silicon (M1 and later) |
+          | `jtree-darwin-x64.tar.gz` | macOS, Intel |
+          | `jtree-linux-x64.tar.gz` | Linux, x86-64 |
+          | `jtree-linux-arm64.tar.gz` | Linux, ARM64 |
+          | `jtree-portable.zip` | Any system with Node.js 22 or later installed |
+
+          `SHA256SUMS.txt` has the archives' checksums.
+          NOTES
+          gh release upload "$GITHUB_REF_NAME" dist/*.zip dist/*.tar.gz dist/SHA256SUMS.txt
+
+      - name: Upload archives as build artifacts
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: jtree-release-archives
+          path: |
+            dist/*.zip
+            dist/*.tar.gz
+            dist/SHA256SUMS.txt

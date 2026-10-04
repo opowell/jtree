@@ -47,8 +47,8 @@ class User {
         return (
             this.id === id &&
             (
-                this.pwd == null ||
-                this.pwd === pwd
+                this.password == null ||
+                this.password === pwd
             )
         );
     }

@@ -26,18 +26,14 @@ function start(options) {
 
     var jt = {};
 
-    // The version of jtree, should match what is in buildJTree.bat
-    jt.version = '0.8.7';
+    // The version of jtree, from server/package.json (which the release build reads too).
+    jt.version = require('../package.json').version;
 
     /** Location of the server executable. All files should be relative to this.
     */
     jt.path = options.path;
     if (jt.path === undefined) {
-        if (process.argv[0].indexOf('node') > -1) {
-            jt.path         = process.cwd();
-        } else {
-            jt.path         = path.dirname(process.execPath);
-        }
+        jt.path         = process.cwd();
     }
 
     /**

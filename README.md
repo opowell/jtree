@@ -1,15 +1,27 @@
 ## Getting started
-Download for your system, unzip and run.
+Download the archive for your computer, unpack it, and run the launcher in the unpacked folder. Node.js is included; nothing else needs installing.
 
-Latest version (2020.02.14): **0.8.7**
+| Download | Then run |
+| --- | --- |
+| <a href='https://github.com/opowell/jtree/releases/latest/download/jtree-win-x64.zip'>Windows</a> | `start.cmd` |
+| <a href='https://github.com/opowell/jtree/releases/latest/download/jtree-darwin-arm64.tar.gz'>macOS, Apple Silicon (M1 and later)</a> | `start.command` |
+| <a href='https://github.com/opowell/jtree/releases/latest/download/jtree-darwin-x64.tar.gz'>macOS, Intel</a> | `start.command` |
+| <a href='https://github.com/opowell/jtree/releases/latest/download/jtree-linux-x64.tar.gz'>Linux, x86-64</a> | `start.sh` |
+| <a href='https://github.com/opowell/jtree/releases/latest/download/jtree-linux-arm64.tar.gz'>Linux, ARM64</a> | `start.sh` |
+| <a href='https://github.com/opowell/jtree/releases/latest/download/jtree-portable.zip'>Any system with Node.js 22+</a> | `start.sh` or `start.cmd` |
 
-<a href='https://github.com/opowell/jtree/releases/latest/download/jtree-0.8.7-win.zip'>jtree for Windows</a>
+The admin page opens in your browser, at http://localhost:3000/jtree/admin/. Participants open the address jtree prints (`http://<this computer's address>:3000/jtree/`). On macOS, the first time, right-click `start.command`, choose Open, and confirm. Set `PORT` to use another port.
 
-<a href='https://github.com/opowell/jtree/releases/latest/download/jtree-0.8.7-macos.zip'>jtree for Mac</a>
+Older versions (0.8.7 and before) are on the [releases page](https://github.com/opowell/jtree/releases).
 
-<a href='https://github.com/opowell/jtree/releases/latest/download/jtree-0.8.7-linux.zip'>jtree for Linux</a>
+#### Admin access
+With no admin password set, the admin interface only opens on the computer running jtree. To use it from other computers, set a password in `client/settings.json` (create the file if it is not there), then restart jtree:
 
-<a href='https://github.com/opowell/jtree/releases/latest/download/jtree-0.8.7-winxp.zip'>jtree for WindowsXP</a>
+```json
+{ "defaultAdminPwd": "choose-a-password" }
+```
+
+Everyone then logs in at `/jtree/admin/login`, on this computer too.
 
 ![](double-auction.png)
 
@@ -65,7 +77,8 @@ Open http://localhost:3000/jtree/admin. Set `PORT` to use a different port. On t
 | --- | --- |
 | `apps/jtree/` | The JAS app: `server.js` starts jtree's server (`server/source/jtree.js`) on the server JAS owns, with `client/` as its data folder |
 | `vendor/jas/` | JAS (submodule) |
-| `start.sh`, `start.cmd` | Run JAS on this repo's `apps/` folder |
+| `start.sh`, `start.command`, `start.cmd` | Run JAS on this repo's `apps/` folder |
+| `client/internal/clients/admin/v2/` | The admin interface (admin2), served at `/jtree/admin/` with no build step. The older one is at `/jtree/admin/multiuser/`. |
 
 Everything jtree serves is under one route, `/jtree` by default: the admin (`/jtree/admin`), participant links (`/jtree/P1`, `/jtree/session/<id>/P1`), shared files and socket.io (`/jtree/socket.io`). HTML pages, experiment apps' stages included, are written with root-absolute URLs (`src="/shared/..."`), and jtree rewrites them to that route as it serves them. So jtree can sit beside other apps in any JAS:
 
@@ -78,11 +91,17 @@ Link it rather than copy it, since `server.js` loads jtree from this repo. Resta
 To change the route, set `route` in [apps/jtree/settings.json](apps/jtree/settings.json), e.g. `"route": "/lab"`. Running jtree without JAS (see Development below), set `basePath` in `client/settings.json` instead; it defaults to `/jtree`, and `""` serves jtree at the root as before.
 
 #### Development
-1. Clone project.
+1. Clone the project (see Run with JAS above).
 2. Install server files.
    1. cd server
    2. pnpm i
-3. Start server
+3. Start the server, without JAS
    1. cd client
    2. node ../server/source/jtree.js
+4. Admin interface: edit the files in `client/internal/clients/admin/v2/` and reload the page; there is no build step. See [its README](client/internal/clients/admin/v2/README.md).
 
+#### Releasing
+1. Set the version in [server/package.json](server/package.json) and commit.
+2. Push a tag `v<version>`, e.g. `git tag v0.9.0 && git push origin v0.9.0`. [.github/workflows/release.yml](.github/workflows/release.yml) builds the archives and publishes the release.
+
+To build the archives locally (needs git, pnpm, zip, tar and an internet connection): `node build-tools/build-release.mjs`, or `--targets darwin-arm64` for one platform. They go to `dist/`.

@@ -698,51 +698,8 @@ class Data {
         return session;
     }
 
-    getAdmin(id, pwd) {
-        if (id === null || id === 'null') {
-            return null;
-        }
-        var admin = this.jt.settings.admins[id];
-        if (admin !== null && admin !== undefined) {
-            // If password required and does not match, then do not log in.
-            if (admin.pwd !== null && admin.pwd !== pwd) {
-                admin = null;
-            }
-        }
-        return admin;
-    }
-
     session(id) {
         return Utils.findByIdWOJQ(this.sessions, id);
-    }
-
-    isValidAdmin(id, pwd) {
-        const jt = this.jt;
-        if (
-            // User login is not enabled, AND
-            !jt.settings.multipleUsers &&
-            (
-                // Default admin password is either not set, blank, or matches the supplied password.
-                jt.settings.defaultAdminPwd === '' ||
-                jt.settings.defaultAdminPwd === null ||
-                jt.settings.defaultAdminPwd === undefined ||
-                pwd === jt.settings.defaultAdminPwd
-            )
-        ) {
-            return 'defaultAdmin';
-        }
-
-        if (jt.settings.multipleUsers) {
-            for (var i in this.users) {
-                var user = this.users[i];
-                if (user.matches(id, pwd)) {
-                    return user;
-                }
-            }
-        }
-
-        return null;
-
     }
 
 }
