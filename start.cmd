@@ -1,7 +1,7 @@
 @echo off
 REM jtree launcher for Windows: runs the bundled JAS server (vendor\jas) on
-REM this repo's apps\ folder, where apps\jtree starts jtree's server under
-REM /jtree ("route" in apps\jtree\settings.json).
+REM this repo's apps\ folder, with jtree (apps\jtree) as JAS's default app, so
+REM jtree is served at the root: http://localhost:3000/admin/.
 setlocal
 set "DIR=%~dp0"
 if "%DIR:~-1%"=="\" set "DIR=%DIR:~0,-1%"
@@ -23,6 +23,6 @@ popd
 
 :run
 set "JAS_APPS=%DIR%\apps"
+set "JAS_DEFAULT_APP=jtree"
 if not defined PORT set "PORT=3000"
-echo jtree admin: http://localhost:%PORT%/jtree/admin
 call "%DIR%\vendor\jas\jas.cmd" %*

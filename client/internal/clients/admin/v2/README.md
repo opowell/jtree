@@ -1,6 +1,6 @@
 # admin2
 
-jtree's admin interface, served at `/jtree/admin/` (and `/jtree/admin/v2/`), built on
+jtree's admin interface, served at `/admin/` (and `/admin/v2/`) under jtree's route, built on
 [appfr](https://github.com/opowell/appfr) (`header-content-layout`): a menu bar
 over a window of rearrangeable panels, with the lists in those panels drawn by
 appfr's `DataShell`.
@@ -38,7 +38,7 @@ localStorage, keyed by their source, so unchanged files are not compiled again.
 | `boot.js` | Loads `src/App.vue` through vue3-sfc-loader and mounts it |
 | `src/` | The interface |
 
-The libraries are in `client/internal/clients/shared/`, served at `/jtree/shared/`:
+The libraries are in `client/internal/clients/shared/`, served at `/shared/`:
 Vue 3.5.43 (`vue-3.5.43/`), vue3-sfc-loader 0.9.5, appfr 0.43.0
 (`header-content-layout-0.43.0/`, the `dist/` of appfr commit
 `06c71e0a7e872ec6b0e527c3958b8de544660398`), circular-json 0.5.9, and the

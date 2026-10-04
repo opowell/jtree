@@ -1,7 +1,7 @@
 #!/bin/sh
 # jtree launcher for macOS and Linux: runs the bundled JAS server (vendor/jas)
-# on this repo's apps/ folder, where apps/jtree starts jtree's server under
-# /jtree ("route" in apps/jtree/settings.json).
+# on this repo's apps/ folder, with jtree (apps/jtree) as JAS's default app, so
+# jtree is served at the root: http://localhost:3000/admin/.
 set -e
 
 script=$0
@@ -33,6 +33,6 @@ if [ ! -d "$DIR/server/node_modules" ]; then
 fi
 
 export JAS_APPS="$DIR/apps"
+export JAS_DEFAULT_APP=jtree
 export PORT="${PORT:-3000}"
-echo "jtree admin: http://localhost:$PORT/jtree/admin"
 exec sh "$DIR/vendor/jas/jas.sh" "$@"

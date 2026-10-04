@@ -1,5 +1,5 @@
 ## Getting started
-Download the archive for your computer, unpack it, and run the launcher in the unpacked folder. Node.js is included; nothing else needs installing.
+Download the archive for your computer, unpack it, and run the launcher in the unpacked folder. Node.js is included; nothing needs installing.
 
 | Download | Then run |
 | --- | --- |
@@ -10,7 +10,7 @@ Download the archive for your computer, unpack it, and run the launcher in the u
 | <a href='https://github.com/opowell/jtree/releases/latest/download/jtree-linux-arm64.tar.gz'>Linux, ARM64</a> | `start.sh` |
 | <a href='https://github.com/opowell/jtree/releases/latest/download/jtree-portable.zip'>Any system with Node.js 22+</a> | `start.sh` or `start.cmd` |
 
-The admin page opens in your browser, at http://localhost:3000/jtree/admin/. Participants open the address jtree prints (`http://<this computer's address>:3000/jtree/`). On macOS, the first time, right-click `start.command`, choose Open, and confirm. Set `PORT` to use another port.
+The admin page opens in your browser, at http://localhost:3000/admin/. Participants open the address jtree prints (`http://<this computer's address>:3000/`). On macOS, the first time, right-click `start.command`, choose Open, and confirm. Set `PORT` to use another port.
 
 Older versions (0.8.7 and before) are on the [releases page](https://github.com/opowell/jtree/releases).
 
@@ -21,7 +21,7 @@ With no admin password set, the admin interface only opens on the computer runni
 { "defaultAdminPwd": "choose-a-password" }
 ```
 
-Everyone then logs in at `/jtree/admin/login`, on this computer too.
+Everyone then logs in at `/admin/login`, on this computer too.
 
 ![](double-auction.png)
 
@@ -71,16 +71,18 @@ cd jtree
 start.cmd           REM Windows
 ```
 
-Open http://localhost:3000/jtree/admin. Set `PORT` to use a different port. On the first run the launcher fetches the submodule if it is missing, and installs the server dependencies (`server/node_modules`) with pnpm, or npm if pnpm is not installed.
+Open http://localhost:3000/admin/. Set `PORT` to use a different port. On the first run the launcher fetches the submodule if it is missing, and installs the server dependencies (`server/node_modules`) with pnpm, or npm if pnpm is not installed.
 
 | Path | What it is |
 | --- | --- |
 | `apps/jtree/` | The JAS app: `server.js` starts jtree's server (`server/source/jtree.js`) on the server JAS owns, with `client/` as its data folder |
 | `vendor/jas/` | JAS (submodule) |
 | `start.sh`, `start.command`, `start.cmd` | Run JAS on this repo's `apps/` folder |
-| `client/internal/clients/admin/v2/` | The admin interface (admin2), served at `/jtree/admin/` with no build step. The older one is at `/jtree/admin/multiuser/`. |
+| `client/internal/clients/admin/v2/` | The admin interface (admin2), served at `/admin/` with no build step. The older one is at `/admin/multiuser/`. |
 
-Everything jtree serves is under one route, `/jtree` by default: the admin (`/jtree/admin`), participant links (`/jtree/P1`, `/jtree/session/<id>/P1`), shared files and socket.io (`/jtree/socket.io`). HTML pages, experiment apps' stages included, are written with root-absolute URLs (`src="/shared/..."`), and jtree rewrites them to that route as it serves them. So jtree can sit beside other apps in any JAS:
+The launchers (and the release archives, which use them) make jtree JAS's default app (`JAS_DEFAULT_APP=jtree`), so jtree has the server to itself and serves everything from the root: the admin (`/admin/`), participant links (`/P1`, `/session/<id>/P1`), shared files and socket.io.
+
+In a JAS that hosts other apps, jtree serves everything under its route instead, `/jtree` by default: `/jtree/admin/`, `/jtree/P1`, `/jtree/socket.io`, and the JAS start page stays at `/`. HTML pages, experiment apps' stages included, are written with root-absolute URLs (`src="/shared/..."`), and jtree rewrites them to that route as it serves them. To add jtree to such a JAS:
 
 ```sh
 ln -s "$PWD/apps/jtree" /path/to/jas/apps/jtree
