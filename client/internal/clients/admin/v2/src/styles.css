@@ -92,7 +92,7 @@ body {
 }
 .btn:hover:not(:disabled) { background: var(--dc-bg-2); }
 .btn:disabled { opacity: 0.45; cursor: default; }
-.btn--primary { background: var(--dc-accent); border-color: var(--dc-accent); color: var(--dc-bg-0); font-weight: var(--dc-weight-semibold); }
+.btn--primary { background: var(--dc-accent); border-color: var(--dc-accent); color: var(--dc-accent-contrast); font-weight: var(--dc-weight-semibold); }
 .btn--primary:hover:not(:disabled) { background: var(--dc-accent); filter: brightness(1.08); }
 .btn--danger { color: var(--dc-danger); }
 .btn--armed { background: var(--dc-danger); border-color: var(--dc-danger); color: #fff; }
