@@ -10,7 +10,7 @@ Download the archive for your computer, unpack it, and run the launcher in the u
 | <a href='https://github.com/opowell/jtree/releases/latest/download/jtree-linux-arm64.tar.gz'>Linux, ARM64</a> | `start.sh` |
 | <a href='https://github.com/opowell/jtree/releases/latest/download/jtree-portable.zip'>Any system with Node.js 22+</a> | `start.sh` or `start.cmd` |
 
-The admin page opens in your browser, at http://localhost:3000/admin/. Participants open the address jtree prints (`http://<this computer's address>:3000/`). On macOS, the first time, right-click `start.command`, choose Open, and confirm. Set `PORT` to use another port.
+The admin page opens in your browser, at http://localhost:3000/admin/. Participants open the address jtree prints (`http://<this computer's address>:3000/`). If port 3000 is taken, jtree uses the next free one and prints it; set `PORT` to start from another port. On macOS, the first time, right-click `start.command`, choose Open, and confirm.
 
 Older versions (0.8.7 and before) are on the [releases page](https://github.com/opowell/jtree/releases).
 
@@ -71,13 +71,14 @@ cd jtree
 start.cmd           REM Windows
 ```
 
-Open http://localhost:3000/admin/. Set `PORT` to use a different port. On the first run the launcher fetches the submodule if it is missing, and installs the server dependencies (`server/node_modules`) with pnpm, or npm if pnpm is not installed.
+Open http://localhost:3000/admin/ (or the next free port, which the launcher prints; set `PORT` to start from another). `scripts/kill-port.sh [port]` stops a jtree (or anything else) still listening on port 3000, or the port given. On the first run the launcher fetches the submodule if it is missing, and installs the server dependencies (`server/node_modules`) with pnpm, or npm if pnpm is not installed.
 
 | Path | What it is |
 | --- | --- |
 | `apps/jtree/` | The JAS app: `server.js` starts jtree's server (`server/source/jtree.js`) on the server JAS owns, with `client/` as its data folder |
 | `vendor/jas/` | JAS (submodule) |
 | `start.sh`, `start.command`, `start.cmd` | Run JAS on this repo's `apps/` folder |
+| `scripts/` | `find-port.js`, which the launchers use to pick a free port, and `kill-port.sh`, which runs JAS's |
 | `client/internal/clients/admin/v2/` | The admin interface (admin2), served at `/admin/` with no build step. The older one is at `/admin/multiuser/`. |
 
 The launchers (and the release archives, which use them) make jtree JAS's default app (`JAS_DEFAULT_APP=jtree`), so jtree has the server to itself and serves everything from the root: the admin (`/admin/`), participant links (`/P1`, `/session/<id>/P1`), shared files and socket.io.

@@ -22,7 +22,17 @@ if errorlevel 1 (popd & exit /b 1)
 popd
 
 :run
+REM The first free port from PORT (default 3000) up, checked with the Node JAS
+REM will run on: the bundled one (release archives), else node on PATH.
+if not defined PORT set "PORT=3000"
+set "FIND_NODE="
+for /d %%D in ("%DIR%\vendor\jas\server\node\*-win-*") do if not defined FIND_NODE if exist "%%~fD\node.exe" set "FIND_NODE=%%~fD\node.exe"
+if not defined FIND_NODE where node >nul 2>nul && set "FIND_NODE=node"
+set "FREE_PORT="
+if defined FIND_NODE for /f %%P in ('""%FIND_NODE%" "%DIR%\scripts\find-port.js" %PORT%"') do set "FREE_PORT=%%P"
+if defined FREE_PORT if not "%FREE_PORT%"=="%PORT%" echo jtree: port %PORT% is in use, using %FREE_PORT%
+if defined FREE_PORT set "PORT=%FREE_PORT%"
+
 set "JAS_APPS=%DIR%\apps"
 set "JAS_DEFAULT_APP=jtree"
-if not defined PORT set "PORT=3000"
 call "%DIR%\vendor\jas\jas.cmd" %*

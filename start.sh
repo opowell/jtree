@@ -32,7 +32,19 @@ if [ ! -d "$DIR/server/node_modules" ]; then
   fi
 fi
 
+# The first free port from $PORT (default 3000) up, checked with the Node JAS
+# will run on (see vendor/jas/server/find-node.sh).
+PORT="${PORT:-3000}"
+JAS_DIR="$DIR/vendor/jas"
+. "$JAS_DIR/server/find-node.sh"
+if [ -n "$node_bin" ] && free=$("$node_bin" "$DIR/scripts/find-port.js" "$PORT"); then
+  if [ "$free" != "$PORT" ]; then
+    echo "jtree: port $PORT is in use, using $free"
+  fi
+  PORT=$free
+fi
+
 export JAS_APPS="$DIR/apps"
 export JAS_DEFAULT_APP=jtree
-export PORT="${PORT:-3000}"
+export PORT
 exec sh "$DIR/vendor/jas/jas.sh" "$@"

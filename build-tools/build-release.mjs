@@ -30,6 +30,7 @@ const INCLUDE = [
   'start.sh',
   'start.command',
   'start.cmd',
+  'scripts/',
   'apps/',
   'server/package.json',
   'server/pnpm-lock.yaml',

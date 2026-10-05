@@ -10,7 +10,7 @@
 - Server: socket.io 4, Express 5, Node.js 22 or later. Unused dependencies removed.
 - Participant page: jQuery 3.7.1 (with jQuery Migrate, for code written for jQuery 1.x) and Vue 2.7.16. The old files stay in `/shared` for apps that load them.
 - Downloads serve jtree from the root (`/admin/`, `/P1`). Added to a JAS that hosts other apps, jtree is served under `/jtree`.
-- `PORT` environment variable sets the port.
+- Starts on port 3000, or the next free port. The `PORT` environment variable sets where to start.
 
 #### 2020.02.14 - 0.8.7
 - Remove some user games.
