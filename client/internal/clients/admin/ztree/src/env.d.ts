@@ -1,6 +1,5 @@
-/// <reference types="vite/client" />
+// Types for editors and `npm run typecheck` (see README.md); the browser ignores them.
 
-declare const __JTREE_DEV__: { server: string, base: string } | null
 
 declare module '*.vue' {
   import type { DefineComponent } from 'vue'

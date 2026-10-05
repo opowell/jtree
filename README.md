@@ -80,6 +80,7 @@ Open http://localhost:3000/admin/ (or the next free port, which the launcher pri
 | `start.sh`, `start.command`, `start.cmd` | Run JAS on this repo's `apps/` folder |
 | `scripts/` | `find-port.js`, which the launchers use to pick a free port, and `kill-port.sh`, which runs JAS's |
 | `client/internal/clients/admin/v2/` | The admin interface (admin2), served at `/admin/` with no build step. The older one is at `/admin/multiuser/`. |
+| `client/internal/clients/admin/ztree/` | An admin interface laid out after z-Tree, at `/admin/ztree/`, also with no build step |
 
 The launchers (and the release archives, which use them) make jtree JAS's default app (`JAS_DEFAULT_APP=jtree`), so jtree has the server to itself and serves everything from the root: the admin (`/admin/`), participant links (`/P1`, `/session/<id>/P1`), shared files and socket.io.
 
@@ -101,7 +102,7 @@ To change the route, set `route` in [apps/jtree/settings.json](apps/jtree/settin
 3. Start the server, without JAS
    1. cd client
    2. node ../server/source/jtree.js
-4. Admin interface: edit the files in `client/internal/clients/admin/v2/` and reload the page; there is no build step. See [its README](client/internal/clients/admin/v2/README.md).
+4. Admin interfaces: edit the files in `client/internal/clients/admin/v2/` (or `ztree/`) and reload the page; there is no build step. See [admin2's README](client/internal/clients/admin/v2/README.md) and [admin-ztree's](client/internal/clients/admin/ztree/README.md).
 
 #### Releasing
 1. Set the version in [server/package.json](server/package.json) and commit.

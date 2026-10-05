@@ -1,7 +1,9 @@
 import { parse as acornParse } from 'acorn'
 import type { Node as AcornNode } from 'acorn'
 import { screenBoxes } from './screen'
-import type { ItemInfo } from './screen'
+import type { Range, TreeNode } from './tree'
+
+export type { TreeNode } from './tree'
 
 /*
  * A jtree app read as a z-Tree treatment.
@@ -15,35 +17,6 @@ import type { ItemInfo } from './screen'
  * remembers the stretch of source it came from, which is what lets a dialog
  * change it and the file be written back.
  */
-
-export interface Range {
-  start: number
-  end: number
-}
-
-export type NodeKind =
-  | 'background' | 'table' | 'program' | 'active' | 'waiting'
-  | 'box' | 'item' | 'button' | 'line' | 'stage' | 'error'
-
-export interface TreeNode {
-  id: string
-  kind: NodeKind
-  label: string
-  /** Trailing grey text: a stage's options, the jtree hook a program is. */
-  note?: string
-  children: TreeNode[]
-  /** The whole statement(s) the node is: what Cut and Copy take. */
-  stmt?: Range
-  /** The part its dialog edits: a function body, a screen's HTML. */
-  body?: Range
-  /** The stage this node is in, by the variable the app holds it in. */
-  stageVar?: string
-  /** For a program, the table its code runs on. */
-  table?: string
-  /** For a program, the jtree hook (`playerStart`, …). */
-  hook?: string
-  item?: ItemInfo
-}
 
 export interface StageProp {
   stmt: Range

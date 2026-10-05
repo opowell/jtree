@@ -1,5 +1,8 @@
 # admin-ztree
 
+Served at `/admin/ztree/` under jtree's route.
+
+
 An admin interface for jtree laid out after [z-Tree](https://www.ztree.uzh.ch/en.html),
 built on [appfr](https://github.com/opowell/appfr) (`header-content-layout`): one
 main window with z-Tree's menu bar (File, Edit, Treatment, Run, Tools, View, ?)
@@ -54,24 +57,40 @@ Three messages were added to `server/source/core/Msgs.js` for this interface:
 (per-subject leave stage) and `setStopAfterPeriod` (checked in
 `App.getNextPeriod`). Restart the jtree server after updating.
 
-## Running
+## Running and editing
 
-```bash
-cd admin-ztree
-pnpm i
+There is no install or build step, as for [admin2](../v2/README.md): jtree serves
+this folder as it is, and `boot.js` compiles `src/` (TypeScript and Vue
+single-file components) in the browser with
+[vue3-sfc-loader](https://github.com/FranckFreiburger/vue3-sfc-loader). Edit a
+file and reload the page. Compiled modules are kept in the browser's
+localStorage, keyed by their source.
 
-# Against a jtree server on localhost:3000 (start it as in the main README):
-pnpm dev                                   # http://localhost:5173/admin/ztree/
-JTREE_SERVER=http://host:port JTREE_BASE=/jtree pnpm dev   # another server, or jtree inside JAS
+The libraries are in `client/internal/clients/shared/`, served at `/shared/`:
+Vue 3.5.43, vue3-sfc-loader 0.9.5, appfr 0.43.0
+(`header-content-layout-0.43.0/`, shared with admin2), acorn 8.18.0 (parses the
+apps' source), circular-json 0.5.9, and the socket.io client that the server
+provides. To update one, add the new version's files next to the old ones and
+change the paths in `index.html`.
 
-# Build into client/internal/clients/admin/ztree, served by jtree at <route>/admin/ztree/
-pnpm build
-```
+The in-browser compiler has two limits to keep in mind:
+
+- No TypeScript in templates: keep casts and `!` in the script.
+- No import cycles, not even through `import type`: the compiler fetches type
+  imports too, and two modules importing each other wait on each other forever,
+  with a blank page and no error. Shared types go in a module of their own
+  (see `src/treatment/tree.ts`).
 
 The page works out the route jtree is served under (`''`, or `/jtree` inside JAS)
-from its own address. The jtree server finds admin interfaces when it starts, so
-restart it after the first build. `?id=…&pwd=…` on the URL are passed to the
-server when admin login is required.
+from its own address. `?id=…&pwd=…` on the URL are passed to the server when
+admin login is required.
 
-The window arrangement, toolbar and status bar choices, recent files and client
-order are kept in the browser.
+### Type checking (optional)
+
+The browser ignores types. To check them, install the dev tools once:
+
+```bash
+cd client/internal/clients/admin/ztree
+npm install
+npm run typecheck
+```

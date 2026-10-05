@@ -1,4 +1,4 @@
-import type { TreeNode } from './parse'
+import type { ItemInfo, TreeNode } from './tree'
 
 /*
  * A stage's HTML read as z-Tree reads a screen: boxes, holding items and
@@ -7,16 +7,6 @@ import type { TreeNode } from './parse'
  * an output item (`The pie is OUT( app.pieSize )`), and a run of plain
  * paragraphs is a text box.
  */
-
-export interface ItemInfo {
-  label: string
-  variable: string
-  input: boolean
-  layout: string
-  min: string
-  max: string
-  html: string
-}
 
 const CONTROLS = 'input:not([type=hidden]):not([type=submit]):not([type=button]), select, textarea'
 const BUTTONS = 'button, input[type=submit], input[type=button]'

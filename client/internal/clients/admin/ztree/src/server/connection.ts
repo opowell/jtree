@@ -46,18 +46,16 @@ export function addLog(event: string, text: string) {
  * The route jtree is served under: '' on its own, '/jtree' inside JAS. Read
  * from this page's own address, which is always `<route>/admin/ztree/`.
  */
-export const basePath = __JTREE_DEV__
-  ? __JTREE_DEV__.base
-  : location.pathname.slice(0, Math.max(0, location.pathname.indexOf('/admin/')))
+export const basePath = location.pathname.slice(0, Math.max(0, location.pathname.indexOf('/admin/')))
 
 /** Where participant pages and downloads are served from, route included. */
-export const serverRoot = (__JTREE_DEV__ ? __JTREE_DEV__.server : location.origin) + basePath
+export const serverRoot = location.origin + basePath
 
 /** The address participants are given: the server's LAN address when known. */
 export function participantRoot(): string {
   const ip = state.settings.server?.ip
   const port = state.settings.server?.port
-  if (!ip || !port || __JTREE_DEV__) return serverRoot
+  if (!ip || !port) return serverRoot
   return `${location.protocol}//${ip}:${port}${basePath}`
 }
 
