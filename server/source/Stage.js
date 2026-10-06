@@ -234,6 +234,11 @@ class Stage {
         //     return false;
         // }
 
+        // A group formed by arrival starts once it is full (see Period#arrivalGroupId).
+        if (this.app.groupByArrival && !group.allPlayersCreated) {
+            return false;
+        }
+
         // Every player of the period, in every group, ready for this stage; until the groups
         // have been started together (see Group#startStage).
         if (this.waitForAllGroups && !group.period.allGroupsStarted.includes(this.indexInApp())) {

@@ -3,6 +3,7 @@
 - Listen to incremental game changes via observer.
 
 #### Unreleased
+- `period.setGroups(matrix)` in `app.periodStart` regroups a period; `app.groupByArrival` groups participants in the order they arrive.
 - `player.inPeriod(n)`, `player.inAllPeriods()`, `player.inPreviousPeriods()`, and the same for groups. `group.old()` works (it threw).
 - The `PARTNER_1122` and `PARTNER_1212` matchings work (they threw when a period started).
 - `stage.waitForAllGroups`: no group starts the stage until every group of the period has arrived; then `stage.allGroupsStart(period)` runs, once.

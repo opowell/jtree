@@ -46,3 +46,15 @@ app.getGroupIdsForPeriod = function(period) {
   return this.groupIds[period.id-1] // one row of app.groupIds
 }
 ```
+
+#### Regrouping when a period starts
+In [`app.periodStart(period)`]{@link App#periodStart}, the period's groups and players exist and no group has started yet. [`period.setGroups(matrix)`]{@link Period#setGroups} regroups them, listing each group's participants; every participant once:
+
+```javascript
+app.periodStart = function(period) {
+    period.setGroups([['P1', 'P4'], ['P2', 'P3']]);
+};
+```
+
+#### Grouping by arrival
+With [`app.groupByArrival`]{@link App#groupByArrival} `true`, participants are grouped in the order they arrive in each period, [`app.groupSize`]{@link App#groupSize} at a time, and a group starts its first stage when it is full. This matters when participants reach the app at different times, for example after an app of instructions that each completes at their own pace.

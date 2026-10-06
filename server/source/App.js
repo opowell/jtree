@@ -268,6 +268,16 @@ class App {
         this.groupMatchingType = 'STRANGER';
 
         /**
+         * Group participants in the order they arrive in each period, groupSize at a time,
+         * instead of by groupMatchingType (oTree's group_by_arrival_time). A group starts its
+         * first stage when it is full. Arrival matters when participants reach this app at
+         * different times, e.g. after an app of instructions.
+         * @type boolean
+         * @default false
+         */
+        this.groupByArrival = false;
+
+        /**
          * Messages to listen for from clients.
          * @type Object
          * @default {}

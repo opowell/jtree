@@ -493,8 +493,9 @@ class Group {
             return true;
         }
 
-        // Waiting for all groups: only once the group has started (see startStage).
-        if (stage.waitForAllGroups) {
+        // Waiting for all groups, or for a group formed by arrival to fill: only once the
+        // group has started (see startStage).
+        if (stage.waitForAllGroups || (stage.app.groupByArrival && !this.allPlayersCreated)) {
             return false;
         }
 

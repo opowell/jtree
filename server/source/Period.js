@@ -145,6 +145,9 @@ class Period {
     }
 
     getParticipantGroupId(participant) {
+        if (this.app.groupByArrival) {
+            return this.arrivalGroupId(participant);
+        }
         if (this.groups.length !== this.numGroups()) {
             this.createGroups();
             if (!this.hookStarted) {
@@ -159,6 +162,74 @@ class Period {
             }
         }
         return null;
+    }
+
+    /**
+     * With app.groupByArrival: puts participant, arriving in this period, into the group
+     * still filling up (or a new one), and returns that group's id. A group is complete,
+     * and can start, with app.groupSize players (see Stage#canGroupStartDefault).
+     */
+    arrivalGroupId(participant) {
+        if (!this.hookStarted) {
+            this.hookStarted = true;
+            this.app.runHook('periodStart', this);
+        }
+        const existing = this.groups.find((g) => g.playerWithParticipant(participant) !== null);
+        if (existing != null) {
+            return existing.id;
+        }
+        let group = this.groups.find((g) => !g.allPlayersCreated);
+        if (group == null) {
+            group = new Group.new(this.groups.length + 1, this);
+            this.groups.push(group);
+        }
+        const player = new Player.new(participant.id, participant, group, group.players.length + 1);
+        participant.players.push(player);
+        group.players.push(player);
+        group.allPlayersCreated = group.players.length >= (this.app.groupSize || 1);
+        player.save();
+        participant.save();
+        group.save();
+        return group.id;
+    }
+
+    /**
+     * Regroups this period's players: matrix lists each group's participant ids, e.g.
+     * [['P1', 'P4'], ['P2', 'P3']], every player once. Only before any group has started a
+     * stage, i.e. in app.periodStart (oTree's set_group_matrix, z-Tree's group matching).
+     * @param {string[][]} matrix
+     */
+    setGroups(matrix) {
+        if (this.groups.some((g) => g.stageStartedIndex >= 0)) {
+            throw new Error('setGroups: a group of period ' + this.id + ' has already started a stage');
+        }
+        const players = new Map();
+        for (const g of this.groups) {
+            for (const p of g.players) {
+                players.set(p.participant.id, p);
+            }
+        }
+        const ids = matrix.flat();
+        if (ids.length !== players.size || new Set(ids).size !== ids.length || ids.some((id) => !players.has(id))) {
+            throw new Error('setGroups: the matrix should list each of ' + [...players.keys()].sort().join(', ') + ' once');
+        }
+        this.groups = matrix.map((members, i) => {
+            const group = this.groups[i] || new Group.new(i + 1, this);
+            group.players = members.map((id, j) => {
+                const player = players.get(id);
+                player.group = group;
+                player.idInGroup = j + 1;
+                return player;
+            });
+            group.allPlayersCreated = true;
+            return group;
+        });
+        for (const group of this.groups) {
+            group.save();
+            for (const player of group.players) {
+                player.save();
+            }
+        }
     }
 
     // splits players into groups.

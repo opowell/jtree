@@ -15,6 +15,7 @@ const Utils = require('../Utils.js');
  * @property {number} [groupSize]
  * @property {number} [numGroups]
  * @property {string} [groupMatchingType] 'STRANGER', 'PARTNER_1122', ... (see App#getGroupIdsForPeriod)
+ * @property {boolean} [groupByArrival]   Group participants in the order they arrive instead.
  * @property {number} [suggestedNumPlayers]
  * @property {OptionIR[]} [options]       Treatment options, set when the app is added to a session.
  * @property {Object<string, *>} [values] The app's own fields, e.g. {endowment: 20}: app.endowment.
@@ -65,7 +66,7 @@ const Utils = require('../Utils.js');
  */
 
 const APP_KEYS = ['ir', 'dialect', 'title', 'description', 'numPeriods', 'groupSize', 'numGroups',
-    'groupMatchingType', 'suggestedNumPlayers', 'options', 'values', 'functions', 'messages', 'hooks', 'screen', 'stages'];
+    'groupMatchingType', 'groupByArrival', 'suggestedNumPlayers', 'options', 'values', 'functions', 'messages', 'hooks', 'screen', 'stages'];
 // The app's lifecycle hooks, by their name in an IR, and the App method each is.
 const APP_HOOKS = { appStart: 'appStart', periodStart: 'periodStart', periodEnd: 'periodEnd', appEnd: 'end',
     participantStart: 'participantStart', participantEnd: 'participantEnd' };
@@ -114,6 +115,7 @@ function validate(ir) {
     if (ir.ir !== 1) problems.push('app.ir: should be 1, the version of this format');
     for (const k of ['dialect', 'title', 'description', 'groupMatchingType']) type(ir[k], 'string', 'app.' + k);
     for (const k of ['numPeriods', 'groupSize', 'numGroups', 'suggestedNumPlayers']) type(ir[k], 'number', 'app.' + k);
+    type(ir.groupByArrival, 'boolean', 'app.groupByArrival');
     if (ir.options !== undefined) {
         if (!Array.isArray(ir.options)) problems.push('app.options: should be a list');
         else ir.options.forEach((o, i) => {
@@ -184,7 +186,7 @@ function applyIR(app, ir) {
     if (problems.length > 0) {
         throw new Error('The app description has problems:\n- ' + problems.join('\n- '));
     }
-    for (const k of ['title', 'description', 'numPeriods', 'groupSize', 'numGroups', 'groupMatchingType', 'suggestedNumPlayers']) {
+    for (const k of ['title', 'description', 'numPeriods', 'groupSize', 'numGroups', 'groupMatchingType', 'groupByArrival', 'suggestedNumPlayers']) {
         if (ir[k] !== undefined) app[k] = ir[k];
     }
     for (const [k, v] of Object.entries(ir.values || {})) app[k] = v;
@@ -245,7 +247,7 @@ const isJSON = (v) => {
  */
 function appToIR(app, fresh) {
     const ir = { ir: 1, dialect: 'jtree' };
-    for (const k of ['title', 'description', 'numPeriods', 'groupSize', 'numGroups', 'groupMatchingType', 'suggestedNumPlayers']) {
+    for (const k of ['title', 'description', 'numPeriods', 'groupSize', 'numGroups', 'groupMatchingType', 'groupByArrival', 'suggestedNumPlayers']) {
         if (app[k] !== undefined && app[k] !== fresh[k]) ir[k] = app[k];
     }
     const optionNames = app.options.map((o) => o.name);
