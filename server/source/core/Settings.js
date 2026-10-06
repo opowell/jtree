@@ -25,7 +25,7 @@ class Settings {
          this.clientUI               = 'internal/clients/participant';
          this.adminUIsPath           = 'internal/clients/admin';
          this.adminUIsSharedPath     = 'internal/clients/admin/shared';
-         this.appFolders             = ['apps']; // the location of apps folders
+         this.appFolders             = ['apps']; // the folders apps are in: relative to jtree's folder (client/), or absolute
          this.roomsPath              = 'rooms';
          this.usersPath              = 'users';
          this.helpPath               = 'internal/docs'; // location of help documents.

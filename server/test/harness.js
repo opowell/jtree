@@ -50,8 +50,7 @@ function makeDataDir({ settings = {}, withApps = false } = {}) {
         autoSaveFreq: 1e9,
         // Written at startup from internal/sharedTemplate.js; keep it out of the repo.
         clientJSFile: 'internal/shared.js',
-        // Relative to the data folder; the loader does not follow symbolic links.
-        appFolders: withApps ? [path.relative(dataDir, path.join(CLIENT, 'apps'))] : [],
+        appFolders: withApps ? [path.join(CLIENT, 'apps')] : [],
         ...settings,
     }));
     return {

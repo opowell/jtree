@@ -368,7 +368,8 @@ class Data {
     loadApps() {
         for (var i in this.jt.settings.appFolders) {
             var folder = this.jt.settings.appFolders[i];
-            this.loadAppDir(path.join(this.jt.path, folder));
+            // Relative to jtree's folder, or absolute.
+            this.loadAppDir(path.resolve(this.jt.path, folder));
         }
     }
 
@@ -486,7 +487,7 @@ class Data {
         if (!id.endsWith('.jtq')) {
             id += '.jtq';
         }
-        var queuePath = path.join(this.jt.path, this.jt.settings.appFolders[0], id);
+        var queuePath = path.join(path.resolve(this.jt.path, this.jt.settings.appFolders[0]), id);
         if (fs.existsSync(queuePath)) {
             return null;
         }
