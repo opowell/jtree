@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { startServer } = require('./harness.js');
-const { syntaxErrorPosition } = require('../source/core/data/syntaxErrorPosition.js');
+const { runAppCode } = require('../source/dialects/jtree/runAppCode.js');
 
 let server;
 before(async () => {
@@ -43,9 +43,39 @@ test('an app with a syntax error reports where it is', () => {
     assert.equal(app.errorPosition, '214');
 });
 
+/** The error runAppCode throws for code, or null. */
+function appCodeError(code, scope = { app: {} }) {
+    try {
+        runAppCode(code, path.join(server.dataDir, 'x.jtt'), scope);
+        return null;
+    } catch (err) {
+        return err;
+    }
+}
+
 test('syntax errors are placed by line and column', () => {
-    assert.deepEqual(syntaxErrorPosition('let a = 1;\nb = 2 2;', 'x.jtt'), { line: '2', column: '7' });
-    assert.equal(syntaxErrorPosition('let a = 1;', 'x.jtt'), null);
+    const file = path.join(server.dataDir, 'x.jtt');
+    assert.deepEqual(appCodeError('let a = 1;\nb = 2 2;').jtreePosition, { file, line: '2', column: '7' });
+    assert.equal(appCodeError('app.a = 1;'), null);
+});
+
+test('errors in hooks, later, name the app file and line', () => {
+    const app = {};
+    runAppCode('app.x = 1;\napp.playerStart = function(player) {\n    return player.nope.id;\n};', path.join(server.dataDir, 'hooks.jtt'), { app });
+    assert.equal(app.x, 1);
+    try {
+        app.playerStart({});
+        assert.fail('no error');
+    } catch (err) {
+        assert.match(err.stack.split('\n')[1], /hooks\.jtt:3:/);
+    }
+});
+
+test('app code sees app as this, and Utils', () => {
+    const app = {};
+    runAppCode('this.same = this === app; app.n = Utils.sum([{v: 2}, {v: 3}], "v");', path.join(server.dataDir, 'y.jtt'), { app });
+    assert.equal(app.same, true);
+    assert.equal(app.n, 5);
 });
 
 test('a folder app is one app, without its stage files as apps of their own', () => {

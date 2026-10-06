@@ -8,7 +8,7 @@ const Queue = require('../Queue.js');
 const User = require('../User.js');
 const { loadDefaultApp } = require('./data/loadDefaultApp.js')
 const { getIdFromDirectory } = require('./data/getIdFromDirectory.js')
-const { syntaxErrorPosition } = require('./data/syntaxErrorPosition.js')
+const { runAppCode } = require('../dialects/jtree/runAppCode.js')
 /** The data object. */
 class Data {
 
@@ -201,7 +201,7 @@ class Data {
             if (app.appjs.startsWith('//NOTSTANDALONEAPP')) {
                 return null;
             }
-            eval(app.appjs); // jshint ignore:line
+            runAppCode(app.appjs, filePath, { app });
             app.loadStageFiles();
             this.jt.log('loaded app ' + filePath);
         } catch (err) {
@@ -212,38 +212,12 @@ class Data {
             }
             if (app.isStandaloneApp) {
                 app.hasError = true;
-                // this.jt.log('Error loading app: ' + filePath, true);
-                // this.jt.log(err, true);
-                let lines = err.stack.split('\n');
-                let index = lines[1].indexOf('<anonymous>:');
-                let position = lines[1].substring(index + '<anonymous>:'.length);
-                let start = 0;
-                let indexColon = position.indexOf(':', start);
-                let line = position.substring(start, indexColon);
-                start = start + indexColon + 1;
-                let indexParen = position.indexOf(')', start);
-                let positionStr = position.substring(start, indexParen);
-                if (isNaN(line)) {
-                    line = 'unknown';
-                }
-                if (isNaN(positionStr)) {
-                    positionStr = 'unknown';
-                }
-                // An error in one of a folder app's stage files (see App#addStage).
-                const errorFile = err.jtreeFile || filePath;
-                app.errorFile = errorFile;
-                // eval gives no position for a syntax error; compiling the code again does.
-                if (err instanceof SyntaxError) {
-                    const code = errorFile === filePath ? app.appjs : fs.readFileSync(errorFile, 'utf8');
-                    const pos = syntaxErrorPosition(code, errorFile);
-                    if (pos != null) {
-                        line = pos.line;
-                        positionStr = pos.column;
-                    }
-                }
-                // this.jt.log('Line ' + line + ', position ' + positionStr, true);
-                app.errorLine = line;
-                app.errorPosition = positionStr;
+                // Where: in this file, or in one of a folder app's stage files (see App#addStage).
+                const pos = err.jtreePosition || { file: filePath, line: 'unknown', column: 'unknown' };
+                app.errorFile = pos.file;
+                app.errorLine = pos.line;
+                app.errorPosition = pos.column;
+                this.jt.log('Error in app ' + pos.file + ', line ' + pos.line + ', position ' + pos.column + ': ' + err);
             }
         }
         return app;
@@ -338,25 +312,6 @@ class Data {
         } catch (err) {
 
         }
-    }
-
-    getApp(appPath, options) {
-        var app = App.newSansId(this.jt, appPath);
-
-        // Set options before running code.
-        for (var i in options) {
-            app.setOptionValue(i, options[i]);
-        }
-
-        try {
-            app.appjs = fs.readFileSync(appPath) + '';
-            eval(app.appjs); // jshint ignore:line
-        } catch (err) {
-            this.jt.log('Error loading app: ' + appPath);
-            this.jt.log(err);
-            app = null;
-        }
-        return app;
     }
 
     reloadApps() {

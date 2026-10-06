@@ -4,6 +4,7 @@ const Utils     = require('./Utils.js');
 const fs        = require('fs-extra');
 const path      = require('path');
 const Timer     = require('./Timer.js');
+const { runAppCode } = require('./dialects/jtree/runAppCode.js');
 
 /** Class that represents an app. */
 class App {
@@ -402,8 +403,7 @@ class App {
         var folder = path.join(session.getOutputDir(), index + '_' + json.shortId);
         var appPath = path.join(folder, json.appFilename);
         var app = new App(session, session.jt, appPath);
-        var appCode = Utils.readJS(appPath);
-        eval(appCode);
+        runAppCode(Utils.readJS(appPath), appPath, { app });
         app.loadStageFiles();
 
         //If there is already an app in place, save its stages and periods??
@@ -566,14 +566,7 @@ class App {
             }
         }
         stage.sourceFile = fn;
-        var app = this; // jshint ignore:line
-        try {
-            eval(Utils.readJS(fn)); // jshint ignore:line
-        } catch (err) {
-            // The app has an error, in this file (see Data#loadApp).
-            err.jtreeFile = fn;
-            throw err;
-        }
+        runAppCode(Utils.readJS(fn), fn, { app: this, stage });
         return stage;
     }
 
@@ -1251,7 +1244,7 @@ class App {
 
         metaData.stages = [];
         try {
-            eval(metaData.appjs);
+            runAppCode(metaData.appjs, this.appPath, { app });
             app.loadStageFiles();
             for (var i in app.stages) {
                 metaData.stages.push(app.stages[i].id);
@@ -1340,8 +1333,7 @@ class App {
         for (var opt in app.optionValues) {
             app[opt] = app.optionValues[opt];
         }
-        var appCode = Utils.readJS(this.appPath);
-        eval(appCode);
+        runAppCode(Utils.readJS(this.appPath), this.appPath, { app });
         app.loadStageFiles();
         return app;
     }
