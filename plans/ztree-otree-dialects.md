@@ -461,3 +461,20 @@ field schema and page sequence come out as JSON; errors carry Python tracebacks;
 `ast` serves the converter. Core files are 6.4 MB compressed, so releases can include them.
 The rest of Phase 0 (the z-Tree corpus and grammar) needs `.ztt` files and z-Tree.
 
+### Phase 2: app descriptions and dialects (mostly done)
+
+- `dialects/jtree/runAppCode.js`: app code runs through one loader (`vm.compileFunction` with
+  the file's name) instead of `eval` in four places; errors give file and line, also from
+  hooks later. Same scope everywhere: `app` (and `stage`), `Utils`, `fs`, `path`, `require`.
+  Not a sandbox yet (§3.14): it runs in jtree's own context.
+- `ir/ir.js`: the IR (§2.1, as far as the kernel supports today), `validate`, `applyIR`, and
+  `app.toIR()` for jtree apps. `dialects/`: the registry, with `jtree` and `ir`
+  (`<name>.app.json`) dialects; loading, reloading, restoring and the admin's metadata go
+  through it.
+- Tests play every sample game also as IR: 7 of 9 the same. What an IR of a jtree script
+  cannot carry: functions that use names from their file (centipede), and values the script
+  computes from options (real effort's stage duration, until a timeout can be a program, §3.7).
+- Not done, on purpose: participant renderer and exporter slots wait for their second
+  implementation (oTree templates and CSV, Phase 4); admin-ztree reading the IR waits for an
+  importer (and the admin-ztree changes in progress).
+
