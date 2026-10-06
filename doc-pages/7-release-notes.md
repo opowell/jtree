@@ -3,6 +3,7 @@
 - Listen to incremental game changes via observer.
 
 #### Unreleased
+- A player's own time for a stage (`stage.clientDuration`, or `stage.getClientDuration(player)`) is kept by the server too: a page that does not submit when the time is up is ended after `timeoutGrace`. `stage.endOnTimeout = false` keeps a timed-out stage open until the players submit.
 - `period.setGroups(matrix)` in `app.periodStart` regroups a period; `app.groupByArrival` groups participants in the order they arrive.
 - `player.inPeriod(n)`, `player.inAllPeriods()`, `player.inPreviousPeriods()`, and the same for groups. `group.old()` works (it threw).
 - The `PARTNER_1122` and `PARTNER_1212` matchings work (they threw when a period started).

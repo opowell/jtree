@@ -39,7 +39,12 @@ const Utils = require('../Utils.js');
  *
  * @typedef {Object} StageIR
  * @property {string} id
- * @property {number} [duration]          Seconds; the stage times out after them.
+ * @property {number|Program} [duration] Seconds for each group, from when it starts the stage; or
+ *                                        (group) => seconds.
+ * @property {number|Program} [playerDuration] Seconds for each player, from when they start it;
+ *                                        or (player) => seconds.
+ * @property {boolean} [endOnTimeout]     End the stage when the time is up (true), or only mark
+ *                                        the players timed out (false).
  * @property {boolean} [waitToStart]      Wait for the whole group before starting.
  * @property {boolean} [waitToEnd]        Wait for the whole group before ending.
  * @property {boolean} [waitForAllGroups] Wait for every group of the period before starting.
@@ -70,7 +75,7 @@ const APP_KEYS = ['ir', 'dialect', 'title', 'description', 'numPeriods', 'groupS
 // The app's lifecycle hooks, by their name in an IR, and the App method each is.
 const APP_HOOKS = { appStart: 'appStart', periodStart: 'periodStart', periodEnd: 'periodEnd', appEnd: 'end',
     participantStart: 'participantStart', participantEnd: 'participantEnd' };
-const STAGE_KEYS = ['id', 'duration', 'waitToStart', 'waitToEnd', 'waitForAllGroups', 'waitOnTimerEnd', 'timeoutGrace',
+const STAGE_KEYS = ['id', 'duration', 'playerDuration', 'endOnTimeout', 'waitToStart', 'waitToEnd', 'waitForAllGroups', 'waitOnTimerEnd', 'timeoutGrace',
     'participate', 'programs', 'screen', 'values'];
 const STAGE_PROGRAMS = ['groupStart', 'playerStart', 'groupEnd', 'playerEnd', 'allGroupsStart'];
 const SCREEN_KEYS = ['renderer', 'active', 'waiting', 'computed', 'methods'];
@@ -141,7 +146,10 @@ function validate(ir) {
             if (typeof s.id !== 'string' || s.id === '') problems.push(where + '.id: should be a name');
             else if (ids.has(s.id)) problems.push(where + '.id: "' + s.id + '" is used by an earlier stage');
             ids.add(s.id);
-            type(s.duration, 'number', where + '.duration');
+            for (const k of ['duration', 'playerDuration']) {
+                if (s[k] !== undefined && typeof s[k] !== 'number') program(s[k], where + '.' + k);
+            }
+            type(s.endOnTimeout, 'boolean', where + '.endOnTimeout');
             for (const k of ['waitToStart', 'waitToEnd', 'waitForAllGroups', 'waitOnTimerEnd']) type(s[k], 'boolean', where + '.' + k);
             if (s.timeoutGrace !== undefined && s.timeoutGrace !== null) type(s.timeoutGrace, 'number', where + '.timeoutGrace');
             if (s.participate !== undefined) program(s.participate, where + '.participate');
@@ -201,11 +209,16 @@ function applyIR(app, ir) {
     applyScreen(app, ir.screen || {}, app, 'screen');
     for (const s of ir.stages) {
         const stage = app.newStage(s.id);
-        for (const k of ['duration', 'waitToStart', 'waitToEnd', 'waitForAllGroups', 'waitOnTimerEnd', 'timeoutGrace']) {
+        for (const k of ['waitToStart', 'waitToEnd', 'waitForAllGroups', 'waitOnTimerEnd', 'timeoutGrace', 'endOnTimeout']) {
             if (s[k] !== undefined) stage[k] = s[k];
         }
         for (const [k, v] of Object.entries(s.values || {})) stage[k] = v;
         const where = 'stages.' + s.id;
+        // A duration is seconds, or a program giving them for a group or a player.
+        for (const [k, field, method] of [['duration', 'duration', 'getGroupDuration'], ['playerDuration', 'clientDuration', 'getClientDuration']]) {
+            if (typeof s[k] === 'number') stage[field] = s[k];
+            else if (s[k] !== undefined) stage[method] = compileProgram(s[k], app, where + '.' + k);
+        }
         if (s.participate !== undefined) stage.canPlayerParticipate = compileProgram(s.participate, app, where + '.participate');
         for (const [k, p] of Object.entries(s.programs || {})) stage[k] = compileProgram(p, app, where + '.' + k);
         applyScreen(app, s.screen || {}, stage, where + '.screen');
@@ -227,7 +240,8 @@ const APP_INTERNAL = ['id', 'shortId', 'appDir', 'appFilename', 'appPath', 'jt',
     'finished', 'hasError', 'errorFile', 'errorLine', 'errorPosition', 'outputDelimiter', 'keyComparisons',
     'activeScreen', 'waitingScreen', 'renderer', 'indexInSession', 'groups'];
 const STAGE_INTERNAL = ['id', 'name', 'app', 'sourceFile', 'activeScreen', 'waitingScreen', 'renderer',
-    'duration', 'waitToStart', 'waitToEnd', 'waitForAllGroups', 'waitOnTimerEnd', 'timeoutGrace'];
+    'duration', 'clientDuration', 'waitToStart', 'waitToEnd', 'waitForAllGroups', 'waitOnTimerEnd', 'timeoutGrace',
+    'endOnTimeout', 'getGroupDuration', 'getClientDuration'];
 
 const js = (fn) => ({ lang: 'js', source: fn.toString() });
 const isJSON = (v) => {
@@ -290,9 +304,12 @@ function appToIR(app, fresh) {
     const freshStage = fresh.newStage('x');
     ir.stages = app.stages.map((stage) => {
         const s = { id: stage.id };
-        for (const k of ['duration', 'waitToStart', 'waitToEnd', 'waitForAllGroups', 'waitOnTimerEnd', 'timeoutGrace']) {
+        for (const k of ['duration', 'waitToStart', 'waitToEnd', 'waitForAllGroups', 'waitOnTimerEnd', 'timeoutGrace', 'endOnTimeout']) {
             if (stage[k] !== freshStage[k]) s[k] = stage[k];
         }
+        if (stage.clientDuration !== freshStage.clientDuration) s.playerDuration = stage.clientDuration;
+        if (Object.prototype.hasOwnProperty.call(stage, 'getGroupDuration')) s.duration = js(stage.getGroupDuration);
+        if (Object.prototype.hasOwnProperty.call(stage, 'getClientDuration')) s.playerDuration = js(stage.getClientDuration);
         if (Object.prototype.hasOwnProperty.call(stage, 'canPlayerParticipate')) s.participate = js(stage.canPlayerParticipate);
         const programs = {};
         for (const k of STAGE_PROGRAMS) {

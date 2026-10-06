@@ -70,6 +70,8 @@ A stage with a [`duration`]{@link Stage#duration} (in seconds) times out when th
 
 If [`Stage.waitOnTimerEnd`]{@link Stage#waitOnTimerEnd} is `true` (the default), each of those players' pages is asked to submit what it has, as if the participant had pressed OK. Players whose page does not within [`Stage.timeoutGrace`]{@link Stage#timeoutGrace} seconds (5 by default, set for all stages of an app with `app.stageTimeoutGrace`), for example because it was closed, are ended by the server, with nothing submitted. With `timeoutGrace` set to `null`, the server waits for the pages however long they take. If `waitOnTimerEnd` is `false`, the stage ends for everyone at once, without asking the pages.
 
+A player can also have time of their own for a stage, from when they start it: [`Stage.clientDuration`]{@link Stage#clientDuration} seconds, or [`Stage.getClientDuration(player)`]{@link Stage#getClientDuration} for a different time per player. Their page counts down and submits; if it does not, the server ends the stage for them after `timeoutGrace`, as for a group's timeout. With [`Stage.endOnTimeout`]{@link Stage#endOnTimeout} `false`, a stage whose time is up (the group's or a player's) only marks the players `timedOut` and stays open until they submit.
+
 #### App and period hooks
 Besides its stages' hooks, an app can set:
 

@@ -68,3 +68,23 @@ test('validate names every problem', () => {
         'app.stages[1].programs: unknown program "groupStrat"',
     ]);
 });
+
+test('durations as seconds or programs, and endOnTimeout, survive being described', () => {
+    const loaded = server.jt.data.loadApp('x', {}, server.writeApp('durations.jtt', `
+        const a = app.newStage('a');
+        a.duration = 30;
+        a.clientDuration = 10;
+        a.endOnTimeout = false;
+        const b = app.newStage('b');
+        b.getGroupDuration = function(group) { return group.id * 5; };
+        b.getClientDuration = function(player) { return player.idInGroup * 2; };
+    `), {});
+    const ir = loaded.toIR();
+    assert.deepEqual([ir.stages[0].duration, ir.stages[0].playerDuration, ir.stages[0].endOnTimeout], [30, 10, false]);
+    assert.equal(ir.stages[1].duration.lang, 'js');
+    const back = server.jt.data.loadApp('x', {}, server.writeIR('durations', loaded), {});
+    const [a, b] = back.stages;
+    assert.deepEqual([a.duration, a.clientDuration, a.endOnTimeout], [30, 10, false]);
+    assert.equal(b.getGroupDuration({ id: 3 }), 15);
+    assert.equal(b.getClientDuration({ idInGroup: 2 }), 4);
+});

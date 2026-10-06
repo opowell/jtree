@@ -1,6 +1,7 @@
 // @flow
 
 const Utils     = require('./Utils.js');
+const Timer     = require('./Timer.js');
 const path      = require('path');
 const clPlayer  = require('./client/clPlayer.js');
 const CircularJSON = require('./circularjson.js');
@@ -676,6 +677,7 @@ class Player {
                     } catch(err) {
                         console.log(err + '\n' + err.stack);
                     }
+                    this.startTimer(stage);
                     this.save();
                 }
             } else {
@@ -683,6 +685,66 @@ class Player {
             }
         }
         this.emitUpdate2();
+    }
+
+    /** Starts this player's own timer for stage, if it has one (see Stage#clientDuration). */
+    startTimer(stage) {
+        let seconds = 0;
+        try {
+            seconds = stage.getClientDuration(this);
+        } catch (err) {
+            console.log(err.stack);
+        }
+        if (seconds > 0) {
+            this.clearTimer();
+            this.stageTimer = new Timer.new(() => {
+                this.session().addMessageToStartOfQueue(this, stage, 'timeUp');
+            }, seconds * 1000, stage.indexInApp());
+        }
+    }
+
+    clearTimer() {
+        if (this.stageTimer != null) {
+            this.stageTimer.clear();
+            this.stageTimer = undefined;
+        }
+    }
+
+    /**
+     * This player's time for stage is up: marks them timed out, and unless the stage stays
+     * open (Stage#endOnTimeout), asks their page to submit what it has and, if it has not
+     * within stage.timeoutGrace seconds (or the player has no page), ends the stage for them.
+     */
+    timeUp(stage) {
+        this.stageTimer = undefined;
+        if (this.stage !== stage || this.status !== 'playing') {
+            return;
+        }
+        this.timedOut = true;
+        this.emitUpdate2();
+        if (!stage.endOnTimeout) {
+            return;
+        }
+        if (this.participant.clients.length > 0) {
+            this.emit('endStage', this.shellWithParent());
+            if (stage.timeoutGrace == null) {
+                return;
+            }
+            this.stageTimer = new Timer.new(() => {
+                this.session().addMessageToStartOfQueue(this, stage, 'endStageIfStill');
+            }, Math.max(stage.timeoutGrace * 1000, 1), stage.indexInApp());
+        } else {
+            this.endStage(true);
+        }
+    }
+
+    /** Ends stage for this player if they are still playing it (see timeUp). */
+    endStageIfStill(stage) {
+        this.stageTimer = undefined;
+        if (this.stage === stage && this.status === 'playing') {
+            console.log('No page submitted for ' + this.roomId() + ' after its time for stage ' + stage.id + ' was up, ending it.');
+            this.endStage(true);
+        }
     }
 
     /**
@@ -695,6 +757,7 @@ class Player {
             endGroup = true;
         }
 
+        this.clearTimer();
         if (this.status === 'playing') {
             this.recordStageEndTime(this.stage);
             this.status = 'done';

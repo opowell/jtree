@@ -47,12 +47,23 @@ class Stage {
         this.showTimer = true;
 
         /**
-         * How long clients have before stage is auto-submitted (from client, not from server).
-         * if <= 0, then no client timeout for this stage.
+         * Seconds each player has for this stage, from when they start it (oTree's page
+         * timeout); see [getClientDuration(player)]{@link Stage#getClientDuration} for a
+         * duration per player. Their page counts down and submits; if it does not, the server
+         * ends the stage for them, as for a group's timeout (see timeoutGrace). If <= 0, none.
          * @type number
          * @default 0
          */
         this.clientDuration = 0;
+
+        /**
+         * When the stage times out (duration or clientDuration), end it (true); or only mark
+         * the players timed out and keep it open until they submit (false: z-Tree's "leave
+         * stage after timeout: no").
+         * @type boolean
+         * @default true
+         */
+        this.endOnTimeout = true;
 
         /**
          * Wait for all players in group to be 'ready' before calling [Stage.groupStart(group)]{@link stage#groupStart} and [Stage.playerStart(player)]{@link stage#groupStart} are called.

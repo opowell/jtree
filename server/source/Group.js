@@ -706,7 +706,12 @@ class Group {
         for (const player of this.players) {
             if (player.stage === stage && ['ready', 'playing'].includes(player.status)) {
                 player.timedOut = true;
+                player.emitUpdate2();
             }
+        }
+        // The stage stays open until the players submit.
+        if (!stage.endOnTimeout) {
+            return;
         }
         this.endStage(stage, true);
 
