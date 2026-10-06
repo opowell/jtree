@@ -5,6 +5,8 @@ const fs        = require('fs-extra');
 const path      = require('path');
 const Timer     = require('./Timer.js');
 const { runAppCode } = require('./dialects/jtree/runAppCode.js');
+const { dialectFor } = require('./dialects/index.js');
+const { appToIR } = require('./ir/ir.js');
 
 /** Class that represents an app. */
 class App {
@@ -60,7 +62,9 @@ class App {
                 id = id.substring(id.lastIndexOf('\\') + 1);
             }
             this.appFilename = id;
-            if (id.endsWith('.js')) {
+            if (id.endsWith('.app.json')) {
+                id = id.substring(0, id.length - '.app.json'.length);
+            } else if (id.endsWith('.js')) {
                 id = id.substring(0, id.length - '.js'.length);
             } else if (id.endsWith('.jtt')) {
                 id = id.substring(0, id.length - '.jtt'.length);
@@ -403,8 +407,7 @@ class App {
         var folder = path.join(session.getOutputDir(), index + '_' + json.shortId);
         var appPath = path.join(folder, json.appFilename);
         var app = new App(session, session.jt, appPath);
-        runAppCode(Utils.readJS(appPath), appPath, { app });
-        app.loadStageFiles();
+        dialectFor(app.appPath).define(app);
 
         //If there is already an app in place, save its stages and periods??
         if (session.apps.length > index-1) {
@@ -568,6 +571,11 @@ class App {
         stage.sourceFile = fn;
         runAppCode(Utils.readJS(fn), fn, { app: this, stage });
         return stage;
+    }
+
+    /** This app as an app description (see ir/ir.js). */
+    toIR() {
+        return appToIR(this, new App(null, this.jt, this.appPath));
     }
 
     /** Whether this app is a folder: an app.jtt (or app.js), with its stages' files beside it. */
@@ -1244,8 +1252,7 @@ class App {
 
         metaData.stages = [];
         try {
-            runAppCode(metaData.appjs, this.appPath, { app });
-            app.loadStageFiles();
+            dialectFor(app.appPath).define(app);
             for (var i in app.stages) {
                 metaData.stages.push(app.stages[i].id);
             }
@@ -1328,13 +1335,12 @@ class App {
     }
 
     reload() {
-        var app = new App(this.session, this.jt, this.id);
+        var app = new App(this.session, this.jt, this.appPath);
         app.optionValues = this.optionValues;
         for (var opt in app.optionValues) {
             app[opt] = app.optionValues[opt];
         }
-        runAppCode(Utils.readJS(this.appPath), this.appPath, { app });
-        app.loadStageFiles();
+        dialectFor(app.appPath).define(app);
         return app;
     }
 

@@ -8,7 +8,7 @@ const Queue = require('../Queue.js');
 const User = require('../User.js');
 const { loadDefaultApp } = require('./data/loadDefaultApp.js')
 const { getIdFromDirectory } = require('./data/getIdFromDirectory.js')
-const { runAppCode } = require('../dialects/jtree/runAppCode.js')
+const { dialectFor } = require('../dialects/index.js')
 /** The data object. */
 class Data {
 
@@ -195,19 +195,20 @@ class Data {
         }
 
         let filePath = appPath;
+        const dialect = dialectFor(filePath);
+        if (dialect == null) {
+            return null;
+        }
 
         try {
-            app.appjs = fs.readFileSync(filePath) + '';
-            if (app.appjs.startsWith('//NOTSTANDALONEAPP')) {
+            if (dialect.name === 'jtree' && Utils.readJS(filePath).startsWith('//NOTSTANDALONEAPP')) {
                 return null;
             }
-            runAppCode(app.appjs, filePath, { app });
-            app.loadStageFiles();
+            dialect.define(app);
             this.jt.log('loaded app ' + filePath);
         } catch (err) {
-            if (
-                !filePath.endsWith('.jtt')
-            ) {
+            // A .js file that is not an app, e.g. a page's script.
+            if (filePath.endsWith('.js')) {
                 return null;
             }
             if (app.isStandaloneApp) {
@@ -248,7 +249,10 @@ class Data {
                       isApp = true;
                       id = getIdFromDirectory(dir)
                     }
-                    if (id.endsWith('.js')) {
+                    if (id.endsWith('.app.json')) {
+                        isApp = true;
+                        id = id.substring(0, id.length - '.app.json'.length);
+                    } else if (id.endsWith('.js')) {
                         isApp = true;
                         id = id.substring(0, id.length - '.js'.length);
                     } else if (id.endsWith('.jtt')) {

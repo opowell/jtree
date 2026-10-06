@@ -8,6 +8,7 @@ const Player        = require('./Player.js');
 const Client        = require('./Client.js');
 const Table         = require('./Table.js');
 const Utils         = require('./Utils.js');
+const { dialectFor } = require('./dialects/index.js');
 const fs            = require('fs-extra');
 const path          = require('path');
 const async         = require('async');
@@ -286,7 +287,7 @@ class Session {
                 if (app.isFolderApp()) {
                     // With its stages' and client files.
                     Utils.copyFiles(app.appDir, app.getOutputFN());
-                } else if (app.appPath.endsWith('.jtt') || app.appPath.endsWith('.js')) {
+                } else if (dialectFor(app.appPath) != null) {
                     Utils.copyFile(app.appFilename, app.appDir, app.getOutputFN());
                 } else {
                     Utils.copyFiles(path.parse(app.appPath).dir, app.getOutputFN());
