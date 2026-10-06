@@ -35,7 +35,8 @@ class Period {
          */
         this.outputHide = ['stage', 'status', 'this', 'curAppId', 'periodTemp',
         'periodPerm', 'periodPermAuto', 'outputHide', 'app', 'groups', 'type',
-        'stageTimerStart','stageTimerDuration','stageTimerTimeLeft','stageTimerStageIndex','stageTimerCallback','stageTimerRunning','periodId','appIndex', 'gIds'];
+        'stageTimerStart','stageTimerDuration','stageTimerTimeLeft','stageTimerStageIndex','stageTimerCallback','stageTimerRunning','periodId','appIndex', 'gIds',
+        'hookStarted', 'hookEnded'];
     }
 
     roomId() {
@@ -140,6 +141,10 @@ class Period {
     getParticipantGroupId(participant) {
         if (this.groups.length !== this.numGroups()) {
             this.createGroups();
+            if (!this.hookStarted) {
+                this.hookStarted = true;
+                this.app.runHook('periodStart', this);
+            }
         }
         for (var g in this.groups) {
             var group = this.groups[g];
@@ -209,6 +214,18 @@ class Period {
             }
         }
 
+    }
+
+    /**
+     * Called when a group of this period has ended the period's last stage: once all have,
+     * calls the app's periodEnd hook.
+     */
+    groupEnded() {
+        const last = this.app.stages.length - 1;
+        if (!this.hookEnded && this.groups.every((g) => g.stageEndedIndex >= last)) {
+            this.hookEnded = true;
+            this.app.runHook('periodEnd', this);
+        }
     }
 
     groupIds() {

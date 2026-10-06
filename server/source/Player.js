@@ -662,7 +662,12 @@ class Player {
         this.emitUpdate2();
     }
 
-    endStage(endGroup) {
+    /**
+     * @param {boolean} [endGroup=true] Then try to end the stage for the group too.
+     * @param {boolean} [move=true] Then move on to the next stage. The group ending a stage
+     * that waits for everyone (see Group#endStage) moves its players itself, after groupEnd.
+     */
+    endStage(endGroup, move = true) {
         if (endGroup == null) {
             endGroup = true;
         }
@@ -678,16 +683,20 @@ class Player {
         }
 
         console.log(this.timeStamp() + ' END   - PLAYER: ' + this.stage.id + ', ' + this.roomId());
-        this.stage.playerEnd(this);
+        try {
+            this.stage.playerEnd(this);
+        } catch (err) {
+            console.log(err.stack);
+        }
         this.emitUpdate2();
-        this.finishStage(endGroup);
+        this.finishStage(endGroup, move);
     }
 
     timeStamp() {
         return this.jt().settings.getConsoleTimeStamp();
     }
 
-    finishStage(endGroup) {
+    finishStage(endGroup, move = true) {
         this.status = 'finished';
         console.log(this.timeStamp() + ' FINISH- PLAYER: ' + this.stage.id + ', ' + this.roomId());
         let curRoomId = this.roomId();
@@ -695,7 +704,7 @@ class Player {
         if (endGroup) {
             this.group.endStage(this.stage);
         }
-        if (curRoomId == this.roomId() && curStageIndex === this.stageIndex) {
+        if (move && curRoomId == this.roomId() && curStageIndex === this.stageIndex) {
             this.moveToNextStage();
         }
     }

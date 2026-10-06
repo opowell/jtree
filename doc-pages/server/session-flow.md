@@ -68,3 +68,15 @@ Groups belong to Periods. This means that whenever a stage has `waitToStart` as 
 A stage with a [`duration`]{@link Stage#duration} (in seconds) times out when that time is up. Players who have not ended the stage by then have `player.timedOut` set to `true` while the stage ends, so `playerEnd` and `groupEnd` can tell them apart; it is `false` again from the next stage.
 
 If [`Stage.waitOnTimerEnd`]{@link Stage#waitOnTimerEnd} is `true` (the default), each of those players' pages is asked to submit what it has, as if the participant had pressed OK. Players whose page does not within [`Stage.timeoutGrace`]{@link Stage#timeoutGrace} seconds (5 by default, set for all stages of an app with `app.stageTimeoutGrace`), for example because it was closed, are ended by the server, with nothing submitted. With `timeoutGrace` set to `null`, the server waits for the pages however long they take. If `waitOnTimerEnd` is `false`, the stage ends for everyone at once, without asking the pages.
+
+#### App and period hooks
+Besides its stages' hooks, an app can set:
+
+```javascript
+app.appStart = function() {};             // once, when the first participant starts the app
+app.periodStart = function(period) {};    // once per period: its groups and players exist, no stage has started
+app.periodEnd = function(period) {};      // once per period: its last group has ended its last stage
+app.end = function() {};                  // once, when every participant has finished the app
+```
+
+When a group ends a stage that waits for everyone ([`waitToEnd`]{@link Stage#waitToEnd}), its players move on only after `groupEnd`, and at the end of a period after `periodEnd`: what those set is there when the next stage starts. Errors in any of these hooks are logged, and the session goes on.

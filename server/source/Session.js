@@ -1123,8 +1123,11 @@ class Session {
     * @return {type}             description
     */
     participantMoveToNextApp(participant) {
-        if (participant.getApp() != null) {
-            participant.getApp().participantEnd(participant);
+        const app = participant.getApp();
+        if (app != null) {
+            participant.finishedApps.push(app.getIdInSession());
+            // Calls the app's participantEnd, and ends the app if everyone has finished it.
+            app.participantEndInternal(participant);
         }
 
         if (participant.appIndex < this.apps.length) {

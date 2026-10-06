@@ -708,15 +708,24 @@ class Group {
 
         this.clearStageTimer();
 
+        // For a stage that waits for everyone, players move on below, after groupEnd (and
+        // periodEnd), so that what those do is done before anyone's next stage starts.
         for (var p in this.players) {
             var player = this.players[p];
             if (player.stage.id === stage.id && player.status !== 'finished') {
-                player.endStage(false);
+                player.endStage(false, !stage.waitToEnd);
             }
         }
         console.log(this.jt().settings.getConsoleTimeStamp() + ' END   - GROUP : ' + stage.id + ', ' + this.roomId());
         this.stageEndedIndex = stage.indexInApp();
-        stage.groupEnd(this);
+        try {
+            stage.groupEnd(this);
+        } catch (err) {
+            console.log(err.stack);
+        }
+        if (stage.indexInApp() === this.app().stages.length - 1) {
+            this.period.groupEnded();
+        }
 
         if (stage.waitToEnd) {
             for (var p in this.players) {

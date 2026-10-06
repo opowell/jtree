@@ -3,6 +3,8 @@
 - Listen to incremental game changes via observer.
 
 #### Unreleased
+- App hooks `app.appStart()`, `app.periodStart(period)` and `app.periodEnd(period)`; `app.end()` is called again when everyone has finished an app, and the app's data is written to the session's CSV file then, as before.
+- When a group ends a stage that waits for everyone, players move on after `groupEnd`, not before it: the next stage, or the next period's first, no longer starts before `groupEnd` has run. Errors in `groupEnd` and `playerEnd` are logged instead of stopping the session.
 - Apps as folders work: `app.jtt` with one `.jtt` file per stage beside it, added in name order (`1_decide.jtt` is stage `decide`). In a stage's file, `stage` is the stage and `app` the app. A folder's stage files no longer show up as apps of their own.
 - Stage timeouts no longer depend on participants' pages: if a page does not submit within `stage.timeoutGrace` seconds (default 5) of the timeout, the server ends the stage for that player. `player.timedOut` tells `playerEnd` and `groupEnd` which players timed out.
 - A syntax error in an app is reported with its line and position, also in a folder app's stage files (`app.errorFile`).

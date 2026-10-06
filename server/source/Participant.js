@@ -177,9 +177,11 @@ class Participant {
 
     endCurrentApp() {
 
-        if (this.getApp() !== null) {
-            this.getApp().participantEnd(this);
-            this.finishedApps.push(this.getApp().getIdInSession());
+        const app = this.getApp();
+        if (app !== null) {
+            this.finishedApps.push(app.getIdInSession());
+            // Calls the app's participantEnd, and ends the app if everyone has finished it.
+            app.participantEndInternal(this);
         }
 
         this.player = null;

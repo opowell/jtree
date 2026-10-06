@@ -20,6 +20,9 @@ const Utils = require('../Utils.js');
  * @property {Object<string, *>} [values] The app's own fields, e.g. {endowment: 20}: app.endowment.
  * @property {Object<string, Program>} [functions] The app's own methods, e.g. app.payoff(player).
  * @property {Object<string, Program>} [messages]  Messages from participants' pages: app.messages.
+ * @property {Object<string, Program>} [hooks] The app's lifecycle: appStart(), periodStart(period),
+ *                                        periodEnd(period), appEnd() (app.end), participantStart(participant),
+ *                                        participantEnd(participant).
  * @property {ScreenIR} [screen]          Screens shared by every stage.
  * @property {StageIR[]} stages
  *
@@ -60,7 +63,10 @@ const Utils = require('../Utils.js');
  */
 
 const APP_KEYS = ['ir', 'dialect', 'title', 'description', 'numPeriods', 'groupSize', 'numGroups',
-    'groupMatchingType', 'suggestedNumPlayers', 'options', 'values', 'functions', 'messages', 'screen', 'stages'];
+    'groupMatchingType', 'suggestedNumPlayers', 'options', 'values', 'functions', 'messages', 'hooks', 'screen', 'stages'];
+// The app's lifecycle hooks, by their name in an IR, and the App method each is.
+const APP_HOOKS = { appStart: 'appStart', periodStart: 'periodStart', periodEnd: 'periodEnd', appEnd: 'end',
+    participantStart: 'participantStart', participantEnd: 'participantEnd' };
 const STAGE_KEYS = ['id', 'duration', 'waitToStart', 'waitToEnd', 'waitOnTimerEnd', 'timeoutGrace',
     'participate', 'programs', 'screen', 'values'];
 const STAGE_PROGRAMS = ['groupStart', 'playerStart', 'groupEnd', 'playerEnd'];
@@ -118,6 +124,7 @@ function validate(ir) {
     if (ir.values !== undefined && !isObject(ir.values)) problems.push('app.values: should be an object');
     programs(ir.functions, 'app.functions');
     programs(ir.messages, 'app.messages');
+    programs(ir.hooks, 'app.hooks', Object.keys(APP_HOOKS));
     screen(ir.screen, 'app.screen');
     if (!Array.isArray(ir.stages)) {
         problems.push('app.stages: should be a list');
@@ -186,6 +193,7 @@ function applyIR(app, ir) {
     }
     for (const [k, p] of Object.entries(ir.functions || {})) app[k] = compileProgram(p, app, 'functions.' + k);
     for (const [k, p] of Object.entries(ir.messages || {})) app.messages[k] = compileProgram(p, app, 'messages.' + k);
+    for (const [k, p] of Object.entries(ir.hooks || {})) app[APP_HOOKS[k]] = compileProgram(p, app, 'hooks.' + k);
     applyScreen(app, ir.screen || {}, app, 'screen');
     for (const s of ir.stages) {
         const stage = app.newStage(s.id);
@@ -248,10 +256,15 @@ function appToIR(app, fresh) {
             return out;
         });
     }
+    const hooks = {};
+    for (const [name, method] of Object.entries(APP_HOOKS)) {
+        if (Object.prototype.hasOwnProperty.call(app, method)) hooks[name] = js(app[method]);
+    }
+    const hookMethods = Object.values(APP_HOOKS);
     const values = {};
     const functions = {};
     for (const k of Object.keys(app)) {
-        if (APP_INTERNAL.includes(k) || optionNames.includes(k) || ir[k] !== undefined) continue;
+        if (APP_INTERNAL.includes(k) || optionNames.includes(k) || hookMethods.includes(k) || ir[k] !== undefined) continue;
         const v = app[k];
         if (Utils.isFunction(v)) {
             if (v !== fresh[k]) functions[k] = js(v);
@@ -261,6 +274,7 @@ function appToIR(app, fresh) {
     }
     if (Object.keys(values).length > 0) ir.values = values;
     if (Object.keys(functions).length > 0) ir.functions = functions;
+    if (Object.keys(hooks).length > 0) ir.hooks = hooks;
     if (Object.keys(app.messages).length > 0) {
         ir.messages = Object.fromEntries(Object.entries(app.messages).map(([k, f]) => [k, js(f)]));
     }

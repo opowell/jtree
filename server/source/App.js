@@ -1459,6 +1459,19 @@ class App {
             return;
         }
         this.started = true;
+        this.runHook('appStart');
+    }
+
+    /**
+     * Calls this app's hook name with args, logging an error in it instead of throwing it,
+     * as for stages' hooks.
+     */
+    runHook(name, ...args) {
+        try {
+            this[name](...args);
+        } catch (err) {
+            console.log('Error in ' + name + ' of app ' + this.id + ': ' + err.stack);
+        }
     }
 
     /**
@@ -1827,6 +1840,27 @@ class App {
      * @return {type}             description
      */
     participantStart(participant) {}
+
+    /**
+     * Overwrite in app.jtt: called once, when the first participant starts this app, before
+     * its first period starts.
+     */
+    appStart() {}
+
+    /**
+     * Overwrite in app.jtt: called once per period, when its groups and players have been
+     * made, before any group starts the period's first stage. Groups of an app without a
+     * barrier across groups may start the next period before the last group ends this one.
+     * @param {Period} period
+     */
+    periodStart(period) {}
+
+    /**
+     * Overwrite in app.jtt: called once per period, when its last group has ended the
+     * period's last stage.
+     * @param {Period} period
+     */
+    periodEnd(period) {}
 
     getNextPeriod(participant) {
         if (participant.player != null) {

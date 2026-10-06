@@ -113,6 +113,19 @@ async function startServer({ settings = {}, withApps = false, data: givenData } 
         url,
         dataDir,
 
+        /** Writes an app file with code in the data folder; returns its path. */
+        writeApp(name, code) {
+            const file = path.join(dataDir, 'test-apps', name);
+            fs.mkdirSync(path.dirname(file), { recursive: true });
+            fs.writeFileSync(file, code);
+            return file;
+        },
+
+        /** Writes app (a loaded App) as an app description (.app.json); returns its path. */
+        writeIR(name, app) {
+            return server.writeApp(name + '.app.json', JSON.stringify(app.toIR(), null, 2));
+        },
+
         /** A started session with the given apps (absolute paths) and number of participants. */
         createSession(appPaths, { numParticipants, options } = {}) {
             const session = jt.data.createSession();
