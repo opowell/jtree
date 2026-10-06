@@ -287,7 +287,10 @@ class Session {
             var app = this.jt.data.loadApp(appPath, this, appPath, options);
             if (app !== null) {
                 this.apps.push(app);
-                if (app.appPath.endsWith('.jtt') || app.appPath.endsWith('.js')) {
+                if (app.isFolderApp()) {
+                    // With its stages' and client files.
+                    Utils.copyFiles(app.appDir, app.getOutputFN());
+                } else if (app.appPath.endsWith('.jtt') || app.appPath.endsWith('.js')) {
                     Utils.copyFile(app.appFilename, app.appDir, app.getOutputFN());
                 } else {
                     Utils.copyFiles(path.parse(app.appPath).dir, app.getOutputFN());

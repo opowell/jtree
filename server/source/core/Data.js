@@ -8,6 +8,7 @@ const Queue = require('../Queue.js');
 const User = require('../User.js');
 const { loadDefaultApp } = require('./data/loadDefaultApp.js')
 const { getIdFromDirectory } = require('./data/getIdFromDirectory.js')
+const { syntaxErrorPosition } = require('./data/syntaxErrorPosition.js')
 /** The data object. */
 class Data {
 
@@ -195,6 +196,7 @@ class Data {
                 return null;
             }
             eval(app.appjs); // jshint ignore:line
+            app.loadStageFiles();
             this.jt.log('loaded app ' + filePath);
         } catch (err) {
             if (
@@ -221,6 +223,18 @@ class Data {
                 if (isNaN(positionStr)) {
                     positionStr = 'unknown';
                 }
+                // An error in one of a folder app's stage files (see App#addStage).
+                const errorFile = err.jtreeFile || filePath;
+                app.errorFile = errorFile;
+                // eval gives no position for a syntax error; compiling the code again does.
+                if (err instanceof SyntaxError) {
+                    const code = errorFile === filePath ? app.appjs : fs.readFileSync(errorFile, 'utf8');
+                    const pos = syntaxErrorPosition(code, errorFile);
+                    if (pos != null) {
+                        line = pos.line;
+                        positionStr = pos.column;
+                    }
+                }
                 // this.jt.log('Line ' + line + ', position ' + positionStr, true);
                 app.errorLine = line;
                 app.errorPosition = positionStr;
@@ -242,6 +256,11 @@ class Data {
                 var curPathIsFolder = fs.lstatSync(curPath).isDirectory();
                 if (curPathIsFile) {
                     var id = appDirContents[i];
+
+                    // In a folder app, the other files are its stages and client files, not apps.
+                    if (loadedDefaultApp != null && !['app.js', 'app.jtt'].includes(id) && !id.endsWith('.jtq')) {
+                        continue;
+                    }
 
                     let isApp = false;
                     // Treatment / App

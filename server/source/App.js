@@ -33,6 +33,8 @@ class App {
             } else if (id.includes('app.jtt')) {
                 str = 'app.jtt';
             }
+            this.appDir = path.dirname(appPath);
+            this.appFilename = path.basename(appPath);
             id = id.substring(0, id.lastIndexOf(str));
 
            // Strip trailing slashes.
@@ -533,22 +535,63 @@ class App {
     }
 
     /**
-     * Adds a stage, with contents loaded from .jtt file.
-     * @param {The name of the stage to add} name 
+     * Adds a stage, with contents loaded from a .jtt (or .js) file. In that file, `stage` is
+     * the new stage and `app` is this app.
+     * @param {string} name The id of the stage.
+     * @param {string} [file] The stage's file, relative to this app's folder; by default
+     * <name>.jtt (or .js).
+     * @return {Stage} The new stage.
      */
-    addStage(name) {
+    addStage(name, file) {
         var stage = this.newStage(name);
-        var fn = path.join(path.dirname(this.id), name);
-        if (fs.existsSync(fn + '.jtt')) {
-            fn = fn + '.jtt';
-        } else if (fs.existsSync(fn + '.js')) {
-            fn = fn + '.js';
+        var dir = path.resolve(path.dirname(this.appPath));
+        var fn;
+        if (file != null) {
+            fn = path.resolve(dir, file);
+        } else {
+            fn = path.join(dir, name);
+            if (fs.existsSync(fn + '.jtt')) {
+                fn = fn + '.jtt';
+            } else if (fs.existsSync(fn + '.js')) {
+                fn = fn + '.js';
+            }
         }
+        stage.sourceFile = fn;
+        var app = this; // jshint ignore:line
         try {
-            eval(Utils.readJS(fn));
+            eval(Utils.readJS(fn)); // jshint ignore:line
         } catch (err) {
-            console.log('Error evaluating ' + fn);
-            console.log(err);
+            // The app has an error, in this file (see Data#loadApp).
+            err.jtreeFile = fn;
+            throw err;
+        }
+        return stage;
+    }
+
+    /** Whether this app is a folder: an app.jtt (or app.js), with its stages' files beside it. */
+    isFolderApp() {
+        return ['app.jtt', 'app.js'].includes(path.basename(this.appPath));
+    }
+
+    /**
+     * Adds the stages of a folder app that its app.jtt does not add itself: the folder's
+     * other .jtt files, in name order. A leading number orders them and is not part of the
+     * stage's id: "1_decide.jtt" is stage "decide". Called after the app's code has run.
+     */
+    loadStageFiles() {
+        if (!this.isFolderApp()) {
+            return;
+        }
+        var dir = path.resolve(path.dirname(this.appPath));
+        var files = fs.readdirSync(dir).filter(f => f.endsWith('.jtt') && f !== 'app.jtt');
+        files.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+        for (var file of files) {
+            var fn = path.join(dir, file);
+            if (this.stages.some(s => s.sourceFile === fn)) {
+                continue;
+            }
+            var name = file.substring(0, file.length - '.jtt'.length);
+            this.addStage(name.replace(/^\d+[_\-. ]*(?=.)/, ''), fn);
         }
     }
 
@@ -1195,11 +1238,12 @@ class App {
             metaData.clientHTML = '';
         }
 
-        var app = new App({}, this.jt, this.id);
+        var app = new App({}, this.jt, this.appPath);
 
         metaData.stages = [];
         try {
             eval(metaData.appjs);
+            app.loadStageFiles();
             for (var i in app.stages) {
                 metaData.stages.push(app.stages[i].id);
             }
@@ -1289,6 +1333,7 @@ class App {
         }
         var appCode = Utils.readJS(this.appPath);
         eval(appCode);
+        app.loadStageFiles();
         return app;
     }
 

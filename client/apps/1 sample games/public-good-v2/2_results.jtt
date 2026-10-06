@@ -1,4 +1,4 @@
-app.groupStart = function (group) {
+stage.groupStart = function (group) {
     group.contributions = group.sum('contribution');
     group.production = group.contributions * app.factor;
     group.prodPerPlayer = group.production / group.players.length;
@@ -7,10 +7,9 @@ app.groupStart = function (group) {
         player.points = app.endowment - player.contribution + group.prodPerPlayer;
     }
 }
-app.activeScreen = `
+stage.activeScreen = `
   <p>RESULTS</p>
   <p>Your endowment was {{app.endowment}} E$. You contributed {{player.contribution}} E$.</p>
   <p>In total, players in your group contributed {{group.contributions}} E$, thus the total amount produced was {{group.production | round(2)}} E$.</p>
-  <p>Thus, your payoff in this period is {{player.points | round(2)}} E$.</p>  
-</>
-`
+  <p>Thus, your payoff in this period is {{player.points | round(2)}} E$.</p>
+`;
