@@ -2,6 +2,10 @@
 - Generic game trees.
 - Listen to incremental game changes via observer.
 
+#### Unreleased
+- `jt.stop()` stops a jtree started from another program, for example tests.
+- Tests: `cd server && pnpm test`.
+
 #### 2026.10.05 - 0.9.0
 - Downloads bundle Node.js (current LTS) and run through JAS: unpack and run `start.command` (macOS), `start.cmd` (Windows) or `start.sh` (Linux). Native Apple Silicon build. Windows XP and 32-bit Windows are no longer supported.
 - Admin access: without an admin password, the admin interface only opens on the computer running jtree. Set `defaultAdminPwd` in `settings.json` to log in from other computers. Previously any participant could connect as an admin.

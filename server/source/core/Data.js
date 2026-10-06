@@ -71,7 +71,32 @@ class Data {
      *
      */
     callStoreTimeInfoFunc() {
-        setTimeout(this.storeTimeInfo.bind(this), this.jt.settings.autoSaveFreq);
+        if (this.stopped) {
+            return;
+        }
+        this.storeTimeInfoTimer = setTimeout(this.storeTimeInfo.bind(this), this.jt.settings.autoSaveFreq);
+    }
+
+    /**
+     * Stops what keeps running in the background: saving the time info, and each session's
+     * timers and data file. CALLED FROM jt.stop (see jtree.js).
+     */
+    stop() {
+        this.stopped = true;
+        clearTimeout(this.storeTimeInfoTimer);
+        for (const session of this.sessions) {
+            for (const timer of session.timers()) {
+                timer.clear();
+            }
+            for (const participant of Object.values(session.participants)) {
+                if (participant.appTimer != null) {
+                    participant.appTimer.clear();
+                }
+            }
+            if (session.fileStream != null) {
+                session.fileStream.end();
+            }
+        }
     }
 
     /*

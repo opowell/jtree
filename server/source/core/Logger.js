@@ -31,14 +31,20 @@ class Logger {
     */
     log(text, forcePrintToConosle) {
         var time = new Date().toString();
-        this.logStream.write(time + ': ' + text + '\n');
+        // Closed when jtree stops.
+        if (!this.logStream.writableEnded) {
+            this.logStream.write(time + ': ' + text + '\n');
+        }
 
         if (this.jt.settings.logToConsole === true || forcePrintToConosle == true) {
             console.log(time + ': ' + text);
         }
     }
 
-
+    /** Closes the log file; later messages only go to the console, if they would anyway. */
+    stop() {
+        this.logStream.end();
+    }
 
 }
 

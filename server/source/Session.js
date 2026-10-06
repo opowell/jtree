@@ -935,6 +935,10 @@ class Session {
     }
 
     saveDataFS(d, type) {
+        // Closed when jtree stops (see Data#stop).
+        if (this.fileStream.writableEnded) {
+            return;
+        }
         try {
             var a = JSON.stringify(d) + '\n';
             var b = '"type":"' + type + '"' + this.outputDelimiter;
