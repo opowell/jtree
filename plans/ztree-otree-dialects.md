@@ -451,3 +451,13 @@ Found on the way, and fixed:
 Still open: a participant's app time limit (`app.duration`) is not restored; only two user
 experiments under development use it. The `.gsf` format is replaced by the event log of
 §3.11.
+
+### Phase 0: Pyodide check (done)
+
+[spikes/pyodide/](spikes/pyodide/README.md): Pyodide runs in Node 22 with no build (0.8 s to
+start, +156 MB per interpreter); Python reads and writes jtree's JS objects synchronously
+through proxies (12 µs for a public goods `set_payoffs`); apps are isolated as packages; the
+field schema and page sequence come out as JSON; errors carry Python tracebacks; Python's
+`ast` serves the converter. Core files are 6.4 MB compressed, so releases can include them.
+The rest of Phase 0 (the z-Tree corpus and grammar) needs `.ztt` files and z-Tree.
+
