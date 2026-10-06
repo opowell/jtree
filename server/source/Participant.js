@@ -79,11 +79,7 @@ class Participant {
     static load(json, session) {
         var id = json.id;
         var newParticipant = new Participant(id, session);
-        for (var j in json) {
-            if (j !== 'session') {
-                newParticipant[j] = json[j];
-            }
-        }
+        Utils.copySavedFields(newParticipant, json, ['session']);
         session.participants[id] = newParticipant;
     }
 

@@ -1,5 +1,9 @@
 app.description = 'Players in a group contribute to a public good. Contributions are multiplied by a factor (> 1), then redistributed equally among all group members.';
 
+// The public good game as a folder: this file sets up the app, and each other .jtt file
+// here is a stage, in name order (1_decide.jtt is stage "decide"). In a stage's file,
+// `stage` is that stage and `app` is this app.
+
 app.numPeriods  = 10;
 app.groupSize   = 4;
 app.endowment   = 20;

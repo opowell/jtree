@@ -4,6 +4,9 @@ const Utils     = require('./Utils.js');
 const fs        = require('fs-extra');
 const path      = require('path');
 const Timer     = require('./Timer.js');
+const { runAppCode } = require('./dialects/jtree/runAppCode.js');
+const { dialectFor } = require('./dialects/index.js');
+const { appToIR } = require('./ir/ir.js');
 
 /** Class that represents an app. */
 class App {
@@ -33,6 +36,8 @@ class App {
             } else if (id.includes('app.jtt')) {
                 str = 'app.jtt';
             }
+            this.appDir = path.dirname(appPath);
+            this.appFilename = path.basename(appPath);
             id = id.substring(0, id.lastIndexOf(str));
 
            // Strip trailing slashes.
@@ -57,7 +62,9 @@ class App {
                 id = id.substring(id.lastIndexOf('\\') + 1);
             }
             this.appFilename = id;
-            if (id.endsWith('.js')) {
+            if (id.endsWith('.app.json')) {
+                id = id.substring(0, id.length - '.app.json'.length);
+            } else if (id.endsWith('.js')) {
                 id = id.substring(0, id.length - '.js'.length);
             } else if (id.endsWith('.jtt')) {
                 id = id.substring(0, id.length - '.jtt'.length);
@@ -247,6 +254,13 @@ class App {
         this.stageWaitToEnd = true;
 
         /**
+         * Default for {@link Stage#timeoutGrace}.
+         * @type {number|null}
+         * @default 5
+         */
+        this.stageTimeoutGrace = 5;
+
+        /**
          * The matching type to be used for groups in this App.
          * @type string
          * @default 'STRANGER'
@@ -387,12 +401,13 @@ class App {
      */
     static load(json, session) {
         var index = json.sessionIndex;
-        var app = new App(session, json.id, session.jt);
 
-        // Run app code.
-        var folder = path.join(session.getOutputDir(), index + '_' + json.id);
-        var appCode = Utils.readJS(folder + '/app.jtt');
-        eval(appCode);
+        // Run the code of the session's copy of the app (see Session#addApp), in
+        // <index>_<shortId>/: the app's file, or a folder app's files.
+        var folder = path.join(session.getOutputDir(), index + '_' + json.shortId);
+        var appPath = path.join(folder, json.appFilename);
+        var app = new App(session, session.jt, appPath);
+        dialectFor(app.appPath).define(app);
 
         //If there is already an app in place, save its stages and periods??
         if (session.apps.length > index-1) {
@@ -401,9 +416,8 @@ class App {
             app.periods = curApp.periods;
         }
 
-        for (var j in json) {
-            app[j] = json[j];
-        }
+        // The saved fields, except functions, which the code has just defined.
+        Utils.copySavedFields(app, json, Object.keys(json).filter(j => j.startsWith('__func_')));
 
         session.apps[index-1] = app;
     }
@@ -533,22 +547,61 @@ class App {
     }
 
     /**
-     * Adds a stage, with contents loaded from .jtt file.
-     * @param {The name of the stage to add} name 
+     * Adds a stage, with contents loaded from a .jtt (or .js) file. In that file, `stage` is
+     * the new stage and `app` is this app.
+     * @param {string} name The id of the stage.
+     * @param {string} [file] The stage's file, relative to this app's folder; by default
+     * <name>.jtt (or .js).
+     * @return {Stage} The new stage.
      */
-    addStage(name) {
+    addStage(name, file) {
         var stage = this.newStage(name);
-        var fn = path.join(path.dirname(this.id), name);
-        if (fs.existsSync(fn + '.jtt')) {
-            fn = fn + '.jtt';
-        } else if (fs.existsSync(fn + '.js')) {
-            fn = fn + '.js';
+        var dir = path.resolve(path.dirname(this.appPath));
+        var fn;
+        if (file != null) {
+            fn = path.resolve(dir, file);
+        } else {
+            fn = path.join(dir, name);
+            if (fs.existsSync(fn + '.jtt')) {
+                fn = fn + '.jtt';
+            } else if (fs.existsSync(fn + '.js')) {
+                fn = fn + '.js';
+            }
         }
-        try {
-            eval(Utils.readJS(fn));
-        } catch (err) {
-            console.log('Error evaluating ' + fn);
-            console.log(err);
+        stage.sourceFile = fn;
+        runAppCode(Utils.readJS(fn), fn, { app: this, stage });
+        return stage;
+    }
+
+    /** This app as an app description (see ir/ir.js). */
+    toIR() {
+        return appToIR(this, new App(null, this.jt, this.appPath));
+    }
+
+    /** Whether this app is a folder: an app.jtt (or app.js), with its stages' files beside it. */
+    isFolderApp() {
+        return ['app.jtt', 'app.js'].includes(path.basename(this.appPath));
+    }
+
+    /**
+     * Adds the stages of a folder app that its app.jtt does not add itself: the folder's
+     * other .jtt files, in name order. A leading number orders them and is not part of the
+     * stage's id: "1_decide.jtt" is stage "decide". Called after the app's code has run.
+     */
+    loadStageFiles() {
+        if (!this.isFolderApp()) {
+            return;
+        }
+        var dir = path.resolve(path.dirname(this.appPath));
+        var files = fs.readdirSync(dir).filter(f => f.endsWith('.jtt') && f !== 'app.jtt');
+        files.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+        for (var file of files) {
+            var fn = path.join(dir, file);
+            if (this.stages.some(s => s.sourceFile === fn)) {
+                continue;
+            }
+            var name = file.substring(0, file.length - '.jtt'.length);
+            this.addStage(name.replace(/^\d+[_\-. ]*(?=.)/, ''), fn);
         }
     }
 
@@ -1195,11 +1248,11 @@ class App {
             metaData.clientHTML = '';
         }
 
-        var app = new App({}, this.jt, this.id);
+        var app = new App({}, this.jt, this.appPath);
 
         metaData.stages = [];
         try {
-            eval(metaData.appjs);
+            dialectFor(app.appPath).define(app);
             for (var i in app.stages) {
                 metaData.stages.push(app.stages[i].id);
             }
@@ -1282,13 +1335,12 @@ class App {
     }
 
     reload() {
-        var app = new App(this.session, this.jt, this.id);
+        var app = new App(this.session, this.jt, this.appPath);
         app.optionValues = this.optionValues;
         for (var opt in app.optionValues) {
             app[opt] = app.optionValues[opt];
         }
-        var appCode = Utils.readJS(this.appPath);
-        eval(appCode);
+        dialectFor(app.appPath).define(app);
         return app;
     }
 

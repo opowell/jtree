@@ -103,6 +103,7 @@ To change the route, set `route` in [apps/jtree/settings.json](apps/jtree/settin
    1. cd client
    2. node ../server/source/jtree.js
 4. Admin interfaces: edit the files in `client/internal/clients/admin/v2/` (or `ztree/`) and reload the page; there is no build step. See [admin2's README](client/internal/clients/admin/v2/README.md) and [admin-ztree's](client/internal/clients/admin/ztree/README.md).
+5. Tests: `cd server && pnpm test`. They start jtree headless with a throwaway data folder and play apps with bots (see [server/test/harness.js](server/test/harness.js)); set `JTREE_TEST_VERBOSE=1` to see jtree's log. They also run on every push ([.github/workflows/test.yml](.github/workflows/test.yml)).
 
 #### Releasing
 1. Set the version in [server/package.json](server/package.json) and commit.

@@ -8,6 +8,7 @@ const Player        = require('./Player.js');
 const Client        = require('./Client.js');
 const Table         = require('./Table.js');
 const Utils         = require('./Utils.js');
+const { dialectFor } = require('./dialects/index.js');
 const fs            = require('fs-extra');
 const path          = require('path');
 const async         = require('async');
@@ -158,6 +159,19 @@ class Session {
     * @param  {type} json      The content of the session.
     * @return {Session}        The session described by the contents of json.
     */
+    /**
+     * One line of a session's .gsf file (see {@link Session#saveDataFS}). Files written
+     * by jtree 0.9.0 and earlier separate the type from the rest with the CSV delimiter (';' by default),
+     * which is not JSON; read those too.
+     */
+    static parseDataLine(line) {
+        try {
+            return JSON.parse(line);
+        } catch (err) {
+            return JSON.parse(line.replace(/^(\{"type":"[A-Z_]+")[^,"]/, '$1,'));
+        }
+    }
+
     static load(jt, folder, data) {
         var session = new Session(jt, folder);
         var all = fs.readFileSync(path.join(jt.path, jt.settings.sessionsFolder + '/' + folder + '/' + folder + '.gsf')).toString();
@@ -167,33 +181,12 @@ class Session {
         for (var i=0; i<lines.length; i++) {
             try {
                 if (lines[i] !== undefined && lines[i].length > 0) {
-                    var json = JSON.parse(lines[i]);
+                    var json = Session.parseDataLine(lines[i]);
                     switch (json.type) {
                         case 'SESSION':
-                        var newSession = new Session(jt, folder);
-                        for (var j in json) {
-                            newSession[j] = json[j];
-                        }
-                        newSession.participants = session.participants;
-                        for (let p in session.participants) {
-                            session.participants[p].session = newSession;
-                        }
-
-                        newSession.apps = [];
-                        // var extra = 0;
-                        // for (var j in newSession.appSequence) {
-                        //     var k = j - extra;
-                        //     if (session.apps[k].id === newSession.appSequence) {
-                        //         var app = session.apps[k];
-                        //         app.session = newSession;
-                        //         newSession.apps.push(app);
-                        //     } else {
-                        //         extra++;
-                        //     }
-                        // }
-
-                        session = newSession;
-
+                        // The session's fields as of this record; its participants and apps
+                        // come from their own records.
+                        Utils.copySavedFields(session, json, ['participants', 'apps', 'clients']);
                         break;
                         case 'APP':
                         App.load(json, session);
@@ -209,6 +202,9 @@ class Session {
                         break;
                         case 'PARTICIPANT':
                         Participant.load(json, session);
+                        break;
+                        case 'DELETE_PARTICIPANT':
+                        delete session.participants[json.id];
                         break;
                         case 'TABLE':
                         Table.load(json, session);
@@ -227,6 +223,7 @@ class Session {
                 var period = app.periods[prd];
                 for (var gr in period.groups) {
                     var group = period.groups[gr];
+                    group.restoreStageTimer(data.lastTimeOn);
                     for (var pl in group.players) {
                         var player = group.players[pl];
                         var participant = session.participants[player.participantId];
@@ -287,7 +284,10 @@ class Session {
             var app = this.jt.data.loadApp(appPath, this, appPath, options);
             if (app !== null) {
                 this.apps.push(app);
-                if (app.appPath.endsWith('.jtt') || app.appPath.endsWith('.js')) {
+                if (app.isFolderApp()) {
+                    // With its stages' and client files.
+                    Utils.copyFiles(app.appDir, app.getOutputFN());
+                } else if (dialectFor(app.appPath) != null) {
                     Utils.copyFile(app.appFilename, app.appDir, app.getOutputFN());
                 } else {
                     Utils.copyFiles(path.parse(app.appPath).dir, app.getOutputFN());
@@ -510,6 +510,17 @@ class Session {
         for (var t in timers) {
             timers[t].setRunning(b);
         }
+        // Save the change, and the time left on groups' stage timers (see Group.load).
+        this.saveDataFS(this.shell(), 'SESSION');
+        for (const app of this.apps) {
+            for (const period of app.periods) {
+                for (const group of period.groups) {
+                    if (group.stageTimer !== undefined) {
+                        group.save();
+                    }
+                }
+            }
+        }
         for (var i in this.participants) {
             var participant = this.participants[i];
             if (participant.player != null) {
@@ -548,6 +559,9 @@ class Session {
                     var group = period.groups[g];
                     if (group.stageTimer !== undefined) {
                         out.push(group.stageTimer);
+                    }
+                    if (group.stageGraceTimer !== undefined) {
+                        out.push(group.stageGraceTimer);
                     }
                     for (var pl in group.players) {
                         var player = group.players[pl];
@@ -794,6 +808,8 @@ class Session {
 
     deleteParticipant(pId) {
         delete this.participants[pId];
+        // So that loading the session does not bring the participant back (see Session.load).
+        this.saveDataFS({id: pId}, 'DELETE_PARTICIPANT');
         let md = {sId: this.id, pId: pId};
         this.emit('sessionDeleteParticipant', md);
     }
@@ -935,11 +951,14 @@ class Session {
     }
 
     saveDataFS(d, type) {
+        // Closed when jtree stops (see Data#stop).
+        if (this.fileStream.writableEnded) {
+            return;
+        }
         try {
-            var a = JSON.stringify(d) + '\n';
-            var b = '"type":"' + type + '"' + this.outputDelimiter;
-            var position = 1;
-            var output = [a.slice(0, position), b, a.slice(position)].join('');
+            // One JSON object per line, with its type first: {"type":"APP","id":...}.
+            var a = JSON.stringify(d);
+            var output = '{"type":"' + type + '"' + (a === '{}' ? '' : ',') + a.slice(1) + '\n';
             this.fileStream.write(output);
         } catch (err) {
             console.log('ERROR Session.saveDataFS: ' + err.stack);
@@ -1199,6 +1218,8 @@ class Session {
     start() {
         if (!this.started) {
             this.started = true;
+            // Saved, so that a loaded session is not started again.
+            this.saveDataFS(this.shell(), 'SESSION');
             for (let p in this.participants) {
                 this.participantStart(this.participants[p]);
             }

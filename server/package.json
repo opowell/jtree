@@ -17,5 +17,11 @@
     "socket.io": "^4.8.1"
   },
   "author": "Owen Powell",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "socket.io-client": "^4.8.1"
+  },
+  "scripts": {
+    "test": "node --test --test-concurrency=1 \"test/**/*.test.js\""
+  }
 }

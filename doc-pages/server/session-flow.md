@@ -63,3 +63,8 @@ If [`Stage.waitToEnd`]{@link Stage#waitToEnd} is `true`, no player can end the s
 As soon as a player ends the stage, they move to the next stage in the session (if there is one) and begin again at the first step of this procedure.
 
 Groups belong to Periods. This means that whenever a stage has `waitToStart` as false, groups can "start" that stage before finishing one or more of the group's previous stages.
+
+#### Timeouts
+A stage with a [`duration`]{@link Stage#duration} (in seconds) times out when that time is up. Players who have not ended the stage by then have `player.timedOut` set to `true` while the stage ends, so `playerEnd` and `groupEnd` can tell them apart; it is `false` again from the next stage.
+
+If [`Stage.waitOnTimerEnd`]{@link Stage#waitOnTimerEnd} is `true` (the default), each of those players' pages is asked to submit what it has, as if the participant had pressed OK. Players whose page does not within [`Stage.timeoutGrace`]{@link Stage#timeoutGrace} seconds (5 by default, set for all stages of an app with `app.stageTimeoutGrace`), for example because it was closed, are ended by the server, with nothing submitted. With `timeoutGrace` set to `null`, the server waits for the pages however long they take. If `waitOnTimerEnd` is `false`, the stage ends for everyone at once, without asking the pages.

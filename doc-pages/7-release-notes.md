@@ -2,6 +2,17 @@
 - Generic game trees.
 - Listen to incremental game changes via observer.
 
+#### Unreleased
+- Apps as folders work: `app.jtt` with one `.jtt` file per stage beside it, added in name order (`1_decide.jtt` is stage `decide`). In a stage's file, `stage` is the stage and `app` the app. A folder's stage files no longer show up as apps of their own.
+- Stage timeouts no longer depend on participants' pages: if a page does not submit within `stage.timeoutGrace` seconds (default 5) of the timeout, the server ends the stage for that player. `player.timedOut` tells `playerEnd` and `groupEnd` which players timed out.
+- A syntax error in an app is reported with its line and position, also in a folder app's stage files (`app.errorFile`).
+- `jt.stop()` stops a jtree started from another program, for example tests.
+- Tests: `cd server && pnpm test`.
+- The moving-slider feature app runs on its own.
+- Saved sessions load again (the `loadSessions` setting), and carry on where they stopped: participants reconnect to their stage, groups' tables (e.g. a double auction's offers) are back, and a stage timer runs on with the time it had left when jtree stopped (paused, if the session was). Since mid-2019, session files separated each record's type with the CSV delimiter (`;`), which is not JSON, so nothing was loaded; such files are read too. Apps are loaded from the session's own copy, folder apps included.
+- Participants removed from a session stay removed when it is loaded; a session that had started is not started again.
+- jtree saves the time every 5 seconds (`autoSaveFreq`, previously 100), and when it stops: after a crash, restored stage timers are off by at most that much.
+
 #### 2026.10.05 - 0.9.0
 - Downloads bundle Node.js (current LTS) and run through JAS: unpack and run `start.command` (macOS), `start.cmd` (Windows) or `start.sh` (Linux). Native Apple Silicon build. Windows XP and 32-bit Windows are no longer supported.
 - Admin access: without an admin password, the admin interface only opens on the computer running jtree. Set `defaultAdminPwd` in `settings.json` to log in from other computers. Previously any participant could connect as an admin.

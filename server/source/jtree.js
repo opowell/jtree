@@ -13,7 +13,8 @@ const StaticServer  = require('./core/StaticServer.js');
  *
  * Run directly (node jtree.js, or the packaged executable), it starts its own server.
  * Required from another program, it exports {@link start}, which can attach to an
- * HTTP server that program owns instead, e.g. JAS (see apps/jtree/server.js).
+ * HTTP server that program owns instead, e.g. JAS (see apps/jtree/server.js), and
+ * returns jt, whose jt.stop() stops it again.
  *
  * @param  {Object} [options]
  * @param  {string} [options.path] Location of the client folder (apps, sessions, settings.json).
@@ -86,6 +87,26 @@ function start(options) {
      * @type {SocketServer}
      */
     jt.socketServer = new SocketServer.new(jt);
+
+    /**
+     * Stops jtree: disconnects its clients, closes its server (unless that belongs to a
+     * hosting program), stops its timers, and closes its files. Resolves once they are written.
+     * @return {Promise}
+     */
+    jt.stop = async function() {
+        // Clients first, so that nothing they send is saved after the files close.
+        if (jt.httpServer != null) {
+            // The server is the hosting program's; leave it running.
+            jt.io.disconnectSockets(true);
+            jt.io.engine.close();
+        } else {
+            const closed = new Promise((resolve) => jt.io.close(() => resolve()));
+            jt.staticServer.server.closeAllConnections();
+            await closed;
+        }
+        await jt.data.stop();
+        await jt.logger.stop();
+    };
 
     return jt;
 }

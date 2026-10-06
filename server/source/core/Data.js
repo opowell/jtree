@@ -8,6 +8,7 @@ const Queue = require('../Queue.js');
 const User = require('../User.js');
 const { loadDefaultApp } = require('./data/loadDefaultApp.js')
 const { getIdFromDirectory } = require('./data/getIdFromDirectory.js')
+const { dialectFor } = require('../dialects/index.js')
 /** The data object. */
 class Data {
 
@@ -71,7 +72,39 @@ class Data {
      *
      */
     callStoreTimeInfoFunc() {
-        setTimeout(this.storeTimeInfo.bind(this), this.jt.settings.autoSaveFreq);
+        if (this.stopped) {
+            return;
+        }
+        this.storeTimeInfoTimer = setTimeout(this.storeTimeInfo.bind(this), this.jt.settings.autoSaveFreq);
+    }
+
+    /**
+     * Stops what keeps running in the background: saving the time info, and each session's
+     * timers and data file. Resolves once the files are written. CALLED FROM jt.stop (see jtree.js).
+     * @return {Promise}
+     */
+    stop() {
+        this.stopped = true;
+        clearTimeout(this.storeTimeInfoTimer);
+        // When jtree was last on, for stage timers of sessions loaded later (see Group.load).
+        try {
+            fs.writeJSONSync(path.join(this.jt.path, this.jt.settings.serverTimeInfoFilename), Date.now());
+        } catch (err) {
+            console.log('Error saving the time: ' + err);
+        }
+        for (const session of this.sessions) {
+            for (const timer of session.timers()) {
+                timer.clear();
+            }
+            for (const participant of Object.values(session.participants)) {
+                if (participant.appTimer != null) {
+                    participant.appTimer.clear();
+                }
+            }
+        }
+        return Promise.all(this.sessions
+            .filter((session) => session.fileStream != null)
+            .map((session) => new Promise((resolve) => session.fileStream.end(resolve))));
     }
 
     /*
@@ -163,42 +196,30 @@ class Data {
         }
 
         let filePath = appPath;
+        const dialect = dialectFor(filePath);
+        if (dialect == null) {
+            return null;
+        }
 
         try {
-            app.appjs = fs.readFileSync(filePath) + '';
-            if (app.appjs.startsWith('//NOTSTANDALONEAPP')) {
+            if (dialect.name === 'jtree' && Utils.readJS(filePath).startsWith('//NOTSTANDALONEAPP')) {
                 return null;
             }
-            eval(app.appjs); // jshint ignore:line
+            dialect.define(app);
             this.jt.log('loaded app ' + filePath);
         } catch (err) {
-            if (
-                !filePath.endsWith('.jtt')
-            ) {
+            // A .js file that is not an app, e.g. a page's script.
+            if (filePath.endsWith('.js')) {
                 return null;
             }
             if (app.isStandaloneApp) {
                 app.hasError = true;
-                // this.jt.log('Error loading app: ' + filePath, true);
-                // this.jt.log(err, true);
-                let lines = err.stack.split('\n');
-                let index = lines[1].indexOf('<anonymous>:');
-                let position = lines[1].substring(index + '<anonymous>:'.length);
-                let start = 0;
-                let indexColon = position.indexOf(':', start);
-                let line = position.substring(start, indexColon);
-                start = start + indexColon + 1;
-                let indexParen = position.indexOf(')', start);
-                let positionStr = position.substring(start, indexParen);
-                if (isNaN(line)) {
-                    line = 'unknown';
-                }
-                if (isNaN(positionStr)) {
-                    positionStr = 'unknown';
-                }
-                // this.jt.log('Line ' + line + ', position ' + positionStr, true);
-                app.errorLine = line;
-                app.errorPosition = positionStr;
+                // Where: in this file, or in one of a folder app's stage files (see App#addStage).
+                const pos = err.jtreePosition || { file: filePath, line: 'unknown', column: 'unknown' };
+                app.errorFile = pos.file;
+                app.errorLine = pos.line;
+                app.errorPosition = pos.column;
+                this.jt.log('Error in app ' + pos.file + ', line ' + pos.line + ', position ' + pos.column + ': ' + err);
             }
         }
         return app;
@@ -218,13 +239,21 @@ class Data {
                 if (curPathIsFile) {
                     var id = appDirContents[i];
 
+                    // In a folder app, the other files are its stages and client files, not apps.
+                    if (loadedDefaultApp != null && !['app.js', 'app.jtt'].includes(id) && !id.endsWith('.jtq')) {
+                        continue;
+                    }
+
                     let isApp = false;
                     // Treatment / App
                     if (id == 'app.js' || id == 'app.jtt') {
                       isApp = true;
                       id = getIdFromDirectory(dir)
                     }
-                    if (id.endsWith('.js')) {
+                    if (id.endsWith('.app.json')) {
+                        isApp = true;
+                        id = id.substring(0, id.length - '.app.json'.length);
+                    } else if (id.endsWith('.js')) {
                         isApp = true;
                         id = id.substring(0, id.length - '.js'.length);
                     } else if (id.endsWith('.jtt')) {
@@ -290,25 +319,6 @@ class Data {
         }
     }
 
-    getApp(appPath, options) {
-        var app = App.newSansId(this.jt, appPath);
-
-        // Set options before running code.
-        for (var i in options) {
-            app.setOptionValue(i, options[i]);
-        }
-
-        try {
-            app.appjs = fs.readFileSync(appPath) + '';
-            eval(app.appjs); // jshint ignore:line
-        } catch (err) {
-            this.jt.log('Error loading app: ' + appPath);
-            this.jt.log(err);
-            app = null;
-        }
-        return app;
-    }
-
     reloadApps() {
         this.apps = {};
         this.appsMetaData = {};
@@ -318,7 +328,8 @@ class Data {
     loadApps() {
         for (var i in this.jt.settings.appFolders) {
             var folder = this.jt.settings.appFolders[i];
-            this.loadAppDir(path.join(this.jt.path, folder));
+            // Relative to jtree's folder, or absolute.
+            this.loadAppDir(path.resolve(this.jt.path, folder));
         }
     }
 
@@ -436,7 +447,7 @@ class Data {
         if (!id.endsWith('.jtq')) {
             id += '.jtq';
         }
-        var queuePath = path.join(this.jt.path, this.jt.settings.appFolders[0], id);
+        var queuePath = path.join(path.resolve(this.jt.path, this.jt.settings.appFolders[0]), id);
         if (fs.existsSync(queuePath)) {
             return null;
         }
@@ -555,7 +566,7 @@ class Data {
     loadLastTimeOn() {
         var out = Date.now();
         try {
-            out = fs.readJSONSync(this.js.settings.serverTimeInfoFilename);
+            out = fs.readJSONSync(path.join(this.jt.path, this.jt.settings.serverTimeInfoFilename));
         } catch (err) {}
         this.jt.log("last time on: " + out);
         return out;

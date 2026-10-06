@@ -120,3 +120,33 @@ resultsStage.activeScreen = `
 ```
 
 And now the app is complete. To test it, simply follow the previous tutorial on <a href='tutorial-3-running-a-session.html'>running a session.</a>
+
+#### An app as a folder
+An app can also be a folder: a file `app.jtt` that sets up the app, and one `.jtt` file per stage beside it. The stage files are added after `app.jtt` has run, in the order of their names; a leading number orders them and is not part of the stage's id, so `1_decide.jtt` is the stage `decide`. In a stage's file, `stage` is that stage and `app` is the app. The public goods game above, as a folder (see `apps/1 sample games/public-good-v2`):
+
+```javascript
+// app.jtt
+app.numPeriods  = 10;
+app.groupSize   = 4;
+app.endowment   = 20;
+app.factor      = 2;
+```
+
+```javascript
+// 1_decide.jtt
+stage.activeScreen = `
+    <p>DECISION</p>
+    <p>Your contribution (E$): <input name='player.contribution' required type='number' min='0' :max='app.endowment' step='1'></p>
+`;
+```
+
+```javascript
+// 2_results.jtt
+stage.groupStart = function(group) {
+    group.contributions = group.sum('contribution');
+    // ...
+}
+stage.activeScreen = `<p>RESULTS</p> ...`;
+```
+
+`app.jtt` can still create stages itself, with `app.newStage(id)`, or add a stage file under another id with [`app.addStage(id, file)`]{@link App#addStage}; files it adds are not added again. Other files in the folder (images, `client.js`, ...) are not stages, and the whole folder is copied to the session's output.
