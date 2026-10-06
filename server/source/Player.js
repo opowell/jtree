@@ -314,6 +314,29 @@ class Player {
         return this.app().previousPlayer(this);
     }
 
+    /** This participant's player in period n (from 1) of this app, or null if there is none yet. */
+    inPeriod(n) {
+        const period = this.app().periods[n - 1];
+        return period == null ? null : period.playerByParticipantId(this.participant.id);
+    }
+
+    /** This participant's players in this app's periods, from the first to this one. */
+    inAllPeriods() {
+        const out = [];
+        for (let n = 1; n <= this.period().id; n++) {
+            const player = this.inPeriod(n);
+            if (player != null) {
+                out.push(player);
+            }
+        }
+        return out;
+    }
+
+    /** This participant's players in this app's periods before this one, first first. */
+    inPreviousPeriods() {
+        return this.inAllPeriods().filter((p) => p !== this);
+    }
+
     /**
      * session - description
      *

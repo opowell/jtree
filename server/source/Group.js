@@ -180,6 +180,29 @@ class Group {
         return this.app().previousGroup(this);
     }
 
+    /** The group with this group's id in period n (from 1) of this app, or null if there is none yet. */
+    inPeriod(n) {
+        const period = this.app().periods[n - 1];
+        return period == null ? null : (period.groups.find((g) => g.id === this.id) || null);
+    }
+
+    /** The groups with this group's id in this app's periods, from the first to this one. */
+    inAllPeriods() {
+        const out = [];
+        for (let n = 1; n <= this.period.id; n++) {
+            const group = this.inPeriod(n);
+            if (group != null) {
+                out.push(group);
+            }
+        }
+        return out;
+    }
+
+    /** The groups with this group's id in this app's periods before this one, first first. */
+    inPreviousPeriods() {
+        return this.inAllPeriods().filter((g) => g !== this);
+    }
+
     /**
      * playersExcept - description
      *

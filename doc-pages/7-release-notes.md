@@ -3,6 +3,8 @@
 - Listen to incremental game changes via observer.
 
 #### Unreleased
+- `player.inPeriod(n)`, `player.inAllPeriods()`, `player.inPreviousPeriods()`, and the same for groups. `group.old()` works (it threw).
+- The `PARTNER_1122` and `PARTNER_1212` matchings work (they threw when a period started).
 - `stage.waitForAllGroups`: no group starts the stage until every group of the period has arrived; then `stage.allGroupsStart(period)` runs, once.
 - App hooks `app.appStart()`, `app.periodStart(period)` and `app.periodEnd(period)`; `app.end()` is called again when everyone has finished an app, and the app's data is written to the session's CSV file then, as before.
 - When a group ends a stage that waits for everyone, players move on after `groupEnd`, not before it: the next stage, or the next period's first, no longer starts before `groupEnd` has run. Errors in `groupEnd` and `playerEnd` are logged instead of stopping the session.

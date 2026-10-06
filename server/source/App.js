@@ -674,7 +674,7 @@ class App {
         var m = Math.floor((pIds.length-1) / numGroups) + 1;
 
         if (this.groupMatchingType === 'PARTNER_1122') {
-            for (var g=this.groups.length; g<numGroups; g++) {
+            for (var g=period.groups.length; g<numGroups; g++) {
                 for (var i=0; i<m; i++) {
                     gIds[g].push(pIds[0]);
                     pIds.splice(0, 1);
@@ -682,7 +682,7 @@ class App {
             }
         } else if (this.groupMatchingType === 'PARTNER_1212') {
             for (var i=0; i<m; i++) {
-                for (var g=this.groups.length; g<numGroups; g++) {
+                for (var g=period.groups.length; g<numGroups; g++) {
                     gIds[g].push(pIds[0]);
                     pIds.splice(0, 1);
                 }
@@ -1650,7 +1650,7 @@ class App {
      * @return TODO:{Player}        The previous player, if any.
      */
     previousGroup(group) {
-        var prevPeriod = group.period().prevPeriod();
+        var prevPeriod = group.period.prevPeriod();
         if (prevPeriod === null) {
             return null;
         } else {
