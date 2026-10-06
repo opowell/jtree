@@ -170,9 +170,11 @@ class Bot {
         // What this bot has typed into the current stage's form (see fill), and which stage that is.
         this.form = {};
         this.formStage = null;
-        // When a stage times out, the server asks the page to submit; it submits what is in its form.
+        // When a stage times out, the server asks the page to submit; it submits what is in
+        // its form. Set answersTimeouts to false for a page that does not.
+        this.answersTimeouts = true;
         socket.on('endStage', () => {
-            if (this.stageId != null) this.submit();
+            if (this.answersTimeouts && this.stageId != null) this.submit();
         });
     }
 

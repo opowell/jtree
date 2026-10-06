@@ -4,6 +4,7 @@
 
 #### Unreleased
 - Apps as folders work: `app.jtt` with one `.jtt` file per stage beside it, added in name order (`1_decide.jtt` is stage `decide`). In a stage's file, `stage` is the stage and `app` the app. A folder's stage files no longer show up as apps of their own.
+- Stage timeouts no longer depend on participants' pages: if a page does not submit within `stage.timeoutGrace` seconds (default 5) of the timeout, the server ends the stage for that player. `player.timedOut` tells `playerEnd` and `groupEnd` which players timed out.
 - A syntax error in an app is reported with its line and position, also in a folder app's stage files (`app.errorFile`).
 - `jt.stop()` stops a jtree started from another program, for example tests.
 - Tests: `cd server && pnpm test`.

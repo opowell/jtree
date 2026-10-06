@@ -720,6 +720,10 @@ class Player {
             player.stage = nextStage;
             player.stageIndex++;
             player.status = 'ready';
+            // Set while a stage that timed out ends (see Group#forceEndStage).
+            if (player.timedOut) {
+                player.timedOut = false;
+            }
             console.log(this.timeStamp() + ' READY - PLAYER: ' + this.stage.id + ', ' + this.roomId());
             player.startStage(player.stage);
         } else if (nextPeriod !== null) {

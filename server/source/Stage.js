@@ -91,6 +91,16 @@ class Stage {
          */
         this.waitOnTimerEnd = true;
 
+        /**
+         * When this stage times out and {@link Stage#waitOnTimerEnd} is true, each player's
+         * page is asked to submit what it has. After this many seconds, the server ends the
+         * stage for players whose page has not (as if they submitted nothing); null waits
+         * for the pages however long they take.
+         * @type {number|null}
+         * @default 5
+         */
+        this.timeoutGrace = app.stageTimeoutGrace;
+
        /**
         * @type boolean
         * @default true

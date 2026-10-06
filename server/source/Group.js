@@ -52,7 +52,7 @@ class Group {
          * 'outputHideAuto' fields are not included in output.
          * @type {String[]}
          */
-        this.outputHideAuto = ['stage', 'status', 'outputHide', 'outputHideAuto', 'players', 'stageTimer', 'period', 'tables', 'type', 'stageIndex', 'stageEndedIndex'];
+        this.outputHideAuto = ['stage', 'status', 'outputHide', 'outputHideAuto', 'players', 'stageTimer', 'stageGraceTimer', 'period', 'tables', 'type', 'stageIndex', 'stageEndedIndex'];
 
         /**
          * @type array
@@ -217,6 +217,10 @@ class Group {
         if (this.stageTimer !== undefined) {
             this.stageTimer.clear();
             this.stageTimer = undefined;
+        }
+        if (this.stageGraceTimer !== undefined) {
+            this.stageGraceTimer.clear();
+            this.stageGraceTimer = undefined;
         }
     }
 
@@ -630,10 +634,42 @@ class Group {
         }
     }
 
+    /**
+     * The stage timed out: ends it for players who have not ended it, marking them
+     * {@link Player#timedOut}.
+     */
     forceEndStage(stage) {
         console.log('Group.forceEndStage: ' + stage.id);
         this.clearStageTimer();
+        for (const player of this.players) {
+            if (player.stage === stage && ['ready', 'playing'].includes(player.status)) {
+                player.timedOut = true;
+            }
+        }
         this.endStage(stage, true);
+
+        // Pages were asked to submit what they have (see waitingForPlayersInStage). Players
+        // whose page has not after stage.timeoutGrace seconds are ended here.
+        if (this.stageEndedIndex < stage.indexInApp() && stage.timeoutGrace != null) {
+            if (stage.timeoutGrace > 0) {
+                this.stageGraceTimer = new Timer.new(function() {
+                    this.session().addMessageToStartOfQueue(this, stage, 'endStageForSilentPlayers');
+                }.bind(this), stage.timeoutGrace * 1000, stage.indexInApp());
+            } else {
+                this.endStageForSilentPlayers(stage);
+            }
+        }
+    }
+
+    /** Ends stage for players still in it, after it timed out and their page did not submit. */
+    endStageForSilentPlayers(stage) {
+        this.stageGraceTimer = undefined;
+        for (const player of this.players) {
+            if (player.stage === stage && !player.isFinished()) {
+                console.log('No page submitted for ' + player.roomId() + ' after stage ' + stage.id + ' timed out, ending it.');
+                player.endStage(true);
+            }
+        }
     }
 
     endStage(stage, forcePlayersToEnd) {

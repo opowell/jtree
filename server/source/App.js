@@ -249,6 +249,13 @@ class App {
         this.stageWaitToEnd = true;
 
         /**
+         * Default for {@link Stage#timeoutGrace}.
+         * @type {number|null}
+         * @default 5
+         */
+        this.stageTimeoutGrace = 5;
+
+        /**
          * The matching type to be used for groups in this App.
          * @type string
          * @default 'STRANGER'

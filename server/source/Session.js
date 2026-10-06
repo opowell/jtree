@@ -552,6 +552,9 @@ class Session {
                     if (group.stageTimer !== undefined) {
                         out.push(group.stageTimer);
                     }
+                    if (group.stageGraceTimer !== undefined) {
+                        out.push(group.stageGraceTimer);
+                    }
                     for (var pl in group.players) {
                         var player = group.players[pl];
                         if (player.stageTimer !== undefined) {
