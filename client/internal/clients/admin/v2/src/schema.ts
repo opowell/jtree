@@ -1,7 +1,7 @@
 import { computed } from 'vue'
 import type { ColumnDef, DomainSchema, EntitySchema, ShellRow } from 'header-content-layout'
 import { state } from './server/connection'
-import type { AppMeta, Participant, QueueShell, SessionFull, SessionShell } from './server/types'
+import type { AppMeta, Participant, SessionFull, SessionShell } from './server/types'
 
 /*
  * jtree's records as appfr rows. Every row carries `name`, `ref`, `state` and
@@ -11,6 +11,7 @@ import type { AppMeta, Participant, QueueShell, SessionFull, SessionShell } from
  */
 
 const SESSION_STATES = ['not started', 'running', 'paused']
+const APP_KINDS = ['app', 'queue']
 const PLAYER_STATES = ['not started', 'ready', 'playing', 'done', 'finished']
 
 export function sessionState(session: SessionShell): string {
@@ -32,7 +33,7 @@ export function relativePath(path: string): string {
   return path
 }
 
-/** The folder under `apps/` an app or queue sits in — the grouping people use. */
+/** The folder under `apps/` an app sits in — the grouping people use. */
 export function folderOf(path: string): string {
   const parts = relativePath(path).split(/[\\/]/)
   const appsAt = parts.indexOf('apps')
@@ -65,6 +66,11 @@ function sessionRow(session: SessionShell): ShellRow {
   }
 }
 
+/** A queue is an app made of other apps. */
+export function appKind(app: AppMeta): string {
+  return app.isQueue ? 'queue' : 'app'
+}
+
 function appRow(app: AppMeta): ShellRow {
   return {
     id: app.id,
@@ -75,26 +81,12 @@ function appRow(app: AppMeta): ShellRow {
       ref: relativePath(app.appPath),
       state: app.hasError ? 'error' : 'ok',
       updated: '',
+      kind: appKind(app),
       folder: folderOf(app.appPath),
       periods: typeof app.numPeriods === 'number' ? app.numPeriods : null,
-      stages: app.stages?.length ?? 0,
+      // A queue's parts are its apps; an app's, its stages.
+      stages: app.isQueue ? (app.apps?.length ?? 0) : (app.stages?.length ?? 0),
       errors: Boolean(app.hasError),
-    },
-  }
-}
-
-function queueRow(queue: QueueShell): ShellRow {
-  return {
-    id: queue.id,
-    entityKey: 'queues',
-    entityLabel: 'Queues',
-    fields: {
-      name: queue.displayName,
-      ref: relativePath(queue.id),
-      state: '',
-      updated: '',
-      folder: folderOf(queue.id),
-      apps: queue.apps.length,
     },
   }
 }
@@ -142,8 +134,6 @@ export function rowsFor(entityKey: string): ShellRow[] {
       return state.sessions.map(sessionRow)
     case 'apps':
       return Object.values(state.apps).map(appRow)
-    case 'queues':
-      return state.queues.map(queueRow)
     case 'participants': {
       const session = state.session
       if (!session) return []
@@ -183,20 +173,13 @@ const appColumns: ColumnDef[] = [
   ordinal,
   { key: 'name', role: 'identity', label: 'App', sort: 'name', activate: true },
   { key: 'ref', role: 'reference', label: 'File', muted: true, mono: true },
+  { key: 'kind', label: 'Kind', width: '72px', hideBelow: 480 },
   { key: 'folder', label: 'Folder', width: '130px', hideBelow: 900 },
   // An app that failed to load reports its periods as "unknown".
   { key: 'periods', role: 'metric', kind: 'number', label: 'Periods', sort: 'periods', align: 'right', width: '84px', hideBelow: 620,
     format: (v) => (typeof v === 'number' ? String(v) : '—') },
-  { key: 'stages', role: 'metric', kind: 'number', label: 'Stages', sort: 'stages', align: 'right', width: '72px', hideBelow: 760 },
+  { key: 'stages', role: 'metric', kind: 'number', label: 'Stages / apps', sort: 'stages', align: 'right', width: '104px', hideBelow: 760 },
   stateColumn('Status'),
-]
-
-const queueColumns: ColumnDef[] = [
-  ordinal,
-  { key: 'name', role: 'identity', label: 'Queue', sort: 'name', activate: true },
-  { key: 'ref', role: 'reference', label: 'File', muted: true, mono: true },
-  { key: 'folder', label: 'Folder', width: '130px', hideBelow: 760 },
-  { key: 'apps', role: 'metric', kind: 'number', label: 'Apps', sort: 'apps', align: 'right', width: '64px' },
 ]
 
 const participantColumns: ColumnDef[] = [
@@ -269,16 +252,11 @@ export const schema = computed<DomainSchema>(() => {
         label: 'Apps',
         columns: appColumns,
         facets: [
+          { kind: 'chips', key: 'kind', label: 'Kind', options: APP_KINDS },
           { kind: 'chips', key: 'folder', label: 'Folder', options: distinct(apps.map((a) => folderOf(a.appPath))) },
           { kind: 'toggle', key: 'errors', label: 'Errors', text: 'Only apps that failed to load' },
         ],
       }, apps.length),
-      entity({
-        key: 'queues',
-        label: 'Queues',
-        columns: queueColumns,
-        facets: [{ kind: 'chips', key: 'folder', label: 'Folder', options: distinct(state.queues.map((q) => folderOf(q.id))) }],
-      }, state.queues.length),
       entity({
         key: 'log',
         label: 'Log',

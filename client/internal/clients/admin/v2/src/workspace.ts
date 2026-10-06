@@ -17,8 +17,8 @@ import { appLabel } from './schema'
 
 /*
  * Which panels are open and how they are arranged. Panels are named by id:
- * a fixed set of tools, plus one per app or queue opened (`app:<id>`,
- * `queue:<id>`). The arrangement is appfr's layout tree, kept as data and
+ * a fixed set of tools, plus one per app opened (`app:<id>`; layouts saved
+ * before queues were apps may hold `queue:<id>`). The arrangement is appfr's layout tree, kept as data and
  * saved per browser.
  */
 
@@ -87,16 +87,13 @@ watch(
 
 function titleFor(id: string): string {
   if (id.startsWith('app:')) return appLabel(id.slice(4))
-  if (id.startsWith('queue:')) {
-    const queue = state.queues.find((q) => q.id === id.slice(6))
-    return queue?.displayName ?? 'Queue'
-  }
+  if (id.startsWith('queue:')) return appLabel(id.slice(6))
   return TOOLS[id] ?? id
 }
 
 function subtitleFor(id: string): string | undefined {
   if (id === 'session' || id === 'participants') return state.session?.id
-  if (id.startsWith('app:')) return 'app'
+  if (id.startsWith('app:')) return state.apps[id.slice(4)]?.isQueue ? 'queue' : 'app'
   if (id.startsWith('queue:')) return 'queue'
   return undefined
 }
@@ -184,9 +181,6 @@ export function activate(row: ShellRow) {
       break
     case 'apps':
       showPanel(`app:${row.id}`)
-      break
-    case 'queues':
-      showPanel(`queue:${row.id}`)
       break
     case 'participants':
       watchParticipant(row.id)

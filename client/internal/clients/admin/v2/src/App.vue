@@ -6,7 +6,6 @@ import ShellPanel from './panels/ShellPanel.vue'
 import SessionPanel from './panels/SessionPanel.vue'
 import ClientsPanel from './panels/ClientsPanel.vue'
 import AppPanel from './panels/AppPanel.vue'
-import QueuePanel from './panels/QueuePanel.vue'
 import SettingsPanel from './panels/SettingsPanel.vue'
 import { serverUrl, state } from './server/connection'
 import { downloadOutputUrl, server } from './server/commands'
@@ -113,8 +112,9 @@ const menus = computed<MenuItemDef[]>(() => {
         <ClientsPanel v-else-if="panel.id === 'clients'" />
         <ShellPanel v-else-if="panel.id === 'log'" id="log" entity="log" view="table" />
         <SettingsPanel v-else-if="panel.id === 'settings'" />
-        <AppPanel v-else-if="panel.id.startsWith('app:')" :app-id="panel.id.slice(4)" />
-        <QueuePanel v-else-if="panel.id.startsWith('queue:')" :queue-id="panel.id.slice(6)" :panel-id="panel.id" />
+        <AppPanel v-else-if="panel.id.startsWith('app:')" :app-id="panel.id.slice(4)" :panel-id="panel.id" />
+        <!-- Queues are apps now; layouts saved before that still name queue panels. -->
+        <AppPanel v-else-if="panel.id.startsWith('queue:')" :app-id="panel.id.slice(6)" :panel-id="panel.id" />
       </template>
     </WindowFrame>
   </div>

@@ -141,6 +141,9 @@ class Data {
     app(id, options) {
         if (this.jt.settings.reloadApps) {
             var appPath = this.appsMetaData[id].appPath;
+            if (appPath.endsWith('.jtq')) {
+                return Queue.load(appPath, this.jt);
+            }
             return this.loadApp(id, null, appPath, options);
         } else {
             return this.apps[id];
@@ -160,9 +163,6 @@ class Data {
         }
 
         let filePath = appPath;
-        if (!fs.existsSync(appPath) && session.queuePath != null) {
-            filePath = path.join(session.queuePath, appPath);
-        }
 
         try {
             app.appjs = fs.readFileSync(filePath) + '';
@@ -204,62 +204,7 @@ class Data {
         return app;
     }
 
-    getAppsFromDir(dir) {
-        var out = [];
-        if (Utils.isDirectory(dir)) {
-            var appDirContents = fs.readdirSync(dir);
-            for (var i in appDirContents) {
-                var curPath = path.join(dir, appDirContents[i]);
-                var curPathIsFile = fs.lstatSync(curPath).isFile();
-                var curPathIsFolder = fs.lstatSync(curPath).isDirectory();
-                if (curPathIsFile) {
-                    console.log('check queue: ' + id);
-
-                    var id = appDirContents[i];
-
-                    let isApp = false;
-                    // Treatment / App
-                    if (id == 'app.js' || id == 'app.jtt') {
-                        isApp = true;
-                        // Take id from path name.
-                        if (dir.lastIndexOf('/') > -1) {
-                            id = dir.substring(dir.lastIndexOf('/') + 1);
-                        } else if (dir.lastIndexOf('\\') > -1) {
-                            id = dir.substring(dir.lastIndexOf('\\') + 1);
-                        }
-                    }
-                    if (id.endsWith('.js')) {
-                        isApp = true;
-                        id = id.substring(0, id.length - '.js'.length);
-                    } else if (id.endsWith('.jtt')) {
-                        isApp = true;
-                        id = id.substring(0, id.length - '.jtt'.length);
-                    }
-                    if (isApp) {
-                        let app = this.loadApp(id, null, curPath, {});
-                        if (app != null) {
-                            // this.apps[id] = app;
-                            // this.appsMetaData[id] = app.metaData();
-                            out.push(app);
-                        }
-                    }
-
-                    // Queue / Session Config
-                    if (id.endsWith('.jtq')) {
-                        id = id.substring(0, id.indexOf('.jtq'));
-                        var queue = Queue.loadJTQ(id, this.jt, curPath);
-                        console.log('loading queue ' + queue.id);
-                        out.push(queue);
-                    }
-                } else if (curPathIsFolder) {
-                    out = out.concat(this.getAppsFromDir(curPath));
-                }
-            }
-        }
-        return out;
-    }
-
-    // Search for *.js and *.jtt files. Load as apps.
+    // Search for *.js and *.jtt files, and load them as apps, and *.jtq files, as queues.
     // Search subfolders.
     loadAppDir(dir) {
         if (Utils.isDirectory(dir)) {
@@ -294,24 +239,12 @@ class Data {
                         }
                     }
 
-                    // Queue / Session Config
+                    // Queue: an app made of other apps.
                     if (id.endsWith('.jtq')) {
-                        var queue = Queue.loadJTQ(curPath, this.jt, dir);
-                        queue.dummy = true;
-                        var session = new Session.new(this.jt, null);
-                        session.emitMessages = false;
-                        session.queuePath = path.dirname(queue.id);
-                        eval(queue.code);
-                        session.setNumParticipants(session.suggestedNumParticipants);
-                        let options = {};
-                        for (let i in session.apps) {
-                            queue.addApp(session.apps[i].id, options);
-                        }
-                        queue.options = session.options;
-                        queue.optionValues = session.optionValues;
-                        // queue.apps = session.apps;
-                        this.jt.log('loading file queue ' + curPath + ' with ' + queue.apps.length + ' apps');
-                        this.queues[curPath] = queue;
+                        var queue = Queue.load(curPath, this.jt);
+                        this.jt.log('loading queue ' + curPath + ' with ' + queue.apps.length + ' apps');
+                        this.apps[curPath] = queue;
+                        this.appsMetaData[curPath] = queue.metaData();
                     }
                 } else if (curPathIsFolder) {
                     this.loadAppDir(curPath);
@@ -328,20 +261,6 @@ class Data {
         newRoom.labels = room.labels;
         newRoom.useSecureURLs = room.useSecureURLs;
         this.createRoomFromRoom(newRoom);
-    }
-
-    deleteQueue(id) {
-        try {
-            fs.removeSync(this.queuePath(id));
-            for (var i in this.queues) {
-                if (this.queues[i].id === id) {
-                    this.queues.splice(i, 1);
-                    break;
-                }
-            }
-        } catch (err) {
-
-        }
     }
 
     deleteApp(id) {
@@ -393,7 +312,6 @@ class Data {
     reloadApps() {
         this.apps = {};
         this.appsMetaData = {};
-        this.queues = [];
         this.loadApps();
     }
 
@@ -448,10 +366,6 @@ class Data {
         return path.join(this.usersPath(), id + '.json');
     }
 
-    queuePath(id) {
-        return path.join(this.jt.path, this.jt.settings.appFolders[0], id);
-    }
-
     roomsPath() {
         return path.join(this.jt.path, this.jt.settings.roomsPath);
     }
@@ -464,8 +378,14 @@ class Data {
         return Utils.findByIdWOJQ(this.rooms, id);
     }
 
+    /** The queues in the app catalogue. */
+    get queues() {
+        return Object.values(this.apps).filter((app) => app instanceof Queue.new);
+    }
+
     queue(id) {
-        return Utils.findByIdWOJQ(this.queues, id);
+        var app = this.apps[id];
+        return app instanceof Queue.new ? app : null;
     }
 
     loadRooms() {
@@ -508,43 +428,27 @@ class Data {
         return out;
     }
 
-    loadQueues() {
-        var out = [];
-        var fullPath = this.queuesPath();
-
-        if (Utils.isDirectory(fullPath)) {
-            var dirContents = fs.readdirSync(fullPath);
-            for (var i in dirContents) {
-                try {
-                    var id = dirContents[i];
-                    id = id.substring(0, id.indexOf('.json'));
-                    var queue = Queue.load(this.queuePath(id), id, this.jt);
-                    out.push(queue);
-                } catch (err) {
-                    console.log(err);
-                }
-            }
-        }
-
-        return out;
-    }
-
+    /**
+     * Creates an empty queue at apps/<id>.jtq, and adds it to the app catalogue.
+     * @return {Queue|null} The queue, or null if the file already exists.
+     */
     createQueue(id) {
-        // If already exists, return null.
-        if (fs.existsSync(this.queuePath(id))) {
+        if (!id.endsWith('.jtq')) {
+            id += '.jtq';
+        }
+        var queuePath = path.join(this.jt.path, this.jt.settings.appFolders[0], id);
+        if (fs.existsSync(queuePath)) {
             return null;
         }
+        fs.outputFileSync(queuePath, '// Each line adds an app to the session. Paths are relative to this file.\n');
+        return this.reloadQueue(queuePath);
+    }
 
-        var queue = new Queue.new(id, this.jt);
-
-        try {
-            fs.mkdirSync(this.queuesPath());
-        } catch (err) {}
-
-        queue.save();
-
-        this.queues.push(queue);
-
+    /** Reads the queue at queuePath again, and replaces it in the app catalogue. */
+    reloadQueue(queuePath) {
+        var queue = Queue.load(queuePath, this.jt);
+        this.apps[queuePath] = queue;
+        this.appsMetaData[queuePath] = queue.metaData();
         return queue;
     }
 

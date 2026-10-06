@@ -10,12 +10,17 @@ export interface AppMeta {
   numPeriods?: number
   groupSize?: number
   hasError?: boolean
+  errorMessage?: string
   errorLine?: number
   errorPosition?: number
   isStandaloneApp?: boolean
   stages?: string[]
   options?: AppOption[]
   appjs?: string
+  /** A queue: an app made of other apps, which it adds in its place. */
+  isQueue?: boolean
+  /** A queue's apps, in order, with appId a full path. */
+  apps?: QueueApp[]
 }
 
 export interface AppOption {
@@ -30,12 +35,6 @@ export interface QueueApp {
   appId: string
   options: Record<string, unknown>
   indexInQueue?: number
-}
-
-export interface QueueShell {
-  id: string
-  displayName: string
-  apps: QueueApp[]
 }
 
 export interface SessionShell {
@@ -96,7 +95,6 @@ export interface ServerSettings {
 
 export interface AdminRefresh {
   apps: Record<string, AppMeta>
-  queues: QueueShell[]
   sessions: SessionShell[]
   settings: ServerSettings
   jtreeLocalPath: string

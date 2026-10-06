@@ -19,7 +19,6 @@ const autoplayDelay = ref('')
 watch(() => state.settings.autoplayDelay, (delay) => (autoplayDelay.value = String(delay ?? '')), { immediate: true })
 
 const appToAdd = ref('')
-const queueToAdd = ref('')
 const sessionToOpen = ref('')
 
 const apps = computed(() =>
@@ -43,12 +42,6 @@ function addApp() {
   if (!appToAdd.value) return
   void server.addApp(appToAdd.value)
   appToAdd.value = ''
-}
-
-function addQueue() {
-  if (!queueToAdd.value) return
-  void server.addQueue(queueToAdd.value)
-  queueToAdd.value = ''
 }
 
 function open() {
@@ -82,7 +75,7 @@ function checked(event: Event): boolean {
           </select>
         </template>
       </div>
-      <button type="button" class="btn" @click="showPanel('browse')">Browse apps and queues</button>
+      <button type="button" class="btn" @click="showPanel('browse')">Browse apps</button>
     </div>
 
     <template v-else>
@@ -113,20 +106,13 @@ function checked(event: Event): boolean {
             <ConfirmButton class="btn--small" label="Remove" :disabled="session.started" @confirm="server.removeApp(index, app.id)" />
           </li>
         </ol>
-        <p v-else class="hint">No apps yet. Add an app or a queue of apps; participants play them in order.</p>
+        <p v-else class="hint">No apps yet. Add apps, or a queue, which adds its apps; participants play them in order.</p>
         <div class="toolbar">
           <select v-model="appToAdd" class="field" aria-label="App to add">
             <option value="">Choose an app…</option>
-            <option v-for="app in apps" :key="app.id" :value="app.id">{{ appLabel(app.id) }}</option>
+            <option v-for="app in apps" :key="app.id" :value="app.id">{{ appLabel(app.id) }}{{ app.isQueue ? ' (queue)' : '' }}</option>
           </select>
           <button type="button" class="btn" :disabled="!appToAdd" @click="addApp">Add app</button>
-          <template v-if="state.queues.length">
-            <select v-model="queueToAdd" class="field" aria-label="Queue to add">
-              <option value="">Choose a queue…</option>
-              <option v-for="queue in state.queues" :key="queue.id" :value="queue.id">{{ queue.displayName }}</option>
-            </select>
-            <button type="button" class="btn" :disabled="!queueToAdd" @click="addQueue">Add queue</button>
-          </template>
         </div>
       </section>
 

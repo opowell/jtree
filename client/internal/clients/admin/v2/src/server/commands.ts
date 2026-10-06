@@ -29,7 +29,6 @@ export const server = {
   deleteSession: (id: string) => emit('deleteSession', id),
   createSessionWithApp: (appId: string, options: Record<string, unknown> = {}) =>
     emit('createSessionAndAddApp', { appId, options, userId }),
-  startSessionFromQueue: (qId: string) => emit('startSessionFromQueue', { qId, userId }),
 
   start: () => onSession('sessionStart', (sId) => sId),
   pause: () => onSession('sessionPause', (sId) => sId),
@@ -49,7 +48,6 @@ export const server = {
     onSession('sessionAddApp', (sId) => ({ sId, appId, options })),
   removeApp: (index: number, appId: string) =>
     onSession('sessionDeleteApp', (sId) => ({ sId, i: index, aId: appId })),
-  addQueue: (qId: string) => onSession('sessionAddQueue', (sId) => ({ sId, qId })),
 
   setAutoplay: (pId: string, val: boolean) => onSession('setAutoplay', (sId) => ({ sId, pId, val })),
   setAutoplayForAll: (val: boolean) => onSession('setAutoplayForAll', (sId) => ({ sId, val })),
@@ -57,7 +55,7 @@ export const server = {
 
   reloadClients: () => emit('reloadClients'),
 
-  /* Queues */
+  /* Queues, which are apps made of other apps */
   createQueue: (id: string) => emit('createQueue', id),
   deleteQueue: (id: string) => emit('deleteQueue', id),
   queueAddApp: (queueId: string, appId: string) => emit('queueAddApp', { queueId, appId, options: {} }),

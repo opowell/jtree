@@ -5,96 +5,143 @@ const Session   = require('./Session.js');
 
 
 /**
- * A Queue definition for sessions.
+ * A queue is an app made of other apps: a .jtq file that, when added to a session, adds its apps
+ * to that session in its place. It sits in the app catalogue next to the apps, and is added to a
+ * session with {@link Session#addApp} like any app.
+ *
+ * A .jtq file is a script run with the session in scope as `session`. Paths it gives to
+ * `session.addApp` are relative to the .jtq file, and may name other queues. The script can also
+ * declare session options (`session.addNumberOption(...)`) and set session fields and hooks
+ * (`session.getApp = ...`), as these act on the whole session.
+ *
+ * An older format is JSON, `{displayName, apps: [appId | {appId, options}]}`, where an appId
+ * without an extension is a .jtt file next to the queue.
 */
 class Queue {
 
     constructor(id, jt) {
         this.jt             = jt;
         this.id             = id;
-        this.shortId        = path.basename(id);
+        this.appPath        = id;
+        this.shortId        = path.basename(id, '.jtq');
         this.displayName    = this.shortId;
+        this.description    = undefined;
+        /** The file's contents. */
+        this.appjs          = '';
+        /** For a JSON queue, its parsed contents, otherwise null. */
+        this.json           = null;
+        /** The apps this queue adds, as {appId, options}, with appId resolved to a full path. */
         this.apps           = [];
-        this.dummy          = false;
+        /** The session options this queue declares. */
+        this.options        = [];
+        this.optionValues   = {};
+        this.hasError       = false;
     }
 
-    /** Deprecated 2018.10.11. Replaced by Queue.loadJTQ. */
-    static load(fn, id, jt) {
-        var queue = new Queue(id, jt);
-        
-        // Read fields, if any.
-        if (fs.existsSync(fn)) {
-            var json = Utils.readJSON(fn);
-            if (json.displayName !== undefined) {
-                queue.displayName = json.displayName;
-            }
-            if (json.apps !== undefined) {
-                queue.apps = json.apps;
+    /** Reads the .jtq file at filePath, and lists the apps and options it declares. */
+    static load(filePath, jt) {
+        var queue = new Queue(filePath, jt);
+        try {
+            queue.appjs = Utils.readJS(filePath);
+        } catch (err) {
+            queue.setError(err);
+            return queue;
+        }
+        if (queue.appjs.trim().startsWith('{')) {
+            try {
+                queue.json = JSON.parse(queue.appjs);
+                if (queue.json.displayName != null) {
+                    queue.displayName = queue.json.displayName;
+                }
+            } catch (err) {
+                // Not JSON after all: run it as a script.
             }
         }
-
+        var recorder = new QueueRecorder(queue);
+        try {
+            queue.run(recorder);
+        } catch (err) {
+            queue.setError(err);
+        }
+        queue.apps = recorder.apps;
+        queue.options = recorder.options;
+        queue.optionValues = recorder.optionValues;
         return queue;
     }
 
-    static loadJTQ(id, jt, folder) {
-        var queue = new Queue(id, jt);
-        if (fs.existsSync(id)) {
-            var json = Utils.readJSON(id);
-            if (json === 'JSON error') {
-                // let session = new Session.new(jt, id, {createFolder: false});
-                queue.code = Utils.readJS(id);
-                // eval(queue.code);
-                // for (let i=0; i<session.apps.length; i++) {
-                //     let app = session.apps[i];
-                //     queue.addApp(app.appPath, app.givenOptions);
-                // }
-            } else {
-                if (json.displayName !== undefined) {
-                    queue.displayName = json.displayName;
-                }
-                if (json.apps !== undefined) {
-                    for (let i=0; i<json.apps.length; i++) {
-                        let curJSON = json.apps[i];
-                        let appId = curJSON;
-                        let options = {};
-                        if (curJSON.appId != null) {
-                            appId = curJSON.appId;
-                            options = curJSON.options;
-                        }
-                        queue.addApp(path.join(folder, appId + '.jtt'), options);
-                    }
-                }
-            }
-        }
-        return queue;
+    /** The folder this queue's app paths are relative to. */
+    dir() {
+        return path.dirname(this.id);
+    }
+
+    resolve(appPath) {
+        return path.isAbsolute(appPath) ? appPath : path.join(this.dir(), appPath);
     }
 
     /**
-    * Add the app with the given ID to this session.
-    *
-    * FUNCTIONALITY:
-    * - load the given app {@link Session#loadApp}
-    * - add app to this session's apps field.
-    * - copy app source files {@link Utils#copyFiles}.
-    * - save app and its stages {@link App#saveSelfAndChildren}.
-    * - emit 'sessionAddApp' message.
-    *
-    * @param  {string} appId The ID of the app to add to this session.
-    */
-    addApp(appId, options) {
+     * Runs this queue against target, a {@link Session} or a {@link QueueRecorder}, whose addApp
+     * resolves paths relative to this queue.
+     */
+    run(target) {
+        if (this.json != null) {
+            var entries = this.json.apps || [];
+            for (let i=0; i<entries.length; i++) {
+                let appId = entries[i];
+                let options = {};
+                if (appId.appId != null) {
+                    options = appId.options || {};
+                    appId = appId.appId;
+                }
+                if (path.extname(appId) === '') {
+                    appId += '.jtt';
+                }
+                target.addApp(appId, options);
+            }
+        } else {
+            // The script refers to its target as `session`.
+            let session = target; // jshint ignore:line
+            eval(this.appjs); // jshint ignore:line
+        }
+    }
+
+    /** Adds an app at the end of this queue's file. Reload the queue to see it. */
+    addApp(appPath, options) {
         if (options == null) {
             options = {};
         }
-        var app = {
-            appId: appId, 
-            options: options, 
-            indexInQueue: this.apps.length + 1
-        };
-        this.apps.push(app);
-        if (!this.dummy && this.jt.socketServer != null) {
-            this.save();
-            this.jt.socketServer.sendOrQueueAdminMsg(null, 'queueAddApp', {queueId: this.id, app: app});
+        var relPath = path.relative(this.dir(), appPath).split(path.sep).join('/');
+        if (this.json != null) {
+            if (this.json.apps == null) {
+                this.json.apps = [];
+            }
+            this.json.apps.push(Object.keys(options).length > 0 ? {appId: relPath, options: options} : relPath);
+            fs.writeJSONSync(this.id, this.json, {spaces: 4});
+        } else {
+            var line = 'session.addApp(' + JSON.stringify(relPath);
+            if (Object.keys(options).length > 0) {
+                line += ', ' + JSON.stringify(options);
+            }
+            line += ');\n';
+            var contents = this.appjs;
+            if (contents.length > 0 && !contents.endsWith('\n')) {
+                contents += '\n';
+            }
+            fs.writeFileSync(this.id, contents + line);
         }
+    }
+
+    setFileContents(contents) {
+        fs.writeFileSync(this.id, contents);
+    }
+
+    reload() {
+        return Queue.load(this.id, this.jt);
+    }
+
+    setError(err) {
+        this.hasError = true;
+        this.errorMessage = String(err);
+        this.jt.log('Error loading queue ' + this.id + ': ' + err);
     }
 
     parentFolderName() {
@@ -113,6 +160,30 @@ class Queue {
         return this.id.substring(0, x);
     }
 
+    /** What the admin interfaces read about an app, see {@link App#metaData}. */
+    metaData() {
+        return {
+            id:             this.id,
+            shortId:        this.shortId,
+            title:          this.displayName,
+            description:    this.description,
+            appPath:        this.appPath,
+            isQueue:        true,
+            apps:           this.apps,
+            options:        this.options,
+            hasError:       this.hasError,
+            errorMessage:   this.errorMessage,
+            isStandaloneApp: true,
+            stages:         [],
+            appjs:          this.appjs,
+        };
+    }
+
+    shellWithChildren() {
+        return this.metaData();
+    }
+
+    /** The shape older admin interfaces read from their list of queues. */
     shell() {
         var out = {}
         out.id              = this.id;
@@ -123,22 +194,39 @@ class Queue {
         return out;
     }
 
-    /**
-    * this - description
-    *
-    * @return {type}  description
-    */
-    save() {
-        try {
-            fs.writeJSONSync(this.jt.data.queuePath(this.id), this.shell(), {spaces: 4});
-        } catch (err) {
-            console.log(err);
-        }
+}
+
+/**
+ * Stands in for a session when a queue is read for the catalogue: records the apps and options
+ * the queue declares, without loading them or writing anything to disk.
+ */
+class QueueRecorder {
+
+    constructor(queue) {
+        this.queue          = queue;
+        this.apps           = [];
+        this.options        = [];
+        this.optionValues   = {};
     }
 
+    addApp(appPath, options) {
+        this.apps.push({
+            appId: this.queue.resolve(appPath),
+            options: options || {},
+            indexInQueue: this.apps.length + 1,
+        });
+    }
+
+    setNumParticipants(num) {
+        this.suggestedNumParticipants = num;
+    }
+
+}
+
+for (const name of ['addNumberOption', 'addTextOption', 'addSelectOption', 'setOptionValue']) {
+    QueueRecorder.prototype[name] = Session.new.prototype[name];
 }
 
 var exports = module.exports = {};
 exports.new = Queue;
 exports.load = Queue.load;
-exports.loadJTQ = Queue.loadJTQ;

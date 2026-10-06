@@ -101,6 +101,9 @@ class Session {
         */
         this.apps = [];
 
+        /** The queues being added, innermost last, see {@link Session#addQueue}. */
+        this.addingQueues = [];
+
         this.users = [];
 
         /**
@@ -135,7 +138,7 @@ class Session {
             'asyncQueue',
             // 'started',
             'emitMessages',
-            'queue',
+            'addingQueues',
         ];
 
         this.emitMessages = true;
@@ -270,8 +273,14 @@ class Session {
     */
     addApp(appPath, options) {
 
-        if (this.queuePath != null && !appPath.startsWith(this.queuePath)) {
-            appPath = path.join(this.queuePath, appPath);
+        // Inside a queue, paths are relative to the queue's file.
+        let queue = this.addingQueues[this.addingQueues.length - 1];
+        if (queue != null) {
+            appPath = queue.resolve(appPath);
+        }
+
+        if (appPath.endsWith('.jtq')) {
+            return this.addQueue(appPath, options);
         }
 
         try {
@@ -307,15 +316,29 @@ class Session {
         this.emit('sessionAddUser', {sId: this.id, uId: userId});
     }
 
-    addQueue(qId) {
-        var queue = this.jt.data.queue(qId);
-        if (queue !== null) {
-            for (var i in queue.apps) {
-                try {
-                    this.addApp(queue.apps[i].appId, queue.apps[i].options);
-                } catch (err) {}
-            }
+    /**
+    * Add the apps of the queue at queuePath to this session, by running its script against this
+    * session. A queue's options are session options, so they are set on this session first.
+    * Called from {@link Session#addApp}.
+    */
+    addQueue(queuePath, options) {
+        const Queue = require('./Queue.js');
+        var queue = Queue.load(queuePath, this.jt);
+        if (queue.hasError) {
+            return null;
         }
+        for (let name in options) {
+            this[name] = options[name];
+        }
+        this.addingQueues.push(queue);
+        try {
+            queue.run(this);
+        } catch (err) {
+            this.jt.log('Error running queue ' + queuePath + ': ' + err);
+        } finally {
+            this.addingQueues.pop();
+        }
+        return queue;
     }
 
     addAdminClient(socket) {

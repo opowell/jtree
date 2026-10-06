@@ -12,11 +12,11 @@ interface (`server/source/core/Msgs.js`), and needs no server changes.
 
 | Panel | What it is |
 | --- | --- |
-| Browse | Every session, participant, app, queue and log entry, searchable and filterable. Its query is in the address bar, so a view is a link. Opening a row opens it in its own panel. |
-| Session | The open session: start, pause/resume, advance slowest, reset, download output, delete; its apps and queues; participant count, autoplay, login options. |
+| Browse | Every session, participant, app (queues included) and log entry, searchable and filterable. Its query is in the address bar, so a view is a link. Opening a row opens it in its own panel. |
+| Session | The open session: start, pause/resume, advance slowest, reset, download output, delete; its apps; participant count, autoplay, login options. |
 | Participants | The open session's participants, live: app, period, group, stage, clients, points, state. Opening one shows its page in Participant views. |
 | Participant views | Each chosen participant's own page, side by side, with autoplay and reload per view. |
-| App / Queue | One per app or queue opened: details, and starting a session from it or adding it to the open one. |
+| App | One per app opened: details, and starting a session from it or adding it to the open one. A queue is an app made of other apps, and its panel lists them. |
 | Log | Messages sent and received in this browser. |
 | Settings | Theme, layout reset, and the server's settings (read-only). |
 

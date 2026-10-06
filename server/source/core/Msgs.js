@@ -185,27 +185,9 @@ class Msgs {
         this.jt.io.to('socket_' + socket.id).emit('updateAppPreview', app.shellWithChildren());
     }
 
+    /** Older name for {@link Msgs#createSessionAndAddApp}, from when queues were not apps. */
     startSessionFromQueue(data, sock) {
-        var session = this.jt.data.createSession(data.userId);
-        session.resume();
-        this.jt.data.sessions.push(session);
-        var queue = this.jt.data.queue(data.qId);
-        session.queue = queue;
-        let options = data.options;
-        for (let i in options) {
-            session[i] = options[i];
-        }
-        // if (queue.code == null) {
-        //     for (var a in queue.apps) {
-        //         var app = queue.apps[a];
-        //         var d = {sId: session.id, appPath: app.appId, options: app.options};
-        //         this.sessionAddApp(d);
-        //     }
-        // } else {
-            session.queuePath = path.dirname(queue.id);
-            eval(queue.code);
-        // }
-        this.openSession(session.id, sock);
+        this.createSessionAndAddApp({appId: data.qId, options: data.options, userId: data.userId}, sock);
     }
 
     createRoom(id, sock) {
@@ -238,14 +220,9 @@ class Msgs {
     }
 
     deleteQueue(id, sock) {
-        this.jt.data.deleteQueue(id);
+        this.jt.data.deleteApp(id);
         this.jt.socketServer.emitToAdmins('deleteQueue', id);
-    }
-
-    deleteAppFromQueue(qId, aId, appIndex) {
-        var queue = this.jt.data.queue(qId);
-        queue.deleteApp(aId, appIndex);
-        this.jt.socketServer.emitToAdmins('deleteAppFromQueue', {qId: qId, aId: aId, appIndex: appIndex});
+        this.jt.socketServer.emitToAdmins('deleteApp', id);
     }
 
     deleteApp(id, sock) {
@@ -347,8 +324,9 @@ class Msgs {
         this.jt.data.getSession(d.sId).addUser(d.uId);
     }
 
+    /** Older name for {@link Msgs#sessionAddApp}, from when queues were not apps. */
     sessionAddQueue(d) {
-        this.jt.data.getSession(d.sId).addQueue(d.qId);
+        this.jt.data.getSession(d.sId).addApp(d.qId);
     }
 
     roomAddApp(d) {
@@ -357,6 +335,8 @@ class Msgs {
 
     queueAddApp(d) {
         this.jt.data.queue(d.queueId).addApp(d.appId, d.options);
+        var queue = this.jt.data.reloadQueue(d.queueId);
+        this.jt.socketServer.emitToAdmins('queueAddApp', {queueId: queue.id, app: queue.apps[queue.apps.length - 1]});
     }
 
     /*

@@ -7,7 +7,6 @@ import type {
   LogEntry,
   Participant,
   PlayerState,
-  QueueShell,
   ServerSettings,
   SessionFull,
   SessionShell,
@@ -23,7 +22,6 @@ import type {
 export const state = reactive({
   connected: false,
   apps: {} as Record<string, AppMeta>,
-  queues: [] as QueueShell[],
   sessions: [] as SessionShell[],
   settings: {} as ServerSettings,
   jtreeLocalPath: '',
@@ -132,7 +130,6 @@ socket.on('disconnect', () => {
 
 socket.on('refreshAdmin', (ag: AdminRefresh) => {
   state.apps = ag.apps ?? {}
-  state.queues = ag.queues ?? []
   state.sessions = ag.sessions ?? []
   state.settings = ag.settings ?? {}
   state.jtreeLocalPath = ag.jtreeLocalPath ?? ''
@@ -172,14 +169,9 @@ socket.on('deleteApp', (id: string) => {
   delete state.apps[id]
   changed()
 })
-socket.on('createQueue', (queue: QueueShell) => {
-  state.queues = [queue, ...state.queues]
-  addLog('createQueue', `Queue ${queue.displayName} created`)
-})
-socket.on('deleteQueue', (id: string) => {
-  state.queues = state.queues.filter((q) => q.id !== id)
-  changed()
-})
+// Queues are apps; the server still announces them under their own names.
+socket.on('createQueue', () => refreshAdmin())
+socket.on('queueAddApp', () => refreshAdmin())
 
 /* Messages about the open session. Each carries the session id it is about. */
 
