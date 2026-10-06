@@ -41,9 +41,13 @@ class Logger {
         }
     }
 
-    /** Closes the log file; later messages only go to the console, if they would anyway. */
+    /**
+     * Closes the log file; later messages only go to the console, if they would anyway.
+     * Resolves once it is written.
+     * @return {Promise}
+     */
     stop() {
-        this.logStream.end();
+        return new Promise((resolve) => this.logStream.end(resolve));
     }
 
 }

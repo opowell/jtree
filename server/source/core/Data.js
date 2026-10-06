@@ -80,7 +80,8 @@ class Data {
 
     /**
      * Stops what keeps running in the background: saving the time info, and each session's
-     * timers and data file. CALLED FROM jt.stop (see jtree.js).
+     * timers and data file. Resolves once the files are written. CALLED FROM jt.stop (see jtree.js).
+     * @return {Promise}
      */
     stop() {
         this.stopped = true;
@@ -100,10 +101,10 @@ class Data {
                     participant.appTimer.clear();
                 }
             }
-            if (session.fileStream != null) {
-                session.fileStream.end();
-            }
         }
+        return Promise.all(this.sessions
+            .filter((session) => session.fileStream != null)
+            .map((session) => new Promise((resolve) => session.fileStream.end(resolve))));
     }
 
     /*

@@ -89,23 +89,23 @@ function start(options) {
     jt.socketServer = new SocketServer.new(jt);
 
     /**
-     * Stops jtree: disconnects its clients, stops its timers and closes its files, and closes
-     * its server, unless that belongs to a hosting program. Resolves when done.
+     * Stops jtree: disconnects its clients, closes its server (unless that belongs to a
+     * hosting program), stops its timers, and closes its files. Resolves once they are written.
      * @return {Promise}
      */
-    jt.stop = function() {
-        jt.data.stop();
-        jt.logger.stop();
+    jt.stop = async function() {
+        // Clients first, so that nothing they send is saved after the files close.
         if (jt.httpServer != null) {
             // The server is the hosting program's; leave it running.
             jt.io.disconnectSockets(true);
             jt.io.engine.close();
-            return Promise.resolve();
-        }
-        return new Promise((resolve) => {
-            jt.io.close(() => resolve());
+        } else {
+            const closed = new Promise((resolve) => jt.io.close(() => resolve()));
             jt.staticServer.server.closeAllConnections();
-        });
+            await closed;
+        }
+        await jt.data.stop();
+        await jt.logger.stop();
     };
 
     return jt;
