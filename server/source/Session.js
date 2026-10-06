@@ -76,6 +76,28 @@ class Session {
 
         this.suggestedNumParticipants = jt.settings.session.suggestedNumParticipants;
 
+        const defaults = jt.settings.session || {};
+
+        /**
+        * Money every participant is paid for taking part (z-Tree's ShowUpFee, oTree's
+        * participation_fee). Default from settings.json's session.showUpFee.
+        * @type number
+        */
+        this.showUpFee = defaults.showUpFee != null ? defaults.showUpFee : 0;
+
+        /**
+        * Money per point, for apps that do not set app.exchangeRate. Default from settings.json's
+        * session.exchangeRate.
+        * @type number
+        */
+        this.exchangeRate = defaults.exchangeRate != null ? defaults.exchangeRate : 1;
+
+        /**
+        * The currency payments are in, e.g. 'EUR', for showing them.
+        * @type string
+        */
+        this.currency = defaults.currency != null ? defaults.currency : '';
+
         /**
         * A list of participants in this session.
         * @type Object
@@ -1217,6 +1239,15 @@ class Session {
 
     participantStart(participant) {
         
+    }
+
+    /** What each participant is paid (see Participant#payment), by participant id. */
+    payments() {
+        const out = [];
+        for (const participant of Object.values(this.participants)) {
+            out.push({ id: participant.id, points: participant.points(), payment: participant.payment() });
+        }
+        return out;
     }
 
     start() {

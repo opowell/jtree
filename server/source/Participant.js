@@ -361,6 +361,20 @@ class Participant {
         return out;
     }
 
+    /**
+     * What this participant is paid: the session's show-up fee, plus the points of each app
+     * times its exchange rate (app.exchangeRate, or the session's), rounded to cents.
+     * @return {number}
+     */
+    payment() {
+        let money = Number(this.session.showUpFee) || 0;
+        for (const app of this.session.apps) {
+            const rate = app.exchangeRate != null ? app.exchangeRate : this.session.exchangeRate;
+            money += this.pointsForApp(app) * rate;
+        }
+        return Math.round(money * 100) / 100;
+    }
+
     setPlayer(player) {
         this.player = player;
         this.save();
@@ -407,6 +421,7 @@ class Participant {
             out.player = null;
         }
         out.numPoints = this.points();
+        out.payment = this.payment();
         out.session = this.session.shell();
         return out;
     }
@@ -425,6 +440,7 @@ class Participant {
             out.player = null;
         }
         out.numPoints = this.points();
+        out.payment = this.payment();
         out.playerIds = [];
         out.players = [];
         for (var i in this.players) {

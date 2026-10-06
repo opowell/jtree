@@ -33,3 +33,16 @@ A list of participant IDs to be used for sessions.
 #### `waitOnTimerEnd`: true
 
 Whether to wait for player submissions after a stage timer has expired (`true`), or whether to proceed immediately to the next stage (`false`). The former is useful if you want to allow half-finished submissions, while the second is faster (no delay in waiting for submissions) and more secure (players cannot circumvent the stage timer).
+
+#### Payment
+`settings.json` can set the defaults for new sessions' payment:
+
+```json
+{ "session": { "suggestedNumParticipants": 4, "showUpFee": 5, "exchangeRate": 0.1, "currency": "EUR" } }
+```
+
+- `showUpFee`: money every participant is paid for taking part (default 0).
+- `exchangeRate`: money per point (default 1). An app can set its own, `app.exchangeRate`.
+- `currency`: what the money is in, for showing it.
+
+A participant's payment ([`participant.payment()`]{@link Participant#payment}) is the show-up fee plus, for each app, the points they earned in it (`player.points`) times its exchange rate, rounded to cents. [`session.payments()`]{@link Session#payments} lists everyone's.

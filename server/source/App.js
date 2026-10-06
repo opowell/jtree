@@ -279,6 +279,13 @@ class App {
         this.groupByArrival = false;
 
         /**
+         * Money per point in this app (z-Tree's exchange rate per treatment); if not set, the
+         * session's (see Session#exchangeRate, Participant#payment).
+         * @type number|undefined
+         */
+        this.exchangeRate = undefined;
+
+        /**
          * Messages to listen for from clients.
          * @type Object
          * @default {}

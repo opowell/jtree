@@ -3,6 +3,7 @@
 - Listen to incremental game changes via observer.
 
 #### Unreleased
+- Payment: sessions' `showUpFee`, `exchangeRate` and `currency` (defaults in `settings.json`), `app.exchangeRate`, and `participant.payment()`.
 - The server checks forms: `app.fields` declares fields' types and limits, `stage.formFields` what a form must send, and `stage.validate(player, values)` checks them together. A form with mistakes is not stored and the page shows why.
 - A player's own time for a stage (`stage.clientDuration`, or `stage.getClientDuration(player)`) is kept by the server too: a page that does not submit when the time is up is ended after `timeoutGrace`. `stage.endOnTimeout = false` keeps a timed-out stage open until the players submit.
 - `period.setGroups(matrix)` in `app.periodStart` regroups a period; `app.groupByArrival` groups participants in the order they arrive.
