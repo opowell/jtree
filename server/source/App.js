@@ -396,12 +396,15 @@ class App {
      */
     static load(json, session) {
         var index = json.sessionIndex;
-        var app = new App(session, json.id, session.jt);
 
-        // Run app code.
-        var folder = path.join(session.getOutputDir(), index + '_' + json.id);
-        var appCode = Utils.readJS(folder + '/app.jtt');
+        // Run the code of the session's copy of the app (see Session#addApp), in
+        // <index>_<shortId>/: the app's file, or a folder app's files.
+        var folder = path.join(session.getOutputDir(), index + '_' + json.shortId);
+        var appPath = path.join(folder, json.appFilename);
+        var app = new App(session, session.jt, appPath);
+        var appCode = Utils.readJS(appPath);
         eval(appCode);
+        app.loadStageFiles();
 
         //If there is already an app in place, save its stages and periods??
         if (session.apps.length > index-1) {
@@ -410,9 +413,8 @@ class App {
             app.periods = curApp.periods;
         }
 
-        for (var j in json) {
-            app[j] = json[j];
-        }
+        // The saved fields, except functions, which the code has just defined.
+        Utils.copySavedFields(app, json, Object.keys(json).filter(j => j.startsWith('__func_')));
 
         session.apps[index-1] = app;
     }

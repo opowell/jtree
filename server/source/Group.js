@@ -93,28 +93,19 @@ class Group {
         var period = app.periods[json.periodId-1];
         var id = json.id;
         var newGroup = new Group(id, period);
+        // A group saved earlier: this record replaces it, but its players and tables have
+        // records of their own.
         if (period.groups.length > id-1) {
             var curGroup = period.groups[id-1];
             newGroup.players = curGroup.players;
-        }
-        for (var j in json) {
-            newGroup[j] = json[j];
-        }
-        if (json !== null && json.stageTimerStart !== undefined) {
-            var lastTimeOn = data.lastTimeOn;
-            var timeLeft = json.stageTimerTimeLeft;
-            if (session.isRunning) {
-                timeLeft = timeLeft - (lastTimeOn - new Date(json.stageTimerStart).getTime());
-                if (timeLeft >= 0) {
-                    var stage = app.stages[json.stageTimerStageIndex];
-                    var group = newGroup;
-                    var callback = eval('(' + json.stageTimerCallback + ')');
-                    newGroup.stageTimer = Timer.load(json.stageTimerDuration, timeLeft, json.stageTimerStageIndex, callback);
-                    newGroup.stageTimer.resume();
-                    newGroup.save();
-                }
+            for (const name of curGroup.tables) {
+                newGroup[name] = curGroup[name];
+                newGroup[name].context = newGroup;
             }
         }
+        Utils.copySavedFields(newGroup, json);
+        // Its stage timer, if any, is in the stageTimer* fields: restoreStageTimer starts it
+        // once all records are read, as a later record may replace this group.
         period.groups[id-1] = newGroup;
     }
 
@@ -445,7 +436,7 @@ class Group {
             out.stageTimerDuration = this.stageTimer.duration;
             out.stageTimerTimeLeft = this.stageTimer.timeLeft;
             out.stageTimerStageIndex = this.stageTimer.stageIndex;
-            out.stageTimerCallback = this.stageTimer.callback.toString();
+            out.stageTimerRunning = this.stageTimer.running;
         }
         out.periodId = this.period.id;
         out.appIndex = this.app().indexInSession();
@@ -608,14 +599,7 @@ class Group {
         this.stageIndex = stage.indexInApp();
         let groupDuration = stage.getGroupDuration(this);
         if (groupDuration > 0) {
-            let timeOutCB = function(stage) {
-                this.session().addMessageToStartOfQueue(this, stage, 'forceEndStage');
-            }.bind(this, stage);
-            this.stageTimer = new Timer.new(
-                timeOutCB,
-                groupDuration*1000,
-                stage.indexInApp()
-            );
+            this.startStageTimer(stage, groupDuration*1000);
         }
 
         try {
@@ -632,6 +616,41 @@ class Group {
                 this.players[p].startStage(stage);
             } catch (err) {}
         }
+    }
+
+    /**
+     * For a group loaded from a session's file (see Group.load), starts the stage timer it
+     * had. The stage's time ran until jtree stopped (lastTimeOn) and stood still while it was
+     * off; time already up ends the stage straight away.
+     */
+    restoreStageTimer(lastTimeOn) {
+        const saved = {
+            start: this.stageTimerStart,
+            timeLeft: this.stageTimerTimeLeft,
+            stageIndex: this.stageTimerStageIndex,
+            running: this.stageTimerRunning,
+        };
+        for (const field of ['stageTimerStart', 'stageTimerDuration', 'stageTimerTimeLeft', 'stageTimerStageIndex', 'stageTimerRunning', 'stageTimerCallback']) {
+            delete this[field];
+        }
+        if (saved.start === undefined || saved.stageIndex === undefined || this.stageEndedIndex >= saved.stageIndex) {
+            return;
+        }
+        let timeLeft = saved.timeLeft;
+        if (saved.running !== false) {
+            timeLeft -= lastTimeOn - new Date(saved.start).getTime();
+        }
+        this.startStageTimer(this.app().stages[saved.stageIndex], Math.max(timeLeft, 1));
+        if (!this.session().isRunning) {
+            this.stageTimer.pause();
+        }
+    }
+
+    /** Starts the timer that ends stage for this group (see forceEndStage) in ms milliseconds. */
+    startStageTimer(stage, ms) {
+        this.stageTimer = new Timer.new(function() {
+            this.session().addMessageToStartOfQueue(this, stage, 'forceEndStage');
+        }.bind(this), ms, stage.indexInApp());
     }
 
     /**

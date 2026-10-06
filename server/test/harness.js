@@ -78,11 +78,18 @@ function quietly(fn) {
 
 /**
  * Starts jtree on an HTTP server of the test's, as JAS hosts it, with a data folder
- * from makeDataDir({ settings, withApps }), removed by close().
+ * from makeDataDir({ settings, withApps }), removed by close(). Or with data, a data
+ * folder from makeDataDir that the test keeps and removes itself, with settings added:
+ * to start jtree again on what an earlier one saved.
  */
-async function startServer({ settings = {}, withApps = false } = {}) {
-    const data = makeDataDir({ settings, withApps });
+async function startServer({ settings = {}, withApps = false, data: givenData } = {}) {
+    const data = givenData || makeDataDir({ settings, withApps });
     const dataDir = data.path;
+    if (givenData) {
+        // Settings for this start, over those the folder was made with.
+        const file = path.join(dataDir, 'settings.json');
+        fs.writeFileSync(file, JSON.stringify({ ...JSON.parse(fs.readFileSync(file, 'utf8')), ...settings }));
+    }
 
     const httpServer = http.createServer();
     // jtree logs freely to the console; keep test output readable.
@@ -93,7 +100,7 @@ async function startServer({ settings = {}, withApps = false } = {}) {
         jt = jtree.start({ path: dataDir, basePath: '', httpServer });
     } catch (err) {
         console.log = log;
-        data.remove();
+        if (!givenData) data.remove();
         throw err;
     }
     httpServer.on('request', jt.staticServer.expApp);
@@ -155,7 +162,7 @@ async function startServer({ settings = {}, withApps = false } = {}) {
             httpServer.closeAllConnections();
             await closed;
             console.log = log;
-            data.remove();
+            if (!givenData) data.remove();
         },
     };
     return server;

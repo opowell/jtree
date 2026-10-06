@@ -196,6 +196,20 @@ class Utils {
     }
 
     /**
+     * Copies the fields of a record from a session's .gsf file onto the object made from it,
+     * except its type, the fields in skip, and fields the object has as methods: records also
+     * hold values derived from methods (e.g. a player's roomId), which must not replace them.
+     */
+    static copySavedFields(obj, json, skip = []) {
+        for (var j in json) {
+            if (j === 'type' || skip.includes(j) || typeof obj[j] === 'function') {
+                continue;
+            }
+            obj[j] = json[j];
+        }
+    }
+
+    /**
     * This function generates random integer between two numbers low (inclusive) and high (exclusive) ([low, high))<br>
     * Reference: <a target='_blank' href='https://blog.tompawlak.org/generate-random-values-nodejs-javascript'>https://blog.tompawlak.org/generate-random-values-nodejs-javascript</a>
     * @param  {type} low  the lower bound.
@@ -525,10 +539,11 @@ class Utils {
         if (ids.appId === null || ids.appId === undefined) {
             return session;
         } else {
+            // An app's part of a room id is <index in session>-<app id> (see App#roomId).
+            var app = session.apps[parseInt(ids.appId) - 1];
             if (ids.periodId === null || ids.periodId === undefined) {
-                return Utils.findByIdWOJQ(session.apps, ids.appId);
+                return app;
             } else {
-                var app = Utils.findByIdWOJQ(session.apps, ids.appId);
                 if (ids.groupId === null || ids.groupId === undefined) {
                     return Utils.findByIdWOJQ(app.periods, ids.periodId);
                 } else {

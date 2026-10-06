@@ -35,7 +35,7 @@ class Period {
          */
         this.outputHide = ['stage', 'status', 'this', 'curAppId', 'periodTemp',
         'periodPerm', 'periodPermAuto', 'outputHide', 'app', 'groups', 'type',
-        'stageTimerStart','stageTimerDuration','stageTimerTimeLeft','stageTimerStageIndex','stageTimerCallback','periodId','appIndex', 'gIds'];
+        'stageTimerStart','stageTimerDuration','stageTimerTimeLeft','stageTimerStageIndex','stageTimerCallback','stageTimerRunning','periodId','appIndex', 'gIds'];
     }
 
     roomId() {
@@ -349,9 +349,7 @@ class Period {
             var curPeriod = app.periods[id-1];
             newPeriod.groups = curPeriod.groups;
         }
-        for (var j in json) {
-            newPeriod[j] = json[j];
-        }
+        Utils.copySavedFields(newPeriod, json);
         app.periods[id-1] = newPeriod;
     }
 

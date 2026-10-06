@@ -85,6 +85,12 @@ class Data {
     stop() {
         this.stopped = true;
         clearTimeout(this.storeTimeInfoTimer);
+        // When jtree was last on, for stage timers of sessions loaded later (see Group.load).
+        try {
+            fs.writeJSONSync(path.join(this.jt.path, this.jt.settings.serverTimeInfoFilename), Date.now());
+        } catch (err) {
+            console.log('Error saving the time: ' + err);
+        }
         for (const session of this.sessions) {
             for (const timer of session.timers()) {
                 timer.clear();
@@ -599,7 +605,7 @@ class Data {
     loadLastTimeOn() {
         var out = Date.now();
         try {
-            out = fs.readJSONSync(this.js.settings.serverTimeInfoFilename);
+            out = fs.readJSONSync(path.join(this.jt.path, this.jt.settings.serverTimeInfoFilename));
         } catch (err) {}
         this.jt.log("last time on: " + out);
         return out;

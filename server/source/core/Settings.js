@@ -12,7 +12,7 @@ class Settings {
          // Admin access, see AdminAuth: without a password, only from the computer running jtree.
          this.admins                 = {}; // extra admin logins, {id: {pwd: '...'}}
          this.allowClientsToCreateParticipants = true; // default for new sessions
-         this.autoSaveFreq           = 100000; // how often to save active sessions, in ms.
+         this.autoSaveFreq           = 5000; // how often to save the time (internal/serverState.json), in ms; after a crash, restored stage timers are off by up to this much.
          this.logToConsole           = false;
          this.openAdminOnStart       = true; // whether or not the admin page should be opened when the server starts.
          this.multipleUsers          = false;

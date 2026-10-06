@@ -617,9 +617,7 @@ class Player {
         var group = period.groups[json.groupId-1];
         var participant = session.participants[playerId];
         var newPlayer = new Player(playerId, participant, group, json.idInGroup);
-        for (var j in json) {
-            newPlayer[j] = json[j];
-        }
+        Utils.copySavedFields(newPlayer, json);
         group.players[json.idInGroup-1] = newPlayer;
     }
 
