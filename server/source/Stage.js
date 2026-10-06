@@ -69,6 +69,16 @@ class Stage {
         this.waitToEnd = app.stageWaitToEnd;
 
         /**
+         * Wait for every player of the period, in every group, to be 'ready' before any group
+         * starts this stage (z-Tree's "wait for all", oTree's wait_for_all_groups). Then
+         * [Stage.allGroupsStart(period)]{@link Stage#allGroupsStart} is called, once, before
+         * the groups' groupStart.
+         * @type boolean
+         * @default false
+         */
+        this.waitForAllGroups = false;
+
+        /**
          * when starting stage for a player, send 'player' object or not.
          * fields determined by [player.outputFields]{@link player#outputFields}.
          * @type boolean
@@ -224,6 +234,18 @@ class Stage {
         //     return false;
         // }
 
+        // Every player of the period, in every group, ready for this stage; until the groups
+        // have been started together (see Group#startStage).
+        if (this.waitForAllGroups && !group.period.allGroupsStarted.includes(this.indexInApp())) {
+            for (const g of group.period.groups) {
+                for (const player of g.players) {
+                    if (player.stageIndex !== this.indexInApp() || player.status !== 'ready') {
+                        return false;
+                    }
+                }
+            }
+        }
+
         if (this.waitToStart) {
             // If any player is 1) not "ready" or 2) not in this stage, then return false.
             for (var p in group.players) {
@@ -285,6 +307,13 @@ class Stage {
      * @return {type}       description
      */
     groupEnd(group) {}
+
+    /**
+     * Overwrite in app.jtt: for a stage that waits for all groups, called once per period
+     * when every player has arrived, before each group's groupStart.
+     * @param {Period} period
+     */
+    allGroupsStart(period) {}
 
     /**
     *  Called before the first player plays this stage.

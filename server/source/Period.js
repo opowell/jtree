@@ -30,13 +30,19 @@ class Period {
         this.groups = [];
 
         /**
+         * The stages (by index) that wait for all groups and have started (see Group#startStage).
+         * @type number[]
+         */
+        this.allGroupsStarted = [];
+
+        /**
          * 'outputHide' fields are not included in output
          * @type {String[]}
          */
         this.outputHide = ['stage', 'status', 'this', 'curAppId', 'periodTemp',
         'periodPerm', 'periodPermAuto', 'outputHide', 'app', 'groups', 'type',
         'stageTimerStart','stageTimerDuration','stageTimerTimeLeft','stageTimerStageIndex','stageTimerCallback','stageTimerRunning','periodId','appIndex', 'gIds',
-        'hookStarted', 'hookEnded'];
+        'hookStarted', 'hookEnded', 'allGroupsStarted'];
     }
 
     roomId() {

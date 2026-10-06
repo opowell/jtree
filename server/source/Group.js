@@ -470,6 +470,11 @@ class Group {
             return true;
         }
 
+        // Waiting for all groups: only once the group has started (see startStage).
+        if (stage.waitForAllGroups) {
+            return false;
+        }
+
         // If do not need to wait for all players, return true.
         if (!stage.waitToStart) {
             return true;
@@ -592,6 +597,20 @@ class Group {
         }
 
         if (!stage.canGroupStart(this)) {
+            return;
+        }
+
+        // The last group to arrive at a stage that waits for all groups starts them all.
+        if (stage.waitForAllGroups && !this.period.allGroupsStarted.includes(stage.indexInApp())) {
+            this.period.allGroupsStarted.push(stage.indexInApp());
+            try {
+                stage.allGroupsStart(this.period);
+            } catch (err) {
+                console.log(err.stack);
+            }
+            for (const group of this.period.groups) {
+                group.startStage(stage);
+            }
             return;
         }
 

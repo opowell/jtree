@@ -41,10 +41,12 @@ const Utils = require('../Utils.js');
  * @property {number} [duration]          Seconds; the stage times out after them.
  * @property {boolean} [waitToStart]      Wait for the whole group before starting.
  * @property {boolean} [waitToEnd]        Wait for the whole group before ending.
+ * @property {boolean} [waitForAllGroups] Wait for every group of the period before starting.
  * @property {boolean} [waitOnTimerEnd]   On timeout, ask pages to submit (true) or end at once.
  * @property {number|null} [timeoutGrace] Seconds pages get to submit on a timeout.
  * @property {Program} [participate]      (player) => whether the player plays this stage.
- * @property {Object<string, Program>} [programs] groupStart, playerStart, groupEnd, playerEnd.
+ * @property {Object<string, Program>} [programs] groupStart, playerStart, groupEnd, playerEnd,
+ *                                        allGroupsStart (with waitForAllGroups).
  * @property {ScreenIR} [screen]
  * @property {Object<string, *>} [values] The stage's other fields, e.g. {updateObject: 'group'}.
  *
@@ -67,9 +69,9 @@ const APP_KEYS = ['ir', 'dialect', 'title', 'description', 'numPeriods', 'groupS
 // The app's lifecycle hooks, by their name in an IR, and the App method each is.
 const APP_HOOKS = { appStart: 'appStart', periodStart: 'periodStart', periodEnd: 'periodEnd', appEnd: 'end',
     participantStart: 'participantStart', participantEnd: 'participantEnd' };
-const STAGE_KEYS = ['id', 'duration', 'waitToStart', 'waitToEnd', 'waitOnTimerEnd', 'timeoutGrace',
+const STAGE_KEYS = ['id', 'duration', 'waitToStart', 'waitToEnd', 'waitForAllGroups', 'waitOnTimerEnd', 'timeoutGrace',
     'participate', 'programs', 'screen', 'values'];
-const STAGE_PROGRAMS = ['groupStart', 'playerStart', 'groupEnd', 'playerEnd'];
+const STAGE_PROGRAMS = ['groupStart', 'playerStart', 'groupEnd', 'playerEnd', 'allGroupsStart'];
 const SCREEN_KEYS = ['renderer', 'active', 'waiting', 'computed', 'methods'];
 const OPTION_TYPES = ['number', 'text', 'select'];
 
@@ -138,7 +140,7 @@ function validate(ir) {
             else if (ids.has(s.id)) problems.push(where + '.id: "' + s.id + '" is used by an earlier stage');
             ids.add(s.id);
             type(s.duration, 'number', where + '.duration');
-            for (const k of ['waitToStart', 'waitToEnd', 'waitOnTimerEnd']) type(s[k], 'boolean', where + '.' + k);
+            for (const k of ['waitToStart', 'waitToEnd', 'waitForAllGroups', 'waitOnTimerEnd']) type(s[k], 'boolean', where + '.' + k);
             if (s.timeoutGrace !== undefined && s.timeoutGrace !== null) type(s.timeoutGrace, 'number', where + '.timeoutGrace');
             if (s.participate !== undefined) program(s.participate, where + '.participate');
             programs(s.programs, where + '.programs', STAGE_PROGRAMS);
@@ -197,7 +199,7 @@ function applyIR(app, ir) {
     applyScreen(app, ir.screen || {}, app, 'screen');
     for (const s of ir.stages) {
         const stage = app.newStage(s.id);
-        for (const k of ['duration', 'waitToStart', 'waitToEnd', 'waitOnTimerEnd', 'timeoutGrace']) {
+        for (const k of ['duration', 'waitToStart', 'waitToEnd', 'waitForAllGroups', 'waitOnTimerEnd', 'timeoutGrace']) {
             if (s[k] !== undefined) stage[k] = s[k];
         }
         for (const [k, v] of Object.entries(s.values || {})) stage[k] = v;
@@ -223,7 +225,7 @@ const APP_INTERNAL = ['id', 'shortId', 'appDir', 'appFilename', 'appPath', 'jt',
     'finished', 'hasError', 'errorFile', 'errorLine', 'errorPosition', 'outputDelimiter', 'keyComparisons',
     'activeScreen', 'waitingScreen', 'renderer', 'indexInSession', 'groups'];
 const STAGE_INTERNAL = ['id', 'name', 'app', 'sourceFile', 'activeScreen', 'waitingScreen', 'renderer',
-    'duration', 'waitToStart', 'waitToEnd', 'waitOnTimerEnd', 'timeoutGrace'];
+    'duration', 'waitToStart', 'waitToEnd', 'waitForAllGroups', 'waitOnTimerEnd', 'timeoutGrace'];
 
 const js = (fn) => ({ lang: 'js', source: fn.toString() });
 const isJSON = (v) => {
@@ -286,7 +288,7 @@ function appToIR(app, fresh) {
     const freshStage = fresh.newStage('x');
     ir.stages = app.stages.map((stage) => {
         const s = { id: stage.id };
-        for (const k of ['duration', 'waitToStart', 'waitToEnd', 'waitOnTimerEnd', 'timeoutGrace']) {
+        for (const k of ['duration', 'waitToStart', 'waitToEnd', 'waitForAllGroups', 'waitOnTimerEnd', 'timeoutGrace']) {
             if (stage[k] !== freshStage[k]) s[k] = stage[k];
         }
         if (Object.prototype.hasOwnProperty.call(stage, 'canPlayerParticipate')) s.participate = js(stage.canPlayerParticipate);

@@ -59,6 +59,7 @@ Within each period, players and groups progress through the stages of the app. W
 When a session is started, all players begin the first app of the session.
 
 If [`Stage.waitToStart`]{@link Stage#waitToStart} is `true`, no player can start the stage (Step 3) until all players in the group are ready.
+If [`Stage.waitForAllGroups`]{@link Stage#waitForAllGroups} is `true`, no group starts the stage until every player of the period, in every group, is ready; then [`Stage.allGroupsStart(period)`]{@link Stage#allGroupsStart} is called once, before each group's `groupStart`.
 If [`Stage.waitToEnd`]{@link Stage#waitToEnd} is `true`, no player can end the stage (Step 9) until all players in the group are finished.
 As soon as a player ends the stage, they move to the next stage in the session (if there is one) and begin again at the first step of this procedure.
 
