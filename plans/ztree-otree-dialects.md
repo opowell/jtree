@@ -478,3 +478,30 @@ The rest of Phase 0 (the z-Tree corpus and grammar) needs `.ztt` files and z-Tre
   implementation (oTree templates and CSV, Phase 4); admin-ztree reading the IR waits for an
   importer (and the admin-ztree changes in progress).
 
+### Phase 3: kernel features (what Phase 4 needs: done)
+
+Each with tests, in the IR, and documented in doc-pages:
+
+- §3.3 Hooks: `app.appStart()`, `app.periodStart(period)`, `app.periodEnd(period)`; `app.end()` runs
+  again (nothing called it, and apps' data was no longer written to the session CSV at their end).
+  Players of a stage that waits for everyone now move on after `groupEnd`/`periodEnd`, not
+  before them; errors in `groupEnd`/`playerEnd` no longer stop a session.
+- §3.4 `stage.waitForAllGroups` and `stage.allGroupsStart(period)`.
+- §3.5 `period.setGroups(matrix)` in `periodStart`; `app.groupByArrival`. Fixed the
+  `PARTNER_1122`/`PARTNER_1212` matchings (they threw).
+- §3.6 `app.fields`, `stage.formFields`, `stage.validate`: forms checked and converted by the
+  server; the page shows what is wrong.
+- §3.7 Each player's own time (`stage.clientDuration`/`getClientDuration`) kept by the server;
+  `stage.endOnTimeout`.
+- §3.8 `session.showUpFee`/`exchangeRate`/`currency`, `app.exchangeRate`, `participant.payment()`.
+- §3.9 `inPeriod`/`inAllPeriods`/`inPreviousPeriods` for players and groups; `group.old()` fixed.
+
+Left for when what uses them is built:
+- §3.10 Tables as views: shaped by z-Tree's language; with its runtime (Phase 6).
+- §3.11 Event log replacing `.gsf`: restore works on `.gsf`; the log's consumers are exporters
+  (Phases 4 and 6).
+- §3.14 Sandbox: oTree's Python runs in Pyodide already, z-Tree's programs will be JS jtree
+  generates; only third-party JS apps need it.
+- A payments view in the admins (admin-ztree has work in progress).
+- Restored sessions do not restore players' own timers, nor groups' stageEndedIndex.
+
