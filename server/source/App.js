@@ -7,6 +7,7 @@ const Timer     = require('./Timer.js');
 const { runAppCode } = require('./dialects/jtree/runAppCode.js');
 const { dialectFor } = require('./dialects/index.js');
 const { appToIR } = require('./ir/ir.js');
+const { checkForm } = require('./forms.js');
 
 /** Class that represents an app. */
 class App {
@@ -486,8 +487,9 @@ class App {
             client[stageName] = function(data) {
                 app.session.pushMessage(client, data, data.fnName + 'Process');
             }
+            client[stageName].convertsOwnValues = true;
 
-            // Process the message.
+            // Process the message. Its values are converted by checkForm, not before (see Session#processMessage).
             client[stageName + 'Process'] = function(data) {
 
                 app.jt.log('Server received auto-stage submission: ' + JSON.stringify(data));
@@ -501,35 +503,28 @@ class App {
                     return false;
                 }
 
-                // TODO: Not parsing strings properly.
-                for (var property in data) {
-                    var value = data[property];
-
-                    if (value === 'true') {
-                        value = true;
-                    } else if (value === 'false') {
-                        value = false;
-                    } else if (!isNaN(value)) {
-                        value = parseFloat(value);
-                    }
-
-                    if (data.hasOwnProperty(property)) {
-                        if (property.startsWith('player.')) {
-                            var fieldName = property.substring('player.'.length);
-                            client.player()[fieldName] = value;
-                        } else if (property.startsWith('group.')) {
-                            var fieldName = property.substring('group.'.length);
-                            client.group()[fieldName] = value;
-                        } else if (property.startsWith('participant.')) {
-                            var fieldName = property.substring('participant.'.length);
-                            client.participant[fieldName] = value;
-                        } else if (property.startsWith('period.')) {
-                            var fieldName = property.substring('period.'.length);
-                            client.period()[fieldName] = value;
-                        } else if (property.startsWith('app.')) {
-                            var fieldName = property.substring('app.'.length);
-                            client.app()[fieldName] = value;
-                        }
+                // Check and convert the form's values (see forms.js); on a problem, the page
+                // shows it and the stage goes on.
+                var fields = Object.assign({}, data);
+                delete fields.fnName;
+                delete fields.playerRoomId;
+                var checked = checkForm(client.player().stage, client.player(), fields);
+                if (checked.errors !== null) {
+                    client.socket.emit('formErrors', { stageId: data.fnName, errors: checked.errors });
+                    return false;
+                }
+                for (var property in checked.values) {
+                    var value = checked.values[property];
+                    if (property.startsWith('player.')) {
+                        client.player()[property.substring('player.'.length)] = value;
+                    } else if (property.startsWith('group.')) {
+                        client.group()[property.substring('group.'.length)] = value;
+                    } else if (property.startsWith('participant.')) {
+                        client.participant[property.substring('participant.'.length)] = value;
+                    } else if (property.startsWith('period.')) {
+                        client.period()[property.substring('period.'.length)] = value;
+                    } else if (property.startsWith('app.')) {
+                        client.app()[property.substring('app.'.length)] = value;
                     }
                 }
                 var endForGroup = true;
@@ -538,6 +533,7 @@ class App {
                 this.session.emitParticipantUpdates();
 
             };
+            client[stageName + 'Process'].convertsOwnValues = true;
         }
 
         // Load custom code, overwrite default stage submission behavior.

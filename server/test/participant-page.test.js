@@ -19,3 +19,11 @@ test("a folder app's participant page has the screens of its stage files", async
     assert.match(html, /<p>RESULTS<\/p>/);
     assert.match(html, /name='player\.contribution'/);
 });
+
+test('socket.io answers its own requests (polling, as browsers start with)', async () => {
+    const res = await fetch(server.url + '/socket.io/?EIO=4&transport=polling');
+    assert.equal(res.status, 200);
+    assert.match(await res.text(), /"sid"/);
+    // The server is still up.
+    assert.equal((await fetch(server.url + '/shared/shared.js')).status, 200);
+});

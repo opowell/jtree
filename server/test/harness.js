@@ -90,7 +90,10 @@ async function startServer({ settings = {}, withApps = false, data: givenData } 
         fs.writeFileSync(file, JSON.stringify({ ...JSON.parse(fs.readFileSync(file, 'utf8')), ...settings }));
     }
 
-    const httpServer = http.createServer();
+    // The server's request listener exists before jtree starts, as a hosting program's does:
+    // socket.io, attaching, wraps it, and answers its own requests (e.g. a browser's polling).
+    let handle = (req, res) => { res.statusCode = 503; res.end(); };
+    const httpServer = http.createServer((req, res) => handle(req, res));
     // jtree logs freely to the console; keep test output readable.
     const log = console.log;
     if (!process.env.JTREE_TEST_VERBOSE) console.log = () => {};
@@ -102,7 +105,7 @@ async function startServer({ settings = {}, withApps = false, data: givenData } 
         if (!givenData) data.remove();
         throw err;
     }
-    httpServer.on('request', jt.staticServer.expApp);
+    handle = jt.staticServer.expApp;
     await new Promise(r => httpServer.listen(0, '127.0.0.1', r));
     const url = 'http://127.0.0.1:' + httpServer.address().port;
 
@@ -195,6 +198,9 @@ class Bot {
         socket.on('endStage', () => {
             if (this.answersTimeouts && this.stageId != null) this.submit();
         });
+        // What the server said was wrong with the last submission, by field name.
+        this.formErrors = null;
+        socket.on('formErrors', (d) => { this.formErrors = d.errors; });
     }
 
     get participant() {
@@ -265,6 +271,7 @@ class Bot {
     /** Submits the current stage's form, with values filled in first, as the participant page does. */
     submit(values = {}) {
         this.fill(values);
+        this.formErrors = null;
         const player = this.player;
         const stageId = player.stage.id;
         const data = { ...stringify(this.form), fnName: stageId, playerRoomId: player.roomId() };
@@ -275,6 +282,11 @@ class Bot {
     async play(stageId, values, opts) {
         await this.waitForStage(stageId, opts);
         this.submit(values);
+    }
+
+    /** Waits for the server to refuse the last submission; resolves to its messages by field name. */
+    waitForFormErrors({ timeout } = {}) {
+        return until(() => this.formErrors, { timeout, what: this.id + "'s form to be refused" });
     }
 
     /** Sends a custom message, as jt.sendMessage(name, data) does. */

@@ -21,6 +21,7 @@ const Utils = require('../Utils.js');
  * @property {Object<string, *>} [values] The app's own fields, e.g. {endowment: 20}: app.endowment.
  * @property {Object<string, Program>} [functions] The app's own methods, e.g. app.payoff(player).
  * @property {Object<string, Program>} [messages]  Messages from participants' pages: app.messages.
+ * @property {Object<string, FieldIR>} [fields] The fields forms submit, by name ('player.x'): see forms.js.
  * @property {Object<string, Program>} [hooks] The app's lifecycle: appStart(), periodStart(period),
  *                                        periodEnd(period), appEnd() (app.end), participantStart(participant),
  *                                        participantEnd(participant).
@@ -37,6 +38,14 @@ const Utils = require('../Utils.js');
  * @property {Array} [values]             For 'select'.
  * @property {string} [description]
  *
+ * @typedef {Object} FieldIR
+ * @property {'int'|'number'|'string'|'bool'|'choice'} type
+ * @property {number|Program} [min]        Or (player) => min.
+ * @property {number|Program} [max]
+ * @property {Array|Program} [choices]     For 'choice': values, or [value, label] pairs.
+ * @property {boolean} [blank]            May be left empty.
+ * @property {string} [label]
+ *
  * @typedef {Object} StageIR
  * @property {string} id
  * @property {number|Program} [duration] Seconds for each group, from when it starts the stage; or
@@ -52,7 +61,8 @@ const Utils = require('../Utils.js');
  * @property {number|null} [timeoutGrace] Seconds pages get to submit on a timeout.
  * @property {Program} [participate]      (player) => whether the player plays this stage.
  * @property {Object<string, Program>} [programs] groupStart, playerStart, groupEnd, playerEnd,
- *                                        allGroupsStart (with waitForAllGroups).
+ *                                        allGroupsStart (with waitForAllGroups), validate(player, values).
+ * @property {string[]} [formFields]      The fields the stage's form must send.
  * @property {ScreenIR} [screen]
  * @property {Object<string, *>} [values] The stage's other fields, e.g. {updateObject: 'group'}.
  *
@@ -71,13 +81,15 @@ const Utils = require('../Utils.js');
  */
 
 const APP_KEYS = ['ir', 'dialect', 'title', 'description', 'numPeriods', 'groupSize', 'numGroups',
-    'groupMatchingType', 'groupByArrival', 'suggestedNumPlayers', 'options', 'values', 'functions', 'messages', 'hooks', 'screen', 'stages'];
+    'groupMatchingType', 'groupByArrival', 'suggestedNumPlayers', 'options', 'values', 'functions', 'messages', 'hooks',
+    'fields', 'screen', 'stages'];
+const FIELD_TYPES = ['int', 'number', 'string', 'bool', 'choice'];
 // The app's lifecycle hooks, by their name in an IR, and the App method each is.
 const APP_HOOKS = { appStart: 'appStart', periodStart: 'periodStart', periodEnd: 'periodEnd', appEnd: 'end',
     participantStart: 'participantStart', participantEnd: 'participantEnd' };
-const STAGE_KEYS = ['id', 'duration', 'playerDuration', 'endOnTimeout', 'waitToStart', 'waitToEnd', 'waitForAllGroups', 'waitOnTimerEnd', 'timeoutGrace',
+const STAGE_KEYS = ['id', 'formFields', 'duration', 'playerDuration', 'endOnTimeout', 'waitToStart', 'waitToEnd', 'waitForAllGroups', 'waitOnTimerEnd', 'timeoutGrace',
     'participate', 'programs', 'screen', 'values'];
-const STAGE_PROGRAMS = ['groupStart', 'playerStart', 'groupEnd', 'playerEnd', 'allGroupsStart'];
+const STAGE_PROGRAMS = ['groupStart', 'playerStart', 'groupEnd', 'playerEnd', 'allGroupsStart', 'validate'];
 const SCREEN_KEYS = ['renderer', 'active', 'waiting', 'computed', 'methods'];
 const OPTION_TYPES = ['number', 'text', 'select'];
 
@@ -134,6 +146,16 @@ function validate(ir) {
     programs(ir.functions, 'app.functions');
     programs(ir.messages, 'app.messages');
     programs(ir.hooks, 'app.hooks', Object.keys(APP_HOOKS));
+    if (ir.fields !== undefined) {
+        if (!isObject(ir.fields)) problems.push('app.fields: should be an object');
+        else for (const [name, f] of Object.entries(ir.fields)) {
+            const where = 'app.fields["' + name + '"]';
+            if (!isObject(f)) { problems.push(where + ': should be an object'); continue; }
+            if (!FIELD_TYPES.includes(f.type)) problems.push(where + '.type: should be one of ' + FIELD_TYPES.join(', '));
+            for (const k of ['min', 'max']) if (f[k] !== undefined && typeof f[k] !== 'number') program(f[k], where + '.' + k);
+            if (f.choices !== undefined && !Array.isArray(f.choices)) program(f.choices, where + '.choices');
+        }
+    }
     screen(ir.screen, 'app.screen');
     if (!Array.isArray(ir.stages)) {
         problems.push('app.stages: should be a list');
@@ -153,6 +175,9 @@ function validate(ir) {
             for (const k of ['waitToStart', 'waitToEnd', 'waitForAllGroups', 'waitOnTimerEnd']) type(s[k], 'boolean', where + '.' + k);
             if (s.timeoutGrace !== undefined && s.timeoutGrace !== null) type(s.timeoutGrace, 'number', where + '.timeoutGrace');
             if (s.participate !== undefined) program(s.participate, where + '.participate');
+            if (s.formFields !== undefined && !(Array.isArray(s.formFields) && s.formFields.every((f) => typeof f === 'string'))) {
+                problems.push(where + '.formFields: should be a list of field names');
+            }
             programs(s.programs, where + '.programs', STAGE_PROGRAMS);
             screen(s.screen, where + '.screen');
             if (s.values !== undefined && !isObject(s.values)) problems.push(where + '.values: should be an object');
@@ -206,6 +231,16 @@ function applyIR(app, ir) {
     for (const [k, p] of Object.entries(ir.functions || {})) app[k] = compileProgram(p, app, 'functions.' + k);
     for (const [k, p] of Object.entries(ir.messages || {})) app.messages[k] = compileProgram(p, app, 'messages.' + k);
     for (const [k, p] of Object.entries(ir.hooks || {})) app[APP_HOOKS[k]] = compileProgram(p, app, 'hooks.' + k);
+    if (ir.fields !== undefined) {
+        app.fields = {};
+        for (const [name, f] of Object.entries(ir.fields)) {
+            const field = Object.assign({}, f);
+            for (const k of ['min', 'max', 'choices']) {
+                if (f[k] != null && typeof f[k] === 'object' && !Array.isArray(f[k])) field[k] = compileProgram(f[k], app, 'fields.' + name + '.' + k);
+            }
+            app.fields[name] = field;
+        }
+    }
     applyScreen(app, ir.screen || {}, app, 'screen');
     for (const s of ir.stages) {
         const stage = app.newStage(s.id);
@@ -213,6 +248,7 @@ function applyIR(app, ir) {
             if (s[k] !== undefined) stage[k] = s[k];
         }
         for (const [k, v] of Object.entries(s.values || {})) stage[k] = v;
+        if (s.formFields !== undefined) stage.formFields = s.formFields.slice();
         const where = 'stages.' + s.id;
         // A duration is seconds, or a program giving them for a group or a player.
         for (const [k, field, method] of [['duration', 'duration', 'getGroupDuration'], ['playerDuration', 'clientDuration', 'getClientDuration']]) {
@@ -235,13 +271,13 @@ function applyScreen(app, screen, target, where) {
 }
 
 // Fields of App and Stage that are jtree's own workings, not part of what an app describes.
-const APP_INTERNAL = ['id', 'shortId', 'appDir', 'appFilename', 'appPath', 'jt', 'session', 'stages', 'periods',
+const APP_INTERNAL = ['fields', 'id', 'shortId', 'appDir', 'appFilename', 'appPath', 'jt', 'session', 'stages', 'periods',
     'options', 'optionValues', 'givenOptions', 'appjs', 'messages', 'vueComputed', 'vueMethods', 'started',
     'finished', 'hasError', 'errorFile', 'errorLine', 'errorPosition', 'outputDelimiter', 'keyComparisons',
     'activeScreen', 'waitingScreen', 'renderer', 'indexInSession', 'groups'];
 const STAGE_INTERNAL = ['id', 'name', 'app', 'sourceFile', 'activeScreen', 'waitingScreen', 'renderer',
     'duration', 'clientDuration', 'waitToStart', 'waitToEnd', 'waitForAllGroups', 'waitOnTimerEnd', 'timeoutGrace',
-    'endOnTimeout', 'getGroupDuration', 'getClientDuration'];
+    'endOnTimeout', 'getGroupDuration', 'getClientDuration', 'formFields'];
 
 const js = (fn) => ({ lang: 'js', source: fn.toString() });
 const isJSON = (v) => {
@@ -293,6 +329,12 @@ function appToIR(app, fresh) {
     if (Object.keys(values).length > 0) ir.values = values;
     if (Object.keys(functions).length > 0) ir.functions = functions;
     if (Object.keys(hooks).length > 0) ir.hooks = hooks;
+    if (app.fields != null && Object.keys(app.fields).length > 0) {
+        ir.fields = {};
+        for (const [name, f] of Object.entries(app.fields)) {
+            ir.fields[name] = Object.fromEntries(Object.entries(f).map(([k, v]) => [k, Utils.isFunction(v) ? js(v) : v]));
+        }
+    }
     if (Object.keys(app.messages).length > 0) {
         ir.messages = Object.fromEntries(Object.entries(app.messages).map(([k, f]) => [k, js(f)]));
     }
@@ -311,6 +353,7 @@ function appToIR(app, fresh) {
         if (Object.prototype.hasOwnProperty.call(stage, 'getGroupDuration')) s.duration = js(stage.getGroupDuration);
         if (Object.prototype.hasOwnProperty.call(stage, 'getClientDuration')) s.playerDuration = js(stage.getClientDuration);
         if (Object.prototype.hasOwnProperty.call(stage, 'canPlayerParticipate')) s.participate = js(stage.canPlayerParticipate);
+        if (Array.isArray(stage.formFields)) s.formFields = stage.formFields.slice();
         const programs = {};
         for (const k of STAGE_PROGRAMS) {
             if (Object.prototype.hasOwnProperty.call(stage, k)) programs[k] = js(stage[k]);

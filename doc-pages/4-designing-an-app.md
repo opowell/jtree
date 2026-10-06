@@ -150,3 +150,22 @@ stage.activeScreen = `<p>RESULTS</p> ...`;
 ```
 
 `app.jtt` can still create stages itself, with `app.newStage(id)`, or add a stage file under another id with [`app.addStage(id, file)`]{@link App#addStage}; files it adds are not added again. Other files in the folder (images, `client.js`, ...) are not stages, and the whole folder is copied to the session's output.
+
+#### Checking what players enter
+The page's `min`, `max` and `required` only guide the browser. To have the server check what a form sends, declare its fields in `app.fields`, by the name the form uses:
+
+```javascript
+app.fields = {
+    'player.contribution': { type: 'int', min: 0, max: function(player) { return app.endowment; } },
+    'player.color': { type: 'choice', choices: ['red', 'blue'] },
+    'player.comment': { type: 'string', blank: true },
+};
+decideStage.formFields = ['player.contribution', 'player.color'];
+decideStage.validate = function(player, values) {
+    if (values['player.color'] === 'red' && values['player.contribution'] > 10) {
+        return 'Red allows at most 10.';
+    }
+};
+```
+
+`type` is `int`, `number`, `string`, `bool` or `choice`; `min`, `max` and `choices` can be values or functions of the player; a field must be filled in unless `blank` is `true`. [`stage.formFields`]{@link Stage#formFields} lists the fields a stage's form must send, and [`stage.validate(player, values)`]{@link Stage#validate} checks them together, returning a message (or messages by field name). If anything is wrong, nothing is stored, the stage goes on, and the page shows the messages under the fields; templates can show them too, from `formErrors`, e.g. `{{ formErrors['player.contribution'] }}`. Values are stored converted to their type: `'07'` for an `int` field is `7`, and for a `string` field stays `'07'`.

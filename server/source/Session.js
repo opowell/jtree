@@ -439,7 +439,8 @@ class Session {
         let session = msg.session;
         try {
 
-            if (!['endStage', 'endApp', 'forceEndStage'].includes(fn)) {
+            // Stage submissions are converted by forms.js, by the fields' types.
+            if (!['endStage', 'endApp', 'forceEndStage'].includes(fn) && !(obj[fn] && obj[fn].convertsOwnValues)) {
                 data = Utils.parseFloatRec(data);
             }
             

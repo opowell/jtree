@@ -71,3 +71,9 @@ button {
       background: transparent;
     }
   }
+
+/* The server's messages about a submitted form (see jt.showFormErrors). */
+.jt-form-error {
+    color: #b00020;
+    margin: 0.25em 0 0.75em;
+}

@@ -149,7 +149,28 @@ jt.submitForm = function(formEl) {
     jt.submitFormData(values);
 }
 
+/**
+ * Shows errors (messages by field name, '' for the whole form) under the fields' inputs, and
+ * at the top of the page; templates can show them too, from formErrors.
+ */
+jt.showFormErrors = function(errors) {
+    $('.jt-form-error').remove();
+    if (jt.vue != null && jt.vue.formErrors !== undefined) {
+        jt.vue.formErrors = errors;
+    }
+    for (var name in errors) {
+        var message = $('<div class="jt-form-error">').text(errors[name]);
+        var input = name === '' ? $() : $('[name="' + name + '"]').last();
+        if (input.length > 0) {
+            message.insertAfter(input);
+        } else {
+            $('#jtree').prepend(message);
+        }
+    }
+}
+
 jt.submitFormData = function(values) {
+    jt.showFormErrors({});
     var stageName = jt.data.player.stage.id;
     values.fnName = stageName;
     values.playerRoomId = jt.data.player.roomId;
@@ -262,6 +283,8 @@ jt.getVueModels = function(player) {
         hasTimeoutClient: false,
         timeElapsed: 0,
         timeElapsedClient: 0,
+        // The server's messages about the last submission, by field name ('' for the whole form).
+        formErrors: {},
     }
 
     let app = vueModel.app;
@@ -589,6 +612,13 @@ jt.defaultConnected = function() {
 
     jt.socket.on('clock-start', function(endTime) {
         jt.startClock(endTime);
+    });
+
+    // The server did not accept the form: show the page again, with what is wrong.
+    jt.socket.on('formErrors', function(d) {
+        $('#jtree').removeClass('hidden');
+        $('.popup').remove();
+        jt.showFormErrors(d.errors || {});
     });
 
     jt.socket.on('endStage', function(playerJSON) {
