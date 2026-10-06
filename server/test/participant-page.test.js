@@ -24,6 +24,6 @@ test('socket.io answers its own requests (polling, as browsers start with)', asy
     const res = await fetch(server.url + '/socket.io/?EIO=4&transport=polling');
     assert.equal(res.status, 200);
     assert.match(await res.text(), /"sid"/);
-    // The server is still up.
-    assert.equal((await fetch(server.url + '/shared/shared.js')).status, 200);
+    // The server is still up. (shared.js is made when jtree starts, and not in the repo.)
+    assert.equal((await fetch(server.url + '/shared/popups.css')).status, 200);
 });
