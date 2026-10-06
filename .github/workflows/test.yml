@@ -1,9 +1,8 @@
 name: Test
 
-# Runs the server tests (server/test/) on every push and pull request.
+# Runs the server tests (server/test/) on every push.
 on:
   push:
-  pull_request:
 
 jobs:
   test:
