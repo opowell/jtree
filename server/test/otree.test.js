@@ -262,9 +262,10 @@ function parseCSV(text) {
 test("a session with oTree apps downloads as oTree's wide CSV, and as jtree's", async () => {
     const settings = path.join(FIXTURES, 'settings.py');
     const session = await playWithBots(settings + '#trust_then_guess', 2);
-    assert.deepEqual(session.shell().exports.map(e => e.id), ['jtree', 'otree-wide']);
+    const formats = ['jtree', 'otree-wide', 'otree-page-times', 'otree-app-trust', 'otree-app-guess'];
+    assert.deepEqual(session.shell().exports.map(e => e.id), formats);
     // What admins get when they open the session.
-    assert.deepEqual(session.shellWithChildren().exports.map(e => e.id), ['jtree', 'otree-wide']);
+    assert.deepEqual(session.shellWithChildren().exports.map(e => e.id), formats);
 
     const res = await fetch(server.url + '/session-download/' + session.id + '/otree-wide');
     assert.equal(res.status, 200);
