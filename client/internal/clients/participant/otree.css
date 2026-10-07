@@ -1,0 +1,38 @@
+/* oTree apps' pages in jtree (see server/source/dialects/otree): laid out like oTree's own.
+   Only oTree apps' pages load this file, so it sets aside jtree's frame (simple.css). */
+body {
+    display: block;
+    max-width: none;
+    font-size: 1rem;
+}
+body input, body button {
+    font-size: 1rem;
+}
+#jtree {
+    min-width: 0;
+    min-height: 0;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    margin: 0;
+}
+.otree-page {
+    max-width: 970px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    text-align: left;
+}
+.otree-title {
+    margin-bottom: 1.5rem;
+}
+.otree-radio .otree-choice {
+    display: block;
+    margin: 0.25rem 0;
+}
+.otree-radio-horizontal {
+    display: flex;
+    gap: 1.5rem;
+}
+.otree-btn-next {
+    margin-top: 1rem;
+}

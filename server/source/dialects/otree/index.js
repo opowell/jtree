@@ -23,6 +23,10 @@ const runtime = require('./runtime.js');
 
 const KINDS = { int: 'int', number: 'number', currency: 'number', string: 'string', bool: 'bool' };
 
+// oTree's pages are written for Bootstrap 5. jtree moves <link>s in screens to the page's head.
+const STYLES = '<link rel="stylesheet" href="/shared/bootstrap-5.3.8/bootstrap.min.css">' +
+    '<link rel="stylesheet" href="/participant/otree.css">';
+
 /** The Python package an app's folder is loaded as. */
 function packageFor(appPath) {
     return 'otree_' + crypto.createHash('sha1').update(path.resolve(appPath)).digest('hex').substring(0, 12);
@@ -90,7 +94,8 @@ function definePage(app, page, pkg) {
         stage.wrapPlayingScreenInFormTag = 'no';
         stage.waitToStart = true;
         stage.waitToEnd = true;
-        stage.activeScreen = '<h4>' + page.title_text + '</h4><p>' + page.body_text + '</p>';
+        stage.activeScreen = STYLES + '<div class="otree-page"><h2 class="otree-title">' + page.title_text +
+            '</h2><p>' + page.body_text + '</p></div>';
         if (page.group_by_arrival_time) {
             app.groupByArrival = true;
         }
@@ -121,7 +126,7 @@ function definePage(app, page, pkg) {
     if (has('before_next_page')) {
         stage.playerEnd = (player) => call('before_next_page', player, !!player.timedOut);
     }
-    stage.activeScreen = '<div class="otree-page" v-html="player.otreeHtml"></div>';
+    stage.activeScreen = STYLES + '<div class="otree-page" v-html="player.otreeHtml"></div>';
 }
 
 module.exports = {

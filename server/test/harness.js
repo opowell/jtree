@@ -81,7 +81,7 @@ function quietly(fn) {
  * folder from makeDataDir that the test keeps and removes itself, with settings added:
  * to start jtree again on what an earlier one saved.
  */
-async function startServer({ settings = {}, withApps = false, data: givenData } = {}) {
+async function startServer({ settings = {}, withApps = false, data: givenData, port = 0 } = {}) {
     const data = givenData || makeDataDir({ settings, withApps });
     const dataDir = data.path;
     if (givenData) {
@@ -113,7 +113,8 @@ async function startServer({ settings = {}, withApps = false, data: givenData } 
         if (/\n\s+at /.test(String(text))) process.stderr.write('jtree logged: ' + text + '\n');
         return jtLog(text, forceConsole);
     };
-    await new Promise(r => httpServer.listen(0, '127.0.0.1', r));
+    // Any free port, or the one given (DEMO_PORT, for looking at jtree in a browser).
+    await new Promise(r => httpServer.listen(port, '127.0.0.1', r));
     const url = 'http://127.0.0.1:' + httpServer.address().port;
 
     const sockets = [];
@@ -309,4 +310,7 @@ function stringify(values) {
     return out;
 }
 
-module.exports = { startServer, makeDataDir, quietly, app, until, REPO, CLIENT };
+// The one address demos are served at for a browser, so that it needs allowing only once.
+const DEMO_PORT = 4310;
+
+module.exports = { DEMO_PORT, startServer, makeDataDir, quietly, app, until, REPO, CLIENT };
