@@ -52,6 +52,7 @@ class Queue {
                 queue.displayName = config.display_name || config.name;
                 queue.description = config.doc;
                 queue.dirPath = path.dirname(otreeConfig.settingsPath);
+                queue.otreeConfig = config;
             } else {
                 queue.appjs = Utils.readJS(filePath);
             }
@@ -193,6 +194,8 @@ class Queue {
             isStandaloneApp: true,
             stages:         [],
             appjs:          this.appjs,
+            // An oTree project's session config (see dialects/otree/project.js).
+            otreeConfig:    this.otreeConfig,
         };
     }
 

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>jtree admin (oTree)</title>
+    <!-- No build step: boot.js compiles src/ in the browser with vue3-sfc-loader, as admin2 does. -->
+    <script>
+      (function () {
+        var base = location.pathname.replace(/\/admin(\/.*)?$/, '')
+        var map = document.createElement('script')
+        map.type = 'importmap'
+        map.textContent = JSON.stringify({
+          imports: {
+            'vue': base + '/shared/vue-3.5.43/vue.esm-browser.prod.js',
+            'vue3-sfc-loader': base + '/shared/vue3-sfc-loader-0.9.5/vue3-sfc-loader.esm.js',
+          },
+        })
+        document.currentScript.after(map)
+      })()
+    </script>
+    <link rel="stylesheet" href="/shared/bootstrap-5.3.8/bootstrap.min.css" />
+    <script src="/socket.io/socket.io.js"></script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="boot.js"></script>
+  </body>
+</html>

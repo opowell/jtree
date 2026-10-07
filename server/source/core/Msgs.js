@@ -163,6 +163,62 @@ class Msgs {
         this.openSession(session.id, sock);
     }
 
+    /**
+     * Creates and starts a session from an oTree project's session config (the oTree admin's
+     * "Create session"): {configId (a queue id, settings.py#name), numParticipants, config
+     * (values to change in session.config), userId}. Opens it for the admin who asked.
+     */
+    otreeCreateSession(d, sock) {
+        var session = this.jt.data.createSession(d.userId);
+        session.resume();
+        this.jt.data.sessions.push(session);
+        session.addApp(d.configId);
+        if (session.otreeConfig != null && d.config != null) {
+            Object.assign(session.otreeConfig, d.config);
+            if (d.config.participation_fee != null) session.showUpFee = Number(d.config.participation_fee);
+            if (d.config.real_world_currency_per_point != null) session.exchangeRate = Number(d.config.real_world_currency_per_point);
+        }
+        var n = parseInt(d.numParticipants);
+        session.setNumParticipants(n > 0 ? n : (session.suggestedNumParticipants || 1));
+        session.save();
+        session.start();
+        this.jt.socketServer.emitToAdmins('addSession', session.shell());
+        if (sock != null) {
+            this.openSession(session.id, sock);
+        }
+        return session;
+    }
+
+    /**
+     * Sends the admin who asked where each participant of a session is (the oTree admin's
+     * monitor): {sessionId, rows: [{code, label, app, round, page, status, secondsOnPage, payoff, payment}]}.
+     */
+    otreeMonitor(sessionId, sock) {
+        var session = this.jt.data.session(sessionId);
+        if (session == null || sock == null) {
+            return;
+        }
+        var rows = Object.values(session.participants).map((p) => {
+            var player = p.player;
+            var row = { code: p.id, label: p.label || '', app: '', round: null, page: '', status: 'not started',
+                secondsOnPage: null, payoff: p.points(), payment: p.payment() };
+            if (p.isFinishedSession() && p.appIndex > 0) {
+                row.status = 'finished';
+            } else if (player != null) {
+                row.app = player.app().shortId;
+                row.round = player.group.period.id;
+                row.page = player.stage != null ? player.stage.id : '';
+                row.status = player.status;
+                var start = player.stage != null ? player['timeStart_' + player.stage.id] : null;
+                if (start != null) {
+                    row.secondsOnPage = Math.round((Date.now() - Utils.dateFromStr(start).getTime()) / 1000);
+                }
+            }
+            return row;
+        });
+        this.jt.io.to('socket_' + sock.id).emit('otreeMonitor', { sessionId: sessionId, rows: rows });
+    }
+
     createApp(appId, sock) {
         var app = this.jt.data.createApp(appId);
         if (app !== null) {
