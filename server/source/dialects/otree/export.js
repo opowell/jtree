@@ -1,3 +1,5 @@
+const Utils = require('../../Utils.js');
+
 /*
  * A session's data as oTree exports it, its "all apps, wide" CSV: one row per participant;
  * participant and session columns, then for each oTree app and round
@@ -61,4 +63,67 @@ function wideCSV(session) {
     return lines.join('\n') + '\n';
 }
 
-module.exports = { wideCSV };
+function csv(rows) {
+    return rows.map((row) => row.map(cell).join(',')).join('\n') + '\n';
+}
+
+/** One oTree app's data, as oTree exports it per app: a row per player and round. */
+function appCSV(session, app) {
+    const fields = app.otree.fields;
+    const roles = app.otree.roles || [];
+    const header = ['participant.id_in_session', 'participant.code', 'participant.label', 'participant.payoff',
+        'player.id_in_group', 'player.role', 'player.payoff']
+        .concat(Object.keys(fields.player).map((f) => 'player.' + f))
+        .concat(['group.id_in_subsession'], Object.keys(fields.group).map((f) => 'group.' + f))
+        .concat(['subsession.round_number'], Object.keys(fields.subsession).map((f) => 'subsession.' + f))
+        .concat(['session.code']);
+    const ids = Object.keys(session.participants);
+    const rows = [header];
+    app.periods.forEach((period, i) => {
+        if (period == null) return;
+        for (const group of period.groups) {
+            for (const player of group.players) {
+                const p = player.participant;
+                rows.push([ids.indexOf(p.id) + 1, p.id, p.label != null ? p.label : p.id, p.points(),
+                    player.idInGroup, roles[player.idInGroup - 1] || '', player.points || 0]
+                    .concat(Object.keys(fields.player).map((f) => player[f]))
+                    .concat([group.id], Object.keys(fields.group).map((f) => group[f]))
+                    .concat([i + 1], Object.keys(fields.subsession).map((f) => period[f]))
+                    .concat([session.id]));
+            }
+        }
+    });
+    return csv(rows);
+}
+
+/**
+ * When each participant finished each page of the session's oTree apps, as oTree's page times:
+ * from the times jtree records (player.timeEnd_<stage>).
+ */
+function pageTimesCSV(session) {
+    const rows = [['session_code', 'participant_id_in_session', 'participant_code', 'page_index', 'app_name',
+        'page_name', 'epoch_time_completed', 'round_number', 'timeout_happened', 'is_wait_page']];
+    const ids = Object.keys(session.participants);
+    for (const participant of Object.values(session.participants)) {
+        const done = [];
+        for (const app of session.apps) {
+            if (app.otree == null) continue;
+            app.periods.forEach((period, i) => {
+                const player = period == null ? null : period.playerByParticipantId(participant.id);
+                if (player == null) return;
+                app.stages.forEach((stage, s) => {
+                    const end = player['timeEnd_' + stage.id];
+                    if (end == null) return;
+                    done.push([session.id, ids.indexOf(participant.id) + 1, participant.id, null, app.shortId, stage.id,
+                        Utils.dateFromStr(end).getTime() / 1000, i + 1, !!player['timedOut_' + stage.id],
+                        stage.formFields == null]);
+                });
+            });
+        }
+        done.sort((a, b) => a[6] - b[6]);
+        done.forEach((row, i) => { row[3] = i + 1; rows.push(row); });
+    }
+    return csv(rows);
+}
+
+module.exports = { wideCSV, appCSV, pageTimesCSV, csv };

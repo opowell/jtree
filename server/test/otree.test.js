@@ -174,7 +174,7 @@ test('live pages, in oTree: liveSend reaches live_method, what it returns reache
     // To everyone (0).
     let got = [a.nextMessage('liveRecv'), b.nextMessage('liveRecv')];
     a.send('liveSend', { amount: 10 });
-    assert.deepEqual(await Promise.all(got), [{ highest: 10, by: 1 }, { highest: 10, by: 1 }]);
+    assert.deepEqual(await Promise.all(got), [{ highest: 10, by: 1, offers: 1 }, { highest: 10, by: 1, offers: 1 }]);
     assert.equal(a.player.group.highest, 10);
 
     // To the bidder only.
@@ -183,8 +183,25 @@ test('live pages, in oTree: liveSend reaches live_method, what it returns reache
     assert.deepEqual(await got, { error: 'Bid more than 10' });
     assert.deepEqual([a.player.bids, b.player.bids], [1, 1]);
 
+    got = [a.nextMessage('liveRecv'), b.nextMessage('liveRecv')];
+    b.send('liveSend', { amount: 15 });
+    assert.deepEqual((await Promise.all(got))[0], { highest: 15, by: 2, offers: 2 });
+
     [a, b].forEach(bot => bot.submit());
     await Promise.all([a, b].map(bot => bot.waitForEnd()));
+
+    // The app's ExtraModel rows, and its custom_export of them; its own CSV, and page times.
+    const ids = session.shell().exports.map(e => e.id);
+    assert.deepEqual(ids, ['jtree', 'otree-wide', 'otree-page-times', 'otree-app-live_bids', 'otree-custom-live_bids']);
+    const get = async (format) => parseCSV(await (await fetch(server.url + '/session-download/' + session.id + '/' + format)).text());
+    assert.deepEqual(await get('otree-custom-live_bids'), [
+        ['participant', 'round', 'amount', 'highest_then'], ['P1', '1', '10', '15'], ['P2', '1', '15', '15'],
+    ]);
+    const app = await get('otree-app-live_bids');
+    assert.deepEqual(app[0].slice(0, 7), ['participant.id_in_session', 'participant.code', 'participant.label', 'participant.payoff', 'player.id_in_group', 'player.role', 'player.payoff']);
+    assert.deepEqual(app.slice(1).map(r => [r[1], r[app[0].indexOf('player.bids')], r[app[0].indexOf('group.highest')]]), [['P1', '1', '15'], ['P2', '2', '15']]);
+    const times = await get('otree-page-times');
+    assert.deepEqual(times.slice(1).map(r => [r[2], r[3], r[4], r[5]]), [['P1', '1', 'live_bids', 'Bid'], ['P2', '1', 'live_bids', 'Bid']]);
 });
 
 // The apps' own bots (tests.py), run by jtree (dialects/otree/bots.js).

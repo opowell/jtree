@@ -3,6 +3,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const runtime = require('./runtime.js');
 const staticFiles = require('./static.js');
+const otreeExport = require('./export.js');
 
 /*
  * oTree apps: a folder with an __init__.py in oTree's format (one file: C, Subsession, Group,
@@ -217,6 +218,27 @@ module.exports = {
                 app.fields[model + '.' + name] = fieldFor(model, name, f, pkg);
             }
         }
+        // Downloads of this app's data: as oTree's per-app CSV, and its custom_export if it has one.
+        app.exporters = (session) => {
+            const own = session.apps.find((a) => a.otree != null && a.otree.pkg === pkg) || app;
+            const out = [{
+                id: 'otree-app-' + app.shortId,
+                name: 'oTree CSV of ' + app.shortId,
+                filename: () => app.shortId + '-' + session.id + '.csv',
+                contentType: 'text/csv',
+                write: () => otreeExport.appCSV(session, own),
+            }];
+            if (runtime.getBridge().has_custom_export(pkg)) {
+                out.push({
+                    id: 'otree-custom-' + app.shortId,
+                    name: 'Custom export of ' + app.shortId,
+                    filename: () => app.shortId + '-custom-' + session.id + '.csv',
+                    contentType: 'text/csv',
+                    write: () => otreeExport.csv(JSON.parse(runtime.getBridge().custom_export(pkg, own))),
+                });
+            }
+            return out;
+        };
         if (info.creating_session) {
             app.periodStart = (period) => runtime.getBridge().creating_session(pkg, period);
         }

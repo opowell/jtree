@@ -529,11 +529,154 @@ class WaitPage:
     template_name = None
 
 
+class _Link:
+    def __init__(self, to):
+        self.to = to
+
+
+models.Link = staticmethod(lambda to: _Link(to))
+
+
+def _session_js(obj):
+    """The jtree Session of a model or wrapper."""
+    js = obj._js
+    if isinstance(obj, Session):
+        return js
+    if isinstance(obj, Participant):
+        return js.session
+    return js.session()
+
+
+def _link_key(obj):
+    if isinstance(obj, (Participant, Session)):
+        return type(obj).__name__ + ':' + str(obj._js.id)
+    return obj._key()
+
+
 class ExtraModel:
-    """Not yet supported by jtree."""
+    """oTree's extra tables (e.g. bids or offers), linked to players, groups, ... by models.Link.
+    Rows are kept in the session (session.otreeExtra), each link as the id of what it links to."""
+
+    _fields = {}
+    _links = {}
 
     def __init_subclass__(cls, **kw):
-        raise NotImplementedError('jtree does not run ExtraModel yet')
+        super().__init_subclass__(**kw)
+        cls._fields, cls._links = {}, {}
+        for name, value in list(vars(cls).items()):
+            if isinstance(value, _Field):
+                cls._fields[name] = value
+                delattr(cls, name)
+            elif isinstance(value, _Link):
+                cls._links[name] = value
+                delattr(cls, name)
+
+    def __init__(self, row, session_js):
+        object.__setattr__(self, '_row', row)
+        object.__setattr__(self, '_session', session_js)
+
+    @classmethod
+    def _table(cls, session_js, create=False):
+        key = cls.__module__.split('.')[0] + '.' + cls.__name__
+        if js_get(session_js, 'otreeExtra') is None:
+            session_js.otreeExtra = Object.new()
+        rows = getattr(session_js.otreeExtra, key, None)
+        if rows is None or str(rows) == 'undefined':
+            rows = to_js([])
+            setattr(session_js.otreeExtra, key, rows)
+        return rows
+
+    @classmethod
+    def _session_of(cls, kw):
+        for name in cls._links:
+            if kw.get(name) is not None:
+                return _session_js(kw[name])
+        raise TypeError(f'{cls.__name__}: give one of its links ({", ".join(cls._links)})')
+
+    @classmethod
+    def create(cls, **kw):
+        session_js = cls._session_of(kw)
+        rows = cls._table(session_js)
+        row = Object.new()
+        ids = [r.id for r in rows]
+        row.id = max(ids) + 1 if ids else 1
+        for name, value in kw.items():
+            if name in cls._links:
+                setattr(row, name, _link_key(value) if value is not None else None)
+            elif name in cls._fields:
+                setattr(row, name, to_js_value(value))
+            else:
+                raise TypeError(f'{cls.__name__} has no field {name!r}')
+        rows.push(row)
+        return cls(row, session_js)
+
+    @classmethod
+    def filter(cls, **kw):
+        session_js = cls._session_of(kw)
+        out = []
+        for row in cls._table(session_js):
+            ok = True
+            for name, value in kw.items():
+                if name in cls._links:
+                    ok = js_get(row, name) == (_link_key(value) if value is not None else None)
+                elif name in cls._fields:
+                    ok = js_get(row, name) == value
+                else:
+                    raise TypeError(f'{cls.__name__} has no field {name!r}')
+                if not ok:
+                    break
+            if ok:
+                out.append(cls(row, session_js))
+        return out
+
+    @classmethod
+    def values_dicts(cls, **kw):
+        return [dict(id=r.id, **{n: getattr(r, n) for n in cls._fields}) for r in cls.filter(**kw)]
+
+    @property
+    def id(self):
+        return int(self._row.id)
+
+    def delete(self):
+        rows = type(self)._table(self._session)
+        for i in range(len(list(rows))):
+            if rows[i].id == self._row.id:
+                rows.splice(i, 1)
+                return
+
+    def __getattr__(self, name):
+        cls = type(self)
+        if name in cls._fields:
+            value = js_get(self._row, name)
+            if value is not None and cls._fields[name].kind == 'currency':
+                return Currency(value)
+            return value
+        if name in cls._links:
+            key = js_get(self._row, name)
+            if key is None:
+                return None
+            target = cls._links[name].to
+            if key.startswith('Participant:'):
+                return Participant(self._session.participants[key.split(':', 1)[1]])
+            if key.startswith('Session:'):
+                return Session(self._session)
+            return target(self._session.objectByRoomId(key))
+        raise AttributeError(f'{cls.__name__} has no field {name!r}')
+
+    def __setattr__(self, name, value):
+        cls = type(self)
+        if name in cls._links:
+            setattr(self._row, name, _link_key(value) if value is not None else None)
+        elif name in cls._fields:
+            setattr(self._row, name, to_js_value(value))
+        else:
+            raise AttributeError(f'{cls.__name__} has no field {name!r}')
+
+    def __eq__(self, other):
+        return type(self) is type(other) and self.id == other.id
+
+    def __hash__(self):
+        return hash((type(self).__name__, self.id))
 
 
 class Bot:

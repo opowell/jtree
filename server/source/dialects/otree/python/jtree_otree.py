@@ -348,3 +348,19 @@ def bot_next(handle, html=None):
         page, data, timeout = step, {}, False
     return json.dumps({'page': page.__name__, 'data': _json_value(dict(data or {})), 'timeout_happened': bool(timeout),
                        'must_fail': must_fail, 'check_html': bool(check_html)})
+
+
+# --- Exports ------------------------------------------------------------------------------
+
+def has_custom_export(pkg):
+    return callable(getattr(_apps[pkg].mod, 'custom_export', None))
+
+
+def custom_export(pkg, js_app):
+    """The rows of the app's custom_export(players), for all its players in a session (js_app:
+    the session's jtree App), as JSON."""
+    info = _apps[pkg]
+    players = [info.Player(p) for period in js_app.periods if period is not None
+               for g in period.groups for p in g.players]
+    return json.dumps([[_json_value(v) for v in row] for row in info.mod.custom_export(players)])
+

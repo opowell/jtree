@@ -1245,6 +1245,24 @@ class Session {
         
     }
 
+    /** The app, period, group or player of this session whose roomId() is id; or null. */
+    objectByRoomId(id) {
+        for (const app of this.apps) {
+            if (app.roomId() === id) return app;
+            for (const period of app.periods) {
+                if (period == null) continue;
+                if (period.roomId() === id) return period;
+                for (const group of period.groups) {
+                    if (group.roomId() === id) return group;
+                    for (const player of group.players) {
+                        if (player.roomId() === id) return player;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     /** What each participant is paid (see Participant#payment), by participant id. */
     payments() {
         const out = [];

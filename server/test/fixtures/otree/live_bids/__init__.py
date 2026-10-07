@@ -22,6 +22,19 @@ class Player(BasePlayer):
     bids = models.IntegerField(initial=0)
 
 
+class Offer(ExtraModel):
+    player = models.Link(Player)
+    group = models.Link(Group)
+    amount = models.IntegerField()
+
+
+def custom_export(players):
+    yield ['participant', 'round', 'amount', 'highest_then']
+    for p in players:
+        for offer in Offer.filter(player=p):
+            yield [p.participant.code, p.round_number, offer.amount, offer.group.highest]
+
+
 class Bid(Page):
     @staticmethod
     def js_vars(player: Player):
@@ -36,7 +49,10 @@ class Bid(Page):
             return {player.id_in_group: dict(error='Bid more than ' + str(max(group.highest, C.MIN_BID - 1)))}
         group.highest = amount
         group.highest_by = player.id_in_group
-        return {0: dict(highest=amount, by=player.id_in_group)}
+        Offer.create(player=player, group=group, amount=amount)
+        offers = Offer.filter(group=group)
+        assert [o.player for o in offers][-1] == player
+        return {0: dict(highest=amount, by=player.id_in_group, offers=len(offers))}
 
 
 page_sequence = [Bid]

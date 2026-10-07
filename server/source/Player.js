@@ -150,6 +150,9 @@ class Player {
     recordStageEndTime(stage) {
         let timeStamp = this.timeStamp();
         this['timeEnd_' + stage.id] = timeStamp;
+        if (this.timedOut) {
+            this['timedOut_' + stage.id] = true;
+        }
         if (this['timeStart_' + stage.id] == null) {
             console.log('Player ERROR, missing stage start time! Using end time.');
             this['timeStart_' + stage.id] = timeStamp;
