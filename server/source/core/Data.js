@@ -250,7 +250,11 @@ class Data {
                       isApp = true;
                       id = getIdFromDirectory(dir)
                     }
-                    if (id.endsWith('.app.json')) {
+                    if (id === '__init__.py') {
+                        // An oTree app (see dialects/otree), if it is one.
+                        isApp = dialectFor(curPath) != null;
+                        id = getIdFromDirectory(dir);
+                    } else if (id.endsWith('.app.json')) {
                         isApp = true;
                         id = id.substring(0, id.length - '.app.json'.length);
                     } else if (id.endsWith('.js')) {

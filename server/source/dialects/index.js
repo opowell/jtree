@@ -9,6 +9,7 @@
  */
 const DIALECTS = [
     require('./ir/index.js'),
+    require('./otree/index.js'),
     require('./jtree/index.js'),
 ];
 

@@ -1,0 +1,7 @@
+{{ block title }}Results{{ endblock }}
+{{ block content }}
+<p>You contributed {{ player.contribution }}. The group contributed {{ group.total_contribution }}, so each gets {{ group.individual_share }}.</p>
+<p>Your payoff: {{ player.payoff }}.</p>
+<ul>{{ for p in group.get_players }}<li>Player {{ p.id_in_group }}: {{ p.contribution }}</li>{{ endfor }}</ul>
+{{ next_button }}
+{{ endblock }}

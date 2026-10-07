@@ -591,9 +591,12 @@ class App {
         return appToIR(this, new App(null, this.jt, this.appPath));
     }
 
-    /** Whether this app is a folder: an app.jtt (or app.js), with its stages' files beside it. */
+    /**
+     * Whether this app is a folder: an app.jtt (or app.js), with its stages' files beside it;
+     * or an oTree app's __init__.py, with its templates.
+     */
     isFolderApp() {
-        return ['app.jtt', 'app.js'].includes(path.basename(this.appPath));
+        return ['app.jtt', 'app.js', '__init__.py'].includes(path.basename(this.appPath));
     }
 
     /**
@@ -602,7 +605,7 @@ class App {
      * stage's id: "1_decide.jtt" is stage "decide". Called after the app's code has run.
      */
     loadStageFiles() {
-        if (!this.isFolderApp()) {
+        if (!['app.jtt', 'app.js'].includes(path.basename(this.appPath))) {
             return;
         }
         var dir = path.resolve(path.dirname(this.appPath));

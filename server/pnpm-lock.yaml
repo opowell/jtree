@@ -23,6 +23,9 @@ importers:
       object-hash:
         specifier: ^3.0.0
         version: 3.0.0
+      pyodide:
+        specifier: 314.0.7
+        version: 314.0.7
       selfsigned:
         specifier: ^5.5.0
         version: 5.5.0
@@ -92,6 +95,9 @@ packages:
 
   '@types/cors@2.8.19':
     resolution: {integrity: sha512-mFNylyeyqN93lfe/9CSxOGREz8cpzAhH+E93xJ4xWQf62V8sQ/24reV2nyzUWM6H6Xji+GGHpkbLe7pVoUEskg==}
+
+  '@types/emscripten@1.41.6':
+    resolution: {integrity: sha512-uN+9i8bFT5CUcZfyIEYDrSueACEyKGbUs5kC/72DGlZZoinh84sJfVV0i8UOJD1asdzkvLPBRrKs41kZ8MdEXg==}
 
   '@types/node@26.6.4':
     resolution: {integrity: sha512-ldVPDCzj7fsaGZrLB0NuHuTvJcsNasysBAqMolr/cgxrLd1xbqxIr3XJiPnHHJUCxj5sNF1vnRj9aWnrVh5Jcg==}
@@ -381,6 +387,10 @@ packages:
     resolution: {integrity: sha512-BbubeCEyTuQjVMakvJQ/Sxbc93F2pwmbsxONT/ZRrwU7Ua38d8unYTwXpTVLAKJ4BDuH9IGztCjQcd/N/39Dvg==}
     engines: {node: '>=16.0.0'}
 
+  pyodide@314.0.7:
+    resolution: {integrity: sha512-0YvXxEhfEdpLfb/XkM2BFAeMROq0iMUX2bzzH9pOttyMcWkwq+HbE5uyuGD82LN7y2q+SNvi/6V5JEsOlD2R1A==}
+    engines: {node: '>=18.0.0'}
+
   qs@6.16.0:
     resolution: {integrity: sha512-h6fhOIaRrID2CbEY2fqs+7t+UXZo+MLAnU5gRIq85uFtdiUPCdsApMlHhXogKVM4HM2DVbIjGNTTYH2OcmP1vA==}
     engines: {node: '>=0.6'}
@@ -619,6 +629,8 @@ snapshots:
   '@types/cors@2.8.19':
     dependencies:
       '@types/node': 26.6.4
+
+  '@types/emscripten@1.41.6': {}
 
   '@types/node@26.6.4':
     dependencies:
@@ -941,6 +953,14 @@ snapshots:
       tslib: 2.8.1
 
   pvutils@1.2.0: {}
+
+  pyodide@314.0.7:
+    dependencies:
+      '@types/emscripten': 1.41.6
+      ws: 8.21.3
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
 
   qs@6.16.0:
     dependencies:
