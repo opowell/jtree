@@ -542,8 +542,11 @@ Since then:
 - oTree's own sample games (`test/fixtures/otree-samples`, MIT) each run in jtree, played by
   their own bots, in CI.
 
-Not checked in a browser yet: chat, rooms (admin v2's and the participant's room page), the
-oTree admin. `ExtraModel` rows persist only with the session's record.
+Checked in a browser, in the tests (`test/browser.test.js`: headless Chrome through the DevTools
+protocol, `test/browser.js`, skipped where there is no Chrome): chat between participants, a room
+page sending its participant into the session the admin opens there, the oTree admin (a session
+from a config, its links, rooms, converting an app), admin v2's rooms, a converted app played in
+browsers. `ExtraModel` rows persist only with the session's record.
 
 ### Phase 8: converters (oTree's done)
 
@@ -574,6 +577,8 @@ app is played by the oTree app's own bots in every case, which check its results
 pages, rendered by Vue in Node (`test/vue2.js`); a fixture of harder Python passes the same bots
 as oTree app and converted (`test/otree-convert.test.js`).
 
-Not yet: converting from the admin (§6's "run as is" or "convert"); converted screens checked in
-a browser; z-Tree's converter (Phase 6 first).
+The oTree admin's Apps page lists the oTree apps, each running as it is, with **Convert to
+jtree** (`otreeConvertApp`), which writes the jtree app beside it and shows the report.
+
+Not yet: z-Tree's converter (Phase 6 first).
 

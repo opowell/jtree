@@ -249,6 +249,38 @@ class Msgs {
         this.jt.io.to('socket_' + sock.id).emit('otreeReports', { sessionId: sessionId, reports: reports });
     }
 
+    /**
+     * Converts an oTree app of the catalogue to a jtree app (dialects/otree/convert.js), in a
+     * folder beside it (<app>-jtree, or -jtree-2, ...), which joins the catalogue; tells the
+     * admin who asked: otreeConverted {appPath, outPath, level, report} or {appPath, error}.
+     * Returns a promise of that.
+     */
+    otreeConvertApp(d, sock) {
+        var appPath = d != null ? d.appPath : null;
+        var app = appPath != null ? this.jt.data.apps[appPath] : null;
+        var reply = (result) => {
+            if (sock != null) this.jt.io.to('socket_' + sock.id).emit('otreeConverted', result);
+            return result;
+        };
+        if (app == null || app.otree == null) {
+            return Promise.resolve(reply({ appPath: appPath, error: 'not an oTree app of the catalogue' }));
+        }
+        var dir = path.dirname(appPath);
+        var outPath = dir + '-jtree';
+        for (var n = 2; fs.existsSync(outPath); n++) {
+            outPath = dir + '-jtree-' + n;
+        }
+        var { convertApp } = require('../dialects/otree/convert.js');
+        return convertApp(dir, outPath).then((result) => {
+            this.jt.data.reloadApps();
+            this.jt.socketServer.refreshAdmins();
+            return reply({ appPath: appPath, outPath: outPath, level: result.level, report: result.report });
+        }, (err) => {
+            fs.removeSync(outPath);
+            return reply({ appPath: appPath, error: String(err.message || err) });
+        });
+    }
+
     createApp(appId, sock) {
         var app = this.jt.data.createApp(appId);
         if (app !== null) {

@@ -4,8 +4,9 @@ import { state } from './server'
 import Sessions from './views/Sessions.vue'
 import Session from './views/Session.vue'
 import Rooms from './views/Rooms.vue'
+import Apps from './views/Apps.vue'
 
-// Views are in the address: #/sessions, #/session/<id>/<tab>, #/rooms.
+// Views are in the address: #/sessions, #/session/<id>/<tab>, #/rooms, #/apps.
 const hash = ref(location.hash)
 const onHash = () => { hash.value = location.hash }
 onMounted(() => window.addEventListener('hashchange', onHash))
@@ -23,6 +24,7 @@ const route = computed(() => {
       <div class="navbar-nav">
         <a class="nav-link" :class="{ active: route.view.startsWith('session') }" href="#/sessions">Sessions</a>
         <a class="nav-link" :class="{ active: route.view === 'rooms' }" href="#/rooms">Rooms</a>
+        <a class="nav-link" :class="{ active: route.view === 'apps' }" href="#/apps">Apps</a>
       </div>
       <span class="ms-auto small" :class="state.connected ? 'text-success' : 'text-danger'">
         {{ state.connected ? 'connected' : 'not connected' }}
@@ -32,6 +34,7 @@ const route = computed(() => {
   <main class="container mb-5">
     <Session v-if="route.view === 'session'" :id="route.id" :tab="route.tab" />
     <Rooms v-else-if="route.view === 'rooms'" />
+    <Apps v-else-if="route.view === 'apps'" />
     <Sessions v-else />
   </main>
 </template>

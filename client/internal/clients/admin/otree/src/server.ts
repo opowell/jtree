@@ -26,6 +26,14 @@ export interface MonitorRow {
   payment: number
 }
 
+export interface Conversion {
+  appPath: string
+  outPath?: string
+  level?: string
+  report?: { part: string, status: 'converted' | 'todo', note: string, line: number | null }[]
+  error?: string
+}
+
 export const state = reactive({
   connected: false,
   configs: [] as SessionConfig[],
@@ -36,6 +44,10 @@ export const state = reactive({
   monitor: [] as MonitorRow[],
   /** The open session's admin reports (its oTree apps' admin_report.html), by app and round. */
   reports: [] as { app: string, round: number, html: string }[],
+  /** The catalogue's oTree apps (folders with an __init__.py or models.py). */
+  apps: [] as { appPath: string, name: string, title: string, description: string }[],
+  /** Conversions to jtree apps asked for here, by the oTree app's path: pending (null) or done. */
+  conversions: {} as Record<string, Conversion | null>,
 })
 
 const params = new URLSearchParams(location.search)
@@ -78,6 +90,15 @@ socket.on('refreshAdmin', (ag: any) => {
   state.configs = Object.values(ag.apps ?? {})
     .filter((a: any) => a.isQueue && a.otreeConfig)
     .map((a: any) => ({ id: a.id, name: a.otreeConfig.name, displayName: a.title, doc: a.description ?? '', config: a.otreeConfig }))
+  state.apps = Object.values(ag.apps ?? {})
+    .filter((a: any) => !a.isQueue && /[\\/](__init__|models)\.py$/.test(a.appPath ?? ''))
+    .map((a: any) => ({
+      appPath: a.appPath,
+      name: a.appPath.split(/[\\/]/).slice(-2, -1)[0],
+      title: a.title ?? '',
+      description: a.description ?? '',
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name))
   state.sessions = (ag.sessions ?? []).slice().reverse()
   state.rooms = ag.rooms ?? []
 })
@@ -88,6 +109,14 @@ socket.on('openSession', (session: any) => { state.session = session })
 socket.on('otreeReports', (d: { sessionId: string, reports: { app: string, round: number, html: string }[] }) => {
   if (state.session?.id === d.sessionId) state.reports = d.reports
 })
+socket.on('otreeConverted', (d: Conversion) => { state.conversions[d.appPath] = d })
+
+/** Converts an oTree app to a jtree app, beside it (see Msgs#otreeConvertApp). */
+export function convertApp(appPath: string) {
+  state.conversions[appPath] = null
+  emit('otreeConvertApp', { appPath })
+}
+
 socket.on('otreeMonitor', (d: { sessionId: string, rows: MonitorRow[] }) => {
   if (state.session?.id === d.sessionId) state.monitor = d.rows
 })
