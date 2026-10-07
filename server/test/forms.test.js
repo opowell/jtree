@@ -79,3 +79,20 @@ test('a blank field that may be blank is stored as null', () => {
     assert.deepEqual(checkField({ type: 'number' }, ' 2.5 ', {}), { value: 2.5 });
     assert.deepEqual(checkField({ type: 'choice', choices: [[1, 'One'], [2, 'Two']] }, '2', {}), { value: 2 });
 });
+
+test("when a player's time is up, what they submit is taken without the form's checks", async () => {
+    const session = server.createSession(server.writeApp('form-timeout.jtt', `
+        app.fields = { 'player.a': { type: 'int', max: 10 }, 'player.b': { type: 'int' } };
+        const s = app.newStage('s');
+        s.clientDuration = 0.5;
+        s.formFields = ['player.a', 'player.b'];
+        app.newStage('next');
+    `), { numParticipants: 1 });
+    const [bot] = await server.connectAll(session);
+    session.start();
+    await bot.waitForStage('s');
+    // b is missing: refused while there is time; taken, as far as it goes, when it is up.
+    bot.fill({ 'player.a': '3' });
+    await bot.waitForStage('next', { timeout: 3000 });
+    assert.deepEqual([bot.players()[0].a, bot.players()[0].b], [3, undefined]);
+});

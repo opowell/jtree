@@ -516,7 +516,9 @@ class App {
                 delete fields.fnName;
                 delete fields.playerRoomId;
                 var checked = checkForm(client.player().stage, client.player(), fields);
-                if (checked.errors !== null) {
+                // Once a player's time is up, what they submit is taken as it is: the values
+                // that pass, and nothing for the others (as oTree does on a timeout).
+                if (checked.errors !== null && !client.player().timedOut) {
                     client.socket.emit('formErrors', { stageId: data.fnName, errors: checked.errors });
                     return false;
                 }

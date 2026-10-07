@@ -56,3 +56,81 @@ test('public goods, in oTree: pages rendered, contributions checked, payoffs set
     bots.forEach(b => b.submit());
     await Promise.all(bots.map(b => b.waitForEnd()));
 });
+
+test('trust, in oTree: roles, group fields with a dynamic max, pages by role, rounds', async () => {
+    const session = server.createSession(otreeApp('trust'), { numParticipants: 2 });
+    const [trustor, trustee] = await server.connectAll(session);
+    session.start();
+
+    const round = async (n, sent, back) => {
+        await trustor.waitForStage('Send', { period: n });
+        assert.match(trustor.player.otreeHtml, /How much do you send\?/);
+        trustor.submit({ 'group.sent_amount': sent });
+        await trustee.waitForStage('SendBack', { period: n });
+        assert.match(trustee.player.otreeHtml, new RegExp('You are the Trustee. You received ' + sent * 3 + '\\.'));
+        if (n === 1) {
+            trustee.submit({ 'group.sent_back_amount': sent * 3 + 1 });
+            assert.deepEqual(await trustee.waitForFormErrors(), { 'group.sent_back_amount': 'Please enter a value of at most ' + sent * 3 + '.' });
+            trustee.form = {};
+        }
+        trustee.submit({ 'group.sent_back_amount': back });
+        await Promise.all([trustor, trustee].map(b => b.waitForStage('Results', { period: n })));
+    };
+
+    await round(1, 4, 5);
+    assert.equal(trustor.player.points, 11);
+    assert.equal(trustee.player.points, 7);
+    assert.match(trustor.player.otreeHtml, /You sent 4\./);
+    assert.match(trustee.player.otreeHtml, /You sent back 5\./);
+    [trustor, trustee].forEach(b => b.submit());
+
+    await round(2, 10, 0);
+    assert.match(trustor.player.otreeHtml, /Payoff: 0; in all rounds so far: 11\./);
+    assert.match(trustee.player.otreeHtml, /Payoff: 30; in all rounds so far: 37\./);
+    [trustor, trustee].forEach(b => b.submit());
+    await Promise.all([trustor, trustee].map(b => b.waitForEnd()));
+    assert.deepEqual(session.payments().map(p => p.points), [11, 37]);
+});
+
+test('guess, in oTree: creating_session, vars, a timeout, error messages, a wait for all groups, a survey', async () => {
+    const session = server.createSession(otreeApp('guess'), { numParticipants: 3 });
+    const bots = await server.connectAll(session);
+    const [p1, p2, p3] = bots;
+    session.start();
+
+    // Round 1: P1 reads the intro; for P2 and P3 its 1 second runs out.
+    await Promise.all(bots.map(b => b.waitForStage('Intro')));
+    p1.submit();
+    await Promise.all(bots.map(b => b.waitForStage('Guess', { period: 1, timeout: 4000 })));
+    assert.deepEqual(bots.map(b => b.player.intro_timed_out), [false, true, true]);
+    assert.deepEqual(bots.map(b => b.player.treatment), ['high', 'low', 'high']);
+    assert.equal(session.vars.created, 1);
+
+    p1.submit({ 'player.guess': 50 });
+    assert.deepEqual(await p1.waitForFormErrors(), { 'player.guess': 'Not 50, please.' });
+    p1.form = {};
+    // Average 40, two thirds 26.7: 20 is closest.
+    [[p1, 20], [p2, 40], [p3, 60]].forEach(([b, g]) => b.submit({ 'player.guess': g }));
+    await Promise.all(bots.map(b => b.waitForStage('Guess', { period: 2 })));
+    assert.deepEqual(bots.map(b => b.players()[0].points), [10, 0, 0]);
+
+    // Round 2: no intro; everyone guesses 30, and all win.
+    bots.forEach(b => b.submit({ 'player.guess': 30 }));
+    await Promise.all(bots.map(b => b.waitForStage('Survey')));
+    const html = p1.player.otreeHtml;
+    assert.match(html, /Treatment: high\. Two thirds of the average was 20\.0\./);
+    assert.match(html, /<input type="radio" name="player\.likes" value="y"> Yes/);
+    assert.match(html, /<label class="form-label">Happy\?<\/label>/);
+    assert.match(html, /<textarea name="player\.comment"/);
+
+    const answers = { 'player.age': 30, 'player.likes': 'y', 'player.happy': 'true', 'player.comment': '' };
+    p1.submit({ ...answers, 'player.likes': 'n' });
+    assert.deepEqual(await p1.waitForFormErrors(), { '': 'You said you did not like it but are happy?' });
+    p2.submit({ ...answers, 'player.age': 12 });
+    assert.deepEqual(await p2.waitForFormErrors(), { 'player.age': 'Please enter a value of at least 13.' });
+    bots.forEach(b => { b.form = {}; b.submit(answers); });
+    await Promise.all(bots.map(b => b.waitForEnd()));
+    assert.deepEqual(session.payments().map(p => p.points), [20, 10, 10]);
+    const survey = p1.players()[1];
+    assert.deepEqual([survey.age, survey.likes, survey.happy, survey.comment], [30, 'y', true, null]);
+});

@@ -805,8 +805,8 @@ class Group {
         if (stage.waitOnTimerEnd) {
             for (var p in this.players) {
                 var player = this.players[p];
-                    // If player is in an earlier stage, wait.
-                    if (player.stage.indexInApp() < stage.indexInApp()) {
+                    // If player has not started the period yet, or is in an earlier stage, wait.
+                    if (player.stage == null || player.stage.indexInApp() < stage.indexInApp()) {
                         waitingForPlayers = true;
                     } else if (player.stage.indexInApp() > stage.indexInApp()) {
                         // If player is past this stage, proceed.

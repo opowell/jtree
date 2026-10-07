@@ -1,0 +1,9 @@
+{{ block title }}Survey{{ endblock }}
+{{ block content }}
+<p>Treatment: {{ player.treatment }}. Two thirds of the average was {{ subsession.two_thirds|to1 }}.</p>
+{{ formfield 'age' }}
+{{ formfield player.likes }}
+{{ formfield 'happy' label="Happy?" }}
+{{ formfield 'comment' }}
+{{ next_button }}
+{{ endblock }}

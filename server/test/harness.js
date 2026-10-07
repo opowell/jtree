@@ -106,6 +106,13 @@ async function startServer({ settings = {}, withApps = false, data: givenData } 
         throw err;
     }
     handle = jt.staticServer.expApp;
+    // jtree logs errors in processing messages to its log file only; show them, so a test that
+    // fails because of one says why.
+    const jtLog = jt.log;
+    jt.log = function(text, forceConsole) {
+        if (/\n\s+at /.test(String(text))) process.stderr.write('jtree logged: ' + text + '\n');
+        return jtLog(text, forceConsole);
+    };
     await new Promise(r => httpServer.listen(0, '127.0.0.1', r));
     const url = 'http://127.0.0.1:' + httpServer.address().port;
 

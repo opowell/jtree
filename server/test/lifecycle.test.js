@@ -85,3 +85,29 @@ test('an error in groupEnd or playerEnd is logged, and the session goes on', asy
     await Promise.all(bots.map(b => b.play('s2', {})));
     await Promise.all(bots.map(b => b.waitForEnd()));
 });
+
+test('players skip stages they do not play, also the first stage of a period', async () => {
+    const session = server.createSession(server.writeApp('skips.jtt', `
+        app.numPeriods = 2;
+        app.stageWaitToStart = false;
+        app.stageWaitToEnd = false;
+        const intro = app.newStage('intro');
+        intro.canPlayerParticipate = function(player) { return player.group.period.id === 1; };
+        app.newStage('guess');
+        const all = app.newStage('all');
+        all.waitToStart = true;
+        all.waitToEnd = true;
+        all.playerStart = function(player) { player.session().pushMessage(player, true, 'endStage'); };
+        const last = app.newStage('last');
+        last.canPlayerParticipate = function(player) { return player.group.period.id === 2; };
+    `), { numParticipants: 3 });
+    const bots = await server.connectAll(session);
+    session.start();
+    await Promise.all(bots.map(b => b.play('intro', {})));
+    await Promise.all(bots.map(b => b.play('guess', {}, { period: 1 })));
+    // all ends by itself, last is not played in period 1, nor intro in period 2.
+    await Promise.all(bots.map(b => b.play('guess', {}, { period: 2 })));
+    await Promise.all(bots.map(b => b.play('last', {}, { period: 2 })));
+    await Promise.all(bots.map(b => b.waitForEnd()));
+});
+

@@ -1,0 +1,6 @@
+{{ block title }}Round {{ player.round_number }}{{ endblock }}
+{{ block content }}
+<p>{{ if player.role == C.TRUSTOR_ROLE }}You sent {{ group.sent_amount }}.{{ else }}You sent back {{ group.sent_back_amount }}.{{ endif }}</p>
+<p>Payoff: {{ player.payoff }}; in all rounds so far: {{ earned }}.</p>
+{{ next_button }}
+{{ endblock }}
