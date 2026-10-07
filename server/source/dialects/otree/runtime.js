@@ -83,6 +83,12 @@ function putApp(pkg, dir) {
         py.runPython(`import shutil; shutil.rmtree(${JSON.stringify(target)})`);
     }
     copyDir(dir, target, (name) => name.endsWith('.py') || name.endsWith('.html'));
+    // Apps in oTree's older format import Page, WaitPage and Bot from ._builtin, which oTree
+    // generated in each app; an app without one gets this.
+    if (fs.existsSync(path.join(dir, 'models.py')) && !fs.existsSync(path.join(dir, '_builtin'))) {
+        py.FS.mkdirTree(target + '/_builtin');
+        py.FS.writeFile(target + '/_builtin/__init__.py', 'from otree.api import Page, WaitPage, Bot\n');
+    }
     // The project's templates (e.g. _templates/global/Page.html), if the app is in a project.
     const projectTemplates = path.join(path.dirname(dir), '_templates');
     if (fs.existsSync(projectTemplates)) {

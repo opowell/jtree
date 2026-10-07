@@ -7,7 +7,8 @@ const otreeExport = require('./export.js');
 
 /*
  * oTree apps: a folder with an __init__.py in oTree's format (one file: C, Subsession, Group,
- * Player, functions and pages), and its pages' templates. Its Python runs in Pyodide
+ * Player, functions and pages), or in its older format (models.py and pages.py, methods with
+ * self, Django templates in templates/<app>/), and its pages' templates. Its Python runs in Pyodide
  * (runtime.js), with jtree's otree.api (python/otree/api.py), whose models stand for jtree's
  * objects. See plans/ztree-otree-dialects.md, section 4.
  *
@@ -175,7 +176,8 @@ module.exports = {
     name: 'otree',
 
     detect(appPath) {
-        if (path.basename(appPath) !== '__init__.py') return false;
+        // An app's __init__.py, or the models.py of an app in oTree's older format.
+        if (!['__init__.py', 'models.py'].includes(path.basename(appPath))) return false;
         try {
             return /\bfrom\s+otree\.api\s+import\b|\bimport\s+otree\.api\b/.test(fs.readFileSync(appPath, 'utf8'));
         } catch (err) {

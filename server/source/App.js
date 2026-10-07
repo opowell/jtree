@@ -626,10 +626,10 @@ class App {
 
     /**
      * Whether this app is a folder: an app.jtt (or app.js), with its stages' files beside it;
-     * or an oTree app's __init__.py, with its templates.
+     * or an oTree app's __init__.py (or models.py), with its templates.
      */
     isFolderApp() {
-        return ['app.jtt', 'app.js', '__init__.py'].includes(path.basename(this.appPath));
+        return ['app.jtt', 'app.js', '__init__.py', 'models.py'].includes(path.basename(this.appPath));
     }
 
     /**

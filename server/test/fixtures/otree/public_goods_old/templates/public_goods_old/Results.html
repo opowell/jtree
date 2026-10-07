@@ -1,0 +1,10 @@
+{% extends "global/Page.html" %}
+{% load otree %}
+
+{% block title %}Results{% endblock %}
+
+{% block content %}
+    <p>You contributed {{ player.contribution }}; each gets {{ group.individual_share|c }}.</p>
+    {% for p in group.get_players %}<span>{{ p.id_in_group }}</span>{% endfor %}
+    {% next_button %}
+{% endblock %}

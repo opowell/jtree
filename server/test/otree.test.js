@@ -324,3 +324,27 @@ test("chat, in oTree ({{ chat }}): the group's players join, say things, and see
     assert.deepEqual((await history).messages.map(m => m.body), ['Cooperate?']);
     assert.deepEqual(Object.keys(session.otreeChats), [channel]);
 });
+
+test("oTree's older format: models.py, pages.py, methods with self, Django templates; its bots", async () => {
+    const appPath = path.join(FIXTURES, 'public_goods_old', 'models.py');
+    const app = server.jt.data.loadApp('x', {}, appPath, {});
+    assert.ok(app && !app.hasError, app && app.hasError ? 'error at line ' + app.errorLine : 'not loaded');
+    assert.deepEqual([app.numPeriods, app.groupSize, app.shortId], [2, 3, 'public_goods_old']);
+    assert.deepEqual(app.stages.map(s => s.id), ['Contribute', 'ResultsWaitPage', 'Results']);
+
+    const session = server.createSession(appPath, { numParticipants: 3 });
+    const [first] = await server.connectAll(session);
+    session.start();
+    await first.waitForStage('Contribute');
+    assert.match(first.player.otreeHtml, /<h2 class="otree-title">Contribute<\/h2>/);
+    assert.match(first.player.otreeHtml, /Round 1: you have 100, and are first\./);
+    assert.match(first.player.otreeHtml, /<label class="form-label">Your contribution<\/label><input type="number" step="any" name="player\.contribution" min="0" max="100"/);
+    first.submit({ 'player.contribution': 99 });
+    assert.deepEqual(await first.waitForFormErrors(), { '': 'Player 1 may not give 99.' });
+
+    await runBots(session);
+    const participant = session.participants.P1;
+    assert.deepEqual([participant.vars.old_format, participant.vars.saw_results], [true, true]);
+    // Each round: 60 contributed, doubled, shared by 3; 100 - 10, 20 and 30, plus 40.
+    assert.deepEqual(session.payments().map(p => p.points), [260, 240, 220]);
+});

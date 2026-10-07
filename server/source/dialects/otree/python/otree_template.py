@@ -16,7 +16,8 @@ import html
 import json
 import re
 
-TOKEN = re.compile(r'(\{\{.*?\}\}|\{#.*?#\})', re.S)
+# Tags are {{ ... }}, or {% ... %} in the older format's (Django's) syntax; {# ... #} are comments.
+TOKEN = re.compile(r'(\{\{.*?\}\}|\{%.*?%\}|\{#.*?#\})', re.S)
 
 
 class TemplateError(Exception):
@@ -393,14 +394,21 @@ def parse_tree(text):
     """parse(), with if-branches holding their children."""
     root = Node('root')
     stack = [root]
+    in_comment = False
     for token in TOKEN.split(text):
         if not token or token.startswith('{#'):
             continue
         top = stack[-1]
-        if not token.startswith('{{'):
-            _append(top, Node('text', token))
+        if not (token.startswith('{{') or token.startswith('{%')):
+            if not in_comment:
+                _append(top, Node('text', token))
             continue
         inner = token[2:-2].strip()
+        if inner in ('comment', 'endcomment') or inner.startswith('comment '):
+            in_comment = inner != 'endcomment'
+            continue
+        if in_comment:
+            continue
         word, _, rest = inner.partition(' ')
         rest = rest.strip()
         if word == 'if':

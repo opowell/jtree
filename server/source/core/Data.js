@@ -251,8 +251,8 @@ class Data {
                       isApp = true;
                       id = getIdFromDirectory(dir)
                     }
-                    if (id === '__init__.py') {
-                        // An oTree app (see dialects/otree), if it is one.
+                    if (id === '__init__.py' || id === 'models.py') {
+                        // An oTree app (see dialects/otree), if it is one; models.py in its older format.
                         isApp = dialectFor(curPath) != null;
                         id = getIdFromDirectory(dir);
                     } else if (id.endsWith('.app.json')) {

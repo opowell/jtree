@@ -1,0 +1,10 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}Contribute{% endblock %}
+
+{% block content %}
+    <p>{{ round_text }}: you have {{ Constants.endowment }}, and are {{ player.role }}.</p>
+    {% formfield player.contribution label="Your contribution" %}
+    {% next_button %}
+{% endblock %}

@@ -20,22 +20,98 @@ _apps = {}
 
 
 class AppInfo:
-    """A loaded app: its module, model classes and pages. Models reach it as cls._app."""
+    """A loaded app: its modules, model classes and pages, in oTree's format (one __init__.py,
+    no self) or its older one (models.py and pages.py, methods with self). Models reach it as
+    cls._app."""
 
     def __init__(self, pkg, mod):
         self.pkg = pkg
-        self.mod = mod
-        self.Player = mod.Player
-        self.Group = mod.Group
-        self.Subsession = mod.Subsession
-        self.C = getattr(mod, 'C', None)
+        self.old = _has_module(pkg, 'models')
+        if self.old:
+            self.mod = importlib.import_module(pkg + '.models')
+            pages = importlib.import_module(pkg + '.pages')
+        else:
+            self.mod = mod
+            pages = mod
+        self.Player = self.mod.Player
+        self.Group = self.mod.Group
+        self.Subsession = self.mod.Subsession
+        self.C = getattr(self.mod, 'C', None) or getattr(self.mod, 'Constants', None)
         self.roles = [v for k, v in vars(self.C).items() if k.endswith('_ROLE')] if self.C else []
         for cls in (self.Player, self.Group, self.Subsession):
             cls._app = self
-        self.pages = {p.__name__: p for p in getattr(mod, 'page_sequence', [])}
+        self.page_sequence = list(getattr(pages, 'page_sequence', []))
+        self.pages = {p.__name__: p for p in self.page_sequence}
 
     def model(self, kind, js):
         return {'player': self.Player, 'group': self.Group, 'subsession': self.Subsession}[kind](js)
+
+    def const(self, name, default=None):
+        """A constant, as C.NAME (or the older Constants.name)."""
+        if self.C is None:
+            return default
+        return getattr(self.C, name, getattr(self.C, name.lower(), default))
+
+    def callback(self, obj, field, cb):
+        """The field's <field>_<cb> (min, max, choices, error_message) for obj: a function of the
+        model, or (older format) the model's method; None if it has none."""
+        if self.old:
+            return getattr(obj, field + '_' + cb, None) if callable(getattr(type(obj), field + '_' + cb, None)) else None
+        fn = getattr(self.mod, field + '_' + cb, None)
+        return (lambda *args: fn(obj, *args)) if callable(fn) else None
+
+    def has_callback(self, cls, field, cb):
+        return callable(getattr(cls if self.old else self.mod, field + '_' + cb, None))
+
+    def page_call(self, page, method, player, *args, timeout_happened=False):
+        """page.method for player: method(player, *args); older pages' methods see self.player etc."""
+        fn = getattr(page, method)
+        if not self.old:
+            return fn(player, *args)
+        instance = page()
+        _fill_view(instance, player, timeout_happened)
+        return getattr(instance, method)(*args)
+
+    def after_all_players_arrive(self, page, obj):
+        fn = page.after_all_players_arrive
+        if isinstance(fn, str):
+            return getattr(obj, fn)() if self.old else getattr(self.mod, fn)(obj)
+        if not self.old:
+            return fn(obj)
+        instance = page()
+        instance.group = obj if isinstance(obj, api.BaseGroup) else None
+        instance.subsession = obj if isinstance(obj, api.BaseSubsession) else obj.subsession
+        instance.session = instance.subsession.session
+        instance.round_number = instance.subsession.round_number
+        return instance.after_all_players_arrive()
+
+    def has_creating_session(self):
+        if self.old:
+            return callable(getattr(self.Subsession, 'creating_session', None))
+        return callable(getattr(self.mod, 'creating_session', None))
+
+    def creating_session(self, subsession):
+        return subsession.creating_session() if self.old else self.mod.creating_session(subsession)
+
+    def form_model(self, page):
+        model = page.form_model or 'player'
+        return model if isinstance(model, str) else model.__name__.lower()
+
+
+def _fill_view(instance, player, timeout_happened=False):
+    """What an older page's methods use: self.player, self.group, ..."""
+    instance.player = player
+    instance.group = player.group
+    instance.subsession = player.subsession
+    instance.participant = player.participant
+    instance.session = player.session
+    instance.round_number = player.round_number
+    instance.timeout_happened = timeout_happened
+
+
+def _has_module(pkg, name):
+    import os
+    return os.path.isfile('/apps/' + pkg + '/' + name + '.py')
 
 
 def _json_value(value):
@@ -63,20 +139,21 @@ def load(pkg):
 
 def describe(info):
     mod, C = info.mod, info.C
-    constants = {k: _json_value(v) for k, v in vars(C).items() if k.isupper()} if C else {}
+    constants = {k: _json_value(v) for k, v in vars(C).items() if not k.startswith('_')} if C else {}
     fields = {}
     for kind, cls in (('player', info.Player), ('group', info.Group), ('subsession', info.Subsession)):
         fields[kind] = {}
         for name, schema in cls._schema().items():
-            schema['callbacks'] = [cb for cb in FIELD_CALLBACKS if callable(getattr(mod, name + '_' + cb, None))]
+            schema['callbacks'] = [cb for cb in FIELD_CALLBACKS if info.has_callback(cls, name, cb)]
             fields[kind][name] = schema
     pages = []
-    for page in getattr(mod, 'page_sequence', []):
+    for page in info.page_sequence:
         is_wait = issubclass(page, api.WaitPage)
         p = {
             'name': page.__name__,
             'kind': 'wait' if is_wait else 'page',
-            'methods': [m for m in PAGE_METHODS if callable(getattr(page, m, None))],
+            'methods': [m for m in PAGE_METHODS if callable(getattr(page, m, None)) or
+                        (m == 'live_method' and isinstance(getattr(page, m, None), str))],
         }
         if is_wait:
             p.update(wait_for_all_groups=bool(page.wait_for_all_groups),
@@ -84,19 +161,20 @@ def describe(info):
                      after_all_players_arrive=page.after_all_players_arrive is not None,
                      title_text=str(page.title_text), body_text=str(page.body_text))
         else:
-            p.update(form_model=page.form_model, form_fields=list(page.form_fields or []),
+            p.update(form_model=info.form_model(page), form_fields=list(page.form_fields or []),
                      timeout_seconds=page.timeout_seconds)
         pages.append(p)
     return {
-        'name': getattr(C, 'NAME_IN_URL', None) if C else None,
+        'name': info.const('NAME_IN_URL'),
         'constants': constants,
-        'num_rounds': getattr(C, 'NUM_ROUNDS', 1) if C else 1,
-        'players_per_group': getattr(C, 'PLAYERS_PER_GROUP', None) if C else None,
+        'num_rounds': info.const('NUM_ROUNDS', 1),
+        'players_per_group': info.const('PLAYERS_PER_GROUP'),
         'roles': info.roles,
         'fields': fields,
         'pages': pages,
-        'creating_session': callable(getattr(mod, 'creating_session', None)),
-        'doc': (mod.__doc__ or '').strip(),
+        'creating_session': info.has_creating_session(),
+        'doc': (getattr(mod, 'doc', None) or mod.__doc__ or '').strip(),
+        'format': 'older' if info.old else 'no-self',
     }
 
 
@@ -106,29 +184,32 @@ def _js(value):
 
 def creating_session(pkg, js_period):
     info = _apps[pkg]
-    info.mod.creating_session(info.Subsession(js_period))
+    info.creating_session(info.Subsession(js_period))
 
 
 def after_all_players_arrive(pkg, page_name, js_obj, level):
     """A wait page's after_all_players_arrive, for a group (level 'group') or for all of them ('subsession')."""
     info = _apps[pkg]
-    fn = info.pages[page_name].after_all_players_arrive
-    if isinstance(fn, str):
-        fn = getattr(info.mod, fn)
-    fn(info.model(level, js_obj))
+    info.after_all_players_arrive(info.pages[page_name], info.model(level, js_obj))
 
 
 def call_page(pkg, page_name, method, js_player, *args):
-    """page.method(player, *args); the result as a JS value."""
+    """page.method(player, *args); the result as a JS value. For before_next_page, the first of
+    args is timeout_happened (older pages see it as self.timeout_happened)."""
     info = _apps[pkg]
-    return _js(getattr(info.pages[page_name], method)(info.Player(js_player), *args))
+    player = info.Player(js_player)
+    if method == 'before_next_page':
+        timeout = bool(args[0]) if args else False
+        return _js(info.page_call(info.pages[page_name], method, player, *([] if info.old else [timeout]),
+                                  timeout_happened=timeout))
+    return _js(info.page_call(info.pages[page_name], method, player, *args))
 
 
 def field_callback(pkg, model, field, callback, js_player):
     """The app's <field>_<callback>(player) (min, max or choices); for a group field, of the player's group."""
     info = _apps[pkg]
     obj = info.Player(js_player) if model == 'player' else info.Group(js_player.group)
-    return _js(getattr(info.mod, field + '_' + callback)(obj))
+    return _js(info.callback(obj, field, callback)())
 
 
 def validate(pkg, page_name, js_player, js_values):
@@ -141,17 +222,17 @@ def validate(pkg, page_name, js_player, js_values):
     values = {}
     for full, value in js_values.to_py().items():
         values[full.split('.', 1)[1]] = value
-    model = page.form_model or 'player'
+    model = info.form_model(page)
     obj = player if model == 'player' else player.group
     errors = {}
     for name, value in values.items():
-        fn = getattr(info.mod, name + '_error_message', None)
-        if callable(fn):
-            message = fn(obj, value)
+        fn = info.callback(obj, name, 'error_message')
+        if fn is not None:
+            message = fn(value)
             if message:
                 errors[model + '.' + name] = str(message)
     if not errors and callable(getattr(page, 'error_message', None)):
-        result = page.error_message(player, values)
+        result = info.page_call(page, 'error_message', player, values)
         if isinstance(result, dict):
             errors.update({model + '.' + k: str(v) for k, v in result.items() if v})
         elif result:
@@ -166,7 +247,7 @@ def _read(pkg, name):
     project's _templates; or None."""
     import os
     base = '/apps/' + pkg
-    paths = [os.path.join(base, name)]
+    paths = [os.path.join(base, name), os.path.join(base, 'templates', name)]
     if os.path.isdir(base + '/templates'):
         paths += [os.path.join(base, 'templates', d, name) for d in os.listdir(base + '/templates')]
     paths.append(os.path.join(base, '_project_templates', name))
@@ -179,10 +260,10 @@ def _read(pkg, name):
 
 def _form(info, page, player):
     """The page's form fields, as the template renderer describes them."""
-    model = page.form_model or 'player'
+    model = info.form_model(page)
     obj = player if model == 'player' else player.group
     cls = type(obj)
-    names = page.get_form_fields(player) if callable(getattr(page, 'get_form_fields', None)) else (page.form_fields or [])
+    names = info.page_call(page, 'get_form_fields', player) if callable(getattr(page, 'get_form_fields', None)) else (page.form_fields or [])
     out = []
     for name in names:
         field = cls._fields[name]
@@ -191,12 +272,14 @@ def _form(info, page, player):
              'label': opts.get('label'), 'widget': opts.get('widget'), 'long': opts.get('long', False),
              'choices': opts.get('choices'), 'min': opts.get('min'), 'max': opts.get('max')}
         for cb in ('choices', 'min', 'max'):
-            fn = getattr(info.mod, name + '_' + cb, None)
-            if callable(fn):
-                f[cb] = fn(obj)
+            fn = info.callback(obj, name, cb)
+            if fn is not None:
+                f[cb] = fn()
         for k in ('min', 'max'):
             if f[k] is not None:
-                f[k] = _json_value(f[k])
+                value = _json_value(f[k])
+                # 100, not 100.0 (a currency's float), in the page's input.
+                f[k] = int(value) if isinstance(value, float) and value.is_integer() else value
         out.append(f)
     return out
 
@@ -208,9 +291,9 @@ def render(pkg, page_name, js_player, static_url='/static/'):
     page = info.pages[page_name]
     player = info.Player(js_player)
     context = {'player': player, 'group': player.group, 'subsession': player.subsession,
-               'participant': player.participant, 'session': player.session, 'C': info.C}
+               'participant': player.participant, 'session': player.session, 'C': info.C, 'Constants': info.C}
     if callable(getattr(page, 'vars_for_template', None)):
-        context.update(page.vars_for_template(player) or {})
+        context.update(info.page_call(page, 'vars_for_template', player) or {})
     text = _read(pkg, page.template_name or page_name + '.html')
     if text is None:
         text = '{{ block title }}' + page_name + '{{ endblock }}{{ block content }}{{ formfields }}{{ next_button }}{{ endblock }}'
@@ -233,7 +316,8 @@ def render(pkg, page_name, js_player, static_url='/static/'):
 
 def _timer(page, player):
     """oTree's countdown for a page with a timeout; otree.js counts it down."""
-    seconds = page.get_timeout_seconds(player) if callable(getattr(page, 'get_timeout_seconds', None)) else page.timeout_seconds
+    info = player._app
+    seconds = info.page_call(page, 'get_timeout_seconds', player) if callable(getattr(page, 'get_timeout_seconds', None)) else page.timeout_seconds
     if not seconds:
         return ''
     text = page.timer_text or 'Time left to complete this page:'
@@ -268,10 +352,13 @@ def live(pkg, page_name, js_player, js_data):
     (0 for the whole group), or None."""
     info = _apps[pkg]
     fn = info.pages[page_name].live_method
-    if isinstance(fn, str):
-        fn = getattr(info.mod, fn)
+    player = info.Player(js_player)
     data = js_data.to_py() if hasattr(js_data, 'to_py') else js_data
-    result = fn(info.Player(js_player), data)
+    if isinstance(fn, str):
+        # A function of the module, or (older format) the player's method.
+        result = getattr(player, fn)(data) if info.old else getattr(info.mod, fn)(player, data)
+    else:
+        result = fn(player, data)
     if result is None:
         return None
     if not isinstance(result, dict):
@@ -285,7 +372,7 @@ def js_vars(pkg, page_name, js_player):
     page = info.pages[page_name]
     if not callable(getattr(page, 'js_vars', None)):
         return None
-    return _js(page.js_vars(info.Player(js_player)) or {})
+    return _js(info.page_call(page, 'js_vars', info.Player(js_player)) or {})
 
 
 # --- Bots (tests.py) ----------------------------------------------------------------------
