@@ -34,6 +34,8 @@ export const state = reactive({
   /** The session open in this admin: what the server sends for it (participants, apps, exports, ...). */
   session: null as any,
   monitor: [] as MonitorRow[],
+  /** The open session's admin reports (its oTree apps' admin_report.html), by app and round. */
+  reports: [] as { app: string, round: number, html: string }[],
 })
 
 const params = new URLSearchParams(location.search)
@@ -83,6 +85,9 @@ socket.on('addSession', () => refresh())
 socket.on('deleteSession', () => refresh())
 socket.on('roomOpenSession', () => refresh())
 socket.on('openSession', (session: any) => { state.session = session })
+socket.on('otreeReports', (d: { sessionId: string, reports: { app: string, round: number, html: string }[] }) => {
+  if (state.session?.id === d.sessionId) state.reports = d.reports
+})
 socket.on('otreeMonitor', (d: { sessionId: string, rows: MonitorRow[] }) => {
   if (state.session?.id === d.sessionId) state.monitor = d.rows
 })

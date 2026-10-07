@@ -219,6 +219,36 @@ class Msgs {
         this.jt.io.to('socket_' + sock.id).emit('otreeMonitor', { sessionId: sessionId, rows: rows });
     }
 
+    /**
+     * Sends the admin who asked the admin reports of a session's oTree apps (their
+     * admin_report.html): {sessionId, reports: [{app, round, html}]}, for the rounds started.
+     */
+    otreeReports(sessionId, sock) {
+        var session = this.jt.data.session(sessionId);
+        if (session == null || sock == null) {
+            return;
+        }
+        var reports = [];
+        var bridge = require('../dialects/otree/runtime.js');
+        var otreeStatic = require('../dialects/otree/static.js');
+        for (var app of session.apps) {
+            if (app.otree == null || !bridge.getBridge().has_admin_report(app.otree.pkg)) {
+                continue;
+            }
+            app.periods.forEach((period) => {
+                if (period == null) return;
+                var html;
+                try {
+                    html = bridge.getBridge().admin_report(app.otree.pkg, period, otreeStatic.urlFor(this.jt.basePath, app.otree.pkg));
+                } catch (err) {
+                    html = '<div class="alert alert-danger">The report could not be shown: ' + Utils.escapeHTML(String(err.message).trim().split('\n').pop()) + '</div>';
+                }
+                reports.push({ app: app.shortId, round: period.id, html: html });
+            });
+        }
+        this.jt.io.to('socket_' + sock.id).emit('otreeReports', { sessionId: sessionId, reports: reports });
+    }
+
     createApp(appId, sock) {
         var app = this.jt.data.createApp(appId);
         if (app !== null) {

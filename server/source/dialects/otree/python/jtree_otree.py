@@ -462,3 +462,28 @@ def custom_export(pkg, js_app):
                for g in period.groups for p in g.players]
     return json.dumps([[_json_value(v) for v in row] for row in info.mod.custom_export(players)])
 
+
+# --- Admin reports ------------------------------------------------------------------------
+
+def has_admin_report(pkg):
+    """Whether the app has an admin report: an admin_report.html template."""
+    return _read(pkg, 'admin_report.html') is not None
+
+
+def admin_report(pkg, js_period, static_url='/static/'):
+    """The app's admin report for a round (js_period: a jtree Period): admin_report.html, with
+    subsession, session, C and what vars_for_admin_report(subsession) gives."""
+    info = _apps[pkg]
+    subsession = info.Subsession(js_period)
+    context = {'subsession': subsession, 'session': subsession.session, 'C': info.C, 'Constants': info.C}
+    if info.old:
+        fn = getattr(subsession, 'vars_for_admin_report', None)
+        if callable(fn):
+            context.update(fn() or {})
+    else:
+        fn = getattr(info.mod, 'vars_for_admin_report', None)
+        if callable(fn):
+            context.update(fn(subsession) or {})
+    renderer = otree_template.Renderer(lambda name: _read(pkg, name), [], static_url)
+    return renderer.render_plain(_read(pkg, 'admin_report.html'), context)
+

@@ -38,6 +38,11 @@ def creating_session(subsession: Subsession):
         p.treatment = p.participant.vars['treatment']
 
 
+def vars_for_admin_report(subsession: Subsession):
+    guesses = [p.guess for p in subsession.get_players() if p.guess is not None]
+    return dict(guesses=sorted(guesses))
+
+
 def guess_error_message(player: Player, value):
     if value == 50:
         return 'Not 50, please.'

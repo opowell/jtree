@@ -3,7 +3,7 @@ import { computed, onUnmounted, ref, watch } from 'vue'
 import { downloadUrl, emit, openSession, participantUrl, state } from '../server'
 
 const props = defineProps<{ id: string, tab: string }>()
-const TABS = [['links', 'Links'], ['monitor', 'Monitor'], ['data', 'Data'], ['payments', 'Payments'], ['description', 'Description']]
+const TABS = [['links', 'Links'], ['monitor', 'Monitor'], ['data', 'Data'], ['reports', 'Reports'], ['payments', 'Payments'], ['description', 'Description']]
 
 const session = computed(() => (state.session?.id === props.id ? state.session : null))
 const participants = computed(() => Object.values(session.value?.participants ?? {}) as any[])
@@ -21,6 +21,7 @@ watch(() => props.tab, (tab) => {
     timer = setInterval(() => emit('otreeMonitor', props.id), 2000)
   }
   if (tab === 'data') loadData()
+  if (tab === 'reports') emit('otreeReports', props.id)
 }, { immediate: true })
 onUnmounted(() => { if (timer) clearInterval(timer) })
 
@@ -116,6 +117,15 @@ function seconds(s: number | null): string {
         <tbody><tr v-for="(row, r) in data.slice(1)" :key="r"><td v-for="(c, i) in row" :key="i">{{ c }}</td></tr></tbody>
       </table>
     </div>
+  </template>
+
+  <template v-else-if="tab === 'reports'">
+    <button type="button" class="btn btn-sm btn-outline-secondary mb-3" @click="emit('otreeReports', id)">Refresh</button>
+    <p v-if="!state.reports.length" class="text-body-secondary">No reports: an app's admin_report.html has one for each round.</p>
+    <section v-for="r in state.reports" :key="r.app + r.round" class="mb-4">
+      <h2 class="h5">{{ r.app }}, round {{ r.round }}</h2>
+      <div v-html="r.html"></div>
+    </section>
   </template>
 
   <template v-else-if="tab === 'payments'">

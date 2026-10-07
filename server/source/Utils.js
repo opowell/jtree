@@ -191,6 +191,11 @@ class Utils {
     * @param  {type} obj The object to check.
     * @return {boolean}     true if the object is a function, false otherwise.
     */
+    /** text, safe to put in HTML. */
+    static escapeHTML(text) {
+        return String(text).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+    }
+
     static isFunction(obj) {
         return typeof obj == 'function';
     }

@@ -66,3 +66,15 @@ test("admins get an oTree project's session configs, and create a session from o
     // 2 + points * 0.5 each.
     assert.deepEqual(rows.map(r => r.payment), rows.map(r => 2 + r.payoff * 0.5));
 });
+
+test("an app's admin report (admin_report.html, vars_for_admin_report), for each round", async () => {
+    const session = server.createSession(path.join(__dirname, 'fixtures/otree/guess/__init__.py'), { numParticipants: 3 });
+    session.start();
+    await runBots(session);
+    const got = next('otreeReports');
+    admin.emit('otreeReports', session.id);
+    const { reports } = await got;
+    assert.deepEqual(reports.map(r => [r.app, r.round]), [['guess', 1], ['guess', 2]]);
+    assert.match(reports[0].html, /Round 1: two thirds of the average was 20\.0\./);
+    assert.match(reports[0].html, /<span class="guess">30<\/span><span class="guess">30<\/span><span class="guess">30<\/span>/);
+});
