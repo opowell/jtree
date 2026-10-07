@@ -31,7 +31,7 @@
 
     // Runs the scripts of a page that has just been rendered, once.
     function runScripts() {
-        var page = document.querySelector('.otree-page');
+        var page = document.querySelector('.otree-content');
         if (page == null || jt.data == null || jt.data.player == null) {
             return;
         }
@@ -79,6 +79,25 @@
         // The page may have been rendered before this hooked in.
         setTimeout(runScripts, 0);
     }
+
+    // A clicked button with a name submits its value, as on oTree's pages
+    // (<button name="cooperate" value="True">): put them in the form before it is submitted.
+    document.addEventListener('click', function(event) {
+        var button = event.target.closest ? event.target.closest('.otree-content button[name]') : null;
+        if (button == null || button.form == null) {
+            return;
+        }
+        var old = button.form.querySelectorAll('input[data-otree-button]');
+        for (var i = 0; i < old.length; i++) {
+            old[i].parentNode.removeChild(old[i]);
+        }
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = button.name;
+        input.value = button.value;
+        input.setAttribute('data-otree-button', '');
+        button.form.appendChild(input);
+    }, true);
 
     // jtree's own scripts set jt.postUpdatePlayer as they load: hook in after them.
     window.addEventListener('load', hook);

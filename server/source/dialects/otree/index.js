@@ -122,8 +122,18 @@ function definePage(app, page, pkg) {
     if (has('get_timeout_seconds')) stage.getClientDuration = (player) => call('get_timeout_seconds', player) || 0;
     stage.validate = (player, values) => runtime.getBridge().validate(pkg, page.name, player, values) || undefined;
     stage.playerStart = (player) => {
-        player.otreeHtml = runtime.getBridge().render(pkg, page.name, player);
-        player.otreeJsVars = has('js_vars') ? runtime.getBridge().js_vars(pkg, page.name, player) : null;
+        try {
+            player.otreeHtml = runtime.getBridge().render(pkg, page.name, player);
+            player.otreeJsVars = has('js_vars') ? runtime.getBridge().js_vars(pkg, page.name, player) : null;
+            player.otreeError = undefined;
+        } catch (err) {
+            // Show that the page failed, rather than the page before it.
+            const message = String(err.message || err).trim().split('\n').pop();
+            player.otreeError = String(err.message || err);
+            player.otreeHtml = '<div class="alert alert-danger">This page could not be shown: ' +
+                message.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]) + '</div>';
+            console.log('Error showing page ' + page.name + ' to ' + player.roomId() + ': ' + err.message);
+        }
     };
     if (has('live_method')) {
         stage.otreeLive = true;
@@ -131,7 +141,8 @@ function definePage(app, page, pkg) {
     if (has('before_next_page')) {
         stage.playerEnd = (player) => call('before_next_page', player, !!player.timedOut);
     }
-    stage.activeScreen = STYLES + '<div class="otree-page" v-html="player.otreeHtml"></div>';
+    // Only in the current stage's screen: jtree's page holds every stage's (see App#stageContentStart).
+    stage.activeScreen = STYLES + '<div class="otree-page otree-content" v-if="stage.id == \'' + page.name + '\'" v-html="player.otreeHtml"></div>';
 }
 
 module.exports = {
@@ -167,7 +178,7 @@ module.exports = {
             throw err;
         }
         app.otree = { pkg, constants: info.constants, roles: info.roles, fields: info.fields };
-        app.playerFieldsNotInOutput = ['otreeHtml', 'otreeJsVars'];
+        app.playerFieldsNotInOutput = ['otreeHtml', 'otreeJsVars', 'otreeError'];
         app.shortId = info.name || path.basename(dir);
         app.title = info.name || path.basename(dir);
         if (info.doc) app.description = info.doc;

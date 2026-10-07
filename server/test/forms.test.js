@@ -96,3 +96,10 @@ test("when a player's time is up, what they submit is taken without the form's c
     await bot.waitForStage('next', { timeout: 3000 });
     assert.deepEqual([bot.players()[0].a, bot.players()[0].b], [3, undefined]);
 });
+
+test('yes/no choices take True and False as oTree pages write them', () => {
+    const field = { type: 'choice', choices: [[true, 'Cooperate'], [false, 'Defect']] };
+    assert.deepEqual(checkField(field, 'True', {}), { value: true });
+    assert.deepEqual(checkField(field, 'False', {}), { value: false });
+    assert.deepEqual(checkField({ type: 'bool' }, 'True', {}), { value: true });
+});

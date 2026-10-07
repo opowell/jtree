@@ -196,6 +196,21 @@ class _Model:
         else:
             raise AttributeError(f'{cls.__name__} has no field {name!r}')
 
+    def field_display(self, name):
+        """The field's value as shown: its choice's label, Yes or No, or the value."""
+        field = type(self)._fields[name]
+        value = getattr(self, name)
+        choices = field.opts.get('choices')
+        fn = getattr(self._app.mod, name + '_choices', None) if self._app is not None else None
+        if callable(fn):
+            choices = fn(self)
+        for choice in choices or []:
+            if isinstance(choice, (list, tuple)) and choice[0] == value:
+                return choice[1]
+        if field.kind == 'bool' and value is not None:
+            return 'Yes' if value else 'No'
+        return value
+
     def _key(self):
         return str(self._js.roomId())
 
@@ -531,6 +546,7 @@ class Submission:
     def __init__(self, page_class, post_data=None, check_html=True, timeout_happened=False):
         self.page_class = page_class
         self.post_data = post_data or {}
+        self.check_html = check_html
         self.timeout_happened = timeout_happened
 
 
@@ -552,9 +568,11 @@ def expect(*args):
         assert args[0] == args[1], f'expected {args[1]!r}, got {args[0]!r}'
     elif len(args) == 3:
         a, op, b = args
-        ops = {'==': a == b, '!=': a != b, '<': a < b, '>': a > b, '<=': a <= b, '>=': a >= b,
-               'in': a in b, 'not in': a not in b}
-        assert ops[op], f'expected {a!r} {op} {b!r}'
+        ops = {'==': lambda: a == b, '!=': lambda: a != b, '<': lambda: a < b, '>': lambda: a > b,
+               '<=': lambda: a <= b, '>=': lambda: a >= b, 'in': lambda: a in b, 'not in': lambda: a not in b}
+        if op not in ops:
+            raise ValueError(f'expect: unknown comparison {op!r}')
+        assert ops[op](), f'expected {a!r} {op} {b!r}'
 
 
 __all__ = ['Currency', 'cu', 'c', 'models', 'widgets', 'BaseConstants', 'BaseSubsession', 'BaseGroup',

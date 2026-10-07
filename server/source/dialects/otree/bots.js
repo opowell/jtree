@@ -19,16 +19,19 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 async function runBots(session, { timeout = 60000, caseIndex = 0 } = {}) {
     const bridge = runtime.getBridge();
     const bots = new Map(); // participant id -> {round, handle, done}
+    // Participants whose bots have played every page, up to the session's last, which they stay on.
+    const finished = new Set();
     const end = Date.now() + timeout;
     for (;;) {
         const participants = Object.values(session.participants);
-        if (participants.every((p) => p.isFinishedSession())) {
+        if (participants.every((p) => p.isFinishedSession() || finished.has(p.id))) {
             return;
         }
         if (Date.now() > end) {
             throw new Error('bots did not finish in ' + timeout + ' ms');
         }
         for (const participant of participants) {
+            if (finished.has(participant.id)) continue;
             const player = participant.player;
             if (player == null || player.status !== 'playing') continue;
             const app = player.app();
@@ -48,10 +51,17 @@ async function runBots(session, { timeout = 60000, caseIndex = 0 } = {}) {
             }
             const at = round + '/' + stage.id;
             if (bot.done === at) continue; // submitted; the server has yet to move them on
-            const next = bridge.bot_next(bot.handle);
+            if (player.otreeError) {
+                throw new Error(participant.id + ': page ' + stage.id + ' could not be shown: ' + player.otreeError);
+            }
+            const next = bridge.bot_next(bot.handle, player.otreeHtml || '');
             const step = next == null ? null : JSON.parse(next);
             const where = participant.id + ', round ' + player.group.period.id + ' of ' + app.shortId;
             if (step == null) {
+                if (isSessionsLastPage(session, player)) {
+                    finished.add(participant.id);
+                    continue;
+                }
                 throw new Error(where + ': the bot has finished its round, but the player is on ' + stage.id);
             }
             if (step.page !== stage.id) {
@@ -60,7 +70,13 @@ async function runBots(session, { timeout = 60000, caseIndex = 0 } = {}) {
             const values = {};
             for (const [name, value] of Object.entries(step.data)) {
                 const full = stage.formFields.find((f) => f.endsWith('.' + name)) || 'player.' + name;
-                values[full] = value === true ? 'true' : value === false ? 'false' : String(value);
+                // As oTree's bots do (unless check_html=False): what they fill in is on the page.
+                const html = String(player.otreeHtml);
+                if (step.check_html && !step.timeout_happened && !html.includes('name="' + full + '"') && !html.includes('name="' + name + '"')) {
+                    throw new Error(where + ': the bot fills in ' + name + ', which page ' + stage.id + ' does not have');
+                }
+                // As a browser sends oTree's pages' values (True and False as Python writes them).
+                values[full] = value === true ? 'True' : value === false ? 'False' : String(value);
             }
             if (step.timeout_happened) {
                 player.timedOut = true;
@@ -80,6 +96,14 @@ async function runBots(session, { timeout = 60000, caseIndex = 0 } = {}) {
         }
         await sleep(5);
     }
+}
+
+/** Whether player is on the last page of the session: its last app's last round and stage. */
+function isSessionsLastPage(session, player) {
+    const app = player.app();
+    return app === session.apps[session.apps.length - 1] &&
+        player.group.period.id === app.numPeriods &&
+        player.stage === app.stages[app.stages.length - 1];
 }
 
 module.exports = { runBots };

@@ -30,6 +30,14 @@ const MESSAGES = {
     max: (max) => 'Please enter a value of at most ' + max + '.',
 };
 
+/** true or false for text that says yes or no ('true', 'True', '1', 'yes', 'on', ...); else undefined. */
+function boolValue(text) {
+    const t = text.toLowerCase();
+    if (['true', '1', 'yes', 'on'].includes(t)) return true;
+    if (['false', '0', 'no', 'off'].includes(t)) return false;
+    return undefined;
+}
+
 /** value, or what it gives for player if it is a function. */
 const valueFor = (value, player) => (typeof value === 'function' ? value(player) : value);
 
@@ -64,14 +72,14 @@ function checkField(field, raw, player) {
             if (!Number.isFinite(value)) return { error: MESSAGES.number };
             break;
         case 'bool':
-            if (['true', '1', 'yes', 'on'].includes(text.toLowerCase())) value = true;
-            else if (['false', '0', 'no', 'off'].includes(text.toLowerCase())) value = false;
-            else return { error: MESSAGES.bool };
+            value = boolValue(text);
+            if (value === undefined) return { error: MESSAGES.bool };
             break;
         case 'choice': {
             const choices = valueFor(field.choices, player) || [];
             const values = choices.map((c) => (Array.isArray(c) ? c[0] : c));
-            const match = values.find((v) => String(v) === text);
+            // Yes/no choices: 'True' (as oTree's pages write it), 'true', '1', ...
+            const match = values.find((v) => String(v) === text || (typeof v === 'boolean' && boolValue(text) === v));
             if (match === undefined) return { error: MESSAGES.choice };
             value = match;
             break;

@@ -308,20 +308,26 @@ def bot_start(pkg, js_player, case_index):
     return handle
 
 
-def bot_next(handle):
-    """The bot's next step, as JSON: {page, data, timeout_happened}; or None when it has done its round."""
+def bot_next(handle, html=None):
+    """The bot's next step, as JSON: {page, data, timeout_happened, must_fail}; or None when it
+    has done its round. html: the page its player is on now, for the bot's checks (self.html)."""
     steps = _bots[handle]
+    bot = getattr(steps, 'gi_frame', None) and steps.gi_frame.f_locals.get('self')
+    if bot is not None:
+        bot.html = html or ''
     try:
         step = next(steps)
     except StopIteration:
         del _bots[handle]
         return None
     must_fail = False
+    check_html = True
     if isinstance(step, api.Submission):
         page, data, timeout, must_fail = step.page_class, step.post_data, step.timeout_happened, step.must_fail
+        check_html = step.check_html
     elif isinstance(step, (tuple, list)):
         page, data, timeout = step[0], (step[1] if len(step) > 1 else {}), False
     else:
         page, data, timeout = step, {}, False
     return json.dumps({'page': page.__name__, 'data': _json_value(dict(data or {})), 'timeout_happened': bool(timeout),
-                       'must_fail': must_fail})
+                       'must_fail': must_fail, 'check_html': bool(check_html)})

@@ -543,13 +543,26 @@ class App {
 
     /**
      * player submits the form of the stage they are playing: values by field name ('player.x',
-     * 'group.x', 'participant.x', 'period.x' or 'app.x'), as the page sends them. They are
+     * 'group.x', 'participant.x', 'period.x' or 'app.x', or just 'x' for one of the stage's
+     * formFields), as the page sends them. They are
      * checked and converted (see forms.js) and stored, and the stage ends for the player.
      * Once a player's time is up, what they submit is taken as it is: the values that pass, and
      * nothing for the others (as oTree does on a timeout).
      * @return {Object|null} If the form is refused, the messages by field name; else null.
      */
     submitStage(player, values) {
+        // An input named as the field alone ('x', as oTree's pages write them): the one form
+        // field of the stage that it names.
+        var formFields = player.stage.formFields || [];
+        for (var key of Object.keys(values)) {
+            if (!key.includes('.')) {
+                var matches = formFields.filter((f) => f.endsWith('.' + key));
+                if (matches.length === 1 && !(matches[0] in values)) {
+                    values[matches[0]] = values[key];
+                    delete values[key];
+                }
+            }
+        }
         var checked = checkForm(player.stage, player, values);
         if (checked.errors !== null && !player.timedOut) {
             return checked.errors;
