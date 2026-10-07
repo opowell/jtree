@@ -1,0 +1,10 @@
+{{ block title }}Round {{ subsession.round_number }}{{ endblock }}
+{{ block content }}
+{{ if history }}<p>Before: {{ for a in history }}{{ forloop.counter }}:{{ a }};{{ endfor }}</p>{{ endif }}
+<p>Others: {{ others|length }}</p>
+{{ formfield 'amount' label="Your amount" }}
+{{ formfield 'color' }}
+{{ formfield 'agree' }}
+{{ formfield 'note' }}
+{{ next_button }}
+{{ endblock }}

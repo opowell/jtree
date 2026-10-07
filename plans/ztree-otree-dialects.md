@@ -533,8 +533,47 @@ jtree's objects.
 - Tests: four oTree apps of my own (public goods, trust, guessing with a survey, live bids),
   their bots, a project; checked in a browser.
 
-Not yet: `ExtraModel`, chat, the older `models.py`/`pages.py` format, a project's
-`_templates`/`_static`, `app_after_this_page`, rooms, oTree's admin (§4.4), per-app CSVs and
-page times, converting oTree apps to `.jtt` (Phase 8). Not tested against oTree's own sample
-games yet: they need downloading (oTree's PyPI package).
+Since then:
+- `ExtraModel` (rows kept with the session; `custom_export`), chat (`{{ chat }}`, channels and
+  nicknames), the older `models.py`/`pages.py` format with Django templates, a project's
+  `_templates`/`_static`, `app_after_this_page`, rooms (a project's `ROOMS`), oTree's admin at
+  `/admin/otree/` (sessions, links, monitor, data, reports with `admin_report.html`, payments),
+  per-app CSVs, page times.
+- oTree's own sample games (`test/fixtures/otree-samples`, MIT) each run in jtree, played by
+  their own bots, in CI.
+
+Not checked in a browser yet: chat, rooms (admin v2's and the participant's room page), the
+oTree admin. `ExtraModel` rows persist only with the session's record.
+
+### Phase 8: converters (oTree's done)
+
+`dialects/otree/convert.js` (`node server/source/dialects/otree/convert.js <app> [<out>]`)
+converts an oTree app in its current format to a jtree folder app:
+- `app.jtt`: settings, `C` as constants, fields as `app.fields` (min, max, choices, blank,
+  initial, `<field>_min/_max/_choices` as functions), `creating_session` as `periodStart`, the
+  app's functions translated from Python, and each page as a stage: `is_displayed` as
+  `canPlayerParticipate`, `vars_for_template` in `playerStart`, `before_next_page` as
+  `playerEnd`, `error_message` and `<field>_error_message` as `validate`, timeouts; wait pages
+  with `after_all_players_arrive` as `groupStart` (or `allGroupsStart`).
+- `pages/<Page>.html`: each template as a Vue screen (blocks, extends, include, if/elif/else,
+  for with `forloop`, filters, formfields with their widgets, tags in attributes); its data is
+  `player.page`, worked out when the player starts the page, with oTree's names.
+- `otree.cjs` (`convert-runtime.js`): what the translated code calls for oTree's API and
+  Python's built-ins (Python's rounding, sorting by tuples, truthiness of lists, ...).
+- `CONVERSION.md`: converted, or a TODO for each thing that is not (in the code, a comment
+  with the Python and a `throw`).
+- `{{ static }}` files are put in the pages as `data:` URLs.
+
+The translator (`python/otree_convert.py`) works on Python's syntax tree: arithmetic,
+comparisons (chained), if/for/while, comprehensions, dict/tuple keys, f-strings, lambdas,
+built-ins, `random`, `math`, and the models' API. Not converted: chat, live pages, `js_vars`,
+`ExtraModel`, `custom_export`, admin reports, the older format (which runs as is).
+
+Tested: all 14 oTree samples convert with no TODOs (prisoner's chat aside), and each converted
+app is played by the oTree app's own bots in every case, which check its results and its
+pages, rendered by Vue in Node (`test/vue2.js`); a fixture of harder Python passes the same bots
+as oTree app and converted (`test/otree-convert.test.js`).
+
+Not yet: converting from the admin (§6's "run as is" or "convert"); converted screens checked in
+a browser; z-Tree's converter (Phase 6 first).
 

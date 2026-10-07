@@ -282,12 +282,14 @@ class Renderer:
             names, expr = node.arg
             names = [n.strip() for n in names.split(',')]
             out = []
-            for item in evaluate(expr, ctx) or []:
+            items = list(evaluate(expr, ctx) or [])
+            for i, item in enumerate(items):
                 inner = dict(ctx)
                 if len(names) == 1:
                     inner[names[0]] = item
                 else:
                     inner.update(zip(names, item))
+                inner['forloop'] = {'counter': i + 1, 'counter0': i, 'first': i == 0, 'last': i == len(items) - 1}
                 out.append(self._render_nodes(node.children, inner, blocks))
             return ''.join(out)
         if k == 'block':

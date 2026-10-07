@@ -173,6 +173,7 @@ function definePage(app, page, pkg) {
 }
 
 module.exports = {
+    packageFor,
     name: 'otree',
 
     detect(appPath) {

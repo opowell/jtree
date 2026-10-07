@@ -401,6 +401,12 @@ def has_bots(pkg):
     return hasattr(tests, 'PlayerBot')
 
 
+def bot_case_count(pkg):
+    """How many cases the app's PlayerBot has (1 if it has none)."""
+    cases = getattr(importlib.import_module(pkg + '.tests').PlayerBot, 'cases', None)
+    return len(cases) if cases else 1
+
+
 def bot_start(pkg, js_player, case_index):
     """Starts the app's PlayerBot for a player's round; returns its handle."""
     info = _apps[pkg]

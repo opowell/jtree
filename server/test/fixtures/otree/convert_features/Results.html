@@ -1,0 +1,10 @@
+{{ block title }}Results{{ endblock }}
+{{ block content }}
+<p>Your payoff: {{ player.payoff|to2 }}</p>
+<p>You chose {{ color_label }}; extra {{ player.extra }}; half {{ player.half }}.</p>
+<p>{{ if player.payoff > 15 }}Rich{{ elif player.payoff > 10 }}Fine{{ else }}Poor{{ endif }}</p>
+<p>Ranking {{ group.ranking }}; {{ group.summary }}</p>
+<table>{{ for p in group.get_players }}<tr><td>{{ p.id_in_group }}</td><td>{{ p.amount }}</td></tr>{{ endfor }}</table>
+<p title="{{ player.role }} player">Lucky {{ lucky }}</p>
+{{ next_button }}
+{{ endblock }}

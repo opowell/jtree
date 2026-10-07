@@ -15,8 +15,14 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
  * @param {Object} [opts]
  * @param {number} [opts.timeout=60000] ms to finish in.
  * @param {number} [opts.caseIndex=0] Which of a PlayerBot's cases to play.
+ * @param {function(App): ?string} [opts.botsFor] The Python package whose bots play an app: by
+ * default the app's own, for an oTree app. (A jtree app converted from an oTree app is played by
+ * the oTree app's bots.)
+ * @param {function(Player): string} [opts.htmlFor] The page a player is on, as the bots see it
+ * (self.html): by default what the oTree app rendered.
  */
-async function runBots(session, { timeout = 60000, caseIndex = 0 } = {}) {
+async function runBots(session, { timeout = 60000, caseIndex = 0, botsFor = (app) => (app.otree == null ? null : app.otree.pkg),
+    htmlFor = (player) => player.otreeHtml || '' } = {}) {
     const bridge = runtime.getBridge();
     const bots = new Map(); // participant id -> {round, handle, done}
     // Participants whose bots have played every page, up to the session's last, which they stay on.
@@ -36,17 +42,18 @@ async function runBots(session, { timeout = 60000, caseIndex = 0 } = {}) {
             if (player == null || player.status !== 'playing') continue;
             const app = player.app();
             const stage = player.stage;
-            if (app.otree == null) {
+            const pkg = botsFor(app);
+            if (pkg == null) {
                 throw new Error(participant.id + ' is in ' + app.shortId + ', which has no bots (not an oTree app)');
             }
             if (stage.playerStart == null || stage.formFields == null) continue; // a wait page, ending by itself
             let bot = bots.get(participant.id);
             const round = player.roomId();
             if (bot == null || bot.round !== round) {
-                if (!bridge.has_bots(app.otree.pkg)) {
+                if (!bridge.has_bots(pkg)) {
                     throw new Error(app.shortId + ' has no bots (a tests.py with a PlayerBot)');
                 }
-                bot = { round, handle: bridge.bot_start(app.otree.pkg, player, caseIndex), done: null };
+                bot = { round, handle: bridge.bot_start(pkg, player, caseIndex), done: null };
                 bots.set(participant.id, bot);
             }
             const at = round + '/' + stage.id;
@@ -54,7 +61,8 @@ async function runBots(session, { timeout = 60000, caseIndex = 0 } = {}) {
             if (player.otreeError) {
                 throw new Error(participant.id + ': page ' + stage.id + ' could not be shown: ' + player.otreeError);
             }
-            const next = bridge.bot_next(bot.handle, player.otreeHtml || '');
+            const html = String(htmlFor(player));
+            const next = bridge.bot_next(bot.handle, html);
             const step = next == null ? null : JSON.parse(next);
             const where = participant.id + ', round ' + player.group.period.id + ' of ' + app.shortId;
             if (step == null) {
@@ -71,7 +79,6 @@ async function runBots(session, { timeout = 60000, caseIndex = 0 } = {}) {
             for (const [name, value] of Object.entries(step.data)) {
                 const full = stage.formFields.find((f) => f.endsWith('.' + name)) || 'player.' + name;
                 // As oTree's bots do (unless check_html=False): what they fill in is on the page.
-                const html = String(player.otreeHtml);
                 if (step.check_html && !step.timeout_happened && !html.includes('name="' + full + '"') && !html.includes('name="' + name + '"')) {
                     throw new Error(where + ': the bot fills in ' + name + ', which page ' + stage.id + ' does not have');
                 }
@@ -106,4 +113,9 @@ function isSessionsLastPage(session, player) {
         player.stage === app.stages[app.stages.length - 1];
 }
 
-module.exports = { runBots };
+/** How many cases the bots of package pkg have (their PlayerBot's cases; 1 if none). */
+function botCases(pkg) {
+    return runtime.getBridge().bot_case_count(pkg);
+}
+
+module.exports = { runBots, botCases };
