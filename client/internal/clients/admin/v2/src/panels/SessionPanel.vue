@@ -91,6 +91,14 @@ function checked(event: Event): boolean {
         <button v-else type="button" class="btn" @click="server.resume()">Resume</button>
         <button type="button" class="btn" :disabled="!session.started" @click="server.advanceSlowest()">Advance slowest</button>
         <a class="btn" :href="downloadOutputUrl(session.id)" target="_blank" rel="noopener">Download output</a>
+        <a
+          v-for="format in (session.exports || []).filter((e) => e.id !== 'jtree')"
+          :key="format.id"
+          class="btn"
+          :href="downloadOutputUrl(session.id, format.id)"
+          target="_blank"
+          rel="noopener"
+        >Download {{ format.name }}</a>
         <ConfirmButton label="Reset" @confirm="server.reset()" />
         <ConfirmButton label="Delete…" confirm="Confirm delete" @confirm="remove" />
       </div>

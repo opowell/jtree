@@ -65,6 +65,8 @@ export function participantUrl(base: string, sessionId: string, pId: string): st
   return `${base}/session/${encodeURIComponent(sessionId)}/${encodeURIComponent(pId)}`
 }
 
-export function downloadOutputUrl(sessionId: string): string {
-  return `${serverUrl}/session-download/${encodeURIComponent(sessionId)}`
+/** Where to download a session's data, in a format of server/source/exporters (jtree's by default). */
+export function downloadOutputUrl(sessionId: string, format?: string): string {
+  const url = `${serverUrl}/session-download/${encodeURIComponent(sessionId)}`
+  return format == null ? url : `${url}/${encodeURIComponent(format)}`
 }

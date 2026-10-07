@@ -7,6 +7,7 @@ const http      = require('http');
 const https     = require('https');
 const { spawn } = require('child_process');
 const selfsigned = require('selfsigned');
+const exporters = require('../exporters/index.js');
 
 const AdminAuth = require('./AdminAuth.js');
 
@@ -188,15 +189,19 @@ class StaticServer {
             res.sendFile(path.join(self.jt.path, self.jt.settings.clientUI, '/room.html'));
         });
 
-        expApp.get('/session-download/:sId', function(req, res) {
+        // A session's data, in one of the formats of server/source/exporters (jtree's by default).
+        expApp.get(['/session-download/:sId', '/session-download/:sId/:format'], function(req, res) {
             var session = self.jt.data.session(req.params.sId);
             if (session == null) {
                 return res.status(404).type('text').send('There is no session "' + req.params.sId + '".');
             }
-            var out = session.saveOutput();
-            res.setHeader('Content-disposition', 'attachment; filename=' + path.basename(session.csvFN()));
-            res.set('Content-Type', 'text/csv');
-            res.status(200).send(out);
+            var format = exporters.exporter(session, req.params.format || 'jtree');
+            if (format == null) {
+                return res.status(404).type('text').send('Session "' + req.params.sId + '" has no data as "' + req.params.format + '".');
+            }
+            res.setHeader('Content-disposition', 'attachment; filename=' + format.filename(session));
+            res.set('Content-Type', format.contentType);
+            res.status(200).send(format.write(session));
         });
 
         expApp.get('/room/:rId/:pId', function(req, res) {

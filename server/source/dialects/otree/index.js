@@ -166,7 +166,7 @@ module.exports = {
             err.jtreePosition = errorPosition(err, pkg, dir) || undefined;
             throw err;
         }
-        app.otree = { pkg, constants: info.constants, roles: info.roles };
+        app.otree = { pkg, constants: info.constants, roles: info.roles, fields: info.fields };
         app.playerFieldsNotInOutput = ['otreeHtml', 'otreeJsVars'];
         app.shortId = info.name || path.basename(dir);
         app.title = info.name || path.basename(dir);

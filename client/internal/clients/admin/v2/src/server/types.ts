@@ -42,6 +42,8 @@ export interface SessionShell {
   name: string
   started: boolean
   isRunning: boolean
+  /** The formats its data can be downloaded in (server/source/exporters). */
+  exports?: { id: string, name: string }[]
   timeStarted: number
   allowNewParts: boolean
   allowAdminClientsToPlay: boolean

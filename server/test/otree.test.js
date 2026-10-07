@@ -214,3 +214,51 @@ test("a bot's failed expect, or a page it does not expect, stops the bots and sa
         'from otree.api import Bot\nfrom . import *\n\nclass PlayerBot(Bot):\n    def play_round(self):\n        yield Results\n');
     await assert.rejects(playWithBots(path.join(dir, '__init__.py'), 3), /the bot expects page Results, but the player is on Contribute/);
 });
+
+/** Rows of cells of CSV text, with quoted cells (commas, quotes and newlines in them). */
+function parseCSV(text) {
+    const rows = [[]];
+    let cell = '', quoted = false;
+    for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        if (quoted) {
+            if (ch === '"' && text[i + 1] === '"') { cell += '"'; i++; }
+            else if (ch === '"') quoted = false;
+            else cell += ch;
+        } else if (ch === '"') quoted = true;
+        else if (ch === ',') { rows[rows.length - 1].push(cell); cell = ''; }
+        else if (ch === '\n') { rows[rows.length - 1].push(cell); cell = ''; rows.push([]); }
+        else cell += ch;
+    }
+    if (cell !== '' || rows[rows.length - 1].length > 0) rows[rows.length - 1].push(cell);
+    return rows.filter(r => r.length > 0);
+}
+
+test("a session with oTree apps downloads as oTree's wide CSV, and as jtree's", async () => {
+    const settings = path.join(FIXTURES, 'settings.py');
+    const session = await playWithBots(settings + '#trust_then_guess', 2);
+    assert.deepEqual(session.shell().exports.map(e => e.id), ['jtree', 'otree-wide']);
+    // What admins get when they open the session.
+    assert.deepEqual(session.shellWithChildren().exports.map(e => e.id), ['jtree', 'otree-wide']);
+
+    const res = await fetch(server.url + '/session-download/' + session.id + '/otree-wide');
+    assert.equal(res.status, 200);
+    assert.match(res.headers.get('content-disposition'), /all_apps_wide-/);
+    const [header, ...rows] = parseCSV(await res.text());
+    assert.equal(rows.length, 2);
+    const col = (name) => { const i = header.indexOf(name); assert.ok(i >= 0, 'no column ' + name); return rows.map(r => r[i]); };
+    assert.deepEqual(col('participant.code'), ['P1', 'P2']);
+    assert.deepEqual(col('participant.payoff'), ['44', '32']);
+    // 5 + 44 * 0.5 and 5 + 32 * 0.5.
+    assert.deepEqual(col('participant.payoff_plus_participation_fee'), ['27', '21']);
+    assert.deepEqual(col('session.config.bonus'), ['3', '3']);
+    assert.deepEqual(col('trust.1.player.role'), ['Trustor', 'Trustee']);
+    assert.deepEqual(col('trust.2.group.sent_amount'), ['4', '4']);
+    assert.deepEqual(col('guess.1.player.intro_timed_out'), ['0', '1']);
+    assert.deepEqual(col('guess.2.player.happy'), ['1', '1']);
+    assert.deepEqual(col('guess.1.player.age'), ['', '']);
+    assert.deepEqual(col('guess.2.subsession.two_thirds'), ['20', '20']);
+
+    assert.equal((await fetch(server.url + '/session-download/' + session.id)).status, 200);
+    assert.equal((await fetch(server.url + '/session-download/' + session.id + '/nonsense')).status, 404);
+});

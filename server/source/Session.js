@@ -1015,6 +1015,8 @@ class Session {
         for (var i in this.clients) {
             out.clients[i] = this.clients[i].shell();
         }
+        // The formats its data can be downloaded in (see exporters).
+        out.exports = require('./exporters/index.js').exportersFor(this).map((e) => ({ id: e.id, name: e.name }));
         return out;
     }
 
@@ -1040,6 +1042,8 @@ class Session {
         }
         out.clients = [];
         out.participants = [];
+        // The formats its data can be downloaded in (see exporters).
+        out.exports = require('./exporters/index.js').exportersFor(this).map((e) => ({ id: e.id, name: e.name }));
         return out;
     }
 
