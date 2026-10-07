@@ -505,3 +505,36 @@ Left for when what uses them is built:
 - A payments view in the admins (admin-ztree has work in progress).
 - Restored sessions do not restore players' own timers, nor groups' stageEndedIndex.
 
+### Phase 4: oTree apps run in jtree (largely done)
+
+`server/source/dialects/otree/`: an oTree app (a folder with `__init__.py` in oTree's format)
+loads as a jtree app; its Python runs in Pyodide (now a dependency) with jtree's own
+`otree.api` (`python/otree/api.py`, written from oTree's documentation), whose models stand for
+jtree's objects.
+
+- Rounds as periods, `PLAYERS_PER_GROUP` (or one group), oTree's default grouping; Pages as
+  stages players take on their own; WaitPages (group, `wait_for_all_groups`,
+  `group_by_arrival_time`) with `after_all_players_arrive`; `creating_session` per round.
+- Fields and forms: kinds, `min`/`max`/`choices`/`blank`, `<field>_min/_max/_choices/
+  _error_message`, `error_message`, group form fields; a timeout takes what was submitted.
+- Pages: `is_displayed`, `vars_for_template`, `before_next_page(player, timeout_happened)`,
+  `timeout_seconds`/`get_timeout_seconds` with oTree's countdown, `js_vars`, `live_method` with
+  `liveSend`/`liveRecv`. Templates rendered by Python in oTree's template language
+  (`python/otree_template.py`: blocks, if/for, formfields, filters; expressions from a
+  whitelist, not eval), on Bootstrap 5 with oTree's layout.
+- Models: roles, `in_round`/`in_all_rounds`..., `get_player_by_id/_role`,
+  `set_group_matrix`/`group_randomly`/`group_like_round`, `participant.vars`, `session.vars`,
+  `session.config`, payoffs as jtree's points.
+- Projects: each of `settings.py`'s `SESSION_CONFIGS` is a queue (fee, exchange rate, config,
+  app sequence).
+- Bots: apps' `tests.py` (`PlayerBot`, `cases`, `Submission`, `SubmissionMustFail`, `expect`)
+  run in the server (`bots.js`) through `app.submitStage`.
+- Data: oTree's "all apps, wide" CSV (`server/source/exporters`, a download in admin v2).
+- Tests: four oTree apps of my own (public goods, trust, guessing with a survey, live bids),
+  their bots, a project; checked in a browser.
+
+Not yet: `ExtraModel`, chat, the older `models.py`/`pages.py` format, a project's
+`_templates`/`_static`, `app_after_this_page`, rooms, oTree's admin (§4.4), per-app CSVs and
+page times, converting oTree apps to `.jtt` (Phase 8). Not tested against oTree's own sample
+games yet: they need downloading (oTree's PyPI package).
+
