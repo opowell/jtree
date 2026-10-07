@@ -2,6 +2,7 @@ const fs        = require('fs-extra');
 const path      = require('path');
 const Utils     = require('./Utils.js');
 const Session   = require('./Session.js');
+const otreeProject = require('./dialects/otree/project.js');
 
 
 /**
@@ -41,8 +42,19 @@ class Queue {
     /** Reads the .jtq file at filePath, and lists the apps and options it declares. */
     static load(filePath, jt) {
         var queue = new Queue(filePath, jt);
+        // An oTree project's session config (see dialects/otree/project.js).
+        const otreeConfig = otreeProject.parseQueueId(filePath);
         try {
-            queue.appjs = Utils.readJS(filePath);
+            if (otreeConfig != null) {
+                const { script, config } = otreeProject.queueScript(otreeConfig.settingsPath, otreeConfig.name);
+                queue.appjs = script;
+                queue.shortId = config.name;
+                queue.displayName = config.display_name || config.name;
+                queue.description = config.doc;
+                queue.dirPath = path.dirname(otreeConfig.settingsPath);
+            } else {
+                queue.appjs = Utils.readJS(filePath);
+            }
         } catch (err) {
             queue.setError(err);
             return queue;
@@ -71,7 +83,12 @@ class Queue {
 
     /** The folder this queue's app paths are relative to. */
     dir() {
-        return path.dirname(this.id);
+        return this.dirPath || path.dirname(this.id);
+    }
+
+    /** Whether id is a queue's: a .jtq file, or an oTree project's session config. */
+    static isQueueId(id) {
+        return String(id).endsWith('.jtq') || otreeProject.parseQueueId(id) != null;
     }
 
     resolve(appPath) {
@@ -230,3 +247,4 @@ for (const name of ['addNumberOption', 'addTextOption', 'addSelectOption', 'setO
 var exports = module.exports = {};
 exports.new = Queue;
 exports.load = Queue.load;
+exports.isQueueId = Queue.isQueueId;

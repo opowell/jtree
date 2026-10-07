@@ -33,6 +33,7 @@ def creating_session(subsession: Subsession):
         for p in subsession.get_players():
             p.participant.vars['treatment'] = 'high' if p.participant.id_in_session % 2 else 'low'
         subsession.session.vars['created'] = 1
+        subsession.session.vars['bonus'] = subsession.session.config.get('bonus', 0)
     for p in subsession.get_players():
         p.treatment = p.participant.vars['treatment']
 

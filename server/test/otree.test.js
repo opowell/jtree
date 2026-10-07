@@ -105,6 +105,7 @@ test('guess, in oTree: creating_session, vars, a timeout, error messages, a wait
     assert.deepEqual(bots.map(b => b.player.intro_timed_out), [false, true, true]);
     assert.deepEqual(bots.map(b => b.player.treatment), ['high', 'low', 'high']);
     assert.equal(session.vars.created, 1);
+    assert.equal(session.vars.bonus, 0);
 
     p1.submit({ 'player.guess': 50 });
     assert.deepEqual(await p1.waitForFormErrors(), { 'player.guess': 'Not 50, please.' });
@@ -133,4 +134,22 @@ test('guess, in oTree: creating_session, vars, a timeout, error messages, a wait
     assert.deepEqual(session.payments().map(p => p.points), [20, 10, 10]);
     const survey = p1.players()[1];
     assert.deepEqual([survey.age, survey.likes, survey.happy, survey.comment], [30, 'y', true, null]);
+});
+
+test("an oTree project's session configs are queues: their apps, config, fee and exchange rate", async () => {
+    const settings = path.join(FIXTURES, 'settings.py');
+    server.jt.data.loadAppDir(FIXTURES);
+    const id = settings + '#trust_then_guess';
+    const queue = server.jt.data.apps[id];
+    assert.ok(queue && !queue.hasError, queue && queue.errorMessage);
+    assert.equal(queue.displayName, 'Trust, then guess');
+    assert.equal(queue.description, 'A test project.');
+    assert.ok(server.jt.data.apps[settings + '#public_goods']);
+    // The project's apps are in the catalogue too.
+    assert.ok(server.jt.data.apps[otreeApp('trust')]);
+
+    const session = server.createSession(id, { numParticipants: 2 });
+    assert.deepEqual(session.apps.map(a => a.shortId), ['trust', 'guess']);
+    assert.equal(session.otreeConfig.bonus, 3);
+    assert.deepEqual([session.showUpFee, session.exchangeRate], [5, 0.5]);
 });

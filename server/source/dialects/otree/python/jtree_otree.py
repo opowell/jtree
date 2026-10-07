@@ -213,3 +213,22 @@ def render(pkg, page_name, js_player):
     renderer = otree_template.Renderer(lambda name: _read(pkg, name), _form(info, page, player))
     return renderer.render(text, context)
 
+
+
+# --- Projects -----------------------------------------------------------------------------
+
+def session_configs(settings_dir):
+    """The SESSION_CONFIGS of the oTree project whose settings.py was put in settings_dir (in
+    Python's file system), each merged with SESSION_CONFIG_DEFAULTS, as JSON."""
+    import importlib.util
+    path = settings_dir + '/settings.py'
+    spec = importlib.util.spec_from_file_location('otree_settings_' + str(abs(hash(settings_dir))), path)
+    settings = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(settings)
+    defaults = dict(getattr(settings, 'SESSION_CONFIG_DEFAULTS', {}) or {})
+    out = []
+    for config in getattr(settings, 'SESSION_CONFIGS', []) or []:
+        merged = dict(defaults)
+        merged.update(config)
+        out.append(_json_value(merged))
+    return json.dumps(out)

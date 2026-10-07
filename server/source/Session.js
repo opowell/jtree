@@ -298,7 +298,7 @@ class Session {
             appPath = queue.resolve(appPath);
         }
 
-        if (appPath.endsWith('.jtq')) {
+        if (require('./Queue.js').isQueueId(appPath)) {
             return this.addQueue(appPath, options);
         }
 

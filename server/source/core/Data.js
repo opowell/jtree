@@ -9,6 +9,7 @@ const User = require('../User.js');
 const { loadDefaultApp } = require('./data/loadDefaultApp.js')
 const { getIdFromDirectory } = require('./data/getIdFromDirectory.js')
 const { dialectFor } = require('../dialects/index.js')
+const otreeProject = require('../dialects/otree/project.js')
 /** The data object. */
 class Data {
 
@@ -174,7 +175,7 @@ class Data {
     app(id, options) {
         if (this.jt.settings.reloadApps) {
             var appPath = this.appsMetaData[id].appPath;
-            if (appPath.endsWith('.jtq')) {
+            if (Queue.isQueueId(appPath)) {
                 return Queue.load(appPath, this.jt);
             }
             return this.loadApp(id, null, appPath, options);
@@ -272,6 +273,11 @@ class Data {
                         }
                     }
 
+                    // An oTree project: each of its session configs is a queue.
+                    if (id === 'settings.py' && otreeProject.isProject(curPath)) {
+                        this.loadOtreeProject(curPath);
+                    }
+
                     // Queue: an app made of other apps.
                     if (id.endsWith('.jtq')) {
                         var queue = Queue.load(curPath, this.jt);
@@ -284,6 +290,27 @@ class Data {
                 }
             }
 
+        }
+    }
+
+    /** Adds the session configs of the oTree project of settingsPath to the catalogue, as queues. */
+    loadOtreeProject(settingsPath) {
+        let configs;
+        try {
+            configs = otreeProject.sessionConfigs(settingsPath);
+        } catch (err) {
+            if (err.name === 'PythonStarting') {
+                require('../dialects/otree/runtime.js').whenReady(() => this.reloadApps());
+            } else {
+                this.jt.log('Error reading oTree project ' + settingsPath + ': ' + err);
+            }
+            return;
+        }
+        for (const config of configs) {
+            const id = otreeProject.queueId(settingsPath, config.name);
+            const queue = Queue.load(id, this.jt);
+            this.apps[id] = queue;
+            this.appsMetaData[id] = queue.metaData();
         }
     }
 
