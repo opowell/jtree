@@ -211,7 +211,17 @@ def render(pkg, page_name, js_player):
     if text is None:
         text = '{{ block title }}' + page_name + '{{ endblock }}{{ block content }}{{ formfields }}{{ next_button }}{{ endblock }}'
     renderer = otree_template.Renderer(lambda name: _read(pkg, name), _form(info, page, player))
-    return renderer.render(text, context)
+    return _timer(page, player) + renderer.render(text, context)
+
+
+def _timer(page, player):
+    """oTree's countdown for a page with a timeout; otree.js counts it down."""
+    seconds = page.get_timeout_seconds(player) if callable(getattr(page, 'get_timeout_seconds', None)) else page.timeout_seconds
+    if not seconds:
+        return ''
+    text = page.timer_text or 'Time left to complete this page:'
+    return ('<div class="otree-timer alert alert-warning">' + otree_template.escape(text) +
+            ' <span class="otree-timer__time-left" data-seconds="' + str(int(seconds)) + '"></span></div>')
 
 
 

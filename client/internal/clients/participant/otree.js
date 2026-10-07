@@ -8,6 +8,26 @@
     };
 
     var shown = null;
+    var countdown = null;
+
+    // oTree's page timer: counts down from data-seconds, from when the page is shown.
+    function startTimer(page) {
+        clearInterval(countdown);
+        var span = page.querySelector('.otree-timer__time-left');
+        if (span == null) {
+            return;
+        }
+        var end = Date.now() + Number(span.getAttribute('data-seconds')) * 1000;
+        var show = function() {
+            var left = Math.max(0, Math.round((end - Date.now()) / 1000));
+            span.textContent = Math.floor(left / 60) + ':' + ('0' + (left % 60)).slice(-2);
+            if (left === 0) {
+                clearInterval(countdown);
+            }
+        };
+        show();
+        countdown = setInterval(show, 1000);
+    }
 
     // Runs the scripts of a page that has just been rendered, once.
     function runScripts() {
@@ -20,6 +40,7 @@
             return;
         }
         shown = html;
+        startTimer(page);
         window.js_vars = jt.data.player.otreeJsVars || {};
         window.liveRecv = undefined;
         var scripts = page.querySelectorAll('script');

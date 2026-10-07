@@ -100,6 +100,7 @@ test('guess, in oTree: creating_session, vars, a timeout, error messages, a wait
 
     // Round 1: P1 reads the intro; for P2 and P3 its 1 second runs out.
     await Promise.all(bots.map(b => b.waitForStage('Intro')));
+    assert.match(p1.player.otreeHtml, /<div class="otree-timer alert alert-warning">Time left to complete this page: <span class="otree-timer__time-left" data-seconds="1"><\/span><\/div>/);
     p1.submit();
     await Promise.all(bots.map(b => b.waitForStage('Guess', { period: 1, timeout: 4000 })));
     assert.deepEqual(bots.map(b => b.player.intro_timed_out), [false, true, true]);
