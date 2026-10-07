@@ -162,11 +162,15 @@ def validate(pkg, page_name, js_player, js_values):
 # --- Pages' templates ---------------------------------------------------------------------
 
 def _read(pkg, name):
-    """The text of template name in the app's folder (or its templates/ folders), or None."""
+    """The text of template name: in the app's folder (or its templates/ folders), or in its
+    project's _templates; or None."""
     import os
     base = '/apps/' + pkg
-    for path in [os.path.join(base, name)] + [
-            os.path.join(base, 'templates', d, name) for d in (os.listdir(base + '/templates') if os.path.isdir(base + '/templates') else [])]:
+    paths = [os.path.join(base, name)]
+    if os.path.isdir(base + '/templates'):
+        paths += [os.path.join(base, 'templates', d, name) for d in os.listdir(base + '/templates')]
+    paths.append(os.path.join(base, '_project_templates', name))
+    for path in paths:
         if os.path.isfile(path):
             with open(path, encoding='utf-8') as f:
                 return f.read()
@@ -197,7 +201,7 @@ def _form(info, page, player):
     return out
 
 
-def render(pkg, page_name, js_player):
+def render(pkg, page_name, js_player, static_url='/static/'):
     """The HTML of the page for the player: its template, with player, group, subsession,
     participant, session, C and what vars_for_template gives."""
     info = _apps[pkg]
@@ -210,7 +214,7 @@ def render(pkg, page_name, js_player):
     text = _read(pkg, page.template_name or page_name + '.html')
     if text is None:
         text = '{{ block title }}' + page_name + '{{ endblock }}{{ block content }}{{ formfields }}{{ next_button }}{{ endblock }}'
-    renderer = otree_template.Renderer(lambda name: _read(pkg, name), _form(info, page, player))
+    renderer = otree_template.Renderer(lambda name: _read(pkg, name), _form(info, page, player), static_url)
     return _timer(page, player) + renderer.render(text, context)
 
 

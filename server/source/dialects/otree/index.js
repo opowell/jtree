@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const fs = require('fs-extra');
 const path = require('path');
 const runtime = require('./runtime.js');
+const staticFiles = require('./static.js');
 
 /*
  * oTree apps: a folder with an __init__.py in oTree's format (one file: C, Subsession, Group,
@@ -123,7 +124,7 @@ function definePage(app, page, pkg) {
     stage.validate = (player, values) => runtime.getBridge().validate(pkg, page.name, player, values) || undefined;
     stage.playerStart = (player) => {
         try {
-            player.otreeHtml = runtime.getBridge().render(pkg, page.name, player);
+            player.otreeHtml = runtime.getBridge().render(pkg, page.name, player, staticFiles.urlFor(player.jt().basePath, pkg));
             player.otreeJsVars = has('js_vars') ? runtime.getBridge().js_vars(pkg, page.name, player) : null;
             player.otreeError = undefined;
         } catch (err) {
@@ -170,6 +171,7 @@ module.exports = {
         const dir = path.dirname(app.appPath);
         const pkg = packageFor(app.appPath);
         runtime.putApp(pkg, dir);
+        staticFiles.register(pkg, dir);
         let info;
         try {
             info = JSON.parse(bridge.load(pkg));

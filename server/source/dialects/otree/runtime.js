@@ -83,6 +83,11 @@ function putApp(pkg, dir) {
         py.runPython(`import shutil; shutil.rmtree(${JSON.stringify(target)})`);
     }
     copyDir(dir, target, (name) => name.endsWith('.py') || name.endsWith('.html'));
+    // The project's templates (e.g. _templates/global/Page.html), if the app is in a project.
+    const projectTemplates = path.join(path.dirname(dir), '_templates');
+    if (fs.existsSync(projectTemplates)) {
+        copyDir(projectTemplates, target + '/_project_templates', (name) => name.endsWith('.html'));
+    }
 }
 
 module.exports = { start, ready: start, getBridge, whenReady, putApp, PythonStarting, get py() { return py; } };

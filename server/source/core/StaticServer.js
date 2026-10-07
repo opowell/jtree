@@ -8,6 +8,7 @@ const https     = require('https');
 const { spawn } = require('child_process');
 const selfsigned = require('selfsigned');
 const exporters = require('../exporters/index.js');
+const otreeStatic = require('../dialects/otree/static.js');
 
 const AdminAuth = require('./AdminAuth.js');
 
@@ -187,6 +188,16 @@ class StaticServer {
             res.cookie('roomDN', room.displayName);
             res.cookie('hasSecret', room.useSecureURLs);
             res.sendFile(path.join(self.jt.path, self.jt.settings.clientUI, '/room.html'));
+        });
+
+        // oTree apps' static files (see dialects/otree/static.js).
+        expApp.get('/otree-static/:pkg/*file', function(req, res) {
+            var rel = [].concat(req.params.file).join('/');
+            var full = otreeStatic.file(req.params.pkg, rel);
+            if (full == null) {
+                return res.status(404).type('text').send('No such file.');
+            }
+            res.sendFile(full);
         });
 
         // A session's data, in one of the formats of server/source/exporters (jtree's by default).

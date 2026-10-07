@@ -34,6 +34,14 @@ test('public goods, in oTree: pages rendered, contributions checked, payoffs set
 
     const html = bots[0].player.otreeHtml;
     assert.match(html, /<h2 class="otree-title">Contribute<\/h2>/);
+    // The page's styles and scripts blocks, and the project's global ones, with its static files.
+    assert.match(html, /<style>\.contribute/);
+    assert.match(html, /<script>window\.contributeScripts = true;<\/script>/);
+    assert.match(html, /<script>window\.siteScripts = true;<\/script>/);
+    const css = /<link rel="stylesheet" href="([^"]+site\.css)">/.exec(html);
+    assert.ok(css, 'no link to the project\'s static file');
+    assert.equal((await fetch(server.url + css[1])).status, 200);
+    assert.equal((await fetch(server.url + css[1].replace('global/site.css', '..%2F..%2Fsettings.py'))).status, 404);
     assert.match(html, /You have 100\. You are in a group of 3\./);
     assert.match(html, /name="player\.contribution"/);
     assert.match(html, /How much will you contribute\?/);

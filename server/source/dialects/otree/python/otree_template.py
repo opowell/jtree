@@ -205,6 +205,22 @@ def _append(stack_top, node):
         stack_top.children.append(node)
 
 
+# oTree's base templates, unless the project has its own (its _templates/global/Page.html usually
+# extends otree/Page.html, adding global_styles and global_scripts).
+BUILTIN = {
+    'otree/Page.html': (
+        '{{ block global_styles }}{{ endblock }}{{ block styles }}{{ endblock }}'
+        '<h2 class="otree-title">{{ block title }}{{ endblock }}</h2>'
+        '<div class="otree-body">{{ block content }}{{ endblock }}</div>'
+        '{{ block global_scripts }}{{ endblock }}{{ block scripts }}{{ endblock }}'),
+    'otree/WaitPage.html': '{{ extends "otree/Page.html" }}',
+    'global/Page.html': '{{ extends "otree/Page.html" }}',
+    'global/WaitPage.html': '{{ extends "otree/WaitPage.html" }}',
+}
+
+EMPTY_TITLE = re.compile(r'<h2 class="otree-title">\s*</h2>')
+
+
 class Renderer:
     """Renders a template for a form: loader(name) gives a template's text, form describes the
     page's form fields: [{name, full, label, type, choices, min, max, widget, long}]."""
@@ -215,22 +231,28 @@ class Renderer:
         self.static_url = static_url
 
     def render(self, text, context):
-        root = parse_tree(text)
-        extends = next((c for c in root.children if c.kind == 'extends'), None)
-        blocks = {c.arg: c for c in _walk(root) if c.kind == 'block'}
-        base_name = evaluate(extends.arg, context) if extends is not None else None
-        if base_name is None or (base_name == 'global/Page.html' and self.loader(base_name) is None):
-            # oTree's global/Page.html (or a page that does not say): title then content.
-            title = self._render_nodes(blocks['title'].children, context) if 'title' in blocks else ''
-            content = self._render_nodes(blocks['content'].children, context) if 'content' in blocks else \
-                self._render_nodes(root.children, context)
-            head = '<h2 class="otree-title">' + title + '</h2>' if title.strip() else ''
-            return head + '<div class="otree-body">' + content + '</div>'
-        base = parse_tree(self._load(base_name))
-        return self._render_nodes(base.children, context, blocks)
+        """A page's HTML: text extends a chain of templates (a page that does not say extends
+        global/Page.html); each block is the most specific template's."""
+        blocks = {}
+        tree = parse_tree(text)
+        level = 0
+        while True:
+            for node in _walk(tree):
+                if node.kind == 'block' and node.arg not in blocks:
+                    blocks[node.arg] = node
+            extends = next((c for c in tree.children if c.kind == 'extends'), None)
+            if extends is None and level > 0:
+                break
+            name = evaluate(extends.arg, context) if extends is not None else 'global/Page.html'
+            tree = parse_tree(self._load(name))
+            level += 1
+        html = self._render_nodes(tree.children, context, blocks)
+        return EMPTY_TITLE.sub('', html)
 
     def _load(self, name):
         text = self.loader(name)
+        if text is None:
+            text = BUILTIN.get(name)
         if text is None:
             raise TemplateError(f'no template {name!r}')
         return text
