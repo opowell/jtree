@@ -526,10 +526,25 @@ class Bot:
 
 
 class Submission:
+    must_fail = False
+
     def __init__(self, page_class, post_data=None, check_html=True, timeout_happened=False):
         self.page_class = page_class
         self.post_data = post_data or {}
         self.timeout_happened = timeout_happened
+
+
+class SubmissionMustFail(Submission):
+    must_fail = True
+
+
+def currency_range(first, last, increment):
+    values = []
+    value = Currency(first)
+    while value <= last:
+        values.append(value)
+        value = Currency(value + increment)
+    return values
 
 
 def expect(*args):
@@ -543,4 +558,5 @@ def expect(*args):
 
 
 __all__ = ['Currency', 'cu', 'c', 'models', 'widgets', 'BaseConstants', 'BaseSubsession', 'BaseGroup',
-           'BasePlayer', 'Page', 'WaitPage', 'ExtraModel', 'Bot', 'Submission', 'expect']
+           'BasePlayer', 'Page', 'WaitPage', 'ExtraModel', 'Bot', 'Submission', 'SubmissionMustFail', 'expect',
+           'currency_range']

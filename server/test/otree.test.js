@@ -177,3 +177,39 @@ test('live pages, in oTree: liveSend reaches live_method, what it returns reache
     [a, b].forEach(bot => bot.submit());
     await Promise.all([a, b].map(bot => bot.waitForEnd()));
 });
+
+// The apps' own bots (tests.py), run by jtree (dialects/otree/bots.js).
+const { runBots } = require('../source/dialects/otree/bots.js');
+
+async function playWithBots(appPath, n, opts) {
+    const session = server.createSession(appPath, { numParticipants: n });
+    session.start();
+    await runBots(session, opts);
+    return session;
+}
+
+test("oTree bots play their apps, and their expects pass: public goods, trust (both cases), guess", async () => {
+    await playWithBots(otreeApp('public_goods'), 3);
+    await playWithBots(otreeApp('trust'), 2, { caseIndex: 0 });
+    await playWithBots(otreeApp('trust'), 2, { caseIndex: 1 });
+    await playWithBots(otreeApp('guess'), 3);
+});
+
+test("oTree bots play a project's session config, app after app", async () => {
+    const settings = path.join(FIXTURES, 'settings.py');
+    const session = await playWithBots(settings + '#trust_then_guess', 2);
+    // Trust: 2 rounds of 12 and 6; guess: 2 rounds of 10 for everyone (all guess 30).
+    assert.deepEqual(session.payments().map(p => p.points), [12 * 2 + 20, 6 * 2 + 20]);
+});
+
+test("a bot's failed expect, or a page it does not expect, stops the bots and says where", async () => {
+    const dir = path.join(server.dataDir, 'bad_bots');
+    require('node:fs').cpSync(path.join(FIXTURES, 'public_goods'), dir, { recursive: true });
+    require('node:fs').writeFileSync(path.join(dir, 'tests.py'),
+        'from otree.api import expect, Bot\nfrom . import *\n\nclass PlayerBot(Bot):\n    def play_round(self):\n' +
+        '        yield Contribute, dict(contribution=1)\n        expect(self.player.payoff, 0)\n        yield Results\n');
+    await assert.rejects(playWithBots(path.join(dir, '__init__.py'), 3), /expected 0, got 100.80/);
+    require('node:fs').writeFileSync(path.join(dir, 'tests.py'),
+        'from otree.api import Bot\nfrom . import *\n\nclass PlayerBot(Bot):\n    def play_round(self):\n        yield Results\n');
+    await assert.rejects(playWithBots(path.join(dir, '__init__.py'), 3), /the bot expects page Results, but the player is on Contribute/);
+});

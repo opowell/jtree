@@ -518,35 +518,14 @@ class App {
                     return false;
                 }
 
-                // Check and convert the form's values (see forms.js); on a problem, the page
-                // shows it and the stage goes on.
                 var fields = Object.assign({}, data);
                 delete fields.fnName;
                 delete fields.playerRoomId;
-                var checked = checkForm(client.player().stage, client.player(), fields);
-                // Once a player's time is up, what they submit is taken as it is: the values
-                // that pass, and nothing for the others (as oTree does on a timeout).
-                if (checked.errors !== null && !client.player().timedOut) {
-                    client.socket.emit('formErrors', { stageId: data.fnName, errors: checked.errors });
+                var errors = app.submitStage(client.player(), fields);
+                if (errors !== null) {
+                    client.socket.emit('formErrors', { stageId: data.fnName, errors: errors });
                     return false;
                 }
-                for (var property in checked.values) {
-                    var value = checked.values[property];
-                    if (property.startsWith('player.')) {
-                        client.player()[property.substring('player.'.length)] = value;
-                    } else if (property.startsWith('group.')) {
-                        client.group()[property.substring('group.'.length)] = value;
-                    } else if (property.startsWith('participant.')) {
-                        client.participant[property.substring('participant.'.length)] = value;
-                    } else if (property.startsWith('period.')) {
-                        client.period()[property.substring('period.'.length)] = value;
-                    } else if (property.startsWith('app.')) {
-                        client.app()[property.substring('app.'.length)] = value;
-                    }
-                }
-                var endForGroup = true;
-                client.player().endStage(endForGroup);
-
                 this.session.emitParticipantUpdates();
 
             };
@@ -560,6 +539,37 @@ class App {
             console.log(err);
         }
 
+    }
+
+    /**
+     * player submits the form of the stage they are playing: values by field name ('player.x',
+     * 'group.x', 'participant.x', 'period.x' or 'app.x'), as the page sends them. They are
+     * checked and converted (see forms.js) and stored, and the stage ends for the player.
+     * Once a player's time is up, what they submit is taken as it is: the values that pass, and
+     * nothing for the others (as oTree does on a timeout).
+     * @return {Object|null} If the form is refused, the messages by field name; else null.
+     */
+    submitStage(player, values) {
+        var checked = checkForm(player.stage, player, values);
+        if (checked.errors !== null && !player.timedOut) {
+            return checked.errors;
+        }
+        var targets = {
+            player: player,
+            group: player.group,
+            participant: player.participant,
+            period: player.group.period,
+            app: player.app(),
+        };
+        for (var property in checked.values) {
+            var dot = property.indexOf('.');
+            var target = targets[property.substring(0, dot)];
+            if (dot > 0 && target != null) {
+                target[property.substring(dot + 1)] = checked.values[property];
+            }
+        }
+        player.endStage(true);
+        return null;
     }
 
     /** TODO */

@@ -259,3 +259,59 @@ def js_vars(pkg, page_name, js_player):
     if not callable(getattr(page, 'js_vars', None)):
         return None
     return _js(page.js_vars(info.Player(js_player)) or {})
+
+
+# --- Bots (tests.py) ----------------------------------------------------------------------
+
+_bots = {}
+_next_bot = [0]
+
+
+def has_bots(pkg):
+    """Whether the app has bots: a tests.py with a PlayerBot."""
+    try:
+        tests = importlib.import_module(pkg + '.tests')
+    except ModuleNotFoundError:
+        return False
+    return hasattr(tests, 'PlayerBot')
+
+
+def bot_start(pkg, js_player, case_index):
+    """Starts the app's PlayerBot for a player's round; returns its handle."""
+    info = _apps[pkg]
+    tests = importlib.import_module(pkg + '.tests')
+    cls = tests.PlayerBot
+    bot = cls.__new__(cls)
+    player = info.Player(js_player)
+    bot.player = player
+    bot.group = player.group
+    bot.subsession = player.subsession
+    bot.participant = player.participant
+    bot.session = player.session
+    bot.round_number = player.round_number
+    cases = getattr(cls, 'cases', None)
+    bot.case = cases[case_index % len(cases)] if cases else None
+    steps = bot.play_round()
+    _next_bot[0] += 1
+    handle = _next_bot[0]
+    _bots[handle] = steps if steps is not None else iter(())
+    return handle
+
+
+def bot_next(handle):
+    """The bot's next step, as JSON: {page, data, timeout_happened}; or None when it has done its round."""
+    steps = _bots[handle]
+    try:
+        step = next(steps)
+    except StopIteration:
+        del _bots[handle]
+        return None
+    must_fail = False
+    if isinstance(step, api.Submission):
+        page, data, timeout, must_fail = step.page_class, step.post_data, step.timeout_happened, step.must_fail
+    elif isinstance(step, (tuple, list)):
+        page, data, timeout = step[0], (step[1] if len(step) > 1 else {}), False
+    else:
+        page, data, timeout = step, {}, False
+    return json.dumps({'page': page.__name__, 'data': _json_value(dict(data or {})), 'timeout_happened': bool(timeout),
+                       'must_fail': must_fail})
