@@ -76,6 +76,13 @@ function fieldFor(model, name, f, pkg) {
     return field;
 }
 
+/** The session's chat with key: {messages, members (participant ids)}. */
+function chatFor(session, key) {
+    if (session.otreeChats == null) session.otreeChats = {};
+    if (session.otreeChats[key] == null) session.otreeChats[key] = { messages: [], members: [] };
+    return session.otreeChats[key];
+}
+
 /** End player's (wait) stage, after what is running now. */
 function endSoon(player) {
     player.session().pushMessage(player, true, 'endStage');
@@ -197,7 +204,7 @@ module.exports = {
             throw err;
         }
         app.otree = { pkg, constants: info.constants, roles: info.roles, fields: info.fields };
-        app.playerFieldsNotInOutput = ['otreeHtml', 'otreeJsVars', 'otreeError'];
+        app.playerFieldsNotInOutput = ['otreeHtml', 'otreeJsVars', 'otreeError', 'otreeChats'];
         app.shortId = info.name || path.basename(dir);
         app.title = info.name || path.basename(dir);
         if (info.doc) app.description = info.doc;
@@ -235,5 +242,32 @@ module.exports = {
         };
         // Its data as the page sent it, not with numbers parsed (see Session#processMessage).
         app.messages.liveSend.convertsOwnValues = true;
+
+        // {{ chat }}: a page joins the chats it was rendered with (player.otreeChats, by key, with
+        // the player's nickname), gets what was said, and sends; everyone in the chat gets it.
+        app.messages.otreeChatJoin = function(data) {
+            const player = this.participant.player;
+            const key = data && data.channel;
+            if (player == null || player.otreeChats == null || player.otreeChats[key] == null) return;
+            const chat = chatFor(player.session(), key);
+            if (!chat.members.includes(this.participant.id)) chat.members.push(this.participant.id);
+            player.session().io().to(this.participant.roomId()).emit('otreeChatHistory', { channel: key, messages: chat.messages });
+        };
+        app.messages.otreeChat = function(data) {
+            const player = this.participant.player;
+            const key = data && data.channel;
+            const body = data && typeof data.body === 'string' ? data.body.trim().slice(0, 500) : '';
+            if (player == null || player.otreeChats == null || player.otreeChats[key] == null || body === '') return;
+            const session = player.session();
+            const chat = chatFor(session, key);
+            const message = { nickname: player.otreeChats[key], body, participant: this.participant.id, time: Date.now() };
+            chat.messages.push(message);
+            for (const id of chat.members) {
+                const member = session.participants[id];
+                if (member != null) session.io().to(member.roomId()).emit('otreeChatMessage', { channel: key, message });
+            }
+        };
+        app.messages.otreeChatJoin.convertsOwnValues = true;
+        app.messages.otreeChat.convertsOwnValues = true;
     },
 };

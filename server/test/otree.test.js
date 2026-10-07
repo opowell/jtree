@@ -279,3 +279,30 @@ test('app_after_this_page: a participant skips the rest of the app, and the apps
     assert.equal(p1.vars.final, true);
     assert.deepEqual([p2.vars.middle, p2.vars.final], [true, true]);
 });
+
+test("chat, in oTree ({{ chat }}): the group's players join, say things, and see what was said", async () => {
+    const session = server.createSession(path.join(__dirname, 'fixtures/otree-samples/prisoner/__init__.py'), { numParticipants: 2 });
+    const [a, b] = await server.connectAll(session);
+    session.start();
+    await Promise.all([a, b].map(bot => bot.play('Introduction', {})));
+    await Promise.all([a, b].map(bot => bot.waitForStage('Decision')));
+    const channel = /<div class="otree-chat card mb-3" data-channel="([^"]+)">/.exec(a.player.otreeHtml)[1];
+    assert.match(channel, /\/1-1$/);
+    assert.deepEqual(Object.values(a.player.otreeChats), ['Player 1']);
+
+    let history = a.nextMessage('otreeChatHistory');
+    a.send('otreeChatJoin', { channel });
+    assert.deepEqual((await history).messages, []);
+    b.send('otreeChatJoin', { channel });
+    const got = [a.nextMessage('otreeChatMessage'), b.nextMessage('otreeChatMessage')];
+    a.send('otreeChat', { channel, body: '  Cooperate? ', nickname: 'someone else' });
+    for (const { message } of await Promise.all(got)) {
+        assert.deepEqual([message.nickname, message.body], ['Player 1', 'Cooperate?']);
+    }
+    // A chat a page does not have cannot be joined; joining again gets what was said.
+    a.send('otreeChatJoin', { channel: 'other' });
+    history = b.nextMessage('otreeChatHistory');
+    b.send('otreeChatJoin', { channel });
+    assert.deepEqual((await history).messages.map(m => m.body), ['Cooperate?']);
+    assert.deepEqual(Object.keys(session.otreeChats), [channel]);
+});

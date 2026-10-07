@@ -214,8 +214,21 @@ def render(pkg, page_name, js_player, static_url='/static/'):
     text = _read(pkg, page.template_name or page_name + '.html')
     if text is None:
         text = '{{ block title }}' + page_name + '{{ endblock }}{{ block content }}{{ formfields }}{{ next_button }}{{ endblock }}'
-    renderer = otree_template.Renderer(lambda name: _read(pkg, name), _form(info, page, player), static_url)
-    return _timer(page, player) + renderer.render(text, context)
+    chats = {}
+
+    def chat(channel, nickname):
+        # oTree's default: the player's group in this round; a channel given is the app's.
+        key = info.Player.__module__.split('.')[0] + '/' + (
+            f'{player.round_number}-{player.group.id_in_subsession}' if channel is None else str(channel))
+        name = str(nickname) if nickname is not None else f'Player {player.id_in_group}'
+        chats[key] = name
+        return key, name
+
+    renderer = otree_template.Renderer(lambda name: _read(pkg, name), _form(info, page, player), static_url, chat)
+    html = _timer(page, player) + renderer.render(text, context)
+    # The chats on the page, and the player's nickname in each (see dialects/otree/index.js).
+    js_player.otreeChats = _js(chats)
+    return html
 
 
 def _timer(page, player):

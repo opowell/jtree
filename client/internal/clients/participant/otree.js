@@ -41,6 +41,7 @@
         }
         shown = html;
         startTimer(page);
+        startChats(page);
         window.js_vars = jt.data.player.otreeJsVars || {};
         window.liveRecv = undefined;
         var scripts = page.querySelectorAll('script');
@@ -52,6 +53,47 @@
             }
             script.text = old.text;
             old.parentNode.replaceChild(script, old);
+        }
+    }
+
+    // oTree's chat boxes ({{ chat }}): join each, show what was and is said, send.
+    function startChats(page) {
+        var boxes = page.querySelectorAll('.otree-chat');
+        for (var i = 0; i < boxes.length; i++) {
+            (function(box) {
+                var channel = box.getAttribute('data-channel');
+                var input = box.querySelector('.otree-chat__input');
+                var send = function() {
+                    if (input.value.trim() !== '') {
+                        jt.sendMessage('otreeChat', { channel: channel, body: input.value });
+                        input.value = '';
+                    }
+                };
+                box.querySelector('.otree-chat__send').addEventListener('click', send);
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        send();
+                    }
+                });
+                jt.sendMessage('otreeChatJoin', { channel: channel });
+            })(boxes[i]);
+        }
+    }
+
+    function showChatMessage(channel, message) {
+        var boxes = document.querySelectorAll('.otree-content .otree-chat');
+        for (var i = 0; i < boxes.length; i++) {
+            if (boxes[i].getAttribute('data-channel') === channel) {
+                var list = boxes[i].querySelector('.otree-chat__messages');
+                var line = document.createElement('div');
+                var who = document.createElement('b');
+                who.textContent = message.nickname + ': ';
+                line.appendChild(who);
+                line.appendChild(document.createTextNode(message.body));
+                list.appendChild(line);
+                list.scrollTop = list.scrollHeight;
+            }
         }
     }
 
@@ -73,6 +115,14 @@
                     if (typeof window.liveRecv === 'function') {
                         window.liveRecv(data);
                     }
+                });
+                jt.socket.on('otreeChatHistory', function(data) {
+                    for (var i = 0; i < data.messages.length; i++) {
+                        showChatMessage(data.channel, data.messages[i]);
+                    }
+                });
+                jt.socket.on('otreeChatMessage', function(data) {
+                    showChatMessage(data.channel, data.message);
                 });
             }
         }, 50);

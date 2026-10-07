@@ -225,10 +225,13 @@ class Renderer:
     """Renders a template for a form: loader(name) gives a template's text, form describes the
     page's form fields: [{name, full, label, type, choices, min, max, widget, long}]."""
 
-    def __init__(self, loader, form, static_url='/static/'):
+    def __init__(self, loader, form, static_url='/static/', chat=None):
         self.loader = loader
         self.form = form
         self.static_url = static_url
+        # chat(channel, nickname) -> (channel key, nickname): for {{ chat }}, from the page's
+        # player; records that the page has that chat.
+        self.chat = chat
 
     def render(self, text, context):
         """A page's HTML: text extends a chain of templates (a page that does not say extends
@@ -304,9 +307,25 @@ class Renderer:
             return '<button class="otree-btn-next btn btn-primary">Next</button>'
         if k == 'static':
             return escape(self.static_url + str(evaluate(node.arg, ctx)))
-        if k in ('chat', 'load', 'url', 'extends'):
+        if k == 'chat':
+            return self._chat(node.arg, ctx)
+        if k in ('load', 'url', 'extends'):
             return ''
         raise TemplateError(f'cannot render {k}')
+
+    def _chat(self, arg, ctx):
+        """oTree's chat box: {{ chat }}, or {{ chat channel=... nickname=... }}."""
+        if self.chat is None:
+            return ''
+        opts = {}
+        for m in re.finditer(r'(\w+)\s*=\s*((?:"[^"]*"|\'[^\']*\'|[^\s])+)', arg):
+            opts[m.group(1)] = evaluate(m.group(2), ctx)
+        channel, nickname = self.chat(opts.get('channel'), opts.get('nickname'))
+        return ('<div class="otree-chat card mb-3" data-channel="' + escape(channel) + '">'
+                '<div class="otree-chat__messages card-body" style="max-height: 15em; overflow: auto"></div>'
+                '<div class="input-group"><input type="text" class="otree-chat__input form-control" maxlength="500"'
+                ' placeholder="' + escape(nickname) + ': your message">'
+                '<button type="button" class="otree-chat__send btn btn-outline-primary">Send</button></div></div>')
 
     def render_plain(self, text, context):
         return self._render_nodes(parse_tree(text).children, context)
