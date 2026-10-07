@@ -103,6 +103,19 @@ function checked(event: Event): boolean {
         <ConfirmButton label="Delete…" confirm="Confirm delete" @confirm="remove" />
       </div>
 
+      <section v-if="state.rooms.length" class="pane__section" aria-labelledby="session-rooms">
+        <h3 id="session-rooms" class="dc-eyebrow">Rooms</h3>
+        <ul class="list">
+          <li v-for="room in state.rooms" :key="room.id">
+            <strong>{{ room.displayName }}</strong>
+            <a :href="`${participantBase()}/room/${encodeURIComponent(room.id)}`" target="_blank" rel="noopener">{{ participantBase() }}/room/{{ room.id }}</a>
+            <span v-if="room.labels.length" class="muted">{{ room.labels.length }} labels</span>
+            <span v-if="room.sessionId === session.id" class="muted">this session is open here</span>
+            <button v-else type="button" class="btn" @click="server.openInRoom(room.id, session.id)">Open this session here</button>
+          </li>
+        </ul>
+      </section>
+
       <section class="pane__section" aria-labelledby="session-apps">
         <h3 id="session-apps" class="dc-eyebrow">Apps</h3>
         <ol v-if="session.apps.length" class="list">

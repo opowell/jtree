@@ -1,16 +1,7 @@
 import { reactive } from 'vue'
 import { io } from 'socket.io-client'
 import CircularJSON from 'circular-json'
-import type {
-  AdminRefresh,
-  AppMeta,
-  LogEntry,
-  Participant,
-  PlayerState,
-  ServerSettings,
-  SessionFull,
-  SessionShell,
-} from './types'
+import type { AdminRefresh, AppMeta, LogEntry, Participant, PlayerState, ServerSettings, SessionFull, SessionShell, RoomShell } from './types'
 
 /**
  * Everything the admin UI knows about the server, kept current by the socket.
@@ -23,6 +14,7 @@ export const state = reactive({
   connected: false,
   apps: {} as Record<string, AppMeta>,
   sessions: [] as SessionShell[],
+  rooms: [] as RoomShell[],
   settings: {} as ServerSettings,
   jtreeLocalPath: '',
   /** The session this admin has open, with its participants and apps. */
@@ -131,12 +123,19 @@ socket.on('disconnect', () => {
 socket.on('refreshAdmin', (ag: AdminRefresh) => {
   state.apps = ag.apps ?? {}
   state.sessions = ag.sessions ?? []
+  state.rooms = ag.rooms ?? []
   state.settings = ag.settings ?? {}
   state.jtreeLocalPath = ag.jtreeLocalPath ?? ''
   if (state.session && !state.sessions.some((s) => s.id === state.session!.id)) {
     state.session = null
   }
   changed()
+})
+
+socket.on('roomOpenSession', (d: { roomId: string, sessionId: string }) => {
+  const room = state.rooms.find((r) => r.id === d.roomId)
+  if (room) room.sessionId = d.sessionId
+  addLog('roomOpenSession', `Session ${d.sessionId} opened in room ${d.roomId}`)
 })
 
 socket.on('openSession', (session: SessionFull) => {

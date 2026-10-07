@@ -89,6 +89,16 @@ jt.checkIfLoaded = function() {
 
         jt.socket.on('loggedIntoRoom', function(pId) {
             jt.showPId(pId);
+            $('#room-waiting').attr('hidden', false);
+        });
+
+        // A session is open in the room: go to this participant's page in it.
+        jt.socket.on('roomGoToSession', function(d) {
+            location.href = d.url;
+        });
+
+        jt.socket.on('roomFull', function() {
+            $('#room-waiting').text('The session in this room has no place left. Please ask the experimenter.');
         });
 
         jt.defaultConnected();

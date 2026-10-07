@@ -328,14 +328,25 @@ def _timer(page, player):
 
 # --- Projects -----------------------------------------------------------------------------
 
-def session_configs(settings_dir):
-    """The SESSION_CONFIGS of the oTree project whose settings.py was put in settings_dir (in
-    Python's file system), each merged with SESSION_CONFIG_DEFAULTS, as JSON."""
+def _settings(settings_dir):
+    """The settings module of the oTree project whose settings.py was put in settings_dir."""
     import importlib.util
     path = settings_dir + '/settings.py'
     spec = importlib.util.spec_from_file_location('otree_settings_' + str(abs(hash(settings_dir))), path)
     settings = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(settings)
+    return settings
+
+
+def project_rooms(settings_dir):
+    """The project's ROOMS, as JSON: [{name, display_name, participant_label_file}]."""
+    return json.dumps(_json_value(list(getattr(_settings(settings_dir), 'ROOMS', []) or [])))
+
+
+def session_configs(settings_dir):
+    """The SESSION_CONFIGS of the oTree project whose settings.py was put in settings_dir (in
+    Python's file system), each merged with SESSION_CONFIG_DEFAULTS, as JSON."""
+    settings = _settings(settings_dir)
     defaults = dict(getattr(settings, 'SESSION_CONFIG_DEFAULTS', {}) or {})
     out = []
     for config in getattr(settings, 'SESSION_CONFIGS', []) or []:

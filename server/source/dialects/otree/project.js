@@ -19,13 +19,34 @@ function isProject(settingsPath) {
     }
 }
 
-/** The project's session configs, read by Python (throws PythonStarting while it starts). */
-function sessionConfigs(settingsPath) {
-    const bridge = runtime.getBridge();
+/** The project's settings.py put in Python's file system; the folder it is in there. */
+function putSettings(settingsPath) {
+    runtime.getBridge();
     const dir = '/projects/' + crypto.createHash('sha1').update(path.resolve(settingsPath)).digest('hex').substring(0, 12);
     runtime.py.FS.mkdirTree(dir);
     runtime.py.FS.writeFile(dir + '/settings.py', fs.readFileSync(settingsPath));
-    return JSON.parse(bridge.session_configs(dir));
+    return dir;
+}
+
+/** The project's session configs, read by Python (throws PythonStarting while it starts). */
+function sessionConfigs(settingsPath) {
+    return JSON.parse(runtime.getBridge().session_configs(putSettings(settingsPath)));
+}
+
+/**
+ * The project's ROOMS, as jtree rooms describe them: {id, displayName, labels} (labels from
+ * participant_label_file, one a line; none: anyone may join, by any label).
+ */
+function rooms(settingsPath) {
+    const dir = path.dirname(settingsPath);
+    return JSON.parse(runtime.getBridge().project_rooms(putSettings(settingsPath))).map((r) => {
+        let labels = null;
+        if (r.participant_label_file) {
+            labels = fs.readFileSync(path.resolve(dir, r.participant_label_file), 'utf8')
+                .split(/\r?\n/).map((l) => l.trim()).filter((l) => l !== '');
+        }
+        return { id: r.name, displayName: r.display_name || r.name, labels };
+    });
 }
 
 /** The queue id of session config name in the project of settingsPath. */
@@ -56,4 +77,4 @@ function queueScript(settingsPath, name) {
     return { script: lines.join('\n') + '\n', config };
 }
 
-module.exports = { isProject, sessionConfigs, queueId, parseQueueId, queueScript };
+module.exports = { isProject, sessionConfigs, rooms, queueId, parseQueueId, queueScript };

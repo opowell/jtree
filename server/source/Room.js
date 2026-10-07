@@ -107,6 +107,42 @@ class Room {
         socket.join(this.roomId());
         this.jt.socketServer.sendOrQueueAdminMsg(null, 'addRoomClient', client.shell());
         this.io().to(socket.id).emit('loggedIntoRoom', participantId);
+        // A session is open in the room: in they go.
+        this.sendToSession(socket, participantId);
+    }
+
+    /** The session open in this room, if any. */
+    session() {
+        return this.sessionId == null ? null : this.jt.data.session(this.sessionId);
+    }
+
+    /**
+     * Opens session in this room: the participants waiting in it, and those who join later, go
+     * into it, each as the session's participant with their label (see Session#participantForLabel).
+     */
+    openSession(session) {
+        this.sessionId = session.id;
+        for (const participant of this.participants) {
+            for (const client of participant.clients) {
+                this.sendToSession(client.socket, participant.id);
+            }
+        }
+        this.jt.socketServer.emitToAdmins('roomOpenSession', { roomId: this.id, sessionId: session.id });
+    }
+
+    /** Sends the page of the room participant label to their participant's page in the open session. */
+    sendToSession(socket, label) {
+        const session = this.session();
+        if (session == null) {
+            return false;
+        }
+        const participant = session.participantForLabel(label);
+        if (participant == null) {
+            socket.emit('roomFull');
+            return false;
+        }
+        socket.emit('roomGoToSession', { url: this.jt.basePath + '/session/' + session.id + '/' + participant.id });
+        return true;
     }
 
     io() {
@@ -164,6 +200,7 @@ class Room {
         out.hashes         = this.hashes;
         out.participants   = Utils.shells(this.participants);
         out.apps           = this.apps;
+        out.sessionId      = this.sessionId;
         return out;
     }
 

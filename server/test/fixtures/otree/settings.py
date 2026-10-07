@@ -17,6 +17,11 @@ SESSION_CONFIG_DEFAULTS = dict(
     real_world_currency_per_point=0.5, participation_fee=5.00, doc='A test project.'
 )
 
+ROOMS = [
+    dict(name='lab', display_name='The lab', participant_label_file='_rooms_lab.txt'),
+    dict(name='online', display_name='Online'),
+]
+
 PARTICIPANT_FIELDS = []
 SESSION_FIELDS = []
 LANGUAGE_CODE = 'en'

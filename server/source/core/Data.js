@@ -54,6 +54,10 @@ class Data {
         }
 
         this.rooms = this.loadRooms();
+        for (const room of this.pendingRooms || []) {
+            this.addRoom(room);
+        }
+        this.pendingRooms = [];
 
         this.users = this.loadUsers();
 
@@ -311,6 +315,37 @@ class Data {
             const queue = Queue.load(id, this.jt);
             this.apps[id] = queue;
             this.appsMetaData[id] = queue.metaData();
+        }
+        // Its ROOMS, as rooms (not saved in the rooms folder).
+        try {
+            for (const r of otreeProject.rooms(settingsPath)) {
+                const room = new Room.new(r.id, this.jt);
+                room.displayName = r.displayName;
+                room.useSecureURLs = false;
+                room.allowNewPIds = r.labels == null;
+                room.labels = r.labels || [];
+                room.fromOtreeProject = settingsPath;
+                this.addRoom(room);
+            }
+        } catch (err) {
+            this.jt.log('Error reading the rooms of oTree project ' + settingsPath + ': ' + err);
+        }
+    }
+
+    /** Adds room to the rooms, in place of one with its id (rooms found loading apps wait for the rooms). */
+    addRoom(room) {
+        if (this.rooms == null) {
+            this.pendingRooms = (this.pendingRooms || []).concat([room]);
+            return;
+        }
+        const i = this.rooms.findIndex((r) => r.id === room.id);
+        if (i >= 0) {
+            // Keep who is waiting in it, and the session open in it.
+            room.participants = this.rooms[i].participants;
+            room.sessionId = this.rooms[i].sessionId;
+            this.rooms[i] = room;
+        } else {
+            this.rooms.push(room);
         }
     }
 

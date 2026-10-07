@@ -329,6 +329,15 @@ class Msgs {
         this.jt.data.getSession(d.sId).addApp(d.qId);
     }
 
+    /** Opens a session in a room: {roomId, sessionId} (see Room#openSession). */
+    roomOpenSession(d) {
+        var room = this.jt.data.room(d.roomId);
+        var session = this.jt.data.session(d.sessionId);
+        if (room != null && session != null) {
+            room.openSession(session);
+        }
+    }
+
     roomAddApp(d) {
         this.jt.data.room(d.roomId).addApp(d.appId);
     }

@@ -1245,6 +1245,23 @@ class Session {
         
     }
 
+    /**
+     * The participant with label (e.g. a room participant's, see Room#sendToSession): the one
+     * with it already, or the first without one, which gets it; null if none is left.
+     */
+    participantForLabel(label) {
+        const participants = Object.values(this.participants);
+        let participant = participants.find((p) => p.label === label);
+        if (participant == null) {
+            participant = participants.find((p) => p.label == null);
+            if (participant != null) {
+                participant.label = label;
+                participant.save();
+            }
+        }
+        return participant || null;
+    }
+
     /** The app, period, group or player of this session whose roomId() is id; or null. */
     objectByRoomId(id) {
         for (const app of this.apps) {

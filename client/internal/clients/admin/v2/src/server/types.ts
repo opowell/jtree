@@ -95,9 +95,19 @@ export interface ServerSettings {
   [key: string]: unknown
 }
 
+/** A room: a lasting link where participants wait until a session is opened in it. */
+export interface RoomShell {
+  id: string
+  displayName: string
+  labels: string[]
+  allowNewPIds: boolean
+  sessionId?: string
+}
+
 export interface AdminRefresh {
   apps: Record<string, AppMeta>
   sessions: SessionShell[]
+  rooms?: RoomShell[]
   settings: ServerSettings
   jtreeLocalPath: string
 }

@@ -21,6 +21,7 @@
         <input id='hash' type='text'></input>
     </div>
     <button onclick='submitId();'>OK</button>
+    <p id='room-waiting' hidden>Please wait: the session will start soon.</p>
 <script>
     window.onload = function() {
         $('#room-id').text($.cookie()['roomId']);

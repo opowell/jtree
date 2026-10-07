@@ -23,6 +23,8 @@ export const server = {
 
   /* Sessions */
   createSession: () => emit('sessionCreate', userId),
+  /** Opens a session in a room: who waits there, and who comes later, go into it. */
+  openInRoom: (roomId: string, sessionId: string) => emit('roomOpenSession', { roomId, sessionId }),
   openSession: (id: string) => {
     socket.emit('openSession', id)
   },
