@@ -807,6 +807,14 @@ class Player {
             return;
         }
 
+        // Asked to go on to another app (see Participant#skipToApp).
+        if (player.participant.skipToAppIndex != null) {
+            const index = player.participant.skipToAppIndex;
+            player.participant.skipToAppIndex = null;
+            player.participant.skipToApp(index);
+            return;
+        }
+
         var nextStage = this.app().getNextStageForPlayer(player);
         var nextPeriod = this.app().getNextPeriod(player.participant);
         if (nextStage !== null) {

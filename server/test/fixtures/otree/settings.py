@@ -10,6 +10,7 @@ SESSION_CONFIGS = [
         bonus=3,
     ),
     dict(name='public_goods', app_sequence=['public_goods'], num_demo_participants=3),
+    dict(name='gate', app_sequence=['gate', 'middle', 'final'], num_demo_participants=2),
 ]
 
 SESSION_CONFIG_DEFAULTS = dict(

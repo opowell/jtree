@@ -139,8 +139,25 @@ function definePage(app, page, pkg) {
     if (has('live_method')) {
         stage.otreeLive = true;
     }
-    if (has('before_next_page')) {
-        stage.playerEnd = (player) => call('before_next_page', player, !!player.timedOut);
+    if (has('before_next_page') || has('app_after_this_page')) {
+        stage.playerEnd = (player) => {
+            if (has('before_next_page')) {
+                call('before_next_page', player, !!player.timedOut);
+            }
+            if (has('app_after_this_page')) {
+                // The app to go on to, by name, from the session's apps after this one.
+                const apps = player.session().apps;
+                const upcoming = apps.slice(player.app().indexInSession()).map((a) => a.shortId);
+                const name = call('app_after_this_page', player, upcoming);
+                if (name != null) {
+                    const index = apps.findIndex((a, i) => i >= player.app().indexInSession() && a.shortId === name);
+                    if (index < 0) {
+                        throw new Error('app_after_this_page: ' + name + ' is not one of the apps after this one');
+                    }
+                    player.participant.skipToAppIndex = index + 1;
+                }
+            }
+        };
     }
     // Only in the current stage's screen: jtree's page holds every stage's (see App#stageContentStart).
     stage.activeScreen = STYLES + '<div class="otree-page otree-content" v-if="stage.id == \'' + page.name + '\'" v-html="player.otreeHtml"></div>';

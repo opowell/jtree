@@ -270,3 +270,12 @@ test("a session with oTree apps downloads as oTree's wide CSV, and as jtree's", 
     assert.equal((await fetch(server.url + '/session-download/' + session.id)).status, 200);
     assert.equal((await fetch(server.url + '/session-download/' + session.id + '/nonsense')).status, 404);
 });
+
+test('app_after_this_page: a participant skips the rest of the app, and the apps up to the one named', async () => {
+    const session = await playWithBots(path.join(FIXTURES, 'settings.py') + '#gate', 2);
+    const [p1, p2] = Object.values(session.participants);
+    // P1 skipped from round 1 of gate to final; P2 played everything.
+    assert.equal(p1.vars.middle, undefined);
+    assert.equal(p1.vars.final, true);
+    assert.deepEqual([p2.vars.middle, p2.vars.final], [true, true]);
+});

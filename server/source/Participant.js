@@ -62,6 +62,7 @@ class Participant {
             'appTimer',
             'indexInSession',
             'finishedApps',
+            'skipToAppIndex',
             'updateScheduled'
         ];
     }
@@ -175,6 +176,28 @@ class Participant {
         return this.session.getApp(this);
     }
 
+    /**
+     * Ends this participant's current app (its later stages and periods too) and starts the app
+     * at index (from 1) in the session's apps, or ends the session if there is none (oTree's
+     * app_after_this_page).
+     * @param {number} index
+     */
+    skipToApp(index) {
+        const app = this.getApp();
+        if (app !== null) {
+            this.finishedApps.push(app.getIdInSession());
+            app.participantEndInternal(this);
+        }
+        this.player = null;
+        this.appIndex = index;
+        this.save();
+        if (this.session.getApp(this) != null) {
+            this.session.participantBeginApp(this);
+        } else {
+            this.endSession();
+        }
+    }
+
     endCurrentApp() {
 
         const app = this.getApp();
@@ -269,6 +292,11 @@ class Participant {
 
         // Already finished this app.
         if (this.finishedApps.includes(app.getIdInSession())) {
+            return true;
+        }
+
+        // Past it: in a later app, skipped over it (see skipToApp), or done with the session.
+        if (this.appIndex > app.indexInSession()) {
             return true;
         }
 
