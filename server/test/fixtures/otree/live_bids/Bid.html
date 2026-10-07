@@ -1,0 +1,14 @@
+{{ block title }}Bid{{ endblock }}
+{{ block content }}
+<p>Highest bid: <span id="highest">{{ group.highest }}</span> <span id="message"></span></p>
+<input id="amount" type="number"> <button type="button" id="bid" onclick="liveSend({amount: parseInt(document.getElementById('amount').value)})">Bid</button>
+<p id="min">Minimum: </p>
+<script>
+document.getElementById('min').innerText += js_vars.min_bid;
+function liveRecv(data) {
+    if (data.error) { document.getElementById('message').innerText = data.error; return; }
+    document.getElementById('highest').innerText = data.highest + ' (player ' + data.by + ')';
+}
+</script>
+{{ next_button }}
+{{ endblock }}

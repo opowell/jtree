@@ -353,6 +353,7 @@ class App {
 
         //TODO:
         this.outputHideAuto = [
+            'playerFieldsNotInOutput',
             'stageContentStart',
             'stageContentEnd',
             'optionValues',
@@ -386,6 +387,13 @@ class App {
          * @default []
          */
         this.outputHide = [];
+
+        /**
+         * Players' fields that are sent to their pages and saved, but not written to the
+         * session's data (e.g. a page's HTML).
+         * @type string[]
+         */
+        this.playerFieldsNotInOutput = [];
 
         /** TODO: Description
          * @type boolean
@@ -1014,7 +1022,7 @@ class App {
         var playerHeaders = [];
         var periodSkip = ['id'];
         var groupSkip = ['id', 'allPlayersCreated'];
-        var playerSkip = ['status', 'stageIndex', 'id', 'participantId'];
+        var playerSkip = ['status', 'stageIndex', 'id', 'participantId'].concat(this.playerFieldsNotInOutput);
         var groupTables = [];
         var groupTableHeaders = {};
         for (var i=0; i<this.periods.length; i++) {

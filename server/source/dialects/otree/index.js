@@ -25,7 +25,8 @@ const KINDS = { int: 'int', number: 'number', currency: 'number', string: 'strin
 
 // oTree's pages are written for Bootstrap 5. jtree moves <link>s in screens to the page's head.
 const STYLES = '<link rel="stylesheet" href="/shared/bootstrap-5.3.8/bootstrap.min.css">' +
-    '<link rel="stylesheet" href="/participant/otree.css">';
+    '<link rel="stylesheet" href="/participant/otree.css">' +
+    '<script src="/participant/otree.js"></script>';
 
 /** The Python package an app's folder is loaded as. */
 function packageFor(appPath) {
@@ -122,7 +123,11 @@ function definePage(app, page, pkg) {
     stage.validate = (player, values) => runtime.getBridge().validate(pkg, page.name, player, values) || undefined;
     stage.playerStart = (player) => {
         player.otreeHtml = runtime.getBridge().render(pkg, page.name, player);
+        player.otreeJsVars = has('js_vars') ? runtime.getBridge().js_vars(pkg, page.name, player) : null;
     };
+    if (has('live_method')) {
+        stage.otreeLive = true;
+    }
     if (has('before_next_page')) {
         stage.playerEnd = (player) => call('before_next_page', player, !!player.timedOut);
     }
@@ -162,6 +167,7 @@ module.exports = {
             throw err;
         }
         app.otree = { pkg, constants: info.constants, roles: info.roles };
+        app.playerFieldsNotInOutput = ['otreeHtml', 'otreeJsVars'];
         app.shortId = info.name || path.basename(dir);
         app.title = info.name || path.basename(dir);
         if (info.doc) app.description = info.doc;
@@ -180,5 +186,24 @@ module.exports = {
         for (const page of info.pages) {
             definePage(app, page, pkg);
         }
+        // liveSend(data) on a page with a live_method: what it returns goes to the group's
+        // players' pages, to liveRecv(data); 0 is everyone.
+        app.messages.liveSend = function(data) {
+            const player = this.participant.player;
+            if (player == null || !player.stage.otreeLive || player.status !== 'playing') {
+                return;
+            }
+            const sends = runtime.getBridge().live(pkg, player.stage.id, player, data);
+            const io = player.session().io();
+            for (const [id, value] of sends || []) {
+                for (const p of player.group.players) {
+                    if (id === 0 || p.idInGroup === id) {
+                        io.to(p.participant.roomId()).emit('liveRecv', value);
+                    }
+                }
+            }
+        };
+        // Its data as the page sent it, not with numbers parsed (see Session#processMessage).
+        app.messages.liveSend.convertsOwnValues = true;
     },
 };

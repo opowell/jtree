@@ -232,3 +232,30 @@ def session_configs(settings_dir):
         merged.update(config)
         out.append(_json_value(merged))
     return json.dumps(out)
+
+
+# --- Live pages ---------------------------------------------------------------------------
+
+def live(pkg, page_name, js_player, js_data):
+    """The page's live_method(player, data): what to send to whom, as [[id_in_group, data]]
+    (0 for the whole group), or None."""
+    info = _apps[pkg]
+    fn = info.pages[page_name].live_method
+    if isinstance(fn, str):
+        fn = getattr(info.mod, fn)
+    data = js_data.to_py() if hasattr(js_data, 'to_py') else js_data
+    result = fn(info.Player(js_player), data)
+    if result is None:
+        return None
+    if not isinstance(result, dict):
+        raise TypeError('live_method should return a dict, of id_in_group (0 for everyone) to data')
+    return _js([[int(k), v] for k, v in result.items()])
+
+
+def js_vars(pkg, page_name, js_player):
+    """The page's js_vars(player), for its scripts as js_vars; or None."""
+    info = _apps[pkg]
+    page = info.pages[page_name]
+    if not callable(getattr(page, 'js_vars', None)):
+        return None
+    return _js(page.js_vars(info.Player(js_player)) or {})

@@ -153,3 +153,27 @@ test("an oTree project's session configs are queues: their apps, config, fee and
     assert.equal(session.otreeConfig.bonus, 3);
     assert.deepEqual([session.showUpFee, session.exchangeRate], [5, 0.5]);
 });
+
+test('live pages, in oTree: liveSend reaches live_method, what it returns reaches the group, js_vars', async () => {
+    const session = server.createSession(otreeApp('live_bids'), { numParticipants: 2 });
+    const [a, b] = await server.connectAll(session);
+    session.start();
+    await Promise.all([a, b].map(bot => bot.waitForStage('Bid')));
+    assert.deepEqual(a.player.otreeJsVars, { min_bid: 5, my_id: 1 });
+    assert.match(a.player.otreeHtml, /<script>/);
+
+    // To everyone (0).
+    let got = [a.nextMessage('liveRecv'), b.nextMessage('liveRecv')];
+    a.send('liveSend', { amount: 10 });
+    assert.deepEqual(await Promise.all(got), [{ highest: 10, by: 1 }, { highest: 10, by: 1 }]);
+    assert.equal(a.player.group.highest, 10);
+
+    // To the bidder only.
+    got = b.nextMessage('liveRecv');
+    b.send('liveSend', { amount: 7 });
+    assert.deepEqual(await got, { error: 'Bid more than 10' });
+    assert.deepEqual([a.player.bids, b.player.bids], [1, 1]);
+
+    [a, b].forEach(bot => bot.submit());
+    await Promise.all([a, b].map(bot => bot.waitForEnd()));
+});

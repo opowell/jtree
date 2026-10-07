@@ -297,6 +297,14 @@ class Bot {
         return until(() => this.formErrors, { timeout, what: this.id + "'s form to be refused" });
     }
 
+    /** Resolves to the data of the next message name the server sends this bot's page. */
+    nextMessage(name, { timeout = 5000 } = {}) {
+        return new Promise((resolve, reject) => {
+            const timer = setTimeout(() => reject(new Error(this.id + ' got no ' + name)), timeout);
+            this.socket.once(name, (data) => { clearTimeout(timer); resolve(data); });
+        });
+    }
+
     /** Sends a custom message, as jt.sendMessage(name, data) does. */
     send(name, data) {
         this.socket.emit(name, { data });
