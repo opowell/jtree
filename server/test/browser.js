@@ -70,7 +70,7 @@ async function launch() {
     { stdio: 'ignore' });
     // Chrome writes the port it chose to DevToolsActivePort.
     const portFile = path.join(profile, 'DevToolsActivePort');
-    for (let i = 0; i < 600 && !fs.existsSync(portFile); i++) await sleep(50);
+    for (let i = 0; i < 1200 && !fs.existsSync(portFile); i++) await sleep(50);
     if (!fs.existsSync(portFile)) {
         proc.kill();
         throw new Error('Chrome did not start');
@@ -105,7 +105,7 @@ async function launch() {
                     return r.result.value;
                 },
                 /** Waits until fn is true in the page. */
-                async waitFor(fn, { timeout = 30000, what } = {}, ...args) {
+                async waitFor(fn, { timeout = 60000, what } = {}, ...args) {
                     const end = Date.now() + timeout;
                     for (;;) {
                         try {
@@ -137,6 +137,11 @@ async function launch() {
                         el.dispatchEvent(new Event('input', { bubbles: true }));
                         el.dispatchEvent(new Event('change', { bubbles: true }));
                     }, selector, value);
+                },
+                /** Saves a PNG of the page to file. */
+                async screenshot(file) {
+                    const { data } = await send('Page.captureScreenshot', { format: 'png' });
+                    fs.writeFileSync(file, Buffer.from(data, 'base64'));
                 },
                 async close() {
                     sessions.delete(sessionId);

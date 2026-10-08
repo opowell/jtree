@@ -548,6 +548,46 @@ page sending its participant into the session the admin opens there, the oTree a
 from a config, its links, rooms, converting an app), admin v2's rooms, a converted app played in
 browsers. `ExtraModel` rows persist only with the session's record.
 
+### Phases 6 and 9: z-Tree treatments run in jtree (started)
+
+`server/source/dialects/ztree/`: a z-Tree treatment (a `.ztt` file) loads as a jtree app, read
+from z-Tree's binary format directly (Phase 9 came first: z-Tree's examples are only published as
+`.ztt`, and no text exports were at hand).
+
+- `ztt.js` reads file versions 16, 18 and 34 (z-Tree 3), worked out from z-Tree's nine examples:
+  treatment, tables, background and stages (programs, timeout, options, active and waiting
+  screens), boxes (standard, header, help, container, contract list and creation, history, grid,
+  chat, calculator) with their placement, items (label, variable, input, min, max, layout),
+  buttons with their checkers and programs, and the parameter table (periods, subjects, groups,
+  programs). Each class's leading fields are read exactly; the bytes after them (display
+  settings) are skipped, and the tree is put together from the objects' classes and the lists'
+  lengths. Contract boxes' settings after their lists (owner, condition, sorting) are read
+  loosely.
+- `lang.js`: z-Tree's language: assignments, `if`/`elseif`/`else`, `while`, `repeat`, arrays,
+  `T.do`, `T.new`, `later ( ) do/repeat`, `:x`, `\x`, `OLD` tables, table functions
+  (`sum`/`count`/`average`/`minimum`/`maximum`/`find`/`same`/...), and z-Tree's functions.
+- `runtime.js`: z-Tree's tables (globals, subjects, summary, contracts, session) each period;
+  the background's and parameter table's programs at a period's start; stages' programs as
+  they start (all at once for "wait for all", each subject's for "start if possible") and
+  Participate; buttons (inputs checked against min, max and resolution, checkers, programs on
+  the box's record, the subject's or globals); contract creation and lists; chat; Profit as
+  points.
+- `render.js` and `participant/ztree.js`: z-Leaf's screens: boxes placed by their distances and
+  sizes, items with their layouts (numbers, `!text`, `!radio`, `!radioline`, `!checkbox`,
+  `!slider`, `!button`, `<>` texts with `<var|layout>`), the header's countdown, z-Leaf's
+  messages; drawn by the server and sent again whenever the tables change, keeping what a
+  subject has typed.
+- Data: the tables as z-Tree's `.xls` (tab-separated text), a download.
+- Tests (`test/ztree.test.js`, and two in `test/browser.test.js`): z-Tree's examples, downloaded
+  from its site (not in the repository): all are read; pg, ug, pd, game222, noda, asset_da,
+  dutchauction, chatdemo and ifelems_e are played through participants' messages, with their
+  results checked; pg and noda in browsers.
+
+Not yet: z-Tree's admin (Phase 7: admin-ztree has someone's work in progress); questionnaires
+(`.ztq`); plot and multimedia boxes; z-Tree's text export as input; converting treatments to
+`.jtt` (Phase 8); stages' options other than "start if possible" and the header (bit 2 of the
+first, set on the examples' market stages, is not known); boxes' frames and buttons' placement.
+
 ### Phase 8: converters (oTree's done)
 
 `dialects/otree/convert.js` (`node server/source/dialects/otree/convert.js <app> [<out>]`)

@@ -1,0 +1,116 @@
+/* z-Tree treatments' screens (see ztree.js): the whole window, its boxes placed as z-Leaf places them. */
+body {
+    max-width: none;
+    margin: 0;
+}
+#jtree {
+    min-width: 0;
+    min-height: 0;
+    padding: 0;
+    border: none;
+    margin: 0;
+    background: transparent;
+}
+.ztree-page {
+    position: fixed;
+    inset: 0;
+    background: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    color: #000;
+    z-index: 10;
+}
+.ztree-screen, .ztree-screen-boxes {
+    position: absolute;
+    inset: 0;
+}
+.ztree-box {
+    position: absolute;
+    box-sizing: border-box;
+    overflow: auto;
+}
+.ztree-box--container { overflow: visible; }
+.ztree-box-inner {
+    box-sizing: border-box;
+    min-height: 100%;
+    padding: 0.8em 1.2em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.ztree-box--standard > .ztree-box-inner, .ztree-box--contractCreation > .ztree-box-inner { justify-content: center; }
+.ztree-box--contractList > .ztree-box-inner, .ztree-box--history > .ztree-box-inner, .ztree-box--chat > .ztree-box-inner { justify-content: flex-start; }
+.ztree-box--header {
+    border-bottom: 1px solid #888;
+    background: #f2f2f2;
+}
+.ztree-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.ztree-header-time--over { color: #c00; font-weight: bold; }
+.ztree-box--help { border-top: 1px solid #888; background: #ffffe8; }
+.ztree-help-title { font-weight: bold; margin-bottom: 0.3em; }
+.ztree-items {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0.5em 1.5em;
+    align-items: center;
+}
+.ztree-item { display: contents; }
+.ztree-label { text-align: right; }
+.ztree-label--wide { grid-column: 1 / span 2; text-align: center; }
+.ztree-value, .ztree-input { text-align: left; }
+.ztree-input input[type=text] { width: 8em; font-size: inherit; padding: 2px 4px; }
+.ztree-choice { display: block; }
+.ztree-radioline, .ztree-slider { display: inline-flex; align-items: center; gap: 0.4em; }
+.ztree-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.6em;
+    margin-top: 1em;
+}
+.ztree-button, .ztree-item-button, .ztree-message-ok {
+    font-size: inherit;
+    padding: 0.35em 1.4em;
+    cursor: pointer;
+}
+.ztree-list, .ztree-grid {
+    border-collapse: collapse;
+    margin: 0 auto;
+}
+.ztree-list th, .ztree-list td, .ztree-grid td {
+    padding: 2px 10px;
+    text-align: center;
+}
+.ztree-list thead th { border-bottom: 1px solid #888; }
+.ztree-row { cursor: pointer; }
+.ztree-row--selected, .ztree-row:has(input:checked) { background: #cde; }
+.ztree-chat-log {
+    flex: 1;
+    overflow: auto;
+    border: 1px solid #aaa;
+    padding: 0.3em;
+    min-height: 3em;
+}
+.ztree-chat-input input { width: 100%; box-sizing: border-box; margin-top: 0.4em; font-size: inherit; }
+.ztree-message {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+.ztree-message-box {
+    background: #fff;
+    border: 1px solid #555;
+    padding: 1.5em 2em;
+    max-width: 30em;
+    text-align: center;
+    white-space: pre-line;
+}
+.ztree-message-ok { margin-top: 1em; }
+.ztree-error { color: #b00; padding: 1em; }

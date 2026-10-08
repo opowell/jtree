@@ -10,6 +10,7 @@ const { startServer } = require('./harness.js');
 const { launch, findChrome } = require('./browser.js');
 const python = require('../source/dialects/otree/runtime.js');
 const { convertApp } = require('../source/dialects/otree/convert.js');
+const ztree = require('./ztree-examples.js');
 
 const skip = findChrome() == null ? 'no Chrome here' : false;
 let server, browser, apps;
@@ -145,4 +146,53 @@ test("admin v2: a session's rooms, and opening it in one", { skip }, async () =>
     assert.equal(server.jt.data.room('online').shell().sessionId, session.id);
     assert.deepEqual(admin.errors, []);
     await admin.close();
+});
+
+test('z-Tree: a public goods game in browsers, with z-Leaf\'s messages and waiting screen', { skip }, async (t) => {
+    if (!(await ztree.ensureExamples())) return t.skip("z-Tree's examples could not be downloaded");
+    const session = server.createSession(ztree.file('pg'), { numParticipants: 2 });
+    session.start();
+    const pages = await openParticipants(session);
+    for (const page of pages) {
+        await page.waitFor(() => /Your contribution to the project/.test(document.body.innerText), { what: 'the contribution screen' });
+    }
+    const [p1, p2] = pages;
+    assert.match(await p1.text(), /Period 1 of 1/);
+    await p1.waitFor(() => /Remaining time \[sec\]: \d+/.test(document.body.innerText), { what: 'the time left' });
+    await p1.type('input[name="Contribution"]', '25');
+    await p1.click('.ztree-button', 'OK');
+    await p1.waitFor(() => /Please enter a number from 0 to 20/.test(document.body.innerText), { what: "z-Leaf's message" });
+    await p1.click('.ztree-message-ok');
+    await p1.type('input[name="Contribution"]', '5');
+    await p1.click('.ztree-button', 'OK');
+    await p1.waitFor(() => /Please wait until the experiment continues/.test(document.body.innerText), { what: 'the waiting screen' });
+    await p2.type('input[name="Contribution"]', '10');
+    await p2.click('.ztree-button', 'OK');
+    await p1.waitFor(() => /Your Income in this period\s*27\.0/.test(document.body.innerText), { what: 'the profit' });
+    await p2.waitFor(() => /Your Income in this period\s*22\.0/.test(document.body.innerText), { what: 'the profit' });
+    assert.deepEqual([...p1.errors, ...p2.errors], []);
+    for (const page of pages) await page.close();
+});
+
+test('z-Tree: a double auction in browsers: an offer shows at once on a buyer\'s screen, who buys it', { skip }, async (t) => {
+    if (!(await ztree.ensureExamples())) return t.skip("z-Tree's examples could not be downloaded");
+    const session = server.createSession(ztree.file('noda'), { numParticipants: 8 });
+    session.start();
+    const seller = await browser.open(server.url + '/session/' + session.id + '/P1');
+    const buyer = await browser.open(server.url + '/session/' + session.id + '/P5');
+    await seller.waitFor(() => /Make offer/.test(document.body.innerText), { what: "the seller's market" });
+    await buyer.waitFor(() => /buy/.test(document.body.innerText), { what: "the buyer's market" });
+    // The buyer starts typing an offer of their own: kept while the screen changes.
+    await buyer.type('input[name="Price"]', '42');
+    await seller.type('input[name="Price"]', '150');
+    await seller.click('.ztree-button', 'Make offer');
+    await buyer.waitFor(() => [...document.querySelectorAll('.ztree-row')].some((r) => /150/.test(r.innerText)), { what: 'the offer on the buyer\'s screen' });
+    assert.equal(await buyer.eval(() => document.querySelector('input[name="Price"]').value), '42');
+    await buyer.eval(() => [...document.querySelectorAll('.ztree-row')].find((r) => /150/.test(r.innerText)).click());
+    await buyer.click('.ztree-button', 'buy');
+    await buyer.waitFor(() => /Current Profit\s*250/.test(document.body.innerText), { what: "the buyer's profit" });
+    await seller.waitFor(() => /Current Profit\s*130/.test(document.body.innerText), { what: "the seller's profit" });
+    assert.deepEqual([...seller.errors, ...buyer.errors], []);
+    await seller.close();
+    await buyer.close();
 });
