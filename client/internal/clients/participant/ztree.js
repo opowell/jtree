@@ -11,6 +11,17 @@
 
     // What the subject has typed, by box and input name, until the box's button is accepted.
     var typed = {};
+    // The newest screen the server sent: {html, stage, version}.
+    var latest = null;
+
+    /** If the screen shown is older than the newest one sent (drawn from an older update), the newest. */
+    function keepNewest() {
+        var page = visibleScreen();
+        if (page == null || latest == null || latest.stage !== stageId()) return;
+        var screen = page.querySelector('.ztree-screen[data-version]');
+        var shown = screen ? Number(screen.getAttribute('data-version')) : 0;
+        if (shown < latest.version) show(latest.html);
+    }
 
     function visibleScreen() {
         var pages = document.querySelectorAll('.ztree-page');
@@ -197,12 +208,16 @@
             }
         }
     }
-    setInterval(tick, 250);
+    setInterval(function () {
+        tick();
+        keepNewest();
+    }, 250);
 
     var wait = setInterval(function () {
         if (window.jt == null || jt.socket == null) return;
         clearInterval(wait);
         jt.socket.on('ztreeScreen', function (d) {
+            if (latest == null || d.version > latest.version || d.stage !== latest.stage) latest = d;
             if (d.stage === stageId()) show(d.html);
         });
         jt.socket.on('ztreeMessage', function (d) { message(d.text); });
@@ -214,6 +229,7 @@
             setTimeout(function () {
                 var page = visibleScreen();
                 if (page) restore(page);
+                keepNewest();
                 tick();
             }, 0);
         };

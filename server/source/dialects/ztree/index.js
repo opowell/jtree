@@ -67,12 +67,19 @@ function draw(player, which) {
         run.note('drawing a screen: ' + err.message);
         html = '<div class="ztree-error">This screen could not be shown: ' + String(err.message).replace(/</g, '&lt;') + '</div>';
     }
-    if (html !== player.ztreeHtml) {
-        player.ztreeHtml = html;
+    if (html !== drawn.get(player)) {
+        drawn.set(player, html);
+        // Numbered, so that a page shows the newest screen it got, whichever way it came
+        // ('ztreeScreen', or jtree's update of the player, which may come later).
+        player.ztreeVersion = (player.ztreeVersion || 0) + 1;
+        player.ztreeHtml = html.replace('<div class="ztree-screen"', '<div class="ztree-screen" data-version="' + player.ztreeVersion + '"');
         const io = player.session().io();
-        if (io != null) io.to(player.participant.roomId()).emit('ztreeScreen', { html, stage: player.stage.id });
+        if (io != null) io.to(player.participant.roomId()).emit('ztreeScreen', { html: player.ztreeHtml, stage: player.stage.id, version: player.ztreeVersion });
     }
 }
+
+/** The screen last drawn for each player (without its number). */
+const drawn = new WeakMap();
 
 function defineStage(app, zstage, index, treatment) {
     const stage = app.newStage('stage' + (index + 1));
@@ -180,7 +187,7 @@ module.exports = {
             (treatment.periods.length === 1 ? '' : 's') + ', ' + treatment.stages.length + ' stages.';
         app.numPeriods = Math.max(1, treatment.periods.length);
         app.suggestedNumParticipants = treatment.subjects.length;
-        app.playerFieldsNotInOutput = ['ztreeHtml', 'ztreeWhich', 'ztreeWaitingStage', 'ztreeDeadline', 'ztreeFields'];
+        app.playerFieldsNotInOutput = ['ztreeHtml', 'ztreeWhich', 'ztreeWaitingStage', 'ztreeDeadline', 'ztreeFields', 'ztreeVersion'];
         app.waitingScreen = SCREEN_ASSETS + '<div class="ztree-page" v-if="player.stage == null || player.stage.ztree == null" v-html="player.ztreeHtml"></div>';
         if (treatment.warnings.length) app.ztree.warnings = treatment.warnings;
 
