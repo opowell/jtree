@@ -35,11 +35,13 @@
         if (page == null || jt.data == null || jt.data.player == null) {
             return;
         }
-        var html = jt.data.player.otreeHtml;
-        if (html == null || html === shown) {
+        // Started for what is in the page now (Vue puts a new page's HTML in the same element, as
+        // new nodes): not for the player's data, which may come before Vue has drawn it.
+        var first = page.firstChild;
+        if (first == null || first === shown) {
             return;
         }
-        shown = html;
+        shown = first;
         startTimer(page);
         startChats(page);
         window.js_vars = jt.data.player.otreeJsVars || {};
@@ -126,8 +128,9 @@
                 });
             }
         }, 50);
-        // The page may have been rendered before this hooked in.
+        // The page may have been rendered before this hooked in, or after the last update's hook.
         setTimeout(runScripts, 0);
+        setInterval(runScripts, 250);
     }
 
     // A clicked button with a name submits its value, as on oTree's pages
