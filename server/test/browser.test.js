@@ -186,12 +186,37 @@ test('z-Tree: a double auction in browsers: an offer shows at once on a buyer\'s
     await buyer.type('input[name="Price"]', '42');
     await seller.type('input[name="Price"]', '150');
     await seller.click('.ztree-button', 'Make offer');
-    await buyer.waitFor(() => [...document.querySelectorAll('.ztree-row')].some((r) => /150/.test(r.innerText)), { what: 'the offer on the buyer\'s screen' });
+    try {
+        await buyer.waitFor(() => [...document.querySelectorAll('.ztree-row')].some((r) => /150/.test(r.innerText)), { what: 'the offer on the buyer\'s screen' });
+    } catch (err) {
+        // What the server has, and what each page shows.
+        const run = session.apps[0].ztreeRun;
+        const state = (page) => page.eval(() => ({
+            text: document.body.innerText.slice(0, 600),
+            pages: document.querySelectorAll('.ztree-page').length,
+            versions: [...document.querySelectorAll('.ztree-screen')].map((e) => e.getAttribute('data-version')),
+            stage: window.jt && jt.data && jt.data.player && jt.data.player.stage && jt.data.player.stage.id,
+            status: window.jt && jt.data && jt.data.player && jt.data.player.status,
+        }));
+        throw new Error(err.message + '\ncontracts: ' + JSON.stringify(run.periods[0].contracts) + '\nerrors: ' + JSON.stringify(run.errors) +
+            '\nserver, buyer: version ' + session.participants.P5.player.ztreeVersion + ', ' + session.participants.P5.player.status +
+            '\nbuyer page: ' + JSON.stringify(await state(buyer)) + '\nseller page: ' + JSON.stringify(await state(seller)) +
+            '\nseller errors: ' + seller.errors.join(' | '));
+    }
     assert.equal(await buyer.eval(() => document.querySelector('input[name="Price"]').value), '42');
     await buyer.eval(() => [...document.querySelectorAll('.ztree-row')].find((r) => /150/.test(r.innerText)).click());
     await buyer.click('.ztree-button', 'buy');
     await buyer.waitFor(() => /Current Profit\s*250/.test(document.body.innerText), { what: "the buyer's profit" });
-    await seller.waitFor(() => /Current Profit\s*130/.test(document.body.innerText), { what: "the seller's profit" });
+    try {
+        await seller.waitFor(() => /Current Profit\s*130/.test(document.body.innerText), { what: "the seller's profit" });
+    } catch (err) {
+        const p1 = session.participants.P1.player;
+        throw new Error(err.message + '\nserver, seller: version ' + p1.ztreeVersion + ', ' + p1.status + ', profit ' + session.apps[0].ztreeRun.periods[0].subjects[0].Profit +
+            '\nseller page: ' + JSON.stringify(await seller.eval(() => ({
+                text: document.body.innerText.slice(0, 400),
+                versions: [...document.querySelectorAll('.ztree-screen')].map((e) => e.getAttribute('data-version')),
+            }))));
+    }
     assert.deepEqual([...seller.errors, ...buyer.errors], []);
     await seller.close();
     await buyer.close();
