@@ -66,7 +66,11 @@ async function launch() {
     if (exe == null) return null;
     const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'jtree-chrome-'));
     const proc = spawn(exe, ['--headless=new', '--remote-debugging-port=0', '--user-data-dir=' + profile, '--no-first-run',
-        '--no-default-browser-check', '--disable-gpu', '--disable-extensions', '--window-size=1200,900', 'about:blank'],
+        '--no-default-browser-check', '--disable-gpu', '--disable-extensions', '--window-size=1200,900',
+        // Pages in tabs behind others keep running as in front (as puppeteer has them): Chrome
+        // slows hidden tabs' timers, which socket.io's connections depend on.
+        '--disable-background-timer-throttling', '--disable-backgrounding-occluded-windows', '--disable-renderer-backgrounding',
+        '--disable-background-networking', '--disable-ipc-flooding-protection', 'about:blank'],
     { stdio: 'ignore' });
     // Chrome writes the port it chose to DevToolsActivePort.
     const portFile = path.join(profile, 'DevToolsActivePort');
