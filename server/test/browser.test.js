@@ -221,3 +221,61 @@ test('z-Tree: a double auction in browsers: an offer shows at once on a buyer\'s
     await seller.close();
     await buyer.close();
 });
+
+test('admin-ztree: a z-Tree treatment as z-Tree shows it: its stage tree, parameter table, and tables', { skip }, async (t) => {
+    if (!(await ztree.ensureExamples())) return t.skip("z-Tree's examples could not be downloaded");
+    const folder = path.join(apps, 'ztree');
+    fs.mkdirSync(folder, { recursive: true });
+    fs.copyFileSync(ztree.file('noda'), path.join(folder, 'noda.ztt'));
+    server.jt.data.loadAppDir(folder);
+    const session = server.createSession(path.join(folder, 'noda.ztt'), { numParticipants: 8 });
+    const bots = await server.connectAll(session);
+    session.start();
+    await bots[0].waitForStage('stage1');
+    bots[0].send('ztreeButton', { stage: 'stage1', box: '1.1', button: 0, values: { Price: '150' } });
+
+    const admin = await browser.open(server.url + '/admin/ztree/');
+    // The admin compiles its source in the browser first: slow in a new profile.
+    await admin.waitFor(() => /Connection Monitor/.test(document.body.innerText), { what: 'admin-ztree', timeout: 240000 });
+    await admin.eval((id) => { localStorage.setItem('jtree-ztree-session', id); location.reload(); }, session.id);
+    await admin.waitFor(() => /Seller Auction/.test(document.body.innerText), { what: "the session's clients, by stage", timeout: 120000 });
+    const menu = async (name, item) => {
+        await admin.click('button', name);
+        await admin.waitFor((i) => [...document.querySelectorAll('*')].some((e) => e.children.length < 3 && e.textContent.trim().startsWith(i)), { what: item }, item);
+        await admin.eval((i) => [...document.querySelectorAll('*')].find((e) => e.children.length < 3 && e.textContent.trim().startsWith(i)).click(), item);
+    };
+    // File → Open…: the treatment, by its path.
+    await menu('File', 'Open…');
+    await admin.waitFor(() => document.querySelector('#open-name') != null, { what: 'the Open dialog' });
+    const rel = path.join(folder, 'noda.ztt').replace(/\\/g, '/');
+    await admin.eval((v) => {
+        const input = document.querySelector('#open-name');
+        input.value = v;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+    }, rel.replace(/^\/+/, '').replace(/^[A-Za-z]:\//, ''));
+    // Open is enabled once the dialog has the name.
+    await admin.waitFor(() => [...document.querySelectorAll('button')].some((b) => b.textContent.trim() === 'Open' && !b.disabled), { what: 'Open enabled' });
+    await admin.eval(() => [...document.querySelectorAll('button')].find((b) => b.textContent.trim() === 'Open').click());
+    try {
+        await admin.waitFor(() => /Seller Auction\s+=\|= \(TimeAuction\)/.test(document.body.innerText), { what: 'the stage tree' });
+    } catch (err) {
+        throw new Error(err.message + '\nopen dialog: ' + JSON.stringify(await admin.eval(() => ({
+            name: document.querySelector('#open-name')?.value,
+            text: document.querySelector('#open-name')?.closest('[role=dialog], .zt-dialog, form, div')?.parentElement?.innerText?.slice(0, 800),
+            windows: document.body.innerText.match(/⠿[^⠿]{0,60}/g),
+        }))));
+    }
+    const tree = await admin.text();
+    for (const text of ['subjects.do { … }', 'Participate = if ( Type == SELLERTYPE,1,0);', 'Contract creation box', 'IN( Price )', 'Make offer', 'Checker: NumTrades < MaxTrades']) {
+        assert.ok(tree.includes(text), text);
+    }
+    // Treatment → Parameter Table.
+    await menu('Treatment', 'Parameter Table');
+    await admin.waitFor(() => /S G1: Type = SELLERTYPE;/.test(document.body.innerText) && /B G1: Type = BUYERTYPE;/.test(document.body.innerText), { what: 'the parameter table' });
+    await admin.eval(() => [...document.querySelectorAll('button')].find((b) => b.textContent.trim() === 'OK').click());
+    // Run → contracts Table: the offer made.
+    await menu('Run', 'contracts Table');
+    await admin.waitFor(() => /Seller\tPrice|Seller[\s\S]*Price[\s\S]*150/.test(document.body.innerText) && /150/.test(document.body.innerText), { what: 'the contracts table' });
+    assert.deepEqual(admin.errors, []);
+    await admin.close();
+});

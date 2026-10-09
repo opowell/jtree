@@ -106,7 +106,9 @@ export const menus = computed<MenuItemDef[]>(() => {
       { label: 'Expand All', disabled: !doc, action: act.expandAll },
       sep,
       { label: 'Stage Tree', checked: true, disabled: !doc },
-      off('Parameter Table'),
+      doc?.ztt
+        ? { label: 'Parameter Table', action: () => void act.parameterTable(doc) }
+        : off('Parameter Table'),
       sep,
       { label: 'Check', disabled: !doc, action: () => void act.check() },
       sep,

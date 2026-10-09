@@ -26,6 +26,15 @@ chapters 2.5–2.6 (testing a treatment), 5 (conducting a session) and 8 (menu c
 | Background `globals.do { … }` | Top-level code such as `app.pieSize = 100;` |
 | Active screen boxes and items | The stage's HTML: a `<form>` is a standard box, `<input name="player.x">` an `IN( player.x )` item, `{{player.x}}` an `OUT( player.x )` item |
 
+## z-Tree's own treatments
+
+A z-Tree treatment (`.ztt`) or questionnaire (`.ztq`) in the apps folder runs as it is (see
+`server/source/dialects/ztree`). Opened here (File → Open…), it shows as z-Tree shows it, read
+only: its stage tree (`treatment/ztt.ts`: tables, programs, screens, boxes, items, buttons with
+their checkers and programs), its dialogs, and Treatment → Parameter Table. Run → Tables show
+its own z-Tree tables (`globals`, `subjects`, `summary`, `contracts`, as the server's
+`ztreeTables` message sends them, again whenever they change).
+
 ## Windows
 
 - **Treatment windows** (File → Open…, New Treatment): the stage tree, parsed

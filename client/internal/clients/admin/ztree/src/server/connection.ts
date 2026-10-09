@@ -30,7 +30,18 @@ export const state = reactive({
   jtreeLocalPath: '',
   session: null as SessionFull | null,
   log: [] as LogEntry[],
+  /**
+   * The open session's z-Tree treatments' own tables (server/source/dialects/ztree), by the
+   * treatment's number in the session: each period's globals, subjects, summary and contracts.
+   */
+  ztreeTables: {} as Record<string, ZtreeTables>,
 })
+
+export interface ZtreeTables {
+  periods: Array<Record<string, Array<Record<string, unknown>>> | null>
+  session: Array<Record<string, unknown>>
+  current: number
+}
 
 const LOG_LIMIT = 1000
 let logCounter = 0
@@ -160,9 +171,19 @@ socket.on('refreshAdmin', (ag: AdminRefresh) => {
 socket.on('openSession', (session: SessionFull) => {
   const isNew = state.session?.id !== session.id
   state.session = session
+  if (isNew) state.ztreeTables = {}
+  socket.emit('ztreeTables', session.id)
   safeStorage('set', SESSION_KEY, session.id)
   upsertSession(session)
   if (isNew) addLog('openSession', `Session ${session.id}`)
+})
+
+// z-Tree treatments' tables, when the server says they changed.
+socket.on('ztreeTablesChanged', (d: { sessionId: string }) => {
+  if (state.session?.id === d.sessionId) socket.emit('ztreeTables', d.sessionId)
+})
+socket.on('ztreeTables', (d: { sessionId: string, apps: Record<string, ZtreeTables> }) => {
+  if (state.session?.id === d.sessionId) state.ztreeTables = d.apps
 })
 
 socket.on('addSession', (session: SessionShell) => {

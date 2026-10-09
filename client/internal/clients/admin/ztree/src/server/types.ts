@@ -16,6 +16,8 @@ export interface AppMeta {
   stages?: string[]
   options?: AppOption[]
   appjs?: string
+  /** A z-Tree treatment's description, as the server read its .ztt file (see treatment/ztt.ts). */
+  ztree?: unknown
 }
 
 export interface AppOption {
@@ -63,7 +65,7 @@ export interface SessionApp {
   groupSize?: number
   started?: boolean
   stopAfterPeriod?: boolean
-  stages?: Array<{ id: string, duration?: number }>
+  stages?: Array<{ id: string, title?: string, duration?: number }>
   periods?: PeriodState[]
   [key: string]: unknown
 }

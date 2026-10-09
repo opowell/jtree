@@ -1279,6 +1279,8 @@ class App {
         metaData.errorPosition = this.errorPosition;
         metaData.errorLine = this.errorLine;
         metaData.isStandaloneApp = this.isStandaloneApp;
+        // A z-Tree treatment's description (dialects/ztree/ztt.js), for admins that show it as z-Tree does.
+        if (this.ztree != null) metaData.ztree = this.ztree.treatment;
 
         // var folder = path.join(this.jt.path, this.jt.settings.appFolders[0] + '/' + this.id);
         try {

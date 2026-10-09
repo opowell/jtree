@@ -583,8 +583,14 @@ from z-Tree's binary format directly (Phase 9 came first: z-Tree's examples are 
   dutchauction, chatdemo and ifelems_e are played through participants' messages, with their
   results checked; pg and noda in browsers.
 
-Not yet: z-Tree's admin (Phase 7: admin-ztree has someone's work in progress); questionnaires
-(`.ztq`); plot and multimedia boxes; z-Tree's text export as input; converting treatments to
+Phase 7: admin-ztree opens a `.ztt` as z-Tree shows it (its stage tree, read only, from the
+treatment the server read: `treatment/ztt.ts`), with Treatment → Parameter Table, and Run's
+tables showing the treatment's own z-Tree tables (`ztreeTables`, sent again when they change);
+the Connection Monitor names z-Tree's stages. Questionnaires (`.ztq`, `ztq.js`) run as
+treatments: a stage a questionnaire, texts and questions (lines of choices between their
+labels), each subject at their own pace.
+
+Not yet: plot and multimedia boxes; z-Tree's text export as input; converting treatments to
 `.jtt` (Phase 8); stages' options other than "start if possible" and the header (bit 2 of the
 first, set on the examples' market stages, is not known); boxes' frames and buttons' placement.
 

@@ -130,7 +130,10 @@ export function appOf(participant: Participant, session: SessionFull) {
 export function stageName(player: PlayerState, participant: Participant, session: SessionFull): string {
   const app = appOf(participant, session)
   const index = player.stageIndex ?? 0
-  return player.stageId ?? app?.stages?.[index]?.id ?? ''
+  // A z-Tree treatment's stages have their own names (titles); jtree's ids are stage1, stage2, ...
+  const stage = app?.stages?.[index]
+  if (stage?.title && (player.stageId == null || player.stageId === stage.id)) return stage.title
+  return player.stageId ?? stage?.id ?? ''
 }
 
 /**
@@ -149,7 +152,8 @@ export function clientState(participant: Participant, session: SessionFull): str
   if (player.status === 'ready') {
     // Not yet let into this stage: still on the previous one's waiting screen.
     const index = player.stageIndex ?? 0
-    const previous = index > 0 ? app?.stages?.[index - 1]?.id : undefined
+    const before = index > 0 ? app?.stages?.[index - 1] : undefined
+    const previous = before?.title ?? before?.id
     return `- ${previous ?? stage} -`
   }
   return `- ${stage} -`

@@ -2,6 +2,8 @@ import { markRaw, reactive, watch } from 'vue'
 import { state } from '../server/connection'
 import { parseTreatment } from './parse'
 import type { Treatment, TreeNode } from './parse'
+import { zttTreatment } from './ztt'
+import type { ZttTreatment } from './ztt'
 
 /*
  * The treatments open in windows. Each holds its source as last read or
@@ -24,6 +26,8 @@ export interface TreatmentDoc {
   options: Record<string, unknown>
   /** Apps that are folders cannot be written back as one file. */
   readOnly: boolean
+  /** A z-Tree treatment's description, for one from a .ztt file. */
+  ztt?: ZttTreatment
 }
 
 export const docs = reactive<Record<string, TreatmentDoc>>({})
@@ -34,18 +38,23 @@ export function fileName(path: string): string {
   return path.split(/[\\/]/).pop() || path
 }
 
-function make(key: string, appId: string | null, name: string, source: string, readOnly: boolean): TreatmentDoc {
+function make(key: string, appId: string | null, name: string, source: string, readOnly: boolean, ztt?: ZttTreatment): TreatmentDoc {
+  // A z-Tree treatment (.ztt) is shown from what the server read in it, with a listing of its
+  // programs as its source (see ztt.ts); it is read only.
+  const treatment = ztt ? zttTreatment(ztt, name) : parseTreatment(source, name)
+  if (ztt) source = treatment.source
   return {
     key,
     appId,
     name,
     source,
     saved: source,
-    treatment: markRaw(parseTreatment(source, name)),
+    treatment: markRaw(treatment),
     collapsed: {},
     selected: 'bg',
     options: {},
     readOnly,
+    ztt: ztt ? markRaw(ztt) : undefined,
   }
 }
 
@@ -56,7 +65,7 @@ export function openDoc(appId: string): TreatmentDoc | null {
   if (!app) return null
   const path = app.appPath || appId
   const readOnly = !/\.(jtt|js)$/i.test(path)
-  docs[appId] = make(appId, appId, fileName(path), app.appjs ?? '', readOnly)
+  docs[appId] = make(appId, appId, fileName(path), app.appjs ?? '', readOnly, app.ztree as ZttTreatment | undefined)
   return docs[appId]
 }
 
@@ -120,7 +129,7 @@ watch(
     for (const doc of Object.values(docs)) {
       if (!doc.appId) continue
       const app = apps[doc.appId]
-      if (app && app.appjs != null && doc.source === doc.saved && app.appjs !== doc.saved) {
+      if (app && app.ztree == null && app.appjs != null && doc.source === doc.saved && app.appjs !== doc.saved) {
         doc.saved = app.appjs
         setSource(doc, app.appjs)
       }

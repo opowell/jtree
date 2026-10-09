@@ -265,8 +265,8 @@ class Data {
                     } else if (id.endsWith('.js')) {
                         isApp = true;
                         id = id.substring(0, id.length - '.js'.length);
-                    } else if (id.toLowerCase().endsWith('.ztt')) {
-                        // A z-Tree treatment (see dialects/ztree).
+                    } else if (/\.zt[tq]$/i.test(id)) {
+                        // A z-Tree treatment or questionnaire (see dialects/ztree).
                         isApp = true;
                         id = id.substring(0, id.length - '.ztt'.length);
                     } else if (id.endsWith('.jtt')) {

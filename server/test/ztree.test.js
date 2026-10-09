@@ -326,3 +326,59 @@ test('dutchauction: the price falls every 3 seconds (later ... repeat); the firs
     assert.match(g.bots[0].player.ztreeHtml, /Your Price was 95/);
     assert.match(g.bots[1].player.ztreeHtml, /You did not trade/);
 });
+
+test("admins get a session's z-Tree tables (ztreeTables), and word when they change", async (t) => {
+    if (!examples(t)) return;
+    const { io: ioClient } = require('socket.io-client');
+    const admin = ioClient(server.url, { path: '/socket.io', transports: ['websocket'], forceNew: true,
+        query: { id: '', type: 'ADMIN', sessionId: '', roomId: 'null' } });
+    try {
+        await new Promise((resolve, reject) => { admin.once('connect', resolve); admin.once('connect_error', reject); });
+        const g = await play('pg', 2);
+        for (const b of g.bots) await b.waitForStage('stage1');
+        // Word that this session's tables changed (other tests' sessions may say so too).
+        const changed = new Promise((resolve) => admin.on('ztreeTablesChanged', (d) => { if (d.sessionId === g.session.id) resolve(d); }));
+        await g.press(0, 'stage1', 0, 0, { Contribution: 5 });
+        await changed;
+        const tables = new Promise((resolve) => admin.once('ztreeTables', resolve));
+        admin.emit('ztreeTables', g.session.id);
+        const d = await tables;
+        const pg = d.apps[1];
+        assert.deepEqual(pg.periods[0].subjects.map((s) => [s.Subject, s.Contribution]), [[1, 5], [2, 0]]);
+        assert.equal(pg.periods[0].globals[0].Period, 1);
+        assert.equal(pg.session.length, 2);
+    } finally {
+        admin.close();
+    }
+});
+
+test('a .ztt treatment comes with its description in the app catalogue (for admin-ztree)', (t) => {
+    if (!examples(t)) return;
+    const app = server.jt.data.loadApp('pg', null, file('pg'), {});
+    const meta = app.metaData();
+    assert.equal(meta.ztree.stages[0].name, 'Contribution Entry');
+    assert.equal(meta.ztree.params.length, 2);
+});
+
+test('brand16.ztq (a questionnaire): its scales, answered and checked; then its last page', async (t) => {
+    if (!examples(t)) return;
+    const { readQuestionnaires } = require('../source/dialects/ztree/ztq.js');
+    const q = readQuestionnaires(fs.readFileSync(file('brand16.ztq')));
+    assert.deepEqual(q.questionnaires.map((x) => [x.title, x.items.length]), [['Persönlichkeitsfragebogen', 37], ['', 0]]);
+    const scales = q.questionnaires[0].items.filter((i) => i.variable);
+    assert.equal(scales.length, 34);
+    assert.deepEqual([scales[0].variable, scales[0].min, scales[0].max, scales[0].labels], ['bs01', 1, 9, ['sachbezogen', 'kontaktfreudig']]);
+
+    const g = await play('brand16.ztq', 2);
+    for (const b of g.bots) await b.waitForStage('stage1');
+    assert.match(g.bots[0].player.ztreeHtml, /sachbezogen.*type="radio" name="bs01" value="1".*kontaktfreudig/s);
+    const answers = Object.fromEntries(scales.map((s, i) => [s.variable, (i % 9) + 1]));
+    assert.match(await g.press(0, 'stage1', 0, 0, { ...answers, bs07: '' }), /Please enter a value/);
+    assert.equal(await g.press(0, 'stage1', 0, 0, answers), null);
+    // Each answers at their own pace: subject 1 goes on while subject 2 is still answering.
+    await g.bots[0].waitForStage('stage2');
+    assert.equal(g.bots[1].player.stage.id, 'stage1');
+    assert.equal(g.subject(0).bs01, 1);
+    assert.equal(g.subject(0).bs10, 1);
+    assert.equal(g.subject(0).bs34, 7);
+});

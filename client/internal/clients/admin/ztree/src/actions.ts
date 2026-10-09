@@ -9,6 +9,7 @@ import { newStageCode, parseTreatment, replaceRange, stageVariable } from './tre
 import type { TreeNode } from './treatment/parse'
 import { closeWindow, frontTreatment, frontWindow, openWindow, rememberRecent, tableWindowId, workspace } from './windows'
 import OpenDialog from './dialogs/OpenDialog.vue'
+import ParameterTableDialog from './dialogs/ParameterTableDialog.vue'
 import SaveAsDialog from './dialogs/SaveAsDialog.vue'
 import BackgroundDialog from './dialogs/BackgroundDialog.vue'
 import StageDialog from './dialogs/StageDialog.vue'
@@ -252,6 +253,12 @@ export function editPaste() {
 /* ------------------------------------------------------------- Treatment */
 
 /** Treatment → Info…: the dialog of the element selected in the stage tree. */
+/** Treatment → Parameter Table, for a z-Tree treatment: its periods, subjects, groups and programs. */
+export async function parameterTable(doc: TreatmentDoc) {
+  if (!doc.ztt) return
+  await showDialog(ParameterTableDialog, { treatment: doc.ztt, name: doc.name })
+}
+
 export async function info(doc: TreatmentDoc, nodeId?: string) {
   const node = findNode(doc.treatment.tree, nodeId ?? doc.selected ?? 'bg')
   if (!node) return

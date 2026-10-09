@@ -281,6 +281,40 @@ class Msgs {
         });
     }
 
+    /**
+     * Sends the admin who asked the z-Tree tables of a session's z-Tree treatments:
+     * ztreeTables {sessionId, apps: {<index in the session, from 1>: {periods: [{globals,
+     * subjects, summary, contracts}], session, current (period index)}}}.
+     */
+    ztreeTables(sessionId, sock) {
+        var session = this.jt.data.session(sessionId);
+        if (session == null || sock == null) {
+            return;
+        }
+        var apps = {};
+        session.apps.forEach((app, i) => {
+            var run = app.ztreeRun;
+            if (run == null) return;
+            var plain = (records) => records.map((r) => {
+                var out = {};
+                for (var k in r) {
+                    if (k === '_id') continue;
+                    var v = r[k];
+                    out[k] = v != null && typeof v === 'object' ? (v.zArray ? v.values.join(' ') : null) : v;
+                }
+                return out;
+            });
+            apps[i + 1] = {
+                periods: run.periods.map((p) => p == null ? null : {
+                    globals: plain([p.globals]), subjects: plain(p.subjects), summary: plain([p.summary]), contracts: plain(p.contracts),
+                }),
+                session: plain(run.sessionRecords),
+                current: run.periods.length - 1,
+            };
+        });
+        this.jt.io.to('socket_' + sock.id).emit('ztreeTables', { sessionId: sessionId, apps: apps });
+    }
+
     createApp(appId, sock) {
         var app = this.jt.data.createApp(appId);
         if (app !== null) {

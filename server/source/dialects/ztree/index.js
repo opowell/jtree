@@ -1,6 +1,7 @@
 const fs = require('fs-extra');
 const path = require('path');
 const { readTreatment } = require('./ztt.js');
+const ztq = require('./ztq.js');
 const { Run } = require('./runtime.js');
 const exportTables = require('./export.js');
 
@@ -44,6 +45,7 @@ function subjectIndex(player) {
 function refresh(app) {
     const session = app.session;
     if (session == null) return;
+    tablesChanged(session);
     for (const participant of Object.values(session.participants)) {
         const player = participant.player;
         if (player == null || player.app() !== app || player.stage == null || player.stage.ztree == null) continue;
@@ -76,6 +78,19 @@ function draw(player, which) {
         const io = player.session().io();
         if (io != null) io.to(player.participant.roomId()).emit('ztreeScreen', { html: player.ztreeHtml, stage: player.stage.id, version: player.ztreeVersion });
     }
+}
+
+/** Tells admins a session's z-Tree tables changed (at most every half second), to ask for them. */
+const tablesChangedTimers = new WeakMap();
+function tablesChanged(session) {
+    if (tablesChangedTimers.has(session)) return;
+    const timer = setTimeout(() => {
+        tablesChangedTimers.delete(session);
+        const ss = session.jt != null ? session.jt.socketServer : null;
+        if (ss != null) ss.emitToAdmins('ztreeTablesChanged', { sessionId: session.id });
+    }, 500);
+    if (timer.unref) timer.unref();
+    tablesChangedTimers.set(session, timer);
 }
 
 /** The screen last drawn for each player (without its number). */
@@ -170,23 +185,26 @@ module.exports = {
     name: 'ztree',
 
     detect(appPath) {
-        return appPath.toLowerCase().endsWith('.ztt');
+        return /\.zt[tq]$/i.test(appPath);
     },
 
     /** Makes app the z-Tree treatment in appPath. */
     define(app) {
         const buf = fs.readFileSync(app.appPath);
-        const treatment = readTreatment(buf);
+        // A questionnaire file (.ztq) runs as a treatment of its questionnaires (see ztq.js).
+        const treatment = /\.ztq$/i.test(app.appPath) ? ztq.toTreatment(ztq.readQuestionnaires(buf)) : readTreatment(buf);
         app.ztree = { treatment };
         // Not sent to pages, nor saved with the app.
         app.outputHideAuto.push('ztree', 'ztreeRun');
         app.appjs = '';
         app.shortId = path.basename(app.appPath, path.extname(app.appPath));
         app.title = app.shortId;
-        app.description = 'z-Tree treatment, ' + treatment.subjects.length + ' subjects, ' + treatment.periods.length + ' period' +
+        app.description = treatment.questionnaire
+            ? 'z-Tree questionnaire, ' + treatment.stages.length + ' page' + (treatment.stages.length === 1 ? '' : 's') + '.'
+            : 'z-Tree treatment, ' + treatment.subjects.length + ' subjects, ' + treatment.periods.length + ' period' +
             (treatment.periods.length === 1 ? '' : 's') + ', ' + treatment.stages.length + ' stages.';
         app.numPeriods = Math.max(1, treatment.periods.length);
-        app.suggestedNumParticipants = treatment.subjects.length;
+        if (!treatment.questionnaire) app.suggestedNumParticipants = treatment.subjects.length;
         app.playerFieldsNotInOutput = ['ztreeHtml', 'ztreeWhich', 'ztreeWaitingStage', 'ztreeDeadline', 'ztreeFields', 'ztreeVersion'];
         app.waitingScreen = SCREEN_ASSETS + '<div class="ztree-page" v-if="player.stage == null || player.stage.ztree == null" v-html="player.ztreeHtml"></div>';
         if (treatment.warnings.length) app.ztree.warnings = treatment.warnings;

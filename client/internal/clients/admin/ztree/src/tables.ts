@@ -1,4 +1,5 @@
 import { state } from './server/connection'
+import type { ZtreeTables } from './server/connection'
 import type { GroupState, PeriodState, PlayerState, SessionApp, SessionFull } from './server/types'
 import { clientNumber, clients, treatmentOf } from './clients'
 import { fileName } from './treatment/docs'
@@ -74,6 +75,9 @@ export function buildTable(name: string, treatment: number): TableData {
   if (treatment === 0) return sessionTable(name, session)
   const app = session.apps[treatment - 1]
   if (!app) return EMPTY
+  // A z-Tree treatment's own tables, as z-Tree keeps them.
+  const z = state.ztreeTables[String(treatment)]
+  if (z != null) return ztreeTable(name, z)
   switch (name) {
     case 'globals': return globalsTable(app)
     case 'subjects': return subjectsTable(app, session)
@@ -82,6 +86,29 @@ export function buildTable(name: string, treatment: number): TableData {
     case 'summary': return summaryTable(app)
     default: return EMPTY
   }
+}
+
+/* -------------------------------------------------------- z-Tree's tables */
+
+/**
+ * A table of a z-Tree treatment: globals and summary have a row per period so far, subjects and
+ * contracts the period now's, session a row per subject.
+ */
+function ztreeTable(name: string, z: ZtreeTables): TableData {
+  const periods = z.periods.filter((p): p is Record<string, Array<Record<string, unknown>>> => p != null)
+  const now = z.periods[z.current] ?? periods[periods.length - 1]
+  let records: Array<Record<string, unknown>>
+  switch (name) {
+    case 'globals': records = periods.flatMap((p) => p.globals ?? []); break
+    case 'summary': records = periods.flatMap((p) => p.summary ?? []); break
+    case 'subjects': records = now?.subjects ?? []; break
+    case 'contracts': records = now?.contracts ?? []; break
+    case 'session': records = z.session; break
+    default: return EMPTY
+  }
+  const columns: string[] = []
+  for (const r of records) for (const k of Object.keys(r)) if (!columns.includes(k)) columns.push(k)
+  return table(columns, records)
 }
 
 /* -------------------------------------------------------- treatment tables */

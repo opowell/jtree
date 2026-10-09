@@ -119,7 +119,7 @@ function open() {
       <input id="open-name" v-model="fileName" class="zt-field" autocomplete="off">
       <label for="open-type">Files of type:</label>
       <select id="open-type" class="zt-field" disabled>
-        <option>Treatments (*.jtt; *.js)</option>
+        <option>Treatments (*.jtt; *.js; *.ztt)</option>
       </select>
     </div>
   </ZDialog>
