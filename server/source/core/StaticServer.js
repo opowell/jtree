@@ -129,6 +129,9 @@ class StaticServer {
         }
         expApp.use('/participant', express.static(path.join(this.jt.path, jt.settings.participantUI)));
         console.log('serving shared', path.join(this.jt.path, jt.settings.sharedUI))
+        // shared.js is made when jtree starts (generateSharedJS), where clientJSFile says: serve
+        // that one, which may be outside the shared folder.
+        expApp.get('/shared/shared.js', (req, res) => res.sendFile(path.resolve(this.jt.path, jt.settings.clientJSFile)));
         expApp.use('/shared', express.static(path.join(this.jt.path, jt.settings.sharedUI)));
         for (let i in jt.data.queues) {
             let queue = jt.data.queues[i];

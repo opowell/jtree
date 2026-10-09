@@ -27,3 +27,9 @@ test('socket.io answers its own requests (polling, as browsers start with)', asy
     // The server is still up. (shared.js is made when jtree starts, and not in the repo.)
     assert.equal((await fetch(server.url + '/shared/popups.css')).status, 200);
 });
+
+test('shared.js is served from where jtree made it (clientJSFile), with jt in it', async () => {
+    const res = await fetch(server.url + '/shared/shared.js');
+    assert.equal(res.status, 200);
+    assert.match(await res.text(), /\bjt\b/);
+});
