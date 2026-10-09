@@ -282,6 +282,37 @@ class Msgs {
     }
 
     /**
+     * Converts a z-Tree treatment of the catalogue to a jtree app (dialects/ztree/convert.js), in a
+     * folder beside it (<name>-jtree, or -jtree-2, ...), which joins the catalogue; tells the admin
+     * who asked: ztreeConverted {appPath, outPath, level, report} or {appPath, error}.
+     */
+    ztreeConvertApp(d, sock) {
+        var appPath = d != null ? d.appPath : null;
+        var app = appPath != null ? this.jt.data.apps[appPath] : null;
+        var reply = (result) => {
+            if (sock != null) this.jt.io.to('socket_' + sock.id).emit('ztreeConverted', result);
+            return result;
+        };
+        if (app == null || app.ztree == null || !/\.ztt$/i.test(appPath)) {
+            return Promise.resolve(reply({ appPath: appPath, error: 'not a z-Tree treatment (.ztt) of the catalogue' }));
+        }
+        var base = appPath.replace(/\.ztt$/i, '');
+        var outPath = base + '-jtree';
+        for (var n = 2; fs.existsSync(outPath); n++) {
+            outPath = base + '-jtree-' + n;
+        }
+        var { convertTreatmentFile } = require('../dialects/ztree/convert.js');
+        return convertTreatmentFile(appPath, outPath).then((result) => {
+            this.jt.data.loadAppDir(outPath);
+            this.jt.socketServer.refreshAdmins();
+            return reply({ appPath: appPath, outPath: outPath, level: result.level, report: result.report });
+        }, (err) => {
+            fs.removeSync(outPath);
+            return reply({ appPath: appPath, error: String(err.message || err) });
+        });
+    }
+
+    /**
      * Sends the admin who asked the z-Tree tables of a session's z-Tree treatments:
      * ztreeTables {sessionId, apps: {<index in the session, from 1>: {periods: [{globals,
      * subjects, summary, contracts}], session, current (period index)}}}.

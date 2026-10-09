@@ -109,6 +109,7 @@ export const menus = computed<MenuItemDef[]>(() => {
       doc?.ztt
         ? { label: 'Parameter Table', action: () => void act.parameterTable(doc) }
         : off('Parameter Table'),
+      ...(doc?.ztt ? [{ label: 'Convert to jtree…', action: () => void act.convertToJtree(doc) }] : []),
       sep,
       { label: 'Check', disabled: !doc, action: () => void act.check() },
       sep,

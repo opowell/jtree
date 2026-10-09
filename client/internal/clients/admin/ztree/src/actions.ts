@@ -1,5 +1,5 @@
 import { reactive } from 'vue'
-import { state, refreshAdmin } from './server/connection'
+import { state, refreshAdmin, socket } from './server/connection'
 import { downloadOutputUrl, leafUrl, server } from './server/commands'
 import { clients, isActive, monitor, restoreClientOrder, saveClientOrder, shuffleClients, sortClients, windowCommands } from './clients'
 import { messageBox, showDialog } from './dialogs'
@@ -253,6 +253,26 @@ export function editPaste() {
 /* ------------------------------------------------------------- Treatment */
 
 /** Treatment → Info…: the dialog of the element selected in the stage tree. */
+/**
+ * Treatment → Convert to jtree…, for a z-Tree treatment: the server writes a jtree app beside it
+ * (server/source/dialects/ztree/convert.js), and says how it went.
+ */
+export async function convertToJtree(doc: TreatmentDoc) {
+  if (!doc.ztt || !doc.appId) return
+  const path = state.apps[doc.appId]?.appPath ?? doc.appId
+  const result = await new Promise<{ outPath?: string, level?: string, report?: Array<{ status: string, part: string, note: string }>, error?: string }>((resolve) => {
+    socket.once('ztreeConverted', resolve)
+    socket.emit('ztreeConvertApp', { appPath: path })
+  })
+  if (result.error) {
+    await messageBox(result.error)
+    return
+  }
+  const todos = (result.report ?? []).filter((i) => i.status === 'todo')
+  await messageBox(`${result.level}. The jtree app is in ${result.outPath} (its CONVERSION.md says what was converted).` +
+    (todos.length ? `\n\nNeeds work by hand:\n${todos.map((i) => `- ${i.part}: ${i.note}`).join('\n')}` : ''))
+}
+
 /** Treatment → Parameter Table, for a z-Tree treatment: its periods, subjects, groups and programs. */
 export async function parameterTable(doc: TreatmentDoc) {
   if (!doc.ztt) return

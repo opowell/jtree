@@ -590,8 +590,18 @@ the Connection Monitor names z-Tree's stages. Questionnaires (`.ztq`, `ztq.js`) 
 treatments: a stage a questionnaire, texts and questions (lines of choices between their
 labels), each subject at their own pace.
 
-Not yet: plot and multimedia boxes; z-Tree's text export as input; converting treatments to
-`.jtt` (Phase 8); stages' options other than "start if possible" and the header (bit 2 of the
+Phase 8 for z-Tree: `dialects/ztree/convert.js` (`node server/source/dialects/ztree/convert.js
+<treatment.ztt> [<out>]`, and admin-ztree's Treatment → Convert to jtree…) writes a jtree app:
+z-Tree's tables as jtree's objects (subjects the players, globals `period.globals`, contracts
+`period.contracts`), the programs translated to JS with each variable resolved to its table as
+the dialect resolves it at run time, the parameter table, stages (wait for all or not,
+Participate, timeouts), standard boxes as screens (inputs in `app.fields`, checkers in
+`stage.validate`, buttons' programs in `stage.playerEnd`), `ztree.cjs`, and `CONVERSION.md`.
+pg, ug, pd and game222 convert with nothing left over and give the same results as in the
+dialect (`test/ztree.test.js`); contract, chat, history, grid and calculator boxes and `later`
+are TODOs (they run in the dialect).
+
+Not yet: plot and multimedia boxes; z-Tree's text export as input; stages' options other than "start if possible" and the header (bit 2 of the
 first, set on the examples' market stages, is not known); boxes' frames and buttons' placement.
 
 ### Phase 8: converters (oTree's done)

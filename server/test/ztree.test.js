@@ -382,3 +382,87 @@ test('brand16.ztq (a questionnaire): its scales, answered and checked; then its 
     assert.equal(g.subject(0).bs10, 1);
     assert.equal(g.subject(0).bs34, 7);
 });
+
+// --- Converting treatments to jtree apps ---------------------------------------------------------
+
+test('z-Tree treatments converted to jtree apps (dialects/ztree/convert.js), played: the same results', async (t) => {
+    if (!examples(t)) return;
+    const os = require('node:os');
+    const path = require('node:path');
+    const { convertTreatmentFile } = require('../source/dialects/ztree/convert.js');
+    const out = fs.mkdtempSync(path.join(os.tmpdir(), 'jtree-ztree-converted-'));
+    try {
+        const convert = async (name) => {
+            const r = await convertTreatmentFile(file(name), path.join(out, name));
+            assert.equal(r.level, 'Converts', name + ': ' + JSON.stringify(r.report.filter((i) => i.status === 'todo')));
+            return path.join(out, name, 'app.jtt');
+        };
+        const start = async (name, n) => {
+            const session = server.createSession(await convert(name), { numParticipants: n });
+            const bots = await server.connectAll(session);
+            session.start();
+            return { session, bots };
+        };
+
+        // pg: contributions, checked against the endowment; profits from the group.
+        let { bots } = await start('pg', 2);
+        await bots[0].play('stage1', { 'player.Contribution': 25 });
+        assert.deepEqual(await bots[0].waitForFormErrors(), { 'player.Contribution': 'Please enter a value of at most 20.' });
+        await bots[0].play('stage1', { 'player.Contribution': 5 });
+        await bots[1].play('stage1', { 'player.Contribution': 10 });
+        for (const b of bots) await b.waitForStage('stage2');
+        assert.deepEqual(bots.map((b) => b.player.Profit), [27, 22]);
+        assert.deepEqual(bots.map((b) => b.player.SumC), [15, 15]);
+
+        // ug: Participate (only A offers, only B answers), and profits by the answer.
+        ({ bots } = await start('ug', 2));
+        await bots[0].play('stage1', { 'player.Offer': 30 });
+        await bots[1].play('stage2', { 'player.Accept': 1 });
+        await bots[0].waitForStage('stage3');
+        assert.deepEqual(bots.map((b) => b.player.Profit), [70, 30]);
+
+        // game222: the parameter table's programs (each player's payoffs).
+        ({ bots } = await start('game222', 2));
+        await bots[0].play('stage1', { 'player.Choice': 1 });
+        await bots[1].play('stage1', { 'player.Choice': 2 });
+        for (const b of bots) await b.waitForStage('stage2');
+        assert.deepEqual(bots.map((b) => [b.player.Profit, b.player.OthersChoice]), [[1, 2], [1, 1]]);
+
+        // pd: globals' constants, read by the subjects.
+        ({ bots } = await start('pd', 2));
+        await bots[0].play('stage1', { 'player.Decision': 1 });
+        await bots[1].play('stage1', { 'player.Decision': 2 });
+        for (const b of bots) await b.waitForStage('stage2');
+        assert.deepEqual(bots.map((b) => b.player.Profit), [1, 4]);
+
+        // The others convert, with what they have that is not converted said in their reports.
+        for (const name of ['noda', 'asset_da', 'dutchauction', 'ifelems_e', 'chatdemo']) {
+            const r = await convertTreatmentFile(file(name), path.join(out, name));
+            assert.equal(r.level, 'Converts with TODOs');
+            const code = fs.readFileSync(path.join(out, name, 'app.jtt'), 'utf8');
+            new (require('node:vm').Script)('(function (app, path, fs, require) {\n' + code + '\n})');
+            assert.match(fs.readFileSync(path.join(out, name, 'CONVERSION.md'), 'utf8'), /## Needs work by hand/);
+        }
+    } finally {
+        fs.rmSync(out, { recursive: true, force: true });
+    }
+});
+
+test('admins convert a z-Tree treatment of the catalogue to a jtree app beside it (ztreeConvertApp)', async (t) => {
+    if (!examples(t)) return;
+    const os = require('node:os');
+    const path = require('node:path');
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'jtree-ztree-catalogue-'));
+    try {
+        fs.copyFileSync(file('pg'), path.join(dir, 'pg.ztt'));
+        server.jt.data.loadAppDir(dir);
+        const result = await server.jt.socketServer.msgs.ztreeConvertApp({ appPath: path.join(dir, 'pg.ztt') }, null);
+        assert.equal(result.level, 'Converts');
+        assert.equal(result.outPath, path.join(dir, 'pg-jtree'));
+        assert.ok(server.jt.data.apps[path.join(dir, 'pg-jtree', 'app.jtt')] != null);
+        const refused = await server.jt.socketServer.msgs.ztreeConvertApp({ appPath: path.join(dir, 'nothing.ztt') }, null);
+        assert.match(refused.error, /not a z-Tree treatment/);
+    } finally {
+        fs.rmSync(dir, { recursive: true, force: true });
+    }
+});

@@ -273,6 +273,11 @@ test('admin-ztree: a z-Tree treatment as z-Tree shows it: its stage tree, parame
     await menu('Treatment', 'Parameter Table');
     await admin.waitFor(() => /S G1: Type = SELLERTYPE;/.test(document.body.innerText) && /B G1: Type = BUYERTYPE;/.test(document.body.innerText), { what: 'the parameter table' });
     await admin.eval(() => [...document.querySelectorAll('button')].find((b) => b.textContent.trim() === 'OK').click());
+    // Treatment → Convert to jtree…: the report, and the app beside the treatment.
+    await menu('Treatment', 'Convert to jtree');
+    await admin.waitFor(() => /Converts with TODOs\. The jtree app is in/.test(document.body.innerText), { what: 'the conversion report' });
+    assert.ok(fs.existsSync(path.join(folder, 'noda-jtree', 'app.jtt')));
+    await admin.eval(() => [...document.querySelectorAll('button')].find((b) => b.textContent.trim() === 'OK').click());
     // Run → contracts Table: the offer made.
     await menu('Run', 'contracts Table');
     await admin.waitFor(() => /Seller\tPrice|Seller[\s\S]*Price[\s\S]*150/.test(document.body.innerText) && /150/.test(document.body.innerText), { what: 'the contracts table' });
