@@ -1,0 +1,155 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load i18n %}
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 'eet/css/styles.css' %}" rel="stylesheet">
+
+    <!-- order of x- and y-list -->
+    {% if list_ordering == 'xy' %}
+        <style type="text/css">
+            #x-list { order: 1; }
+            #y-list { order: 2; }
+        </style>
+    {% else %}
+        <style type="text/css">
+            #x-list { order: 2; }
+            #y-list { order: 1; }
+        </style>
+    {% endif %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** SCRIPTS *** #}
+{# ****************************************************************************************************************** #}
+{% block scripts %}
+    <!-- consistency -->
+    {% if Constants.enforce_consistency %}
+        <script src="{% static 'eet/js/consistency.js' %}"></script>
+    {% endif %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% trans "Revise Your Decisions" %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <div class="card">
+        <div class="card-body">
+            {% blocktrans trimmed %}
+                The table below summarizes the decisions you made.
+                Please check whether you are content with your choices or revise them if necessary.
+            {% endblocktrans %}
+        </div>
+    </div>
+
+    {# ----------------------------------------------------------------------------------------------------------- #}
+    {# --- x-List --- #}
+    {# ----------------------------------------------------------------------------------------------------------- #}
+    <div class="card" id="x-list">
+        <table class="table">
+            <thead>
+                <tr class="header1">
+                    <th colspan="2">{% trans "Option 'Left'" %}</th>
+                    <th></th>
+                    <th colspan="2">{% trans "Option 'Right'" %}</th>
+                </tr>
+                <tr class="header2">
+                    <th>{% trans "Your Payoff" %}</th>
+                    <th>{% trans "Player B's Payoff" %}</th>
+                    <th></th>
+                    <th>{% trans "Your Payoff" %}</th>
+                    <th>{% trans "Player B's Payoff" %}</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for field, xy_a, xy_i, e_a, e_i, choice in x_list %}
+                    <tr>
+                        <!-- option "left" -->
+                        <td>{{ xy_a|c }}</td>
+                        <td>{{ xy_i|c }}</td>
+
+                        <!-- radio select form fields -->
+                        <td class="formfield">
+                            {% if choice == 'R' %}
+                            <input type="radio" class="x-items" name="{{ field }}" value="L">
+                            <input type="radio" class="x-items" name="{{ field }}" value="R" checked>
+                            {% elif choice == 'L' %}
+                            <input type="radio" class="x-items" name="{{ field }}" value="L" checked>
+                            <input type="radio" class="x-items" name="{{ field }}" value="R">
+                            {% endif %}
+                        </td>
+
+                        <!-- option "right" -->
+                        <td>{{ e_a|c }}</td>
+                        <td>{{ e_i|c }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {# ----------------------------------------------------------------------------------------------------------- #}
+    {# --- y-List --- #}
+    {# ----------------------------------------------------------------------------------------------------------- #}
+    <div class="card" id="y-list">
+        <table class="table">
+            <thead>
+                <tr class="header1">
+                    <th colspan="2">{% trans "Option 'Left'" %}</th>
+                    <th></th>
+                    <th colspan="2">{% trans "Option 'Right'" %}</th>
+                </tr>
+                <tr class="header2">
+                    <th>{% trans "Your Payoff" %}</th>
+                    <th>{% trans "Player B's Payoff" %}</th>
+                    <th></th>
+                    <th>{% trans "Your Payoff" %}</th>
+                    <th>{% trans "Player B's Payoff" %}</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for field, xy_a, xy_i, e_a, e_i, choice in y_list %}
+                    <tr>
+                        <!-- option "left" -->
+                        <td>{{ xy_a|c }}</td>
+                        <td>{{ xy_i|c }}</td>
+
+                        <!-- radio select form fields -->
+                        <td class="formfield">
+                            {% if choice == 'R' %}
+                            <input type="radio" class="y-items" name="{{ field }}" value="L">
+                            <input type="radio" class="y-items" name="{{ field }}" value="R" checked>
+                            {% elif choice == 'L' %}
+                            <input type="radio" class="y-items" name="{{ field }}" value="L" checked>
+                            <input type="radio" class="y-items" name="{{ field }}" value="R">
+                            {% endif %}
+                        </td>
+
+                        <!-- option "right" -->
+                        <td>{{ e_a|c }}</td>
+                        <td>{{ e_i|c }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% next_button %}
+
+{% endblock %}

@@ -1,0 +1,73 @@
+{{ block title }}
+    Take
+{{ endblock }}
+{{ block content }}
+<style>
+       .myclass::-webkit-slider-thumb {
+        box-shadow: 1px 1px 1px #000000, 0px 0px 1px #007afe;
+        border: 1px solid #000000;
+        height: 21px !important;
+        width: 10px !important;
+        border-radius: 0px !important;
+        background: #ffffff !important;
+        cursor: pointer !important !important;
+        -webkit-appearance: none !important;
+        margin-top: -7px !important;
+    }
+
+    input[name=take] {
+        -webkit-appearance: none;
+        margin: 18px 0;
+        width: 100%;
+    }
+
+    input[name=take]:focus {
+        outline: none;
+    }
+
+    input[name=take]::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 8.4px;
+        cursor: pointer;
+        animate: 0.2s;
+        {#box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;#}
+        background: #007afe;
+        border-radius: 0px;
+        border: 0.0px solid #ffffff;
+    }
+
+    input[name=take]::-webkit-slider-thumb {
+        border: 0px;
+        height: 0px;
+        width: 0px;
+        border-radius: 0px;
+        -webkit-appearance: none;
+    }
+</style>
+    <p>Now, you can define how much you extract of the real-effort performance from the Player B paired with you. You can use the slider to select the percentage of extraction.</p>
+
+    <input type="range" name="take" value="0" step="10" min="0" max="100" id="id_take" class="form-control">
+    <p id="feedback_one"><br></p>
+
+
+    {{ next_button }}
+
+
+
+{{ endblock }}
+
+{{ block scripts }}
+<script>
+	$(document).ready(function () {
+        $('input[name=take]').on('input change', function () {
+            $('input[name=take]').addClass('myclass');
+        });
+    	$('input[name=take]').on('input', function() {
+        	document.getElementById("feedback_one").innerHTML = `You have selected `+$(this).val()+'%';
+    	});
+    });
+</script>
+
+
+
+{{ endblock}}

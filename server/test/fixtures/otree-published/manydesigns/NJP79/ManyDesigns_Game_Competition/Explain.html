@@ -1,0 +1,23 @@
+{{ block title }}Explain your choices{{ endblock }}
+{{ block content }}
+
+{{ if player.role != Constants.responder_role }}  
+<p>
+While we compute the results, could you please take this time to elaborate on your choices in the game? How did you decide upon your <b>actual</b> and <b>communicated</b> offer?    
+</p>
+
+{{ endif }}
+
+{{ if player.role == Constants.responder_role }}  
+<p>
+While we compute the results, could you please take this time to elaborate on your choices in the game?    
+</p>
+
+{{ endif }}
+
+
+{{ formfields }}
+
+{{ next_button }}
+
+{{ endblock }}

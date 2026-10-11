@@ -304,7 +304,7 @@ class Stage {
                     // Player is already past this stage?!
                 } else {
                     // If other player is not finished, return false.
-                    if (player.stageIndex < this.indexInApp() || !player.isFinished()) {
+                    if (player.stageIndex < this.indexInApp() || !player.isFinishedStage(this)) {
                         return false;
                     }
                 }

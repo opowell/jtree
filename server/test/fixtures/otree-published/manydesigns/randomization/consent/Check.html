@@ -1,0 +1,75 @@
+
+{% block styles %}
+    <link href="{% static 'global/custom.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+
+{{ block title }}
+    Welcome to this study about decision making!
+{{ endblock }}
+
+{{ formfield_errors 'check' }}
+
+{{ block content }}
+
+    <div class="container">
+
+        <hr>
+
+        <div class="card">
+            <div class="card-body">
+                <p>
+                    The estimated time to complete the study is max 15 minutes. You will receive a minimum payment of
+                    £1.30 for participation and you can receive additional payments depending on your decisions in the
+                    study. As answer to the question below, please enter turquoise. Thank you very much for your
+                    participation.
+                </p>
+            </div>
+            <div id = "check-input" class="card-footer" style="display: none;">
+                <p>
+                    Based on the text you read above, what colour have you been asked to enter?
+                </p>
+                <div class="center-block">
+                    <div class="input-group">
+                        <input type="text" name="check" id="checkinput" class="form-control" placeholder="Enter the color" aria-label="Enter the color">
+                        <button type="button" class="btn btn-primary" onclick="validateForm();">
+                        Submit</button>
+                    </div>
+                    <button id="checkdone" style="display: none"></button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+{{ endblock }}
+
+
+{{ block scripts }}
+
+<script>
+    // Show Question+Submit-Button only after delay
+    $(document).ready(function(){
+       // Delay the action by 4000ms
+       setTimeout(function(){
+          // Display the div containing the class "bottomdiv"
+          document.getElementById("check-input").style.display = "inline";
+       }, {{ waitingtime }});
+    });
+
+
+    function validateForm() {
+      let x = document.getElementById("checkinput").value;
+      if (x != "turquoise") {
+          document.getElementById("checkdone").click();
+//        alert("Please read all instructions carefully throughout this study! Try again: submit the colour we asked you to enter.");
+      }
+      else {
+          document.getElementById("checkdone").click();
+      }
+    }
+
+</script>
+
+{{ endblock }}

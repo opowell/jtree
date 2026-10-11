@@ -1,0 +1,38 @@
+{{ block title }}
+    Production Task
+{{ endblock }}
+{{ block content }}
+<p><b>What do you have to do?</b></p>
+<p>
+In this part of the experiment, your task is to count the number of zeros in a series of grids.
+The figure below shows you an example of how the decision screen that you will see later will look:
+</p>
+
+<p align= "center">
+    <img src="{{ static 'global/production_screen.png' }}"/>
+</p>
+<p>
+You will need to enter the number of zeros that you count in the box on the right side of the screen. After you have entered the number, click the Next-button. After you click &#8220;Next&#8221;, a new grid will be generated.  For every grid that you enter the correct number of zeros, you will earn 5 Experimental Points. For every grid that you enter with the incorrect number of zeros, you will lose 1 Experimental Point.
+</p>
+<p>
+You will have 4 minutes to work on this task. The maximum number of grids that you can attempt is 25.
+</p>
+<p>
+<b>Example:</b> Suppose that you solve 6 grids correctly and you miscount the
+number of zeros in 2 grids. You will therefore get \((6 \times 5) – (2 \times 1) = 28\)
+Experimental Points.
+</p>
+&nbsp;
+<p>
+Please answer the following question to ensure that you have fully understood:
+</p>
+
+{{ formfields }}
+
+    {{ next_button }}
+
+{{ endblock }}
+
+{{ block scripts}}
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default'></script>
+{{ endblock}}

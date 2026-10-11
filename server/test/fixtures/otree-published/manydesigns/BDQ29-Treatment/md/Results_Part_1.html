@@ -1,0 +1,94 @@
+{{ block title }}
+Results: Part 1
+{{ endblock }}
+
+{{ block content }}
+
+
+
+<p>
+    You have tried to encode {{ player.num_trials }} words, successfully encoded {{ player.num_correct }} of them,
+    and failed {{ player.num_failed }} of them.
+</p>
+
+
+<p>
+    Your payoff in Part 1: 100 Talers.
+</p>
+
+<p>
+    <b>Rating in your group:</b>
+</p>
+
+
+<p>
+
+<table>
+<tbody>
+    <tr height="50">
+        <td style = "text-align:center" width = "150"> <img src="https://www.dropbox.com/s/xy63rbqp9rrygpz/Gold-02.png?raw=1" width="100"></td>
+        <td style = "text-align:center" width = "150">{{for p in group.get_players() }}
+            {{ if p.rank == 1 && p.role == Constants.yellow_role }}
+            <img src="https://www.dropbox.com/s/saoqw7we7zwv90j/Player_Yellow-01.png?raw=1" width="30"> {{ p.role }}
+            {{ elif p.rank == 1 && p.role == Constants.red_role }}
+            <img src="https://www.dropbox.com/s/gxnx609zz29q1ds/Player_Red-04.png?raw=1" width="30"> {{ p.role }}
+            {{ elif p.rank == 1 && p.role == Constants.green_role }}
+            <img src="https://www.dropbox.com/s/s4ygwwxrt4mexn3/Player_Green-02.png?raw=1" width="30"> {{ p.role }}
+            {{ elif p.rank == 1 && p.role == Constants.blue_role }}
+            <img src="https://www.dropbox.com/s/z4qvl8w9qlao6nd/Player_Blue-03.png?raw=1" width="30"> {{ p.role }}
+            {{ endif }} {{ endfor }}</td>
+
+        <td style = "text-align:center" width = "150">{{ if player.rank == 1}} -- Your position {{ endif }}</td>
+    </tr>
+
+    <tr height="50">
+        <td style = "text-align:center" width = "150"> <img src = "https://www.dropbox.com/s/sd19q4l6wbinh5k/Silver-02.png?raw=1" width="100"> </td>
+        <td style = "text-align:center" width = "150">{{for p in group.get_players() }}
+            {{ if p.rank == 2 && p.role == Constants.yellow_role }}
+            <img src="https://www.dropbox.com/s/saoqw7we7zwv90j/Player_Yellow-01.png?raw=1" width="30"> {{ p.role }}
+            {{ elif p.rank == 2 && p.role == Constants.red_role }}
+            <img src="https://www.dropbox.com/s/gxnx609zz29q1ds/Player_Red-04.png?raw=1" width="30"> {{ p.role }}
+            {{ elif p.rank == 2 && p.role == Constants.green_role }}
+            <img src="https://www.dropbox.com/s/s4ygwwxrt4mexn3/Player_Green-02.png?raw=1" width="30"> {{ p.role }}
+            {{ elif p.rank == 2 && p.role == Constants.blue_role }}
+            <img src="https://www.dropbox.com/s/z4qvl8w9qlao6nd/Player_Blue-03.png?raw=1" width="30"> {{ p.role }}
+            {{ endif }} {{ endfor }}</td>
+
+        <td style = "text-align:center" width = "150">{{ if player.rank == 2}} -- Your position {{ endif }}</td>
+    </tr>
+
+    <tr height="50">
+        <td style = "text-align:center" width = "150"><img src = "https://www.dropbox.com/s/h3h1bmktfy5pqfv/Bronze-02.png?raw=1" width="100"></td>
+        <td style = "text-align:center" width = "150">{{for p in group.get_players() }}
+            {{ if p.rank == 3 && p.role == Constants.yellow_role }}
+            <img src="https://www.dropbox.com/s/saoqw7we7zwv90j/Player_Yellow-01.png?raw=1" width="30"> {{ p.role }}
+            {{ elif p.rank == 3 && p.role == Constants.red_role }}
+            <img src="https://www.dropbox.com/s/gxnx609zz29q1ds/Player_Red-04.png?raw=1" width="30"> {{ p.role }}
+            {{ elif p.rank == 3 && p.role == Constants.green_role }}
+            <img src="https://www.dropbox.com/s/s4ygwwxrt4mexn3/Player_Green-02.png?raw=1" width="30"> {{ p.role }}
+            {{ elif p.rank == 3 && p.role == Constants.blue_role }}
+            <img src="https://www.dropbox.com/s/z4qvl8w9qlao6nd/Player_Blue-03.png?raw=1" width="30"> {{ p.role }}
+            {{ endif }} {{ endfor }}</td>
+        <td style = "text-align:center" width = "150">{{ if player.rank == 3}} -- Your position {{ endif }}</td>
+    </tr>
+
+    <tr height="50">
+        <td style = "text-align:center" width = "150"><img src = "https://www.dropbox.com/s/gg3g8sawm0qfgnz/Wood-02.png?raw=1" width="100"> </td>
+        <td style = "text-align:center" width = "150">{{for p in group.get_players() }}
+            {{ if p.rank == 4 && p.role == Constants.yellow_role }}
+            <img src="https://www.dropbox.com/s/saoqw7we7zwv90j/Player_Yellow-01.png?raw=1" width="30"> {{ p.role }}
+            {{ elif p.rank == 4 && p.role == Constants.red_role }}
+            <img src="https://www.dropbox.com/s/gxnx609zz29q1ds/Player_Red-04.png?raw=1" width="30"> {{ p.role }}
+            {{ elif p.rank == 4 && p.role == Constants.green_role }}
+            <img src="https://www.dropbox.com/s/s4ygwwxrt4mexn3/Player_Green-02.png?raw=1" width="30"> {{ p.role }}
+            {{ elif p.rank == 4 && p.role == Constants.blue_role }}
+            <img src="https://www.dropbox.com/s/z4qvl8w9qlao6nd/Player_Blue-03.png?raw=1" width="30"> {{ p.role }}
+            {{ endif }} {{ endfor }}</td>
+        <td style = "text-align:center" width = "150">{{ if player.rank == 4}} -- Your position {{ endif }}</td>
+    </tr>
+</tbody>
+</table>
+
+</p>
+
+{{ endblock }}

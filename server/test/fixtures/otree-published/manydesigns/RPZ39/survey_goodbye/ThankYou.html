@@ -1,0 +1,21 @@
+{{ block title }}
+    Thank You
+{{ endblock }}
+{{ block content }}
+
+<p>
+Thank you for participating in today's experiment. You received
+<b>{{ player.participant.production_task_points}} points</b> in the Production Task
+and <b>{{ player.participant.dot_points}} points</b> in the Visual Perception Task.
+Based on your decision, we will donate <b>GBP {{ player.donation_amount }}</b> to GiveDirectly.org.
+</p>
+
+<p>After we have calculated your bonus we will transfer any earnings to your account.</p>
+
+<p>Please click on the following  link to return to prolific.</p>
+
+<p>
+<a href="https://app.prolific.co/submissions/complete?cc=572FB13C">https://app.prolific.co/submissions/complete?cc=572FB13C</a>
+</p>
+
+{% endblock %}

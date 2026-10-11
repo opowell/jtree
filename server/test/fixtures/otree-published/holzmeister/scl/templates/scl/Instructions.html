@@ -1,0 +1,46 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 'scl/css/custom.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% trans "Instructions" %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <div class="wrapper instructions">
+        <p>
+            {% blocktrans trimmed with n=num_lotteries prob_lo=prob_lo prob_hi=prob_hi %}
+                In the following, you'll be presented {{ n }} different lotteries on your screen.
+                Each of these lotteries is characterized by varying outcomes A and B. The probability that A or B is
+                realized is constant for all lotteries, with {{ prob_lo }} for outcome A and {{ prob_hi }} for outcome
+                B. You are asked to indicate which of the lottery you prefer to play.
+            {% endblocktrans %}
+        </p>
+        <p>
+            {% blocktrans trimmed %}
+                After finalizing your decision, the chosen lottery will be played and payed off.
+                That is, a random number will be drawn to determine whether outcome A or B is realized.
+                The corresponding outcome, then, will constitute your payoff in this task.
+            {% endblocktrans %}
+        </p>
+    </div>
+
+    {% next_button %}
+{% endblock %}

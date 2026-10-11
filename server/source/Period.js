@@ -184,6 +184,10 @@ class Period {
             this.groups.push(group);
         }
         const player = new Player.new(participant.id, participant, group, group.players.length + 1);
+        // What periodStart set for this participant before they arrived (an oTree app's creating_session).
+        if (this.arrivalFields != null && this.arrivalFields[participant.id] != null) {
+            Object.assign(player, this.arrivalFields[participant.id]);
+        }
         participant.players.push(player);
         group.players.push(player);
         group.allPlayersCreated = group.players.length >= (this.app.groupSize || 1);

@@ -1,0 +1,53 @@
+{{ block title }}Description of the game{{ endblock }}
+{{ block content }}
+
+<style>
+    .tab {
+        display: none;
+    }
+</style>
+
+<div class="tab">
+    Instructions first page content goes here...
+    <p>
+        <button type="button" class="btn btn-primary btn-tab" data-offset="1">Next</button>
+    </p>
+</div>
+<div class="tab">
+    <!-- Duplicate this div if you have more than 3 pages of instructions ... -->
+    Instructions middle page content goes here.
+    <p>
+        <button type="button" class="btn btn-primary btn-tab" data-offset="-1">Previous</button>
+        <button type="button" class="btn btn-primary btn-tab" data-offset="1">Next</button>
+    </p>
+</div>
+<div class="tab">
+    Instructions last page content goes here...
+    <p>
+        <button type="button" class="btn btn-primary btn-tab" data-offset="-1">Previous</button>
+        <button class="btn btn-primary">Next</button>
+    </p>
+</div>
+
+<script>
+
+    let activeTab = 0;
+
+    function showCurrentTabOnly() {
+        let tabIndex = 0;
+        for (let tab of document.getElementsByClassName('tab')) {
+            tab.style.display = tabIndex === activeTab ? 'block' : 'none';
+            tabIndex++;
+        }
+    }
+
+    showCurrentTabOnly();
+    for (let btn of document.getElementsByClassName('btn-tab')) {
+        btn.onclick = function () {
+            activeTab += parseInt(btn.dataset.offset);
+            showCurrentTabOnly();
+        }
+    }
+</script>
+
+{{ endblock }}

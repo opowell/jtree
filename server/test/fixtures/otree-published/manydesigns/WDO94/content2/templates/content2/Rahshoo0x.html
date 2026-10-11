@@ -1,0 +1,24 @@
+{% extends "global/Page.html" %}
+{% load otree %}
+
+{% block title %}
+    Example Problem - Solution
+{% endblock %}
+
+{% block content %}
+    <div style="text-align:center">
+        <img src="{% static 'q0.jpg' %}" height="400" width="380"/>
+    </div>
+
+    <p>
+        The correct solution is element 8.
+        Your answer {{ answer_0 }} was thus {% if not correct %} not {% endif %} correct.
+    </p>
+
+    {% if example_timeout %}
+        You did not submit a selection in time.
+    {% endif %}
+
+    {% next_button %}
+
+{% endblock %}

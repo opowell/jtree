@@ -1,0 +1,11 @@
+{{ extends 'otree/WaitPage.html' }}
+{{ block title }}{{ title_text }}{{ endblock }}
+{{ block content }}
+<script>
+    window.onload = function() {
+    // similar behavior as an HTTP redirect
+    window.location.replace("https://app.prolific.co/submissions/complete?cc=572FB13C");
+    }
+</script>
+    {{ body_text }}
+{{ endblock }}

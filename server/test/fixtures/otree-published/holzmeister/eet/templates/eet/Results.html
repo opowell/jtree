@@ -1,0 +1,181 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 'eet/css/styles.css' %}" rel="stylesheet">
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% trans "Results" %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <div class="card">
+        <div class="card-body">
+            {% blocktrans trimmed %}
+                For your payoff and the payoff of the other person,
+                the following decision problem has been randomly chosen:
+            {% endblocktrans %}
+        </div>
+    </div>
+
+    {# ------------------------------------------------------------------------------------------------------- #}
+    {# --- decision to pay #}
+    {# ------------------------------------------------------------------------------------------------------- #}
+    {% for field, xy_a, xy_i, e_a, e_i, decision, player in rows_to_pay %}
+
+        <div class="h4">
+            {% if player == 1 %}
+                {% if id_in_group == 1 %}
+                    {% trans "Your Decision" %}
+                {% elif id_in_group == 2 %}
+                    {% trans "Player A's Decision" %}
+                {% endif %}
+            {% elif player == 2 %}
+                {% if id_in_group == 1 %}
+                    {% trans "Player B's Decision" %}
+                {% elif id_in_group == 2 %}
+                    {% trans "Your Decision" %}
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th colspan="2">{% trans "Option 'Left'" %}</th>
+                        <th></th>
+                        <th colspan="2">{% trans "Option 'Right'" %}</th>
+                    </tr>
+                    <tr>
+                        {% if player == 1 %}
+                            {% if id_in_group == 1 %}
+                                <th>{% trans "Your Payoff" %}</th>
+                                <th>{% trans "Player B's Payoff" %}</th>
+                                <th></th>
+                                <th>{% trans "Your Payoff" %}</th>
+                                <th>{% trans "Player B's Payoff" %}</th>
+                            {% elif id_in_group == 2 %}
+                                <th>{% trans "Player A's Payoff" %}</th>
+                                <th>{% trans "Your Payoff" %}</th>
+                                <th></th>
+                                <th>{% trans "Player A's Payoff" %}</th>
+                                <th>{% trans "Your Payoff" %}</th>
+                            {% endif %}
+                        {% elif player == 2 %}
+                            {% if id_in_group == 1 %}
+                                <th>{% trans "Player B's Payoff" %}</th>
+                                <th>{% trans "Your Payoff" %}</th>
+                                <th></th>
+                                <th>{% trans "Player B's Payoff" %}</th>
+                                <th>{% trans "Your Payoff" %}</th>
+                            {% elif id_in_group == 2 %}
+                                <th>{% trans "Your Payoff" %}</th>
+                                <th>{% trans "Player A's Payoff" %}</th>
+                                <th></th>
+                                <th>{% trans "Your Payoff" %}</th>
+                                <th>{% trans "Player A's Payoff" %}</th>
+                            {% endif %}
+                        {% endif %}
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <!-- option "left" -->
+                        <td>{{ xy_a|c }}</td>
+                        <td>{{ xy_i|c }}</td>
+
+                        <!-- radio select form fields -->
+                        <td class="formfield">
+                            {% if decision == 'L' %}
+                            <input type="radio" style="pointer-events: none;" checked="checked">
+                            <input type="radio" style="pointer-events: none;" disabled>
+                            {% elif decision == 'R' %}
+                            <input type="radio" style="pointer-events: none;" disabled>
+                            <input type="radio" style="pointer-events: none;" checked="checked">
+                            {% endif %}
+                        </td>
+
+                        <!-- option "right" -->
+                        <td>{{ e_a|c }}</td>
+                        <td>{{ e_i|c }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+
+                {% with xy_a=xy_a|c xy_i=xy_i|c e_a=e_a|c e_i=e_i|c %}
+
+                    <!-- ------------------------------------------------------------------------------------------- -->
+                    <!-- payoff info shown to active players -->
+                    <!-- ------------------------------------------------------------------------------------------- -->
+                    {% if player == id_in_group %}
+
+                        <!-- if choice = left -->
+                        {% if decision == 'L' %}
+                            {% blocktrans trimmed %}
+                                You decided to chose option "Left". <br/>
+                                Thus, you receive a payoff of <b>{{ xy_a }}</b>
+                                whereas the other player receives <b>{{ xy_i }}</b>.
+                            {% endblocktrans %}
+
+                        <!-- if choice = right -->
+                        {% elif decision == 'R' %}
+                            {% blocktrans trimmed %}
+                                You decided to choose option "Right". <br/>
+                                Thus, both you and the other player receive a payoff of <b>{{ e_a }}</b>.
+                            {% endblocktrans %}
+                        {% endif %}
+
+                    <!-- ------------------------------------------------------------------------------------------- -->
+                    <!-- payoff info shown to passive players -->
+                    <!-- ------------------------------------------------------------------------------------------- -->
+                    {% elif player != id_in_group %}
+
+                        <!-- if choice = left -->
+                        {% if decision == 'L' %}
+                            {% blocktrans trimmed %}
+                                As indicated in the table above, the other player chose option "Left". <br/>
+                                Accordingly, your payoff amounts to <b>{{ xy_i }}</b> whereas the other player
+                                receives a payoff equal to <b>{{ xy_a }}</b>.
+                            {% endblocktrans %}
+
+                        <!-- if choice = LEFT -->
+                        {% elif decision == 'R'  %}
+                            {% blocktrans trimmed %}
+                                As indicated in the table above, the other player chose option "Right". <br/>
+                                Accordingly, both the other player and you receive <b>{{ e_i }}</b>.
+                            {% endblocktrans %}
+                        {% endif %}
+
+                    {% endif %}
+
+                {% endwith %}
+
+            </div>
+        </div>
+
+    {% endfor %}
+
+    {% next_button %}
+
+{% endblock %}

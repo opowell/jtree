@@ -1,0 +1,279 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load otree otree_tools %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 't1_adt2/css/styles.css' %}" rel="stylesheet">
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% trans "Task No." %} {{ task }}: {% trans "Decision" %} {{ page }}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <!-- otree_tools: tracking focus -->
+    {% tracking_focus %}
+    <!-- otree_tools: tracking time -->
+    {% tracking_time %}
+
+    <div class="wrapper">
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Progress Bar -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <label>
+            {% trans "Task" %} {{ task }} {% trans "of" %} {{ task_total }}
+        </label>
+        <div class="progress">
+            <div class="progress-bar-task" role="progressbar" style="width:{{ task_progress|safe }}%;">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Progress Bar -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <label>
+            {% trans "Decision" %} {{ page }} {% trans "of" %} {{ total }}
+        </label>
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" style="width:{{ progress|safe }}%;">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+        <div class="progress-vspace"></div>
+
+
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Allocation Decision Task -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <div class="card">
+
+            <!-- Instructions Modal -->
+            <!-- ------------------ -->
+            <i class="reminder far fa-question-circle fa-2x" data-toggle="modal" data-target="#instructions"></i>
+            <div class="modal fade" id="instructions" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">{% trans "Instructions" %}</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>
+                                {% blocktrans trimmed %}
+                                    The table at the top of the decision screens will show the return per SEK invested.
+                                {% endblocktrans %}
+                            </p>
+                            <p>
+                                {% blocktrans trimmed %}
+                                    You will choose the amount you want to put into each asset by entering the amount
+                                    or by using the arrow keys on your keyboard (<i class="fas fa-arrow-up"></i>,
+                                    <i class="fas fa-arrow-down"></i>). Note that you can invest your 100 SEK in steps
+                                    of 1 SEK. The amounts invested in both assets have to sum up to 100 SEK.
+                                {% endblocktrans %}
+                            </p>
+                            <p>
+                                {% if treatment == 'opm_flat' %}
+                                    {% blocktrans trimmed %}
+                                        The payout of the portfolio is the amount invested times the return per SEK
+                                        invested, which depends on the toss of a coin. Your clients receive this payout
+                                        of the portfolio in addition to the initial endowment of 100 SEK.
+                                    {% endblocktrans %}
+                                {% elif treatment == 'opm_lin' %}
+                                    {% blocktrans trimmed %}
+                                        The payout of the portfolio is the amount invested times the return per SEK
+                                        invested, which depends on the toss of a coin. You and your clients receive this
+                                        payout of the portfolio in addition to the initial endowment of 100 SEK.
+                                    {% endblocktrans %}
+                                {% else %}
+                                    {% blocktrans trimmed %}
+                                        The payout of the portfolio is the amount invested times the return per SEK
+                                        invested, which depends on the toss of a coin. You receive this payout of
+                                        the portfolio in addition to the initial endowment of 100 SEK.
+                                    {% endblocktrans %}
+                                {% endif %}
+                            </p>
+                            <p>
+                                {% blocktrans trimmed %}
+                                    When you are finished with your choices, hit <b>next</b>.
+                                {% endblocktrans %}
+                            </p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                {% trans "Close" %}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Risk Level -->
+            <!-- ---------- -->
+            {% if subject_pool == 'FP' and treatment != 'own_lin'%}
+                <div class="risk-wrapper">
+                    <div class="risk-level">
+                        {% blocktrans trimmed %}
+                            Your clients'<br/> risk level:
+                        {% endblocktrans %}
+                        <hr>
+                        <span class="risk">{{ risk_level }}/4</span>
+                    </div>
+                </div>
+            {% endif %}
+
+
+            <!-- Allocation -->
+            <!-- ---------- -->
+            <div class="card-body">
+                <div class="question">
+                    <b>
+                        {% blocktrans trimmed %}
+                            Return per 1 SEK invested ...
+                        {% endblocktrans %}
+                    </b>
+                </div>
+                <div style="width: 400px; margin: 0 auto; text-align: center;">
+                    <table class="table t2">
+                        <tr>
+                            <td class="asset"></td>
+                            <td class="asset" style="color: rgb(0, 123, 255); font-weight: 500;">{% trans "Asset" %} A</td>
+                            <td class="asset" style="color: rgb(40, 167, 69); font-weight: 500;">{% trans "Asset" %} B</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                {% trans "Heads" %}: <br/>
+                                {% trans "Tails" %}:
+                            </td>
+                            <td class="asset">
+                                {{ a_h|c }}<br/>
+                                {{ a_t|c }}
+                            </td>
+                            <td class="asset">
+                                {{ b_h|c }}<br/>
+                                {{ b_t|c }}
+                            </td>
+                            <td></td>
+                        </tr>
+
+                        <tr>
+                            <td colspan="3" id="container">
+                                <div id="container"></div>
+                            </td>
+                            <td></td>
+                        </tr>
+                    </table>
+
+                    <div class="question">
+                        <b>
+                            {% blocktrans trimmed %}
+                                How much do you want to invest in each asset?
+                            {% endblocktrans %}
+                        </b>
+                        <br/>
+                        <small><i>
+                            {% blocktrans trimmed %}
+                                (Note: The "Next" button will appear when the sum equals 100 SEK.)
+                            {% endblocktrans %}
+                        </i></small>
+                    </div>
+                    <table class="t2">
+                        <tr>
+                            <td>
+                                <i>{% trans "Investment" %}:</i>
+                                <br/>&nbsp;
+                            </td>
+                            <td class="asset">
+                                <div class="input-group">
+                                    <input
+                                            type="number"
+                                            onchange="setTwoNumberDecimal(this)"
+                                            onkeypress="findTotal(); return no_enter()"
+                                            class="form-control text-center inv"
+                                            name="asset_a" id="asset_a"
+                                            min="0" max="100" value="0">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">SEK</span>
+                                    </div>
+                                </div>
+                                <label for="asset_a">{% trans "Asset" %} A</label>
+                            </td>
+                            <td class="asset">
+                                <div class="input-group">
+                                    <input
+                                            type="number"
+                                            onchange="setTwoNumberDecimal(this)"
+                                            onkeypress="findTotal(); return no_enter()"
+                                            class="form-control text-center inv"
+                                            name="asset_b" id="asset_b"
+                                            min="0" max="100" value="0">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">SEK</span>
+                                    </div>
+                                </div>
+                                <label for="asset_b">{% trans "Asset" %} B</label>
+                            </td>
+                            <td class="asset">
+                                <div class="input-group">
+                                    <input
+                                            type="text"
+                                            class="form-control text-center"
+                                            name="total" id="total"
+                                            disabled>
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">SEK</span>
+                                    </div>
+                                </div>
+                                <label for="total">{% trans "Total" %}</label>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <button type="submit" class="button btn btn-primary" id="btn-next">
+                        {% trans "Next" %}
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** SCRIPTS *** #}
+{# ****************************************************************************************************************** #}
+{% block scripts %}
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+
+    <script type="text/javascript">
+        var n = {{ n|safe }};
+        var asset_a = {{ asset_a|default:0 }};
+        var asset_b = {{ asset_b|default:0 }};
+        var y_title = {{ y_title|json }};
+    </script>
+    <script src="{% static "t1_adt2/js/highcharts.js" %}"></script>
+    <script src="{% static "t1_adt2/js/functions.js" %}"></script>
+{% endblock %}

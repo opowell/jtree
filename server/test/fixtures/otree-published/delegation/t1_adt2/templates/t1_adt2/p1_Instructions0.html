@@ -1,0 +1,88 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree_tags %}
+{% load otree otree_tools %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 't1_adt2/css/styles.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% trans "Task No." %} {{ task }}: {% trans "Instructions" %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <!-- otree_tools: tracking focus -->
+    {% tracking_focus %}
+    <!-- otree_tools: tracking time -->
+    {% tracking_time %}
+
+    <div class="wrapper">
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Progress Bar -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <label>
+            {% trans "Task" %} {{ task }} {% trans "of" %} {{ task_total }}
+        </label>
+        <div class="progress">
+            <div class="progress-bar-task" role="progressbar" style="width:{{ task_progress|safe }}%;">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+        <div class="progress-vspace"></div>
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Body -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <div class="card bg-light">
+            <div class="card-body">
+                <p>
+                    {% blocktrans trimmed %}
+                        We have recruited hundreds of persons from the adult population in Sweden. Several of
+                        them are randomly assigned to you so that you can make financial investment decisions
+                        in the experiment for them. <b>Your aim is to maximize their expected respected profit
+                        conditional on the risk level they provide on a scale from 1 to 4.</b> (In particular,
+                        1 refers to "please do not take any risk at all" while 4 refers to "please maximize the
+                        expected payoff regardless of the risk involved".)
+                    {% endblocktrans %}
+                </p>
+
+                <p>
+                    {% if treatment == 'opm_lin' %}
+                        {% blocktrans trimmed %}
+                            <b>Your payout is the same as for each of your clients.</b> The investment decisions
+                            as well as your payout will be explained in what follows.
+                        {% endblocktrans %}
+                    {% endif %}
+
+                    {% if treatment == 'opm_flat' %}
+                        {% blocktrans trimmed %}
+                            <b>You receive a fixed payout of 200 SEK.</b> The investment decisions as well as
+                            your clients' payout will be explained in what follows.
+                        {% endblocktrans %}
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- next button -->
+    <button type="submit" class="btn btn-primary otree-btn-next">
+        {% trans "Next" %}
+    </button>
+
+{% endblock %}

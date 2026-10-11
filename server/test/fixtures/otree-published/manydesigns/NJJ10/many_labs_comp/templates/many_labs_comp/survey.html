@@ -1,0 +1,166 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 'many_labs/css/custom.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+
+
+
+{% block title %}
+    {% trans "Survey" %}
+{% endblock %}
+
+
+
+{% block content %}
+    <div class="wrapper instructions">
+
+                <p> <b>Before completing the task, please answer the following questions.</b></p>
+
+
+
+                <label class="col-form-label">
+
+                    1-In your opinion, out of 100 sellers who faced a similar situation like yours, how many sellers decided <b>to disclose</b> the most likely value of the product to the buyer?
+</label>
+
+<script>
+		var slider_min = 0; // Adjust this
+		var slider_max = 100; // Adjust this
+		var slider_step = 1; // Adjust this
+
+		var oldval = "";
+
+		function showVal1(what) {
+			showFloat(document.getElementById("cval1"), what, 2);
+			document.getElementById("price").value = what;
+
+			oldval = what;
+		}
+
+		function show_slider(event) {
+			max = parseInt(getComputedStyle(document.getElementById("before")).width.replace("px", ""));
+			cur = event.offsetX;
+
+			now = (cur/max)*(slider_max-slider_min) + slider_min;
+			now = Math.round(now/slider_step)*slider_step;
+
+			document.getElementById("before").style.display = "none";
+			document.getElementById("price_slider").style.display = "block";
+			document.getElementById("show_price").style.color = "#000";
+
+			showVal1(now);
+			document.getElementById("price_slider").value = now;
+		}
+
+		function showFloat(el, val, dec = 0) {
+			if (isNaN(val)) {
+				el.innerHTML = "???";
+			}
+			else {
+				// el.innerHTML = parseFloat(val).toFixed(dec).replace('.', ','); // enable this if the language of your experiment is German
+				el.innerHTML = parseFloat(val).toFixed(dec);
+			}
+		}
+	</script>
+
+	<style>
+		#dec1 input {
+			min-height: 50px;
+		}
+		#dec1 {
+			margin-top: 40px;
+			margin-bottom: 40px;
+		}
+		#price_slider {
+			display: none;
+		}
+		.input-group-text {
+			padding: 20px;
+		}
+		.slidertd {
+			width: 100%;
+		}
+		#show_price {
+			color: #fff;
+		}
+		#before {
+			display: block;
+			height: 16px;
+			width: 100%;
+			background: #1e5bff;
+		}
+	</style>
+
+	<p>Please use the slider below to answer this question.</p>
+
+	<table id="dec1" border="0">
+		<tr>
+			<td><span class="input-group-text" id="slidermin"></span></td>
+			<td width="90%">
+				<div id="before" onclick="show_slider(event)"></div>
+				<input type="range" name="price_slider" id="price_slider" value="0" class="slidertd" class="form-range" oninput="showVal1(this.value)" onchange="showVal1(this.value)">
+			</td>
+			<td><span class="input-group-text" id="slidermax"></span></td>
+		</tr>
+		<tr>
+			<td id="show_price" colspan="3" style="text-align: center"><i>Your answer</i>: <b><span id="cval1"></span></b></td>
+		</tr>
+	</table>
+
+	<input type="hidden" id="price" name="price" value="" />
+
+	<script>
+		$(document).ready(function (event) {
+			document.getElementById("price_slider").min = slider_min;
+			document.getElementById("price_slider").max = slider_max;
+			document.getElementById("price_slider").step = slider_step;
+
+			showFloat(document.getElementById("slidermin"), slider_min);
+			showFloat(document.getElementById("slidermax"), slider_max);
+		});
+	</script>
+
+
+
+                2- Please rate on a scale from 1 to 5 how much you agree or disagree with the following statements.
+
+                <li>I see myself as someone who takes risks.</li>
+
+                {% formfield player.risk %}
+                <li>In general I trust people I meet for the first time.</li>
+                    {% formfield player.trust %}
+                <li>It is justifiable to cheat on taxes if I have the chance.</li>
+                    {% formfield player.moral_tax %}
+
+                <li>It is acceptable that companies can earn profits from mistakes that consumers commonly do when buying a product.</li>
+
+                {% formfield player.consumer_mistake %}
+
+        <li>Markets should be regulated to prevent consumers' mistakes.</li>
+        {% formfield player.Political %}
+
+                    {% formfield player.age %}
+                4- What is your gender?
+                    {% formfield player.gender %}
+
+
+
+
+
+
+
+
+                    <button class="btn btn-primary"> Next page </button>
+
+            </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,64 @@
+
+{% block styles %}
+    <link href="{% static 'global/custom.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+
+{{ block scripts }}
+
+    <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit"
+        async defer>
+    </script>
+
+    <script type="text/javascript">
+        var verifyCallback = function(response) {
+            if(response.length == 0) {
+                alert("Please complete the reCAPTCHA.")
+            }
+                //reCaptcha not verified
+            else {
+                document.getElementById('success').style.visibility = 'visible'
+                setTimeout(function(){
+                    document.getElementById("captchacheck").click();
+                }, 500 + Math.random() * 2000);
+            }
+                //reCaptcha verified
+          };
+    </script>
+
+    <script type="text/javascript">
+      var onloadCallback = function() {
+        grecaptcha.render('html_element', {
+          'sitekey' : '6LcQ4tEcAAAAADkPqEbfIML_jg_XTwsSJ1q8Dwjb',
+          'callback': 'verifyCallback'
+        });
+      };
+    </script>
+
+{{ endblock }}
+
+
+{{ block title }}
+    Welcome to this study about decision making!
+{{ endblock }}
+
+
+{{ block content }}
+
+    <div class="container">
+
+        <hr>
+
+    <div class="container">
+        <div id="recaptcha">
+            <div id="html_element" class="g-recaptcha" style="display: inline-block;"></div>
+        </div>
+        <button id="captchacheck" style="display: none"></button>
+        <br>
+        <div id="success" class="alert alert-success" role="alert" style="text-align: center; visibility: hidden;">
+            Welcome &ndash; the study will begin shortly.
+        </div>
+
+    </div>
+
+{{ endblock }}

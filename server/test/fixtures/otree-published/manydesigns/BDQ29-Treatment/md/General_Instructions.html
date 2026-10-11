@@ -1,0 +1,86 @@
+{% block styles  %}
+    <link href="{% static 'real_effort.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+{% block title %}
+    Instructions
+{% endblock %}
+
+{% block content %}
+
+<b>Welcome!</b>
+
+<p>
+    You are participating in an economic experiment. At the end of the experiment, you will be paid for your
+    participation. You will receive a participation fee of {{ 1.30|cu }} and earn additional money while
+    completing experimental tasks.
+</p>
+
+
+<p>
+
+</p>
+
+    <b>Overview</b>
+
+
+<p>
+    The experiment consists of two parts, Part 1 and Part 2, and will last for around 15 minutes.
+    Before the start of each part, you will receive instructions for that part.
+</p>
+
+
+<p>
+    In the experiment, you will be randomly and anonymously assigned to a group with 3 other players. You and 3 other
+    players in your group will never learn the identity of each other.
+</p>
+
+<p>
+    Your payment in the experiment will depend on both your decisions and the decisions of the 3 other players in your group.
+</p>
+
+<p>
+    In the experiment, we will use currency called Taler. All payoffs during the experiment (excluding the participation fee)
+    will be calculated in Talers and will be converted into GBP at the end of the experiment. The conversion rate between
+    Taler and GBP:
+<p>1 Taler = 0.75 pennies.</p>
+</p>
+
+<p>
+    In the experiment, you and 3 other players in your group will be assigned one of the 4 colors:
+</p>
+
+<p>
+    <table>
+        <tbody>
+        <tr height = "70">
+            <td width = "80" align="center"><img src = "https://www.dropbox.com/s/saoqw7we7zwv90j/Player_Yellow-01.png?raw=1" width = "50"></td>
+            <td width = "160">Player Yellow</td>
+
+            <td width = "80" align="center"><img src = "https://www.dropbox.com/s/gxnx609zz29q1ds/Player_Red-04.png?raw=1" width = "50"></td>
+            <td width = "160">Player Red</td>
+
+            <td width = "80" align="center"><img src = "https://www.dropbox.com/s/s4ygwwxrt4mexn3/Player_Green-02.png?raw=1" width = "50"></td>
+            <td width = "160">Player Green</td>
+
+            <td width = "80" align="center"><img src = "https://www.dropbox.com/s/z4qvl8w9qlao6nd/Player_Blue-03.png?raw=1" width = "50"></td>
+            <td width = "160">Player Blue</td>
+
+        </tr>
+        </tbody>
+    </table>
+
+</p>
+
+
+
+<p>On the next page, you will find out your color and receive instructions for Part 1.</p>
+
+<p>
+    <b>{{ formfields }}</b>
+</p>
+
+<button class="otree-btn-next btn btn-primary">Continue</button>
+<!--    {% next_button %}-->
+
+{% endblock %}

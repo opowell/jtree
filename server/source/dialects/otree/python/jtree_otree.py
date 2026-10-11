@@ -10,6 +10,7 @@ from pyodide.ffi import to_js
 from js import Object
 
 from otree import api
+from otree.api import flush_vars  # noqa: F401 (the bridge calls it after each call)
 import otree_template
 
 PAGE_METHODS = ['is_displayed', 'vars_for_template', 'js_vars', 'before_next_page', 'get_timeout_seconds',
@@ -42,6 +43,8 @@ class AppInfo:
             cls._app = self
         self.page_sequence = list(getattr(pages, 'page_sequence', []))
         self.pages = {p.__name__: p for p in self.page_sequence}
+        # vars_for_all_templates(self): variables for all the app's pages (oTree's older apps).
+        self.vars_for_all = getattr(pages, 'vars_for_all_templates', None)
 
     def model(self, kind, js):
         return {'player': self.Player, 'group': self.Group, 'subsession': self.Subsession}[kind](js)
@@ -126,12 +129,63 @@ def _json_value(value):
     return str(value)
 
 
-def load(pkg):
-    """Imports (again) the app in package pkg; returns its description as JSON."""
-    for name in [n for n in sys.modules if n == pkg or n.startswith(pkg + '.')]:
+def chdir_to(path):
+    """Python's working folder: an app's project's (see runtime.js), as oTree has it."""
+    import os
+    if os.getcwd() != path:
+        os.chdir(path)
+
+
+def missing_imports(code):
+    """The modules code imports (at its top level) that Python cannot find yet, as JSON."""
+    import ast
+    import importlib.util
+    names = set()
+    try:
+        tree = ast.parse(code)
+    except SyntaxError:
+        return '[]'
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            names.update(a.name.split('.')[0] for a in node.names)
+        elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
+            names.add(node.module.split('.')[0])
+    # Packages pandas imports only when they are used (an Excel file read).
+    if 'read_excel' in code or '.xlsx' in code:
+        names.add('openpyxl')
+    missing = []
+    for name in sorted(names):
+        try:
+            if importlib.util.find_spec(name) is None:
+                missing.append(name)
+        except (ImportError, ValueError):
+            missing.append(name)
+    return json.dumps(missing)
+
+
+# The names apps are imported by too (their folders' names), by package: {pkg: alias}.
+_aliases = {}
+
+
+def load(pkg, alias=None):
+    """
+    Imports (again) the app in package pkg; returns its description as JSON. Its folder's name
+    (alias) names it too, as older apps import themselves (from cem.config import *), unless
+    that is another module's name.
+    """
+    old_alias = _aliases.pop(pkg, None)
+    for name in [n for n in sys.modules if n == pkg or n.startswith(pkg + '.') or
+                 (old_alias and (n == old_alias or n.startswith(old_alias + '.')))]:
         del sys.modules[name]
     importlib.invalidate_caches()
     mod = importlib.import_module(pkg)
+    if alias and alias.isidentifier() and (alias not in sys.modules or alias in _aliases.values()):
+        for name in [n for n in sys.modules if n == alias or n.startswith(alias + '.')]:
+            del sys.modules[name]
+        for other in [p for p, a in _aliases.items() if a == alias]:
+            del _aliases[other]
+        sys.modules[alias] = mod
+        _aliases[pkg] = alias
     info = AppInfo(pkg, mod)
     _apps[pkg] = info
     return json.dumps(describe(info))
@@ -152,7 +206,7 @@ def describe(info):
         p = {
             'name': page.__name__,
             'kind': 'wait' if is_wait else 'page',
-            'methods': [m for m in PAGE_METHODS if callable(getattr(page, m, None)) or
+            'methods': [m for m in PAGE_METHODS if (callable(getattr(page, m, None)) and not getattr(getattr(page, m), '_jtree_default', False)) or
                         (m == 'live_method' and isinstance(getattr(page, m, None), str))],
         }
         if is_wait:
@@ -251,6 +305,10 @@ def _read(pkg, name):
     if os.path.isdir(base + '/templates'):
         paths += [os.path.join(base, 'templates', d, name) for d in os.listdir(base + '/templates')]
     paths.append(os.path.join(base, '_project_templates', name))
+    # Another app's, by its folder ('tasks_control/Summary.html'): in the project (the working directory).
+    app, _, rest = name.partition('/')
+    if rest and os.path.isdir(app):
+        paths += [name, os.path.join(app, 'templates', name)]
     for path in paths:
         if os.path.isfile(path):
             with open(path, encoding='utf-8') as f:
@@ -292,6 +350,16 @@ def render(pkg, page_name, js_player, static_url='/static/'):
     player = info.Player(js_player)
     context = {'player': player, 'group': player.group, 'subsession': player.subsession,
                'participant': player.participant, 'session': player.session, 'C': info.C, 'Constants': info.C}
+    # Older apps' templates are Django's: what they cannot find is nothing (form.x.errors, ...).
+    if info.old:
+        context[otree_template.LENIENT] = True
+    if callable(info.vars_for_all):
+        if info.old:
+            instance = page()
+            _fill_view(instance, player, False)
+            context.update(info.vars_for_all(instance) or {})
+        else:
+            context.update(info.vars_for_all(player) or {})
     if callable(getattr(page, 'vars_for_template', None)):
         context.update(info.page_call(page, 'vars_for_template', player) or {})
     text = _read(pkg, page.template_name or page_name + '.html')
@@ -334,7 +402,16 @@ def _settings(settings_dir):
     path = settings_dir + '/settings.py'
     spec = importlib.util.spec_from_file_location('otree_settings_' + str(abs(hash(settings_dir))), path)
     settings = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(settings)
+    # oTree loads settings under its command line (`otree devserver`); some projects read it.
+    argv = sys.argv
+    sys.argv = ['otree', 'devserver']
+    try:
+        spec.loader.exec_module(settings)
+    finally:
+        sys.argv = argv
+    # What otree.settings gives beyond oTree's defaults (settings.DEBUG, ...).
+    from otree import settings as otree_settings
+    otree_settings.project_settings = settings
     return settings
 
 

@@ -1,0 +1,283 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree_tags %}
+{% load otree otree_tools %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 't2_adt5/css/styles.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** SCRIPTS *** #}
+{# ****************************************************************************************************************** #}
+{% block scripts %}
+    <!-- fix valueAsNumber function in IE -->
+    <script src="{% static "t1_adt2/js/valueAsNumber.js" %}"></script>
+
+    <script type="text/javascript">
+        // initialize local storage
+        if (!localStorage.hasOwnProperty("fail")) {
+            localStorage.setItem("fail", 0);
+        }
+
+        // validate comprehension question
+        $("#validate").click(function () {
+            var value = $("#comp").get(0).valueAsNumber;
+
+            if (isNaN(value)) {
+                $("#missing").modal("show");
+            }
+            else if (value !== 150) {
+                var fail = parseFloat(localStorage.getItem("fail")) + 1;
+                localStorage.setItem("fail", fail);
+
+                $("#incorrect").modal("show");
+                $("#fail").val(parseFloat(localStorage.getItem("fail")));
+            }
+            else if (value === 150) {
+                $("#correct").modal("show");
+                $("#fail").val(parseFloat(localStorage.getItem("fail")));
+            }
+        });
+
+        // clear local storage
+        $("#submit").click(function () {
+            localStorage.setItem("fail", 0);
+        });
+
+        // disable enter key
+        function no_enter() {
+            return !(window.event && window.event.keyCode === 13);
+        }
+    </script>
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% trans "Task No." %} {{ task }}: {% trans "Question" %} 2
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <!-- otree_tools: tracking focus -->
+    {% tracking_focus %}
+    <!-- otree_tools: tracking time -->
+    {% tracking_time %}
+
+    <div class="wrapper">
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Progress Bar -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <label>
+            {% trans "Task" %} {{ task }} {% trans "of" %} {{ task_total }}
+        </label>
+        <div class="progress">
+            <div class="progress-bar-task" role="progressbar" style="width:{{ task_progress|safe }}%;">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+        <div class="progress-vspace"></div>
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Comprehension Question -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <div class="card bg-light">
+            <div class="card-body">
+                <p style="text-align: center; font-weight: 500;">
+                    {% blocktrans trimmed %}
+                        Please consider the following investment decision:
+                    {% endblocktrans %}
+                </p>
+                <div class="img-wrapper">
+                    {% with 't2_adt5/img/comp_payoffs_'|add:language|add:'.png' as img %}
+                        <img src="{% static img %}" class="img">
+                    {% endwith %}
+                </div>
+                <p style="text-align: center;">
+                    {% blocktrans trimmed %}
+                        If 50 SEK are put into <b>asset A</b>, how much does <br/>
+                        the asset pay if the coin comes up <b>heads</b>?
+                    {% endblocktrans %}
+                </p>
+
+                <form id="comprehension" method="post">
+                    <div class="input-group" style="width: 140px;">
+                        <input
+                                type="number"
+                                class="form-control"
+                                id="comp"
+                                style="width: 100px; text-align: center;"
+                                onkeypress="return no_enter()"
+                                min="0"
+                                max="300"
+                                step="0.1"
+                                required
+                        >
+                        <input type="hidden" id="fail" name="fail2">
+                        <div class="input-group-append">
+                            <span class="input-group-text" style="width: 40px;">SEK</span>
+                        </div>
+                    </div>
+                    <a class="btn otree-btn-next" id="validate">
+                        {% trans "Submit Your Answer" %}
+                    </a>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- -------------- -->
+    <!-- MODAL: missing -->
+    <!-- -------------- -->
+    <div class="modal fade" id="missing" role="dialog">
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div style="
+                        font-size:1.2em;
+                        color:rgb(255,193,7);
+                        display: table-cell;
+                        vertical-align: middle;
+                        padding-right: 15px;">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div class="modal-title">
+                        {% blocktrans trimmed %}
+                            No answer was provided...
+                        {% endblocktrans %}
+                    </div>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        {% blocktrans trimmed %}
+                            Please make sure to enter a valid number into the input field.
+                        {% endblocktrans %}
+                    </p>
+                    <p>
+                        {% blocktrans trimmed %}
+                            Note that you can only continue if the question has been answered correctly.
+                        {% endblocktrans %}
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        {% trans "Close" %}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- -------------- -->
+    <!-- MODAL: correct -->
+    <!-- -------------- -->
+    <div class="modal fade" id="correct" role="dialog">
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div style="
+                        font-size:1.2em;
+                        color:rgb(40,167,69);
+                        display: table-cell;
+                        vertical-align: middle;
+                        padding-right: 15px;">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div class="modal-title">
+                        {% blocktrans trimmed %}
+                            Congratulations!
+                        {% endblocktrans %}
+                    </div>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        {% blocktrans trimmed %}
+                            Your answer was correct.
+                        {% endblocktrans %}
+                    </p>
+                    <p>
+                        {% blocktrans trimmed %}
+                            Please hit the button below to proceed.
+                        {% endblocktrans %}
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary" id="submit">
+                        {% trans "Proceed" %}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ---------------- -->
+    <!-- MODAL: incorrect -->
+    <!-- ---------------- -->
+    <div class="modal fade" id="incorrect" role="dialog">
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div style="
+                        font-size:1.2em;
+                        color:rgb(220,53,69);
+                        display: table-cell;
+                        vertical-align: middle;
+                        padding-right: 15px;">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div class="modal-title">
+                        {% blocktrans trimmed %}
+                            Please try again...
+                        {% endblocktrans %}
+                    </div>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        {% blocktrans trimmed %}
+                            Unfortunately, your answer was not correct.
+                            Please read the question carefully, consider the hint below, and try again.
+                        {% endblocktrans %}
+                    </p>
+                    <br/>
+                    <p style="font-weight: 700;">
+                        {% trans "Hint:" %}
+                    </p>
+                    <p style="font-style: italic;">
+                        {% blocktrans trimmed %}
+                            Remember that the table depicts how much the asset pays per SEK invested.
+                            Thus, if, for instance, 50 SEK are put into an asset, the investment
+                            pays 50 times the return of the asset.
+                        {% endblocktrans %}
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        {% trans "Close" %}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

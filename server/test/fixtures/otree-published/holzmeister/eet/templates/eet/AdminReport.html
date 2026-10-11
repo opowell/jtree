@@ -1,0 +1,199 @@
+{% load staticfiles otree %}
+
+
+<!-- *************************************************************************************************************** -->
+<!-- Update AdminReport -->
+<!-- *************************************************************************************************************** -->
+<form id="update">
+    <button id="submit" class="btn btn-secondary btn-lg">Update Admin Report</button>
+</form>
+
+
+<div class="row">
+<!-- *************************************************************************************************************** -->
+<!-- Figure: (x,y)-scores -->
+<!-- *************************************************************************************************************** -->
+<script src="{% static 'eet/js/xy_scores.js' %}"></script>
+<script>
+    var xy_scores = {{ xy_scores|json }};
+    var bm_freq = {{ bm_freq|json }};
+    var scale = {{ Constants.t|json }} + 1.5;
+</script>
+<div id="xy_scores"></div>
+
+
+<!-- *************************************************************************************************************** -->
+<!-- Figure: Archetypes -->
+<!-- *************************************************************************************************************** -->
+<script src="{% static 'eet/js/archetypes.js' %}"></script>
+<script>
+    var archetypes = {{ archetypes|json }};
+    var type_freq = {{ type_freq|json }};
+</script>
+<div id="archetypes"></div>
+</div>
+
+
+<!-- *************************************************************************************************************** -->
+<!-- DataTable -->
+<!-- *************************************************************************************************************** -->
+<script>
+    $(document).ready(function() {
+        var table = $('#SummaryTable').DataTable({
+            responsive:     true,
+            info:           true,
+            paging:         true,
+            stateSave:      true,
+            lengthChange:   false,
+            columnDefs: [
+                {
+                    targets: [1,3,4,6,7,8,9,10,11,12],
+                    visible: false
+                }
+            ],
+            buttons: [
+                {
+                    extend: 'collection',
+                    text: '<i class="fas fa-download"></i> Downloads',
+                    buttons: [
+                        {
+                            extend:         'excelHtml5',
+                            text:           '<i class="far fa-file-excel"></i> *.xlsx',
+                            titleAttr:      'Excel',
+                            title:          null
+                        },{
+                            extend:         'csvHtml5',
+                            text:           '<i class="far fa-file-alt"></i> *.csv',
+                            titleAttr:      'CSV'
+                        },{
+                            extend:         'pdfHtml5',
+                            text:           '<i class="far fa-file-pdf"></i> *.pdf',
+                            titleAttr:      'PDF',
+                            orientation:    'landscape',
+                            title:          null
+                        },{
+                            extend:         'copy',
+                            text:           '<i class="far fa-copy"></i> Copy to Clipboard',
+                            titleAttr:      'Copy'
+                        },{
+                            extend:         'print',
+                            text:           '<i class="fas fa-print"></i> Print',
+                            titleAttr:      'Print'
+                        }
+                    ]
+                },
+                {
+                    extend: 'collection',
+                    text:   '<i class="fas fa-database"></i> Data',
+                    buttons: [
+                        {
+                            extend: 'colvisGroup',
+                            text: 'Utility Paramters: Lower & Upper Bounds',
+                            show: ':hidden',
+                            hide: [2,5,7,8,9,10,11,12,13,14]
+                        },{
+                            extend: 'colvisGroup',
+                            text: 'Utility Paramters: Mid-Points',
+                            show: ':hidden',
+                            hide: [1,3,4,6,7,8,9,10,11,12]
+                        },{
+                            extend: 'colvisGroup',
+                            text: 'Willingness to Pay: Lower & Upper Bounds',
+                            show: ':hidden',
+                            hide: [1,2,3,4,5,6,8,11,13,14]
+                        },{
+                            extend: 'colvisGroup',
+                            text: 'Willingness to Pay: Mid-Points',
+                            show: ':hidden',
+                            hide: [1,2,3,4,5,6,7,9,10,12]
+                        }
+                    ]
+                },
+                {
+                    extend: 'colvis',
+                    text:   '<i class="far fa-eye"></i> Show/Hide'
+                }
+            ]
+        });
+
+        table.buttons().container()
+            .appendTo( '#SummaryTable_wrapper .col-md-6:eq(0)' );
+    } );
+</script>
+
+<div class="row">
+    <table id="SummaryTable"
+           class="table table-striped table-hover table-bordered">
+        <thead>
+            <tr>
+                <th data-sortable="true">ID</th>
+                <th data-sortable="true">&sigma;<sub>l</sub>        </th>
+                <th data-sortable="true">&sigma;                    </th>
+                <th data-sortable="true">&sigma;<sub>u</sub>        </th>
+                <th data-sortable="true">&gamma;<sub>l</sub>        </th>
+                <th data-sortable="true">&gamma;                    </th>
+                <th data-sortable="true">&gamma;<sub>u</sub>        </th>
+                <th data-sortable="true">wtp<sup>a</sup><sub>l</sub></th>
+                <th data-sortable="true">wtp<sup>a</sup>            </th>
+                <th data-sortable="true">wtp<sup>a</sup><sub>u</sub></th>
+                <th data-sortable="true">wtp<sup>d</sup><sub>l</sub></th>
+                <th data-sortable="true">wtp<sup>d</sup>            </th>
+                <th data-sortable="true">wtp<sup>d</sup><sub>u</sub></th>
+                <th data-sortable="true">x-score                    </th>
+                <th data-sortable="true">y-score                    </th>
+                <th data-sortable="true">Archetype                  </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for id, s_lb, s_mp, s_ub, g_lb, g_mp, g_ub, a_lb, a_mp, a_ub, d_lb, d_mp, d_ub, x, y, type in data %}
+                <tr>
+                    <td>{{ id }}  </td>
+                    <td>{{ s_lb }}</td>
+                    <td>{{ s_mp }}</td>
+                    <td>{{ s_ub }}</td>
+                    <td>{{ g_lb }}</td>
+                    <td>{{ g_mp }}</td>
+                    <td>{{ g_ub }}</td>
+                    <td>{{ a_lb }}</td>
+                    <td>{{ a_mp }}</td>
+                    <td>{{ a_ub }}</td>
+                    <td>{{ d_lb }}</td>
+                    <td>{{ d_mp }}</td>
+                    <td>{{ d_ub }}</td>
+                    <td>{{ x }}   </td>
+                    <td>{{ y }}   </td>
+                    <td>{{ type }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- DataTables css -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.5.2/css/buttons.bootstrap4.min.css">
+
+<!-- FontAwesome css -->
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css">
+
+<!-- Custom css -->
+<link href="{% static 'eet/css/report.css' %}" rel="stylesheet">
+
+<!-- HighCharts libraries -->
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/highcharts-more.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="http://code.highcharts.com/modules/export-data.js"></script>
+
+<!-- DataTables libraries -->
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.colVis.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.flash.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.print.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>

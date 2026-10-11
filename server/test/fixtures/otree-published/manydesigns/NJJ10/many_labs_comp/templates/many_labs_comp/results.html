@@ -1,0 +1,37 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 'many_labs/css/custom.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+
+
+
+{% block title %}
+    {% trans "Thank You!" %}
+{% endblock %}
+
+
+
+{% block content %}
+    <div class="wrapper instructions">
+    <p>You completed the task. </p>
+
+    <p>You earn {{ Constants.participation_fee }} for your participation.</p>
+    <p> Your bonus payoff will be calculated after the other seller has made his/her decision. </p>
+        <p> Your will receive your bonus payment in a few days.  </p>
+
+
+    <p>Thank you for you participation. Please click the button below to submit your form to Prolific. </p>
+
+   <a href="{{ link }}" class="btn btn-primary">Submit completion</a>
+    </div>
+
+
+{% endblock %}

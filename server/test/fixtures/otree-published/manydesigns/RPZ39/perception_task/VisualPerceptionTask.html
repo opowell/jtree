@@ -1,0 +1,22 @@
+{{ block title }}
+    Visual Perception Task
+{{ endblock }}
+{{ block content }}
+<p>
+In this task, you will see a single grid that contains 100 dots.
+Each of these 100 dots will be either  <span style="color: #1A85FF">blue</span>
+or <span style="color: #D41159">red</span>.
+Your objective is to estimate the number of <span style="color: #D41159">red</span> dots in the grid.
+</p>
+
+<p><b>To do this, you will only see the grid for 5 seconds. </b></p>
+
+<p>Below is an example of a grid that you could see:</p>
+
+<p align= "center">
+    <img src="{{ static 'perception_grids/perception_task_grid_0.png' }}"/>
+</p>
+
+    {{ next_button }}
+
+{{ endblock }}

@@ -1,0 +1,112 @@
+{{ extends "global/Page.html" }}
+{{ load otree static }}
+
+{{ block title }}
+    Decisive Round
+{{ endblock }}
+
+{{ block global_styles  }}
+
+    <link rel="stylesheet" href="{{ static 'ball_catch/css/style.css' }}" />
+    <style>
+        .otree-timer {
+            display: none;
+        }
+    </style>
+{{ endblock }}
+
+{{ block global_scripts  }}
+    <script>
+        $(function () {
+            $('.otree-timer__time-left').on('update.countdown', function (event) {
+                if (event.offset.totalSeconds === 30) {
+                    $('.otree-timer').show();
+                }
+            });
+        });
+    </script>
+
+    <script src="{{ static 'ball_catch/js/jquery-ui.min.js' }}"></script>
+    <script src="{{ static 'ball_catch/js/ball-catch.js' }}"></script>
+
+    <script>
+        var prize = {{ Constants.reward }};
+        var cost = {{ Constants.cost }};
+        var interval = 21;
+        var ballDelay = 625;
+    </script>
+
+    <script>
+        function starttimer() {
+        setTimeout(function(){document.querySelector("#Next").style.visibility = "visible";
+            document.querySelector("#left").style.visibility = "hidden";
+            document.querySelector("#right").style.visibility = "hidden";}, 61500);
+        }
+    </script>
+
+{{ endblock }}
+
+{{ block content }}
+    <div id="wrapper">
+        <div id="jballfall">
+            <div class="statstext" id="gamestats">
+                <div id="gamestatsleft">
+                    <div>
+                        Catches: <span id="catchesstats" class="statsnumber">0</span>
+                    </div>
+
+                    <div>
+                        Rewards: <span id="scorestats" class="statsnumber">0</span>
+                    </div>
+                </div>
+                <div id="gamestatsright">
+                    <div>
+                        Clicks: <span id="clicksstats" class="statsnumber">0</span>
+                    </div>
+                    <div>
+                        Costs: <span id="expensestats" class="statsnumber">0</span>
+                    </div>
+                </div>
+            </div>
+            <div id="timer" class="statstext center"> Time Left: <p id="clock">1:00</p></div>
+            <div id="gamecontainer">
+                <div id="waterfall"></div>
+                <div id="gameinfo" class="infogame">
+                    <div>
+                        Reward per catch: <span id="prize" class="statsnumber"></span>
+                    </div>
+                    <div>
+                        Cost per click: <span id="cost" class="statsnumber"></span>
+                    </div>
+                </div>
+            </div>
+            <div id="clickleft">
+                <div>
+                    <button type="button" id="left" class="button" style="width:120px">LEFT</button>
+                </div>
+            </div>
+            <div id="clickright">
+                <div>
+                    <button type="button" id="right" class="button" style="width:120px">RIGHT</button>
+                </div>
+            </div>
+            <div id="periodcontroller">
+                <div>
+                    <button type="button" id="startbutton" onclick="starttimer()" class="button" style="width:150px">Start the Task!</button>
+                </div>
+            </div>
+        </div>
+        <br class="break" />
+        <div id="container" align=center>
+            <input type="hidden" name="catches" id="catches" value="0" />
+            <input type="hidden" name="clicks" id="clicks" value="0" />
+            <input type="hidden" name="total_reward" id="total_reward" value="0" />
+            <input type="hidden" name="total_cost" id="total_cost" value="0" />
+        </div>
+    </div>
+
+
+  <p>The next button will appear when you have finished the task.</p>
+<button class="o-tree-btn-next btn btn-primary" id="Next" style="visibility:hidden;">Next</button>
+
+{{ endblock }}

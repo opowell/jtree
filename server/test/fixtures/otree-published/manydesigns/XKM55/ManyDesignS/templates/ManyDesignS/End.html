@@ -1,0 +1,35 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+
+{% block title %}
+    END
+{% endblock %}
+
+{% block content %}
+
+
+<h2>Thank you for participating!</h2><br>
+You earned a total of {{ points }} points (including the 50 point initial endowment). The computer randomly assigned a minimum of {{ Thr }} points in order to receive a 1GBP bonus.
+{% if bonus %}
+Thus, you earned a 1GBP bonus in addition to the participation fee.
+{% else %}
+Thus, you did not earn a bonus this time.
+{% endif %}
+<br>
+We appreciate your participation!
+<br>
+<button type="button" id="myButton"> Submit and go back to Prolific</button>
+
+
+
+<script>
+      $('#myButton').click(function() {
+             location.href = 'https://app.prolific.co/submissions/complete?cc=572FB13C';
+
+        });
+
+</script>
+
+{% endblock %}
+
+

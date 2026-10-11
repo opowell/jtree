@@ -1,0 +1,36 @@
+{% load otree staticfiles %}
+
+<div class="card bg-light instructions">
+<div class="card-body">
+    <h3>
+        Instructions
+    </h3>
+{% if  condition == "multi" %}
+    <p>
+        You will be paired randomly and anonymously with another participant, and play 25 rounds of the following game.<br>
+        In this game, each one of you will see the results of six dice rolls. <br>
+        You will have to report the sum of the six dice. For example, if the dice show "6, 1, 1, 3, 4, and 5", the correct report is: 20 (6+1+1+3+4+5=20).<br>
+        The other player will do the same. The player who reported the higher sum will gain the reported points.<br>
+        For example, if in one round you report 20 and the other player report 35, the other player will gain 35 points in this round, and you will not earn any points.<br>
+        If there is a tie - the computer will randomly pick one of you as the winner.<br>
+        <br>
+        After each round, you can choose "Check" - this button will allow you to see the actual (calculated by the computer) sums. However, it will cost you one point every time you use it.<br>
+        <br>
+        You start the game with 50 points, and the number of points you accumulate on top of that will determine your final payoff.<br>
+    </p>
+
+{% elif condition == "single" %}
+    <p>
+        In this game, you will see the results of six dice rolls. <br>
+        You will have to report the sum of the six dice. For example, if the dice show "6, 1, 1, 3, 4, and 5", the correct report is: 20 (6+1+1+3+4+5=20).<br>
+        Your points in this game depend on the accumulated sum you report in each round.
+        For example, if in one round you report 20 you will gain 20 points in this round.<br>
+        <br>
+        After each round, you can choose "Check" - this button will allow you to see the actual (calculated by the computer) sum. However, it will cost you one point every time you use it.<br>
+        <br>
+        You start the game with 50 points, and the number of points you accumulate on top of that will determine your final payoff.<br>
+    </p>
+
+{% endif %}    
+</div>
+</div>

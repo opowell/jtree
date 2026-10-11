@@ -1,0 +1,86 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+{% load i18n %}
+
+{% block title %}
+  {% blocktrans trimmed %}
+    Please wait...
+  {% endblocktrans %}
+{% endblock %}
+
+{% block content %}
+
+  <style>
+   #myProgress {
+       width: 100%;
+       background-color: #ddd;
+   }
+
+   #myBar {
+       width: 1%;
+       height: 30px;
+       background-color: #4CAF50;
+   }
+  </style>
+<body>
+  <div class="container">
+  <h3>
+      Please do not switch screens during the experiment.
+  </h3>
+  </div>
+  <div id="myProgress">
+    <div id="myBar"></div>
+  </div>
+
+  <br>
+
+
+  <script>
+
+   var i = 0;
+   function move() {
+       if (i == 0) {
+           i = 1;
+           var elem = document.getElementById("myBar");
+           var width = 1;
+           var visual_width = 1;
+           var id = setInterval(frame, js_vars.waiting_time * 10);
+           function frame() {
+               if (width >= 100) {
+                   clearInterval(id);
+                   i = 0;
+                   document.getElementById("form").submit();
+
+               } else {
+                   width = width + 1;
+                   if (visual_width < width) {
+                       visual_width = width + Math.random() * 3;
+                   }
+                   elem.style.width = visual_width  +    "%";
+               }
+           }
+       }
+   }
+
+   move();
+
+
+  </script>
+
+  <style>
+   .otree-timer {
+       display: none;
+   }
+  </style>
+
+  <script>
+   $(function () {
+       $('.otree-timer__time-left').on('update.countdown', function (event) {
+           if (event.offset.totalSeconds === 10) {
+               $('.otree-timer').show();
+           }
+       });
+   });
+  </script>
+
+{% endblock %}

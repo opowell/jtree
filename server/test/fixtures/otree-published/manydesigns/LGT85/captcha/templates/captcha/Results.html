@@ -1,0 +1,42 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+  Stage 3 - The Feedback Stage
+{% endblock %}
+
+{% block content %}
+  <script type="text/javascript">
+   function finishExperiment() {
+       location.href = "{{ session.config.completion_url }}";
+   };
+  </script>
+  <meta http-equiv="refresh" content="{{ session.config.results_page_redir_sec }}; url={{ session.config.completion_url }}" /> 
+ 
+  {% if session.config.competition %}
+    {% include "./res_competition.html" %}
+  {% else %}
+    {% include "./res_control.html" %}
+  {% endif %}
+
+
+
+    <div align="center">
+
+  {% if player.is_dictator %} You were selected as the decision-maker in your group. {% else %} 
+    You were not selected as the decision-maker in your group. {% endif %}
+
+    <h3>
+      You earned a bonus of  {{ player.payoff_after | c }} from this study.<br/>
+    </h3>
+
+
+
+    <p>
+      Thank you for participating in our study.
+    </p>
+    <button id="myButton" type="button" class="btn btn-primary" onclick="finishExperiment()">Click to finish experiment</button>
+    </div>
+{% endblock %}
+
+

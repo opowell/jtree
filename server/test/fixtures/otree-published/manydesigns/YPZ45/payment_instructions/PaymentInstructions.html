@@ -1,0 +1,32 @@
+{{ block title }}
+    Bonus Payment Instructions
+{{ endblock }}
+{{ block content }}
+
+    In this experiment, you will have {{ Constants.time_allowed }} seconds to successfully complete as many sliders as you can.<br>
+
+    {{ if player.participant.treatment == 'Competition' }}
+
+
+    <b>You will be paired against another person participating in this experiment.  There is a prize of &#163;{{ Constants.prize_value|to2 }} which one pair member will win.</b>
+    The winner of the prize will depend on the relative proportion of successfully completed sliders of the pair and some element of chance.
+    If the number of completed sliders are the same, each pair member will have a 50% chance of winning the prize.
+    If the number of completed sliders are different, the pair member with the higher number will have a higher chance of winning the prize.
+    In particular, your chance of winning the prize is determined by the following formula: (number of your own sliders)/(number of your own sliders + number of other pair member's sliders).
+
+    {{ else }}
+
+    You will be paid a piece rate of &#163;{{ Constants.piece_rate|to2 }} for each successfully completed slider.
+
+    {{ endif }}
+
+    <br><br>
+
+    This bonus payment will be determined and paid out after all participants have completed the experiment (approximately 400).
+
+    <br><br>
+    You will now be asked some comprehension questions about the Slider Task and how it can affect your bonus payment.
+
+    {{ next_button }}
+
+{{ endblock }}

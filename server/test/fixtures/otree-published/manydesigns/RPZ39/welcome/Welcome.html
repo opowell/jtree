@@ -1,0 +1,33 @@
+{{ block title }}
+    Welcome!
+{{ endblock }}
+{{ block content }}
+<p>
+In the experiment today, you will participate in two tasks, a <b>Production Task</b> and a <b>Visual Perception Task</b>.
+In each of the two tasks you can earn experimental points.
+At the end of the experiment, the points that you obtain during each of the two tasks will be added together to determine your final experimental score.
+</p>
+
+<p align = "center">
+<b>Your Experimental Score = Points from Production Task + Points from Visual Perception Task</b>
+</p>
+<p>
+<b>How will your payment be determined?</b>
+</p>
+<p>
+At the end of the experiment, your points will be converted into a monetary bonus payment using the exchange rate of 100 Experimental Points = GBP 1.00. Therefore, the more Experimental Points you collect, the higher your bonus payment will be. In addition, you will be paid a show-up fee of GBP 1.30 for participating in the experiment.
+</p>
+<p>
+<b>Calculation of payment</b>
+</p>
+<p>
+$$ \text{Payment} = \text{GBP } 1.30 + \text{GBP} \left(\frac{\text{Experimental Points}}{100}\right)$$
+</p>
+
+    {{ next_button }}
+
+{{ endblock }}
+
+{{ block scripts}}
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default'></script>
+{{ endblock}}

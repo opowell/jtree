@@ -1,0 +1,115 @@
+{{ block title }}
+    Visual Perception Task
+{{ endblock }}
+{{ block content }}
+
+
+<p><b>What are the implications of your estimate?</b></p>
+
+<p>Your estimate of the number of <span style="color: #D41159">red</span> dots in the grid will affect two outcomes:</p>
+
+<ol>
+    <li>It will affect the number of Experimental Points that you receive.</li>
+    <li>It will affect the amount of money that is donated to the charity GiveDirectly.org on your behalf.</li>
+</ol>
+
+<p>This will work in the following way. You will report &#8220;Your Estimate&#8221;, which will be a number between 0 and 100.</p>
+
+<ol>
+    <li>The number of Experimental Points that you receive from this task will be equal to:</li>
+</ol>
+
+<p align = "center">$$\text{Your Estimate}$$</p>
+
+<ol start = "2">
+    <li>The amount that will be donated to the charity GiveDirectly.org on your behalf (in GBP pence, where GBP 1 is equal to 100 pence) be equal to: </li>
+</ol>
+
+<p align = "center">$$(100 - \text{Your Estimate})$$</p>
+
+You can read more about the charity GiveDirectly.org if you would like by clicking
+<!--<button id="info_button" type = "button" class="btn btn-secondary">HERE</button></p> -->
+
+<!-- Button trigger modal -->
+<button type="button" name = "more_info" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#CharityInfo">
+  HERE
+</button>
+<input type="hidden" name="clicked_charity_info" value=0>
+<br>
+<!-- Modal -->
+<div class="modal fade" id="CharityInfo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Information on GiveDirectly.org</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>
+        GiveDirectly transfers money to very poor families in developing countries.
+        This charity is rated as one of the nine top charities in terms of
+        cost-effectiveness by the charity evaluation site GiveWell, above many
+        traditional charities in the world. Here is an excerpt from the website
+        GiveDirectly.org presenting its objectives:
+        </p>
+
+        <p align = "center">
+        <i>
+        &#8220;GiveDirectly is a nonprofit that lets donors like you send money directly
+        to the world’s poorest. We believe people living in poverty deserve the dignity
+        to choose for themselves how best to improve their lives — cash enables that
+        choice.&#8221;
+        </i>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{ if player.session.competition_treatment }}
+&nbsp;
+<p><b>Your matched partner will see exactly the same grid as you, and will also be
+asked to estimate the number of <span style="color: #D41159">red</span> dots.</b></p>
+<br>
+{{ endif }}
+
+<p>
+<b>Example:</b> Suppose that you estimate that the number of <span style="color: #D41159">red</span>
+dots in the grid is 43.
+You will then receive 43 Experimental Points from the Visual Perception Task and
+(100 – 43) = 57 pence will be donated to the charity GiveDirectly.org on your
+behalf.
+</p>
+
+<br>
+
+<p>Please answer the following questions to ensure that you have fully understood.
+Assume that you have reported an estimate that the number of
+<span style="color: #D41159">red</span> dots in the grid is 58. </p>
+
+{{ formfield 'ControlQuestion1' }}
+
+{{ formfield 'ControlQuestion2' }}
+
+    {{ next_button }}
+
+{{ endblock }}
+
+{% block scripts %}
+<script>
+// get button and the hidden input elements
+let button = document.querySelector('[name=more_info');
+let hidden_input = document.querySelector('[name=clicked_charity_info');
+
+// add +1 to the hidden input value when button is clicked
+button.onclick = function(){
+hidden_input.value = parseInt(hidden_input.value) + 1;
+ };
+</script>
+
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default'></script>
+
+{% endblock %}

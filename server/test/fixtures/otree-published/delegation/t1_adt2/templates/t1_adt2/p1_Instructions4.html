@@ -1,0 +1,132 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree_tags %}
+{% load otree otree_tools %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 't1_adt2/css/styles.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% trans "Task No." %} {{ task }}: {% trans "Instructions" %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <!-- otree_tools: tracking focus -->
+    {% tracking_focus %}
+    <!-- otree_tools: tracking time -->
+    {% tracking_time %}
+
+    <div class="wrapper">
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Progress Bar -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <label>
+            {% trans "Task" %} {{ task }} {% trans "of" %} {{ task_total }}
+        </label>
+        <div class="progress">
+            <div class="progress-bar-task" role="progressbar" style="width:{{ task_progress|safe }}%;">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+        <div class="progress-vspace"></div>
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Body -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <div class="card bg-light">
+            <div class="card-body">
+                <p>
+                    {% if treatment == 'opm_flat'%}
+                        {% blocktrans trimmed %}
+                            This screen explains how your clients’ earnings will be determined. At the
+                            end of the experiment the computer will randomly select one of your 25 investment
+                            decisions and your clients will be paid according to the investments you made
+                            in the selected decision.
+                        {% endblocktrans %}
+                    {% elif treatment == 'opm_lin'%}
+                        {% blocktrans trimmed %}
+                            This screen explains how your and your clients’ earnings will be determined.
+                            At the end of the experiment the computer will randomly select one of your
+                            25 investment decisions and you and each of your clients will be paid
+                            according to the investments you made in the selected decision.
+                        {% endblocktrans %}
+                    {% else %}
+                        {% blocktrans trimmed %}
+                            This screen explains how your earnings will be determined. At the end of the
+                            experiment the computer will randomly select one of your 25 investment decisions
+                            and you will be paid according to the investments you made in the selected decision.
+                        {% endblocktrans %}
+                    {% endif %}
+                </p>
+                <p>
+                    {% if treatment == 'opm_flat'%}
+                        {% blocktrans trimmed %}
+                            Here’s an example. Suppose that the computer selects decision 5 for payment.
+                            That means that each of your clients will be paid according to the investments
+                            you made in decision 5. Let’s say that your investments in decision 5 pay 150
+                            SEK if the coin comes up heads and 320 SEK if the coin comes up tails.
+                        {% endblocktrans %}
+                    {% elif treatment == 'opm_lin'%}
+                        {% blocktrans trimmed %}
+                            Here’s an example. Suppose that the computer selects decision 5 for payment.
+                            That means that you as well as each of your clients will be paid according
+                            to the investments you made in decision 5. Let’s say that your investments
+                            in decision 5 pay 150 SEK if the coin comes up heads and 320 SEK if the coin
+                            comes up tails.
+                        {% endblocktrans %}
+                    {% else %}
+                        {% blocktrans trimmed %}
+                            Here’s an example. Suppose that the computer selects decision 5 for payment.
+                            Let’s say that your investments in decision 5 pay 150 SEK if the coin comes up
+                            heads and 320 SEK if the coin comes up tails.
+                        {% endblocktrans %}
+                    {% endif %}
+                </p>
+                <p>
+                    {% if treatment == 'opm_flat'%}
+                        {% blocktrans trimmed %}
+                            Next the computer will randomly select heads or tails. If the coin comes up heads,
+                            each of your your clients will be paid SEK 150 plus the initial endowment of 100
+                            SEK. If the coin comes up tails, each of your clients will be paid 320 SEK plus
+                            the initial endowment of 100 SEK.
+                        {% endblocktrans %}
+                    {% elif treatment == 'opm_lin'%}
+                        {% blocktrans trimmed %}
+                            Next the computer will randomly select heads or tails. If the coin comes up heads,
+                            you and each of your clients will be paid 150 SEK plus the initial endowment of
+                            100 SEK. If the coin comes up tails, you and each of your clients will be paid
+                            320 SEK plus the initial endowment of 100 SEK.
+                        {% endblocktrans %}
+                    {% else %}
+                        {% blocktrans trimmed %}
+                            Next the computer will randomly select heads or tails. If the coin comes up heads,
+                            you will be paid 150 SEK plus the initial endowment of 100 SEK. If the coin comes
+                            up tails, you will be paid 320 SEK plus the initial endowment of 100 SEK.
+                        {% endblocktrans %}
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- next button -->
+    <button type="submit" class="btn btn-primary otree-btn-next">
+        {% trans "Next" %}
+    </button>
+
+{% endblock %}

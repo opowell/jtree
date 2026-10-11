@@ -1,0 +1,70 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 'many_labs/css/custom.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+
+
+
+{% block title %}
+    {% trans "Welcome!" %}
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="wrapper instructions">
+        <p>
+             This is a study about decision-making.
+             You earn {{participation_fee}} for your participation. In addition, you can earn up to {{max}}  based on your decisions.  <br> <br>
+
+            Before starting please enter your <b>PROLIFIC ID</b> in the box below:
+
+            {% formfield player.prolific_id %}
+        </p>
+
+        <div class="form-check">
+        <input class="form-check-input" type="checkbox" value="" onclick="myFunction()" id="defaultCheck0">
+          <label class="form-check-label" for="defaultCheck0">
+            I entered my ID correctly
+          </label>
+    </div>
+</div>
+
+<div class="col-12">
+    <div class="text-right">
+        <button class="btn btn-primary" type="submit" id="nextbutton" onclick="check()" disabled="disabled"> Start the task </button>
+    </div>
+</div>
+
+
+{% endblock %}
+{% block scripts %}
+
+<script>
+
+    function myFunction() {
+        var msie = /msie/.test(navigator.userAgent.toLowerCase()) ||
+        /trident/.test(navigator.userAgent.toLowerCase()) || /.net/.test(navigator.userAgent.toLowerCase());
+
+       if (document.getElementById('defaultCheck0').checked && msie == 0) {
+           document.getElementById('nextbutton').disabled = false;
+           } else if (document.getElementById('defaultCheck0').checked && msie == 1) {
+           document.getElementById('nextbutton').disabled = true;
+           alert('You have Internet Explorer, so you cannot continue');
+          } else {document.getElementById('nextbutton').disabled=true;
+       }
+    }
+
+
+
+</script>
+
+{% endblock %}

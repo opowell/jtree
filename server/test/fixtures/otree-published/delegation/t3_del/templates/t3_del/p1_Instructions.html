@@ -1,0 +1,189 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load otree otree_tools %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 't3_del/css/styles.css' %}" rel="stylesheet">
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% trans "Task No." %} {{ task }}: {% trans "Decision to Delegate" %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <!-- otree_tools: tracking focus -->
+    {% tracking_focus %}
+    <!-- otree_tools: tracking time -->
+    {% tracking_time %}
+
+    <div class="wrapper">
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Progress Bar -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <label>
+            {% trans "Task" %} {{ task }} {% trans "of" %} {{ task_total }}
+        </label>
+        <div class="progress">
+            <div class="progress-bar-task" role="progressbar" style="width:{{ task_progress|safe }}%;">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+        <div class="progress-vspace"></div>
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Body -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <div class="card bg-light mb-3">
+            <div class="card-body">
+
+
+                <!-- TREATMENT: Professionals -->
+                <!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+                {% if treatment == 'pro_flat' or treatment == 'pro_lin' %}
+                    <p>
+                        {% blocktrans trimmed %}
+                            We have recruited a large number of individuals working in the Swedish finance industry
+                            as, e.g., fund managers, finance analysts, or investment advisors. They have answered
+                            the same 25 investment problems that you have completed in task 1 and task 2 under the
+                            condition that they did it for a customer (i.e., a person from the adult working
+                            population in Sweden).
+                        {% endblocktrans %}
+                    </p>
+                    <p>
+                        {% blocktrans trimmed %}
+                            You can decide whether you want one of these financial professional to make the 25
+                            investment decisions for you. If you do so, one of the financial professionals is
+                            assigned to you and his/her decisions are relevant for you: one of the 25 decisions
+                            made by him/her is paid out to you instead of your own decision made before.
+                        {% endblocktrans %}
+                    </p>
+                    <p>
+                        {% blocktrans trimmed %}
+                            In case you prefer to delegate the decision to the financial professional, you have
+                            to indicate how much risk (on a scale from 1 to 4) the assigned professional should
+                            take on your behalf. The financial professionals are instructed to maximize your
+                            expected profit conditional on the risk level you indicate below.
+                        {% endblocktrans %}
+                    </p>
+                    <p>
+                        {% if treatment == 'pro_flat' %}
+                            {% blocktrans trimmed %}
+                                For his/her decision on your behalf the financial professional receives a fixed
+                                payment 400 SEK.
+                            {% endblocktrans %}
+                        {% endif %}
+                        {% if treatment == 'pro_lin' %}
+                            {% blocktrans trimmed %}
+                                For his/her decision on your behalf the financial professional receives the same
+                                payment as you do.
+                            {% endblocktrans %}
+                        {% endif %}
+                    </p>
+                    <p>
+                        {% blocktrans trimmed %}
+                            If you do not want a financial professional to take the investment decisions for
+                            you, you stick to the 25 investment decisions you have taken before and are paid
+                            out accordingly.
+                        {% endblocktrans %}
+                    </p>
+                {% endif %}
+
+
+                <!-- TREATMENT: Algorithm -->
+                <!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+                {% if treatment == 'algo' %}
+                    <p>
+                        {% blocktrans trimmed %}
+                            In this experiment, there exists a computer software (i.e., a robot-advisor)
+                            that can do all 25 investment decisions you have completed in task 1 and task 2 for
+                            a customer.
+                        {% endblocktrans %}
+                    </p>
+                    <p>
+                        {% blocktrans trimmed %}
+                            You can decide whether you want the robot-advisor to make the 25 investment
+                            decisions for you. If you do so, the robot-advisor’s decisions are relevant for you:
+                            one of the 25 decisions made by it is paid out to you instead of your own decision
+                            made before.
+                        {% endblocktrans %}
+                    </p>
+                    <p>
+                        {% blocktrans trimmed %}
+                            In case you prefer to delegate the decision to the robot-advisor, you have to
+                            indicate how much risk (on a scale from 1 to 4) the robot-advisor should take on your
+                            behalf. The robot-advisor is programmed in such a way that it maximizes your expected
+                            profit conditional on the risk level you indicate below.
+                        {% endblocktrans %}
+                    </p>
+                    <p>
+                        {% blocktrans trimmed %}
+                            If you do not want the robot-advisor to take the investment decisions for you,
+                            you stick to the 25 investment decisions you have taken before and are paid
+                            out accordingly.
+                        {% endblocktrans %}
+                    </p>
+                {% endif %}
+
+            </div>
+        </div>
+
+
+        <div class="card bg-light" style="margin-top: 40px;">
+            <div class="card-body">
+                <div style="
+                    font-size:3em;
+                    color:rgb(0,123,255);
+                    display: table-cell;
+                    vertical-align: middle;
+                    padding-right: 20px;">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <div style="display: table-cell; font-weight: 400;">
+
+                    <!-- TREATMENT: Professionals -->
+                    <!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+                    {% if not treatment == 'algo' %}
+                        {% blocktrans trimmed %}
+                            Remember that this online study adheres to the principles of economic experiments:
+                            this indicates that participants are not deceived which means that the financial
+                            professionals are recruited and their decisions are real.
+                        {% endblocktrans %}
+                    {% endif %}
+
+                    <!-- TREATMENT: Algorithm -->
+                    <!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+                    {% if treatment == 'algo' %}
+                        {% blocktrans trimmed %}
+                            Remember that this online study adheres to the principles of economic experiments:
+                            this indicates that participants are not deceived which means that the robot-advisor
+                            exists and its decisions are real.
+                        {% endblocktrans %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+
+        <!-- next button -->
+        <button type="submit" class="btn btn-primary otree-btn-next">
+            {% trans "Next" %}
+        </button>
+
+    </div>
+
+{% endblock %}

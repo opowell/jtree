@@ -1,0 +1,81 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load otree otree_tools %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 't0_int/css/styles.css' %}" rel="stylesheet">
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% blocktrans trimmed %}
+        Overview
+    {% endblocktrans %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <!-- otree_tools: tracking focus -->
+    {% tracking_focus %}
+    <!-- otree_tools: tracking time -->
+    {% tracking_time %}
+
+    <div class="wrapper">
+
+        <!-- study outline -->
+        <div class="card bg-light mb-3">
+            <div class="card-body">
+                <p>
+                    {% blocktrans trimmed %}
+                        This experiment consists of several tasks, which are divided into two blocks.
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans trimmed %}
+                        The first block contains three tasks which are potentially relevant for your final
+                        payout. In each of these tasks you are asked to make decisions in different economic
+                        choice problems. At the end of the experiment, <b>one of the decisions will be randomly
+                        chosen and will determine your payout</b>. This amount of money will be paid in addition
+                        to the initial endowment of 100 SEK. In total, the first block will take about 20-25
+                        minutes.
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans trimmed %}
+                        The second block of experimental tasks contains several different survey questions,
+                        which do <i>not</i> imply any payouts. Please note, however, that you are only entitled
+                        to receiving a payout if <b>all tasks</b> in this experiment have been completed. The
+                        second block will take about 10-15 minutes.
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans trimmed %}
+                        Each task of the experiment (including introductory instructions) will be presented on a
+                        separate screen. When you have completed a task, the experiment will continue directly with
+                        the next task. You will only be informed at the very end of the experiment which decision
+                        was selected for payout and how large your payout will be.
+                    {% endblocktrans %}
+                </p>
+            </div>
+        </div>
+
+        <!-- next button -->
+        <button type="submit" class="btn btn-primary otree-btn-next">
+            {% trans "Next" %}
+        </button>
+
+    </div>
+
+{% endblock %}

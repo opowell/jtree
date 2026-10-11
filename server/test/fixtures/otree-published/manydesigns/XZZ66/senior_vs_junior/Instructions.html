@@ -1,0 +1,73 @@
+{{ block title }}
+    Instructions
+{{ endblock }}
+{{ block content }}
+<div class="card bg-light m-3">
+        <div class="card-body">
+<p>
+        In this experiment there are two kinds of players: "Player A" and "Player B".
+        Both work for 5 minutes on a real-effort task. As a player, you have to complete a counting task,
+        where you have to count how many “ones” there are in a grid full of zeros and ones.
+        You receive a piece rate payment for each correctly solved puzzle.
+
+        <br><br>
+    {{ if player.participant.control }}
+        Player A receives for each correctly solved puzzle a piece rate of 8 pence.
+        In addition, Player A can also extract some part of the performance pay of a Player B who is matched with him/her.<br>
+        This is described in more detail below.<br>
+        By contrast, each Player B competes with another Player B.
+        Player B's compensation depends on the outcome of a tournament against the other Player B. <br>
+        If Player B wins the tournament he/she receives a piece rate of 8 pence for each correctly solved puzzle. <br>
+        If he/she loses the tournament, she earns nothing (0 pence). <br>
+        If there is a tie, a random draw decides about the winner. <br>
+
+        <br><br>
+
+        In addition to the number of correctly solved puzzles, payment of Player B also depends on a decision of
+        Player A: Each Player B is matched with one Player A. Before the players start working,
+        Player A can define how much of Player B’s real-effort performance he/she wants to extract.
+        To do this, he/she has to define the percentage of real-effort extraction (0-100% in increments of 10 percent),
+        he/she is willing to take from Player B. Both players know that at the end of the real-effort task,
+        Player A receives the percentage of Player B's real-effort performance  as defined by Player A before.
+        This percentage is subtracted from Player B's performance.
+        All this is known to both players from the beginning.
+
+    {{ else }}
+
+        Player A competes with another Player A, and Player B competes with another Player B.
+        Each Player A is matched with a Player B.
+        Player A's compensation depends on the outcome of a tournament against the other Player A,
+        and Player B's compensation depends on the outcome of a tournament against the other Player B. <br>
+        If Player A wins the tournament, he/she receives a piece rate of 16 pence for each correctly solved puzzle. <br>
+        If Player B wins the tournament, he/she receives a piece rate of 8 pence for each correctly solved puzzle. <br>
+        If a Player loses the tournament, he/she earns nothing (0 pence). <br>
+        If there is a tie, a random draw decides about the winner.<br>
+
+        <br><br>
+
+        In addition to the number of correctly solved puzzles, payment also depends on a decision of Player A:
+        Each Player B is matched with one Player A. Before the players start working,
+        Player A can define how much of Player B’s real-effort performance he/she wants to extract.
+        To do this, he/she has to define the percentage of real-effort extraction (0-100% in increments of 10 percent),
+        he/she is willing to take from Player B. Both players know that at the end of the real-effort task,
+        Player A receives the percentage of Player B's real-effort performance  as defined by Player A before.
+        This percentage is subtracted from Player B's performance. All this is known to both players from the beginning.
+
+    {{ endif }}
+
+    <br>
+    Player B will be informed about the percentage player A decided to extract before starting with the real-effort task.
+
+    <br><br>
+    {{ if player.participant.is_senior }}
+        <b>You have been assigned the role of Player A!</b>
+    {{ else }}
+        <b>You have been assigned the role of Player B!</b>
+    {{ endif }}
+
+
+</p>
+    {{ next_button }}
+        </div>
+</div>
+{{ endblock }}

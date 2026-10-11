@@ -72,7 +72,9 @@ function queueScript(settingsPath, name) {
     if (config.real_world_currency_per_point != null) lines.push('session.exchangeRate = ' + JSON.stringify(config.real_world_currency_per_point) + ';');
     if (config.num_demo_participants != null) lines.push('session.suggestedNumParticipants = ' + JSON.stringify(config.num_demo_participants) + ';');
     for (const app of config.app_sequence || []) {
-        lines.push('session.addApp(' + JSON.stringify(path.join(dir, app, '__init__.py')) + ');');
+        // An app in oTree's older format is its models.py.
+        const old = fs.existsSync(path.join(dir, app, 'models.py'));
+        lines.push('session.addApp(' + JSON.stringify(path.join(dir, app, old ? 'models.py' : '__init__.py')) + ');');
     }
     return { script: lines.join('\n') + '\n', config };
 }

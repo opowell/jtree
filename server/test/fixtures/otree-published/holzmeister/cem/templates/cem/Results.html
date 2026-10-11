@@ -1,0 +1,184 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 'cem/css/custom.css' %}" rel="stylesheet">
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% trans "Results" %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <div class="wrapper">
+
+        <div class="card info">
+            {% blocktrans trimmed %}
+                The following decision was randomly chosen for your payment:
+            {% endblocktrans %}
+        </div>
+        <br/>
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Table - Lottery Decisions (Accept/Reject) -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        {% if Constants.accept_reject == True and Constants.variation != 'sure_payoff' %}
+
+            <div class="card">
+                <table class="table table-striped">
+                    <thead>
+                        <tr class="header">
+                            <th class="lottery_left">{% trans "Lottery" %}</th>
+                            <th class="formfield">{% trans "Accept" %}</th>
+                            <th class="formfield">{% trans "Reject" %}</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for i,f,p,hi,lo,sp in choice_to_pay %}
+                            <tr>
+                                <!-- lotteries -->
+                                <td class="lottery_left">
+                                    {{ hi }} {% trans "with a probability of " %}{{ p|floatformat:1 }},
+                                    {{ lo }} {% trans "otherwise" %}
+                                </td>
+
+                                <!-- accept -->
+                                <td class="formfield">
+                                    {% if option_to_pay == 'A' %}
+                                        <div class="controls">
+                                            <input type="radio" style="pointer-events: none;" checked="checked">
+                                        </div>
+                                    {% elif option_to_pay == 'B' %}
+                                        <div class="controls">
+                                            <input type="radio" style="pointer-events: none;">
+                                        </div>
+                                    {% endif %}
+                                </td>
+
+                                <!-- reject -->
+                                <td class="formfield">
+                                    {% if option_to_pay == 'A' %}
+                                        <div class="controls">
+                                            <input type="radio" style="pointer-events: none;">
+                                        </div>
+                                    {% elif option_to_pay == 'B' %}
+                                        <div class="controls">
+                                            <input type="radio" style="pointer-events: none;" checked="checked">
+                                        </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Table - Lottery Decisions (Option A/B) -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        {% else %}
+
+            <div class="card">
+                <table class="table table-striped">
+                    <thead>
+                        <tr class="header">
+                            <th class="lottery">{% trans "Option A" %}</th>
+                            <th class="formfield"></th>
+                            <th class="sure_payoff">{% trans "Option B" %}</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for i,f,p,hi,lo,sp in choice_to_pay %}
+                            <tr>
+                                <!-- lotteries -->
+                                <td class="lottery">
+                                    {{ hi }} {% trans "with a probability of " %}{{ p|floatformat:1 }},<br/>
+                                    {{ lo }} {% trans "otherwise" %}
+                                </td>
+
+                                <!-- radio select form fields -->
+                                <td class="formfield">
+                                    {% if option_to_pay == 'A' %}
+                                        <div class="controls">
+                                            <input type="radio" style="pointer-events: none;" checked="checked">
+                                            <input type="radio" style="pointer-events: none;">
+                                        </div>
+                                    {% elif option_to_pay == 'B' %}
+                                        <div class="controls">
+                                            <input type="radio" style="pointer-events: none;">
+                                            <input type="radio" style="pointer-events: none;" checked="checked">
+                                        </div>
+                                    {% endif %}
+                                </td>
+
+                                <!-- sure payoff -->
+                                <td class="sure_payoff">
+                                    {{ sp }} {% trans "with a probability of " %}100.0%<br/>
+                                    {% trans "(sure payoff)" %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        {% endif %}
+        <br/>
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Payoff Information -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <div class="card info">
+
+            {% if Constants.accept_reject == True and Constants.variation != 'sure_payoff' %}
+                <p>
+                    {% blocktrans trimmed with accept_reject=accept_reject %}
+                        As indicated above, you decided to {{ accept_reject }} this lottery.
+                    {% endblocktrans %}
+                </p>
+            {% else %}
+                <p>
+                    {% blocktrans trimmed with option_to_pay=option_to_pay %}
+                        As indicated above, you decided to opt for option {{ option_to_pay }} in this decision.
+                    {% endblocktrans %}
+                </p>
+            {% endif %}
+
+
+            {% if option_to_pay == "A" %}
+                <p>
+                    {% blocktrans trimmed %}
+                        For the lottery, one of the two possible outcomes has been
+                        randomly realized based on the corresponding probabilities.
+                    {% endblocktrans %}
+                </p>
+            {% endif %}
+
+            <p>
+                {% blocktrans trimmed with payoff=payoff %}
+                    Your payoff in this task equals <b>{{ payoff }}</b>.
+                {% endblocktrans %}
+            </p>
+        </div>
+
+    </div>
+
+    {% next_button %}
+
+{% endblock %}

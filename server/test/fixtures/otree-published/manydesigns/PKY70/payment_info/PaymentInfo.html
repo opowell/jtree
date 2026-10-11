@@ -1,0 +1,67 @@
+{{ extends "global/Page.html" }}
+{{ load otree }}
+
+{{ block global_styles  }}
+<style>
+    .hide_next {
+        display: none;
+    }
+</style>
+{{ endblock }}
+
+
+{{ block title }}
+    Payment Information
+{{ endblock }}
+
+{{ block content }}
+
+    <h5>Thank you for completing our study. Your contributions are highly appreciated. </h5><br>
+
+
+        {{ if dropout == 0 }}
+                 <p>
+                    <b>Your total payment</b> consists of:
+                    <ul>
+                        <li>The participation fee of <b>{{ participation_fee }}</b> plus </li>
+
+                        {{ if group_dropout != 0 }}
+                            <li>You are receiving the full bonus payment of <b> {{ bonus_tokens }} </b>, because the other person did not finalize the study. </li>
+                        {{ else }}
+                            <li>Your bonus payment of <b> {{ bonus_tokens }} </b> </li>
+                            <li>
+                                Your bonus payment was determined as follows:
+                                        {{ if keep == 1}}
+                                        You kept your earnings from the first task as you rolled a <b>{{ rand }}</b>.
+                                              {{ if keep_group == 2}}
+                                               The other person also kept their endowment. You thus remain with {{ bonus_tokens }}.
+                                                {{ else }}
+                                                    {{ if keep_group == 1}}
+                                                    The other person lost her/his endowment.<b> You transferred {{ transfers }} to her/him.</b>
+                                                    You thus remain with {{ bonus_tokens }}.
+                                                    {{ endif }}
+                                                {{ endif }}
+                                        {{ else }}
+                                        You lost your endowment from the first task as you rolled a <b>{{ rand }}</b>.
+                                        <b>The other person transferred {{ bonus_tokens }} to you.</b>
+                                        {{ endif }}
+                            </li>
+                        {{ endif }}
+                    </ul>
+                </p>
+
+                <p><b>Thus, your total payment is: {{ final_payment }}!</b> </p>
+
+                <p>Please click “Next” to complete this study and return to Prolific.
+                If you <u>do not click </u>on “Next", <b>we cannot process </b> your payment and you will not receive your payment. </p>
+
+        {{ else }}
+            <p>
+                <b>You have proceeded too slow and were thus recorded as dropout. You will not receive any payments.</b>
+            </p>
+
+        {{ endif }}
+
+{{ next_button }}
+
+{{ endblock }}

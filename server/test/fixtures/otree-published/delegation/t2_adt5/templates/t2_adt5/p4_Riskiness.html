@@ -1,0 +1,97 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree_tags %}
+{% load otree otree_tools %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 't2_adt5/css/styles.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% trans "Task" %} 1 {% trans "and" %} 2: {% trans "Riskiness" %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <!-- otree_tools: tracking focus -->
+    {% tracking_focus %}
+    <!-- otree_tools: tracking time -->
+    {% tracking_time %}
+
+    <div class="wrapper">
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Progress Bar -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <label>
+            {% trans "Task" %} {{ task }} {% trans "of" %} {{ task_total }}
+        </label>
+        <div class="progress">
+            <div class="progress-bar-task" role="progressbar" style="width:{{ task_progress|safe }}%;">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+        <div class="progress-vspace"></div>
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Body -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <div class="card bg-light">
+            <div class="card-header">
+                <div class="card-title">
+                    {% blocktrans trimmed %}
+                        Please answer the following question:
+                    {% endblocktrans %}
+                </div>
+            </div>
+            <div class="card-body">
+                <p style="margin-bottom: 40px;">
+                    {% blocktrans trimmed %}
+                        On a scale from 1 (no risk at all) to 4 (a lot of risk): All in all,
+                        <b>how much risk did you take during the 25 investment decisions</b>
+                        (in task 1 and task 2) on average:
+                    {% endblocktrans %}
+                </p>
+                <table class="likert">
+                    <tbody>
+                        <tr>
+                            <td class="item-label">1</td>
+                            <td class="item-label">2</td>
+                            <td class="item-label">3</td>
+                            <td class="item-label">4</td>
+                        </tr>
+                        <tr>
+                            <td class="item"><input type="radio" name="risk_perception" value="1" required></td>
+                            <td class="item"><input type="radio" name="risk_perception" value="2" required></td>
+                            <td class="item"><input type="radio" name="risk_perception" value="3" required></td>
+                            <td class="item"><input type="radio" name="risk_perception" value="4" required></td>
+                        </tr>
+                        <tr>
+                            <td class="item-label">{% trans "no risk at all" %}</td>
+                            <td colspan="2"></td>
+                            <td class="item-label">{% trans "a lot of risk" %}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- next button -->
+    <button type="submit" class="btn btn-primary otree-btn-next">
+        {% trans "Next" %}
+    </button>
+
+{% endblock %}

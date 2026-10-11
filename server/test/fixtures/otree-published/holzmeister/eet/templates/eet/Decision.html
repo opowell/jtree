@@ -1,0 +1,189 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <!-- custom style sheet-->
+    <link href="{% static 'eet/css/styles.css' %}" rel="stylesheet">
+
+    <!-- set order of x- and y-list -->
+    {% if Constants.one_page %}
+        {% if list_ordering == 'xy' %}
+            <style type="text/css">
+                #x-list { order: 1; }
+                #y-list { order: 2; }
+            </style>
+        {% else %}
+            <style type="text/css">
+                #x-list { order: 2; }
+                #y-list { order: 1; }
+            </style>
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** SCRIPTS *** #}
+{# ****************************************************************************************************************** #}
+{% block scripts %}
+    <!-- consistency -->
+    {% if Constants.enforce_consistency and not Constants.shuffle_lists %}
+        <script src="{% static 'eet/js/consistency.js' %}"></script>
+    {% endif %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% trans "Your Decisions" %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    {# ----------------------------------------------------------------------------------------------------------- #}
+    {# --- x-List --- #}
+    {# ----------------------------------------------------------------------------------------------------------- #}
+    {% if show_x %}
+        <div class="card" id="x-list">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th colspan="2">{% trans "Option 'Left'" %}</th>
+                        <th></th>
+                        <th colspan="2">{% trans "Option 'Right'" %}</th>
+                    </tr>
+                    <tr>
+                        <th>{% trans "Your Payoff" %}</th>
+                        <th>{% trans "Player B's Payoff" %}</th>
+                        <th></th>
+                        <th>{% trans "Your Payoff" %}</th>
+                        <th>{% trans "Player B's Payoff" %}</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for field, xy_a, xy_i, e_a, e_i in x_list %}
+                        <tr>
+                            <!-- option "left" -->
+                            <td>{{ xy_a|c }}</td>
+                            <td>{{ xy_i|c }}</td>
+
+                            <!-- radio select form fields -->
+                            <td>
+                                <input type="radio" name="{{ field }}" value="L" class="x-items" required>
+                                <input type="radio" name="{{ field }}" value="R" class="x-items" required>
+                            </td>
+
+                            <!-- option "right" -->
+                            <td>{{ e_a|c }}</td>
+                            <td>{{ e_i|c }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+    {# ----------------------------------------------------------------------------------------------------------- #}
+    {# --- y-List --- #}
+    {# ----------------------------------------------------------------------------------------------------------- #}
+    {% if show_y %}
+    <div class="card" id="y-list">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th colspan="2">{% trans "Option 'Left'" %}</th>
+                        <th></th>
+                        <th colspan="2">{% trans "Option 'Right'" %}</th>
+                    </tr>
+                    <tr>
+                        <th>{% trans "Your Payoff" %}</th>
+                        <th>{% trans "Player B's Payoff" %}</th>
+                        <th></th>
+                        <th>{% trans "Your Payoff" %}</th>
+                        <th>{% trans "Player B's Payoff" %}</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for field, xy_a, xy_i, e_a, e_i in y_list %}
+                        <tr>
+                            <!-- option "left" -->
+                            <td>{{ xy_a|c }}</td>
+                            <td>{{ xy_i|c }}</td>
+
+                            <!-- radio select form fields -->
+                            <td>
+                                <input type="radio" name="{{ field }}" value="L" class="y-items" required>
+                                <input type="radio" name="{{ field }}" value="R" class="y-items" required>
+                            </td>
+
+                            <!-- option "right" -->
+                            <td>{{ e_a|c }}</td>
+                            <td>{{ e_i|c }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+
+    {# ----------------------------------------------------------------------------------------------------------- #}
+    {# --- one choice per page --- #}
+    {# ----------------------------------------------------------------------------------------------------------- #}
+    {% if Constants.one_choice_per_page %}
+    <div class="card" id="x-list">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th colspan="2">{% trans "Option 'Left'" %}</th>
+                    <th></th>
+                    <th colspan="2">{% trans "Option 'Right'" %}</th>
+                </tr>
+                <tr>
+                    <th>{% trans "Your Payoff" %}</th>
+                    <th>{% trans "Player B's Payoff" %}</th>
+                    <th></th>
+                    <th>{% trans "Your Payoff" %}</th>
+                    <th>{% trans "Player B's Payoff" %}</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for field, xy_a, xy_i, e_a, e_i in choice %}
+                    <tr>
+                        <!-- option "left" -->
+                        <td>{{ xy_a|c }}</td>
+                        <td>{{ xy_i|c }}</td>
+
+                        <!-- radio select form fields -->
+                        <td class="formfield">
+                            <input type="radio" name="{{ field }}" value="L" required>
+                            <input type="radio" name="{{ field }}" value="R" required>
+                        </td>
+
+                        <!-- option "right" -->
+                        <td>{{ e_a|c }}</td>
+                        <td>{{ e_i|c }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% next_button %}
+
+{% endblock %}

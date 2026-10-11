@@ -1,0 +1,71 @@
+{{ block title }}Results - Final{{ endblock }}
+{{ block content }}
+
+<p>
+Thank you for participating in this experiment!
+<p>
+</p>
+<p>Task 1</p>
+<table class=table style='width: auto'>    
+    <tr>
+        <td>You reported:</td>
+        <td>{{ player.choice }}</td>
+    </tr>
+    <tr>
+        <td>Payoff from your report: </td>
+        <td>{{player.choiceget}}</td>
+    </tr>
+    <tr>
+        <td>Your group rank:</td>
+        <td>{{player.rank}}</td>
+    </tr>
+    <tr>
+        <td>Additional payoff based on your rank: </td>
+        <td>{{player.rankget}}</td>
+    </tr>    
+    <tr>
+        <td>Your guess of the proportion of “yes” reports:</td>
+        <td>{{ player.guess }}</td>
+    </tr>
+    <tr>
+        <td>True outcome: </td>
+        <td>{{subsession.proportion}}</td>
+    </tr>
+    <tr>
+        <td>Payoff from your guess: </td>
+        <td>{{player.guessget}}</td>
+</table>
+<p>
+</p>
+<p>Task 2</p>
+<table class=table style='width: auto'>
+    <tr>
+        <td> The risky investment:</td>
+        <td>{{ player.win }}</td>
+    </tr>    
+    <tr>
+        <td> Your final points:</td>
+        <td>{{ player.point }} points</td>
+    </tr>
+    <tr>
+        <td> Payoff:</td>
+        <td>{{ player.pointget }}</td>
+    </tr>    
+</table>
+<p>
+</p>
+
+<table class=table style='width: auto'> 
+    <tr>
+        <td>Show-up fee:</td>
+        <td>{{subsession.showup}}</td>
+    </tr>
+    <tr>
+        <td> <b>Total payoff</b></td>
+        <td>{{player.payoffs}}</td>
+    </tr>  
+</table>
+<p>{{ next_button }}</p>
+
+
+{{ endblock }}

@@ -1,0 +1,48 @@
+{{ block global_styles  }}
+<style>
+    .otree-timer {
+        display: none;
+    }
+</style>
+
+{{ endblock }}
+
+{{ block global_scripts  }}
+<script>
+    $(function () {
+        $('.otree-timer__time-left').on('update.countdown', function (event) {
+            if (event.offset.totalSeconds === 30) {
+                $('.otree-timer').show();
+            }
+        });
+    });
+</script>
+{{ endblock }}
+
+{{ block title }}
+    Dice Roll Results
+{{ endblock }}
+
+{{ block content }}
+
+<div class="card bg-light m-3">
+    <div class="card-body">
+        <p>
+                You started with an endowment of {{ Constants.endowment }}.
+            <br><br>
+                Your dice roll was {{ player.rand }}.
+
+            <b>
+                {{ if player.keep == 1 }}
+                    You consequently keep your endowment of {{ Constants.endowment }}.
+                {{ else }}
+                    You consequently lost your endowment of {{ Constants.endowment }}.
+                {{ endif }}
+            </b>
+        </p>
+    </div>
+</div>
+{{ next_button }}
+{{ endblock }}
+
+

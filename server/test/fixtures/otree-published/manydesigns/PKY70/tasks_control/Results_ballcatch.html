@@ -1,0 +1,42 @@
+{{ extends "global/Page.html" }}
+
+{{ block global_styles  }}
+<style>
+    .otree-timer {
+        display: none;
+    }
+</style>
+{{ endblock }}
+
+{{ block global_scripts  }}
+<script>
+    $(function () {
+        $('.otree-timer__time-left').on('update.countdown', function (event) {
+            if (event.offset.totalSeconds === 30) {
+                $('.otree-timer').show();
+            }
+        });
+    });
+</script>
+{{ endblock }}
+
+{{ block title }}Results{{ endblock }}
+
+{{ block content }}
+
+{{ if player.id_in_group == 1 }}
+<b> Your SCORE is {{ player.total_reward }} - {{ player.total_cost }} = {{ player.score }} points. </b>
+{{ endif }}
+
+
+{{ if player.id_in_group == 2 }}
+<b> Your SCORE is {{ player.total_reward }} - {{ player.total_cost }} = {{ player.score }} points. </b>
+{{ endif }}
+
+<p></p><b> Your total earnings from this task are {{ Constants.endowment }}! </b></p>
+
+<p> Please click the "Next" button to continue with the second task. </p>
+
+    {{ next_button }}
+
+{{ endblock }}

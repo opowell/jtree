@@ -1,0 +1,80 @@
+{{ block title }}
+    Results
+{{ endblock }}
+
+{{ block content }}
+<div class="card bg-light m-3">
+        <div class="card-body">
+<p>
+    {{ if player.participant.control and not player.participant.is_senior or not player.participant.control }}
+    {{ if player.participant.victory }}
+    <b>You have won the tournament!</b>
+    {{ else }}
+    <b>You have lost the tournament!</b>
+    {{ endif }}
+    <br><br>
+    {{ endif }}
+    {{ if not player.participant.is_senior }}
+    The Player A paired with you has decided to take
+    {{ if player.id_in_group == 2 }}
+        {{ take1 }}%
+    {{ else }}
+        {{ take3 }}%
+    {{ endif }}
+        of your performance.
+    <br><br>
+    {{ endif }}
+    You have successfully solved {{ player.participant.score }} puzzles. <br>
+    {{ if not player.participant.is_senior }}
+    After the performance reduction your final score is
+        {{ if player.id_in_group == 2 }}
+        {{ reduced2 }}
+    {{ else }}
+        {{ reduced4 }}
+    puzzles.
+    {{ endif }}
+    <br>
+    The Player B you competed with achieved a final score of
+    {{ if player.id_in_group == 2 }}
+        {{ reduced4 }}
+    {{ else }}
+        {{ reduced2 }}
+    puzzles.
+    {{ endif }}
+    {{ endif }}
+
+    {{ if player.participant.is_senior }}
+        After performance increase your score is
+            {{ if player.id_in_group == 1 }}
+                {{ increased1 }}
+            {{ else }}
+                {{ increased3 }}
+            {{ endif }}
+        puzzles.
+        <br>
+        {{ if not player.participant.control }}
+        The Player A you competed with achieved a final score of
+            {{ if player.id_in_group == 1 }}
+                {{ increased3 }}
+            {{ else }}
+                {{ increased1 }}
+        puzzles.
+    {{ endif }}
+    {{ endif }}
+    {{ endif }}
+    <br><br>
+    You have received a show-up fee of 1.30£!<br>
+    Your earnings from the task is {{ player.participant.payoff }}!<br>
+    <b>Therefore your total earnings are {{ participant.payoff_plus_participation_fee() }}</b>
+
+    <br><br>
+
+    Click <a href="https://app.prolific.co/submissions/complete?cc=572FB13C">here</a>
+                to complete the study.
+</p>
+        </div>
+</div>
+
+{{ endblock }}
+
+

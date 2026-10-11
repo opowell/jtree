@@ -1,0 +1,96 @@
+# oTree: Ready-Made Apps for Risk Preference Elicitation Methods - Single Choice List.
+# Copyright (c)2017, Felix Holzmeister <felix.holzmeister@uibk.ac.at>, 2017.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-07-31 13:35+0200\n"
+"PO-Revision-Date: 2017-04-04 07:50+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: de\n"
+"X-Generator: Poedit 2.0\n"
+
+#: .\templates\scl\Decision.html:18
+msgid "Your Decision"
+msgstr "Ihre Entscheidung"
+
+#: .\templates\scl\Decision.html:40 .\templates\scl\Results.html:48
+msgid "Outcome A"
+msgstr "Ereignis A"
+
+#: .\templates\scl\Decision.html:44 .\templates\scl\Results.html:52
+msgid "Outcome B"
+msgstr "Ereignis B"
+
+#: .\templates\scl\Decision.html:52 .\templates\scl\Results.html:60
+msgid "No."
+msgstr "Nr."
+
+#: .\templates\scl\Decision.html:56 .\templates\scl\Decision.html.py:61
+#: .\templates\scl\Results.html:64 .\templates\scl\Results.html.py:69
+msgid "Prob."
+msgstr "Wahrsch."
+
+#: .\templates\scl\Decision.html:57 .\templates\scl\Decision.html.py:62
+#: .\templates\scl\Results.html:65 .\templates\scl\Results.html.py:70
+msgid "Payoff"
+msgstr "Auszahlung"
+
+#: .\templates\scl\Decision.html:66 .\templates\scl\Results.html:74
+msgid "Your Choice"
+msgstr "Ihre Entscheidung"
+
+#: .\templates\scl\Instructions.html:18
+msgid "Instructions"
+msgstr "Instruktionen"
+
+#: .\templates\scl\Instructions.html:29
+#, python-format
+msgid ""
+"In the following, you'll be presented %(n)s different lotteries on your "
+"screen. Each of these lotteries is characterized by varying outcomes A and "
+"B. The probability that A or B is realized is constant for all lotteries, "
+"with %(prob_lo)s for outcome A and %(prob_hi)s for outcome B. You are asked "
+"to indicate which of the lottery you prefer to play."
+msgstr ""
+"Nachfolgend werden Ihnen %(n)s verschiedene Lotterien am Bildschirm "
+"präsentiert. Jede dieser Lotterien ist durch unterschiedliche Ereignisse A "
+"und B charakterisiert. Die Wahrscheinlichkeit, dass A oder B realisiert wird "
+"ist für alle Lotterien konstant, mit %(prob_lo)s für Ereignis A und %"
+"(prob_hi)s für Ereibnis B. Ihre Aufgabe besteht darin, welche der Lotterien "
+"Sie spielen möchten. "
+
+#: .\templates\scl\Instructions.html:37
+msgid ""
+"After finalizing your decision, the chosen lottery will be played and payed "
+"off. That is, a random number will be drawn to determine whether outcome A "
+"or B is realized. The corresponding outcome, then, will constitute your "
+"payoff in this task."
+msgstr ""
+"Nachdem Sie Ihre Entscheidung getroffen haben, wird die von Ihnen gewählte "
+"Lottery gespielt und ausbezahlt. Das heißt, eine Zufallszahl wird gezogen um "
+"zu bestimmen ob Ereignis A oder B realisiert wird. Das zufällig bestimmte "
+"Ereignis bestimmt dann entsprechend Ihre Auszahlung in dieser Aufgabe."
+
+#: .\templates\scl\Results.html:19
+msgid "Results"
+msgstr "Ergebnis"
+
+#: .\templates\scl\Results.html:30
+msgid "You decided to choose the following lottery:"
+msgstr "Sie haben sich für folgende Lotterie entschieden:"
+
+#: .\templates\scl\Results.html:107
+#, python-format
+msgid ""
+"A random draw determined that outcome %(hi_lo)s has been realized. <br/> "
+"Thus, your payoff from this task amounts to <b>%(payoff)s</b>."
+msgstr ""
+"Eine Zufallsziehung hat bestimmt, dass Ereignis %(hi_lo)s realisiert wurde. "
+"<br/> Dementsprechend beträgt Ihre Auszahlung in dieser Aufgabe <b>%(payoff)"
+"s</b>."

@@ -1,0 +1,108 @@
+{% extends "global/Page.html" %}
+{% load otree %}
+
+{% block title %}
+    Calculating your score
+{% endblock %}
+
+{% block content %}
+    <p>
+        The time is up. The table below shows how many points a correct solution of each problem
+        yields.
+    </p>
+
+    <table>
+        <tr>
+            <th>Problem number</th>
+            <th>Points for Correct Answer</th>
+            <th>Your Answer</th>
+            <th>Correct Answer</th>
+
+            <th>Problem number</th>
+            <th>Points for Correct Answer</th>
+            <th>Your Answer</th>
+            <th>Correct Answer</th>
+        </tr>
+        <tr>
+            <td><b>1</b></td>
+            <td>12</td>
+            <td>{{ answer_1 }}</td>
+            <td>7</td>
+
+            <td><b>7</b></td>
+            <td>12</td>
+            <td>{{ answer_7 }}</td>
+            <td>2</td>
+        </tr>
+        <tr>
+            <td><b>2</b></td>
+            <td>18</td>
+            <td>{{ answer_2 }}</td>
+            <td>8</td>
+
+            <td><b>8</b></td>
+            <td>18</td>
+            <td>{{ answer_8 }}</td>
+            <td>5</td>
+        </tr>
+        <tr>
+            <td><b>3</b></td>
+            <td>12</td>
+            <td>{{ answer_3 }}</td>
+            <td>4</td>
+
+            <td><b>9</b></td>
+            <td>12</td>
+            <td>{{ answer_9 }}</td>
+            <td>4</td>
+        </tr>
+        <tr>
+            <td><b>4</b></td>
+            <td>18</td>
+            <td>{{ answer_4 }}</td>
+            <td>7</td>
+
+            <td><b>10</b></td>
+            <td>18</td>
+            <td>{{ answer_10 }}</td>
+            <td>4</td>
+        </tr>
+        <tr>
+            <td><b>5</b></td>
+            <td>12</td>
+            <td>{{ answer_5 }}</td>
+            <td>6</td>
+
+            <td><b>11</b></td>
+            <td>12</td>
+            <td>{{ answer_11 }}</td>
+            <td>7</td>
+        </tr>
+        <tr>
+            <td><b>6</b></td>
+            <td>18</td>
+            <td>{{ answer_6 }}</td>
+            <td>5</td>
+
+            <td><b>12</b></td>
+            <td>18</td>
+            <td>{{ answer_12 }}</td>
+            <td>1</td>
+        </tr>
+    </table>
+    <br><br>
+    <p>
+        Please calculate your score by summing the points for all problems for which your answer corresponds to the correct answer.
+    </p>
+    <p>
+        Reminder:<br>
+        To achieve the bonus of additional £0.70 your score must be 78 points or more.
+    </p>
+    <p>
+        Further note:<br> Some problems yield 12 points, other problems yield 18 points.
+        {% formfield player.score_calculated label="Your score is" %}
+    </p>
+
+    {% next_button %}
+
+{% endblock %}

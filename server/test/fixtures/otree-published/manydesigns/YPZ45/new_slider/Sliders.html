@@ -1,0 +1,137 @@
+{{ block title }}
+    Slider Task
+{{ endblock }}
+{{ block content }}
+
+Number of Sliders completed: <span id="nsliders">0</span>
+
+<div id="slider_box">
+
+
+    <div id="slider_container">
+            {{ for SLIDER in slider_list }}
+                <input type="range" min="0" max="100" value="0" class="slider" id="slider{{ SLIDER.0 }}"
+                       onwheel="return false;"
+                       onmouseup="slider_mouse(document.getElementById('slider{{ SLIDER.0 }}'),document.getElementById('output{{ SLIDER.0 }}'),'{{ SLIDER.0 }}')"
+                       onkeyup="slider_keyboard(document.getElementById('slider{{ SLIDER.0 }}'),document.getElementById('output{{ SLIDER.0 }}'),'{{ SLIDER.0 }}')"
+                        style="
+                        position:relative;
+                        left:{{ SLIDER.1 }}px;
+                        top:{{ SLIDER.2 }}px;
+                        {{ if SLIDER.0 == 0}}
+                            display:block;
+                        {{ else }}
+                            display:none;
+                        {{ endif }}
+                        "
+                >
+                <output id="output{{ SLIDER.0 }}"
+                        style="
+                        position:relative;
+                        left:{{ SLIDER.1 }}px;
+                        top:{{ SLIDER.2 }}px;
+                        {{ if SLIDER.0 == 0}}
+                            display:block;
+                        {{ else }}
+                            display:none;
+                        {{ endif }}
+                        "
+                >
+        {{ Constants.initial_value }}</output>
+            {{ endfor }}
+    </div>
+
+
+</div>
+
+
+
+<input type="hidden" name="num_sliders" value="0" id="set_num_sliders"/>
+<input type="hidden" name="num_keystrokes" value="0" id="set_keystrokes"/>
+
+{{ endblock }}
+
+{{ block styles}}
+    <style>
+        #slider_box
+        {
+            border: 1px solid black;
+            height: {{ Constants.slider_box_height }}px;
+            width: {{ Constants.slider_box_width }}px;
+        }
+
+        .slider{
+            width: {{ Constants.slider_width }}px;
+        }
+
+        /* Supress pointer events */
+        .slider { pointer-events: none; }
+        /* Enable pointer events for slider handle only */
+        .slider::-webkit-slider-thumb { pointer-events: auto !important; }
+        .slider::-moz-range-thumb { pointer-events: auto !important; }
+
+    </style>
+{{ endblock }}
+
+{{ block scripts }}
+    <script>
+
+        window.onload = function() {
+          document.getElementById("slider1").focus();
+        };
+
+        function slider_mouse(the_slider,the_output,curr_ind){
+            the_slider.focus();
+            the_output.innerHTML = the_slider.value;
+            if (parseInt(the_slider.value) === parseInt({{ Constants.target_value }})){
+                reset_slider(the_slider,the_output,curr_ind);
+            }
+        }
+
+        function slider_keyboard(the_slider,the_output,curr_ind){
+            the_slider.focus();
+            the_output.innerHTML = the_slider.value;
+            document.getElementById('set_keystrokes').value = parseInt(document.getElementById('set_keystrokes').value) + parseInt('1');
+            if (parseInt(the_slider.value) === parseInt({{ Constants.target_value }})){
+                reset_slider(the_slider,the_output,curr_ind);
+            }
+        }
+
+        function reset_slider(the_slider,the_output,curr_ind){
+
+            the_slider.style.display = "none";
+            the_output.style.display = "none";
+
+            let next_slider = 'slider' + String(parseInt(curr_ind)+parseInt('1'));
+            let next_output = 'output' + String(parseInt(curr_ind)+parseInt('1'));
+
+            document.getElementById(next_slider).style.display = "inline";
+            document.getElementById(next_output).style.display = "inline";
+
+            document.getElementById('set_num_sliders').value = parseInt(document.getElementById('set_num_sliders').value) + parseInt('1');
+            document.getElementById('nsliders').innerHTML = document.getElementById('set_num_sliders').value;
+
+            document.getElementById(next_slider).focus();
+        }
+
+
+    {{ comment }} The following disables F5 just so they dont hit it by accident {{ endcomment }}
+    $(document).ready(function() {
+
+          $(window).keydown(function(event){
+
+            if(event.keyCode == 116) {
+
+              event.preventDefault();
+
+              return false;
+
+            }
+
+          });
+
+    });
+
+
+    </script>
+{{ endblock }}

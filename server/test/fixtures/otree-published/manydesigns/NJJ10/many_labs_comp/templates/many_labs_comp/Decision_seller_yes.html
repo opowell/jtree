@@ -1,0 +1,168 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{# {% block styles %} #}
+   {# <link href="{% static 'many_labs/css/custom.css' %}" rel="stylesheet"/>  #}
+{#{% endblock %}  #}
+
+{% block styles %}
+    <link href="{% static 'many_labs/css/custom.css' %}" rel="stylesheet"/>
+<style>
+
+
+body {font-family: Arial, Helvetica, sans-serif;}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+/* The Close Button */
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+</style>
+{% endblock %}
+
+
+
+
+{% block title %}
+    {% trans "Your Decision" %}
+{% endblock %}
+
+{% block content%}
+
+
+
+
+
+
+    <div class="wrapper instructions">
+           <p>
+
+
+            Now you are asked to decide whether you want to disclose the most likely value of the product or not. Your decision will determine the buyer’s final payoff.
+         </p>
+           <p>
+
+            After your decision, your final payoff will be decided as explained in the previous page.
+         </p>
+        <!-- Trigger/Open The Modal -->
+<button id="myBtn">Click to read the payment structure again</button>
+
+<!-- The Modal -->
+<div id="myModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <p>
+
+   You have the chance to disclose to the buyer that the most likely value of the product is {{ value_low }} and not {{ value_high }}, as the buyer thinks.
+        Alternatively, you can choose not to disclose any information, and the buyer will keep thinking that the most likely value of the product is {{ value_high }}.
+ </p>
+  <p>
+  Following this decision, you will be competing with another seller to sell the product and your final payoff will be decided as below:
+  <li>
+      If you decide <b>not to disclose</b> any information:
+  </li>
+        <ol style="list-style-type: lower-alpha; padding-bottom: 0;">
+            <li style="margin-left:2em"><b>Scenario 1:</b> And the other seller decides to disclose: the buyer will buy the product from you and you will receive double the price {{ max }} </li>
+            <li style="margin-left:2em; padding-bottom: 0;"><b>Scenario 2:</b> And the other seller also decides not to disclose: the buyer will buy the product and one of you will be randomly selected to receive double the price {{ max }} </li>
+</ol>
+            <li>
+      If you decide <b>to disclose</b> the most likely value of the product:
+
+  </li>
+               <ol style="list-style-type: lower-alpha; padding-bottom: 0;">
+                   <li style="margin-left:2em"><b>Scenario 1:</b> And the other seller also decides to disclose: the buyer will not buy the product and you will receive {{ no_lie }} </li>
+                   <li style="margin-left:2em; padding-bottom: 0;"><b>Scenario 2:</b> And the other seller decides not to disclose: the buyer will buy the product from the other seller and you will receive {{ no_lie }} </li>
+
+</ol>
+  </p>
+  </div>
+
+</div>
+
+           <p>
+
+
+            {% formfield player.selling %}
+
+        </p>
+</div>
+
+    {% next_button %}
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+// Get the modal
+var modal = document.getElementById("myModal");
+
+// Get the button that opens the modal
+var btn = document.getElementById("myBtn");
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+
+// When the user clicks the button, open the modal
+btn.onclick = function() {
+  modal.style.display = "block";
+}
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() {
+  modal.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
+</script>
+{% endblock %}
+
+
+
+
+

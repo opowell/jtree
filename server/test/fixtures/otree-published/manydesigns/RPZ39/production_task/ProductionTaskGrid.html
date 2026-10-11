@@ -1,0 +1,29 @@
+{{ block title }}
+    Production Task
+{{ endblock }}
+{{ block content }}
+
+
+<img src="{{ static image_path }}"/>
+
+<h3>
+    {{ formfields }}
+</h3>
+
+    {{ next_button }}
+
+{{ endblock }}
+
+{% block style %}
+<style>
+img {
+    display: inline-block;
+     margin-right:50px;
+}
+
+h3 {
+    display: inline-block;
+}
+</style>
+
+{% endblock %}

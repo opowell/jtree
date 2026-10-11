@@ -541,6 +541,18 @@ Since then:
   per-app CSVs, page times.
 - oTree's own sample games (`test/fixtures/otree-samples`, MIT) each run in jtree, played by
   their own bots, in CI.
+- Published experiments (`test/fixtures/otree-published`, their licences and attributions in its
+  README; `test/otree-published.test.js`): Holzmeister's six ready-made apps (MIT), 13 teams'
+  experiments and the randomization project of #ManyDesigns, and Delegation Decisions in Finance
+  (CC BY 4.0): 35 sessions, each played to its end. What it took: Django's field names, i18n
+  tags and signals, `vars_for_all_templates`, lenient Django templates (what they cannot find is
+  nothing), `participant.vars` keeping Python's values (tuples, lists appended to) between calls,
+  packages from Pyodide (scipy, Pillow, pandas) and from PyPI (openpyxl), project files read
+  from the project's folder, `sys.argv` as `otree devserver` has it, `creating_session` seeing
+  every player of an app that groups by arrival (`Period#arrivalFields`), and a kernel fix: a
+  wait stage ends when its players have finished it, however far others have gone on.
+  Where the projects' bots are missing, empty or out of date, a generic bot (`runBots`'
+  `generic`) fills in each form from its fields' declarations, trying other values if refused.
 
 Checked in a browser, in the tests (`test/browser.test.js`: headless Chrome through the DevTools
 protocol, `test/browser.js`, skipped where there is no Chrome): chat between participants, a room

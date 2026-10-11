@@ -1,0 +1,108 @@
+{{ block title }}
+    Question 3
+{{ endblock }}
+{{ block content }}
+
+True or false: Your chance of winning the prize is determined by the following formula: (number of your own sliders)/(number of your own sliders + number of other pair member's sliders). <br>
+So if you complete 10 sliders and the other pair member completes 10 sliders, there is a (10)/(10+10) = .5 probability (or 50% chance) you will win the prize.  <br>
+Or, if you complete 12 sliders and the other pair member completes 10 sliders, there is a (12)/(12+10) = .545 probability (or 54.5% chance) you will win the prize.
+(and a (10/(10+12)) = .454 probability the other pair member wins the prize)
+
+<br><br>
+
+<div>
+  <input type="radio" id="true" name="rb" value="true" onclick="check_radio();">
+  <label for="true">True</label>
+</div>
+
+<div>
+  <input type="radio" id="false" name="rb" value="false" onclick="check_radio();">
+  <label for="false">False</label>
+</div>
+
+<br><br>
+
+<button type="button" id="submit_button" class="btn btn-primary" onclick="check_answer();" style="display:none;">
+    Submit
+</button>
+
+<div id="correct" style="display:none;">Correct.</div>
+<div id="incorrect" style="display:none;">Incorrect. The answer is True. Your chance of winning the prize is determined by the following formula: (number of your own sliders)/(number of your own sliders + number of other pair member's sliders).</div>
+
+<br><br>
+
+{{ next_button }}
+
+
+<input type="hidden" name="q3_correct" id="q3_correct" />
+
+{{ endblock }}
+
+{{ block scripts }}
+    <script>
+        function check_radio() {
+            document.getElementById("submit_button").style.display = "block";
+        }
+
+      function check_answer() {
+         document.getElementById("true").disabled = true;
+         document.getElementById("false").disabled = true;
+         document.getElementById("submit_button").style.display = "none";
+         var true_rb = document.getElementById('true');
+         if (true_rb.checked) {
+            var response = true;
+         } else {
+            var response = false;
+         }
+
+         if ("{{ Constants.q3_answer }}" == "True") {
+            var correct_answer = true;
+         } else {
+            var correct_answer = false;
+         }
+
+         if (response == correct_answer) {
+            document.getElementById("correct").style.display = "block";
+            document.getElementById("q3_correct").value = true;
+         } else {
+            document.getElementById("incorrect").style.display = "block";
+            document.getElementById("q3_correct").value = false;
+         }
+         document.getElementsByClassName("otree-btn-next")[0].style.display = "block";
+      }
+
+
+  $(document).ready(function() {
+
+      $(window).keydown(function(event){
+
+        if(event.keyCode == 116) {
+
+          event.preventDefault();
+
+          return false;
+
+        }
+
+      });
+
+    });
+
+        {{ comment }}
+            function isNumberKey(evt){
+                var charCode = (evt.which) ? evt.which : event.keyCode
+                if (charCode > 31 && (charCode != 46 &&(charCode < 48 || charCode > 57)))
+                    return false;
+                return true;
+            }
+        {{ endcomment }}
+    </script>
+{{ endblock }}
+
+{{ block styles }}
+    <style>
+        .otree-btn-next {
+            display:none;
+        }
+    </style>
+{{ endblock }}

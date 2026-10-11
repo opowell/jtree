@@ -1,0 +1,101 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 'scl/css/custom.css' %}" rel="stylesheet">
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% trans "Your Decision" %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+    <div class="wrapper">
+        <div class="card">
+            <table class="table">
+
+                <!-- ----------------------------------------------------------------------------------------------- -->
+                <!-- --- Table Header --- -->
+                <!-- ----------------------------------------------------------------------------------------------- -->
+                <thead>
+                    <tr class="header1">
+                        <!-- Lottery Number (Counter) -->
+                        <th></th>
+                        <th></th>
+
+                        <!-- A lotteries -->
+                        <th colspan="2">{% trans "Outcome A" %}</th>
+                        <th></th>
+
+                        <!-- B lotteries -->
+                        <th colspan="2">{% trans "Outcome B" %}</th>
+                        <th></th>
+
+                        <!-- radio select form fields -->
+                        <th></th>
+                    </tr>
+                    <tr class="header2">
+                        <!-- Lottery Number (Counter) -->
+                        <th>{% trans "No." %}</th>
+                        <th></th>
+
+                        <!-- A lotteries -->
+                        <th class="prob">{% trans "Prob." %}</th>
+                        <th>{% trans "Payoff" %}</th>
+                        <th></th>
+
+                        <!-- B lotteries -->
+                        <th class="prob">{% trans "Prob." %}</th>
+                        <th>{% trans "Payoff" %}</th>
+                        <th></th>
+
+                        <!-- radio select form fields -->
+                        <th>{% trans "Your Choice" %}</th>
+                    </tr>
+                </thead>
+
+                <!-- ----------------------------------------------------------------------------------------------- -->
+                <!-- --- Table Body --- -->
+                <!-- ----------------------------------------------------------------------------------------------- -->
+                <tbody>
+                    {% for i,lo,hi in lotteries %}
+                        <tr>
+                            <!-- Lottery Number (Counter) -->
+                            <td>{{ forloop.counter }}</td>
+                            <td></td>
+
+                            <!-- A lotteries -->
+                            <td class="prob">{{ prob_lo }}</td>
+                            <td>{{ lo }}</td>
+                            <td></td>
+
+                            <!-- B lotteries -->
+                            <td class="prob">{{ prob_hi }}</td>
+                            <td>{{ hi }}</td>
+                            <td></td>
+
+                            <!-- radio select form fields -->
+                            <td><input type="radio" name="lottery_choice" value="{{ i }}" required></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% next_button %}
+
+{% endblock %}

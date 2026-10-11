@@ -1,0 +1,180 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load otree otree_tools %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 't4_survey/css/styles.css' %}" rel="stylesheet">
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% trans "Task No." %} {{ task }}: {% trans "Questionnaire" %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <!-- otree_tools: tracking focus -->
+    {% tracking_focus %}
+    <!-- otree_tools: tracking time -->
+    {% tracking_time %}
+
+    <div class="wrapper">
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Progress Bar -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <label>
+            {% trans "Task" %} {{ task }} {% trans "of" %} {{ task_total }}
+        </label>
+        <div class="progress">
+            <div class="progress-bar-task" role="progressbar" style="width:{{ task_progress|safe }}%;">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Progress Bar -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <label>
+            {% trans "Page" %} {{ page }} {% trans "of" %} {{ total }}
+        </label>
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" style="width:{{ progress|safe }}%;">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+        <div class="progress-vspace"></div>
+
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Survey Items -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <div class="card bg-light mb-3">
+            <div class="card-header">
+                <div class="card-title">
+                    {% blocktrans trimmed %}
+                        Please answer the following questions:
+                    {% endblocktrans %}
+                </div>
+            </div>
+            <div class="card-body">
+
+                <!-- Blame Shifting 1 -->
+                <!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+                <p class="survey-question">
+                    {% blocktrans trimmed %}
+                        If you hurt yourself accidentally, do you sometimes blame somebody who happens to be nearby
+                        even though you realize, on reflection, that they were not responsible?
+                    {% endblocktrans %}
+                </p>
+                <table class="likert">
+                    <tbody>
+                        <tr>
+                            <td class="item-label">0</td>
+                            <td class="item-label">1</td>
+                            <td class="item-label">2</td>
+                            <td class="item-label">3</td>
+                            <td class="item-label">4</td>
+                            <td class="item-label">5</td>
+                            <td class="item-label">6</td>
+                            <td class="item-label">7</td>
+                            <td class="item-label">8</td>
+                            <td class="item-label">9</td>
+                            <td class="item-label">10</td>
+                        </tr>
+                        <tr>
+                            <td class="item"><input type="radio" name="blame_others" value="0" required></td>
+                            <td class="item"><input type="radio" name="blame_others" value="1" required></td>
+                            <td class="item"><input type="radio" name="blame_others" value="2" required></td>
+                            <td class="item"><input type="radio" name="blame_others" value="3" required></td>
+                            <td class="item"><input type="radio" name="blame_others" value="4" required></td>
+                            <td class="item"><input type="radio" name="blame_others" value="5" required></td>
+                            <td class="item"><input type="radio" name="blame_others" value="6" required></td>
+                            <td class="item"><input type="radio" name="blame_others" value="7" required></td>
+                            <td class="item"><input type="radio" name="blame_others" value="8" required></td>
+                            <td class="item"><input type="radio" name="blame_others" value="9" required></td>
+                            <td class="item"><input type="radio" name="blame_others" value="10" required></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="item-label-left">
+                                {% trans "I never blame others" %}
+                            </td>
+                            <td colspan="5"></td>
+                            <td colspan="3" class="item-label-right">
+                                {% trans "I often blame others" %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <hr/>
+
+
+                <!-- Blame Shifting 2 -->
+                <!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+                <p class="survey-question">
+                    {% blocktrans trimmed %}
+                        Can you easily resist the temptation to blame others for the accidents that happen to you?
+                    {% endblocktrans %}
+                </p>
+                <table class="likert">
+                    <tbody>
+                        <tr>
+                            <td class="item-label">0</td>
+                            <td class="item-label">1</td>
+                            <td class="item-label">2</td>
+                            <td class="item-label">3</td>
+                            <td class="item-label">4</td>
+                            <td class="item-label">5</td>
+                            <td class="item-label">6</td>
+                            <td class="item-label">7</td>
+                            <td class="item-label">8</td>
+                            <td class="item-label">9</td>
+                            <td class="item-label">10</td>
+                        </tr>
+                        <tr>
+                            <td class="item"><input type="radio" name="blame_tempt" value="0"></td>
+                            <td class="item"><input type="radio" name="blame_tempt" value="1"></td>
+                            <td class="item"><input type="radio" name="blame_tempt" value="2"></td>
+                            <td class="item"><input type="radio" name="blame_tempt" value="3"></td>
+                            <td class="item"><input type="radio" name="blame_tempt" value="4"></td>
+                            <td class="item"><input type="radio" name="blame_tempt" value="5"></td>
+                            <td class="item"><input type="radio" name="blame_tempt" value="6"></td>
+                            <td class="item"><input type="radio" name="blame_tempt" value="7"></td>
+                            <td class="item"><input type="radio" name="blame_tempt" value="8"></td>
+                            <td class="item"><input type="radio" name="blame_tempt" value="9"></td>
+                            <td class="item"><input type="radio" name="blame_tempt" value="10"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="item-label-left">
+                                {% trans "I can resist easily" %}
+                            </td>
+                            <td colspan="5"></td>
+                            <td colspan="3" class="item-label-right">
+                                {% trans "I cannot resist at all" %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- next button -->
+        <button type="submit" class="btn btn-primary otree-btn-next">
+            {% trans "Next" %}
+        </button>
+
+    </div>
+
+{% endblock %}

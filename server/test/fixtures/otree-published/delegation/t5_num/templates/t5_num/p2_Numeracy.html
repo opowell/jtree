@@ -1,0 +1,101 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load otree otree_tools %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 't5_num/css/styles.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% trans "Task No." %} {{ task }}: {% trans "Questionnaire" %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <!-- otree_tools: tracking focus -->
+    {% tracking_focus %}
+    <!-- otree_tools: tracking time -->
+    {% tracking_time %}
+
+    <div class="wrapper">
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Progress Bar -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <label>
+            {% trans "Task" %} {{ task }} {% trans "of" %} {{ task_total }}
+        </label>
+        <div class="progress">
+            <div class="progress-bar-task" role="progressbar" style="width:{{ task_progress|safe }}%;">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Progress Bar -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <label>
+            {% trans "Page" %} {{ page }} {% trans "of" %}  {{ total }}
+        </label>
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" style="width:{{ progress|safe }}%;">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+        <div class="progress-vspace"></div>
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Numeracy -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <div class="card border-default">
+            <div class="card-header">
+                {% blocktrans trimmed %}
+                    Please answer the following question:
+                {% endblocktrans %}
+            </div>
+
+            <table class="table table-hover">
+                <tbody>
+                    {% for id, question, unit, arg in inventory %}
+                        <tr>
+                            <td id="question">
+                                {{ question }}
+                            </td>
+                            <td id="input">
+                                <div class="input-group">
+                                    <input type="number" class="form-control" name="{{ id }}"
+                                           {{ arg|safe }} data-ng-bind="{{ id }}" required>
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">
+                                            {{ unit }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <!-- next button -->
+    <button type="submit" class="btn btn-primary otree-btn-next">
+        {% trans "Next" %}
+    </button>
+
+{% endblock %}

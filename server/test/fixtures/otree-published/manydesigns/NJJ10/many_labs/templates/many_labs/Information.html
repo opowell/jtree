@@ -1,0 +1,63 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 'many_labs/css/custom.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+
+
+
+{% block title %}
+    {% trans "Information About the Task" %}
+{% endblock %}
+
+
+
+{% block content %}
+    <div class="wrapper instructions">
+        <p>
+
+
+
+            <p> In this study, you will be asked to make a decision in the role of a seller of a product.
+
+                The price of the product is {{price}} and the value of the product can vary: 99 out of 100 products have a low value of {{ value_low }}, and 1 out of 100 has a high value of {{ value_high }}.
+
+                We offered the product to a group of buyers, and they were asked whether they wanted to buy it.
+
+    <p>Now, you are matched with one buyer. This buyer thinks that the most likely value of the product is {{ value_high }}, and has decided to buy the product for {{ price }}.</p>
+
+
+            </p>
+
+    </p>
+
+    <p>
+   You have the chance to disclose to the buyer that the most likely value of the product is {{ value_low }} and not {{ value_high }}, as the buyer thinks.
+        Alternatively, you can choose not to disclose any information, and the buyer will keep thinking that the most likely value of the product is {{ value_high }}.
+   </p>
+
+    <p>
+    Following this decision, your final payoff will be decided as below:
+    <li>
+        If you decide <b>not to disclose</b> any information, the buyer will buy the product and you will receive {{ price }}
+    </li>
+    <li>
+        If you decide <b>to disclose</b> the most likely value of the product, the buyer will not buy the product and you will receive {{ no_lie }}
+
+    </li>
+    </p>
+
+    <p>
+
+  In the next screen, you will be asked to decide whether you want to disclose the most likely value of the product.
+    </div>
+
+       {% next_button %}
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "otree/Base.html" %}
+{% load i18n %}
+{% load otree %}
+{% load otree static %}
+
+{% block global_styles  %}
+<style>
+    input[type=radio] {
+        transform: scale(1.5);
+    }
+    input[type=checkbox] {
+        transform: scale(1.5);
+    }
+</style>
+{% endblock %}
+
+{% block body_main %}
+<div class="otree-body container">
+    <h2 class="otree-title page-header">{% block title %}{% endblock %}</h2>
+    {% if view.remaining_timeout_seconds != None %}
+    {% include 'otree/includes/TimeLimit.html' with form_element_id="form" %}
+    {% endif %}
+    {% if form.errors %}
+    <div class="otree-form-errors alert alert-danger">
+        {% if form.non_field_errors %}
+            {% for error in form.non_field_errors %}
+                {{ error }}<br>
+            {% endfor %}
+        {% else %}
+            Please correct wrong answer(s) to the questions (see below).
+        {% endif %}
+    </div>
+    {% endif %}{% if js_vars|default:False %}<script>var js_vars = {{ js_vars|json }};</script>{% endif %}
+    <form class="otree-form" method="post" role="form" id="form" autocomplete="off">{% csrf_token %}
+        <div class="_otree-content">{% block content %}{% endblock %}</div>
+    </form>
+    <br/>
+    {# need the default:False for projects with old MTurkLandingPage #}
+    {% if view.is_debug|default:False %}
+    <br>
+    {% include 'otree/includes/debug_info.html' %}
+    {% endif %}
+</div>
+{% endblock %}
+{% block internal_scripts %}
+
+{{ block.super }}
+<script id="websocket-redirect" src="{% static 'otree/js/page-websocket-redirect.js' %}"
+        data-socket-url="{{ view.socket_url|safe }}"
+        data-redirect-url="{{ view.redirect_url|safe }}"
+        data-is-debug="{{ view.is_debug|default:"" }}"
+></script>
+{% if view.remaining_timeout_seconds != None %}
+{% include 'otree/includes/TimeLimit.js.html' %}
+{% endif %}
+{% endblock %}
+
+{% block live %}
+{% if view.live_method %}
+<form id="liveform"></form>
+<script src="{% static 'otree/js/live.js' %}" id="otree-live" data-socket-url="{{ view.live_url }}"></script>
+{% endif %}
+{% endblock %}

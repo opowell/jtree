@@ -1,0 +1,16 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+  Redirecting to Prolific Finish Page
+{% endblock %}
+
+{% block content %}
+  <meta http-equiv="refresh" content="1; url={{ session.config.completion_url }}" /> 
+
+  Just a moment... You are being redirected to the finish page.
+  If you are not redirected in 5 seconds, <a href="{{ session.config.completion_url }}"> click here </a>
+
+{% endblock %}
+
+

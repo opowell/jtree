@@ -45,7 +45,7 @@ async function convertApp(appDir, outDir) {
     const pkg = packageFor(appFile(appDir));
     runtime.putApp(pkg, appDir);
     const bridge = runtime.getBridge();
-    bridge.load(pkg);
+    bridge.load(pkg, path.basename(appDir));
     let result;
     try {
         result = JSON.parse(runtime.py.pyimport('otree_convert').convert(pkg));

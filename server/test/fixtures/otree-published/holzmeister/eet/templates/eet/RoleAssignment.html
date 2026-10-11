@@ -1,0 +1,63 @@
+{% extends "global/Base.html" %}
+{% load staticfiles otree %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 'eet/css/styles.css' %}" rel="stylesheet">
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% trans "Role Assignment" %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <div class="card">
+        <div class="card-body">
+
+            {% if player.id_in_group == 1 %}
+                <p>
+                    {% blocktrans trimmed %}
+                        You have been randomly assigned the role of <b>player A</b>.
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans trimmed with n=num_choices %}
+                        In the following, you will be asked to make {{ n }} binary decisions. At the end of this task,
+                        one of these decisions will be randomly chosen, determining both your payoff as well as the
+                        payoff of another participant from group B you are matched with.
+                    {% endblocktrans %}
+                </p>
+
+            {% elif player.id_in_group == 2 %}
+                <p>
+                    {% blocktrans trimmed %}
+                        You have been randomly assigned the role of <b>player B</b>.
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans trimmed with n=num_choices %}
+                        In the following, player A will be asked to make {{ n }} binary decisions. At the end of this
+                        task, one of these decisions will be randomly chosen, determining both your payoff as well as
+                        the payoff of player A you are matched with.
+                    {% endblocktrans %}
+                </p>
+            {% endif %}
+        </div>
+    </div>
+
+    {% next_button %}
+
+{% endblock %}

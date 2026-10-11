@@ -1,0 +1,104 @@
+{{ block title }}
+    Question 2
+{{ endblock }}
+{{ block content }}
+
+True or false: You will be paid a bonus payment of &#163;{{ Constants.piece_rate|to2 }} for each slider completed.
+<br><br>
+
+<div>
+  <input type="radio" id="true" name="rb" value="true" onclick="check_radio();">
+  <label for="true">True</label>
+</div>
+
+<div>
+  <input type="radio" id="false" name="rb" value="false" onclick="check_radio();">
+  <label for="false">False</label>
+</div>
+
+<br><br>
+
+<button type="button" id="submit_button" class="btn btn-primary" onclick="check_answer();" style="display:none;">
+    Submit
+</button>
+
+<div id="correct" style="display:none;">Correct.</div>
+<div id="incorrect" style="display:none;">Incorrect. The answer is True. You will receive a bonus payment of &#163;{{ Constants.piece_rate|to2 }} for each slider completed.</div>
+
+<br><br>
+
+{{ next_button }}
+
+
+<input type="hidden" name="q2_correct" id="q2_correct" />
+
+{{ endblock }}
+
+{{ block scripts }}
+    <script>
+        function check_radio() {
+            document.getElementById("submit_button").style.display = "block";
+        }
+
+      function check_answer() {
+         document.getElementById("true").disabled = true;
+         document.getElementById("false").disabled = true;
+         document.getElementById("submit_button").style.display = "none";
+         var true_rb = document.getElementById('true');
+         if (true_rb.checked) {
+            var response = true;
+         } else {
+            var response = false;
+         }
+
+         if ("{{ Constants.q2_answer }}" == "True") {
+            var correct_answer = true;
+         } else {
+            var correct_answer = false;
+         }
+
+         if (response == correct_answer) {
+            document.getElementById("correct").style.display = "block";
+            document.getElementById("q2_correct").value = true;
+         } else {
+            document.getElementById("incorrect").style.display = "block";
+            document.getElementById("q2_correct").value = false;
+         }
+         document.getElementsByClassName("otree-btn-next")[0].style.display = "block";
+      }
+
+
+  $(document).ready(function() {
+
+      $(window).keydown(function(event){
+
+        if(event.keyCode == 116) {
+
+          event.preventDefault();
+
+          return false;
+
+        }
+
+      });
+
+    });
+
+        {{ comment }}
+            function isNumberKey(evt){
+                var charCode = (evt.which) ? evt.which : event.keyCode
+                if (charCode > 31 && (charCode != 46 &&(charCode < 48 || charCode > 57)))
+                    return false;
+                return true;
+            }
+        {{ endcomment }}
+    </script>
+{{ endblock }}
+
+{{ block styles }}
+    <style>
+        .otree-btn-next {
+            display:none;
+        }
+    </style>
+{{ endblock }}

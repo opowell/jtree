@@ -1,0 +1,140 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load otree otree_tools %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 't5_num/css/styles.css' %}" rel="stylesheet">
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% trans "Task No." %} {{ task }}: {% trans "Questionnaire" %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <!-- otree_tools: tracking focus -->
+    {% tracking_focus %}
+    <!-- otree_tools: tracking time -->
+    {% tracking_time %}
+
+    <div class="wrapper">
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Progress Bar -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <label>
+            {% trans "Task" %} {{ task }} {% trans "of" %} {{ task_total }}
+        </label>
+        <div class="progress">
+            <div class="progress-bar-task" role="progressbar" style="width:{{ task_progress|safe }}%;">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Progress Bar -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <label>
+            {% trans "Page" %} {{ page }} {% trans "of" %}  {{ total }}
+        </label>
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" style="width:{{ progress|safe }}%;">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+        <div class="progress-vspace"></div>
+
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Survey Items -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <div class="card bg-light mb-3">
+            <div class="card-header">
+                <div class="card-title">
+                    {% blocktrans trimmed %}
+                        Please answer the following questions:
+                    {% endblocktrans %}
+                </div>
+            </div>
+
+            <table class="table table-hover">
+                <tbody>
+                    <tr>
+                        <td id="question">
+                            {% blocktrans trimmed %}
+                                How many of the eight questions you answered
+                                on the previous screen did you answer correctly?
+                            {% endblocktrans %}
+                        </td>
+                        <td id="input">
+                            <div class="input-group" style="width: 170px;">
+                                <input
+                                        type="number"
+                                        class="form-control"
+                                        name="correct"
+                                        data-ng-bind="correct"
+                                        min="0"
+                                        max="8"
+                                        step="1"
+                                        required>
+                                <div class="input-group-append">
+                                    <span class="input-group-text">
+                                        {% trans "questions" %}
+                                    </span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td id="question">
+                            {% blocktrans trimmed %}
+                                Compared to a random sample of the Swedish population,
+                                how did you score in terms of correct answers.
+                                Please estimate your position in the ranking.
+                            {% endblocktrans %}
+                        </td>
+                        <td id="input">
+                            <div class="input-group" style="width: 170px;">
+                                <select class="form-control" name="percentile" required>
+                                    <option selected disabled>---</option>
+                                    <option value="10">{% trans "Top" %} 10% {% trans " " %}</option>
+                                    <option value="20">{% trans "Top" %} 20% {% trans " " %}</option>
+                                    <option value="30">{% trans "Top" %} 30% {% trans " " %}</option>
+                                    <option value="40">{% trans "Top" %} 40% {% trans " " %}</option>
+                                    <option value="50">{% trans "Top" %} 50% {% trans " " %}</option>
+                                    <option value="60">{% trans "Bottom" %} 50% {% trans "  " %}</option>
+                                    <option value="70">{% trans "Bottom" %} 40% {% trans "  " %}</option>
+                                    <option value="80">{% trans "Bottom" %} 30% {% trans "  " %}</option>
+                                    <option value="90">{% trans "Bottom" %} 20% {% trans "  " %}</option>
+                                    <option value="100">{% trans "Bottom" %} 10% {% trans "  " %}</option>
+                                </select>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+        <!-- next button -->
+        <button type="submit" class="btn btn-primary otree-btn-next">
+            {% trans "Next" %}
+        </button>
+
+    </div>
+
+{% endblock %}

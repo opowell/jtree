@@ -1,0 +1,73 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+
+{% block title %}
+    Results
+{% endblock %}
+
+{% block content %}
+
+<font size=5px>
+
+{% if  condition == "multi" %}
+You reported {{ player.ReportedSum}}, the other player reported {{ other_player }}.<br>
+<div id="checked">
+</div>
+<br>
+Thus, {{ who_won }}.
+<br>
+<div id="points">
+Your total points so far: {{ points }} <br>
+</div>
+
+<br>
+<br>
+
+<button id="CheckBtn" class="btn btn-warning" type="button" onclick="Check()">Check</button> 
+(For a cost of one point, you can reveal yours and the other player's real sum)
+<br>
+<br>
+
+{% elif condition == "single" %}
+You reported {{ player.ReportedSum}}.<br>
+<div id="checked">
+</div>
+Thus, {{ who_won }}.
+<br>
+<br>
+<div id="points">
+Your total points so far: {{ points }} <br>
+</div>
+
+<br>
+<br>
+
+<button id="CheckBtn" class="btn btn-warning" type="button" onclick="Check()">Check</button> 
+(For a cost of one point, you can reveal yours and the other player's real sum)
+<br>
+<br>
+
+{% endif %}    
+</font>
+        {% next_button %}
+
+
+<script>
+function Check() {
+liveSend('check');
+}
+
+function liveRecv(data) {
+    {% if  condition == "multi" %}
+    msg="<strong> Your real sum was "+ data[0] +", and the other player's real sum was " + data[1] +". </strong>";
+    {% elif condition == "single" %}
+    msg="<strong> Your real sum was "+ data + ". </strong> <br>";
+    {% endif %}    
+    document.getElementById("checked").innerHTML = msg;
+    document.getElementById("points").innerHTML = "Your total points so far: " + parseInt({{ points }}-1) + ".<br>";
+    console.log('received a message!', data);
+    // your code goes here
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,36 @@
+{{ block title }}Your offers{{ endblock }}
+{{ block content }}
+
+<p>
+You must now decide how to divide £5.00 between yourself and the responder. First, you have to decide on your <b>actual</b> offer. You may choose any amount between £0.00 and £5.00 (in increments of cents) to offer to the responder. Remember, this offer is not visible to the responder or to any of the other proposers. The offer does immediately affect your bonus payments when it is selected.    
+</p>
+
+<p>
+Next, you must choose which offer, between £0.00 and £5.00 (in increments of cents), to communicate to the responder. This is your <b>communicated</b> offer. This communication does not have to match your actual offer, and it does not immediately affect your bonus payments. However, it is visible to the responder and may therefore affect the chances of the set of 3 communicated offers being accepted. Please note, the amount that you communicate may also affect the chances of your communicated offer being chosen by the responder.    
+</p>
+
+<p>
+Enter your actual offer and communicated offer below. You have 3 minutes to do so. If you do not enter an offer within this time, your offers will be invalid and cannot be selected. Your bonus payment will then be zero.    
+</p>
+
+{{ formfields }}
+
+{{ next_button }}
+
+<p>
+  <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+    Summary of the instructions
+  </button>
+</p>
+<div class="collapse" id="collapseExample">
+  <div class="card card-body">
+<p> In phase 1, the three proposers make their offers for a division of the £5.00 bonus between themselves and the responder. They make an <b>actual</b> offer, which is how the money will actually be divided and they make a <b>communicated</b> offer, which is the offer the responder gets to see. 
+      </p>
+<p> In phase 2, the responder observes the set of 3 communicated offers and decides whether to accept or reject this set of 3 <b>communicated</b> offers. If the set of 3 communicated offers is rejected, the game ends and nobody receives a bonus. If the set of 3 communicated offers is accepted, the game moves to phase 3.  
+      </p>
+<p> In phase 3, the responder chooses one of the communicated offers. The <b>actual</b> offer that the chosen proposer has made is then implemented. The proposers that were not chosen will not receive a bonus.
+      </p>     
+  </div>
+</div>
+
+{{ endblock }}

@@ -1,0 +1,68 @@
+{{ block title }}Results{{ endblock }}
+{{ block content }}
+
+<p>
+Your role was <b>{{player.role}}</b>.
+</p>
+
+{{ if player.role != Constants.responder_role and group.Accept == True and player.timeout == False}}  
+<p>
+Your <b>actual</b> offer was {{player.offer_actual}} and your <b>communicated</b> offer was {{player.offer_communicated}}. The responder chose to <b>Accept</b> the set of 3 communicated offers, and subsequently the offer of <b>Proposer {{group.Random}}</b> was randomly selected.  
+</p>
+{{ endif }}
+
+{{ if player.role != Constants.responder_role and group.Accept == True and player.timeout == True}}  
+<p>
+Your <b>actual</b> and <b>communicated</b> offers were <i>invalid due to timeout</i>. The responder chose to <b>Accept</b> the set of 3 communicated offers, and subsequently the offer of <b>Proposer {{group.Random}}</b> was randomly selected.  
+</p>
+{{ endif }}
+
+{{ if player.role != Constants.responder_role and group.Accept == False and player.timeout == False}}  
+<p>
+Your <b>actual</b> offer was {{player.offer_actual}} and your <b>communicated</b> offer was {{player.offer_communicated}}. The responder chose to <b>Reject</b> the set of 3 communicated offers. 
+</p>
+
+{{ endif }}
+
+{{ if player.role != Constants.responder_role and group.Accept == False and player.timeout == True}}  
+<p>
+Your <b>actual</b> and <b>communicated</b> offers were <i>invalid due to timeout</i>. The responder chose to <b>Reject</b> the set of 3 communicated offers. 
+</p>
+
+{{ endif }}
+
+{{ if player.role == Constants.responder_role and group.Accept == True and group.Random == 1 }}  
+<p>
+You chose to <b>Accept</b> the set of 3 communicated offers, and subsequently the offer of <b>Proposer {{group.Random}}</b> was randomly selected. The <b>communicated</b> offer of <b>Proposer {{group.Random}}</b> was {{group.Offer_communicated_1}}, while their <b>actual</b> offer was {{group.Offer_actual_1}}.   
+</p>
+
+{{ endif }}
+
+{{ if player.role == Constants.responder_role and group.Accept == True and group.Random == 2 }}  
+<p>
+You chose to <b>Accept</b> the set of 3 communicated offers, and subsequently the offer of <b>Proposer {{group.Random}}</b> was randomly selected. The <b>communicated</b> offer of <b>Proposer {{group.Random}}</b> was {{group.Offer_communicated_2}}, while their <b>actual</b> offer was {{group.Offer_actual_2}}.   
+</p>
+
+{{ endif }}
+
+{{ if player.role == Constants.responder_role and group.Accept == True and group.Random == 3 }}  
+<p>
+You chose to <b>Accept</b> the set of 3 communicated offers, and subsequently the offer of <b>Proposer {{group.Random}}</b> was randomly selected. The <b>communicated</b> offer of <b>Proposer {{group.Random}}</b> was {{group.Offer_communicated_3}}, while their <b>actual</b> offer was {{group.Offer_actual_3}}.   
+</p>
+
+{{ endif }}
+
+{{ if player.role == Constants.responder_role and group.Accept == False }}  
+<p>
+You chose to <b>Reject</b> the set of 3 offers.    
+</p>
+
+{{ endif }}
+
+<p>
+Your bonus payment is therefore {{player.payoff}}. You will receive this on top of the show-up fee of £1.30. Your total payment will therefore be {{participant.payoff_plus_participation_fee()}}, which will be paid out via Prolific within 3 weeks of the end of the experiment.     
+</p>
+
+{{ next_button }}
+
+{{ endblock }}

@@ -1,0 +1,193 @@
+{% load otree static %}
+
+<style>
+
+ td {
+     height: 30px;
+     width: 120px;
+ }
+
+ #podium {
+
+     table-layout: fixed;
+     width: 50%;
+
+     boder-spacing: 0;
+     border-collapse: collapse;
+ }
+
+
+ .medalimg {
+     max-width: 100%;
+     max-height:200%;
+
+
+
+ }
+
+ .goldmedalimg {
+     max-width: 100%;
+     max-height:300%;
+
+ }
+
+
+
+ .golden {
+     background-color: #FFD700;
+ }
+
+ .bronze {
+     background-color: #CD7F32;
+ }
+
+ .silver {
+     background-color: #C0C0C0;
+ }
+
+ .loser {
+     background-color: #696112;
+ }
+
+ .rank1{
+     font-size: 500%;
+     text-align: center;
+     display: flex; 
+     justify-content: center;
+     color: #ffffff;
+ }
+
+ .rank2{
+     font-size: 400%;
+     text-align: center;
+     display: flex; 
+     justify-content: center;
+     color: #ffffff;
+ }
+
+
+ .rank3{
+     font-size: 300%;
+     text-align: center;
+     display: flex; 
+     justify-content: center;
+     color: #ffffff;
+ }
+
+ .rank4{
+     font-size: 200%;
+     text-align: center;
+     display: flex; 
+     justify-content: center;
+     color: #ffffff;
+ }
+
+
+ .name{
+     font-size: 120%;
+     vertical-align: bottom;
+     justify-content: center;
+     text-align:center;
+
+ }
+</style>
+</style>
+<div class="container" align="center">
+  <div class="h1">
+    {% if player.rank is 1 %}
+      Congratulations! You are ranked first!
+    {% endif %}
+    {% if player.rank is 2 %}
+      You are ranked second!
+    {% endif %}
+    {% if player.rank is 3 %}
+      You are ranked third.
+    {% endif %}
+    {% if player.rank is 4 %}
+      You are ranked fourth.
+    {% endif %}
+  </div>
+<table id="podium" border="0" cellspacing="0" cellpadding="0">
+<tbody>
+<tr>
+  <td></td>
+
+  <td class="name">    
+    {% if ranked.ids.1 == player.id_in_group %} <strong>(YOU)</strong> <br> {% endif %}
+    Player {{ ranked.names.1 }} <br>
+    {{ranked.payoffs.1 | c }} <br></td>
+
+  <td class="name">
+    {% if ranked.ids.0 == player.id_in_group %} <strong>(YOU)</strong> <br> {% endif %}
+    Player {{ ranked.names.0 }} <br>
+    {{ranked.payoffs.0 | c }} <br>
+    <img class="goldmedalimg" src="{% static "captcha/goldmedal.png" %}"/></td>
+
+  <td></td>
+
+</tr>
+<tr>
+
+  <td></td>
+
+  <td class="name">
+
+    <img class="medalimg" src="{% static "captcha/medal.png" %}"/>
+</td>
+
+  <td class="golden"></td>
+
+  <td class="name">
+    {% if ranked.ids.2 == player.id_in_group %} <strong>(YOU)</strong> <br> {% endif %}
+    Player {{ ranked.names.2 }} <br>
+    {{ranked.payoffs.2 | c }} <br>
+  </td>
+
+</tr>
+
+<tr>
+
+  <td class="name">    
+    {% if ranked.ids.3 == player.id_in_group %} <strong>(YOU)</strong> <br> {% endif %}
+    Player {{ ranked.names.3 }} <br>
+    {{ranked.payoffs.3 | c }} <br></td>
+
+  <td class="silver"></td>
+
+  <td class="golden"></td>
+
+  <td class="name"> 
+    <img class="medalimg" src="{% static "captcha/medal.png" %}"/>
+  </td>
+
+</tr>
+
+<tr>
+  <td class="name">
+
+    <img class="medalimg" src="{% static "captcha/nomedal.png" %}"/>
+    </td>
+
+  <td class="silver"></td>
+
+  <td class="golden"></td>
+
+  <td class="bronze"></td>
+
+
+</tr>
+
+<tr>
+
+  <td class="loser"><span class="rank4"> 4</span></td>
+
+  <td class="silver"><span class="rank2"> 2</span></td>
+
+  <td class="golden"><span class="rank1"> 1</span></td>
+
+  <td class="bronze"><span class="rank3"> 3</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+

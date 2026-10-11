@@ -1,0 +1,106 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree_tags %}
+{% load otree otree_tools %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 't1_adt2/css/styles.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% trans "Task No." %} {{ task }}: {% trans "Instructions" %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <!-- otree_tools: tracking focus -->
+    {% tracking_focus %}
+    <!-- otree_tools: tracking time -->
+    {% tracking_time %}
+
+    <div class="wrapper">
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Progress Bar -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <label>
+            {% trans "Task" %} {{ task }} {% trans "of" %} {{ task_total }}
+        </label>
+        <div class="progress">
+            <div class="progress-bar-task" role="progressbar" style="width:{{ task_progress|safe }}%;">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+        <div class="progress-vspace"></div>
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Body -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <div class="card bg-light">
+            <div class="card-body">
+                <p>
+                    {% if treatment == 'opm_flat' %}
+                        {% blocktrans trimmed %}
+                            The next screens explain how to play the investment game in Task 1.
+                            Remember, a considerable amount of money is at stake for your clients
+                            so please pay careful attention to the instructions.
+                        {% endblocktrans %}
+                    {% elif treatment == 'opm_lin' %}
+                        {% blocktrans trimmed %}
+                            The next screens explain how to play the investment game in Task 1.
+                            Remember, a considerable amount of money is at stake for you and your
+                            clients so please pay careful attention to the instructions.
+                        {% endblocktrans %}
+                    {% else %}
+                        {% blocktrans trimmed %}
+                            The next screens explain how to play the investment game in Task 1.
+                            Remember, a considerable amount of money is at stake so please pay
+                            careful attention to the instructions.
+                        {% endblocktrans %}
+                    {% endif %}
+                </p>
+                <p>
+                    {% blocktrans trimmed %}
+                        In this game, you will make 10 decisions. In each of these decisions,
+                        you can invest your initial endowment of 100 SEK. You will be asked
+                        to divide the 100 SEK between two investment options: asset A and asset
+                        B. The return of your investments depends on the toss of a coin (simulated
+                        by the computer).
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans trimmed %}
+                        The table at the top of the decision screens will show the return per
+                        SEK invested. In the example below, each SEK put into asset A pays
+                        2.00 SEK if the coin comes up heads and 0.00 SEK if it comes up tails.
+                        Each SEK put into asset B pays 0.00 SEK if the coin comes up heads and
+                        3.00 SEK if it comes up tails.
+                    {% endblocktrans %}
+                </p>
+                <div class="img-wrapper">
+                    {% with 't1_adt2/img/int_payoffs_'|add:language|add:'.png' as img %}
+                        <img src="{% static img %}" class="img">
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- next button -->
+    <button type="submit" class="btn btn-primary otree-btn-next">
+        {% trans "Next" %}
+    </button>
+
+{% endblock %}

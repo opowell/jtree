@@ -1,0 +1,26 @@
+{{ block title }}
+    General Survey
+{{ endblock }}
+{{ block content }}
+<p>
+Before you are finished today’s experiment, we ask that you please answer a few more questions:
+</p>
+<br>
+{{ formfield 'belief_production_extensive' }}
+<br>
+{{ formfield 'belief_production_intensive' }}
+<p>
+    <b>Hint:</b> If you expected to score more than them, then the
+    number above should be positive; if you expected to score less than them, then
+    the number above should be negative.
+</p>
+<br>
+    {{ formfield 'belief_red_dots' }}
+<br>
+    {{ formfield 'reasoning_red_dots' }}
+<br>
+    {{ formfield 'competitiveness' }}
+
+{{ next_button }}
+
+{% endblock %}

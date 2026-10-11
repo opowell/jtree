@@ -540,6 +540,21 @@ class Player {
     }
 
     /**
+     * Whether this player has finished stage, of their current period: played it (done or
+     * finished), or gone past it. (Players skip stages on their own, so the group's current
+     * stage, which isFinished goes by, may be past theirs.)
+     */
+    isFinishedStage(stage) {
+        if (this.participant.player !== this) {
+            return this.isFinished();
+        }
+        if (this.stageIndex !== stage.indexInApp()) {
+            return this.stageIndex > stage.indexInApp();
+        }
+        return ['finished', 'done'].includes(this.status);
+    }
+
+    /**
      * isReady - description
      *
      * @return {type}  description

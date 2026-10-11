@@ -1,0 +1,211 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load otree otree_tools %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 't0_int/css/styles.css' %}" rel="stylesheet">
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** SCRIPTS *** #}
+{# ****************************************************************************************************************** #}
+{% block scripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bowser/1.9.3/bowser.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            console.log(bowser);
+
+            var os_name = bowser.osname;
+            var os_version = bowser.osversion;
+            var browser_name = bowser.name;
+            var browser_version = bowser.version;
+
+            $('#os_name').val(os_name);
+            $('#os_version').val(os_version);
+            $('#browser_name').val(browser_name);
+            $('#browser_version').val(browser_version);
+
+            if (
+                (browser_name === 'Internet Explorer' && browser_version <= 11) ||
+                (browser_name === 'Firefox' && browser_version <= 35) ||
+                (browser_name === 'Opera' && browser_version <= 12) ||
+                (browser_name === 'Chrome' && browser_version <= 35) ||
+                (browser_name === 'Edge' && browser_version <= 25) ||
+                (
+                    browser_name !== 'Internet Explorer' &&
+                    browser_name !== 'Firefox' &&
+                    browser_name !== 'Opera' &&
+                    browser_name !== 'Chrome' &&
+                    browser_name !== 'Edge'
+                )
+            ) {
+                $('#outdated_browser').show();
+            }
+        });
+    </script>
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% blocktrans trimmed %}
+        General information about the study
+    {% endblocktrans %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <!-- otree_tools: tracking focus -->
+    {% tracking_focus %}
+    <!-- otree_tools: tracking time -->
+    {% tracking_time %}
+
+    <div class="wrapper">
+
+        <!-- browser notification -->
+        <div class="alert alert-info" id="outdated_browser" style="display: none;">
+            <div style="
+                    font-size:2em;
+                    color:#17a2b8;
+                    display: table-cell;
+                    vertical-align: middle;
+                    padding-right: 20px;">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div style="
+                    display: table-cell;
+                    vertical-align: middle;
+                    font-size: 0.95rem;">
+                <div style="margin-bottom: 0.5rem">
+                    {% blocktrans trimmed %}
+                        It seems like you are using an outdated or rarely used browser. Please note that the software
+                        has been extensively tested only in recent versions of <b>Chrome, Firefox, Edge, Opera, and
+                        Safari.</b>
+                    {% endblocktrans %}
+                </div>
+                <div>
+                    {% blocktrans trimmed %}
+                        We therefore kindly ask you to access the experiment via either of the aforementioned browsers
+                        (in a recently up-to-date version) to avoid software malfunctioning.
+                    {% endblocktrans %}
+                </div>
+            </div>
+        </div>
+
+        <!-- intro text -->
+        <div class="card bg-light mb-3">
+            <div class="card-body">
+                <p>
+                    {% blocktrans trimmed %}
+                        Dear participant,
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans trimmed %}
+                        Thank you very much for taking part in this economic experiment. The experiment is
+                        intended to take about 40-50 minutes. The study aims at testing (i) economic preferences
+                        and risk taking; (ii) the extent to which these preferences can be explained by the
+                        participants' socioeconomic background, cognitive abilities, and non-cognitive abilities;
+                        and (iii) if these preferences differ between individuals active in different professions.
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans trimmed %}
+                        You will be asked to make a series of financial decisions. No background knowledge or
+                        specific experience is required to participate. Your answers and results will be handled
+                        such that unauthorized persons will not be able to access them. Statistics Sweden (SCB)
+                        will combine the results from the experiments with registry data using the login codes,
+                        construct a data set, and make it available to the involved researchers.
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans trimmed %}
+                        The data set will not contain the name, social security number or detailed information
+                        about the place of residence or the location of the workplace. Only the involved researchers
+                        will have access to the data. The researchers will not be able to identify the participants.
+                        The University of Gothenburg is ultimately responsible for managing your personal data.
+                        The study has been approved by the regional ethical review board in Gothenburg.
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans trimmed %}
+                        You will receive financial compensation for your participation. The exact amount depends on
+                        the choices you make and chance. All participants receive 100 SEK and you can earn up to 650
+                        SEK. The amount will be transferred to you via bank transfer. The payment will be handled by
+                        the survey company Enkätfabriken (<a href="http://www.enkatfabriken.se/" target="_blank">
+                        http://www.enkatfabriken.se/</a>). In order to complete the payment, the survey company will
+                        ask you to enter the login number (therefore save the invitation letter containing this
+                        number), name, social security number and bank account details. This information will
+                        not be linked to other data. When you complete the experiment, you will be linked to
+                        <a href="https://enkat.net/ekonomiskapreferenser/" target="_blank">
+                        https://enkat.net/ekonomiskapreferenser</a> to register your information. We will inform
+                        the survey company about how much that shall be paid to your login number and the payment
+                        will be made within two months. The compensation is taxable and the survey company will
+                        report all payments made to the tax authorities.
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans trimmed %}
+                        Thank you very much for participating!
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans trimmed %}
+                        Martin Holmen (University of Gothenburg) <br/>
+                        Felix Holzmeister (University of Innsbruck)  <br/>
+                        Michael Kirchler (University of Innsbruck and University of Gothenburg) <br/>
+                        Matthias Stefan (University of Innsbruck) <br/>
+                        Erik Wengström (Lund University) <br/>
+                    {% endblocktrans %}
+                </p>
+            </div>
+        </div>
+
+        <!-- participant's consent -->
+        <div class="card bg-light" id="consent">
+            <div class="card-body">
+                <div style="
+                    font-size:3em;
+                    color:rgb(0,123,255);
+                    display: table-cell;
+                    vertical-align: middle;
+                    padding-right: 20px;">
+                    <i class="far fa-handshake"></i>
+                </div>
+                <div style="display: table-cell; vertical-align: middle;">
+                    {% blocktrans trimmed %}
+                        Please click below to start. By clicking on the button, you are consenting to take part
+                        in this study and that the data is treated in accordance to what is described above.
+                    {% endblocktrans %}
+                </div>
+            </div>
+        </div>
+
+        <!-- next button -->
+        <button type="submit" class="btn btn-success">
+            {% blocktrans trimmed %}
+                Agree! Let's start the experiment.
+            {% endblocktrans %}
+        </button>
+
+        <!-- store os and browser information -->
+        <input name="os_name" id="os_name" type="hidden">
+        <input name="os_version" id="os_version" type="hidden">
+        <input name="browser_name" id="browser_name" type="hidden">
+        <input name="browser_version" id="browser_version" type="hidden">
+    </div>
+
+{% endblock %}

@@ -1,0 +1,183 @@
+# oTree: Ready-Made Apps for Risk Preference Elicitation Methods - Certainty Equivalent Method.
+# Copyright (c)2017, Felix Holzmeister <felix.holzmeister@uibk.ac.at>, 2017.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-08-01 11:44+0200\n"
+"PO-Revision-Date: 2017-04-24 09:01+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: de\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 2.0.1\n"
+
+#: .\templates\cem\Decision.html:30
+msgid "Your Decision"
+msgstr "Ihre Entscheidung"
+
+#: .\templates\cem\Decision.html:46
+#, python-format
+msgid "Page %(page)s of %(total)s"
+msgstr "Seite %(page)s von %(total)s"
+
+#: .\templates\cem\Decision.html:67 .\templates\cem\Results.html:44
+msgid "Lottery"
+msgstr "Lotterie"
+
+#: .\templates\cem\Decision.html:68 .\templates\cem\Results.html:45
+msgid "Accept"
+msgstr "Akzeptieren"
+
+#: .\templates\cem\Decision.html:69 .\templates\cem\Results.html:46
+msgid "Reject"
+msgstr "Ablehnen"
+
+#: .\templates\cem\Decision.html:79 .\templates\cem\Decision.html.py:119
+#: .\templates\cem\Decision.html:132 .\templates\cem\Results.html:56
+#: .\templates\cem\Results.html.py:112 .\templates\cem\Results.html:134
+msgid "with a probability of "
+msgstr "mit einer Wahrscheinlichkeit von "
+
+#: .\templates\cem\Decision.html:80 .\templates\cem\Decision.html.py:120
+#: .\templates\cem\Results.html:57 .\templates\cem\Results.html.py:113
+msgid "otherwise"
+msgstr "anderenfalls"
+
+#: .\templates\cem\Decision.html:107 .\templates\cem\Results.html:100
+msgid "Option A"
+msgstr "Option A"
+
+#: .\templates\cem\Decision.html:109 .\templates\cem\Results.html:102
+msgid "Option B"
+msgstr "Option B)"
+
+#: .\templates\cem\Decision.html:133 .\templates\cem\Results.html:135
+msgid "(sure payoff)"
+msgstr "(sichere Zahlung)"
+
+#: .\templates\cem\Instructions.html:18
+msgid "Instructions"
+msgstr "Instruktionen"
+
+#: .\templates\cem\Instructions.html:29
+#, python-format
+msgid ""
+"In the following, you'll face %(n)s decisions listed on your screen. Each "
+"decision is a paired choice between \"Option A\" and \"Option B\". You will "
+"make %(n)s choices and record these in the middle column, but only one of "
+"them will be randomly picked in the end to determine your earnings."
+msgstr ""
+"Nachfolgend werden Ihnen %(n)s Entscheidungspaare auf Ihrem Bildschirm "
+"präsentiert. Jede dieser Entscheidungen ist eine Auswahl zwischen \"Option A"
+"\" und \"Option B\". Sie werden %(n)s Entscheidungen treffen und diese in "
+"der mittleren Spalte eintragen; eine der Entscheidungen wird am Ende "
+"zufällig ausgewählt um Ihre Auszahlung zu bestimmen."
+
+#: .\templates\cem\Instructions.html:36
+#, python-format
+msgid ""
+"\"Option A\" is a lottery that pays %(hi)s with %(p)s%% probability and %(lo)"
+"s otherwise; \"Option B\" yields a varying payoff for sure, i.e. with a "
+"probability of 100%%."
+msgstr ""
+"\"Option A\" ist eine Lottery, welche %(hi)s mit einer Wahrscheinlichkeit "
+"von %(p)s%% und anderenfalls %(lo)s ausbezahlt. \"Option B\" besteht aus "
+"unterschiedlich hohen sicheren Auszahlungen, d.h. Zahlungen mit einer "
+"Wahrscheinlichkeit von 100%%."
+
+#: .\templates\cem\Instructions.html:42
+#, python-format
+msgid ""
+"After you have made all of your choices, one of the %(n)s decisions will be "
+"randomly chosen for your payment. If you chose to opt for \"Option A\" in "
+"this decision, it will be randomly determined whether the low or high payoff "
+"will constitute your payoff; if you chose to opt for \"Option B\", the "
+"respective sure amount will constitute your payoff."
+msgstr ""
+"Nachdem Sie alle Ihre Entscheidungen getroffen haben, wird einer der %(n)s "
+"Entscheidungen zufällig für Ihre Auszahlung bestimmt. Sollten Sie in dieser "
+"Entscheidung \"Option A\" gewählt haben, wird entsprechend der "
+"Wahrscheinlichkeiten, eine Zufallszahl bestimmen ob Ihre Auszahlung aus dem "
+"höheren oder niedrigeren Lotteriepreis besteht; sollten Sie sich für "
+"\"Option B\" entschieden haben, erhalten Sie die jeweilige sichere Zahlung."
+
+#: .\templates\cem\Instructions.html:50
+#, python-format
+msgid ""
+"Even though you will make %(n)s decisions, only one of these will end up "
+"affecting your earnings, but you will not know in advance which decision "
+"will be used. Obviously, each decision has an equal chance of being used in "
+"the end."
+msgstr ""
+"Obwohl Sie %(n)s Entscheidungen treffen werden, wird nur eine der "
+"Entscheidungen letztendlich Ihre Auszahlung beeinflussen; Sie wissen "
+"allerdings im Vorfeld nicht, welche dies sein wird. Offensichtlich ist die "
+"Wahrscheinlichkeit, dass eine Entscheidung am Ende für Ihre Auszahlung "
+"herangezogen wird, für alle Entscheidungspaare gleich hoch."
+
+#: .\templates\cem\Instructions.html:58
+#, python-format
+msgid ""
+"To summarize: You will make %(n)s choices; for each decision you will have "
+"to choose between \"Option A\" and \"Option B\". You may choose A for some "
+"decision rows and B for other rows. When you are finished, one of the %(n)s "
+"decisions will be randomly picked for your payoff. If you decided for "
+"\"Option A\", a random number will be drawn to determine your earnings; if "
+"you decided for \"Option B\" you'll receive the respective sure amount."
+msgstr ""
+"Zusammengefasst: Sie werden %(n)s Entscheidungen zwischen \"Option A\" und "
+"\"Option B\" treffen. Nachdem Sie alle Entscheidungen getroffen haben, wird "
+"eine der %(n)s Entscheidungen zufällig gewählt um Ihre Auszahlung zu "
+"bestimmen. Haben Sie sich für \"Option A\" entschieden, bestimmt eine "
+"Zufallszahl welcher der Lotteriepreise zur Auszahlung kommt; haben Sie sich "
+"für \"Option B\" entschieden, erhalten Sie die entsprechende sichere "
+"Auszahlung."
+
+#: .\templates\cem\Results.html:18
+msgid "Results"
+msgstr "Ergebnisse"
+
+#: .\templates\cem\Results.html:30
+msgid "The following decision was randomly chosen for your payment:"
+msgstr "Folgende Entscheidung wurde zufällig für Ihre Auszahlung bestimmt:"
+
+#: .\templates\cem\Results.html:153
+#, python-format
+msgid "As indicated above, you decided to %(accept_reject)s this lottery."
+msgstr ""
+"Wie oben abgebildet, haben Sie sich entschieden, diese Entscheidung zu %"
+"(accept_reject)s."
+
+#: .\templates\cem\Results.html:159
+#, python-format
+msgid ""
+"As indicated above, you decided to opt for option %(option_to_pay)s in this "
+"decision."
+msgstr ""
+"Wie oben abgebildet, haben Sie sich für \"Option %(option_to_pay)s\" "
+"entschieden."
+
+#: .\templates\cem\Results.html:168
+msgid ""
+"For the lottery, one of the two possible outcomes has been randomly realized "
+"based on the corresponding probabilities."
+msgstr ""
+"Für die Lotterie wurde eine der beiden möglichen Auszahlungen basierend auf "
+"den jeweiligen Wahrscheinlichkeiten realisiert."
+
+#: .\templates\cem\Results.html:175
+#, python-format
+msgid "Your payoff in this task equals <b>%(payoff)s</b>."
+msgstr "Ihre Auszahlung in dieser Aufgabe beträgt <b>%(payoff)s</b>."
+
+#: .\views.py:139 .\views.py:146
+msgid "accept"
+msgstr "akzeptieren"
+
+#: .\views.py:139 .\views.py:146
+msgid "reject"
+msgstr "ablehnen"

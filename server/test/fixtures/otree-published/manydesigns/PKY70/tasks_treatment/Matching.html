@@ -1,0 +1,64 @@
+{{ extends "otree/Page.html" }}
+{{ load otree static }}
+
+{{ block global_styles  }}
+<style>
+    .otree-timer {
+        display: none;
+    }
+</style>
+{{ endblock }}
+
+{{ block global_scripts  }}
+<script>
+    $(function () {
+        $('.otree-timer__time-left').on('update.countdown', function (event) {
+            if (event.offset.totalSeconds === 30) {
+                $('.otree-timer').show();
+            }
+        });
+    });
+</script>
+{{ endblock }}
+
+{{ block title }}Matching{{ endblock }}
+{{ block content }}
+ <div class="card bg-light m-3">
+        <div class="card-body">
+            <p>You have now been matched with another study participant.</p>
+                {{ if player.id_in_group == 1 }}
+                    <b>You are Player A.</b><br><br>
+                <ul>
+                    <li> Throughout the experiment we will refer to you as Player A and to the other participant as Player B.</li>
+                    <li> You will remain with Player B throughout both tasks.</li>
+                    <li> After you and Player B have finished the decisive round, you will receive information on whether you had a higher score than Player B or not. </li>
+                    <li> The person with the higher SCORE will be the winner. The person with the lower SCORE will be the loser.</li>
+                    <li> If you and the other person have the same score, the winner and loser will be randomly determined.</li>
+                    <br>
+                </ul>
+                {{ elif player.id_in_group == 2 }}
+                    <b>You are Player B.</b><br><br>
+                <ul>
+                    <li> Throughout the experiment we will refer to you as Player B and to the other participant as Player A.</li>
+                    <li> You will remain with Player A throughout both tasks.</li>
+                    <li> After you and Player A have finished the decisive round, you will receive information on whether you had a higher score than Player A or not. </li>
+                    <li> The person with the higher SCORE will be the winner. The person with the lower SCORE will be the loser.</li>
+                    <li> If you and the other person have the same score, the winner and loser will be randomly determined.</li>
+                    <br>
+                </ul>
+                {{ endif }}
+
+                <p><b>What happens if the other person drops out?</b></p>
+
+                <ul>
+                    <li>To limit waiting times during the two tasks, there is a time limit on every page. A timer will appear at the top of the screen when you only have 30 seconds left to proceed.</li>
+                    <li>If you do not proceed in time you will be recorded as dropout and forwarded to the end of the survey and do not receive any payment.</li>
+                    <li>If the other person drops out before he or she finishes the two tasks, you will continue until the end, and receive the full bonus of 2 GBP.</li>
+                </ul>
+            <p><strong>If you are ready, please click the "Next" button to begin the decisive round of Task 1.</strong></p>
+        </div>
+ </div>
+
+    {{ next_button }}
+
+{{ endblock }}

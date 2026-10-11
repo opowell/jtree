@@ -1,0 +1,80 @@
+{% block title %}
+    Instructions: Part 1
+{% endblock %}
+
+{% block content %}
+
+<p>
+    <table>
+        <tbody>
+        <tr height = "70">
+            <td width = "200">Your color is {{ player.role }}</td>
+            <td width = "120">{{ if player.id_in_group == 1}} <img src = "https://www.dropbox.com/s/saoqw7we7zwv90j/Player_Yellow-01.png?raw=1" width = "50">
+            {{ elif player.id_in_group == 2}} <img src = "https://www.dropbox.com/s/gxnx609zz29q1ds/Player_Red-04.png?raw=1" width = "50">
+            {{ elif player.id_in_group == 3}} <img src = "https://www.dropbox.com/s/s4ygwwxrt4mexn3/Player_Green-02.png?raw=1" width = "50">
+            {{ else }} <img src = "https://www.dropbox.com/s/z4qvl8w9qlao6nd/Player_Blue-03.png?raw=1" width = "50">
+            {{ endif }}</td>
+        </tr>
+        </tbody>
+    </table>
+</p>
+
+<p>
+    In Part 1, you and the other 3 players in your group will independently perform a task.
+    For this task, each of you will be paid a lump sum of 100 Talers.
+</p>
+
+<p>
+    The task is to encode numbers into words. To encode a number into a word, please replace the digits of
+    the number with the corresponding letters from a table which you will find on the screen.
+    Please find the example below.
+
+<p>
+    <b>Example</b>
+</p>
+
+<p>
+    <img src="https://www.dropbox.com/s/e09gzpflamv27j4/Screenshot%202021-09-15%20at%2016.13.04.png?raw=1" width="800">
+</p>
+
+<p>
+    In this example, the given number is 09143. According to the table, 0 = "O", 9 = "M", 1 = "Z", 4 = "L", and 3 = "F".
+    Thus, the corresponding word is "OMZLF" ("omzlf" is also correct). You should put the answer in a cell as follows:
+</p>
+
+
+<p>
+    <img src="https://www.dropbox.com/s/6o1rf2reo28m8fd/Screenshot%202021-09-15%20at%2016.13.28.png?raw=1" width="800">
+</p>
+
+
+<p>
+    To submit the answer, please click either the "Submit" button on the screen or "Enter" on your keyboard.
+</p>
+
+
+<p>
+    You will have 3 minutes to submit as many words as you can. You will see countdown at the top of the page.
+    Please note that for each new word, the table of correspondence will change.
+</p>
+
+<p>
+    Please note that the payment in the first part of the experiment does not depend on the performance in the task.
+    The lump sum of 100 Talers is guaranteed independently from the amount of words you will encode in 3 minutes.
+    After 3 minutes, the task will stop automatically.
+</p>
+
+<p>
+    When Part 1 is completed, you will be informed about your performance in the task. The page with your performance
+    will be displayed for 1 minute. You will see the countdown at the top of the page. After 1 minute, you will proceed
+    with Part 2 of the experiment.
+</p>
+
+
+<p>
+    Now, please click the "Continue" button to proceed with the task.
+</p>
+
+<button class="otree-btn-next btn btn-primary">Continue</button>
+
+{% endblock %}

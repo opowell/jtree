@@ -1,0 +1,36 @@
+{% load otree static %}
+
+<br>
+<div class="card-header bg-transparent mainheader">
+  <h3 class="card-title font-weight-bold mt-3 mb-3">
+    Instructions for Stage 3 - The Feedback Stage
+  </h3>
+</div>
+
+<br>
+<p>
+  In the Feedback Stage you  will see the final earnings 
+  {% if session.config.competition %}
+    and the ranking of you and your competitors.
+  {% else %}
+    of you and other group members.
+
+  {% endif %}
+  (See example below.) 
+</p>
+
+<div>
+  <figure>
+    {% if session.config.competition %}
+      <img id="compimagesmall" src="{% static 'instructions/results_competition.png' %}"><br>
+
+    {% else %}
+      <img id="contimagesmall" src="{% static 'instructions/results_control.png' %}"><br>
+    {% endif %}
+    <figcaption> <small>Screenshot from the Feedback stage. Payment information are concealed. The distribution of player names is an example.</small></figcaption>
+  </figure>
+</div>
+
+<button onclick="topFunction()" type="button" class="prevtab btn-primary btn back">Back</button>
+
+<button onclick="topFunction()" type="button" class="nexttab btn-primary btn next">Next</button>

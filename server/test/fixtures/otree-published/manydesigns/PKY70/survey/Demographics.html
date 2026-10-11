@@ -1,0 +1,45 @@
+{{ extends "global/Page.html" }}
+{{ load otree }}
+
+{{ block global_styles  }}
+    <style>
+        .otree-timer {
+            display: none;
+        }
+    </style>
+    <style>
+        .col-form-label { font-size: 20px; font-weight: bold; }
+    </style>
+{{ endblock }}
+
+{{ block global_scripts  }}
+    <script>
+        $(function () {
+            $('.otree-timer__time-left').on('update.countdown', function (event) {
+                if (event.offset.totalSeconds === 30) {
+                    $('.otree-timer').show();
+                }
+            });
+        });
+    </script>
+{{ endblock }}
+
+{{ block title }}
+    Survey
+{{ endblock }}
+
+{{ block content }}
+
+    <p> To finish the study, please answer a few questions about yourself. Following this, you will be presented with your bonus payment results.  </p>
+    <p>The answers in this section of the study do not affect your bonus payment.
+However, you are only eligible to receive the reward for submission and your bonus if you finish this second section of the study as well.
+All of your answer will be kept confidential and will only be used in aggregate. None of the following questions can be used to identify you.
+</p>
+
+
+
+    {{ formfields }}
+
+    {{ next_button }}
+
+{{ endblock }}

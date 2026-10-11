@@ -1,0 +1,69 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 'eet/css/styles.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% trans "Instructions" %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <div class="card">
+        <div class="card-body">
+            <p>
+                {% blocktrans trimmed with n=num_choices %}
+                    Before the experiment starts, all participants will be randomly divided into two groups of equal
+                    size, referred to as Group A and Group B. Each member of Group A will be asked to make a series of
+                    {{ n }} decisions that affect not only his/her own earnings but also the earnings of a member of
+                    Group B. The members of Group B do not have a decision to make in this experiment. Their earnings
+                    will depend on the decisions of Group A members only.
+                {% endblocktrans %}
+            </p>
+            <p>
+                {% blocktrans trimmed %}
+                    After randomly assigning roles (Group A or Group B) to participants, each member of Group A is
+                    anonymously paired with a member of Group B. That is, each member of Group A is matched with
+                    exactly one member of Group B and vice versa. You will never learn the identity of the member of
+                    the other group you are paired with. In the same way, the member of the other group you are paired
+                    with will not learn your identity. In the following we call the member of the other group you are
+                    matched with the other person.
+                {% endblocktrans %}
+            </p>
+            <p>
+                {% blocktrans trimmed with n=num_choices %}
+                    If you become a member of Group A you will be asked to make {{ n }} decisions. In each of the
+                    {{ n }} decision problems you are asked to decide between two alternatives which are referred to
+                    as "Left" and "Right". Each alternative implies earnings for you and the other person. The {{ n }}
+                    decision problems will be presented as rows in a table.
+                {% endblocktrans %}
+            </p>
+            <p>
+                {% blocktrans trimmed %}
+                    At the end of the experiment (after the player in Group A has made the {{ n }} choices in private),
+                    one of the {{ n }} decision problems will be randomly selected as the payoff-relevant choice. The
+                    actual earnings and those of the other person correspond exactly to the payoffs in the alternative
+                    ("Left" or "Right") you have chosen in that specific decision problem.
+                {% endblocktrans %}
+            </p>
+        </div>
+    </div>
+
+    {% next_button %}
+
+{% endblock %}

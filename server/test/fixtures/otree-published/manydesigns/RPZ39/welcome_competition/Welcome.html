@@ -1,0 +1,54 @@
+{{ block title }}
+    Welcome!
+{{ endblock }}
+{{ block content }}
+<p>
+In the experiment today, you will participate in two tasks, a <b>Production Task</b> and a <b>Visual Perception Task</b>.
+In each of the two tasks you can earn experimental points.
+At the end of the experiment, the points that you obtain during each of the two tasks will be added together to determine your final experimental score.
+</p>
+
+<p align = "center">
+<b>Your Experimental Score = Points from Production Task + Points from Visual Perception Task</b>
+</p>
+<p>
+<b>How will your payment be determined?</b>
+</p>
+<p>
+In this experiment, you will be matched with another person who is participating
+in this experiment. You will both complete exactly the same tasks. At the end
+of the experiment, your Experimental Score will be compared with the
+Experimental Score of your matched partner. The person who has the higher
+Experimental Score will earn a bonus payment for the experiment. The person who
+has the lower Experimental Score will not earn a bonus payment for the
+experiment.
+</p>
+<p>
+For the person who has the higher Experimental Score, their bonus payment will
+be calculated in the following way. At the end of the experiment, their points
+will be converted into a monetary bonus payment using the exchange rate of 100
+Experimental Points = GBP 2.00. In addition, both you and your matched partner
+will be paid a show-up fee of GBP 1.30 for participating in the experiment.
+</p>
+
+<p>
+<b>Calculation of the payment of the person who has the <u>higher</u> Experimental Score</b>
+</p>
+<p>
+$$ \text{Payment} = \text{GBP } 1.30 + \text{GBP} \left(2\times\frac{\text{Experimental Points}}{100}\right)$$
+</p>
+
+<p>
+<b>Calculation of the payment of the person who has the <u>lower</u> Experimental Score</b>
+</p>
+<p>
+$$ \text{Payment} = \text{GBP } 1.30$$
+</p>
+
+    {{ next_button }}
+
+{{ endblock }}
+
+{{ block scripts}}
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default'></script>
+{{ endblock}}

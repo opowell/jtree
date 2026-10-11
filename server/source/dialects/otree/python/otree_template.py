@@ -36,7 +36,12 @@ def escape(value):
 
 # --- Expressions --------------------------------------------------------------------------
 
-_DOTTED_INDEX = re.compile(r'\.(\d+)\b')
+# items.0 (Django's index): items[0]; after a name or a bracket, so not in numbers (1.30).
+_DOTTED_INDEX = re.compile(r'(\b[A-Za-z_]\w*|[\])])((?:\.\d+\b)+)')
+
+
+def dotted_index(expr):
+    return _DOTTED_INDEX.sub(lambda m: m.group(1) + re.sub(r'\.(\d+)', r'[\1]', m.group(2)), expr)
 
 
 def _auto_call(value):
@@ -46,12 +51,27 @@ def _auto_call(value):
 
 
 def evaluate(expr, context):
-    expr = _DOTTED_INDEX.sub(r'[\1]', expr.strip())
+    expr = dotted_index(expr.strip())
     try:
         tree = ast.parse(expr, mode='eval')
     except SyntaxError as err:
-        raise TemplateError(f'cannot read {expr!r}: {err.msg}')
-    return _eval(tree.body, context)
+        try:
+            # {{ if a && b }} (JavaScript's and), as some published apps write it.
+            tree = ast.parse(re.sub(r'\s*&&\s*', ' and ', expr), mode='eval')
+        except SyntaxError:
+            raise TemplateError(f'cannot read {expr!r}: {err.msg}')
+    try:
+        return _eval(tree.body, context)
+    except (TemplateError, AttributeError, KeyError, IndexError, TypeError):
+        # Django's templates (oTree's older apps: LENIENT in their context) show what they
+        # cannot find as nothing; oTree's own say what is wrong.
+        if context.get(LENIENT):
+            return ''
+        raise
+
+
+# In a template's context: names and attributes it cannot find are '' (Django's way).
+LENIENT = '__django_lenient__'
 
 
 def _eval(node, ctx):
@@ -70,6 +90,9 @@ def _eval(node, ctx):
         if isinstance(obj, dict) and node.attr in obj:
             return _auto_call(obj[node.attr])
         return _auto_call(getattr(obj, node.attr))
+    if isinstance(node, ast.Call) and not node.args and not node.keywords:
+        # {{ participant.payoff_plus_participation_fee() }}: the method, called (as without the brackets).
+        return _auto_call(_eval(node.func, ctx))
     if isinstance(node, ast.Subscript):
         return _eval(node.value, ctx)[_eval(node.slice, ctx)]
     if isinstance(node, (ast.List, ast.Tuple)):
@@ -133,7 +156,35 @@ FILTERS = {
     'length': lambda v, a=None: len(v),
     'upper': lambda v, a=None: str(v).upper(),
     'lower': lambda v, a=None: str(v).lower(),
+    # Django's, as oTree's older templates use them.
+    'add': lambda v, a=None: _add(v, a),
+    'floatformat': lambda v, a=None: _floatformat(v, a),
+    'stringformat': lambda v, a=None: ('%' + str(a)) % v,
 }
+
+
+def _add(value, arg):
+    """Django's add: numbers added (as whole numbers, if they are), else joined."""
+    try:
+        return int(value) + int(arg)
+    except (TypeError, ValueError):
+        try:
+            return value + arg
+        except TypeError:
+            return ''
+
+
+def _floatformat(value, arg):
+    """Django's floatformat: arg decimals; a negative arg (or none: -1), only if the value needs them."""
+    try:
+        x = float(value)
+    except (TypeError, ValueError):
+        return ''
+    n = -1 if arg in (None, '') else int(arg)
+    digits = abs(n)
+    if n < 0 and round(x, digits) == int(round(x, digits)):
+        return str(int(round(x)))
+    return f'{x:.{digits}f}'
 
 
 def _currency(value):
@@ -159,7 +210,12 @@ def evaluate_with_filters(text, context):
         name = name.strip()
         if name not in FILTERS:
             raise TemplateError(f'unknown filter {name!r}')
-        value = FILTERS[name](value, evaluate(arg, context) if arg else None)
+        try:
+            value = FILTERS[name](value, evaluate(arg, context) if arg else None)
+        except (TypeError, ValueError):
+            if not context.get(LENIENT):
+                raise
+            value = ''
     return value
 
 
@@ -216,6 +272,9 @@ BUILTIN = {
         '{{ block global_scripts }}{{ endblock }}{{ block scripts }}{{ endblock }}'),
     'otree/WaitPage.html': '{{ extends "otree/Page.html" }}',
     'global/Page.html': '{{ extends "otree/Page.html" }}',
+    # Older projects' base templates (their _templates/global/Base.html, oTree 2's otree/Base.html): the page's.
+    'global/Base.html': '{{ extends "otree/Page.html" }}',
+    'otree/Base.html': '{{ extends "otree/Page.html" }}',
     'global/WaitPage.html': '{{ extends "otree/WaitPage.html" }}',
 }
 
@@ -292,6 +351,17 @@ class Renderer:
                 inner['forloop'] = {'counter': i + 1, 'counter0': i, 'first': i == 0, 'last': i == len(items) - 1}
                 out.append(self._render_nodes(node.children, inner, blocks))
             return ''.join(out)
+        if k == 'trans':
+            m = re.match(r'^("[^"]*"|\'[^\']*\')', node.arg)
+            return m.group(1)[1:-1] if m else escape(evaluate(node.arg.split(' ')[0], ctx))
+        if k in ('blocktrans', 'with'):
+            names, trimmed = node.arg
+            inner = dict(ctx)
+            for name, expr in names:
+                inner[name] = evaluate_with_filters(expr, ctx)
+            out = self._render_nodes(node.children, inner, blocks)
+            # trimmed: its lines joined by spaces, as Django joins them.
+            return ' '.join(line.strip() for line in out.splitlines() if line.strip()) if trimmed else out
         if k == 'block':
             chosen = blocks.get(node.arg, node) if blocks else node
             return self._render_nodes(chosen.children, ctx, blocks)
@@ -397,8 +467,18 @@ def parse_tree(text):
     root = Node('root')
     stack = [root]
     in_comment = False
+    in_verbatim = False
     for token in TOKEN.split(text):
-        if not token or token.startswith('{#'):
+        if not token:
+            continue
+        # {% verbatim %} ... {% endverbatim %}: as it is written.
+        if in_verbatim:
+            if token.startswith('{%') and token[2:-2].strip() == 'endverbatim':
+                in_verbatim = False
+            else:
+                _append(stack[-1], Node('text', token))
+            continue
+        if token.startswith('{#'):
             continue
         top = stack[-1]
         if not (token.startswith('{{') or token.startswith('{%')):
@@ -413,6 +493,28 @@ def parse_tree(text):
             continue
         word, _, rest = inner.partition(' ')
         rest = rest.strip()
+        if word == 'verbatim':
+            in_verbatim = True
+            continue
+        # Django's translations (oTree's older apps): their texts as they are written.
+        if word == 'trans':
+            _append(top, Node('trans', rest))
+            continue
+        if word in ('blocktrans', 'with'):
+            # Its names: a=b c=d (blocktrans: after with; trimmed: lines joined), or b as a.
+            trimmed = bool(re.search(r'(^|\s)trimmed(\s|$)', rest))
+            args = re.sub(r'(^|\s)(trimmed|with)(?=\s|$)', ' ', rest).strip()
+            m = re.match(r'^(.+?)\s+as\s+(\w+)$', args)
+            names = [(m.group(2), m.group(1))] if m else re.findall(r'(\w+)=((?:"[^"]*"|\'[^\']*\'|[^\s])+)', args)
+            node = Node(word, (names, trimmed))
+            _append(top, node)
+            stack.append(node)
+            continue
+        if word in ('endblocktrans', 'endwith'):
+            if top.kind != word[3:]:
+                raise TemplateError('{{ ' + word + ' }} does not close what is open')
+            stack.pop()
+            continue
         if word == 'if':
             node = Node('if')
             node.branches.append((rest, []))

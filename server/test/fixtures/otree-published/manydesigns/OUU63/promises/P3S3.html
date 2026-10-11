@@ -1,0 +1,110 @@
+{{ block title }}
+    Instructions
+{{ endblock }}
+
+{{ block scripts }}
+<style>
+table, th, td {
+  border:1px solid black;
+}
+
+.center {
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+
+{{ endblock }}
+
+{{ block content }}
+
+    <p>
+        To make an informed decision over which message you would like to send, we describe Stage 3 now:<br style="line-height: 10px" />
+    </p>
+
+    <p>
+        In Stage 3, you will decide <b>in the role of participant A</b>. The other participant will <b>also</b> decide in the role of
+        participant A. At the end of Stage 3, a random draw with equal chance determines if you are in the role of
+        participant A or B (think of this as a coin flip). If <b>you are participant A, your decision</b> will determine the
+        payoff. If <b>you are participant B, the decision of the other participant</b> in the role of participant A will
+        determine the payoff.<br><br>
+    </p>
+
+    <p>
+        <b>Participant A</b> will decide whether they wish to <b>roll or to not roll a die</b>. If <b>participant A</b> chooses <b>Don’t Roll</b>,
+        <b>participant A</b> receives <b>14 points</b> and <b>participant B</b> receives <b>0 points</b>. If <b>participant A</b> chooses <b>Roll</b>, participant
+        A receives <b>10 points</b>. The computer will simulate the roll of a six-sided die. Thus, it will draw a <b>random integer between 1 and 6</b>, where every integer has the same
+        chance of being drawn. The result of this die roll determines
+        participant B’s payoff. If the <b>number 1</b> is rolled, <b>participant B</b> receives <b>0 points</b>. If one of the <b>numbers 2–6</b> is
+        rolled, <b>participant B</b> receives <b>12 points</b>.<br><br>
+    </p>
+
+    <p>
+        This information is summarised in the following table:
+    </p>
+
+    <table style="width:80%" class="center">
+        <thead>
+            <tr>
+                <th>
+                    In case A chooses ...
+                </th>
+                <th>
+                    ... A receives ...
+                </th>
+                <th>
+                    ... and B receives ...
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    ... Don't Roll ...
+                </td>
+                <td>
+                    ... 14 points ...
+                </td>
+                <td>
+                    ... 0 points ...
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    ... Roll and the die returns 1 ...
+                </td>
+                <td>
+                    ... 10 points ...
+                </td>
+                <td>
+                    ... 0 points ...
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    ... Roll and the die returns 2,3,4,5 or 6 ...
+                </td>
+                <td>
+                    ... 10 points ...
+                </td>
+                <td>
+                    ... 12 points.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <br style="line-height: 5px" />
+    <p>
+        <b>Information on the die rolling decisions</b>: If you are in the role of <b>participant A</b>, you will learn the <b>payoff
+        of both participants</b> at the end. In case you have chosen to <b>Roll</b>, you will also find out the number that was rolled. <br><br>
+
+        If you are in the role of <b>participant B</b>, you will <b>learn only your own payoff</b>. Other than what can be concluded from
+        this payoff, <b>participant B will not find out which choice participant A has made</b>.
+    </p>
+
+
+    <br><br>
+    {{ next_button }}
+
+{{ endblock }}

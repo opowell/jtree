@@ -1,0 +1,51 @@
+{% extends "global/Page.html" %}
+{% load otree %}
+
+{% block title %}
+    Payments
+{% endblock %}
+
+{% block content %}
+    <p>
+    You reported a score of
+        {% if score_calculated == 1 %}
+        {{  score_calculated }} point.
+    {% else %}
+        {{  score_calculated }} points.
+    {% endif %}
+    </p>
+
+    <p>
+    This is
+    {% if not better_than_benchmark %}
+        not
+    {% endif %}
+    equal to or more than 78 points.
+    </p>
+
+    <p>
+        You will thus
+        {% if not better_than_benchmark %}
+            not
+        {% endif %}
+        receive the prize of additional £0.70.
+    </p>
+
+    <p>
+        Your payments in addition to the £1.30 for study participation are thus
+        {% if better_than_benchmark %}
+            £1.70
+        {% else %}
+            £1.00
+        {% endif %}
+    </p>
+
+    <p>
+        Thank you for your participation!
+    </p>
+
+    <p>
+        Please click here to return to prolific: <a href = "https://app.prolific.co/submissions/complete?cc=572FB13C">https://app.prolific.co/submissions/complete?cc=572FB13C</a>
+    </p>
+
+{% endblock %}

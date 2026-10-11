@@ -1,0 +1,152 @@
+# oTree: Ready-Made Apps for Risk Preference Elicitation Methods - Iterative Choice List.
+# Copyright (c)2017, Felix Holzmeister <felix.holzmeister@uibk.ac.at>, 2017.
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-07-31 15:29+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: .\templates\icl\Decision.html:18
+msgid "Your Decision"
+msgstr "Ihre Entscheidung"
+
+#: .\templates\icl\Decision.html:34
+#, python-format
+msgid "Page %(page)s of %(total)s"
+msgstr "Seite %(page)s von %(total)s"
+
+#: .\templates\icl\Decision.html:51
+msgid "What do you prefer?"
+msgstr "Was bevorzugen Sie?"
+
+#: .\templates\icl\Decision.html:55 .\templates\icl\Results.html:46
+msgid "Option A:"
+msgstr "Option A:"
+
+#: .\templates\icl\Decision.html:58 .\templates\icl\Results.html:49
+#, python-format
+msgid ""
+"a %(p_hi)s chance of winning %(hi)s and <br/> a %(p_lo)s chance of winning %"
+"(lo)s"
+msgstr ""
+"eine %(p_hi)s Chance %(hi)s zu gewinnen und <br/> eine %(p_lo)s Chance %(lo)"
+"s zu gewinnen"
+
+#: .\templates\icl\Decision.html:67 .\templates\icl\Results.html:59
+#: .\templates\icl\Results.html.py:63
+msgid "Option A"
+msgstr "Option A"
+
+#: .\templates\icl\Decision.html:76 .\templates\icl\Results.html:77
+msgid "Option B:"
+msgstr "Option B:"
+
+#: .\templates\icl\Decision.html:80 .\templates\icl\Results.html:81
+#, python-format
+msgid "an amount of %(sure_payoff)s as a sure payment"
+msgstr "eine sichere Zahlung in Höhe von %(sure_payoff)s"
+
+#: .\templates\icl\Decision.html:89 .\templates\icl\Results.html:90
+#: .\templates\icl\Results.html.py:94
+msgid "Option B"
+msgstr "Option B"
+
+#: .\templates\icl\Decision.html:101 .\templates\icl\Results.html:112
+msgid "I'm indifferent between Option A and Option B"
+msgstr "Ich bin indifferent zwischen Option A und Option B"
+
+#: .\templates\icl\Decision.html:108 .\templates\icl\Results.html:121
+#: .\templates\icl\Results.html.py:125
+msgid "Indifferent"
+msgstr "Indifferent"
+
+#: .\templates\icl\Instructions.html:18
+msgid "Instructions"
+msgstr "Instruktionen"
+
+#: .\templates\icl\Instructions.html:29
+#, python-format
+msgid ""
+"In the following, you can choose between a sure payment and a lottery. The "
+"lottery gives you a %(p_hi)s chance of receiving %(hi)s and a %(p_lo)s "
+"chance of receiving %(lo)s."
+msgstr ""
+"Nachfolgend können Sie sich zwischen einer sicheren Zahlung und einer "
+"Lotterie entscheiden. Die Lotterie bietet Ihnen eine %(p_hi)s Chance %(hi)s "
+"zu gewinnen und eine %(p_lo)s Chance %(lo)s zu gewinnen."
+
+#: .\templates\icl\Instructions.html:34
+#, python-format
+msgid ""
+"We will present to you %(n)s different choices. While the lottery is the "
+"same in all choices, the sure payment will differ in every choice."
+msgstr ""
+"Wir werden Ihnen %(n)s unterschiedliche Entscheidungen präsentieren. Während "
+"die Lotterie in allen Entscheidungen dieselbe ist, variiert die sichere "
+"Zahlung in jeder Entscheidung."
+
+#: .\templates\icl\Instructions.html:41
+#, python-format
+msgid ""
+"After completing all %(n)s choices, one of the choices will be randomly "
+"picked to determine your payoff. If you chose the lottery, a random draw "
+"will determine whether the high or low outcome will constitute your payoff; "
+"otherwise, the sure payment will constitute your payoff."
+msgstr ""
+"Nachdem Sie alle %(n)s Entscheidungen getroffen haben, wird eine der "
+"Entscheidungen zufällig für Ihre Auszahlung bestimmt. Sollten Sie sich in "
+"dieser Entscheidung für die Lotterie entschieden haben, bestimmt eine "
+"Zufallszahl ob der hohe oder niedrige Lotteriebetrag realisiert wird; "
+"anderenfalls wird Ihre Auszahlung durch die sichere Zahlung bestimmt."
+
+#: .\templates\icl\Results.html:18
+msgid "Results"
+msgstr "Ergebnisse"
+
+#: .\templates\icl\Results.html:30
+msgid "The following decision was randomly chosen for your payment:"
+msgstr "Folgende Entscheidung wurde zufällig für Ihre Auszahlung bestimmt:"
+
+#: .\templates\icl\Results.html:40
+msgid "Your choice:"
+msgstr "Ihre Entscheidung:"
+
+#: .\templates\icl\Results.html:149
+#, python-format
+msgid ""
+"As indicated above, you stated to be indifferent between \"Option A\" and "
+"\"Option B\" in this choice. \"Option %(payoff_relevant)s\" was randomly "
+"chosen to determine your payment."
+msgstr ""
+"Wie oben angezeigt, haben Sie für die Entscheidung angegeben, indifferent "
+"zwischen \"Option A\" und \"Option B\" zu sein. \"Option %(payoff_relevant)s"
+"\" wurde zufällig für Ihre Auszahlung bestimmt."
+
+#: .\templates\icl\Results.html:156
+#, python-format
+msgid ""
+"As indicated above, you decided for \"Option %(option_to_pay)s\" in this "
+"choice."
+msgstr ""
+"Wie oben angezeigt, haben Sich in dieser Entscheidung für \"Option %"
+"(option_to_pay)s\" gewählt."
+
+#: .\templates\icl\Results.html:164
+msgid ""
+"For \"Option A\", one of the two possible outcomes has been randomly "
+"realized based on the corresponding probabilities."
+msgstr ""
+"Für \"Option A\" wurde einer der beiden möglichen Auszahlungsbeträge, "
+"basierend auf den jeweiligen Wahrscheinlichkeiten, zufällig bestimmt."
+
+#: .\templates\icl\Results.html:171
+#, python-format
+msgid "Your payoff in this task equals <b>%(payoff)s</b>."
+msgstr "Ihre Auszahlung in dieser Aufgabe beträgt <b>%(payoff)s</b>."

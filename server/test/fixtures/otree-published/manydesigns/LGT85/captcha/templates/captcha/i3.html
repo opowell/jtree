@@ -1,0 +1,55 @@
+{% load otree static %}
+
+<br>
+<div class="card-header bg-transparent mainheader">
+  <h3 class="card-title font-weight-bold mt-3 mb-3">
+    The game consists of three stages: the Effort Stage, the Decision Stage, and the Feedback Stage
+</h3>
+</div>
+
+<br>
+
+<ul>
+  <li><strong>Stage 1</strong>: In <strong>the effort stage</strong>, you will solve a task which would allow you to collect some money. The money you collected may or may not be included in your final earnings from this experiment based on your or 
+    {% if session.config.competition %}
+      your competitors’
+    {% else %}
+      other group members’
+    {% endif %}
+    decisions.
+  </li>
+
+  <li><strong>Stage 2</strong>: In <strong>the decision stage</strong>, you and
+    {% if session.config.competition %}
+      your competitors
+    {% else %}
+      other group members
+    {% endif %}
+    will decide whether to take some part of the collected money from
+    {% if session.config.competition %}
+      your competitors in the group.
+    {% else %}
+      other group  members.
+    {% endif %}
+  </li>
+
+  <li><strong>Stage 3</strong>: In <strong>the feedback stage</strong>, you will see the earnings
+    {% if session.config.competition %}
+      and the ranking of you and your competitors.
+    {% else %}
+      of you and other group members.
+    {% endif %}
+  </li>
+</ul>
+<p>    In the following few pages, we will explain the details and the potential earnings from these stages. </p>
+
+
+
+
+
+
+
+
+<button onclick="topFunction()" type="button" class="prevtab btn-primary btn back">Back</button>
+
+<button onclick="topFunction()" type="button" class="nexttab btn-primary btn next">Next</button>

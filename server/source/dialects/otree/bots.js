@@ -20,9 +20,12 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
  * the oTree app's bots.)
  * @param {function(Player): string} [opts.htmlFor] The page a player is on, as the bots see it
  * (self.html): by default what the oTree app rendered.
+ * @param {false|'missing'|'always'|string[]} [opts.generic=false] Whether a generic bot plays (it
+ * fills in each page's form with valid values): for apps without bots, for all, or for apps without
+ * bots and the apps named (those whose own bots are broken).
  */
 async function runBots(session, { timeout = 60000, caseIndex = 0, botsFor = (app) => (app.otree == null ? null : app.otree.pkg),
-    htmlFor = (player) => player.otreeHtml || '' } = {}) {
+    htmlFor = (player) => player.otreeHtml || '', generic = false } = {}) {
     const bridge = runtime.getBridge();
     const bots = new Map(); // participant id -> {round, handle, done}
     // Participants whose bots have played every page, up to the session's last, which they stay on.
@@ -49,6 +52,19 @@ async function runBots(session, { timeout = 60000, caseIndex = 0, botsFor = (app
             if (stage.playerStart == null || stage.formFields == null) continue; // a wait page, ending by itself
             let bot = bots.get(participant.id);
             const round = player.roomId();
+            // The generic bot: for apps without bots (generic: 'missing'), for all ('always'), or for
+            // those and the apps named.
+            if (generic === 'always' || (generic && !bridge.has_bots(pkg))
+                || (Array.isArray(generic) && generic.includes(app.shortId))) {
+                const at = round + '/' + stage.id;
+                if (bot != null && bot.done === at) continue;
+                if (player.otreeError) {
+                    throw new Error(participant.id + ': page ' + stage.id + ' could not be shown: ' + player.otreeError);
+                }
+                submitGeneric(session, app, player, stage);
+                bots.set(participant.id, { round, handle: null, done: at });
+                continue;
+            }
             if (bot == null || bot.round !== round) {
                 if (!bridge.has_bots(pkg)) {
                     throw new Error(app.shortId + ' has no bots (a tests.py with a PlayerBot)');
@@ -103,6 +119,67 @@ async function runBots(session, { timeout = 60000, caseIndex = 0, botsFor = (app
         }
         await sleep(5);
     }
+}
+
+/**
+ * The generic bot's submission of the page player is on: a valid value for each of its form's
+ * fields (their declarations, app.fields: a choice, a number from min to max, yes or no, a word);
+ * if the page refuses (its error_message, say), other values, up to 30 times.
+ */
+function submitGeneric(session, app, player, stage) {
+    const declared = { ...(app.fields || {}), ...(stage.fields || {}) };
+    const of = (v) => (typeof v === 'function' ? v(player) : v);
+    const pick = (list) => list[Math.floor(Math.random() * list.length)];
+    const valueFor = (field) => {
+        if (field == null) return TEXTS[textIndex % TEXTS.length];
+        const choices = of(field.choices);
+        if (Array.isArray(choices) && choices.length) {
+            const c = pick(choices);
+            return Array.isArray(c) ? c[0] : c;
+        }
+        const lo = of(field.min);
+        const hi = of(field.max);
+        switch (field.type) {
+            case 'bool': return pick([true, false]);
+            case 'int': {
+                if ((lo == null || hi == null) && attempt > 0) return unbounded(lo, hi);
+                const a = lo != null ? Math.ceil(lo) : 0;
+                const b = hi != null ? Math.floor(hi) : a + 10;
+                return a + Math.floor(Math.random() * (b - a + 1));
+            }
+            case 'number': {
+                if ((lo == null || hi == null) && attempt > 0) return unbounded(lo, hi);
+                const a = lo != null ? lo : 0;
+                const b = hi != null ? hi : a + 10;
+                return Math.round((a + Math.random() * (b - a)) * 100) / 100;
+            }
+            default: return TEXTS[textIndex % TEXTS.length];
+        }
+    };
+    // Texts to try in turn, if a page refuses one (a Prolific ID's 24 letters and digits, ...).
+    const TEXTS = ['text', '5f2b9c3d4e5f60718293a4b5', 'bot@example.com', '42', 'yes'];
+    // Numbers to try in turn, for a field with no min or max that a page refuses (an age, a year, ...).
+    const NUMBERS = [25, 1, 50, 100, 1990, 5, 1000, 2000, 10000, 0];
+    const unbounded = (lo, hi) => {
+        const n = NUMBERS[(attempt - 1) % NUMBERS.length];
+        return Math.min(hi != null ? hi : n, Math.max(lo != null ? lo : n, n));
+    };
+    let textIndex = 0;
+    let attempt = 0;
+    let errors = null;
+    for (attempt = 0; attempt < 30; attempt++) {
+        textIndex = attempt;
+        const values = {};
+        for (const name of stage.formFields) {
+            const v = valueFor(declared[name]);
+            values[name] = v === true ? 'True' : v === false ? 'False' : String(v);
+        }
+        errors = app.submitStage(player, values);
+        session.emitParticipantUpdates();
+        if (errors == null) return;
+    }
+    throw new Error(player.participant.id + ', round ' + player.group.period.id + ' of ' + app.shortId + ': page ' + stage.id +
+        ' refused the generic bot\'s values: ' + JSON.stringify(errors));
 }
 
 /** Whether player is on the last page of the session: its last app's last round and stage. */

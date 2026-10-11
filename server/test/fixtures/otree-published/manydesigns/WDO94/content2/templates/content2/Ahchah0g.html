@@ -1,0 +1,12 @@
+{% extends "global/Page.html" %}
+{% load otree %}
+
+{% block title %}
+{% endblock %}
+
+{% block content %}
+    {% formfield player.prolific label="Please enter your prolific ID to proceed" %}
+
+{%  next_button %}
+
+{% endblock %}

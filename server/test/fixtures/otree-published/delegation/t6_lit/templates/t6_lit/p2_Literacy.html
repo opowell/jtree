@@ -1,0 +1,240 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load otree otree_tools %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 't6_lit/css/styles.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% trans "Task No." %} {{ task }}: {% trans "Questionnaire" %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <!-- otree_tools: tracking focus -->
+    {% tracking_focus %}
+    <!-- otree_tools: tracking time -->
+    {% tracking_time %}
+
+    <div class="wrapper">
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Progress Bar -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <label>
+            {% trans "Task" %} {{ task }} {% trans "of" %} {{ task_total }}
+        </label>
+        <div class="progress">
+            <div class="progress-bar-task" role="progressbar" style="width:{{ task_progress|safe }}%;">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+        <div class="progress-vspace"></div>
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Financial Literacy -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <div class="card border-default">
+            <div class="card-header">
+                {% blocktrans trimmed %}
+                    Please answer the following questions:
+                {% endblocktrans %}
+            </div>
+
+            <table class="table table-hover">
+                <tbody>
+                    <tr>
+                        <td id="question">
+                            {% blocktrans trimmed %}
+                                Suppose you had 1,000 SEK in a savings account and the interest rate is 20%
+                                per year and you never withdraw money or interest payments. After 5 years,
+                                how much would you have on this account in total?
+                            {% endblocktrans %}
+                        </td>
+                        <td id="input">
+                            <label class="answer">
+                                <input type="radio" name="q1" value="more" required>
+                                {% trans "More than 2,000 SEK" %}
+                            </label> <br/>
+                            <label class="answer">
+                                <input type="radio" name="q1" value="same" required>
+                                {% trans "Exactly 2,000 SEK" %}
+                            </label> <br/>
+                            <label class="answer">
+                                <input type="radio" name="q1" value="less" required>
+                                {% trans "Less than 2,000 SEK" %}
+                            </label> <br/>
+                            <label class="answer">
+                                <input type="radio" name="q1" value="n.a." required>
+                                {% trans "Do not know" %}
+                            </label>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td id="question">
+                            {% blocktrans trimmed %}
+                                Imagine that the interest rate on your savings account was 1% per year and
+                                inflation was 2% per year. After 1 year, how much would you be able to buy with
+                                the money in this account?
+                            {% endblocktrans %}
+                        </td>
+                        <td id="input">
+                            <label class="answer">
+                                <input type="radio" name="q2" value="more" required>
+                                {% trans "More than today" %}
+                            </label> <br/>
+                            <label class="answer">
+                                <input type="radio" name="q2" value="same" required>
+                                {% trans "Exactly the same" %}
+                            </label> <br/>
+                            <label class="answer">
+                                <input type="radio" name="q2" value="less" required>
+                                {% trans "Less than today" %}
+                            </label> <br/>
+                            <label class="answer">
+                                <input type="radio" name="q2" value="n.a." required>
+                                {% trans "Do not know" %}
+                            </label>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td id="question">
+                            {% blocktrans trimmed %}
+                                Suppose that in the year 2025, your income after tax has doubled and prices of all
+                                goods have doubled too. In 2025, how much will you be able to buy with your income?
+                            {% endblocktrans %}
+                        </td>
+                        <td id="input">
+                            <label class="answer">
+                                <input type="radio" name="q3" value="more" required>
+                                {% trans "More than today" %}
+                            </label> <br/>
+                            <label class="answer">
+                                <input type="radio" name="q3" value="same" required>
+                                {% trans "Exactly the same" %}
+                            </label> <br/>
+                            <label class="answer">
+                                <input type="radio" name="q3" value="less" required>
+                                {% trans "Less than today" %}
+                            </label> <br/>
+                            <label class="answer">
+                                <input type="radio" name="q3" value="n.a." required>
+                                {% trans "Do not know" %}
+                            </label>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td id="question">
+                            {% blocktrans trimmed %}
+                                When an investor spreads his money among different assets,
+                                does the risk of losing money in general:
+                            {% endblocktrans %}
+                        </td>
+                        <td id="input">
+                            <label class="answer">
+                                <input type="radio" name="q4" value="incr" required>
+                                {% trans "Increase" %}
+                            </label> <br/>
+                            <label class="answer">
+                                <input type="radio" name="q4" value="decr" required>
+                                {% trans "Decrease" %}
+                            </label> <br/>
+                            <label class="answer">
+                                <input type="radio" name="q4" value="same" required>
+                                {% trans "Stay the same" %}
+                            </label> <br/>
+                            <label class="answer">
+                                <input type="radio" name="q4" value="n.a." required>
+                                {% trans "Do not know" %}
+                            </label>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td id="question">
+                            {% blocktrans trimmed %}
+                                If the interest rate falls, what should happen to bond prices?
+                            {% endblocktrans %}
+                        </td>
+                        <td id="input">
+                            <label class="answer">
+                                <input type="radio" name="q5" value="rise" required>
+                                {% trans "Rise" %}
+                            </label> <br/>
+                            <label class="answer">
+                                <input type="radio" name="q5" value="fall" required>
+                                {% trans "Fall" %}
+                            </label> <br/>
+                            <label class="answer">
+                                <input type="radio" name="q5" value="same" required>
+                                {% trans "Stay the same" %}
+                            </label> <br/>
+                            <label class="answer">
+                                <input type="radio" name="q5" value="none" required>
+                                {% trans "None of the above" %}
+                            </label> <br/>
+                            <label class="answer">
+                                <input type="radio" name="q5" value="n.a." required>
+                                {% trans "Do not know" %}
+                            </label>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td id="question">
+                            {% blocktrans trimmed %}
+                                Which of the following statements is correct?
+                                If somebody buys the stock of firm B in the stock market:
+                            {% endblocktrans %}
+                        </td>
+                        <td id="input">
+                            <label class="answer">
+                                <input type="radio" name="q6" value="owns" required>
+                                {% trans "He owns a part of firm B" %}
+                            </label> <br/>
+                            <label class="answer">
+                                <input type="radio" name="q6" value="lent" required>
+                                {% trans "He has lent money to firm B" %}
+                            </label> <br/>
+                            <label class="answer">
+                                <input type="radio" name="q6" value="debt" required>
+                                {% trans "He is liable for firm B's debts" %}
+                            </label> <br/>
+                            <label class="answer">
+                                <input type="radio" name="q6" value="none" required>
+                                {% trans "None of the above" %}
+                            </label> <br/>
+                            <label class="answer">
+                                <input type="radio" name="q6" value="n.a." required>
+                                {% trans "Do not know" %}
+                            </label>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- next button -->
+    <button type="submit" class="btn btn-primary otree-btn-next">
+        {% trans "Next" %}
+    </button>
+
+{% endblock %}

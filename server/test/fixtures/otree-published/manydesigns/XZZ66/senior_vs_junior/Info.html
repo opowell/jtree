@@ -1,0 +1,17 @@
+{{ block title }}
+    Info
+{{ endblock }}
+{{ block content }}
+    <p>The Player A paired with you has decided to take
+    {{ if player.id_in_group == 2 }}
+        {{ take1 }}%
+    {{ else }}
+        {{ take3 }}%
+    {{ endif }}
+        of your effort.
+    </p>
+
+    {{ formfields }}
+    {{ next_button }}
+
+{{ endblock }}

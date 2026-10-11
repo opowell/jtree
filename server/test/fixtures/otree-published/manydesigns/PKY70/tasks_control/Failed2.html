@@ -1,0 +1,35 @@
+{{ block global_styles  }}
+<style>
+    .otree-timer {
+        display: none;
+    }
+</style>
+
+{{ endblock }}
+
+{{ block global_scripts  }}
+<script>
+    $(function () {
+        $('.otree-timer__time-left').on('update.countdown', function (event) {
+            if (event.offset.totalSeconds === 30) {
+                $('.otree-timer').show();
+            }
+        });
+    });
+</script>
+{{ endblock }}
+
+{{ block content }}
+
+<p>
+    Sorry, you gave too many wrong answers.
+</p>
+<p>
+    If the other person lost her/his endowment and you transfer nothing to this person, the persons remains with 0 tokens.
+</p>
+<p>
+    <b>The correct answer is 0 tokens.</b>
+</p>
+
+    {{ next_button }}
+{{ endblock }}

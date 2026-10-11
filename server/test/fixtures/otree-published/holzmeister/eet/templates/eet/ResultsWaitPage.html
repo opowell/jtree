@@ -1,0 +1,38 @@
+{% extends 'otree/WaitPage.html' %}
+{% load static otree %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 'eet/css/styles.css' %}" rel="stylesheet">
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% trans "Please wait" %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+    <p>
+        {% if Constants.role_fixed %}
+            {% blocktrans trimmed %}
+                You were assigned the role of player B. <br/>
+                Please wait until player A has made his/her decisions.
+            {% endblocktrans %}
+        {% else %}
+            {% blocktrans trimmed %}
+                Please wait until the second player has made his/her decisions.
+            {% endblocktrans %}
+        {% endif %}
+    </p>
+{% endblock %}

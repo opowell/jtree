@@ -1,0 +1,65 @@
+{{ block title }}Results - Interim{{ endblock }}
+{{ block content }}
+
+<p>
+Thank you for participating in this experiment!
+<p>
+</p>    
+This page displays the payoffs based on your decisions. Note that some payoffs cannot be calculated until all participants have finished (marked as To Be Determined(TBD)). We will calculate payoffs and process payments after all participants have finished, it might take one to two weeks for you to receive your earnings.
+<p>
+</p>
+<p>Task 1</p>
+<table class=table style='width: auto'>    
+    <tr>
+        <td>You reported:</td>
+        <td>{{ player.choice }}</td>
+    </tr>
+    <tr>
+        <td>Payoff from your report: </td>
+        <td>{{ player.choiceget }}</td>
+    </tr>
+    <tr>
+        <td>Your guess of the proportion of “yes” reports:</td>
+        <td>{{ player.guess }}</td>
+    </tr>
+    <tr>
+        <td>True outcome: </td>
+        <td>TBD</td>
+    </tr>
+    <tr>
+        <td>Payoff from your guess: </td>
+        <td>TBD</td>    
+</table>
+
+<p>Task 2</p>
+<table class=table style='width: auto'>
+    <tr>
+        <td> The risky investment:</td>
+        <td>{{ player.win }}</td>
+    </tr>    
+    <tr>
+        <td> Your final points:</td>
+        <td>{{ player.point }} points</td>
+    </tr>
+    <tr>
+        <td> Payoff:</td>
+        <td>{{ player.pointget }}</td>
+    </tr>    
+</table>
+
+<table class=table style='width: auto'> 
+    <tr>
+        <td> Show-up fee:</td>
+        <td>£1.30</td>
+    </tr>
+</table>
+<p>
+</p>
+This is the end of the experiment.
+<b> To receive payment, please make sure you click “Next” to confirm your completion.</b> You will receive your earnings in one to two weeks through Prolific. Thank you!
+<p>
+</p>
+<p>{{ next_button }}</p>
+
+
+{{ endblock }}

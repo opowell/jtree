@@ -1,0 +1,164 @@
+{{ block title }}
+
+{{ endblock }}
+
+{{ block scripts }}
+
+<script src="{{ static 'js/prev_next_button.js' }}"></script>
+
+<script>
+    $(function () {
+        $('.otree-timer__time-left').on('update.countdown', function (event) {
+            if (event.offset.totalSeconds === 30) {
+                $('.otree-timer').show();
+            }
+        });
+    });
+</script>
+
+{{ endblock }}
+
+
+{{ block styles }}
+
+<link href="{{ static 'css/custom.css' }}" rel="stylesheet">
+
+<style>
+    .otree-timer {
+        display: none;
+    }
+</style>
+
+{{ endblock }}
+
+
+{{ block content }}
+
+<!-- Tab navigation -->
+<ul class="nav nav-tabs   fixed-top navbar-light bg-light justify-content-center" id="myTab" role="tablist">
+
+  <li class="nav-item">
+    <a class="nav-link active" id="part1-tab" data-toggle="tab" href="#part1" role="tab" aria-controls="part1" onclick="topFunction()"> Overview
+</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="part2-tab" data-toggle="tab" href="#part2" role="tab" aria-controls="part2" onclick="topFunction()">Task 1</a>
+  </li>
+
+
+<li class="nav-item">
+    <a class="nav-link" id="part3-tab" data-toggle="tab" href="#part3" role="tab" aria-controls="part3" onclick="topFunction()">Your Score</a>
+  </li>
+
+</ul>
+<br>
+<br>
+
+
+<!-- Tab content -->
+<div class="tab-content" id="myTabContent">
+
+  <div class="tab-pane show active" id="part1" role="tabpanel" aria-labelledby="part1-tab">
+
+<div class="card-header bg-transparent mainheader" >
+ <h3 class="card-title font-weight-bold mt-3 mb-3"> Overview </h3>
+  </div>
+    <br>
+
+    <p>
+        <ul>
+            <li>The study consists of two tasks and a survey.</li>
+            <li>You will receive a fixed compensation of £1.30 for finalizing the study including survey questions after the two tasks. </li>
+            <li>In the two tasks, you can earn an additional bonus between £0.00 and £2.00.</li>
+            <li>Your final earnings depend on your decision, the decision of the other person (with whom you are matched), and partly on chance.</li>
+            <li>During the study, we use tokens instead of GBP, with the exchange rate being: £1.00 = 100 tokens.</li>
+        </ul>
+    </p>
+    <br>
+    <p>
+        <ul>
+            <li>In the first two tasks, you will be randomly matched with another study participant.</li>
+            <li>Your identity will remain anonymous and likewise you won’t learn with whom you are matched at any point.</li>
+        </ul>
+    </p>
+    <p>Before you are matched with the other person you will first learn about Task 1, and you have time to try out the task. </p>
+
+<button onclick="topFunction()" type="button" class="nexttab btn-primary btn next">Next</button>
+  </div>
+
+
+  <div class="tab-pane" id="part2" role="tabpanel" aria-labelledby="part2-tab">
+
+
+    <div class="card-header bg-transparent mainheader" >
+     <h3 class="card-title font-weight-bold mt-3 mb-3"> Task 1 </h3>
+    </div>
+    <br>
+    <ul>
+        <li>You and the other person will complete the same ball-catching task.</li>
+        <li>If you complete the task for the entire duration of 60 seconds, you will earn 200 tokens.</li>
+    </ul>
+    <p>
+        There will be a task box in the middle of the screen like the one shown below:
+    </p>
+
+    <div id="inst_img" align=center>
+        <img src="{{ static 'ball_catch/images/instruction.png' }}"  width=60% height=auto />
+    </div>
+    <br>
+    <ul>
+        <li>Once you click on the <b>“Start the Task!”</b> button, the timer will start and balls will
+            fall randomly from the top of the task box.</li>
+        <li>You can move the tray at the bottom of the task box to catch the balls
+        by using the mouse to click on the <b>LEFT</b> or <b>RIGHT</b> buttons. </li>
+        <li>To catch a ball, your tray must be below the ball before it touches the bottom of the tray.</li>
+        <li> When the ball touches the tray your catches increase by one.</li>
+    </ul>
+
+    <button onclick="topFunction()" type="button" class="prevtab btn-primary btn back">Back</button>
+<button onclick="topFunction()" type="button" class="nexttab btn-primary btn next">Next</button>
+  </div>
+
+
+  <div class="tab-pane" id="part3" role="tabpanel" aria-labelledby="part3-tab">
+
+    <div class="card-header bg-transparent mainheader" >
+        <h3 class="card-title font-weight-bold mt-3 mb-3">Your Score</h3>
+    </div>
+    <br>
+    <ul>
+        <li>For each mouse click you make you will incur a cost of {{ Constants.cost }} points.</li>
+        <li>For each ball you catch, you will receive a reward of {{ Constants.reward }} points.</li>
+        <li>The number of balls you have caught so far (displayed as CATCHES) and the number of clicks you have made
+        so far (CLICKS) will be shown right above the task box.</li>
+        <li>Also shown above the task box will be the cumulative REWARDS, which is CATCHES multiplied by the reward per catch,
+        and cumulative COSTS, which is CLICKS multiplied by the cost per click.</li>
+    </ul>
+    <div id="inst_img" align=center>
+        <img src="{{ static 'ball_catch/images/instruction.png' }}"  width=40% height=auto />
+    </div>
+    <br>
+    <ul>
+        <li>At the end of the period your SCORE in the task will be your REWARDS minus your COSTS.</li>
+        <li>Catching more balls by moving the tray more often does not necessarily lead to a higher SCORE
+            because both REWARDS and COSTS matter for your SCORE.</li>
+        <li>Please note that you will <b>earn 200 tokens</b>, if you complete the decisive round for the entire duration
+            of 60 seconds irrespective of your SCORE.</li>
+    </ul>
+    <p>
+        <strong>If you are ready, please click the "Next" button to begin with the practice round. <br> You can practice for up to 60 seconds.</strong>
+    </p>
+
+    <button onclick="topFunction()" type="button" class="prevtab btn-primary btn back">Back</button>
+<button class="nexttab btn-primary btn next">Next</button>
+  </div>
+
+</div>
+
+</body>
+
+
+{{ endblock }}
+
+
+

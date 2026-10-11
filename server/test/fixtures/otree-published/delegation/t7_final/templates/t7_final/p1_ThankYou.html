@@ -1,0 +1,178 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load otree otree_tools %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 't7_final/css/styles.css' %}" rel="stylesheet">
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% trans "Thank you very much for your participation!" %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <!-- otree_tools: tracking focus -->
+    {% tracking_focus %}
+    <!-- otree_tools: tracking time -->
+    {% tracking_time %}
+
+    <div class="wrapper">
+
+        <div class="card bg-light mb-3">
+            <div class="card-body">
+                <p style="font-weight: 700; font-style: italic;">
+                    {% blocktrans trimmed %}
+                        You have successfully completed all tasks and questionnaires in this experiment.
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans trimmed %}
+                        We wish to cordially invite you to participate in another experiment. The box below provides
+                        relevant information and a personalized link to the second experiment. (Note: In case you
+                        would like to participate in the second experiment as well, it is sufficient to provide your
+                        payment details – as described below – once, i.e. by following the "Initiate payment" link
+                        now or at the end of the second experiment.)
+                    {% endblocktrans %}
+                </p>
+            
+                <p style="text-decoration: underline; font-weight: 400; font-style: italic; margin-top: 2.0em;">
+                    {% blocktrans trimmed %}
+                        How to receive your payment:
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans trimmed %}
+                        To guarantee anonymity, Enkätfabriken, who has conducted surveys with associated payments in
+                        a variety of areas since 2010, will handle the payments. They have offices in Gothenburg and
+                        Lund and they have primarily worked with universities, government agencies, municipalities,
+                        and non-profit organizations.
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans trimmed %}
+                        To initiate the payment, you will be redirected to a form on the website of Enkätfabriken
+                        (by clicking on the button below), which is solely associated with this experiment. In this
+                        form, you are asked to provide your bank details and your participant code. Your participant
+                        code (which can also be found in the invitation letter) is: <b>{{ label }}</b>.
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans trimmed %}
+                        Once the data collection has been completed, we will determine your payment (including the
+                        participation fee of 100 SEK) based on your decisions. We will then instruct Enkätfabriken
+                        to transfer your payment to your account. You can expect receiving your payment by the end
+                        of March at latest.
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans trimmed %}
+                        The form on the website of Enkätfabriken will also provide you with the opportunity to
+                        indicate whether you would like to have general feedback in terms of motivation and results
+                        of the experiment. Enkätfabriken will send this information to you will via e-mail.
+                    {% endblocktrans %}
+                </p>
+
+
+                <div style="font-weight: 500; font-style: italic; margin-top: 1.5em;">
+                    {% blocktrans trimmed %}
+                        Thank you for your contribution to science!
+                    {% endblocktrans %}
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <a class="btn btn-success" href="https://enkat.net/ekonomiskapreferenser" target="_blank">
+                        {% blocktrans trimmed %}
+                            Initiate payment
+                        {% endblocktrans %}
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <br/>
+        <div class="card bg-light">
+            <div class="card-header">
+                <div style="
+                    font-size:2em;
+                    color:rgb(0,123,255);
+                    display: table-cell;
+                    vertical-align: middle;
+                    padding-right: 20px;">
+                    <i class="far fa-plus-square"></i>
+                </div>
+                <div style="display: table-cell; vertical-align: middle; font-weight: 800;">
+                    {% blocktrans trimmed %}
+                        Would you like to take part in another experiment?
+                    {% endblocktrans %}
+                </div>
+            </div>
+            <div class="card-body">
+                <p>
+                    {% blocktrans trimmed %}
+                        Click on the link below to proceed to the second part of the experiment which is
+                        completely independent of the first part. Again, you will face several different
+                        decision problems and will be paid according to your choices. Participation will
+                        take about 20-30 minutes.
+                    {% endblocktrans %}
+                </p>
+                {% if subject_pool == 'FP' %}
+                    <p>
+                        {% blocktrans trimmed %}
+                            If you prefer to participate at some later point in time, please remember your
+                            participation code: <b>{{ label }}</b>. The experiment will be available at
+                            <a href="http://survey.before.world">http://survey.before.world</a>
+                            until February 24, 2019 and you can sign-in using your personal participation
+                            code at any time.
+                        {% endblocktrans %}
+                    </p>
+                {% elif subject_pool == 'GP' %}
+                    <p>
+                        {% blocktrans trimmed %}
+                            If you prefer to participate at some later point in time, please remember your
+                            participation code: <b>{{ label }}</b>. The experiment will be available at
+                            <a href="http://enkat.before.world">http://enkat.before.world</a>
+                            until February 24, 2019 and you can sign-in using your personal participation
+                            code at any time.
+                        {% endblocktrans %}
+                    </p>
+                {% endif %}
+
+                {% if subject_pool == 'GP' %}
+                    <div style="text-align: center; margin-top: 30px;">
+                        <a href="http://hea-2019-02-se.herokuapp.com/room/GP/?participant_label={{ label }}"
+                           class="btn btn-info" target="_blank">
+                            {% blocktrans trimmed %}
+                                Take part in the second experiment!
+                            {% endblocktrans %}
+                        </a>
+                    </div>
+                {% elif subject_pool == 'FP' %}
+                    <div style="text-align: center; margin-top: 30px;">
+                        <a href="http://hea-2019-02-se.herokuapp.com/room/FP/?participant_label={{ label }}"
+                           class="btn btn-info" target="_blank">
+                            {% blocktrans trimmed %}
+                                Take part in the second experiment!
+                            {% endblocktrans %}
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}

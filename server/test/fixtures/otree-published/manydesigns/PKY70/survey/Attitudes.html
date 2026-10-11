@@ -1,0 +1,220 @@
+{{ extends "global/Page.html" }}
+{{ load otree }}
+
+{{ block global_styles  }}
+
+    <link rel="stylesheet" href="{{ static 'css/likert_scale2.css' }}" />
+
+    <style>
+        .otree-timer {
+            display: none;
+        }
+    </style>
+
+{{ endblock }}
+
+{{ block global_scripts  }}
+    <script>
+        $(function () {
+            $('.otree-timer__time-left').on('update.countdown', function (event) {
+                if (event.offset.totalSeconds === 30) {
+                    $('.otree-timer').show();
+                }
+            });
+        });
+    </script>
+{{ endblock }}
+
+{{ block title }}
+    Survey
+{{ endblock }}
+
+{{ block content }}
+<div class="wrap">
+  <form action="">
+    <label class="statement">In political matters, people talk of 'the left' and 'the right'. Please tell me, in general,
+      how would you place your views on this scale. Please use the scale below, where  the value 0 means
+      'completely left' and  the value 10 means you view yourself as 'comletely right",</label>
+    <ul class='likert2'>
+      <li>
+        <label>
+          <input type="radio" name="political_orientation" value=0 required>
+        0=Completely Left</label>
+      </li>
+      <li>
+        <label>
+       <input type="radio" name="political_orientation" value=1>
+        1</label>
+      </li>
+      <li>
+        <label>
+       <input type="radio" name="political_orientation" value=2>
+        2</label>
+      </li>
+      <li>
+        <label>
+       <input type="radio" name="political_orientation" value=3>
+        3</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="political_orientation" value=4>
+        4</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="political_orientation" value=5>
+        5</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="political_orientation" value=6>
+        6</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="political_orientation" value=7>
+        7</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="political_orientation" value=8>
+        8</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="political_orientation" value=9>
+        9</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="political_orientation" value=10>
+        10=Completely Right</label>
+      </li>
+    </ul>
+    <label class="statement">Please tell me, in general, how willing or unwilling you are to take risks.
+        Please use a scale below, where  the value 0 means you are 'not at all' willing to take risks
+        and the value 10 means you are 'completely' willing to take risks.</label>
+    <ul class='likert2'>
+      <li>
+        <label>
+        <input type="radio" name="risk" value=0 required>
+        0=Not at all</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="risk" value=1>
+        1</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="risk" value=2>
+        2</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="risk" value=3>
+        3</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="risk" value=4>
+        4</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="risk" value=5>
+        5</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="risk" value=6>
+        6</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="risk" value=7>
+        7</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="risk" value=8>
+        8</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="risk" value=9>
+        9</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="risk" value=10>
+        10=Completely</label>
+      </li>
+    </ul>
+
+    <label class="statement">How competitive do you consider yourself to be? Please choose a value on the scale below,
+      where the value 0 means 'not at all' competitive and the value 10 means 'completely' competitive.</label>
+    <ul class='likert2'>
+      <li>
+        <label>
+        <input type="radio" name="competitiveness" value=0 required>
+        0=Not at all</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="competitiveness" value=1>
+        1</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="competitiveness" value=2>
+        2</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="competitiveness" value=3>
+        3</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="competitiveness" value=4>
+        4</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="competitiveness" value=5>
+        5</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="competitiveness" value=6>
+        6</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="competitiveness" value=7>
+        7</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="competitiveness" value=8>
+        8</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="competitiveness" value=9>
+        9</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="competitiveness" value=10>
+        10=Completely</label>
+      </li>
+    </ul>
+  </form>
+</div>
+
+    {{ next_button }}
+
+{{ endblock }}

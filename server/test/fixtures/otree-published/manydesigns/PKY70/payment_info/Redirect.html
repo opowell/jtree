@@ -1,0 +1,19 @@
+{{ block title }}
+    Redirecting...
+{{ endblock }}
+
+{{ block content }}
+
+
+{{ if dropout == 0 }}
+    <script>
+        window.location.href = js_vars.redirect_url;
+    </script>
+
+{{ else }}
+    <script>
+        window.location.href = js_vars.dropout_url;
+    </script>
+{{ endif }}
+
+{{ endblock }}

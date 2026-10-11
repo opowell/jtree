@@ -1,0 +1,60 @@
+{{ extends "global/Page.html" }}
+
+{{ block global_styles  }}
+<style>
+    .otree-timer {
+        display: none;
+    }
+</style>
+{{ endblock }}
+
+{{ block global_scripts  }}
+<script>
+    $(function () {
+        $('.otree-timer__time-left').on('update.countdown', function (event) {
+            if (event.offset.totalSeconds === 30) {
+                $('.otree-timer').show();
+            }
+        });
+    });
+</script>
+{{ endblock }}
+
+{{ block title }}Results{{ endblock }}
+
+{{ block content }}
+
+{{ if player.id_in_group == 1 }}
+<b> Your SCORE is {{ player.total_reward }} - {{ player.total_cost }} = {{ player.score }} points. </b>
+    {{ if player.rank == 1 }}
+        <p> Based on your performance, you <b>WON!</b> <img src="{{ static 'ball_catch/images/winner.png' }}" width=50px height=auto /> </p>
+        <p> And Player B <b>LOST!</b> <img src="{{ static 'ball_catch/images/turtle.png' }}" width=50px height=auto /> </p>
+    {{ endif }}
+    {{ if player.rank == 2 }}
+        <p> Based on your performance, you <b>LOST!</b> <img src="{{ static 'ball_catch/images/turtle.png' }}" width=50px height=auto /> </p>
+        <p> And Player B <b>WON!</b> <img src="{{ static 'ball_catch/images/winner.png' }}" width=50px height=auto /> </p>
+    {{ endif }}
+{{ endif }}
+
+
+{{ if player.id_in_group == 2 }}
+<b> Your SCORE is {{ player.total_reward }} - {{ player.total_cost }} = {{ player.score }} points. </b>
+    {{ if player.rank == 1 }}
+        <p> Based on your performance, you <b>WON!</b> <img src="{{ static 'ball_catch/images/winner.png' }}" width=50px height=auto /> </p>
+        <p> And Player A <b>LOST!</b> <img src="{{ static 'ball_catch/images/turtle.png' }}" width=50px height=auto /> </p>
+    {{ endif }}
+    {{ if player.rank == 2 }}
+        <p> Based on your performance, you <b>LOST!</b> <img src="{{ static 'ball_catch/images/turtle.png' }}" width=50px height=auto /> </p>
+        <p> And Player A <b>WON!</b> <img src="{{ static 'ball_catch/images/winner.png' }}" width=50px height=auto /> </p>
+    {{ endif }}
+{{ endif }}
+
+<p></p><b> Your total earnings from this task are {{ Constants.endowment }}! </b></p>
+
+<p>In the next task we will <b>show the other person's performance with the above earned symbol</b>.</p>
+
+<p> Please click the "Next" button to continue with the second task. </p>
+
+    {{ next_button }}
+
+{{ endblock }}

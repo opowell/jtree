@@ -1,0 +1,215 @@
+{{ block title }}Overview of offers{{ endblock }}
+{{ block content }}
+
+<p>
+You have received the following <b>communicated</b> offers:
+</p>
+
+{{if group.Timeout_1 == True and group.Timeout_2 == True and group.Timeout_3 == True}}
+
+<p>
+All offers are <i>invalid due to timeouts</i>. Unfortunately, this means that you cannot accept the set of 3 communicated offers. Please answer the question below with <b>Reject</b> to continue.   
+</p>
+
+{{endif}}
+
+{{if group.Timeout_1 == True and group.Timeout_2 == False and group.Timeout_3 == False}}
+
+<table>
+    <tr>
+        <td>Proposer 1's <b>communicated</b> offer: </td>
+        <td> <i>Invalid due to timeout.</i></td>
+    </tr>    
+    <tr>    
+        <td>Proposer 2's <b>communicated</b> offer: </td>
+        <td> {{group.Offer_communicated_2}}</td>
+    </tr>
+    <tr>
+        <td>Proposer 3's <b>communicated</b> offer: </td>
+        <td> {{group.Offer_communicated_3}}</td>
+    </tr>
+</table>  
+<p>
+    
+</p>
+<p>
+<i>If you accept the set of 3 communicated offers, you will not be able to choose Proposer 1's communicated offer in the next phase.</i>    
+</p>
+
+{{endif}}
+
+{{if group.Timeout_1 == False and group.Timeout_2 == True and group.Timeout_3 == False}}
+
+<table>
+    <tr>
+        <td>Proposer 1's <b>communicated</b> offer: </td>
+        <td> {{group.Offer_communicated_1}}</td>
+    </tr>    
+    <tr>    
+        <td>Proposer 2's <b>communicated</b> offer: </td>
+        <td> <i>Invalid due to timeout.</i></td>
+    </tr>
+    <tr>
+        <td>Proposer 3's <b>communicated</b> offer: </td>
+        <td> {{group.Offer_communicated_3}}</td>
+    </tr>
+</table>
+<p>
+    
+</p>
+<p>
+<i>If you accept the set of 3 communicated offers, you will not be able to choose Proposer 2's communicated offer in the next phase.</i>    
+</p>
+
+{{endif}}
+
+{{if group.Timeout_1 == False and group.Timeout_2 == False and group.Timeout_3 == True}}
+
+<table>
+    <tr>
+        <td>Proposer 1's <b>communicated</b> offer: </td>
+        <td> {{group.Offer_communicated_1}}</td>
+    </tr>    
+    <tr>    
+        <td>Proposer 2's <b>communicated</b> offer: </td>
+        <td> {{group.Offer_communicated_2}}</td>
+    </tr>
+    <tr>
+        <td>Proposer 3's <b>communicated</b> offer: </td>
+        <td> <i>Invalid due to timeout.</i></td>
+    </tr>
+</table>  
+<p>
+    
+</p>
+<p>
+<i>If you accept the set of 3 communicated offers, you will not be able to choose Proposer 3's communicated offer in the next phase.</i>    
+</p>
+
+{{endif}}
+
+{{if group.Timeout_1 == True and group.Timeout_2 == True and group.Timeout_3 == False}}
+
+<table>
+    <tr>
+        <td>Proposer 1's <b>communicated</b> offer: </td>
+        <td> <i>Invalid due to timeout.</i></td>
+    </tr>    
+    <tr>    
+        <td>Proposer 2's <b>communicated</b> offer: </td>
+        <td> <i>Invalid due to timeout.</i></td>
+    </tr>
+    <tr>
+        <td>Proposer 3's <b>communicated</b> offer: </td>
+        <td> {{group.Offer_communicated_3}}</td>
+    </tr>
+</table> 
+<p>
+    
+</p>
+<p>
+<i>If you accept the set of 3 communicated offers, you will not be able to choose Proposer 1's or Proposer 2's communicated offer in the next phase.  </i>  
+</p>
+
+{{endif}}
+
+{{if group.Timeout_1 == True and group.Timeout_2 == False and group.Timeout_3 == True}}
+
+<table>
+    <tr>
+        <td>Proposer 1's <b>communicated</b> offer: </td>
+        <td> <i>Invalid due to timeout.</i></td>
+    </tr>    
+    <tr>    
+        <td>Proposer 2's <b>communicated</b> offer: </td>
+        <td> {{group.Offer_communicated_2}}</td>
+    </tr>
+    <tr>
+        <td>Proposer 3's <b>communicated</b> offer: </td>
+        <td> <i>Invalid due to timeout.</i></td>
+    </tr>
+</table> 
+<p>
+    
+</p>
+<p>
+<i>If you accept the set of 3 communicated offers, you will not be able to choose Proposer 1's or Proposer 3's communicated offer in the next phase.</i>    
+</p>
+
+{{endif}}
+
+{{if group.Timeout_1 == False and group.Timeout_2 == True and group.Timeout_3 == True}}
+
+<table>
+    <tr>
+        <td>Proposer 1's <b>communicated</b> offer: </td>
+        <td> {{group.Offer_communicated_1}}</td>
+    </tr>    
+    <tr>    
+        <td>Proposer 2's <b>communicated</b> offer: </td>
+        <td> <i>Invalid due to timeout.</i></td>
+    </tr>
+    <tr>
+        <td>Proposer 3's <b>communicated</b> offer: </td>
+        <td> <i>Invalid due to timeout.</i></td>
+    </tr>
+</table>  
+<p>
+    
+</p>
+<p>
+<i>If you accept the set of 3 communicated offers, you will not be able to choose Proposer 2's or Proposer 3's communicated offer in the next phase.</i>    
+</p>
+
+{{endif}}
+
+{{if group.Timeout_1 == False and group.Timeout_2 == False and group.Timeout_3 == False}}
+
+<table>
+    <tr>
+        <td>Proposer 1's <b>communicated</b> offer: </td>
+        <td> {{group.Offer_communicated_1}}</td>
+    </tr>    
+    <tr>    
+        <td>Proposer 2's <b>communicated</b> offer: </td>
+        <td> {{group.Offer_communicated_2}}</td>
+    </tr>
+    <tr>
+        <td>Proposer 3's <b>communicated</b> offer: </td>
+        <td> {{group.Offer_communicated_3}}</td>
+    </tr>
+</table> 
+
+{{endif}}
+<p>
+    
+</p>
+<p>
+You may now choose whether or not to accept the set of offers. If you <i>accept</i>, you may choose one of these <b>communicated</b> offers in the next phase. You will then receive the <b>actual</b> offer of the chosen proposer. If you <i>reject</i>, none of the participants (including you) will receive a bonus payment.
+</p>
+
+<p>
+Enter your answer below. You have 3 minutes to do so. If you do not answer within this time, we will assume that you reject the set of 3 communicated offers. Your bonus payment will then be zero.
+</p>
+
+{{ formfields }}
+
+{{ next_button }}
+
+<p>
+  <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+    Summary of the instructions
+  </button>
+</p>
+<div class="collapse" id="collapseExample">
+  <div class="card card-body">
+<p> In phase 1, the three proposers make their offers for a division of the £5.00 bonus between themselves and the responder. They make an <b>actual</b> offer, which is how the money will actually be divided and they make a <b>communicated</b> offer, which is the offer the responder gets to see. 
+      </p>
+<p> In phase 2, the responder observes the set of 3 communicated offers and decides whether to accept or reject this set of 3 <b>communicated</b> offers. If the set of 3 communicated offers is rejected, the game ends and nobody receives a bonus. If the set of 3 communicated offers is accepted, the game moves to phase 3.  
+      </p>
+<p> In phase 3, the responder chooses one of the communicated offers. The <b>actual</b> offer that the chosen proposer has made is then implemented. The proposers that were not chosen will not receive a bonus.
+      </p>     
+  </div>
+</div>
+
+{{ endblock }}

@@ -1,0 +1,34 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block content %}
+
+       <meta http-equiv="refresh" content="60; url={{ session.config.completion_url }}" />
+
+  <div id="alert-div" class="text-center alert alert-warning"> 
+
+    <p>
+
+        Unfortunately we were not be able to match you with another participant.
+        Thank you for your participation.
+    </p>
+
+
+    <p>
+You earned a participation fee of {{ session.config.showup_fee | c }}.
+
+Please go do the Prolific completion page by clicking on the link below in order to confirm your participation. 
+
+
+    </p>
+
+
+
+    <a href="{{ session.config.completion_url }}"> Click here to go to Prolific completion page </a>
+
+
+  </div>
+
+
+
+{% endblock %}

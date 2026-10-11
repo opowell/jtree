@@ -1,0 +1,210 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+  Instructions 
+{% endblock %}
+
+{% block scripts %}
+
+  <script src="{% static 'back_button_v1/js/prev_next_button.js' %}"></script>
+
+{% endblock %}
+
+{% block styles %}
+
+  <link href="{% static 'back_button_v1/css/custom.css' %}" rel="stylesheet">
+  <style>
+   ul li { padding: 5px 0px; }
+
+   kbd {
+       background-color: #999999;  // Changes background color
+       text-color: #000000;                  // Changes text color
+   }
+  </style>
+  <style>
+   #compimage {
+       border: 1px solid #ddd;
+       border-radius: 4px;
+       padding: 5px;
+       width: 80%;
+   }
+   #compimagesmall {
+       border: 1px solid #ddd;
+       border-radius: 4px;
+       padding: 5px;
+       width: 60%;
+   }
+   #contimage {
+       border: 1px solid #ddd;
+       border-radius: 4px;
+       padding: 5px;
+       width: 80%;
+   }
+   #contimagesmall {
+       border: 1px solid #ddd;
+       border-radius: 4px;
+       padding: 5px;
+       width: 60%;
+   }
+   #effortimage {
+       border: 1px solid #ddd;
+       border-radius: 4px;
+       padding: 5px;
+       width: 50%;
+   }
+  </style>
+
+<!-- 
+  <style>
+   .otree-timer {
+       display: none;
+   }
+  </style>
+  -->
+
+{% endblock %}
+
+
+{% block content %}
+  <!-- Tab navigation -->
+
+  <ul class="nav nav-tabs fixed-top navbar-light bg-light justify-content-center" id="myTab" role="tablist" <!-- style="display: none -->
+>
+
+
+    <li class="nav-item">
+      <a style="pointer-events: none; cursor: default;" class="nav-link active" id="part1-tab" data-toggle="tab"
+         href="#part1" role="tab" aria-controls="part1" onclick="topFunction()"> Page 1</a>
+    </li>
+
+    <li class="nav-item">
+      <a style="pointer-events: none; cursor: default;" class="nav-link" id="part2-tab" data-toggle="tab"
+         href="#part2" role="tab" aria-controls="part2" onclick="topFunction()"> Page 2</a>
+    </li>
+
+    <li class="nav-item">
+      <a style="pointer-events: none; cursor: default;" class="nav-link" id="part3-tab" data-toggle="tab"
+         href="#part3" role="tab" aria-controls="part3" onclick="topFunction()"> Page 3</a>
+    </li>
+
+    <li class="nav-item">
+      <a style="pointer-events: none; cursor: default;" class="nav-link" id="part4-tab" data-toggle="tab"
+         href="#part4" role="tab" aria-controls="part4" onclick="topFunction()"> Page 4</a>
+    </li>
+
+    <li class="nav-item">
+      <a style="pointer-events: none; cursor: default;" class="nav-link" id="part5-tab" data-toggle="tab"
+         href="#part5" role="tab" aria-controls="part5" onclick="topFunction()"> Page 5</a>
+    </li>
+
+    <li class="nav-item">
+      <a style="pointer-events: none; cursor: default;" class="nav-link" id="part6-tab" data-toggle="tab"
+         href="#part6" role="tab" aria-controls="part6" onclick="topFunction()"> Page 6</a>
+    </li>
+
+    <li class="nav-item">
+      <a style="pointer-events: none; cursor: default;" class="nav-link" id="part7-tab" data-toggle="tab"
+         href="#part7" role="tab" aria-controls="part7" onclick="topFunction()"> Page 7</a>
+    </li>
+
+    <li class="nav-item">
+      <a style="pointer-events: none; cursor: default;" class="nav-link" id="part8-tab" data-toggle="tab"
+         href="#part8" role="tab" aria-controls="part8" onclick="topFunction()"> Page 8</a>
+    </li>
+
+    <li class="nav-item">
+      <a style="pointer-events: none; cursor: default;" class="nav-link" id="part9-tab" data-toggle="tab"
+         href="#part9" role="tab" aria-controls="part9" onclick="topFunction()"> Page 9</a>
+    </li>
+
+  </ul>
+  <!-- end navigation -->
+  <style>
+   .otree-timer {
+       display: none;
+   }
+  </style>
+<div class="custom-timer alert alert-warning">
+    <p> You need to complete the instructions before:
+        <span style="font-weight: bold">
+          <span class="otree-timer__time-left"></span></br>
+        </span>
+        Please do not forget to click <kbd>Start Experiment</kbd> button on the last page once you finish the instructions.
+
+    </p>
+</div>
+
+  <!-- Tab content -->
+  <div class="tab-content" id="myTabContent">
+
+
+    <div class="tab-pane show active" id="part1" role="tabpanel" aria-labelledby="part1-tab">
+
+      {% include "./i1.html" %}
+
+    </div>
+
+    <div class="tab-pane" id="part2" role="tabpanel" aria-labelledby="part2-tab">
+
+      {% include "./i2.html" %}
+
+    </div>
+
+    <div class="tab-pane" id="part3" role="tabpanel" aria-labelledby="part3-tab">
+
+      {% include "./i3.html" %}
+
+    </div>
+
+
+    <div class="tab-pane" id="part4" role="tabpanel" aria-labelledby="part4-tab">
+
+      {% include "./i4.html" %}
+
+    </div>
+
+   <div class="tab-pane" id="part5" role="tabpanel" aria-labelledby="part5-tab">
+      {% include "./i5.html" %}
+    </div>
+
+    <div class="tab-pane" id="part6" role="tabpanel" aria-labelledby="part6-tab">
+      {% include "./i6.html" %}
+    </div>
+
+
+    <div class="tab-pane" id="part7" role="tabpanel" aria-labelledby="part7-tab">
+      {% include "./i7.html" %}
+    </div>
+
+    <div class="tab-pane" id="part8" role="tabpanel" aria-labelledby="part8-tab">
+      {% include "./i8.html" %}
+    </div>
+
+    <div class="tab-pane show" id="part9" role="tabpanel" aria-labelledby="part9-tab">
+
+      <br>
+      <div class="card-header bg-transparent mainheader">
+        <h3 class="card-title font-weight-bold mt-3"> End of Instructions</h3>
+      </div>
+      <br>
+
+      <p>
+        You have reached the end of the instructions. After you click on <kbd>Start the experiment</kbd> button, you will be matched with other participants.
+      </p>
+
+      <p>
+This may take few minutes for other participants to join the experiment. You will start the experiment immediately after you are matched with other people. For that reason, please stay in front of the computer and please do not switch tabs or minimize the browser.
+      </p>
+
+      <button onclick="topFunction()" type="button" class="prevtab btn-primary btn back">Back</button>
+      <button class="btn-success btn next"> Start the experiment</button>
+
+
+    </div>
+
+  </div>
+
+
+
+{% endblock %}

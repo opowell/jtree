@@ -1,0 +1,145 @@
+{{ block title }}
+
+{{ endblock }}
+
+{{ block scripts }}
+
+<script src="{{ static 'js/prev_next_button.js' }}"></script>
+
+<script>
+    $(function () {
+        $('.otree-timer__time-left').on('update.countdown', function (event) {
+            if (event.offset.totalSeconds === 30) {
+                $('.otree-timer').show();
+            }
+        });
+    });
+</script>
+
+{{ endblock }}
+
+
+{{ block styles }}
+
+<link href="{{ static 'css/custom.css' }}" rel="stylesheet">
+
+<style>
+    .otree-timer {
+        display: none;
+    }
+    .center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 40%;
+}
+</style>
+
+{{ endblock }}
+
+
+{{ block content }}
+
+<!-- Tab navigation -->
+<ul class="nav nav-tabs   fixed-top navbar-light bg-light justify-content-center" id="myTab" role="tablist">
+
+  <li class="nav-item">
+    <a class="nav-link active" id="part1-tab" data-toggle="tab" href="#part1" role="tab" aria-controls="part1" onclick="topFunction()"> Task Description
+</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="part2-tab" data-toggle="tab" href="#part2" role="tab" aria-controls="part2" onclick="topFunction()">Your Decisions</a>
+  </li>
+
+
+<li class="nav-item">
+    <a class="nav-link" id="part3-tab" data-toggle="tab" href="#part3" role="tab" aria-controls="part3" onclick="topFunction()">Your Final Bonus</a>
+  </li>
+
+</ul>
+<br>
+<br>
+
+
+<!-- Tab content -->
+<div class="tab-content" id="myTabContent">
+
+  <div class="tab-pane show active" id="part1" role="tabpanel" aria-labelledby="part1-tab">
+
+<div class="card-header bg-transparent mainheader" >
+ <h3 class="card-title font-weight-bold mt-3 mb-3"> Task 2 </h3>
+  </div>
+    <br>
+
+    <p>
+        You will now learn about Task 2.
+    </p>
+
+    <p>
+        <ul>
+            <li>You are remaining with the same person from Task 1.</li>
+            <li>You have the <b>{{ Constants.endowment }}</b> from Task 1 at your disposal for this second task.</li>
+            <li>Each one of you has a 1/3 probability of loosing her/his endowment of {{ Constants.endowment }}.</li>
+            <li>After you made your decision, you have to throw a virtual dice. In case you throw a 1, 2, 3, or 4,
+                you keep the {{ Constants.endowment }}. If you throw a 5 or 6, you loose the {{ Constants.endowment }}. The same applies to the other person.</li>
+        </ul>
+    </p>
+
+
+<button onclick="topFunction()" type="button" class="nexttab btn-primary btn next">Next</button>
+  </div>
+
+
+
+
+
+  <div class="tab-pane" id="part2" role="tabpanel" aria-labelledby="part2-tab">
+
+
+<div class="card-header bg-transparent mainheader" >
+ <h3 class="card-title font-weight-bold mt-3 mb-3"> Your Decision </h3>
+  </div>
+<br>
+      <p>Prior to throwing the dice you have to take the following decision (see illustration below): <b>How much  do you want to transfer
+          to the other person in case she/he is losing his/her endowment, and you keep your endowment?</b></p>
+              <br><img src="{{ static 'solidarity/images/solidarity.png' }}"  class="center"/><br><br>
+          <p>The other person takes the same decision simultaneously.</p>
+
+    <button onclick="topFunction()" type="button" class="prevtab btn-primary btn back">Back</button>
+<button onclick="topFunction()" type="button" class="nexttab btn-primary btn next">Next</button>
+  </div>
+
+
+  <div class="tab-pane" id="part3" role="tabpanel" aria-labelledby="part3-tab">
+
+
+<div class="card-header bg-transparent mainheader" >
+ <h3 class="card-title font-weight-bold mt-3 mb-3">Your Final Bonus</h3>
+  </div>
+<br>
+
+        <p>Your final bonus thus depends partly on chance, your decision and the decision of the other person.</p>
+        <ul>
+            <li> If the other person loses her/his endowment and you keep your endowment, you receive as final bonus {{ Constants.endowment }} minus the transfer to the other person.</li>
+            <li> If you lose your endowment and the other person keeps his/her endowment, you receive as final bonus the transfer of the other person.</li>
+            <li> If neither you nor the other person loses their endowment, you receive the full bonus payment.</li>
+	        <li> If you and the other person both lose their endowment, you receive no bonus payment.</li>
+        </ul>
+    <p>
+        <b>Click 'Next' to start with a quiz to test your understanding of the task. Once you proceeded, you <u>cannot go back to this instruction page.</u></b>
+    </p>
+
+    <button onclick="topFunction()" type="button" class="prevtab btn-primary btn back">Back</button>
+<button class="nexttab btn-primary btn next">Next</button>
+  </div>
+
+
+</div>
+
+</body>
+
+
+{{ endblock }}
+
+
+

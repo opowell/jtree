@@ -1,0 +1,137 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+  Stage 2 - The Decision Stage
+{% endblock %}
+
+
+{% block styles %}
+  <link rel="stylesheet" href="{% static 'jquery-ui/jquery-ui.css' %}">
+  
+  <style>
+   #custom-handle {
+       width: 3em;
+       height: 1.6em;
+       top: 50%;
+       margin-top: -.8em;
+       text-align: center;
+       line-height: 1.6em;
+   }
+  </style>
+{% endblock %}
+
+
+{% block scripts %}
+<script src="{% static 'jquery-ui/jquery-ui.js' %}"></script>
+  
+  <script>
+   document.getElementById('takeaway').value = 0;
+   $( function() {
+       var handle = $( "#custom-handle" );
+       $( "#slider" ).slider({
+           create: function() {
+               handle.text($( this ).slider( "value" ) + "%");
+
+
+           },
+           slide: function( event, ui ) {
+               handle.text( ui.value + "%" );
+               document.getElementById('takeaway').value = ui.value;
+               document.getElementById("takentext1").innerHTML = ui.value;
+               document.getElementById("takentext2").innerHTML = ui.value;
+               document.getElementById("resttext1").innerHTML = 100- ui.value;
+               document.getElementById("resttext2").innerHTML = 100- ui.value;
+           }
+       });
+   } );
+
+
+   function hideConf() {
+       $('#confirmation').hide();
+       $('#sliderandinfo').show();
+       $('#selectbutton').show();
+
+
+   }
+
+   function showConf() {
+       $('#confirmation').show();
+       $('#sliderandinfo').hide();
+       $('#selectbutton').hide();
+
+   }
+  </script>
+{% endblock %}
+{% block content %}
+  <div class="container">
+    <div class="row">
+      <p>
+        In this stage, you are offered the option to take away a percentage of the earnings of 
+        {% if session.config.competition %} your competitors in the group.
+        {% else %} other group members. 
+        {% endif %}
+      </p>
+      <p>
+        <strong> If you are selected as the decision-maker, the percentage you decide to take from other participants will be subtracted from the earnings of the other participants in your group, and will be added to your final payment. </strong>
+      </p>
+      <ul>
+        <li class="m-2"> The others will not know whether you are selected as the decision-maker, or the percentage you have chosen.</li>
+        <li  class="m-2"> The final earnings will be visible in the results page{% if session.config.competition %} and they will determine the ranking of the players in the group{% endif %}.
+        </li>
+
+
+      </ul>
+
+    </div>
+
+    <div class="row">
+
+      <div class="col">
+        <h4> Please select the percentage of the earnings you would like to take from the others: </h4>
+        <div id="confirmation" class="alert-primary m-5" style="display:none">
+          <p class="m-2 p-2">
+            You decided to take <span id="takentext2">0</span>% from the others if you are selected as the decision-maker. The rest will be &nbsp;<span id="resttext2"  class="resttext">100</span>% of what they earned previously. <br/>
+            Do you want to confirm? </p>
+
+          <button class="btn btn-primary m-3">
+            Yes. Continue.
+          </button>
+
+          <button type="button" class="btn btn-primary m-3" onclick="hideConf()">
+            No. Go back.
+          </button>
+        </div>
+        <div id="sliderandinfo">
+          <div id="slider" class="m-5">
+            <div id="custom-handle" class="ui-slider-handle"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+      <div class="row">
+        <div class="col justify-content-center align-items-center">
+          <div class="card">
+            <div class="card-body">
+              <h5>
+                I would like to take&nbsp;<span id="takentext1"  class="takentext">0</span>% of each of the other participants' earnings. </h5>
+
+              Their final earnings will be &nbsp;<span id="resttext1" class="resttext">100</span>% of the what they actually earned in the effort stage.
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button id="selectbutton" type="button" class="btn btn-primary m-3" onclick="showConf()">
+    Select
+  </button>
+  </div>
+  <input type="hidden" name="takeaway" id="takeaway" />
+
+
+
+
+{% endblock %}

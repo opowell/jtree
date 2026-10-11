@@ -1,0 +1,39 @@
+{% extends "otree/Base.html" %}
+{% load i18n otree_tags %}
+{% load staticfiles otree_tags %}
+
+{% block body_main %}
+<div class="card card-body" style="max-width:660px; min-width: 660px; display: inherit; margin:80px auto; text-align: center;">
+<h3 style="margin-bottom: 30px;">
+    {% block title %}
+        {% trans 'Welcome to the Experiment' %}
+    {% endblock %}
+</h3>
+
+<img src="{% static "img/goeteborg.png" %}" style="height:95px; margin:10px;"/>
+<img src="{% static "img/innsbruck.png" %}" style="height:60px; margin:10px;"/>
+<img src="{% static "img/lund.png" %}" style="height:85px; margin:10px;"/>
+
+<form method="get">
+    <p style="margin-top: 30px;">
+        {% blocktrans trimmed %}
+            Please enter your personal participant code <br/>
+            (as stated in the invitation letter) <br/>
+            to start the experiment.
+        {% endblocktrans %}
+    </p>
+
+    <label for="participant_label" style="margin: 40px 0 10px 0; font-weight: 700;">
+        {% trans "Participant Code:" %}
+    </label>
+    <br/>
+    <input type="text"
+           id="participant_label"
+           name="participant_label"
+           class="form-control"
+           style="margin: 0 auto; width: 150px; margin-bottom:20px; text-align: center;"/>
+    <br/>
+    {% next_button %}
+</form>
+</div>
+{% endblock %}

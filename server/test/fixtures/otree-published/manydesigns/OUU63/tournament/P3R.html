@@ -1,0 +1,24 @@
+{{ block title }}
+    Stage 2
+{{ endblock }}
+
+{{ block content }}
+
+
+    You solved {{ player.correct }} slider{{ if player.correct != 1 }}s{{ endif }} correctly.
+
+    <p>
+        {{ if treat == 1}}
+            Your number of correctly solved sliders is {{ if othercorrect > player.correct }}<b>higher</b> than{{ endif }}{{ if othercorrect < player.correct }}<b>lower</b> than{{ endif }}{{ if othercorrect == player.correct }}the same as{{ endif }} the number of the other participant. Thus, {{ if coin == 1 }}the computer randomly determined that{{ endif }}
+            <b>you are {{ winlose }}</b> and receive {{ player.payoff }}. <b>The other participant is {{ otherwinlose }}</b> and receives {{ otherpay }}.
+        {{ else }}
+            The computer randomly determined that you receive {{ player.payoff }}, and that the other participant receives {{ otherpay }}.
+        {{ endif }}
+    </p>
+
+    <br><br>
+    {{ next_button }}
+
+{{ endblock }}
+
+

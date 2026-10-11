@@ -1,0 +1,3 @@
+otree==3.4.0
+psycopg2==2.8.6
+scipy==1.7.3

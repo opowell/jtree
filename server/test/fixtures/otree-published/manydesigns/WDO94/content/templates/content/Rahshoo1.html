@@ -1,0 +1,20 @@
+{% extends "global/Page.html" %}
+{% load otree %}
+
+{% block title %}
+    Problem 1
+{% endblock %}
+
+{% block content %}
+    <p>
+        Please choose an answer by selecting one of the options.
+    </p>
+
+    <div style="text-align:center">
+        <img src="{% static 'r3.jpg' %}" height="400" width="380"/>
+        {% formfield player.answer_1 label='Please select the element that completes the pattern:' %}
+    </div>
+
+    {% next_button %}
+
+{% endblock %}

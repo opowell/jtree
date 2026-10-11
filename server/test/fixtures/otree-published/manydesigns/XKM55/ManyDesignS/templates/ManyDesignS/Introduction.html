@@ -1,0 +1,13 @@
+{% extends "global/Page.html" %}
+{% load otree %}
+
+{% block title %}Introduction{% endblock %}
+
+{% block content %}
+Welcome to the Dice-Sum game.<br>
+{% include Constants.instructions_template %}
+<br>
+{% formfield player.prolificID label="Please enter your Prolific ID (double check you typed it correctly)" %}
+Please press next whenever you are ready.
+{% next_button %}
+{% endblock %}

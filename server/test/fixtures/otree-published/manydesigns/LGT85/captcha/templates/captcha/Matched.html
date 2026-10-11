@@ -1,0 +1,40 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+The Effort Stage
+{% endblock %}
+
+{% block content %}
+
+  <style>
+   .otree-timer {
+       display: none;
+   }
+  </style>
+
+  <div class="alert alert-primary">
+    <p> You will start the effort task in:
+        <span style="font-weight: bold">
+          <span class="otree-timer__time-left"></span></br>
+          You will be redirected automatically.
+        </span>
+    </p>
+  </div>
+
+
+<p> You will start playing <strong>the effort stage</strong>. Please get ready.
+</p>
+
+<p>
+  Your name will be shown as <strong>Player {{ player.visible_name }}</strong>. 
+  Other 
+{% if session.config.competition %}
+competitors
+{% else %}
+group members
+{% endif %}
+ in your group are Player {{ others_names.0}}, Player {{ others_names.1}}, Player {{ others_names.2}}
+</p>
+
+{% endblock %}

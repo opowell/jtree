@@ -1,0 +1,137 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree_tags %}
+{% load otree otree_tools %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 't1_adt2/css/styles.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% trans "Task No." %} {{ task }}: {% trans "Instructions" %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <!-- otree_tools: tracking focus -->
+    {% tracking_focus %}
+    <!-- otree_tools: tracking time -->
+    {% tracking_time %}
+
+    <div class="wrapper">
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Progress Bar -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <label>
+            {% trans "Task" %} {{ task }} {% trans "of" %} {{ task_total }}
+        </label>
+        <div class="progress">
+            <div class="progress-bar-task" role="progressbar" style="width:{{ task_progress|safe }}%;">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+        <div class="progress-vspace"></div>
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Body -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <div class="card bg-light">
+            <div class="card-body">
+                <p>
+                    {% if treatment == 'opm_flat' %}
+                        {% blocktrans trimmed %}
+                            The payout of the portfolio is the amount invested times the return per SEK
+                            invested, which depends on the toss of a coin. Your clients receive this payout
+                            of the portfolio in addition to the initial endowment of 100 SEK.
+                        {% endblocktrans %}
+                    {% elif treatment == 'opm_lin' %}
+                        {% blocktrans trimmed %}
+                            The payout of the portfolio is the amount invested times the return per SEK
+                            invested, which depends on the toss of a coin. You and your clients receive this
+                            payout of the portfolio in addition to the initial endowment of 100 SEK.
+                        {% endblocktrans %}
+                    {% else %}
+                        {% blocktrans trimmed %}
+                            The payout of the portfolio is the amount invested times the return per SEK
+                            invested, which depends on the toss of a coin. You receive this payout of
+                            the portfolio in addition to the initial endowment of 100 SEK.
+                        {% endblocktrans %}
+                    {% endif %}
+                </p>
+                <p>
+                    {% blocktrans trimmed %}
+                        Let’s look at our example with 30 SEK put into asset A and 70 SEK put into
+                        asset B when the computer randomly selects <b>heads</b>.
+                    {% endblocktrans %}
+                </p>
+                <div class="img-wrapper">
+                    {% with 't1_adt2/img/int_payoff_heads_'|add:language|add:'.png' as img %}
+                        <img src="{% static img %}" class="img">
+                    {% endwith %}
+                </div>
+                <p>
+                    {% if treatment == 'opm_flat'%}
+                        {% blocktrans trimmed %}
+                            Each of your clients' return is 2.00 SEK for each of the SEK you put into
+                            asset A. Your clients' return is 0.00 SEK for each of the SEK you put into
+                            asset B. So the 70 SEK put into asset B will pay nothing. In total your
+                            investment pays 60 SEK if the coin comes up heads. Together with your
+                            initial endowment your client would receive a payout of 160 SEK.
+                        {% endblocktrans %}
+                    {% else %}
+                        {% blocktrans trimmed %}
+                            Your return is 2.00 SEK for each of the SEK you put into asset A.
+                            Your return is 0.00 SEK for each of the SEK you put into asset B.
+                            So the 70 SEK put into asset B will pay nothing. In total your investment
+                            pays 60 SEK if the coin comes up heads. Together with your initial endowment
+                            you would receive a payout of 160 SEK.
+                        {% endblocktrans %}
+                    {% endif %}
+                </p>
+                <p>
+                    {% if treatment == 'opm_flat'%}
+                        {% blocktrans trimmed %}
+                            If you do the same calculation for when the coin comes up <b>tails</b>,
+                            you will see that in total these investments pay 210 SEK if the coin
+                            comes up tails. Together with the initial endowment your clients would
+                            receive a payout of 310 SEK.
+                        {% endblocktrans %}
+                    {% elif treatment == 'opm_lin'%}
+                        {% blocktrans trimmed %}
+                            If you do the same calculation for when the coin comes up <b>tails</b>,
+                            you will see that in total these investments pay 210 SEK if the coin
+                            comes up tails. Together with the initial endowment you and each of your
+                            clients would receive a payout of 310 SEK.
+                        {% endblocktrans %}
+                    {% else %}
+                        {% blocktrans trimmed %}
+                            If you do the same calculation for when the coin comes up <b>tails</b>,
+                            you will see that in total these investments pay 210 SEK if the coin
+                            comes up tails. Together with your initial endowment you would receive
+                            a payout of 310 SEK.
+                        {% endblocktrans %}
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- next button -->
+    <button type="submit" class="btn btn-primary otree-btn-next">
+        {% trans "Next" %}
+    </button>
+
+{% endblock %}

@@ -1,0 +1,52 @@
+{{ block title }}
+    Stage 2
+{{ endblock }}
+
+{{ block scripts }}
+<style>
+    .center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+}
+</style>
+{{ endblock }}
+
+
+{{ block content }}
+
+    <p>
+        In this stage, after clicking “Next”, you will have <b>5 minutes</b> to <b>adjust sliders to the exact middle position</b>. Every slider will be in a <b>randomly
+        chosen initial position</b> and you are asked to <b>adjust the thumb to the middle position</b>, as illustrated below.<br><br>
+    </p>
+
+    <img class="center" src="{{ static 'Pics/sliderex.gif' }}"/><br><br>
+
+    {{ if treat == 1}}
+        <p>
+            At the end of this stage the <b>computer will compare your number of correctly adjusted sliders with the number
+            of sliders the other participant has adjusted correctly</b>. The participant with the <b>higher number of correctly
+            adjusted sliders</b> is the winner of the competition. <b>The winner receives 28 points</b>. The participant with the
+            <b>lower number</b> is the loser of the competition. <b>The loser receives 14 points</b>. If both participants have the
+            <b>same number of correctly adjusted sliders, a random draw decides</b> which participant is the winner, receiving
+            the 28 points and which participant is the loser, receiving the 14 points (think of this as a coin-flip). At
+            the end of stage 2, <b>you will be informed about your own payoff and the payoff of the other participant</b>. The
+            other participant also receives this information.
+        </p>
+    {{ else }}
+        <p>
+            At the end of this stage the <b>computer will randomly and with equal chance determine which participant
+            receives 28 points</b> and which participant receives <b>14 points</b> (think of this as a coin-flip). That is,
+            <b>one of you ends up receiving 28 points while the other ends up receiving 14 points</b>. This <b>does not
+            depend on the number of correctly adjusted sliders</b> by you or the other participant but is randomly
+            determined by the computer. At the end of Stage 2, <b>you will be informed about your own payoff and the payoff
+            of the other participant</b>. The other participant also receives this information.
+        </p>
+    {{ endif }}
+
+    If you have read these instructions, please click on “Next” to start the 5 minutes working period.
+
+    <br><br>
+    {{ next_button }}
+{{ endblock }}

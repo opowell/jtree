@@ -1,0 +1,71 @@
+{{ block title }}Offers overview{{ endblock }}
+{{ block content }}
+
+{{if group.Timeout_1 == True and group.Timeout_2 == True and group.Timeout_3 == True}}
+All offers are invalid. You cannot make a choice. Please answer the question with no. 
+{{endif}}
+
+{{if group.Timeout_1 == True and group.Timeout_2 == False and group.Timeout_3 == False}}
+Proposer 1's communicated offer: Invalid due to timeout.  
+Proposer 2's communicated offer: {{group.Offer_communicated_2}}. 
+Proposer 3's communicated offer: {{group.Offer_communicated_3}}.
+
+If you accept the set of offers, you will not be able to choose Proposer 1 in the next screen.
+{{endif}}
+
+{{if group.Timeout_1 == False and group.Timeout_2 == True and group.Timeout_3 == False}}
+Proposer 1's communicated offer: {{group.Offer_communicated_1}}.  
+Proposer 2's communicated offer: Invalid due to timeout. 
+Proposer 3's communicated offer: {{group.Offer_communicated_3}}.
+
+If you accept the set of offers, you will not be able to choose Proposer 2 in the next screen.
+{{endif}}
+
+{{if group.Timeout_1 == False and group.Timeout_2 == False and group.Timeout_3 == True}}
+Proposer 1's communicated offer: {{group.Offer_communicated_1}}.  
+Proposer 2's communicated offer: {{group.Offer_communicated_2}}. 
+Proposer 3's communicated offer: Invalid due to timeout.
+
+If you accept the set of offers, you will not be able to choose Proposer 3 in the next screen.
+{{endif}}
+
+{{if group.Timeout_1 == True and group.Timeout_2 == True and group.Timeout_3 == False}}
+Proposer 1's communicated offer: Invalid due to timeout.  
+Proposer 2's communicated offer: Invalid due to timeout. 
+Proposer 3's communicated offer: {{group.Offer_communicated_3}}.
+
+If you accept the set of offers, you will not be able to choose Proposer 1 and Proposer 2 in the next screen.
+{{endif}}
+
+{{if group.Timeout_1 == True and group.Timeout_2 == False and group.Timeout_3 == True}}
+Proposer 1's communicated offer: Invalid due to timeout.  
+Proposer 2's communicated offer: {{group.Offer_communicated_2}}. 
+Proposer 3's communicated offer: Invalid due to timeout.
+
+If you accept the set of offers, you will not be able to choose Proposer 1 and Proposer 3 in the next screen.
+{{endif}}
+
+{{if group.Timeout_1 == False and group.Timeout_2 == True and group.Timeout_3 == True}}
+Proposer 1's communicated offer: {{group.Offer_communicated_1}}.  
+Proposer 2's communicated offer: Invalid due to timeout. 
+Proposer 3's communicated offer: Invalid due to timeout.
+
+If you accept the set of offers, you will not be able to choose Proposer 2 and Proposer 3 in the next screen.
+{{endif}}
+
+{{if group.Timeout_1 == False and group.Timeout_2 == False and group.Timeout_3 == False}}
+Proposer 1's communicated offer: {{group.Offer_communicated_1}}. 
+Proposer 2's communicated offer: {{group.Offer_communicated_2}}. 
+Proposer 3's communicated offer: {{group.Offer_communicated_3}}.
+
+{{endif}}
+
+{{ formfields }}
+
+If you accept, you will be able to choose one of these proposers in the next screen.
+
+If you decline, each player will receive zero.
+
+{{ next_button }}
+
+{{ endblock }}

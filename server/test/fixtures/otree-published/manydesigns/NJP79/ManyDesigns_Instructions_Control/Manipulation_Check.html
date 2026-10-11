@@ -1,0 +1,27 @@
+{{ block title }}Quiz{{ endblock }}
+{{ block content }}
+
+<p>
+Please indicate to what extent you agree with the following statement. There is no right or wrong answer.    
+</p> 
+{{ formfields }}
+
+{{ next_button }}
+
+<p>
+  <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+    Summary of the instructions
+  </button>
+</p>
+<div class="collapse" id="collapseExample">
+  <div class="card card-body">
+<p> In phase 1, the three proposers make their offers for a division of the £5.00 bonus between themselves and the responder. They make an <b>actual</b> offer, which is how the money will actually be divided and they make a <b>communicated</b> offer, which is the offer the responder gets to see. 
+      </p>
+<p> In phase 2, the responder observes the set of 3 communicated offers and decides whether to accept or reject this set of 3 <b>communicated</b> offers. If the set of 3 communicated offers is rejected, the game ends and nobody receives a bonus. If the set of 3 communicated offers is accepted, the game moves to phase 3.  
+      </p>
+<p> In phase 3, one of the communicated offers is randomly selected. The <b>actual</b> offer that the randomly selected proposer has made is then implemented. The proposers that were not randomly selected will not receive a bonus.
+      </p>     
+  </div>
+</div>
+
+{{ endblock }}

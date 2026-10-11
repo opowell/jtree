@@ -1,0 +1,70 @@
+{% extends "global/Page.html" %}
+{% load otree %}
+
+{% block title %}
+    Payment
+{% endblock %}
+
+{% block styles %}
+    <style>
+    .points {
+        margin-bottom: 2em;
+    }
+    .points, .points td, .points tr {
+        border: 1px solid black;
+        text-align: center;
+        vertical-align: top;
+        padding: 4px;
+    }
+    .points td {
+        width: 20px;
+    }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <p>
+        On the next page you will complete the main task. The main task consists of twelve problems
+        similar to the example problem and you will receive £1.00 for completing this task.
+    </p>
+
+    <p>
+        For each of the twelve problems you have up to 40 seconds to select a solution. The
+        problems differ in how difficult they are.
+    </p>
+
+    <p>
+        For correctly solving a given problem you will achieve a specific number of points (displayed
+        at the end) depending on the problem’s difficulty.
+    </p>
+
+    <h3>Bonus</h3>
+
+    <p>
+        In addition to the £1.00 for completing this task, you can receive a bonus of additional £0.70.
+    </p>
+    <p>
+        To do so, you have to achieve 78 points or more.
+    </p>
+
+    <p>
+        For your information, 30 other prolific participants have completed the same task in the past.
+        <br>
+        We present below how many of these participants achieved how many points:
+    </p>
+
+    <table class="points" style="width: 850px">
+        <tr><td style="text-align: left"><b>Points achieved</b></td><td>0</td><td>18</td><td>36</td><td>48</td><td>54</td><td>60</td><td>66</td><td>72</td><td>78</td><td>84</td><td>90</td><td>96</td><td>108</td></tr>
+        <tr><td style="text-align: left"><b>Number of participants</b></td><td>1</td><td>1</td><td>2</td><td>2</td><td>4</td><td>5</td><td>3</td><td>1</td><td>4</td><td>2</td><td>2</td><td>2</td><td>1</td></tr>
+    </table>
+
+    <p>
+    Please answer the following control questions to start the main task.
+    </p>
+
+    {% formfield player.control_question_1 label="If I achieve 77 points or less, I’ll receive the bonus of £0.70" %}
+    {% formfield player.control_question_2 label="If I achieve 78 points or more, I’ll receive the bonus of £0.70" %}
+
+    <button class="otree-btn btn btn-primary">Start main task</button>
+
+{% endblock %}

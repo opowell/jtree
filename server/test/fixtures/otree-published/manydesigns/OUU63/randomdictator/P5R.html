@@ -1,0 +1,36 @@
+{{ block title }}
+    End of the study
+{{ endblock }}
+
+{{ block content }}
+
+    In Stage 3 you were randomly assigned to be in the role of participant {{ player.role }}.
+
+    {{ if player.role == "A" }}
+        <b>{{ decision }}</b>
+        {{ if player.roll == 1}}
+            The die roll resulted in a {{ ran_num }}. From Stage 3 <b>you earn {{ player.payoff }}</b>. The other participant thus earns {{ other_pay }}.<br>
+        {{ else }}
+            From Stage 3 <b>you earn {{ player.payoff }}</b>.<br><br>
+        {{ endif }}
+    {{ else }}
+        {{ if other_roll == 1}}
+            From Stage 3 <b>you earn {{ player.payoff }}</b>.<br><br>
+        {{ else }}
+            From Stage 3 <b>you earn {{ player.payoff }}</b>.<br><br>
+        {{ endif }}
+    {{ endif }}
+
+    From Stage 2 <b>you receive {{ participant.stage2pay }}</b>.<br><br>
+
+    <p>
+        In <b>total you get {{ payoff_final }}</b> which, given the exchange rate, <b>results in {{ payoff_final_curr }}</b>. <b>Adding
+        the {{ partic_fee }}</b>, which you receive for certain, <b>you will be paid {{ payoff_final_partic_curr }}</b>.
+    </p>
+
+    <br><br>
+    Click <a href="{{ session.prolific_completion_url }}">here</a> to complete the study.
+
+{{ endblock }}
+
+

@@ -1,0 +1,50 @@
+{{ block global_styles  }}
+<style>
+    .otree-timer {
+        display: none;
+    }
+</style>
+<style>
+        #responsive-symb {  width: 50px;  height: auto; }
+</style>
+{{ endblock }}
+
+{{ block global_scripts  }}
+<script>
+    $(function () {
+        $('.otree-timer__time-left').on('update.countdown', function (event) {
+            if (event.offset.totalSeconds === 30) {
+                $('.otree-timer').show();
+            }
+        });
+    });
+</script>
+{{ endblock }}
+
+
+
+{{ block title }}
+    Your Decision
+{{ endblock }}
+
+{{ block content }}
+<p>You are Player A. <img src="{{ static image_pathA }}" id="responsive-symb"/> </p>
+<p>You are now deciding on the transfer, <u> in case <b>only</b> the other person lost her/his endowment.</u></p>
+<p> Please enter the amount you want to transfer from your {{ Constants.endowment }} to <b>Player B</b>
+    <img src="{{ static image_pathB }}" id="responsive-symb"/></p>
+
+<input type="number" name="transfer_AtoB" min="0" max="200" oninput="updateDescription(this)">
+<p id="description"></p>
+
+<script>
+    let description = document.getElementById('description');
+    function updateDescription(input) {
+        let transfer = parseInt(input.value);
+        let keep = 200 - transfer;
+        description.innerText = `Give  ${transfer} tokens to Player B and keep ${keep} tokens for yourself.`
+    }
+</script>
+
+{{ next_button }}
+
+{{ endblock }}

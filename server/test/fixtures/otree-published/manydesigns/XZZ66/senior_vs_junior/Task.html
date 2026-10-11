@@ -1,0 +1,67 @@
+{{ block title }}
+    Task
+{{ endblock }}
+{{ block content }}
+<style>
+    .centerTable {
+        vertical-align: center;
+    }
+    .info {
+        padding: 0 50px;
+    }
+</style>
+
+<img src="{{ static image_path }}"/>
+
+<table class="centerTable">
+<tr>
+    <td>{{ formfields }}</td>
+    <td class="info">
+        {{ if False}}
+        {{ if not player.participant.is_senior }}
+        So far you have successfully completed
+        {{ if player.id_in_group == 2}}
+            {{ reduced2 }}
+        {{ endif }}
+        {{ if player.id_in_group == 4}}
+            {{ reduced4 }}
+        {{ endif }}
+        puzzles.
+        <br>
+        And in the same time the other Player B in your group has completed
+        {{ if player.id_in_group == 2}}
+            {{ reduced4 }}
+        {{ endif }}
+        {{ if player.id_in_group == 4}}
+            {{ reduced2 }}
+        {{ endif }}
+        puzzles.
+        {{ endif }}
+
+        {{ if player.participant.is_senior and not player.participant.control }}
+        So far with the added performance of your Player B you have successfully completed
+        {{ if player.id_in_group == 1}}
+            {{ increased1 }}
+        {{ endif }}
+        {{ if player.id_in_group == 3}}
+            {{ increased3 }}
+        {{ endif }}
+        puzzles.
+        <br>
+        And in the same time the other Player A in your group with the added performance of his/her Player B has completed
+        {{ if player.id_in_group == 1}}
+            {{ increased3 }}
+        {{ endif }}
+        {{ if player.id_in_group == 3}}
+            {{ increased1 }}
+        {{ endif }}
+        puzzles.
+        {{ endif }}
+        {{ endif }}
+    </td>
+</tr>
+
+</table>
+    {{ next_button }}
+
+{{ endblock }}

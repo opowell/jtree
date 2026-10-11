@@ -1,0 +1,174 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load otree otree_tools %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 't4_survey/css/styles.css' %}" rel="stylesheet">
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% trans "Task No." %} {{ task }}: {% trans "Questionnaire" %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <!-- otree_tools: tracking focus -->
+    {% tracking_focus %}
+    <!-- otree_tools: tracking time -->
+    {% tracking_time %}
+
+    <div class="wrapper">
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Progress Bar -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <label>
+            {% trans "Task" %} {{ task }} {% trans "of" %} {{ task_total }}
+        </label>
+        <div class="progress">
+            <div class="progress-bar-task" role="progressbar" style="width:{{ task_progress|safe }}%;">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Progress Bar -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <label>
+            {% trans "Page" %} {{ page }} {% trans "of" %} {{ total }}
+        </label>
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" style="width:{{ progress|safe }}%;">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+        <div class="progress-vspace"></div>
+
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Survey Items -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <div class="card bg-light mb-3">
+            <div class="card-body">
+
+                <!-- Risk Preferences -->
+                <!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+                <p class="survey-question">
+                    {% blocktrans trimmed %}
+                        Are you generally a person who is willing to take risks or do you try
+                        to avoid taking risks?
+                    {% endblocktrans %}
+                </p>
+                <table class="likert">
+                    <tbody>
+                        <tr>
+                            <td class="item-label">0</td>
+                            <td class="item-label">1</td>
+                            <td class="item-label">2</td>
+                            <td class="item-label">3</td>
+                            <td class="item-label">4</td>
+                            <td class="item-label">5</td>
+                            <td class="item-label">6</td>
+                            <td class="item-label">7</td>
+                            <td class="item-label">8</td>
+                            <td class="item-label">9</td>
+                            <td class="item-label">10</td>
+                        </tr>
+                        <tr>
+                            <td class="item"><input type="radio" name="risk_gen" value="0" required></td>
+                            <td class="item"><input type="radio" name="risk_gen" value="1" required></td>
+                            <td class="item"><input type="radio" name="risk_gen" value="2" required></td>
+                            <td class="item"><input type="radio" name="risk_gen" value="3" required></td>
+                            <td class="item"><input type="radio" name="risk_gen" value="4" required></td>
+                            <td class="item"><input type="radio" name="risk_gen" value="5" required></td>
+                            <td class="item"><input type="radio" name="risk_gen" value="6" required></td>
+                            <td class="item"><input type="radio" name="risk_gen" value="7" required></td>
+                            <td class="item"><input type="radio" name="risk_gen" value="8" required></td>
+                            <td class="item"><input type="radio" name="risk_gen" value="9" required></td>
+                            <td class="item"><input type="radio" name="risk_gen" value="10" required></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="item-label-left">
+                                {% trans "not at all willing to take risks" %}
+                            </td>
+                            <td colspan="5"></td>
+                            <td colspan="3" class="item-label-right">
+                                {% trans "very willing to take risks" %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <hr/>
+
+
+                <!-- Time Preferences -->
+                <!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+                <p class="survey-question">
+                    {% blocktrans trimmed %}
+                        How willing are you to give up something that is beneficial for you today in order
+                        to benefit more from that in the future?
+                    {% endblocktrans %}
+                </p>
+                <table class="likert">
+                    <tbody>
+                        <tr>
+                            <td class="item-label">0</td>
+                            <td class="item-label">1</td>
+                            <td class="item-label">2</td>
+                            <td class="item-label">3</td>
+                            <td class="item-label">4</td>
+                            <td class="item-label">5</td>
+                            <td class="item-label">6</td>
+                            <td class="item-label">7</td>
+                            <td class="item-label">8</td>
+                            <td class="item-label">9</td>
+                            <td class="item-label">10</td>
+                        </tr>
+                        <tr>
+                            <td class="item"><input type="radio" name="time_gen" value="0" required></td>
+                            <td class="item"><input type="radio" name="time_gen" value="1" required></td>
+                            <td class="item"><input type="radio" name="time_gen" value="2" required></td>
+                            <td class="item"><input type="radio" name="time_gen" value="3" required></td>
+                            <td class="item"><input type="radio" name="time_gen" value="4" required></td>
+                            <td class="item"><input type="radio" name="time_gen" value="5" required></td>
+                            <td class="item"><input type="radio" name="time_gen" value="6" required></td>
+                            <td class="item"><input type="radio" name="time_gen" value="7" required></td>
+                            <td class="item"><input type="radio" name="time_gen" value="8" required></td>
+                            <td class="item"><input type="radio" name="time_gen" value="9" required></td>
+                            <td class="item"><input type="radio" name="time_gen" value="10" required></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" class="item-label-left">
+                                {% trans "not at all willing to give up something today" %}
+                            </td>
+                            <td colspan="3"></td>
+                            <td colspan="4" class="item-label-right">
+                                {% trans "very willing to give up something today" %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- next button -->
+        <button type="submit" class="btn btn-primary otree-btn-next">
+            {% trans "Next" %}
+        </button>
+
+    </div>
+
+{% endblock %}

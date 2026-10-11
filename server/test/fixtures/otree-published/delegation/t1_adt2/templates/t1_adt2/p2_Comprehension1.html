@@ -1,0 +1,108 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree_tags %}
+{% load otree otree_tools %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 't1_adt2/css/styles.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% trans "Task No." %} {{ task }}: {% trans "Comprehension" %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <!-- otree_tools: tracking focus -->
+    {% tracking_focus %}
+    <!-- otree_tools: tracking time -->
+    {% tracking_time %}
+
+    <div class="wrapper">
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Progress Bar -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <label>
+            {% trans "Task" %} {{ task }} {% trans "of" %} {{ task_total }}
+        </label>
+        <div class="progress">
+            <div class="progress-bar-task" role="progressbar" style="width:{{ task_progress|safe }}%;">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+        <div class="progress-vspace"></div>
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Body -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <div class="card bg-light">
+            <div class="card-body">
+                <p>
+                    {% if treatment == 'opm_flat' %}
+                        {% blocktrans trimmed %}
+                            Before we start with the investment decisions relevant for your client's payoff,
+                            we would like to help you understand the task and make sure that you understand
+                            the investment game. On the next three screens we will show you screenshots of
+                            investment decisions and ask you questions about the respective examples shown.
+                        {% endblocktrans %}
+                    {% elif treatment == 'opm_lin' %}
+                        {% blocktrans trimmed %}
+                            Before we start with the investment decisions relevant for your and your client's
+                            payoff, we would like to help you understand the task and make sure that you
+                            understand the investment game. On the next three screens we will show you
+                            screenshots of investment decisions and ask you questions about the respective
+                            examples shown.
+                        {% endblocktrans %}
+                    {% else %}
+                        {% blocktrans trimmed %}
+                            Before we start with the payout-relevant investment decisions, we would like
+                            to help you understand the task and make sure that you understand the investment
+                            game. On the next three screens we will show you screenshots of investment decisions
+                            and ask you questions about the respective examples shown.
+                        {% endblocktrans %}
+                    {% endif %}
+                </p>
+                <p>
+                    {% if treatment == 'opm_flat' %}
+                        {% blocktrans trimmed %}
+                            You can only start with the investment decisions relevant for your client's payoff
+                            once you have correctly answered all three questions. In case you have problems
+                            answering the questions, you will get additional information that helps you.
+                        {% endblocktrans %}
+                    {% elif treatment == 'opm_lin' %}
+                        {% blocktrans trimmed %}
+                            You can only start with the investment decisions relevant for your and your client's
+                            payoff once you have correctly answered all three questions. In case you have problems
+                            answering the questions, you will get additional information that helps you.
+                        {% endblocktrans %}
+                    {% else %}
+                        {% blocktrans trimmed %}
+                            You can only start with the payout-relevant investment decisions once you have
+                            correctly answered all three questions. In case you have problems answering the
+                            questions, you will get additional information that helps you.
+                        {% endblocktrans %}
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- next button -->
+    <button type="submit" class="btn btn-primary otree-btn-next">
+        {% trans "Next" %}
+    </button>
+
+{% endblock %}

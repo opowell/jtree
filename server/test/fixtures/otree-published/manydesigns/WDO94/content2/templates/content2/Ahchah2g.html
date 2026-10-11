@@ -1,0 +1,214 @@
+{% extends "global/Page.html" %}
+{% load otree %}
+
+{% block title %}
+    Payment
+{% endblock %}
+
+{% block styles %}
+    <style>
+        .ranks {
+            margin-bottom: 2em;
+        }
+
+        .ranks, .ranks td, .ranks th, .ranks tr {
+            border: 1px solid black;
+            text-align: center;
+            padding: 4px;
+        }
+
+        tr.black-line > td, tr.black-line {
+            border-right-style: hidden;
+            border-left-style: hidden;
+        }
+
+        .table-text {
+            vertical-align: center !important;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <p>
+        On the next page you will complete the main task. The main task consists of twelve problems
+        similar to the example problem and you will receive £1.00 for completing this task.
+    </p>
+
+    <p>
+        For each of the twelve problems you have up to 40 seconds to select a solution. The
+        problems differ in how difficult they are.
+    </p>
+
+    <p>
+        For correctly solving a given problem you will achieve a specific number of points (displayed
+        at the end) depending on the problem’s difficulty.
+    </p>
+
+    <h3>Competition</h3>
+
+    <p>
+        In addition to the £1.00 for completing this task, you can receive a prize of additional
+        £0.70.
+    </p>
+    <p>
+        You compete against 30 other prolific participants who have solved the same
+        task in the past.
+    </p>
+    <p>
+        To win the prize you must rank among the top 10.
+        Below you see the ranking for the 30 participants who completed the task in the past.
+    </p>
+    <p>
+        As can be seen, you must achieve 78 points or more to make it into the top 10 and win the prize.
+    </p>
+
+    <table style="width: 850px" class="ranks">
+        <tr>
+            <th>Rank</th>
+            <th>Points</th>
+            <th>Competition</th>
+        </tr>
+        <tr>
+            <td>1.</td>
+            <td>108</td>
+            <td rowspan="11" class="table-text">If you make it to the Top 10<br> (that is, if you achieve 78 points or
+                more)<br> you will receive the prize!
+            </td>
+        </tr>
+        <tr>
+            <td>2.</td>
+            <td>96</td>
+        </tr>
+        <tr>
+            <td>2.</td>
+            <td>96</td>
+        </tr>
+        <tr>
+            <td>4.</td>
+            <td>90</td>
+        </tr>
+        <tr>
+            <td>4.</td>
+            <td>90</td>
+        </tr>
+        <tr>
+            <td>6.</td>
+            <td>84</td>
+        </tr>
+        <tr>
+            <td>6.</td>
+            <td>84</td>
+        </tr>
+        <tr>
+            <td>8.</td>
+            <td>78</td>
+        </tr>
+        <tr>
+            <td>8.</td>
+            <td>78</td>
+        </tr>
+        <tr>
+            <td>8.</td>
+            <td>78</td>
+        </tr>
+        <tr>
+            <td>8.</td>
+            <td>78</td>
+        </tr>
+        <tr class="black-line">
+            <td colspan="3">
+                <hr style="border-top: 3px solid black;">
+            </td>
+        </tr>
+        <tr>
+            <td>12.</td>
+            <td>72</td>
+            <td rowspan="19" class="table-text">If you do not make it to the Top 10<br> (that is, if you achieve less
+                than 78 points)<br> you will NOT receive the prize!
+            </td>
+        </tr>
+        <tr>
+            <td>13.</td>
+            <td>66</td>
+        </tr>
+        <tr>
+            <td>13.</td>
+            <td>66</td>
+        </tr>
+        <tr>
+            <td>13.</td>
+            <td>66</td>
+        </tr>
+        <tr>
+            <td>16.</td>
+            <td>60</td>
+        </tr>
+        <tr>
+            <td>16.</td>
+            <td>60</td>
+        </tr>
+        <tr>
+            <td>16.</td>
+            <td>60</td>
+        </tr>
+        <tr>
+            <td>16.</td>
+            <td>60</td>
+        </tr>
+        <tr>
+            <td>16.</td>
+            <td>60</td>
+        </tr>
+        <tr>
+            <td>21.</td>
+            <td>54</td>
+        </tr>
+        <tr>
+            <td>21.</td>
+            <td>54</td>
+        </tr>
+        <tr>
+            <td>21.</td>
+            <td>54</td>
+        </tr>
+        <tr>
+            <td>21.</td>
+            <td>54</td>
+        </tr>
+        <tr>
+            <td>25.</td>
+            <td>48</td>
+        </tr>
+        <tr>
+            <td>25.</td>
+            <td>48</td>
+        </tr>
+        <tr>
+            <td>27.</td>
+            <td>36</td>
+        </tr>
+        <tr>
+            <td>27.</td>
+            <td>36</td>
+        </tr>
+        <tr>
+            <td>29.</td>
+            <td>18</td>
+        </tr>
+        <tr>
+            <td>30.</td>
+            <td>0</td>
+        </tr>
+    </table>
+    <br><br>
+
+    <p>
+        Please answer the following control questions to start the main task.
+    </p>
+
+    {% formfield player.control_question_1 label="If I achieve 77 points or less, I’ll receive the prize of £0.70" %}
+    {% formfield player.control_question_2 label="If I achieve 78 points or more, I’ll receive the prize of £0.70" %}
+
+    <button class="otree-btn btn btn-primary">Start main task</button>
+
+{% endblock %}

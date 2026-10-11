@@ -1,0 +1,2274 @@
+msgid ""
+msgstr ""
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-01-02 12:46+0100\n"
+"Last-Translator: Martin Holmén, Erik Wengström \n"
+"Language-Team: Martin Holmén, Erik Wengström \n"
+"Language: Swedish \n"
+"MIME-Version: 1.0 \n"
+"Content-Type: text/plain; charset=UTF-8 \n"
+"Content-Transfer-Encoding: 8bit \n"
+
+#: .\_templates\otree\RoomInputLabel.html:9
+msgid "Welcome to the Experiment"
+msgstr "Välkommen till experimentet"
+
+#: .\_templates\otree\RoomInputLabel.html:19
+msgid ""
+"Please enter your personal participant code <br/> (as stated in the "
+"invitation letter) <br/> to start the experiment."
+msgstr ""
+"Var god ange din personliga inloggningskod <br/> (som anges i "
+"inbjudningsbrevet) <br/> för att starta experimentet."
+
+#: .\_templates\otree\RoomInputLabel.html:27
+msgid "Participant Code:"
+msgstr "Inloggningskod:"
+
+#: .\t0_int\pages.py:11
+msgid "Time left to complete this page:"
+msgstr "Återstående tid för att slutföra den här sidan:"
+
+#: .\t0_int\templates\t0_int\p1_Introduction.html:60
+msgid "General information about the study"
+msgstr "Instruktioner och godkännande av villkoren i experimentet"
+
+#: .\t0_int\templates\t0_int\p1_Introduction.html:93
+msgid ""
+"It seems like you are using an outdated or rarely used browser. Please note "
+"that the software has been extensively tested only in recent versions of "
+"<b>Chrome, Firefox, Edge, Opera, and Safari.</b>"
+msgstr ""
+"Det verkar som om du använder en gammal eller sällan använd webbläsare. "
+"Observera att programvaran endast har testats i senaste versionerna av "
+"<b>Chrome, Firefox, Edge, Opera och Safari.</b>"
+
+#: .\t0_int\templates\t0_int\p1_Introduction.html:100
+msgid ""
+"We therefore kindly ask you to access the experiment via either of the "
+"aforementioned browsers (in a recently up-to-date version) to avoid software "
+"malfunctioning."
+msgstr ""
+"Vi ber därför dig att logga in på experimentet via någon av dessa webbläsare "
+"(i en nyligen uppdaterad version) för att undvika att programvaran inte "
+"fungerar."
+
+#: .\t0_int\templates\t0_int\p1_Introduction.html:112
+msgid "Dear participant,"
+msgstr "Bäste deltagare,"
+
+#: .\t0_int\templates\t0_int\p1_Introduction.html:117
+msgid ""
+"Thank you very much for taking part in this economic experiment. The "
+"experiment is intended to take about 40-50 minutes. The study aims at "
+"testing (i) economic preferences and risk taking; (ii) the extent to which "
+"these preferences can be explained by the participants' socioeconomic "
+"background, cognitive abilities, and non-cognitive abilities; and (iii) if "
+"these preferences differ between individuals active in different professions."
+msgstr ""
+"Tack så mycket för att du deltar i det här ekonomiska experimentet. "
+"Experimentet tar cirka 40-50 minuter. Studien syftar till att testa i) "
+"ekonomiska preferenser och risktagande, ii) i vilken utsträckning dessa "
+"preferenser kan förklaras av deltagarnas socio-ekonomiska bakgrund, "
+"kognitiva förmågor, och icke-kognitiva förmågor, och iii) om dessa "
+"preferenser skiljer sig mellan individer verksamma inom olika yrken."
+
+#: .\t0_int\templates\t0_int\p1_Introduction.html:126
+msgid ""
+"You will be asked to make a series of financial decisions. No background "
+"knowledge or specific experience is required to participate. Your answers "
+"and results will be handled such that unauthorized persons will not be able "
+"to access them. Statistics Sweden (SCB) will combine the results from the "
+"experiments with registry data using the login codes, construct a data set, "
+"and make it available to the involved researchers."
+msgstr ""
+"Du kommer bli ombedd att ta en serie ekonomiska beslut. Inga "
+"bakgrundskunskaper eller specifika erfarenheter krävs för att delta. Dina "
+"svar och resultat kommer att hanteras så att obehöriga personer inte kommer "
+"att kunna få tillgång till dem. Statistiska centralbyrån (SCB) kommer att "
+"kombinera resultaten från experimenten med registerdata med hjälp av "
+"inloggningskoderna, konstruera en datamängd, och göra den tillgänglig för de "
+"inblandade forskarna."
+
+#: .\t0_int\templates\t0_int\p1_Introduction.html:135
+msgid ""
+"The data set will not contain the name, social security number or detailed "
+"information about the place of residence or the location of the workplace. "
+"Only the involved researchers will have access to the data. The researchers "
+"will not be able to identify the participants. The University of Gothenburg "
+"is ultimately responsible for managing your personal data. The study has "
+"been approved by the regional ethical review board in Gothenburg."
+msgstr ""
+"Datamängden kommer inte att innehålla namn, personnummer eller detaljerad "
+"information om bostadsort eller arbetsplatsens placering. Endast de "
+"inblandade forskarna kommer ha tillgång till uppgifterna. Forskarna kommer "
+"inte kunna identifiera deltagarna. Göteborgs universitet är ytterst ansvarig "
+"för hanteringen av dina personuppgifter. Studien har godkänts av "
+"Etikprövningsnämnden i Göteborg."
+
+#: .\t0_int\templates\t0_int\p1_Introduction.html:144
+msgid ""
+"You will receive financial compensation for your participation. The exact "
+"amount depends on the choices you make and chance. All participants receive "
+"100 SEK and you can earn up to 650 SEK. The amount will be transferred to "
+"you via bank transfer. The payment will be handled by the survey company "
+"Enkätfabriken (<a href=\"http://www.enkatfabriken.se/\" target=\"_blank\"> "
+"http://www.enkatfabriken.se/</a>). In order to complete the payment, the "
+"survey company will ask you to enter the login number (therefore save the "
+"invitation letter containing this number), name, social security number and "
+"bank account details. This information will not be linked to other data. "
+"When you complete the experiment, you will be linked to <a href=\"https://"
+"enkat.net/ekonomiskapreferenser/\" target=\"_blank\"> https://enkat.net/"
+"ekonomiskapreferenser</a> to register your information. We will inform the "
+"survey company about how much that shall be paid to your login number and "
+"the payment will be made within two months. The compensation is taxable and "
+"the survey company will report all payments made to the tax authorities."
+msgstr ""
+"Du kommer att få en ekonomisk kompensation för ditt deltagande. Det exakta "
+"beloppet beror på vilka val du gör och slumpen. Alla deltagare får 100 SEK "
+"och man kan tjäna upp till 650 SEK. Beloppet överförs till Dig via "
+"banköverföring. Utbetalningen kommer att hanteras av Enkätfabriken (<a href="
+"\"http://www.enkatfabriken.se/\" target=\"_blank\">http://www.enkatfabriken."
+"se/</a>). För att genomföra betalningen kommer Enkätfabriken be dig att "
+"uppge inloggningsnummer (spara därför inbjudningsbrevet som du fått i "
+"brevlådan), namn, personnummer och bank-kontouppgifter. Denna information "
+"kommer inte att kopplas till andra data. När du slutfört experimentet kommer "
+"du länkas till <a href=\"https://enkat.net/ekonomiskapreferenser/\" target="
+"\"_blank\">https://enkat.net/ekonomiskapreferenser</a> för att kunna "
+"registrera dina uppgifter. Vi kommer informera Enkätfabriken om hur mycket "
+"som skall utbetalas till Ditt inloggningsnummer och utbetalningen kommer att "
+"ske inom två månader. Ersättningen är skattepliktig och Enkätfabriken kommer "
+"att rapportera alla utbetalda ersättningar till skattemyndigheten."
+
+#: .\t0_int\templates\t0_int\p1_Introduction.html:161
+msgid "Thank you very much for participating!"
+msgstr "Tack för att du deltar i den här undersökningen!"
+
+#: .\t0_int\templates\t0_int\p1_Introduction.html:166
+msgid ""
+"Martin Holmen (University of Gothenburg) <br/> Felix Holzmeister (University "
+"of Innsbruck)  <br/> Michael Kirchler (University of Innsbruck and "
+"University of Gothenburg) <br/> Matthias Stefan (University of Innsbruck) "
+"<br/> Erik Wengström (Lund University) <br/>"
+msgstr ""
+"Martin Holmen (Göteborgs Universitet) <br/> Felix Holzmeister (Innsbrucks "
+"Universitet)  <br/> Michael Kirchler (Innsbrucks Universitet och Göteborgs "
+"Universitet) <br/> Matthias Stefan (Innsbrucks Universitet) <br/> Erik "
+"Wengström (Lunds Universitet) <br/>"
+
+#: .\t0_int\templates\t0_int\p1_Introduction.html:189
+msgid ""
+"Please click below to start. By clicking on the button, you are consenting "
+"to take part in this study and that the data is treated in accordance to "
+"what is described above."
+msgstr ""
+"Vänligen acceptera villkoren i experimentet genom att klicka på knappen "
+"nedan och för att fortsätta till den första uppgiften."
+
+#: .\t0_int\templates\t0_int\p1_Introduction.html:199
+msgid "Agree! Let's start the experiment."
+msgstr "Jag har läst och accepterar villkoren i experimentet."
+
+#: .\t0_int\templates\t0_int\p2_Overview.html:19
+msgid "Overview"
+msgstr "Översikt"
+
+#: .\t0_int\templates\t0_int\p2_Overview.html:41
+msgid ""
+"This experiment consists of several tasks, which are divided into two blocks."
+msgstr "Experimentet består av flera uppgifter uppdelade i två sektioner."
+
+#: .\t0_int\templates\t0_int\p2_Overview.html:46
+msgid ""
+"The first block contains three tasks which are potentially relevant for your "
+"final payout. In each of these tasks you are asked to make decisions in "
+"different economic choice problems. At the end of the experiment, <b>one of "
+"the decisions will be randomly chosen and will determine your payout</b>. "
+"This amount of money will be paid in addition to the initial endowment of "
+"100 SEK. In total, the first block will take about 20-25 minutes."
+msgstr ""
+"Den första sektionen innehåller tre uppgifter som kan bli relevanta för den "
+"ersättning du kommer att erhålla. I var och en av dessa uppgifter blir du "
+"ombedd att fatta olika ekonomiska beslut. I slutet av experimentet kommer "
+"ett av besluten slumpmässigt väljas och bestämma din ersättning. Beloppet "
+"kommer att adderas till de 100 SEK du får för att delta. Totalt borde den "
+"första sektionen ta ca 20-25 minuter."
+
+#: .\t0_int\templates\t0_int\p2_Overview.html:56
+msgid ""
+"The second block of experimental tasks contains several different survey "
+"questions, which do <i>not</i> imply any payouts. Please note, however, that "
+"you are only entitled to receiving a payout if <b>all tasks</b> in this "
+"experiment have been completed. The second block will take about 10-15 "
+"minutes."
+msgstr ""
+"Den andra sektionen av experimentet innehåller frågor som inte påverkar din "
+"ersättning. Observera dock att du endast har rätt att få ersättning om alla "
+"uppgifter i experiment har besvarats. Den andra sektionen bör ta ca 10-15 "
+"minuter."
+
+#: .\t0_int\templates\t0_int\p2_Overview.html:64
+msgid ""
+"Each task of the experiment (including introductory instructions) will be "
+"presented on a separate screen. When you have completed a task, the "
+"experiment will continue directly with the next task. You will only be "
+"informed at the very end of the experiment which decision was selected for "
+"payout and how large your payout will be."
+msgstr ""
+"Varje uppgift i experimentet (inklusive inledande instruktioner) presenteras "
+"på en separat sida. När du slutfört en uppgift fortsätter experimentet "
+"direkt med nästa uppgift. Du kommer i slutet av experimentet informeras om "
+"vilket beslut som valdes för att bestämma din ersättning och hur stor din "
+"ersättning kommer att vara."
+
+#: .\t0_int\templates\t0_int\p2_Overview.html:76
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions0.html:85
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions1.html:103
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions2.html:89
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions3.html:134
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions4.html:129
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension1.html:105
+#: .\t1_adt2\templates\t1_adt2\p2_Start.html:110
+#: .\t1_adt2\templates\t1_adt2\p3_Decision.html:253
+#: .\t2_adt5\templates\t2_adt5\p1_Instructions.html:80
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension1.html:105
+#: .\t2_adt5\templates\t2_adt5\p2_Start.html:110
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:311
+#: .\t2_adt5\templates\t2_adt5\p4_Riskiness.html:94
+#: .\t3_del\templates\t3_del\p1_Instructions.html:184
+#: .\t3_del\templates\t3_del\p2_DelegationDecision.html:241
+#: .\t4_survey\templates\t4_survey\p1_Instructions.html:66
+#: .\t4_survey\templates\t4_survey\p2_Survey1.html:169
+#: .\t4_survey\templates\t4_survey\p2_Survey2.html:273
+#: .\t4_survey\templates\t4_survey\p2_Survey3.html:96
+#: .\t4_survey\templates\t4_survey\p2_Survey4.html:175
+#: .\t4_survey\templates\t4_survey\p2_Survey5.html:367
+#: .\t5_num\templates\t5_num\p1_Instructions.html:65
+#: .\t5_num\templates\t5_num\p2_Numeracy.html:98
+#: .\t5_num\templates\t5_num\p3_Confidence.html:135
+#: .\t6_lit\templates\t6_lit\p1_Instructions.html:65
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:237
+msgid "Next"
+msgstr "Nästa"
+
+#: .\t1_adt2\pages.py:193 .\t2_adt5\pages.py:174
+msgid "Your Investment"
+msgstr "Din investering"
+
+#: .\t1_adt2\templates\t1_adt2\p0_TaskProgress.html:28
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions0.html:39
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions1.html:39
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions2.html:39
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions3.html:39
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions4.html:39
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension1.html:39
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension2.html:85
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension3.html:85
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension4.html:85
+#: .\t1_adt2\templates\t1_adt2\p2_Start.html:39
+#: .\t1_adt2\templates\t1_adt2\p3_Decision.html:39
+#: .\t2_adt5\templates\t2_adt5\p0_TaskProgress.html:28
+#: .\t2_adt5\templates\t2_adt5\p1_Instructions.html:39
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension1.html:39
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension2.html:85
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension3.html:85
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension4.html:85
+#: .\t2_adt5\templates\t2_adt5\p2_Start.html:39
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:39
+#: .\t2_adt5\templates\t2_adt5\p4_Riskiness.html:19
+#: .\t2_adt5\templates\t2_adt5\p4_Riskiness.html:39
+#: .\t3_del\templates\t3_del\p0_TaskProgress.html:28
+#: .\t3_del\templates\t3_del\p1_Instructions.html:39
+#: .\t3_del\templates\t3_del\p2_DelegationDecision.html:62
+#: .\t4_survey\templates\t4_survey\p0_TaskProgress.html:28
+#: .\t4_survey\templates\t4_survey\p1_Instructions.html:39
+#: .\t4_survey\templates\t4_survey\p2_Survey1.html:39
+#: .\t4_survey\templates\t4_survey\p2_Survey2.html:39
+#: .\t4_survey\templates\t4_survey\p2_Survey3.html:39
+#: .\t4_survey\templates\t4_survey\p2_Survey4.html:39
+#: .\t4_survey\templates\t4_survey\p2_Survey5.html:75
+#: .\t5_num\templates\t5_num\p0_TaskProgress.html:28
+#: .\t5_num\templates\t5_num\p1_Instructions.html:39
+#: .\t5_num\templates\t5_num\p2_Numeracy.html:39
+#: .\t5_num\templates\t5_num\p3_Confidence.html:39
+#: .\t6_lit\templates\t6_lit\p0_TaskProgress.html:28
+#: .\t6_lit\templates\t6_lit\p1_Instructions.html:39
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:39
+msgid "Task"
+msgstr "Uppgift"
+
+#: .\t1_adt2\templates\t1_adt2\p0_TaskProgress.html:31
+#: .\t2_adt5\templates\t2_adt5\p0_TaskProgress.html:31
+#: .\t3_del\templates\t3_del\p0_TaskProgress.html:31
+#: .\t4_survey\templates\t4_survey\p0_TaskProgress.html:31
+#: .\t5_num\templates\t5_num\p0_TaskProgress.html:31
+#: .\t6_lit\templates\t6_lit\p0_TaskProgress.html:31
+msgid "Proceed to Task"
+msgstr "Fortsätt till uppgift"
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions0.html:19
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions1.html:19
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions2.html:19
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions3.html:19
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions4.html:19
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension1.html:19
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension2.html:65
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension3.html:65
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension4.html:65
+#: .\t1_adt2\templates\t1_adt2\p2_Start.html:19
+#: .\t1_adt2\templates\t1_adt2\p3_Decision.html:19
+#: .\t2_adt5\templates\t2_adt5\p1_Instructions.html:19
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension1.html:19
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension2.html:65
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension3.html:65
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension4.html:65
+#: .\t2_adt5\templates\t2_adt5\p2_Start.html:19
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:19
+#: .\t3_del\templates\t3_del\p1_Instructions.html:19
+#: .\t3_del\templates\t3_del\p2_DelegationDecision.html:42
+#: .\t4_survey\templates\t4_survey\p1_Instructions.html:19
+#: .\t4_survey\templates\t4_survey\p2_Survey1.html:19
+#: .\t4_survey\templates\t4_survey\p2_Survey2.html:19
+#: .\t4_survey\templates\t4_survey\p2_Survey3.html:19
+#: .\t4_survey\templates\t4_survey\p2_Survey4.html:19
+#: .\t4_survey\templates\t4_survey\p2_Survey5.html:55
+#: .\t5_num\templates\t5_num\p1_Instructions.html:19
+#: .\t5_num\templates\t5_num\p2_Numeracy.html:19
+#: .\t5_num\templates\t5_num\p3_Confidence.html:19
+#: .\t6_lit\templates\t6_lit\p1_Instructions.html:19
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:19
+msgid "Task No."
+msgstr "Uppgift nr."
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions0.html:19
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions1.html:19
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions2.html:19
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions3.html:19
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions4.html:19
+#: .\t1_adt2\templates\t1_adt2\p2_Start.html:19
+#: .\t1_adt2\templates\t1_adt2\p3_Decision.html:74
+#: .\t2_adt5\templates\t2_adt5\p1_Instructions.html:19
+#: .\t2_adt5\templates\t2_adt5\p2_Start.html:19
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:72
+#: .\t4_survey\templates\t4_survey\p1_Instructions.html:19
+#: .\t5_num\templates\t5_num\p1_Instructions.html:19
+#: .\t6_lit\templates\t6_lit\p1_Instructions.html:19
+msgid "Instructions"
+msgstr "Instruktioner"
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions0.html:39
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions1.html:39
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions2.html:39
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions3.html:39
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions4.html:39
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension1.html:39
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension2.html:85
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension3.html:85
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension4.html:85
+#: .\t1_adt2\templates\t1_adt2\p2_Start.html:39
+#: .\t1_adt2\templates\t1_adt2\p3_Decision.html:39
+#: .\t1_adt2\templates\t1_adt2\p3_Decision.html:51
+#: .\t2_adt5\templates\t2_adt5\p1_Instructions.html:39
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension1.html:39
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension2.html:85
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension3.html:85
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension4.html:85
+#: .\t2_adt5\templates\t2_adt5\p2_Start.html:39
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:39
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:51
+#: .\t2_adt5\templates\t2_adt5\p4_Riskiness.html:39
+#: .\t3_del\templates\t3_del\p1_Instructions.html:39
+#: .\t3_del\templates\t3_del\p2_DelegationDecision.html:62
+#: .\t4_survey\templates\t4_survey\p1_Instructions.html:39
+#: .\t4_survey\templates\t4_survey\p2_Survey1.html:39
+#: .\t4_survey\templates\t4_survey\p2_Survey1.html:51
+#: .\t4_survey\templates\t4_survey\p2_Survey2.html:39
+#: .\t4_survey\templates\t4_survey\p2_Survey2.html:51
+#: .\t4_survey\templates\t4_survey\p2_Survey3.html:39
+#: .\t4_survey\templates\t4_survey\p2_Survey3.html:51
+#: .\t4_survey\templates\t4_survey\p2_Survey4.html:39
+#: .\t4_survey\templates\t4_survey\p2_Survey4.html:51
+#: .\t4_survey\templates\t4_survey\p2_Survey5.html:75
+#: .\t4_survey\templates\t4_survey\p2_Survey5.html:87
+#: .\t5_num\templates\t5_num\p1_Instructions.html:39
+#: .\t5_num\templates\t5_num\p2_Numeracy.html:39
+#: .\t5_num\templates\t5_num\p2_Numeracy.html:51
+#: .\t5_num\templates\t5_num\p3_Confidence.html:39
+#: .\t5_num\templates\t5_num\p3_Confidence.html:51
+#: .\t6_lit\templates\t6_lit\p1_Instructions.html:39
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:39
+msgid "of"
+msgstr "av"
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions0.html:54
+msgid ""
+"We have recruited hundreds of persons from the adult population in Sweden. "
+"Several of them are randomly assigned to you so that you can make financial "
+"investment decisions in the experiment for them. <b>Your aim is to maximize "
+"their expected respected profit conditional on the risk level they provide "
+"on a scale from 1 to 4.</b> (In particular, 1 refers to \"please do not take "
+"any risk at all\" while 4 refers to \"please maximize the expected payoff "
+"regardless of the risk involved\".)"
+msgstr ""
+"Vi har rekryterat ett stort antal personer från den yrkesverksamma "
+"befolkningen i Sverige. Du har slumpmässigt valts ut att fatta "
+"investeringsbeslut i experimentet för åtminstone en av dessa personer/"
+"kunder. <b>Ditt mål är att maximera kundens/kundernas, förväntade "
+"ersättning, givet den risknivå de tillhandahåller på en skala från 1 till 4. "
+"Alla personer som du skall fatta beslut för har angivit samma risknivå.</b> "
+"(Här är innebär 1 \"ingen risk alls\", medan 4 innebär \"maximera den "
+"förväntade avkastningen oavsett vilken risk det medför\".)"
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions0.html:66
+msgid ""
+"<b>Your payout is the same as for each of your clients.</b> The investment "
+"decisions as well as your payout will be explained in what follows."
+msgstr ""
+"<b>Din ersättning är densamma som ersättningen för var och en av dina kunder."
+"</b> Investeringsbesluten samt dina kunders ersättning förklaras nedan."
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions0.html:73
+msgid ""
+"<b>You receive a fixed payout of 200 SEK.</b> The investment decisions as "
+"well as your clients' payout will be explained in what follows."
+msgstr ""
+"<b>Du erhåller 200 SEK i ersättning för att fatta beslut för kunden/kunderna."
+"</b> Investeringsbesluten samt dina kunders ersättning förklaras nedan."
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions1.html:55
+msgid ""
+"The next screens explain how to play the investment game in Task 1. "
+"Remember, a considerable amount of money is at stake for your clients so "
+"please pay careful attention to the instructions."
+msgstr ""
+"De följande sidorna förklarar investeringsproblemen i uppgift 1. Kom ihåg "
+"att dina beslut påverkar dina kunders ersättning så läs instruktionerna "
+"noggrant."
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions1.html:61
+msgid ""
+"The next screens explain how to play the investment game in Task 1. "
+"Remember, a considerable amount of money is at stake for you and your "
+"clients so please pay careful attention to the instructions."
+msgstr ""
+"De följande sidorna förklarar investeringsproblemen i uppgift 1. Kom ihåg "
+"att dina beslut påverkar din och dina kunders ersättning så läs "
+"instruktionerna noggrant."
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions1.html:67
+msgid ""
+"The next screens explain how to play the investment game in Task 1. "
+"Remember, a considerable amount of money is at stake so please pay careful "
+"attention to the instructions."
+msgstr ""
+"De följande sidorna förklarar investeringsproblemen i uppgift 1. Kom ihåg "
+"att dina beslut påverkar din ersättning så läs instruktionerna noggrant."
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions1.html:75
+msgid ""
+"In this game, you will make 10 decisions. In each of these decisions, you "
+"can invest your initial endowment of 100 SEK. You will be asked to divide "
+"the 100 SEK between two investment options: asset A and asset B. The return "
+"of your investments depends on the toss of a coin (simulated by the "
+"computer)."
+msgstr ""
+"Du kommer först att ställas inför 10 investeringsproblem. I vart och ett av "
+"dessa problem kommer ditt beslut handla om hur du vill dela upp 100 SEK "
+"mellan två investeringsalternativ: tillgång A och tillgång B. Avkastningen "
+"på dina investeringar bestäms genom att datorn \"singlar slant\" med ett "
+"mynt. Utfallen krona eller klave har som vanligt lika stor sannolikhet."
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions1.html:84
+msgid ""
+"The table at the top of the decision screens will show the return per SEK "
+"invested. In the example below, each SEK put into asset A pays 2.00 SEK if "
+"the coin comes up heads and 0.00 SEK if it comes up tails. Each SEK put into "
+"asset B pays 0.00 SEK if the coin comes up heads and 3.00 SEK if it comes up "
+"tails."
+msgstr ""
+"Tabellen högst upp på beslutsskärmarna visar avkastningen per SEK "
+"investerat. I exemplet nedan betalar varje SEK som investeras i tillgång A "
+"2,00 SEK om myntet visar krona och 0,00 SEK om myntet visar klave. Varje SEK "
+"som investeras i tillgång B betalar 0,00 SEK om myntet visar krona och 3,00 "
+"SEK om myntet visar klave."
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions2.html:54
+#: .\t1_adt2\templates\t1_adt2\p3_Decision.html:86
+msgid ""
+"You will choose the amount you want to put into each asset by entering the "
+"amount or by using the arrow keys on your keyboard (<i class=\"fas fa-arrow-"
+"up\"></i>, <i class=\"fas fa-arrow-down\"></i>). Note that you can invest "
+"your 100 SEK in steps of 1 SEK. The amounts invested in both assets have to "
+"sum up to 100 SEK."
+msgstr ""
+"Du väljer det belopp du vill placera i varje tillgång genom att ange "
+"beloppet eller genom att använda piltangenterna på tangentbordet (<i class="
+"\"fas fa-arrow-up\"></i>, <i class=\"fas fa-arrow-down\"></i>). Observera "
+"att du kan investera 100 kr i steg om 1 kr. De belopp som investerats i båda "
+"tillgångarna ska uppgå till 100 kronor."
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions2.html:63
+msgid "Below, you see an example of what the decision screen looks like."
+msgstr "Nedan ser du ett exempel på hur beslutsskärmen ser ut."
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions2.html:73
+msgid ""
+"In this example SEK 30 are put into asset A and SEK 70 are put into asset B."
+msgstr "I detta exempel placeras 30 SEK i tillgång A och 70 SEK i tillgång B."
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions2.html:78
+msgid ""
+"So, how big is the return? Please go to the next page to find out how big "
+"the return of these investments is."
+msgstr ""
+"Så hur stor blir avkastningen? Gå vidare till nästa sida för att ta reda på "
+"hur mycket dessa investeringar ger i avkastning."
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions3.html:55
+#: .\t1_adt2\templates\t1_adt2\p3_Decision.html:95
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:93
+msgid ""
+"The payout of the portfolio is the amount invested times the return per SEK "
+"invested, which depends on the toss of a coin. Your clients receive this "
+"payout of the portfolio in addition to the initial endowment of 100 SEK."
+msgstr ""
+"Portföljens avkastning är det belopp som investeras gånger avkastningen per "
+"investerad SEK, vilket beror på om myntet visar krona eller klave. Var och "
+"en av Dina kunder erhåller denna ersättning utöver 100 SEK för att delta"
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions3.html:61
+#: .\t1_adt2\templates\t1_adt2\p3_Decision.html:101
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:99
+msgid ""
+"The payout of the portfolio is the amount invested times the return per SEK "
+"invested, which depends on the toss of a coin. You and your clients receive "
+"this payout of the portfolio in addition to the initial endowment of 100 SEK."
+msgstr ""
+"Portföljens avkastning är det belopp som investeras gånger avkastningen per "
+"investerad SEK, vilket beror på om myntet visar krona eller klave. Du samt "
+"var och en av dina kunder erhåller denna ersättning utöver 100 SEK för att "
+"delta."
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions3.html:67
+#: .\t1_adt2\templates\t1_adt2\p3_Decision.html:107
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:105
+msgid ""
+"The payout of the portfolio is the amount invested times the return per SEK "
+"invested, which depends on the toss of a coin. You receive this payout of "
+"the portfolio in addition to the initial endowment of 100 SEK."
+msgstr ""
+"Portföljens avkastning är det belopp som investeras gånger avkastningen per "
+"investerad SEK, vilket beror på om myntet visar krona eller klave. Du kommer "
+"att erhålla detta belopp tillsammens med de 100 SEK du får för att delta."
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions3.html:75
+msgid ""
+"Let’s look at our example with 30 SEK put into asset A and 70 SEK put into "
+"asset B when the computer randomly selects <b>heads</b>."
+msgstr ""
+"I exemplet investerades 30 SEK i tillgång A och 70 SEK i tillgång B. Antag "
+"att datorn slumpmässigt väljer <b>krona</b>."
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions3.html:87
+msgid ""
+"Each of your clients' return is 2.00 SEK for each of the SEK you put into "
+"asset A. Your clients' return is 0.00 SEK for each of the SEK you put into "
+"asset B. So the 70 SEK put into asset B will pay nothing. In total your "
+"investment pays 60 SEK if the coin comes up heads. Together with your "
+"initial endowment your client would receive a payout of 160 SEK."
+msgstr ""
+"Var och en av dina kunders ersättning är 2.00 SEK för varje SEK du lägger i "
+"tillgång A. Dina kunders ersättning är 0.00 SEK för varje SEK du lägger i "
+"tillgång B. Så 70 SEK i tillgång B ger ingen ersättning om myntet visar "
+"krona. Din investering på 30 SEK i tillgång B ger var och en av dina kunder "
+"30 * 2.00 = 60 SEK om myntet visar krona. Tillsammans med ersättningen för "
+"att delta, 100 SEK, skulle kundens/kundernas ersättning bli 160 SEK."
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions3.html:95
+msgid ""
+"Your return is 2.00 SEK for each of the SEK you put into asset A. Your "
+"return is 0.00 SEK for each of the SEK you put into asset B. So the 70 SEK "
+"put into asset B will pay nothing. In total your investment pays 60 SEK if "
+"the coin comes up heads. Together with your initial endowment you would "
+"receive a payout of 160 SEK."
+msgstr ""
+"Din ersättning är 2.00 SEK för varje SEK du lägger i tillgång A. Din "
+"ersättning är 0.00 SEK för varje SEK du lägger i tillgång B. Så 70 SEK i "
+"tillgång B ger ingen ersättning om myntet visar krona. Din investering på 30 "
+"SEK i tillgång B ger 30 * 2.00 = 60 SEK om myntet visar krona. Tillsammans "
+"med ersättningen för att delta, 100 SEK, skulle din ersättning bli 160 SEK."
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions3.html:106
+msgid ""
+"If you do the same calculation for when the coin comes up <b>tails</b>, you "
+"will see that in total these investments pay 210 SEK if the coin comes up "
+"tails. Together with the initial endowment your clients would receive a "
+"payout of 310 SEK."
+msgstr ""
+"Om du gör samma beräkning för när myntet visar klave, kommer du att se att "
+"dessa investeringar totalt ger var och en av dina kunder en ersättning på "
+"210 SEK om myntet visar klave. Tillsammans med ersättningen för att delta, "
+"100 SEK, skulle kundens/ kundernas ersättning bli 310 SEK."
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions3.html:113
+msgid ""
+"If you do the same calculation for when the coin comes up <b>tails</b>, you "
+"will see that in total these investments pay 210 SEK if the coin comes up "
+"tails. Together with the initial endowment you and each of your clients "
+"would receive a payout of 310 SEK."
+msgstr ""
+"Om du gör samma beräkning för när myntet visar klave, kommer du att se att "
+"dessa investeringar totalt ger en ersättning på 210 SEK om myntet visar "
+"klave. Tillsammans med ersättningen för att delta, 100 SEK, skulle din och "
+"var och en av dina kunders ersättning bli 310 SEK."
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions3.html:120
+msgid ""
+"If you do the same calculation for when the coin comes up <b>tails</b>, you "
+"will see that in total these investments pay 210 SEK if the coin comes up "
+"tails. Together with your initial endowment you would receive a payout of "
+"310 SEK."
+msgstr ""
+"Om du gör samma beräkning för när myntet visar <b>klave</b> kommer du att se "
+"att dessa investeringar totalt betalar 210 SEK. Tillsammans med de 100 SEK "
+"du får för att delta skulle du då erhålla 310 SEK."
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions4.html:55
+msgid ""
+"This screen explains how your clients’ earnings will be determined. At the "
+"end of the experiment the computer will randomly select one of your 25 "
+"investment decisions and your clients will be paid according to the "
+"investments you made in the selected decision."
+msgstr ""
+"Den här sidan förklarar hur dina kunders ersättning kommer att bestämmas. I "
+"slutet av experimentet väljer datorn slumpmässigt ett av dina 25 "
+"investeringsbeslut och dina kunder kommer att ersättas enligt de "
+"investeringar du gjorde i det valda beslutet."
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions4.html:62
+msgid ""
+"This screen explains how your and your clients’ earnings will be determined. "
+"At the end of the experiment the computer will randomly select one of your "
+"25 investment decisions and you and each of your clients will be paid "
+"according to the investments you made in the selected decision."
+msgstr ""
+"Den här sidan förklarar hur din och dina kunders ersättning kommer att "
+"bestämmas. I slutet av experimentet väljer datorn slumpmässigt ett av dina "
+"totalt 25 investeringsbeslut och du samt var och en av dina kunder kommer "
+"att ersättas enligt de investeringar du gjorde i det valda beslutet."
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions4.html:69
+msgid ""
+"This screen explains how your earnings will be determined. At the end of the "
+"experiment the computer will randomly select one of your 25 investment "
+"decisions and you will be paid according to the investments you made in the "
+"selected decision."
+msgstr ""
+"Den här sidan förklarar hur beloppet du kommer att erhålla bestäms. I slutet "
+"av experimentet väljer datorn slumpmässigt ett av dina 25 investeringsbeslut "
+"och du kommer att erhålla ett belopp enligt de investeringar du gjort i det "
+"valda beslutet."
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions4.html:78
+msgid ""
+"Here’s an example. Suppose that the computer selects decision 5 for payment. "
+"That means that each of your clients will be paid according to the "
+"investments you made in decision 5. Let’s say that your investments in "
+"decision 5 pay 150 SEK if the coin comes up heads and 320 SEK if the coin "
+"comes up tails."
+msgstr ""
+"Här är ett exempel. Antag att datorn väljer beslut 5 för att beräkna dina "
+"kunders ersättning. Det innebär att var och en av dina kunder kommer att "
+"ersättas enligt de investeringar du gjorde i beslut 5. Dina investeringar i "
+"beslut 5 betalar 150 SEK om myntet visar krona och 320 SEK om myntet visar "
+"klave."
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions4.html:85
+msgid ""
+"Here’s an example. Suppose that the computer selects decision 5 for payment. "
+"That means that you as well as each of your clients will be paid according "
+"to the investments you made in decision 5. Let’s say that your investments "
+"in decision 5 pay 150 SEK if the coin comes up heads and 320 SEK if the coin "
+"comes up tails."
+msgstr ""
+"Här är ett exempel. Antag att datorn väljer beslut 5 för att beräkna din "
+"samt var och en av dina kunders ersättning. Det innebär att du samt var och "
+"en av dina kunder kommer att ersättas enligt de investeringar du gjorde i "
+"beslut 5. Dina investeringar i beslut 5 betalar 150 SEK om myntet visar "
+"krona och 320 SEK om myntet visar klave."
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions4.html:93
+msgid ""
+"Here’s an example. Suppose that the computer selects decision 5 for payment. "
+"Let’s say that your investments in decision 5 pay 150 SEK if the coin comes "
+"up heads and 320 SEK if the coin comes up tails."
+msgstr ""
+"Till exempel, antag att datorn väljer beslut 5 för betalning. Dina "
+"investeringar i beslut 5 betalar 150 SEK om myntet visar krona och 320 SEK "
+"om myntet visar klave."
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions4.html:102
+msgid ""
+"Next the computer will randomly select heads or tails. If the coin comes up "
+"heads, each of your your clients will be paid SEK 150 plus the initial "
+"endowment of 100 SEK. If the coin comes up tails, each of your clients will "
+"be paid 320 SEK plus the initial endowment of 100 SEK."
+msgstr ""
+"Därefter väljer datorn slumpmässigt krona eller klave. Om myntet visar krona "
+"kommer var och en av dina kunders ersättning bli 150 SEK plus 100 SEK för "
+"att ni deltar. Om myntet visar klave kommer var och en av dina kunders "
+"ersättning bli 320 SEK plus 100 SEK."
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions4.html:109
+msgid ""
+"Next the computer will randomly select heads or tails. If the coin comes up "
+"heads, you and each of your clients will be paid 150 SEK plus the initial "
+"endowment of 100 SEK. If the coin comes up tails, you and each of your "
+"clients will be paid 320 SEK plus the initial endowment of 100 SEK."
+msgstr ""
+"Därefter väljer datorn slumpmässigt krona eller klave. Om myntet visar krona "
+"kommer din samt var och en av  dina kunders ersättning bli 150 SEK plus 100 "
+"SEK för att ni deltar. Om myntet visar klave kommer din samt var och en av  "
+"dina kunders ersättning bli 320 SEK plus 100 SEK."
+
+#: .\t1_adt2\templates\t1_adt2\p1_Instructions4.html:116
+msgid ""
+"Next the computer will randomly select heads or tails. If the coin comes up "
+"heads, you will be paid 150 SEK plus the initial endowment of 100 SEK. If "
+"the coin comes up tails, you will be paid 320 SEK plus the initial endowment "
+"of 100 SEK."
+msgstr ""
+"Datorn väljer sedan slumpmässigt krona eller klave. Om myntet visar krona "
+"erhåller du 150 SEK plus de 100 SEK du erhåller för att delta. Om myntet "
+"visar klave erhåller du 320 SEK plus 100 SEK."
+
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension1.html:19
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension1.html:19
+msgid "Comprehension"
+msgstr "Förståelse"
+
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension1.html:55
+msgid ""
+"Before we start with the investment decisions relevant for your client's "
+"payoff, we would like to help you understand the task and make sure that you "
+"understand the investment game. On the next three screens we will show you "
+"screenshots of investment decisions and ask you questions about the "
+"respective examples shown."
+msgstr ""
+"Innan vi börjar med investeringsbesluten som är relevanta för dina kunders "
+"ersättning vill vi säkerställa att du har läst instruktionerna och förstått "
+"dem. På de tre följande sidorna visar vi skärmdumpar av investeringsbeslut "
+"och ställer frågor till respektive exempel."
+
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension1.html:62
+msgid ""
+"Before we start with the investment decisions relevant for your and your "
+"client's payoff, we would like to help you understand the task and make sure "
+"that you understand the investment game. On the next three screens we will "
+"show you screenshots of investment decisions and ask you questions about the "
+"respective examples shown."
+msgstr ""
+"Innan vi börjar med investeringsbesluten som är relevanta för din och dina "
+"kunders ersättning vill vi säkerställa att du har läst instruktionerna och "
+"förstått dem. På de tre följande sidorna visar vi skärmdumpar av "
+"investeringsbeslut och ställer frågor till respektive exempel."
+
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension1.html:70
+msgid ""
+"Before we start with the payout-relevant investment decisions, we would like "
+"to help you understand the task and make sure that you understand the "
+"investment game. On the next three screens we will show you screenshots of "
+"investment decisions and ask you questions about the respective examples "
+"shown."
+msgstr ""
+"Innan vi börjar med investeringsbesluten som är relevanta för din ersättning "
+"vill vi säkerställa att du har läst instruktionerna och förstått dem. På de "
+"tre följande sidorna visar vi skärmdumpar av investeringsbeslut och ställer "
+"frågor till respektive exempel."
+
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension1.html:80
+msgid ""
+"You can only start with the investment decisions relevant for your client's "
+"payoff once you have correctly answered all three questions. In case you "
+"have problems answering the questions, you will get additional information "
+"that helps you."
+msgstr ""
+"Du kan bara börja med investeringsbesluten som är relevanta för dina kunders "
+"ersättning när du har svarat korrekt på alla tre frågorna. Om du har problem "
+"med att svara på frågorna får du ytterligare information som hjälp."
+
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension1.html:86
+msgid ""
+"You can only start with the investment decisions relevant for your and your "
+"client's payoff once you have correctly answered all three questions. In "
+"case you have problems answering the questions, you will get additional "
+"information that helps you."
+msgstr ""
+"Du kan bara börja med investeringsbesluten som är relevanta för din och dina "
+"kunders ersättning när du har svarat korrekt på alla tre frågorna. Om du har "
+"problem med att svara på frågorna får du ytterligare information som hjälp."
+
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension1.html:92
+msgid ""
+"You can only start with the payout-relevant investment decisions once you "
+"have correctly answered all three questions. In case you have problems "
+"answering the questions, you will get additional information that helps you."
+msgstr ""
+"Du kan bara börja med investeringsbesluten som är relevanta för din "
+"ersättning när du har svarat korrekt på alla tre frågorna. Om du har problem "
+"med att svara på frågorna får du ytterligare information som hjälp."
+
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension2.html:65
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension3.html:65
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension4.html:65
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension2.html:65
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension3.html:65
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension4.html:65
+msgid "Question"
+msgstr "Fråga"
+
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension2.html:100
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension3.html:100
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension4.html:100
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension2.html:100
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension3.html:100
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension4.html:100
+msgid "Please consider the following investment decision:"
+msgstr "Antag följande investeringsbeslut:"
+
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension2.html:110
+msgid ""
+"What is the return of each SEK put into <b>asset A</b><br/> if the coin "
+"comes up <b>heads</b>?"
+msgstr ""
+"Vad är avkastningen för varje SEK som investerats <br/> i <b>tillgång A</b> "
+"om myntet visar <b>krona</b>?"
+
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension2.html:136
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension3.html:136
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension4.html:138
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension2.html:136
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension3.html:135
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension4.html:136
+msgid "Submit Your Answer"
+msgstr "Bekräfta ditt svar"
+
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension2.html:162
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension3.html:162
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension4.html:164
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension2.html:161
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension3.html:161
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension4.html:161
+msgid "No answer was provided..."
+msgstr "Inget svar angavs..."
+
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension2.html:170
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension3.html:170
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension4.html:172
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension2.html:169
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension3.html:169
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension4.html:169
+msgid "Please make sure to enter a valid number into the input field."
+msgstr "Var noga med att ange ett giltigt nummer i inmatningsfältet."
+
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension2.html:175
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension3.html:175
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension4.html:177
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension2.html:174
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension3.html:174
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension4.html:174
+msgid ""
+"Note that you can only continue if the question has been answered correctly."
+msgstr "Observera att du bara kan fortsätta om frågan har besvarats korrekt."
+
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension2.html:182
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension2.html:277
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension3.html:182
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension3.html:283
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension4.html:184
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension4.html:279
+#: .\t1_adt2\templates\t1_adt2\p3_Decision.html:122
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension2.html:181
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension2.html:276
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension3.html:181
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension3.html:276
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension4.html:181
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension4.html:276
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:120
+#: .\t3_del\templates\t3_del\p2_DelegationDecision.html:231
+msgid "Close"
+msgstr "Stäng"
+
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension2.html:206
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension3.html:206
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension4.html:208
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension2.html:205
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension3.html:205
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension4.html:205
+msgid "Congratulations!"
+msgstr "Grattis!"
+
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension2.html:214
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension3.html:214
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension4.html:216
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension2.html:213
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension3.html:213
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension4.html:213
+msgid "Your answer was correct."
+msgstr "Ditt svar var korrekt."
+
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension2.html:219
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension3.html:219
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension4.html:221
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension2.html:218
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension3.html:218
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension4.html:218
+msgid "Please hit the button below to proceed."
+msgstr "Vänligen tryck på knappen nedan för att fortsätta."
+
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension2.html:226
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension3.html:226
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension4.html:228
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension2.html:225
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension3.html:225
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension4.html:225
+msgid "Proceed"
+msgstr "Fortsätt"
+
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension2.html:250
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension3.html:250
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension4.html:252
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension2.html:249
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension3.html:249
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension4.html:249
+msgid "Please try again..."
+msgstr "Var god försök igen..."
+
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension2.html:258
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension3.html:258
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension4.html:260
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension2.html:257
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension3.html:257
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension4.html:257
+msgid ""
+"Unfortunately, your answer was not correct. Please read the question "
+"carefully, consider the hint below, and try again."
+msgstr ""
+"Tyvärr var ditt svar inte korrekt. Vänligen läs frågan noggrant, se "
+"ledtråden nedan och försök igen."
+
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension2.html:265
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension3.html:265
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension4.html:267
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension2.html:264
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension3.html:264
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension4.html:264
+msgid "Hint:"
+msgstr "Ledtråd:"
+
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension2.html:268
+msgid ""
+"Remember that the table at the top shows the return of asset A (left column) "
+"and asset B (right column) per SEK invested in case the coin comes up heads "
+"(top row) or tails (bottom row)."
+msgstr ""
+"Kom ihåg att tabellen visar avkastningen på tillgång A (vänster kolumn) och "
+"tillgång B (höger kolumn) per SEK investerat i respektive tillgång om myntet "
+"visar krona (översta raden) eller klave (nedersta raden)."
+
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension3.html:110
+msgid ""
+"If 100 SEK are put into <b>asset A</b>, how much does <br/> the investment "
+"pay if the coin comes up <b>heads</b>?"
+msgstr ""
+"Om 100 SEK investeras i <b>tillgång A</b>, hur mycket avkastar <br/> "
+"investeringen om myntet visar <b>krona</b>?"
+
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension3.html:268
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension3.html:267
+msgid ""
+"Remember that the table depicts how much the asset pays per SEK invested. "
+"Thus, if, for instance, 50 SEK are put into an asset, the investment pays 50 "
+"times the return of the asset."
+msgstr ""
+"Kom ihåg att tabellen visar hur mycket tillgången betalar per SEK "
+"investerat. Om exempelvis 50 SEK investeras i en tillgång, betalar "
+"investeringen 50 gånger tillgångens avkastning."
+
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension3.html:275
+msgid ""
+"So for example, if the return on that asset is 2.00 SEK if Heads comes up, "
+"you will receive 2 x 50 = 100 SEK from that investment (if Heads comes up)."
+msgstr ""
+"Till exempel, om avkastningen på den tillgången är 2,00 SEK om myntet visar "
+"krona får du 2 x 50 = 100 SEK om myntet visar krona."
+
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension4.html:110
+msgid ""
+"In this example, 30 SEK is invested in Asset A and 70 SEK is invested in "
+"Asset B.<br/> How much does the <b>portfolio</b> - that is, the amount "
+"put<br/> into both assets - pay if the coin comes up <b>tails</b><br/> "
+"(excluding the initial endowment of 100 SEK)?"
+msgstr ""
+"I det här exemplet har 30 SEK investerats i Tillgång A och 70 SEK "
+"investerats i Tillgång B.<br/> Hur mycket avkastar <b>portföljen</b> - det "
+"vill säga investeringarna <br/> i båda tillgångarna - om myntet visar "
+"<b>klave</b> <br/> (exklusive de 100 SEK du erhåller för att delta)?"
+
+#: .\t1_adt2\templates\t1_adt2\p2_Comprehension4.html:270
+msgid ""
+"Note that asset A pays 0.00 SEK in case the coin shows up tails. Moreover, "
+"take into consideration how much has been invested into each of the two "
+"assets."
+msgstr ""
+"Observera att tillgång A betalar 0,00 SEK om myntet visar klave. Ta också "
+"hänsyn till hur mycket som har investerats i var och en av de två "
+"tillgångarna."
+
+#: .\t1_adt2\templates\t1_adt2\p2_Start.html:55
+#: .\t2_adt5\templates\t2_adt5\p2_Start.html:55
+msgid ""
+"Now you will begin with the investment decisions that are relevant for your "
+"client's payout."
+msgstr ""
+"På nästa sida börjar investeringsbesluten som bestämmer dina kunders "
+"ersättning."
+
+#: .\t1_adt2\templates\t1_adt2\p2_Start.html:60
+#: .\t2_adt5\templates\t2_adt5\p2_Start.html:60
+msgid ""
+"Now you will begin with the investment decisions that are relevant for your "
+"and your client's payout."
+msgstr ""
+"På nästa sida börjar investeringsbesluten som bestämmer din och dina kunders "
+"ersättning."
+
+#: .\t1_adt2\templates\t1_adt2\p2_Start.html:65
+#: .\t2_adt5\templates\t2_adt5\p2_Start.html:65
+msgid ""
+"Now you will begin with the investment decisions that are relevant for your "
+"payout."
+msgstr ""
+"På nästa sida börjar investeringsbesluten som bestämmer din ersättning."
+
+#: .\t1_adt2\templates\t1_adt2\p2_Start.html:73
+#: .\t2_adt5\templates\t2_adt5\p2_Start.html:73
+msgid ""
+"Remember that any of the investment decisions can be the one your clients "
+"may be paid for. So, make each decision very carefully."
+msgstr ""
+"Kom ihåg att något av besluten kan vara det som bestämmer dina kunders "
+"ersättning så var noggrann."
+
+#: .\t1_adt2\templates\t1_adt2\p2_Start.html:78
+#: .\t2_adt5\templates\t2_adt5\p2_Start.html:78
+msgid ""
+"Remember that any of the investment decisions can be the one you and your "
+"clients may be paid for. So, make each decision very carefully."
+msgstr ""
+"Kom ihåg att något av besluten kan vara det som bestämmer din samt var och "
+"en av dina kunders ersättning så var noggrann."
+
+#: .\t1_adt2\templates\t1_adt2\p2_Start.html:83
+#: .\t2_adt5\templates\t2_adt5\p2_Start.html:83
+msgid ""
+"Remember that any of the investment decisions can be the one you may be paid "
+"for. So, make each decision very carefully."
+msgstr ""
+"Kom ihåg att något av besluten kan vara det som bestämmer din ersättning så "
+"var noggrann."
+
+#: .\t1_adt2\templates\t1_adt2\p2_Start.html:91
+#, python-format
+msgid ""
+"<b>Note:</b> Your clients indicate that they want you to make your decisions "
+"on their behalf on the following risk level: <b>%(risk_level)s out of 4</b> "
+"(1 refers to \"please do not take any risk at all\" while 4 refers to "
+"\"please maximize the expected payoff regardless of the risk involved\")."
+msgstr ""
+"<b>Obs!</b> Dina kunder anger att de vill att du ska ta beslut givet "
+"följande risknivå: <b>%(risk_level)s av 4</b>."
+
+#: .\t1_adt2\templates\t1_adt2\p2_Start.html:100
+#: .\t2_adt5\templates\t2_adt5\p2_Start.html:100
+msgid "Happy investing!"
+msgstr "Lycka till!"
+
+#: .\t1_adt2\templates\t1_adt2\p3_Decision.html:19
+#: .\t1_adt2\templates\t1_adt2\p3_Decision.html:51
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:19
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:51
+msgid "Decision"
+msgstr "Beslut"
+
+#: .\t1_adt2\templates\t1_adt2\p3_Decision.html:81
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:79
+msgid ""
+"The table at the top of the decision screens will show the return per SEK "
+"invested."
+msgstr ""
+"Tabellen högst upp på beslutsskärmarna visar avkastningen per SEK investerat."
+
+#: .\t1_adt2\templates\t1_adt2\p3_Decision.html:115
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:113
+msgid "When you are finished with your choices, hit <b>next</b>."
+msgstr "När du är klar med dina val, tryck på <b>nästa</b>."
+
+#: .\t1_adt2\templates\t1_adt2\p3_Decision.html:135
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:133
+msgid "Your clients'<br/> risk level:"
+msgstr "Dina klienters<br/> risknivå:"
+
+#: .\t1_adt2\templates\t1_adt2\p3_Decision.html:150
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:148
+msgid "Return per 1 SEK invested ..."
+msgstr "Avkastning per investerad SEK ..."
+
+#: .\t1_adt2\templates\t1_adt2\p3_Decision.html:159
+#: .\t1_adt2\templates\t1_adt2\p3_Decision.html:160
+#: .\t1_adt2\templates\t1_adt2\p3_Decision.html:219
+#: .\t1_adt2\templates\t1_adt2\p3_Decision.html:234
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:157
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:158
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:159
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:160
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:161
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:232
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:247
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:262
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:277
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:292
+msgid "Asset"
+msgstr "Tillgång"
+
+#: .\t1_adt2\templates\t1_adt2\p3_Decision.html:165
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:166
+msgid "Heads"
+msgstr "Krona"
+
+#: .\t1_adt2\templates\t1_adt2\p3_Decision.html:166
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:167
+msgid "Tails"
+msgstr "Klave"
+
+#: .\t1_adt2\templates\t1_adt2\p3_Decision.html:189
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:202
+msgid "How much do you want to invest in each asset?"
+msgstr "Hur mycket vill du investera i varje tillgång?"
+
+#: .\t1_adt2\templates\t1_adt2\p3_Decision.html:195
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:208
+msgid "(Note: The \"Next\" button will appear when the sum equals 100 SEK.)"
+msgstr "(Observera att knappen \"Nästa\" visas när summan motsvarar 100 SEK.)"
+
+#: .\t1_adt2\templates\t1_adt2\p3_Decision.html:203
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:216
+msgid "Investment"
+msgstr "Investering"
+
+#: .\t1_adt2\templates\t1_adt2\p3_Decision.html:247
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:305
+msgid "Total"
+msgstr "Totalt"
+
+#: .\t2_adt5\templates\t2_adt5\p1_Instructions.html:54
+msgid ""
+"Task 2 consists of 15 investment decisions similar to the decisions in Task "
+"1. You will again invest your initial endowment of 100 SEK but in each "
+"decision now you will have <b>five rather than two investment options</b>: "
+"asset A, asset B, asset C, asset D, and asset E."
+msgstr ""
+"Uppgift 2 består av 15 investeringsbeslut som liknar besluten i uppgift 1. "
+"Du kommer återigen att investera 100 SEK men i varje beslut kommer du nu att "
+"ha <b>fem i stället för två investeringsalternativ</b>: tillgång A, tillgång "
+"B, tillgång C, tillgång D och tillgång E."
+
+#: .\t2_adt5\templates\t2_adt5\p1_Instructions.html:62
+msgid ""
+"You will again choose the amount you want to put into each asset by either "
+"entering the respective amount (between 0 and 100) into the input field or "
+"using the arrow keys of your keyboard (<i class=\"fas fa-arrow-up\"></i>, <i "
+"class=\"fas fa-arrow-down\"></i>)."
+msgstr ""
+"Du väljer det belopp du vill placera i varje tillgång genom att antingen "
+"ange respektive belopp (mellan 0 och 100) i inmatningsfältet eller med "
+"piltangenterna på ditt tangentbord (<i class=\"fas fa-arrow-up\"></i>, <i "
+"class=\"fas fa-arrow-down\"></i>)"
+
+#: .\t2_adt5\templates\t2_adt5\p1_Instructions.html:69
+msgid ""
+"The amounts invested in all five assets has to sum up to 100 SEK. Below the "
+"graph you can see whether your investments sum up to 100 SEK."
+msgstr ""
+"De belopp som investerats i samtliga fem tillgångar ska uppgå till 100 "
+"kronor. Nedanför diagrammet kan du se om dina investeringar uppgår till 100 "
+"SEK."
+
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension1.html:55
+msgid ""
+"Before we start with the upcoming 15 investment decisions relevant for your "
+"client's payoff, we would like to ask you about your understanding of the "
+"investment game with five assets. On the next three screens we will show you "
+"screenshots of investment decisions and ask you questions about the "
+"respective examples shown."
+msgstr ""
+"Innan du kan börja med de 15 investeringsbesluten med 5 tillgångar som är "
+"relevanta för dina kunders ersättning vill vi säkerställa att du har "
+"förstått hur det fungerar. På de tre följande sidorna visar vi skärmdumpar "
+"av investeringsbeslut och ställer frågor till respektive exempel."
+
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension1.html:62
+msgid ""
+"Before we start with the upcoming 15 investment decisions relevant for your "
+"and your client's payoff, we would like to ask you about your understanding "
+"of the investment game with five assets. On the next three screens we will "
+"show you screenshots of investment decisions and ask you questions about the "
+"respective examples shown."
+msgstr ""
+"Innan du kan börja med de 15 investeringsbesluten med 5 tillgångar som är "
+"relevanta för din och dina kunders ersättning vill vi säkerställa att du har "
+"förstått hur det fungerar. På de tre följande sidorna visar vi skärmdumpar "
+"av investeringsbeslut och ställer frågor till respektive exempel."
+
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension1.html:70
+msgid ""
+"Before we start with the upcoming 15 payout-relevant investment decisions, "
+"we would like to ask you about your understanding of the investment game "
+"with five assets. On the next three screens we will show you screenshots of "
+"investment decisions and ask you questions about the respective examples "
+"shown."
+msgstr ""
+"Innan du kan börja med de 15 investeringsbesluten med 5 tillgångar som är "
+"relevanta för din ersättning vill vi säkerställa att du har förstått hur det "
+"fungerar. På de tre följande sidorna visar vi skärmdumpar av "
+"investeringsbeslut och ställer frågor till respektive exempel."
+
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension1.html:80
+msgid ""
+"Again, you can only start with the investment decisions relevant for your "
+"client's payoff once you have correctly answered all 3 questions. If you "
+"fail to do so, you will get additional information to answer the relevant "
+"questions again."
+msgstr ""
+"Du kan bara börja med investeringsbesluten som är relevanta för dina kunders "
+"ersättning när du har svarat korrekt på alla tre frågorna. Om du har problem "
+"med att svara på frågorna får du ytterligare information som hjälp."
+
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension1.html:86
+msgid ""
+"Again, you can only start with the investment decisions relevant for your "
+"and your client's payoff once you have correctly answered all 3 questions. "
+"If you fail to do so, you will get additional information to answer the "
+"relevant questions again."
+msgstr ""
+"Du kan bara börja med investeringsbesluten som är relevanta för din och dina "
+"kunders ersättning när du har svarat korrekt på alla tre frågorna. Om du har "
+"problem med att svara på frågorna får du ytterligare information som hjälp."
+
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension1.html:92
+msgid ""
+"Again, you can only start with the payout-relevant investment decisions once "
+"you have correctly answered all 3 questions. If you fail to do so, you will "
+"get additional information to answer the relevant questions again."
+msgstr ""
+"Du kan bara börja med investeringsbesluten som är relevanta för din "
+"ersättning när du har svarat korrekt på alla tre frågorna. Om du har problem "
+"med att svara på frågorna får du ytterligare information som hjälp."
+
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension2.html:110
+msgid ""
+"What is the return of each SEK put into <b>asset D</b><br/> if the coin "
+"comes up <b>tails</b>?"
+msgstr ""
+"Vad är avkastningen för varje krona som investerats <br/> i <b>tillgång D</"
+"b> om myntet visar <b>klave</b>?"
+
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension2.html:267
+msgid ""
+"Remember that the table at the top shows the return of asset A, B, C, D, and "
+"E (columns) per SEK invested in case the coin comes up heads (top row) or "
+"tails (bottom row)."
+msgstr ""
+"Kom ihåg att tabellen visar avkastningen på tillgång A, B, C, D och E "
+"(kolumner) per SEK som investeras om myntet visar krona (toppraden) eller "
+"klave (nedersta raden)."
+
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension3.html:110
+msgid ""
+"If 50 SEK are put into <b>asset A</b>, how much does <br/> the asset pay if "
+"the coin comes up <b>heads</b>?"
+msgstr ""
+"Om 50 SEK investeras i <b>tillgång A</b>, hur mycket avkastar <br/> "
+"investeringen om myntet visar <b>krona</b>?"
+
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension4.html:110
+msgid ""
+"How much does the <b>portfolio</b> - that is, the amount put<br/> into all "
+"five assets - pay if the coin comes up <b>heads</b><br/> (excluding the "
+"initial endowment of 100 SEK)?"
+msgstr ""
+"Hur mycket avkastar <b>portföljen</b> - det vill säga investeringarna <br/> "
+"i alla fem tillgångarna - om myntet visar <b>krona</b> <br/> (exklusive de "
+"100 SEK du erhåller för att delta)?"
+
+#: .\t2_adt5\templates\t2_adt5\p2_Comprehension4.html:267
+msgid ""
+"Note that asset B and asset E pay 0.00 SEK in case the coin comes up heads. "
+"Moreover, take into consideration how much has been invested into each of "
+"the three remaining assets (A, C, and D)."
+msgstr ""
+"Observera att tillgång B och tillgång E betalar 0,00 SEK om myntet visar "
+"krona. Ta också hänsyn till hur mycket som har investerats i var och en av "
+"de tre återstående tillgångarna."
+
+#: .\t2_adt5\templates\t2_adt5\p2_Start.html:91
+#, python-format
+msgid ""
+"<b>Remember:</b> Your clients indicate that they want you to make your "
+"decisions on their behalf on the following risk level: <b>%(risk_level)s out "
+"of 4</b> (1 refers to \"please do not take any risk at all\" while 4 refers "
+"to \"please maximize the expected payoff regardless of the risk involved\")."
+msgstr ""
+"Kom ihåg dina kunder anger att de vill att du ska ta beslut givet följande "
+"risknivå: <b>%(risk_level)s av 4</b>."
+
+#: .\t2_adt5\templates\t2_adt5\p3_Decision.html:84
+msgid ""
+"You will choose the amount you want to put into each asset by entering the "
+"amount or by using the arrow keys on your keyboard (<i class=\"fas fa-arrow-"
+"up\"></i>, <i class=\"fas fa-arrow-down\"></i>). Note that you can invest "
+"your 100 SEK in steps of 1 SEK. The amounts invested in all five assets has "
+"to sum up to 100 SEK."
+msgstr ""
+"Du väljer det belopp du vill placera i varje tillgång genom att ange "
+"beloppet eller genom att använda piltangenterna på tangentbordet (<i class="
+"\"fas fa-arrow-up\"></i>, <i class=\"fas fa-arrow-down\"></i>). Observera "
+"att du kan investera 100 kr i steg om 1 kr. De belopp som investerats i "
+"samtliga fem tillgångar ska uppgå till 100 kronor."
+
+#: .\t2_adt5\templates\t2_adt5\p4_Riskiness.html:19
+msgid "and"
+msgstr "och"
+
+#: .\t2_adt5\templates\t2_adt5\p4_Riskiness.html:19
+msgid "Riskiness"
+msgstr "Risktagande"
+
+#: .\t2_adt5\templates\t2_adt5\p4_Riskiness.html:54
+#: .\t5_num\templates\t5_num\p2_Numeracy.html:65
+msgid "Please answer the following question:"
+msgstr "Vänligen svara på följande fråga:"
+
+#: .\t2_adt5\templates\t2_adt5\p4_Riskiness.html:61
+msgid ""
+"On a scale from 1 (no risk at all) to 4 (a lot of risk): All in all, <b>how "
+"much risk did you take during the 25 investment decisions</b> (in task 1 and "
+"task 2) on average:"
+msgstr ""
+"På en skala från 1 (ingen risk alls) till 4 (mycket risk): Sammantaget, "
+"<b>hur mycket risk har du tagit under de 25 investeringsbesluten</b> (i "
+"uppgift 1 och uppgift 2) i genomsnitt:"
+
+#: .\t2_adt5\templates\t2_adt5\p4_Riskiness.html:82
+#: .\t3_del\templates\t3_del\p2_DelegationDecision.html:178
+msgid "no risk at all"
+msgstr "Ingen risk alls"
+
+#: .\t2_adt5\templates\t2_adt5\p4_Riskiness.html:84
+#: .\t3_del\templates\t3_del\p2_DelegationDecision.html:180
+msgid "a lot of risk"
+msgstr "Mycket risk"
+
+#: .\t3_del\pages.py:77
+msgid "a financial professional"
+msgstr "en person från den svenska finansbranschen"
+
+#: .\t3_del\pages.py:79
+msgid "a robo-advisor"
+msgstr "en robot-rådgivare"
+
+#: .\t3_del\templates\t3_del\p1_Instructions.html:19
+#: .\t3_del\templates\t3_del\p2_DelegationDecision.html:42
+msgid "Decision to Delegate"
+msgstr "Beslut att delegera"
+
+#: .\t3_del\templates\t3_del\p1_Instructions.html:59
+msgid ""
+"We have recruited a large number of individuals working in the Swedish "
+"finance industry as, e.g., fund managers, finance analysts, or investment "
+"advisors. They have answered the same 25 investment problems that you have "
+"completed in task 1 and task 2 under the condition that they did it for a "
+"customer (i.e., a person from the adult working population in Sweden)."
+msgstr ""
+"Vi har rekryterat ett stort antal personer verksamma i den svenska "
+"finanssektorn som till exempel fondförvaltare, finansanalytiker eller "
+"investeringsrådgivare. De har fått svara på samma 25 investeringsproblem som "
+"du svarat på i uppgift 1 och uppgift 2 under förutsättningen att de gjort "
+"det för en kund (dvs., en person från den vuxna yrkesverksamma befolkningen "
+"i Sverige)."
+
+#: .\t3_del\templates\t3_del\p1_Instructions.html:68
+msgid ""
+"You can decide whether you want one of these financial professional to make "
+"the 25 investment decisions for you. If you do so, one of the financial "
+"professionals is assigned to you and his/her decisions are relevant for you: "
+"one of the 25 decisions made by him/her is paid out to you instead of your "
+"own decision made before."
+msgstr ""
+"Du kan bestämma om du vill att en av de verksamma i finanssektorn ska fatta "
+"de 25 investeringsbesluten för dig. Om du gör det matchas du med en person "
+"från finanssektorn och det är ett av de 25 beslut som han / hon fattat som "
+"bestämmer din ersättning istället för att din ersättning bestäms av ditt "
+"eget beslut."
+
+#: .\t3_del\templates\t3_del\p1_Instructions.html:76
+msgid ""
+"In case you prefer to delegate the decision to the financial professional, "
+"you have to indicate how much risk (on a scale from 1 to 4) the assigned "
+"professional should take on your behalf. The financial professionals are "
+"instructed to maximize your expected profit conditional on the risk level "
+"you indicate below."
+msgstr ""
+"Om du föredrar att delegera beslutet till en person verksam i finanssektorn "
+"måste du ange hur mycket risk (på en skala från 1 till 4 där 1 är lite risk "
+"och 4 är mycket risk) han/hon skall ta för din räkning. Personerna från "
+"finanssektorn instrueras att maximera din förväntade avkastning givet den "
+"risknivå du anger nedan."
+
+#: .\t3_del\templates\t3_del\p1_Instructions.html:85
+#, fuzzy
+#| msgid ""
+#| "For his/her decision on your behalf the financial professional receives a "
+#| "fixed payment 200 SEK."
+msgid ""
+"For his/her decision on your behalf the financial professional receives a "
+"fixed payment 400 SEK."
+msgstr ""
+"Personen från finansbranschen erhåller ett bestämt belopp, 200 SEK, för hans/"
+"hennes beslut för din räkning."
+
+#: .\t3_del\templates\t3_del\p1_Instructions.html:91
+msgid ""
+"For his/her decision on your behalf the financial professional receives the "
+"same payment as you do."
+msgstr ""
+"Personen från finansbranschen erhåller samma ersättning som du för hans/"
+"hennes beslut för din räkning."
+
+#: .\t3_del\templates\t3_del\p1_Instructions.html:98
+msgid ""
+"If you do not want a financial professional to take the investment decisions "
+"for you, you stick to the 25 investment decisions you have taken before and "
+"are paid out accordingly."
+msgstr ""
+"Om du inte vill att en person verksam i finanssektorn ska fatta "
+"investeringsbesluten åt dig, håller du dig till de 25 investeringsbeslut som "
+"du tagit själv och din ersättning bestäms i enlighet med dessa."
+
+#: .\t3_del\templates\t3_del\p1_Instructions.html:111
+msgid ""
+"In this experiment, there exists a computer software (i.e., a robot-advisor) "
+"that can do all 25 investment decisions you have completed in task 1 and "
+"task 2 for a customer."
+msgstr ""
+"Vi har konstruerat ett dataprogram (dvs. en sk robot-rådgivare) för att "
+"fatta alla 25 investeringsbeslut som du har tagit i uppgift 1 och uppgift 2."
+
+#: .\t3_del\templates\t3_del\p1_Instructions.html:118
+msgid ""
+"You can decide whether you want the robot-advisor to make the 25 investment "
+"decisions for you. If you do so, the robot-advisor’s decisions are relevant "
+"for you: one of the 25 decisions made by it is paid out to you instead of "
+"your own decision made before."
+msgstr ""
+"Du kan bestämma om du vill att robo-rådgivaren ska fatta de 25 "
+"investeringsbesluten för dig. Om du väljer att delegera är det ett av robo-"
+"rådgivarens beslut som bestämmer din ersättning istället för att din "
+"ersättning bestäms av ditt eget beslut."
+
+#: .\t3_del\templates\t3_del\p1_Instructions.html:126
+msgid ""
+"In case you prefer to delegate the decision to the robot-advisor, you have "
+"to indicate how much risk (on a scale from 1 to 4) the robot-advisor should "
+"take on your behalf. The robot-advisor is programmed in such a way that it "
+"maximizes your expected profit conditional on the risk level you indicate "
+"below."
+msgstr ""
+"Om du föredrar att delegera beslutet till robot-rådgivaren måste du ange hur "
+"mycket risk (på en skala från 1 till 4 där 1 är lite risk och 4 är mycket "
+"risk) skall ta för din räkning. Robot-rådgivaren är programmerad på ett "
+"sådant sätt att den maximerar din förväntade avkastning givet den risknivå "
+"du anger nedan."
+
+#: .\t3_del\templates\t3_del\p1_Instructions.html:134
+msgid ""
+"If you do not want the robot-advisor to take the investment decisions for "
+"you, you stick to the 25 investment decisions you have taken before and are "
+"paid out accordingly."
+msgstr ""
+"Om du inte vill att robo-rådgivaren ska fatta investeringsbesluten för dig, "
+"håller du sig till de 25 investeringsbeslut som du tagit förut och ersätts i "
+"enlighet med dessa."
+
+#: .\t3_del\templates\t3_del\p1_Instructions.html:161
+msgid ""
+"Remember that this online study adheres to the principles of economic "
+"experiments: this indicates that participants are not deceived which means "
+"that the financial professionals are recruited and their decisions are real."
+msgstr ""
+"Kom ihåg att den här studien följer principerna för ekonomiska experiment: "
+"Deltagarna blir inte lurade vilket innebär att personerna verksamma i "
+"finanssektorn har rekryterats och de har tagit de 25 besluten."
+
+#: .\t3_del\templates\t3_del\p1_Instructions.html:171
+msgid ""
+"Remember that this online study adheres to the principles of economic "
+"experiments: this indicates that participants are not deceived which means "
+"that the robot-advisor exists and its decisions are real."
+msgstr ""
+"Kom ihåg att den här studien följer principerna för ekonomiska experiment: "
+"detta indikerar att deltagarna inte luras vilket innebär att robot-"
+"rådgivaren existerar och dess beslut är verkliga."
+
+#: .\t3_del\templates\t3_del\p2_DelegationDecision.html:77
+#, python-format
+msgid ""
+"Below you are asked to indicate whether you want to delegate your decision "
+"to %(decision_maker)s and how much you are willing to pay (between 0 SEK and "
+"50 SEK) in case you prefer to do so."
+msgstr ""
+"Nedan uppmanas du att ange om du vill delegera ditt beslut till "
+"%(decision_maker)s och hur mycket du är villig att betala (mellan 0 SEK och "
+"50 SEK) om du föredrar att göra det."
+
+#: .\t3_del\templates\t3_del\p2_DelegationDecision.html:85
+msgid "Please note:"
+msgstr "Observera:"
+
+#: .\t3_del\templates\t3_del\p2_DelegationDecision.html:86
+msgid ""
+"The probability that the decision will actually be delegated increases with "
+"the amount you are willing to pay. The payment scheme is designed such that "
+"you will maximize your payout by stating your true willingness to pay for "
+"delegating your investment decisions. You do not need to understand the "
+"exact details of how the payment scheme is constructed, only that the best "
+"thing you can do is to answer truthfully. If you are interested, you can get "
+"more information by clicking on the button below."
+msgstr ""
+"Sannolikheten att beslutet faktiskt kommer att delegeras ökar med det belopp "
+"du är villig att betala. Betalningsfunktionen är utformat så att du "
+"maximerar din förväntade ersättning genom att ange din sanna villighet att "
+"betala för att delegera dina investeringsbeslut. Du behöver inte förstå "
+"exakt i detalj hur betalningsfunktionen är konstruerat, notera bara att det "
+"bästa du kan göra är att svara sanningsenligt. Om du är intresserad kan du "
+"få ytterligare information genom att klicka på knappen nedan."
+
+#: .\t3_del\templates\t3_del\p2_DelegationDecision.html:102
+msgid "Further information"
+msgstr "Ytterligare information"
+
+#: .\t3_del\templates\t3_del\p2_DelegationDecision.html:110
+#, python-format
+msgid ""
+"Do you want to delegate your decision to %(decision_maker)s and, if yes, how "
+"much are you willing to pay for delegating your decision?"
+msgstr ""
+"Vill du delegera ditt beslut till %(decision_maker)s och, om ja, hur mycket "
+"är du villig att betala för att delegera ditt beslut?"
+
+#: .\t3_del\templates\t3_del\p2_DelegationDecision.html:120
+msgid "Yes, I want to delegate..."
+msgstr "Ja, jag vill delegera."
+
+#: .\t3_del\templates\t3_del\p2_DelegationDecision.html:125
+msgid ""
+"Please indicate your maximum willingness to pay for delegating your decision:"
+msgstr "Ange din maximala betalningsvilja för att delegera ditt beslut:"
+
+#: .\t3_del\templates\t3_del\p2_DelegationDecision.html:155
+msgid ""
+"Please indicate on a scale from 1 to 4 how much risk should be taken on your "
+"behalf, where 1 refers to \"please do not take any risk at all\" while 4 "
+"refers to \"please maximize the expected payoff regardless of the risk "
+"involved\"."
+msgstr ""
+"Ange på en skala från 1 till 4 hur mycket risk som ska tas för din räkning, "
+"där 1 hänvisar till \"ta inte någon risk alls\" medan 4 avser \"maximera "
+"förväntad avkastning oavsett risk\"."
+
+#: .\t3_del\templates\t3_del\p2_DelegationDecision.html:193
+msgid "No, I do not want to delegate"
+msgstr "Nej, jag vill inte delegera"
+
+#: .\t3_del\templates\t3_del\p2_DelegationDecision.html:205
+msgid "Information on the payment scheme"
+msgstr "Information om betalningssystemet"
+
+#: .\t3_del\templates\t3_del\p2_DelegationDecision.html:213
+msgid ""
+"We have fixed a price for the delegation (chosen randomly between 0 and 50 "
+"SEK) which is unknown to you. If the amount you are willing to pay is "
+"greater than our price, you will pay the price and your decision will be "
+"delegated. If your stated willingness to pay is lower than the price, you "
+"will stick to the 25 investment decisions, you have made yourself."
+msgstr ""
+"Vi har fastställt ett pris för delegeringen (slumpmässigt valt mellan 0 och "
+"50 SEK) vilket är okänt för dig. Om det belopp du är villig att betala är "
+"större än vårt pris betalar du priset och ditt beslut kommer att delegeras. "
+"Om din uttalade betalningsvilja är lägre än priset, kommer du behålla de 25 "
+"investeringsbesluten du själv har gjort."
+
+#: .\t3_del\templates\t3_del\p2_DelegationDecision.html:222
+msgid ""
+"The reason we choose this seemingly complicated payment scheme is to avoid "
+"that you have strategic motives to misreport you willingness to pay (for "
+"example by stating a low willingness to pay)."
+msgstr ""
+"Anledningen till att vi väljer denna till synes komplicerade "
+"betalningsfunktion är att vi vill undvika effekten av att du har strategiska "
+"motiv att felaktigt rapportera din betalningsvilja (till exempel genom att "
+"du anger en låg betalningsvilja)."
+
+#: .\t4_survey\templates\t4_survey\p1_Instructions.html:54
+msgid ""
+"On the following pages, we will present you with different questions. There "
+"are no right or wrong answers to any of these questions. Please answer the "
+"questions truthfully."
+msgstr ""
+"På de följande sidorna kommer vi att ställa olika frågor till dig. Det finns "
+"inga rätt eller fel på någon av dessa frågor. Var vänlig och svara på "
+"frågorna."
+
+#: .\t4_survey\templates\t4_survey\p2_Survey1.html:19
+#: .\t4_survey\templates\t4_survey\p2_Survey2.html:19
+#: .\t4_survey\templates\t4_survey\p2_Survey3.html:19
+#: .\t4_survey\templates\t4_survey\p2_Survey4.html:19
+#: .\t4_survey\templates\t4_survey\p2_Survey5.html:55
+#: .\t5_num\templates\t5_num\p2_Numeracy.html:19
+#: .\t5_num\templates\t5_num\p3_Confidence.html:19
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:19
+msgid "Questionnaire"
+msgstr "Frågeformulär"
+
+#: .\t4_survey\templates\t4_survey\p2_Survey1.html:51
+#: .\t4_survey\templates\t4_survey\p2_Survey2.html:51
+#: .\t4_survey\templates\t4_survey\p2_Survey3.html:51
+#: .\t4_survey\templates\t4_survey\p2_Survey4.html:51
+#: .\t4_survey\templates\t4_survey\p2_Survey5.html:87
+#: .\t5_num\templates\t5_num\p2_Numeracy.html:51
+#: .\t5_num\templates\t5_num\p3_Confidence.html:51
+msgid "Page"
+msgstr "Sid"
+
+#: .\t4_survey\templates\t4_survey\p2_Survey1.html:70
+msgid ""
+"Are you generally a person who is willing to take risks or do you try to "
+"avoid taking risks?"
+msgstr ""
+"Är du i allmänhet en person som är villig att ta risker eller försöker du "
+"undvika att ta risker?"
+
+#: .\t4_survey\templates\t4_survey\p2_Survey1.html:105
+msgid "not at all willing to take risks"
+msgstr "Inte alls villig att ta risker"
+
+#: .\t4_survey\templates\t4_survey\p2_Survey1.html:109
+msgid "very willing to take risks"
+msgstr "Mycket villig att ta risker"
+
+#: .\t4_survey\templates\t4_survey\p2_Survey1.html:120
+msgid ""
+"How willing are you to give up something that is beneficial for you today in "
+"order to benefit more from that in the future?"
+msgstr ""
+"Hur villig är du att ge upp något som är förmånligt för dig idag för att "
+"kunna dra förmåner av det i framtiden?"
+
+#: .\t4_survey\templates\t4_survey\p2_Survey1.html:155
+msgid "not at all willing to give up something today"
+msgstr "Inte alls villig att ge upp något idag"
+
+#: .\t4_survey\templates\t4_survey\p2_Survey1.html:159
+msgid "very willing to give up something today"
+msgstr "Mycket villig att ge upp något idag"
+
+#: .\t4_survey\templates\t4_survey\p2_Survey2.html:67
+#: .\t4_survey\templates\t4_survey\p2_Survey5.html:103
+msgid "How well do the following statements describe you as a person?"
+msgstr "Hur bra beskriver de följande påståenden dig som person?"
+
+#: .\t4_survey\templates\t4_survey\p2_Survey2.html:77
+msgid "I am generally willing to take risks in financial matters."
+msgstr "Jag är generellt villig att ta risker i finansiella frågor."
+
+#: .\t4_survey\templates\t4_survey\p2_Survey2.html:111
+#: .\t4_survey\templates\t4_survey\p2_Survey2.html:160
+#: .\t4_survey\templates\t4_survey\p2_Survey2.html:209
+#: .\t4_survey\templates\t4_survey\p2_Survey2.html:258
+#: .\t4_survey\templates\t4_survey\p2_Survey5.html:147
+#: .\t4_survey\templates\t4_survey\p2_Survey5.html:199
+#: .\t4_survey\templates\t4_survey\p2_Survey5.html:252
+#: .\t4_survey\templates\t4_survey\p2_Survey5.html:303
+#: .\t4_survey\templates\t4_survey\p2_Survey5.html:353
+msgid "does not describe me at all"
+msgstr "Beskriver mig inte alls"
+
+#: .\t4_survey\templates\t4_survey\p2_Survey2.html:115
+#: .\t4_survey\templates\t4_survey\p2_Survey2.html:164
+#: .\t4_survey\templates\t4_survey\p2_Survey2.html:213
+#: .\t4_survey\templates\t4_survey\p2_Survey2.html:262
+#: .\t4_survey\templates\t4_survey\p2_Survey5.html:151
+#: .\t4_survey\templates\t4_survey\p2_Survey5.html:203
+#: .\t4_survey\templates\t4_survey\p2_Survey5.html:256
+#: .\t4_survey\templates\t4_survey\p2_Survey5.html:307
+#: .\t4_survey\templates\t4_survey\p2_Survey5.html:357
+msgid "describes me perfectly"
+msgstr "Beskriver mig perfekt"
+
+#: .\t4_survey\templates\t4_survey\p2_Survey2.html:126
+msgid "I generally trust other people."
+msgstr "Jag litar i allmänhet på andra människor."
+
+#: .\t4_survey\templates\t4_survey\p2_Survey2.html:175
+msgid "I generally trust employees from the finance industry."
+msgstr "Jag litar i allmänhet på personer som arbetar i finansbranschen."
+
+#: .\t4_survey\templates\t4_survey\p2_Survey2.html:224
+msgid ""
+"I generally trust robo-advisors (i.e. computer programs) in financial "
+"matters."
+msgstr ""
+"Jag litar generellt på robotrådgivare (dvs dataprogram) i finansiella frågor."
+
+#: .\t4_survey\templates\t4_survey\p2_Survey3.html:70
+msgid ""
+"Imagine the following situation: Today you unexpectedly received 10,000 SEK."
+"<br/> How much of this amount would you donate to a good cause?"
+msgstr ""
+"Föreställ dig följande situation: Idag fick du oväntat 10 000 SEK. <br/> Hur "
+"mycket av detta belopp skulle du donera till välgörande ändamål?"
+
+#: .\t4_survey\templates\t4_survey\p2_Survey4.html:67
+#: .\t5_num\templates\t5_num\p3_Confidence.html:67
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:53
+msgid "Please answer the following questions:"
+msgstr "Vänligen svara på följande frågor:"
+
+#: .\t4_survey\templates\t4_survey\p2_Survey4.html:77
+msgid ""
+"If you hurt yourself accidentally, do you sometimes blame somebody who "
+"happens to be nearby even though you realize, on reflection, that they were "
+"not responsible?"
+msgstr ""
+"Om du skadar dig av misstag, skyller du ibland på någon som råkar vara i "
+"närheten, även om du inser att de inte var ansvariga?"
+
+#: .\t4_survey\templates\t4_survey\p2_Survey4.html:112
+msgid "I never blame others"
+msgstr "Jag skyller aldrig på andra"
+
+#: .\t4_survey\templates\t4_survey\p2_Survey4.html:116
+msgid "I often blame others"
+msgstr "Jag skyller ofta på andra"
+
+#: .\t4_survey\templates\t4_survey\p2_Survey4.html:127
+msgid ""
+"Can you easily resist the temptation to blame others for the accidents that "
+"happen to you?"
+msgstr ""
+"Är det enkelt för dig att motstå frestelsen att skylla på andra för de "
+"olyckor du råkar ut för?"
+
+#: .\t4_survey\templates\t4_survey\p2_Survey4.html:161
+msgid "I can resist easily"
+msgstr "Det är enkelt för mig att motstå"
+
+#: .\t4_survey\templates\t4_survey\p2_Survey4.html:165
+msgid "I cannot resist at all"
+msgstr "Det är inte alls enkelt för mig att motstå"
+
+#: .\t4_survey\templates\t4_survey\p2_Survey5.html:113
+msgid ""
+"I frequently invest in stocks and mutual funds myself (not through the "
+"national pension system)."
+msgstr ""
+"Jag investerar ofta i aktier och fonder (inte bara via "
+"premiepensionssystemet)."
+
+#: .\t4_survey\templates\t4_survey\p2_Survey5.html:163
+msgid ""
+"I delegate my investment decisions (e.g., purchase of stocks, bonds, "
+"investment funds, real estate) to financial advisers at banks or other "
+"institutions and refrain from taking decisions myself."
+msgstr ""
+"Jag delegerar mina investeringsbeslut (till exempel köp av aktier och "
+"fonder) till finansiella rådgivare vid banker eller andra institutioner och "
+"avstår från att själv fatta beslut."
+
+#: .\t4_survey\templates\t4_survey\p2_Survey5.html:216
+msgid ""
+"I delegate my investment decisions (e.g., purchase of stocks, bonds, "
+"investment funds, real estate) to robo-advisors at banks or other "
+"institutions and refrain from taking decisions myself."
+msgstr ""
+"Jag delegerar mina investeringsbeslut (till exempel köp av aktier och "
+"fonder) till robot-rådgivare vid banker eller andra institutioner och avstår "
+"från att själv fatta beslut."
+
+#: .\t4_survey\templates\t4_survey\p2_Survey5.html:269
+msgid ""
+"I use the expertise of financial advisers for my investments/pension savings."
+msgstr ""
+"Jag använder finansiell rådgivning för mina investeringar och mitt "
+"pensionssparande."
+
+#: .\t4_survey\templates\t4_survey\p2_Survey5.html:319
+msgid "I am solely responsible for financial decisions in my household."
+msgstr "Jag är ensam ansvarig för de finansiella besluten i mitt hushåll."
+
+#: .\t5_num\models.py:42
+msgid ""
+"Suppose you have a close friend who has a lump in her breast and must have a "
+"mammogram. Of 100 women like her, 10 of them actually have a malignant tumor "
+"and 90 of them do not. Of the 10 women who actually have a tumor, the "
+"mammogram indicates correctly that 9 of them have a tumor and indicates "
+"incorrectly that 1 of them does not. Of the 90 women who do not have a "
+"tumor, the mammogram indicates correctly that 81 of them do not have a tumor "
+"and indicates incorrectly that 9 of them do have a tumor. Imagine that your "
+"friend tests positive (as if she had a tumor), what is the likelihood that "
+"she actually has a tumor?"
+msgstr ""
+"Antag att du har en nära vän som har en knöl i bröstet och måste genomgå en "
+"mammografi. Av 100 kvinnor som har en knöl i bröstet, så har 10 av dem "
+"faktiskt en malign tumör och 90 av dem har det inte. För de 10 kvinnor som "
+"faktiskt har en tumör indikerar mammografin korrekt att 9 av dem har en "
+"tumör men mammografin indikerar felaktigt att 1 av dem inte har det. För de "
+"90 kvinnor som inte har en tumör indikerar mammogramet korrekt att 81 av dem "
+"inte har en tumör men mammografin indikerar felaktigt att 9 av dem har en "
+"tumör. Tänk dig att din vän testar positivt (som om hon hade en tumör), vad "
+"är sannolikheten för att hon faktiskt har en tumör?"
+
+#: .\t5_num\models.py:51
+msgid ""
+"If John can drink one barrel of water in 6 days, and Mary can drink one "
+"barrel of water in 12 days, how long would it take them to drink one barrel "
+"of water together?"
+msgstr ""
+"Om John kan dricka en tunna vatten på 6 dagar och Mary kan dricka en tunna "
+"vatten på 12 dagar, hur många dagar skulle det ta dem att dricka en tunna "
+"vatten tillsammans?"
+
+#: .\t5_num\models.py:55
+msgid ""
+"A man buys a pig for 600 SEK, sells it for 700 SEK, buys it back for 800 "
+"SEK, and sells it finally for 900 SEK. How much has he made?"
+msgstr ""
+"En man köper en gris för 600 SEK, säljer den för 700 SEK, köper tillbaka den "
+"för 800 SEK, och säljer den igen för 900 SEK. Hur mycket har han tjänat?"
+
+#: .\t5_num\models.py:59
+msgid ""
+"In a lottery, the chance of winning a car is 1 in 1000. What percent of "
+"lottery tickets win a car?"
+msgstr ""
+"I ett lotteri är chansen att vinna en bil 1 på 1000. Vilken procent av "
+"lotterna vinner en bil?"
+
+#: .\t5_num\models.py:63
+msgid ""
+"In a lottery, the chances of winning a 10.000 SEK prize are 1%. What is your "
+"best guess about how many people would win a 10.000 SEK prize if 1000 people "
+"each buy a single lottery ticket?"
+msgstr ""
+"I ett lotteri är chansen att vinna 100 SEK 1 procent. Vad är din bästa "
+"gissning om hur många människor som vinner 100 SEK om 1000 personer köper en "
+"lott var?"
+
+#: .\t5_num\models.py:68
+msgid ""
+"Imagine that we roll a fair, six-sided die 1000 times. Out of 1000 rolls, "
+"how many times do you think the die would come up as an even number?"
+msgstr ""
+"Antag att vi slår en sexsidig tärning 1000 gånger. Hur många gånger tror du "
+"att tärningen kommer att visa ett jämnt tal?"
+
+#: .\t5_num\models.py:72
+msgid ""
+"If the chance of getting a disease is 20 out of 100, this would be the same "
+"as having a ... chance of getting the disease."
+msgstr ""
+"Om risken att få en sjukdom är 20 av 100, så skulle detta vara detsamma som "
+"att löpa en ... risk att få sjukdomen."
+
+#: .\t5_num\models.py:76
+msgid ""
+"If the chance of getting a disease is 10%, how many people would be expected "
+"to get the disease out of 1000?"
+msgstr ""
+"Om risken att få en sjukdom är 10 procent, hur många av 1000 människor "
+"förväntas då få sjukdomen?"
+
+#: .\t5_num\models.py:81 .\t5_num\models.py:84 .\t5_num\models.py:87
+msgid "percent"
+msgstr "procent"
+
+#: .\t5_num\models.py:82
+msgid "days"
+msgstr "dagar"
+
+#: .\t5_num\models.py:83
+msgid "SEK"
+msgstr "SEK"
+
+#: .\t5_num\models.py:85 .\t5_num\models.py:88
+msgid "people"
+msgstr "människor"
+
+#: .\t5_num\models.py:86
+msgid "times"
+msgstr "gånger"
+
+#: .\t5_num\templates\t5_num\p1_Instructions.html:53
+msgid ""
+"On the following page, you are asked to answer eight questions. For "
+"answering the questions, you will have a time limit of four minutes. That "
+"is, the software will skip to the next page after four minutes, regardless "
+"of whether all of the questions have been answered."
+msgstr ""
+"På följande sida blir du ombedd att svara på åtta frågor. Du har fyra "
+"minuter på dig att svara på alla åtta frågorna. Det vill säga att efter fyra "
+"minuter kommer programmet att hoppa till nästa sida, oavsett om alla frågor "
+"har besvarats."
+
+#: .\t5_num\templates\t5_num\p3_Confidence.html:77
+msgid ""
+"How many of the eight questions you answered on the previous screen did you "
+"answer correctly?"
+msgstr ""
+"Hur många av de åtta frågorna på föregående sida tror du att du besvarade "
+"korrekt?"
+
+#: .\t5_num\templates\t5_num\p3_Confidence.html:95
+msgid "questions"
+msgstr "Frågor"
+
+#: .\t5_num\templates\t5_num\p3_Confidence.html:104
+msgid ""
+"Compared to a random sample of the Swedish population, how did you score in "
+"terms of correct answers. Please estimate your position in the ranking."
+msgstr ""
+"Jämfört med ett slumpmässigt urval av den svenska befolkningen, hur tror du "
+"att du presterade i fråga om korrekta svar? Uppskatta din prestation jämfört "
+"med ett urval av den svenska befolkningen."
+
+#: .\t5_num\templates\t5_num\p3_Confidence.html:114
+#: .\t5_num\templates\t5_num\p3_Confidence.html:115
+#: .\t5_num\templates\t5_num\p3_Confidence.html:116
+#: .\t5_num\templates\t5_num\p3_Confidence.html:117
+#: .\t5_num\templates\t5_num\p3_Confidence.html:118
+msgid "Top"
+msgstr "De"
+
+#: .\t5_num\templates\t5_num\p3_Confidence.html:114
+#: .\t5_num\templates\t5_num\p3_Confidence.html:115
+#: .\t5_num\templates\t5_num\p3_Confidence.html:116
+#: .\t5_num\templates\t5_num\p3_Confidence.html:117
+#: .\t5_num\templates\t5_num\p3_Confidence.html:118
+msgid " "
+msgstr "bästa"
+
+#: .\t5_num\templates\t5_num\p3_Confidence.html:119
+#: .\t5_num\templates\t5_num\p3_Confidence.html:120
+#: .\t5_num\templates\t5_num\p3_Confidence.html:121
+#: .\t5_num\templates\t5_num\p3_Confidence.html:122
+#: .\t5_num\templates\t5_num\p3_Confidence.html:123
+msgid "Bottom"
+msgstr "De"
+
+#: .\t5_num\templates\t5_num\p3_Confidence.html:119
+#: .\t5_num\templates\t5_num\p3_Confidence.html:120
+#: .\t5_num\templates\t5_num\p3_Confidence.html:121
+#: .\t5_num\templates\t5_num\p3_Confidence.html:122
+#: .\t5_num\templates\t5_num\p3_Confidence.html:123
+msgid "  "
+msgstr "sämsta"
+
+#: .\t6_lit\templates\t6_lit\p1_Instructions.html:53
+msgid ""
+"Similar to the previous task, on the next screen you are asked to answer six "
+"questions. For answering the questions, you will have a time limit of three "
+"minutes. That is, the software will skip to the next page after three "
+"minutes, regardless of whether all of the questions have been answered."
+msgstr ""
+"Liknande den föregående uppgiften, på nästa sida blir du ombedd att svara på "
+"sex frågor. Du har tre minuter på dig att svara på alla sex frågorna. Det "
+"vill säga att efter tre minuter kommer programmet att hoppa till nästa sida, "
+"oavsett om alla frågor har besvarats."
+
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:62
+#, python-format
+msgid ""
+"Suppose you had 1,000 SEK in a savings account and the interest rate is 20%% "
+"per year and you never withdraw money or interest payments. After 5 years, "
+"how much would you have on this account in total?"
+msgstr ""
+"Antag att du hade 1000 kronor på ett sparkonto och räntesatsen är 20 procent "
+"per år och du tar aldrig ut några pengar. Efter 5 år, hur mycket skulle du "
+"totalt ha på det här kontot?"
+
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:71
+msgid "More than 2,000 SEK"
+msgstr "Mer än 2000 SEK"
+
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:75
+msgid "Exactly 2,000 SEK"
+msgstr "Exakt 2000 SEK"
+
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:79
+msgid "Less than 2,000 SEK"
+msgstr "Mindre än 2000 SEK"
+
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:83
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:111
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:138
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:165
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:195
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:226
+msgid "Do not know"
+msgstr "Vet ej"
+
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:90
+#, python-format
+msgid ""
+"Imagine that the interest rate on your savings account was 1%% per year and "
+"inflation was 2%% per year. After 1 year, how much would you be able to buy "
+"with the money in this account?"
+msgstr ""
+"Tänk dig att räntan på ditt sparkonto var 1 procent per år och inflationen "
+"var 2 procent per år. Efter 1 år, hur mycket skulle du kunna köpa med "
+"pengarna på det här kontot?"
+
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:99
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:126
+msgid "More than today"
+msgstr "Mer än idag"
+
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:103
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:130
+msgid "Exactly the same"
+msgstr "Exakt lika mycket som idag"
+
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:107
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:134
+msgid "Less than today"
+msgstr "Mindre än idag"
+
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:118
+msgid ""
+"Suppose that in the year 2025, your income after tax has doubled and prices "
+"of all goods have doubled too. In 2025, how much will you be able to buy "
+"with your income?"
+msgstr ""
+"Antag att år 2025 har din inkomst efter skatt fördubblats och priserna på "
+"alla varor har också fördubblats. Hur mycket kommer du att kunna köpa med "
+"din inkomst 2025?"
+
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:145
+msgid ""
+"When an investor spreads his money among different assets, does the risk of "
+"losing money in general:"
+msgstr ""
+"Vad händer i allmänhet med risken att förlora pengar när man sprider sina "
+"pengar bland olika tillgångar:"
+
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:153
+msgid "Increase"
+msgstr "Den ökar"
+
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:157
+msgid "Decrease"
+msgstr "Den minskar"
+
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:161
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:187
+msgid "Stay the same"
+msgstr "Den förändras inte"
+
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:172
+msgid "If the interest rate falls, what should happen to bond prices?"
+msgstr "Om räntan sjunker, vad bör hända med obligationspriserna?"
+
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:179
+msgid "Rise"
+msgstr "De går upp"
+
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:183
+msgid "Fall"
+msgstr "De går ner"
+
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:191
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:222
+msgid "None of the above"
+msgstr "Inget av alternativen"
+
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:202
+msgid ""
+"Which of the following statements is correct? If somebody buys the stock of "
+"firm B in the stock market:"
+msgstr ""
+"Vilket av följande uttalanden är korrekt? Om någon köper aktier i företag B "
+"då:"
+
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:210
+msgid "He owns a part of firm B"
+msgstr "Äger hon en del av företag B"
+
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:214
+msgid "He has lent money to firm B"
+msgstr "Har hon lånat ut pengar till företag B"
+
+#: .\t6_lit\templates\t6_lit\p2_Literacy.html:218
+msgid "He is liable for firm B's debts"
+msgstr "Är hon ansvarig för företag Bs skulder"
+
+#: .\t7_final\templates\t7_final\p1_ThankYou.html:19
+msgid "Thank you very much for your participation!"
+msgstr "Tack så mycket för ditt deltagande!"
+
+#: .\t7_final\templates\t7_final\p1_ThankYou.html:38
+msgid ""
+"You have successfully completed all tasks and questionnaires in this "
+"experiment."
+msgstr ""
+"Du har nu slutfört alla uppgifter och frågeformulär i det här experimentet."
+
+#: .\t7_final\templates\t7_final\p1_ThankYou.html:43
+msgid ""
+"We wish to cordially invite you to participate in another experiment. The "
+"box below provides relevant information and a personalized link to the "
+"second experiment. (Note: In case you would like to participate in the "
+"second experiment as well, it is sufficient to provide your payment details "
+"– as described below – once, i.e. by following the \"Initiate payment\" link "
+"now or at the end of the second experiment.)"
+msgstr ""
+"Du är också inbjuden att delta i ett annat experiment. Fältet nedan ger "
+"relevant information och en personlig länk till det andra experimentet. "
+"(Obs! Om du också vill delta i det andra experimentet är det tillräckligt "
+"att lämna dina betalningsuppgifter - som beskrivs nedan - en gång, det vill "
+"säga genom att följa länken \"Initiera betalning\" nu eller i slutet av det "
+"andra experimentet .)"
+
+#: .\t7_final\templates\t7_final\p1_ThankYou.html:53
+msgid "How to receive your payment:"
+msgstr "Så här initierar du din betalning:"
+
+#: .\t7_final\templates\t7_final\p1_ThankYou.html:58
+msgid ""
+"To guarantee anonymity, Enkätfabriken, who has conducted surveys with "
+"associated payments in a variety of areas since 2010, will handle the "
+"payments. They have offices in Gothenburg and Lund and they have primarily "
+"worked with universities, government agencies, municipalities, and non-"
+"profit organizations."
+msgstr ""
+"För att garantera anonymitet hanterar Enkätfabriken, som genomfört "
+"undersökningar med tillhörande betalningar inom en rad områden sedan 2010, "
+"betalningarna. De har kontor i Göteborg och Lund och de har huvudsakligen "
+"arbetat med universitet, myndigheter, kommuner och ideella organisationer."
+
+#: .\t7_final\templates\t7_final\p1_ThankYou.html:66
+#, python-format
+msgid ""
+"To initiate the payment, you will be redirected to a form on the website of "
+"Enkätfabriken (by clicking on the button below), which is solely associated "
+"with this experiment. In this form, you are asked to provide your bank "
+"details and your participant code. Your participant code (which can also be "
+"found in the invitation letter) is: <b>%(label)s</b>."
+msgstr ""
+"För att initiera betalningen omdirigeras du till ett formulär på "
+"Enkätfabrikens webbplats (genom att klicka på knappen nedan), som endast är "
+"kopplad till det här experimentet. På formuläret kan du ange dina "
+"bankuppgifter och din inloggningskod. Din inloggningskod (som också finns i "
+"inbjudningsbrevet) är: <b>%(label)s</b>."
+
+#: .\t7_final\templates\t7_final\p1_ThankYou.html:74
+msgid ""
+"Once the data collection has been completed, we will determine your payment "
+"(including the participation fee of 100 SEK) based on your decisions. We "
+"will then instruct Enkätfabriken to transfer your payment to your account. "
+"You can expect receiving your payment by the end of March at latest."
+msgstr ""
+"När datainsamlingen har slutförts bestäms din ersättning (inklusive "
+"deltagaravgiften på 100 SEK) baserat på dina beslut. Vi kommer då att "
+"instruera Enkätfabriken att överföra din ersättning till ditt konto. Du kan "
+"förvänta dig att få din ersättning senast i slutet av mars."
+
+#: .\t7_final\templates\t7_final\p1_ThankYou.html:82
+msgid ""
+"The form on the website of Enkätfabriken will also provide you with the "
+"opportunity to indicate whether you would like to have general feedback in "
+"terms of motivation and results of the experiment. Enkätfabriken will send "
+"this information to you will via e-mail."
+msgstr ""
+"Formuläret på Enkätfabrikens webbplats ger dig också möjlighet att ange "
+"huruvida du vill ha generell feedback vad gäller motivering och resultat av "
+"experimentet. Enkätfabriken skickar i så fall denna information till dig via "
+"e-post."
+
+#: .\t7_final\templates\t7_final\p1_ThankYou.html:91
+msgid "Thank you for your contribution to science!"
+msgstr "Tack för ditt bidrag till vetenskapen!"
+
+#: .\t7_final\templates\t7_final\p1_ThankYou.html:98
+msgid "Initiate payment"
+msgstr "Initiera betalning"
+
+#: .\t7_final\templates\t7_final\p1_ThankYou.html:118
+msgid "Would you like to take part in another experiment?"
+msgstr "Vill du delta i ett annat experiment?"
+
+#: .\t7_final\templates\t7_final\p1_ThankYou.html:125
+msgid ""
+"Click on the link below to proceed to the second part of the experiment "
+"which is completely independent of the first part. Again, you will face "
+"several different decision problems and will be paid according to your "
+"choices. Participation will take about 20-30 minutes."
+msgstr ""
+"Klicka på länken nedan för att fortsätta till den andra delen av "
+"experimentet som är helt oberoende av den första delen. Återigen kommer du "
+"att ställas inför olika ekonomiska problem och betalas enligt dina val. "
+"Deltagandet tar cirka 20-30 minuter."
+
+#: .\t7_final\templates\t7_final\p1_ThankYou.html:134
+#, python-format
+msgid ""
+"If you prefer to participate at some later point in time, please remember "
+"your participation code: <b>%(label)s</b>. The experiment will be available "
+"at <a href=\"http://survey.before.world\">http://survey.before.world</a> "
+"until February 24, 2019 and you can sign-in using your personal "
+"participation code at any time."
+msgstr ""
+"Om du föredrar att delta vid något senare tillfälle, kom ihåg din "
+"inloggningskod: <b>%(label)s</b>. Experimentet kommer att finnas "
+"tillgängligt på <a href=\"http://survey.before.world\">http://survey.before."
+"world</a> tills 24 februari 2019 och du kan logga in med din personliga "
+"inloggningskod när som helst."
+
+#: .\t7_final\templates\t7_final\p1_ThankYou.html:144
+#, python-format
+msgid ""
+"If you prefer to participate at some later point in time, please remember "
+"your participation code: <b>%(label)s</b>. The experiment will be available "
+"at <a href=\"http://enkat.before.world\">http://enkat.before.world</a> until "
+"February 24, 2019 and you can sign-in using your personal participation code "
+"at any time."
+msgstr ""
+"Om du föredrar att delta vid något senare tillfälle, kom ihåg din "
+"inloggningskod: <b>%(label)s</b>. Experimentet kommer att finnas "
+"tillgängligt på <a href=\"http://enkat.before.world\">http://enkat.before."
+"world</a> tills 24 februari 2019 och du kan logga in med din personliga "
+"inloggningskod när som helst."
+
+#: .\t7_final\templates\t7_final\p1_ThankYou.html:158
+#: .\t7_final\templates\t7_final\p1_ThankYou.html:167
+msgid "Take part in the second experiment!"
+msgstr "Delta i experiment II!"

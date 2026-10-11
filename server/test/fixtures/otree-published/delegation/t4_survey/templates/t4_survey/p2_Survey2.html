@@ -1,0 +1,278 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load otree otree_tools %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 't4_survey/css/styles.css' %}" rel="stylesheet">
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% trans "Task No." %} {{ task }}: {% trans "Questionnaire" %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <!-- otree_tools: tracking focus -->
+    {% tracking_focus %}
+    <!-- otree_tools: tracking time -->
+    {% tracking_time %}
+
+    <div class="wrapper">
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Progress Bar -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <label>
+            {% trans "Task" %} {{ task }} {% trans "of" %} {{ task_total }}
+        </label>
+        <div class="progress">
+            <div class="progress-bar-task" role="progressbar" style="width:{{ task_progress|safe }}%;">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Progress Bar -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <label>
+            {% trans "Page" %} {{ page }} {% trans "of" %} {{ total }}
+        </label>
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" style="width:{{ progress|safe }}%;">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+        <div class="progress-vspace"></div>
+
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Survey Items -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <div class="card bg-light mb-3">
+            <div class="card-header">
+                <div class="card-title">
+                    {% blocktrans trimmed %}
+                        How well do the following statements describe you as a person?
+                    {% endblocktrans %}
+                </div>
+            </div>
+            <div class="card-body">
+
+                <!-- Financial Risk Preferences -->
+                <!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+                <p class="survey-question">
+                    {% blocktrans trimmed %}
+                        I am generally willing to take risks in financial matters.
+                    {% endblocktrans %}
+                </p>
+                <table class="likert">
+                    <tbody>
+                        <tr>
+                            <td class="item-label">0</td>
+                            <td class="item-label">1</td>
+                            <td class="item-label">2</td>
+                            <td class="item-label">3</td>
+                            <td class="item-label">4</td>
+                            <td class="item-label">5</td>
+                            <td class="item-label">6</td>
+                            <td class="item-label">7</td>
+                            <td class="item-label">8</td>
+                            <td class="item-label">9</td>
+                            <td class="item-label">10</td>
+                        </tr>
+                        <tr>
+                            <td class="item"><input type="radio" name="risk_fin" value="0" required></td>
+                            <td class="item"><input type="radio" name="risk_fin" value="1" required></td>
+                            <td class="item"><input type="radio" name="risk_fin" value="2" required></td>
+                            <td class="item"><input type="radio" name="risk_fin" value="3" required></td>
+                            <td class="item"><input type="radio" name="risk_fin" value="4" required></td>
+                            <td class="item"><input type="radio" name="risk_fin" value="5" required></td>
+                            <td class="item"><input type="radio" name="risk_fin" value="6" required></td>
+                            <td class="item"><input type="radio" name="risk_fin" value="7" required></td>
+                            <td class="item"><input type="radio" name="risk_fin" value="8" required></td>
+                            <td class="item"><input type="radio" name="risk_fin" value="9" required></td>
+                            <td class="item"><input type="radio" name="risk_fin" value="10" required></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="item-label-left">
+                                {% trans "does not describe me at all" %}
+                            </td>
+                            <td colspan="5"></td>
+                            <td colspan="3" class="item-label-right">
+                                {% trans "describes me perfectly" %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <hr/>
+
+
+                <!-- Trust in other people -->
+                <!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+                <p class="survey-question">
+                    {% blocktrans trimmed %}
+                        I generally trust other people.
+                    {% endblocktrans %}
+                </p>
+                <table class="likert">
+                    <tbody>
+                        <tr>
+                            <td class="item-label">0</td>
+                            <td class="item-label">1</td>
+                            <td class="item-label">2</td>
+                            <td class="item-label">3</td>
+                            <td class="item-label">4</td>
+                            <td class="item-label">5</td>
+                            <td class="item-label">6</td>
+                            <td class="item-label">7</td>
+                            <td class="item-label">8</td>
+                            <td class="item-label">9</td>
+                            <td class="item-label">10</td>
+                        </tr>
+                        <tr>
+                            <td class="item"><input type="radio" name="trust_gen" value="0" required></td>
+                            <td class="item"><input type="radio" name="trust_gen" value="1" required></td>
+                            <td class="item"><input type="radio" name="trust_gen" value="2" required></td>
+                            <td class="item"><input type="radio" name="trust_gen" value="3" required></td>
+                            <td class="item"><input type="radio" name="trust_gen" value="4" required></td>
+                            <td class="item"><input type="radio" name="trust_gen" value="5" required></td>
+                            <td class="item"><input type="radio" name="trust_gen" value="6" required></td>
+                            <td class="item"><input type="radio" name="trust_gen" value="7" required></td>
+                            <td class="item"><input type="radio" name="trust_gen" value="8" required></td>
+                            <td class="item"><input type="radio" name="trust_gen" value="9" required></td>
+                            <td class="item"><input type="radio" name="trust_gen" value="10" required></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="item-label-left">
+                                {% trans "does not describe me at all" %}
+                            </td>
+                            <td colspan="5"></td>
+                            <td colspan="3" class="item-label-right">
+                                {% trans "describes me perfectly" %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <hr/>
+
+
+                <!-- Trust in employees from the finance industry -->
+                <!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+                <p class="survey-question">
+                    {% blocktrans trimmed %}
+                        I generally trust employees from the finance industry.
+                    {% endblocktrans %}
+                </p>
+                <table class="likert">
+                    <tbody>
+                        <tr>
+                            <td class="item-label">0</td>
+                            <td class="item-label">1</td>
+                            <td class="item-label">2</td>
+                            <td class="item-label">3</td>
+                            <td class="item-label">4</td>
+                            <td class="item-label">5</td>
+                            <td class="item-label">6</td>
+                            <td class="item-label">7</td>
+                            <td class="item-label">8</td>
+                            <td class="item-label">9</td>
+                            <td class="item-label">10</td>
+                        </tr>
+                        <tr>
+                            <td class="item"><input type="radio" name="trust_fin" value="0" required></td>
+                            <td class="item"><input type="radio" name="trust_fin" value="1" required></td>
+                            <td class="item"><input type="radio" name="trust_fin" value="2" required></td>
+                            <td class="item"><input type="radio" name="trust_fin" value="3" required></td>
+                            <td class="item"><input type="radio" name="trust_fin" value="4" required></td>
+                            <td class="item"><input type="radio" name="trust_fin" value="5" required></td>
+                            <td class="item"><input type="radio" name="trust_fin" value="6" required></td>
+                            <td class="item"><input type="radio" name="trust_fin" value="7" required></td>
+                            <td class="item"><input type="radio" name="trust_fin" value="8" required></td>
+                            <td class="item"><input type="radio" name="trust_fin" value="9" required></td>
+                            <td class="item"><input type="radio" name="trust_fin" value="10" required></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="item-label-left">
+                                {% trans "does not describe me at all" %}
+                            </td>
+                            <td colspan="5"></td>
+                            <td colspan="3" class="item-label-right">
+                                {% trans "describes me perfectly" %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <hr/>
+
+
+                <!-- Trust in algorithms -->
+                <!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+                <p class="survey-question">
+                    {% blocktrans trimmed %}
+                        I generally trust robo-advisors (i.e. computer programs) in financial matters.
+                    {% endblocktrans %}
+                </p>
+                <table class="likert">
+                    <tbody>
+                        <tr>
+                            <td class="item-label">0</td>
+                            <td class="item-label">1</td>
+                            <td class="item-label">2</td>
+                            <td class="item-label">3</td>
+                            <td class="item-label">4</td>
+                            <td class="item-label">5</td>
+                            <td class="item-label">6</td>
+                            <td class="item-label">7</td>
+                            <td class="item-label">8</td>
+                            <td class="item-label">9</td>
+                            <td class="item-label">10</td>
+                        </tr>
+                        <tr>
+                            <td class="item"><input type="radio" name="trust_algo" value="0" required></td>
+                            <td class="item"><input type="radio" name="trust_algo" value="1" required></td>
+                            <td class="item"><input type="radio" name="trust_algo" value="2" required></td>
+                            <td class="item"><input type="radio" name="trust_algo" value="3" required></td>
+                            <td class="item"><input type="radio" name="trust_algo" value="4" required></td>
+                            <td class="item"><input type="radio" name="trust_algo" value="5" required></td>
+                            <td class="item"><input type="radio" name="trust_algo" value="6" required></td>
+                            <td class="item"><input type="radio" name="trust_algo" value="7" required></td>
+                            <td class="item"><input type="radio" name="trust_algo" value="8" required></td>
+                            <td class="item"><input type="radio" name="trust_algo" value="9" required></td>
+                            <td class="item"><input type="radio" name="trust_algo" value="10" required></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="item-label-left">
+                                {% trans "does not describe me at all" %}
+                            </td>
+                            <td colspan="5"></td>
+                            <td colspan="3" class="item-label-right">
+                                {% trans "describes me perfectly" %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+        <!-- next button -->
+        <button type="submit" class="btn btn-primary otree-btn-next">
+            {% trans "Next" %}
+        </button>
+
+    </div>
+
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'otree/WaitPage.html' %}
+{% load otree %}
+{% block title %}{{ title_text }}{% endblock %}
+{% block content %}
+{% load i18n %}
+{{ body_text }}
+
+<div class="container" align="center">
+<p>
+  {% blocktrans trimmed %}
+    You are waiting for other group members to arrive.
+  {% endblocktrans %}
+
+  <h1> {{ session.vars.num_waiting }} / {{ Constants.players_per_group }}</h1>
+  <h5>
+
+    {% blocktrans trimmed with players_per_group=Constants.players_per_group num_rounds=Constants.num_rounds %}
+      You will be grouped in {{ players_per_group }} players.
+    {% endblocktrans %}
+
+  </h5>
+</p>
+<br/>
+
+  {% blocktrans trimmed %}
+    If we won't be able to match you in the following <span id="remaining"></span> minutes,
+    you will be redirected to the finish page and get paid for the fixed amount.
+  {% endblocktrans %}
+
+</div>
+<script>
+ setTimeout(function(){
+     window.location.reload(1);
+ }, 5000);
+
+ time_left = Math.ceil(js_vars.timeout_mins- (js_vars.current_time - js_vars.arrival_time)/60);
+
+ document.getElementById("remaining").innerHTML=time_left;
+
+
+</script>
+
+  {% endblock %}

@@ -1,0 +1,3 @@
+flake8
+black
+requests~=2.0

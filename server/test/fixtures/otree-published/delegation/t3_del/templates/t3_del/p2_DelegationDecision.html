@@ -1,0 +1,244 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load otree otree_tools %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 't3_del/css/styles.css' %}" rel="stylesheet">
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** SCRIPTS *** #}
+{# ****************************************************************************************************************** #}
+{% block scripts %}
+    <script>
+    $(document).ready(function() {
+        $('input').change(function() {
+            if ($('input[value="1"]').is(':checked')) {
+                $('div[id="add"]').show();
+                $('#wtp').prop('required', true);
+                $('#risk').prop('required', true);
+            }
+            else {
+                $('div[id="add"]').hide();
+                $('#wtp').prop('required', false);
+                $('#risk').prop('required', false);
+            }
+        });
+    });
+    </script>
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% trans "Task No." %} {{ task }}: {% trans "Decision to Delegate" %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <!-- otree_tools: tracking focus -->
+    {% tracking_focus %}
+    <!-- otree_tools: tracking time -->
+    {% tracking_time %}
+
+    <div class="wrapper container">
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Progress Bar -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <label>
+            {% trans "Task" %} {{ task }} {% trans "of" %} {{ task_total }}
+        </label>
+        <div class="progress">
+            <div class="progress-bar-task" role="progressbar" style="width:{{ task_progress|safe }}%;">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+        <div class="progress-vspace"></div>
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Body -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <div class="card bg-light">
+            <div class="card-body">
+                <p>
+                    {% blocktrans trimmed %}
+                        Below you are asked to indicate whether you want to delegate your decision to
+                        {{ decision_maker }} and how much you are willing to pay (between 0 SEK and 50 SEK)
+                        in case you prefer to do so.
+                    {% endblocktrans %}
+                </p>
+
+                <p>
+                    <span style="font-style: italic; text-decoration: underline;">{% trans "Please note:" %}</span>
+                    {% blocktrans trimmed %}
+                        The probability that the decision will actually be delegated increases with the amount
+                        you are willing to pay. The payment scheme is designed such that you will maximize
+                        your payout by stating your true willingness to pay for delegating your investment
+                        decisions. You do not need to understand the exact details of how the payment
+                        scheme is constructed, only that the best thing you can do is to answer truthfully.
+                        If you are interested, you can get more information by clicking on the button below.
+                    {% endblocktrans %}
+                </p>
+
+                <button
+                        type="button"
+                        class="btn btn-light btn-sm"
+                        style="border: 1pt solid gray; margin-top: 20px;"
+                        data-toggle="modal"
+                        data-target="#info">
+                    <i>{% trans "Further information" %}</i>
+                </button>
+            </div>
+        </div>
+
+        <div class="card bg-light">
+            <div class="card-body">
+                <p style="font-weight: 500;">
+                    {% blocktrans trimmed %}
+                        Do you want to delegate your decision to {{ decision_maker }} and,
+                        if yes, how much are you willing to pay for delegating your decision?
+                    {% endblocktrans %}
+                </p>
+
+                <div class="card border-info text-white">
+                    <div class="card-header bg-info" style="font-weight: 400;">
+                        <input type="radio" name="delegation" value="1" required
+                               style="width: 1.1em; height: 1.1em; vertical-align: middle; margin-right: 10px;">
+                        {% trans "Yes, I want to delegate..." %}
+                    </div>
+                    <div class="card-body text-dark" id="add" style="display: none;">
+                        <div class="row">
+                            <div class="col-8">
+                                {% blocktrans trimmed %}
+                                    Please indicate your maximum willingness
+                                    to pay for delegating your decision:
+                                {% endblocktrans %}
+                            </div>
+                            <div class="col">
+                                <div class="input-group" style="width: 198px;">
+                                    <select class="form-control" name="wtp" id="wtp">
+                                        <option disabled selected value="">---</option>
+                                        <option value="0" >0</option>
+                                        <option value="5">5</option>
+                                        <option value="10">10</option>
+                                        <option value="15">15</option>
+                                        <option value="20">20</option>
+                                        <option value="25">25</option>
+                                        <option value="30">30</option>
+                                        <option value="35">35</option>
+                                        <option value="40">40</option>
+                                        <option value="45">45</option>
+                                        <option value="50">50</option>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">SEK</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr/>
+                        <div class="row">
+                            <div class="col-8" style="padding-right: 20px;">
+                                {% blocktrans trimmed %}
+                                    Please indicate on a scale from 1 to 4 how much risk should be
+                                    taken on your behalf, where 1 refers to "please do not take any
+                                    risk at all" while 4 refers to "please maximize the expected
+                                    payoff regardless of the risk involved".
+                                {% endblocktrans %}
+                            </div>
+                            <div class="col">
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <td class="item-label">1</td>
+                                            <td class="item-label">2</td>
+                                            <td class="item-label">3</td>
+                                            <td class="item-label">4</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="item"><input type="radio" name="risk" id="risk" value="1"></td>
+                                            <td class="item"><input type="radio" name="risk" id="risk" value="2"></td>
+                                            <td class="item"><input type="radio" name="risk" id="risk" value="3"></td>
+                                            <td class="item"><input type="radio" name="risk" id="risk" value="4"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="item-label">{% trans "no risk at all" %}</td>
+                                            <td colspan="2"></td>
+                                            <td class="item-label">{% trans "a lot of risk" %}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-warning">
+                    <div class="card-header bg-warning text-white" style="font-weight: 400;">
+                        <input type="radio" name="delegation" value="0" required
+                               style="width: 1.1em; height: 1.1em; vertical-align: middle; margin-right: 10px;">
+                        {% trans "No, I do not want to delegate" %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="info" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            {% trans "Information on the payment scheme" %}
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            {% blocktrans trimmed %}
+                                We have fixed a price for the delegation (chosen randomly between 0 and 50 SEK)
+                                which is unknown to you. If the amount you are willing to pay is greater than our
+                                price, you will pay the price and your decision will be delegated. If your stated
+                                willingness to pay is lower than the price, you will stick to the 25 investment
+                                decisions, you have made yourself.
+                            {% endblocktrans %}
+                        </p>
+                        <p>
+                            {% blocktrans trimmed %}
+                                The reason we choose this seemingly complicated payment scheme is to avoid that
+                                you have strategic motives to misreport you willingness to pay (for example by
+                                stating a low willingness to pay).
+                            {% endblocktrans %}
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            {% trans "Close" %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- next button -->
+    <button type="submit" class="btn btn-primary otree-btn-next">
+        {% trans "Next" %}
+    </button>
+
+{% endblock %}

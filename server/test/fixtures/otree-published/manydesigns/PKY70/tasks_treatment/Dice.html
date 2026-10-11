@@ -1,0 +1,114 @@
+{{ block global_styles  }}
+<style>
+    .otree-timer {
+        display: none;
+    }
+</style>
+
+{{ endblock }}
+
+{{ block global_scripts  }}
+<script>
+    $(function () {
+        $('.otree-timer__time-left').on('update.countdown', function (event) {
+            if (event.offset.totalSeconds === 30) {
+                $('.otree-timer').show();
+            }
+        });
+    });
+</script>
+{{ endblock }}
+
+{{ block title }}
+    Dice Roll
+{{ endblock }}
+
+{{ block content }}
+
+ <div class="card bg-light m-3">
+        <div class="card-body">
+          <p>
+              You will now roll a dice to determine whether you lose your endowment of Task 2 or not. The other person is doing the same.
+          </p>
+          <p>
+              <i>Information on the dice roll:</i> The dice you roll is 6-sided and fair. When you press the button <i>“Roll Dice”</i>,
+              the dice is rolled and the die outcome is generated randomly.
+          </p>
+          <p>
+              Now, please press the button <i>“Roll Dice”.</i>
+          </p>
+        </div>
+ </div>
+<div>
+    <div class="dice-wrapper">
+        <img  id="die">
+    </div>
+    <p id="total"></p>
+    <button type="button" id="roll-button" onclick="document.getElementById('Next').style.display = 'block'; this.style.display = 'none';">Roll Dice</button>
+</div>
+<div>
+    <br>
+    <button class="otree-btn-next btn btn-primary" id="Next" style="display:none;">Next</button>
+</div>
+
+{{ endblock }}
+
+
+{{ block scripts }}
+<style>
+
+    *{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.dice-wrapper{
+    width: 90%;
+    display: flex;
+    justify-content: left;
+}
+p{
+    font-size: 16px;
+    margin: 30px 0;
+    font-weight: 500;
+}
+
+button{
+    background-color: #e92e3d;
+    border: none;
+    outline: none;
+    color: #ffffff;
+    padding: 15px 0;
+    width: 150px;
+    letter-spacing: 1px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+</style>
+
+<script>
+
+    let images = ["{{ static 'solidarity/images/dice-01.svg' }}",
+        "{{ static 'solidarity/images/dice-02.svg' }}",
+        "{{ static 'solidarity/images/dice-03.svg' }}",
+        "{{ static 'solidarity/images/dice-04.svg' }}",
+        "{{ static 'solidarity/images/dice-05.svg' }}",
+        "{{ static 'solidarity/images/dice-06.svg' }}"];
+
+    let dice = document.querySelectorAll("img");
+
+function roll(){
+    let dieValue = (Math.floor(Math.random()*6));
+    console.log(dieValue);
+    document.querySelector("#die").setAttribute("src", images[dieValue]);
+    document.querySelector("#total").innerHTML = "Your roll is " + (dieValue + 1);
+    liveSend(dieValue + 1);
+}
+
+document.getElementById("roll-button").addEventListener("click", roll);
+
+</script>  
+
+{{ endblock }}

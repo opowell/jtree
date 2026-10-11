@@ -1,0 +1,32 @@
+{{ block global_styles  }}
+<style>
+    .otree-timer {
+        display: none;
+    }
+</style>
+
+{{ endblock }}
+
+{{ block global_scripts  }}
+<script>
+    $(function () {
+        $('.otree-timer__time-left').on('update.countdown', function (event) {
+            if (event.offset.totalSeconds === 30) {
+                $('.otree-timer').show();
+            }
+        });
+    });
+</script>
+{{ endblock }}
+
+{{ block title }}
+    Quiz Question 3
+{{ endblock }}
+{{ block content }}
+
+    {{ formfields }}
+    {{ next_button }}
+
+    {{ include 'tasks_treatment/Instructions_summary.html' }}
+
+{{ endblock }}

@@ -1,0 +1,27 @@
+{% extends "global/Page.html" %}
+{% load otree %}
+
+{% block title %}Report sum{% endblock %}
+
+{% block content %}
+<p>
+Below are the results from the six dice draw:
+</p>
+
+
+
+{% for d in dice %}
+<table border=2 style="display: inline-table;">
+<th style="width:100px; height:100px; text-align: center; vertical-align: middle; font-size:50px;">{{ d }}</th>
+</table>
+{% endfor %}
+
+<br><br><br>
+
+{% formfield player.ReportedSum label="Please report the sum of all dice:" %}
+
+{% next_button %}
+
+    {% include Constants.instructions_template %}
+
+{% endblock %}

@@ -531,7 +531,7 @@ class Group {
         // If any player is not finished playing, return false.
         for (let p in this.players) {
             let player = this.players[p];
-            if (!player.isFinished()) {
+            if (!player.isFinishedStage(stage)) {
                 return false;
             }
         }
@@ -812,7 +812,7 @@ class Group {
                         // If player is past this stage, proceed.
                     } else {
                         // If player is in this stage and not finished...
-                        if (!player.isFinished()) {
+                        if (!player.isFinishedStage(stage)) {
                             waitingForPlayers = true;
                             if (forcePlayersToEnd) {
                                 // If any clients are connected, let player finish via call to "endStage".

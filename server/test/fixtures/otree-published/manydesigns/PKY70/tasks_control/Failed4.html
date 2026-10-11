@@ -1,0 +1,36 @@
+{{ block global_styles  }}
+<style>
+    .otree-timer {
+        display: none;
+    }
+</style>
+
+{{ endblock }}
+
+{{ block global_scripts  }}
+<script>
+    $(function () {
+        $('.otree-timer__time-left').on('update.countdown', function (event) {
+            if (event.offset.totalSeconds === 30) {
+                $('.otree-timer').show();
+            }
+        });
+    });
+</script>
+{{ endblock }}
+
+{{ block content }}
+
+<p>
+    Sorry, you gave too many wrong answers.
+</p>
+<p>
+    You are free to decide how many tokens to transfer to the other person. This implies that you can decide to transfer your entire
+    endowment to the other person.
+</p>
+<p>
+    <b>The correct answer is 200 tokens.</b>
+</p>
+
+    {{ next_button }}
+{{ endblock }}

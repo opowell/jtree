@@ -1,0 +1,38 @@
+<br>
+<div class="card-header bg-transparent mainheader">
+  <h3 class="card-title font-weight-bold mt-3 mb-3">
+    During the experiment, you will
+    {% if session.config.competition %}
+      compete against 3 other participants.
+{% else %}
+be matched in a group with 3 other participants.
+{% endif %}
+</h3>
+</div>
+
+<br>
+
+<p>
+  For the rest of this study you will 
+  {% if session.config.competition %}
+    compete against 3 other participants.
+  {% else %}
+    be matched in a group with 3 other participants.
+  {% endif %}
+
+{% if session.config.competition %}
+Your competitors 
+{% else %}
+The group members
+{% endif %}
+will be three other Prolific participants who are currently taking this study. 
+</p>
+<p>
+You interaction will be completely anonymous and we will not conceal any personal information betwen participants neither during nor after the study. During the study, each participant will be named as one of the following: <em>Player J</em>, <em>Player K</em>, <em>Player L</em>, and <em>Player M</em> by chance.
+</p>
+<br>
+<p>Please note: You might need to wait a few minutes after instructions for other participants to join.</p>
+
+<button onclick="topFunction()" type="button" class="prevtab btn-primary btn back">Back</button>
+
+<button onclick="topFunction()" type="button" class="nexttab btn-primary btn next">Next</button>

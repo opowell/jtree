@@ -1,0 +1,28 @@
+
+{% block styles %}
+    <link href="{% static 'global/custom.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+{{ block title }}
+    Welcome to this study about decision making!
+{{ endblock }}
+{{ block content }}
+
+    <div class="container">
+
+        <hr>
+
+        <div class="alert alert-warning" role="alert">
+            You will now be redirected to continue the study.
+            Please wait or click <a href="{{ playerurl }}">here</a> to continue.
+        </div>
+
+    </div>
+
+    <script>
+        let playerurl = js_vars.playerurl;
+        // alert(playerurl) // FOR TESTING ONLY
+        window.location.replace(playerurl);
+    </script>
+
+{{ endblock }}

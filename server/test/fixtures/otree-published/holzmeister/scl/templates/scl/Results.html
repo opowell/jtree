@@ -1,0 +1,119 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 'scl/css/custom.css' %}" rel="stylesheet">
+{% endblock %}
+
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% trans "Results" %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+    <div class="wrapper">
+
+        <div class="card info">
+            {% blocktrans trimmed %}
+                You decided to choose the following lottery:
+            {% endblocktrans %}
+        </div>
+
+        <br/>
+        <div class="card">
+            <table class="table">
+
+                <!-- ----------------------------------------------------------------------------------------------- -->
+                <!-- --- Table Header --- -->
+                <!-- ----------------------------------------------------------------------------------------------- -->
+                <thead>
+                    <tr class="header1">
+                        <!-- Lottery Number (Counter) -->
+                        <th></th>
+                        <th></th>
+
+                        <!-- A lotteries -->
+                        <th colspan="2">{% trans "Outcome A" %}</th>
+                        <th></th>
+
+                        <!-- B lotteries -->
+                        <th colspan="2">{% trans "Outcome B" %}</th>
+                        <th></th>
+
+                        <!-- radio select form fields -->
+                        <th></th>
+                    </tr>
+                    <tr class="header2">
+                        <!-- Lottery Number (Counter) -->
+                        <th>{% trans "No." %}</th>
+                        <th></th>
+
+                        <!-- A lotteries -->
+                        <th class="prob">{% trans "Prob." %}</th>
+                        <th>{% trans "Payoff" %}</th>
+                        <th></th>
+
+                        <!-- B lotteries -->
+                        <th class="prob">{% trans "Prob." %}</th>
+                        <th>{% trans "Payoff" %}</th>
+                        <th></th>
+
+                        <!-- radio select form fields -->
+                        <th>{% trans "Your Choice" %}</th>
+                    </tr>
+                </thead>
+
+                <!-- ----------------------------------------------------------------------------------------------- -->
+                <!-- --- Table Body --- -->
+                <!-- ----------------------------------------------------------------------------------------------- -->
+                <tbody>
+                    {% for i,lo,hi in lottery %}
+                        <tr>
+                            <!-- Lottery Number (Counter) -->
+                            <td>{{ index }}</td>
+                            <td></td>
+
+                            <!-- A lotteries -->
+                            <td class="prob">{{ prob_lo }}</td>
+                            <td>{{ lo }}</td>
+                            <td></td>
+
+                            <!-- B lotteries -->
+                            <td class="prob">{{ prob_hi }}</td>
+                            <td>{{ hi }}</td>
+                            <td></td>
+
+                            <!-- radio select form fields -->
+                            <td><input type="radio" name="lottery_choice" checked disabled></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <br/>
+        <div class="card info">
+            {% blocktrans trimmed with hi_lo=hi_lo payoff=player.payoff %}
+                A random draw determined that outcome {{ hi_lo }} has been realized. <br/>
+                Thus, your payoff from this task amounts to {{ payoff }}.
+            {% endblocktrans %}
+        </div>
+
+        {% next_button %}
+    </div>
+{% endblock %}
+
+

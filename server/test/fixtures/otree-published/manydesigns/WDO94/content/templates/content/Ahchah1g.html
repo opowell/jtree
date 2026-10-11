@@ -1,0 +1,25 @@
+{% extends "global/Page.html" %}
+{% load otree %}
+
+{% block title %}
+Task
+{% endblock %}
+
+{% block content %}
+    <p>
+        In the following you will perform a task that is often used as part of an IQ test. The task consists
+        of 12 problems you have to solve.
+    </p>
+
+    <p>
+        For each problem, there will be eight possible answers that complete a given pattern and only
+        one answer is correct.
+    </p>
+
+    <p>
+        You will now encounter an example problem. Please press “next”.
+    </p>
+
+{% next_button %}
+
+{% endblock %}

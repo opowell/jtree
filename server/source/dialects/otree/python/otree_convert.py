@@ -1005,7 +1005,7 @@ class TemplateToVue:
         return code
 
     def vexpr(self, text, loop_vars):
-        text = otree_template._DOTTED_INDEX.sub(r'[\1]', text.strip())
+        text = otree_template.dotted_index(text.strip())
         try:
             tree = ast.parse(text, mode='eval')
         except SyntaxError as err:

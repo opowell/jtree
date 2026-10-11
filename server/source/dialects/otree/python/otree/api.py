@@ -9,7 +9,7 @@ Python holds nothing that needs saving. See plans/ztree-otree-dialects.md, secti
 import random as _random
 
 from pyodide.ffi import JsProxy, to_js
-from js import Object
+from js import Object, JSON
 
 
 # --- Values -------------------------------------------------------------------------------
@@ -100,6 +100,22 @@ class models:
     @staticmethod
     def BooleanField(**kw): return _Field('bool', **kw)
 
+    # Django's fields, as oTree's older apps declare them.
+    @staticmethod
+    def PositiveIntegerField(**kw): return _Field('int', **{'min': 0, **kw})
+    PositiveSmallIntegerField = PositiveIntegerField
+    @staticmethod
+    def SmallIntegerField(**kw): return _Field('int', **kw)
+    BigIntegerField = SmallIntegerField
+    @staticmethod
+    def DecimalField(**kw): return _Field('number', **{k: v for k, v in kw.items() if k not in ('max_digits', 'decimal_places')})
+    @staticmethod
+    def CharField(**kw): return _Field('string', **{k: v for k, v in kw.items() if k != 'max_length'})
+    @staticmethod
+    def TextField(**kw): return _Field('string', long=True, **kw)
+    @staticmethod
+    def NullBooleanField(**kw): return _Field('bool', **kw)
+
 
 class widgets:
     RadioSelect = 'RadioSelect'
@@ -111,25 +127,79 @@ class widgets:
 
 # --- Models -------------------------------------------------------------------------------
 
+# participant.vars and session.vars as Python has them, by owner: {key: {'owner', 'values'}}, so
+# that what an app keeps there stays what it was (tuples, Currency, lists it appends to);
+# _dirty: those read since they were last copied to jtree (flush_vars). 'seen' has each value as
+# jtree had it then (JSON), so that one jtree's side changed since (a converted app's) is read again.
+_vars_cache = {}
+_dirty = set()
+
+
+def _js_json(store, name):
+    try:
+        return JSON.stringify(getattr(store, name))
+    except Exception:
+        return None
+
+
+def _vars_key(owner):
+    session = js_get(owner, 'session')
+    return ('participant', str(session.id), str(owner.id)) if session is not None else ('session', str(owner.id))
+
+
+def flush_vars():
+    """Copies the vars read since the last call to jtree's objects (what apps changed in them)."""
+    for key in list(_dirty):
+        entry = _vars_cache.get(key)
+        if entry is not None:
+            store = entry['owner'].vars
+            for name, value in entry['values'].items():
+                setattr(store, name, to_js_value(value))
+                entry['seen'][name] = _js_json(store, name)
+    _dirty.clear()
+
+
 class _VarsDict:
-    """participant.vars and session.vars: a dict kept in a JS object of jtree's."""
+    """participant.vars and session.vars: kept in Python (_vars_cache), and in a JS object of jtree's."""
 
     def __init__(self, owner):
         object.__setattr__(self, '_owner', owner)
         if js_get(owner, 'vars') is None:
             owner.vars = Object.new()
+        key = _vars_key(owner)
+        entry = _vars_cache.get(key)
+        if entry is None:
+            entry = _vars_cache[key] = {'owner': owner, 'values': {}, 'seen': {}}
+        entry['owner'] = owner
+        object.__setattr__(self, '_key', key)
+        object.__setattr__(self, '_values', entry['values'])
+        object.__setattr__(self, '_seen', entry['seen'])
 
     def _store(self):
         return self._owner.vars
 
     def __getitem__(self, key):
-        value = js_get(self._store(), key)
-        if value is None and not hasattr(self._store(), key):
-            raise KeyError(key)
-        return value
+        store = self._store()
+        if key not in self._values or _js_json(store, key) != self._seen.get(key):
+            value = js_get(store, key)
+            if value is None and not hasattr(store, key):
+                self._values.pop(key, None)
+                raise KeyError(key)
+            self._values[key] = value
+            self._seen[key] = _js_json(store, key)
+        _dirty.add(self._key)
+        return self._values[key]
 
     def __setitem__(self, key, value):
+        self._values[key] = value
         setattr(self._store(), key, to_js_value(value))
+        self._seen[key] = _js_json(self._store(), key)
+
+    def __delitem__(self, key):
+        self._values.pop(key, None)
+        self._seen.pop(key, None)
+        if hasattr(self._store(), key):
+            delattr(self._store(), key)
 
     def __contains__(self, key):
         return hasattr(self._store(), key)
@@ -142,14 +212,33 @@ class _VarsDict:
             self[key] = default
         return self[key]
 
+    def pop(self, key, *default):
+        if key in self:
+            value = self[key]
+            del self[key]
+            return value
+        if default:
+            return default[0]
+        raise KeyError(key)
+
+    def update(self, other=(), **kw):
+        for k, v in dict(other, **kw).items():
+            self[k] = v
+
     def keys(self):
-        return list(Object.keys(self._store()))
+        return list(dict.fromkeys(list(Object.keys(self._store())) + list(self._values.keys())))
 
     def items(self):
         return [(k, self.get(k)) for k in self.keys()]
 
+    def values(self):
+        return [self.get(k) for k in self.keys()]
+
     def __iter__(self):
         return iter(self.keys())
+
+    def __len__(self):
+        return len(self.keys())
 
     def __repr__(self):
         return repr(dict(self.items()))
@@ -186,6 +275,15 @@ class _Model:
                 return Currency(value)
             return value
         raise AttributeError(f'{type(self).__name__} has no field {name!r}')
+
+    def __getattribute__(self, name):
+        # Fields are plain attributes in oTree, so apps may read them with self.__getattribute__(name).
+        try:
+            return object.__getattribute__(self, name)
+        except AttributeError:
+            if name.startswith('_'):
+                raise
+            return type(self).__getattr__(self, name)
 
     def __setattr__(self, name, value):
         cls = type(self)
@@ -512,12 +610,31 @@ class Session(_Open):
 
 # --- Pages --------------------------------------------------------------------------------
 
+def _default(fn):
+    """A page method's default (super().is_displayed() reaches it): not one the page has (jtree_otree)."""
+    fn._jtree_default = True
+    return fn
+
+
 class Page:
     form_model = None
     form_fields = []
     timeout_seconds = None
     timer_text = None
     template_name = None
+
+    # As oTree's own Page has them, for pages that call super().
+    @_default
+    def is_displayed(self, *args):
+        return True
+
+    @_default
+    def vars_for_template(self, *args):
+        return {}
+
+    @_default
+    def before_next_page(self, *args, **kw):
+        return None
 
 
 class WaitPage:

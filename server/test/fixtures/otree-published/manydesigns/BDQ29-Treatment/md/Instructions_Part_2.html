@@ -1,0 +1,88 @@
+{% block title %}
+    Instructions: Part 2
+{% endblock %}
+
+{% block content %}
+
+<p>In Part 2, you are grouped with the same 3 players as in Part 1.</p>
+
+<p>In Part 2, each of you will be credited with additional 100 Talers. And each of you will independently
+    make a decision on changing the endowments of these additional 100 Talers for each player in your group
+    privately and anonymously.</p>
+
+<p>For each other player in your group you can decide to:</p>
+
+<p>1) Leave a player's endowment of 100 Talers unchanged. This option is costless.</p>
+
+<p>2) Increase a player's endowment of 100 Talers by 10, 20, or 30 Talers. This will cost you a fixed amount of 1 Taler.
+    In other words, each time you choose to increase someone’s endowment by 10, 20, or 30 Talers, your endowment
+    will decrease by 1 Taler.
+</p>
+
+<p>3) Decrease a player's endowment of 100 Talers by 10, 20, or 30 Talers. This will bring you a fixed amount of 1 Taler.
+    In other words, each time you choose to decrease someone’s endowment by 10, 20, or 30 Talers, your endowment
+    will increase by 1 Taler.
+</p>
+
+<p>
+    Each of 3 other players in your group will decide on changing the endowments of their group mates (including
+    yourself) in the same manner.
+</p>
+
+<p>
+    This decision will be one shot and not visible to other players. You will decide on changing the endowments of
+    the 3 other players in your group on one page, as shown in the example below.
+</p>
+
+
+<p>
+    <b>Example</b>
+    <p>
+        <img src="https://www.dropbox.com/s/kc7w8suxc9zynrx/Transfers_Example-10.png?raw=1" width="500">
+    </p>
+</p>
+
+
+<p>
+    Let's assume that a player's role is Player Orange. Player Orange decides to decrease the endowment of Player Purple by
+    30 Talers (which gives her 1 Taler), not to change the endowment of Player Pink, and to increase the endowment
+    of Player Turquoise by 30 Talers (which costs 1 Taler). Player Orange makes decisions by clicking the corresponding
+    widgets as shown in the picture above.
+</p>
+
+<p>
+    On the other hand, let's assume that Player Purple decides to decrease the endowment of Player Orange by 20 Talers,
+    Player Pink decides to increase the endowment of Player Orange by 10 Talers, and Player Turquoise decides not to
+    change the endowment of Player Orange.
+</p>
+
+
+<p>
+    When all players in the group make their decisions, the endowment of Player Orange will be equal to 90 Talers:
+</p>
+
+<p>
+    100 + (1 + 0 - 1) + (- 20 + 10 + 0) = 90 Talers.
+</p>
+
+
+<p>
+    You will have 1 minute to decide on the endowments of 3 other players in your group. You will see the countdown
+    at the top of the page. All players in your group will make decisions simultaneously, and none of you
+    will know with certainty who made which decision regarding their endowment.
+</p>
+
+<p>
+    When Part 2 is finished, you will be informed about your payment: your final payment will be the sum
+    of 100 Talers for performing the task in Part 1, and the amount which you will receive in Part 2
+    based on the decisions of 3 other players in your group, and your own decisions.
+</p>
+
+<p>
+    Now, please click the "Continue" button to proceed with Part 2 of the experiment.
+</p>
+
+<button class="otree-btn-next btn btn-primary">Continue</button>
+<!--    {% next_button %}-->
+
+{% endblock %}

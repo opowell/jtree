@@ -1,0 +1,47 @@
+{{ block title }}
+    Welcome!
+{{ endblock }}
+
+{{ block content }}
+
+    <p>
+        This study consists of three stages, which we will describe in detail on the following pages. You will be
+        <b>matched to another participant for all three stages. No participant will learn the identity</b> of the
+        participant with whom they have interacted during the study.<br><br>
+    </p>
+
+    <p>
+        To make sure you receive your payment, we ask you to enter your <b>Prolific-ID</b>.
+    </p>
+
+    {{ formfield 'prolific_id'}}
+
+    <p>
+        We will not use your ID for any other purpose than directing your payment to you.
+    </p>
+
+    <strong>Payment</strong><br><br>
+
+    <p>
+        We use <b>points</b> in this study. The <b>conversion rate is 20 points are {{ Constants.curr_unit }}</b>. You
+        will receive <b>26 points for certain</b>, which means <b>{{ session.config.participation_fee }}</b>.
+        <b>Depending on the decisions you make</b>, you may receive an <b>additional amount</b> (as described on the
+        next pages).<br><br>
+    </p>
+
+    <p>
+        The entire amount will be <b>paid to you individually and privately via your Prolific account</b>.
+    </p>
+
+    <p>
+        <b>Important</b>: In this study, you will be matched with another participant in <b>real
+        time</b>.
+        <b>Please do not interrupt</b> working on this study once you started to <b>avoid delays for the
+        other participant</b>.
+    </p>
+
+
+    <br><br>
+    {{ next_button }}
+
+{{ endblock }}

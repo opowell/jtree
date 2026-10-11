@@ -1,0 +1,94 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+  Stage 1 - The Effort Stage
+{% endblock %}
+
+{% block content %}
+  <style>
+   .otree-timer {
+       display: none;
+   }
+
+   kbd {
+       background-color: #999999;  // Changes background color
+       text-color: #000000;                  // Changes text color
+   }
+  </style>
+
+  <div class="alert alert-primary">
+    <p> This stage ends in:
+      <span style="font-weight: bold">
+        <span class="otree-timer__time-left"></span></br>
+        After the time is up, you will be redirected to the next stage.
+      </span>
+    </p>
+  </div>
+  <div class="alert alert-primary" id="alert_next_captcha" role="alert">
+    Submitted. Loading next captcha...
+  </div>
+  <style>
+   #id_user_input {
+       width:6em;
+   }
+  </style>
+  <div class="container justify-content-center">
+    <div class="p-2"> 
+      {% with 'captchas/'|add:random_file as image_static %}
+        <img id="captcha_image" src="{% static image_static %}"/>
+      {% endwith %}
+    </div>
+    <div class="p-2"> 
+
+      {% formfield 'user_input' %}
+    </div>
+    <div class="p-2"> 
+
+      <button id="submitButton" type="button" class="btn btn-primary" onclick="sendAnswer()">Submit</button> 
+    </div>
+    <div class ="p-2">
+      Please note that you can also press <kbd>ENTER ↵</kbd> key on your keyboard to submit the captcha.
+      
+    </div>
+  </div>
+  <script>
+   document.getElementById("id_user_input").focus();
+
+   $("#alert_next_captcha").css('visibility', 'hidden');
+   function sendAnswer() {
+       liveSend(document.getElementById('id_user_input').value);
+       document.getElementById("submitButton").disabled = true;
+       document.getElementById("id_user_input").focus();
+       setTimeout(function() {
+           document.getElementById("submitButton").disabled = false;
+
+           
+       }, 500);
+   } 
+
+   function liveRecv(data) {
+       document.getElementById("captcha_image").src = "/static/captchas/" +data;
+       document.getElementById('id_user_input').value = "";
+       $("#alert_next_captcha").css('visibility','visible');
+       $('#alert_next_captcha').fadeTo(100,100);
+
+       $('#alert_next_captcha').fadeTo(500,0);
+
+   }
+   ///*
+   // To make enter as submit
+   $(function() {
+       $("form input").keypress(function (e) {
+           if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+               $('#submitButton').click();
+               return false;
+           } else {
+               return true;
+           }
+       });
+   });
+
+   //*/
+  </script>
+{% endblock %}

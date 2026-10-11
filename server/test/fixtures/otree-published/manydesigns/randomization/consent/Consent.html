@@ -1,0 +1,126 @@
+
+{% block styles %}
+    <link href="{% static 'global/custom.css' %}" rel="stylesheet"/>
+{% endblock %}
+
+{{ block title }}
+    Welcome to this study about decision making!
+{{ endblock }}
+{{ block content }}
+
+{{ formfield_errors 'consent' }}
+
+    <div class="container">
+
+        <hr>
+
+        <p>
+            <i>Principal investigator:</i> Christoph Huber, WU Vienna University
+            of Economics and Business
+        </p>
+
+        <hr>
+
+        <p>
+            We are asking you to participate in a research study. This
+            form will give you some information about the study. Please
+            read the form carefully before proceeding.
+        </p>
+
+        <div class="card">
+            <div class="card-header">
+                A.   Project Description
+            </div>
+            <div class="card-body">
+                <p>This study will ask you to make decision(s) with monetary consequences.</p>
+                <ul>
+                    <li>The estimated time to complete the study is max 15 minutes.</li>
+                    <li>The research is being conducted with the goal of publication in academic journals and presentations at academic conferences.</li>
+                    <li>Your participation is completely voluntary. You can discontinue your participation at any time before you have handed in your responses. However, once the study is finished, you cannot withdraw your participation.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                B.   Risks and Benefits
+            </div>
+            <div class="card-body">
+                <p>
+                    Your participation in this study does not involve any physical or emotional risk to you beyond those of daily life. None of the information presented is designed to be upsetting or offensive in any way. The potential benefit of the study is a better scientific understanding of human decision making.
+                </p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                C.   Compensation
+            </div>
+            <div class="card-body">
+                <p>
+                    You will receive a minimum payment of £1.30 for participation and you can receive additional payments depending on your decisions in the study. To receive any compensation you need to pass one simple attention check and you need to complete the study.
+                </p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                D.   Confidentiality
+            </div>
+            <div class="card-body">
+                <p>
+                    This study is anonymous. Your name and other identifying information will never be attached to your answers. All data collected will be analyzed in aggregate form. Spreadsheets on which the data are entered will contain no identifiable information, the anonymous data will later be posted online indefinitely and the data will thus be available to other researchers. Your privacy will thus be maintained in all published and written data resulting from this study. We follow the European Union’s GDPR rules.
+                </p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                E.	Contacts
+            </div>
+            <div class="card-body">
+                <p>
+                    If you have any questions or concerns about this study, you may use the Prolific message function or contact Christoph Huber at Christoph.Huber@wu.ac.at.
+                </p>
+            </div>
+        </div>
+
+        <br>
+
+        <div class="card">
+            <div class="card-body">
+                <p>
+                    <b>
+                        Do you wish to participate in this study? By clicking the YES button below, I confirm that I am at least 18 years old and I agree to participate in the research study described above. I am aware that by clicking this button, I am agreeing to take part in this research study and that I can stop being in the study at any time. I am not waiving (giving up) any of my legal rights by signing this consent form.
+                    </b>
+                </p>
+
+                <div id="consent-input" class="center" style="visibility: hidden;">
+                    <button class="btn btn-primary" name="consent" value="True">Yes</button>
+                    <button class="btn btn-primary" name="consent" value="False">No</button>
+                </div>
+
+            </div>
+        </div>
+
+
+    </div>
+
+{{ endblock }}
+
+
+{{ block scripts }}
+
+<script>
+    // Show Question+Submit-Button only after delay
+    $(document).ready(function(){
+       // Delay the action by 4000ms
+       setTimeout(function(){
+          // Display the div containing the class "bottomdiv"
+          document.getElementById("consent-input").style.visibility = "visible";
+       }, {{ waitingtime }});
+    });
+
+</script>
+
+{{ endblock }}

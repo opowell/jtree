@@ -1,0 +1,242 @@
+{{ extends "global/Page.html" }}
+{{ load otree }}
+
+{{ block global_styles  }}
+
+    <link rel="stylesheet" href="{{ static 'css/likert_scale.css' }}" />
+
+    <style>
+        .otree-timer {
+            display: none;
+        }
+    </style>
+
+{{ endblock }}
+
+{{ block global_scripts  }}
+    <script>
+        $(function () {
+            $('.otree-timer__time-left').on('update.countdown', function (event) {
+                if (event.offset.totalSeconds === 30) {
+                    $('.otree-timer').show();
+                }
+            });
+        });
+    </script>
+{{ endblock }}
+
+
+{{ block title }}
+    Survey
+{{ endblock }}
+
+{{ block content }}
+
+
+<div class="wrap">
+  <h3 class="likert-header">Read each of the following statements and rate
+      how well each of them describes you on a scale from 1 "not at all" to 5 "completely". Please check the box that
+      corresponds to the number which applies to you for each item.</h3>
+  <form action="">
+    <label class="statement">When I see people being taken advantage of, I feel kind of protective towards them.</label>
+    <ul class='likert'>
+      <li>
+        <label>
+        <input type="radio" name="ec1" value=1 required>
+        Not at all</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="ec1" value=2>
+        To a small extent</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="ec1" value=3>
+        Neither</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="ec1" value=4>
+        To a large extent</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="ec1" value=5>
+        Completely</label>
+      </li>
+    </ul>
+     <label class="statement">When I see people being treated unfairly, I sometimes don't feel very much pity for them.</label>
+    <ul class='likert'>
+      <li>
+        <label>
+        <input type="radio" name="ec2" value=1 required>
+        Not at all</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="ec2" value=2>
+        To a small extent</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="ec2" value=3>
+        Neither</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="ec2" value=4>
+        To a large extent</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="ec2" value=5>
+        Completely</label>
+      </li>
+    </ul>
+     <label class="statement">I often have tender, concerned feelings for people less fortunate than me.</label>
+    <ul class='likert'>
+      <li>
+        <label>
+        <input type="radio" name="ec3" value=1 required>
+        Not at all</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="ec3" value=2>
+        To a small extent</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="ec3" value=3>
+        Neither</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="ec3" value=4>
+        To a large extent</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="ec3" value=5>
+        Completely</label>
+      </li>
+    </ul>
+     <label class="statement">I would describe myself as a pretty softhearted person.</label>
+    <ul class='likert'>
+      <li>
+        <label>
+        <input type="radio" name="ec4" value=1 required>
+        Not at all</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="ec4" value=2>
+        To a small extent</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="ec4" value=3>
+        Neither</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="ec4" value=4>
+        To a large extent</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="ec4" value=5>
+        Completely</label>
+      </li>
+    </ul>
+       <label class="statement">Sometimes I don't feel very sorry for other people when they are having problems.</label>
+    <ul class='likert'>
+      <li>
+        <label>
+        <input type="radio" name="ec5" value=1 required>
+        Not at all</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="ec5" value=2>
+        To a small extent</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="ec5" value=3>
+        Neither</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="ec5" value=4>
+        To a large extent</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="ec5" value=5>
+        Completely</label>
+      </li>
+    </ul>
+       <label class="statement">Other people's misfortunes do not usually disturb me a great deal.</label>
+    <ul class='likert'>
+      <li>
+        <label>
+        <input type="radio" name="ec6" value=1 required>
+        Not at all</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="ec6" value=2>
+        To a small extent</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="ec6" value=3>
+        Neither</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="ec6" value=4>
+        To a large extent</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="ec6" value=5>
+        Completely</label>
+      </li>
+    </ul>
+       <label class="statement">I am often quite touched by things that I see happen.</label>
+    <ul class='likert'>
+      <li>
+        <label>
+        <input type="radio" name="ec7" value=1 required>
+        Not at all</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="ec7" value=2>
+        To a small extent</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="ec7" value=3>
+        Neither</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="ec7" value=4>
+        To a large extent</label>
+      </li>
+      <li>
+        <label>
+        <input type="radio" name="ec7" value=5>
+        Completely</label>
+      </li>
+    </ul>
+  </form>
+</div>
+
+    {{ next_button }}
+
+{{ endblock }}

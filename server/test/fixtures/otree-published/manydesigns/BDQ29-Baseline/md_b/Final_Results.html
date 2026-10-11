@@ -1,0 +1,42 @@
+{{ block title }}
+Results
+{{ endblock }}
+
+{{ block content }}
+
+
+
+<p>
+    <table>
+        <tbody>
+        <tr>
+            <td width="400"> Your payoff in Part 2: </td>
+            <td>{{ player.payoff_2 }} Talers</td>
+        </tr>
+
+        <tr>
+            <td width="400"> Your total payoff in Part 1 and Part 2: </td>
+            <td>{{ player.payoff_total }} Talers</td>
+        </tr>
+
+        <tr>
+            <td width="400"> Your payment in GBP (excluding participation fee): </td>
+            <td>{{ participant.payoff|cu }}</td>
+        </tr>
+
+
+        </tbody>
+    </table>
+
+</p>
+
+
+<p>
+    <b>Please click the button to complete the experiment:</b>
+</p>
+
+<p>
+<button class="otree-btn-next btn btn-primary" style="background-color:white; border-color:blue"><a href="https://app.prolific.co/submissions/complete?cc=572FB13C">COMPLETE</a></button>
+</p>
+
+{{ endblock }}

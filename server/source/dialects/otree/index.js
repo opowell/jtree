@@ -4,6 +4,8 @@ const path = require('path');
 const runtime = require('./runtime.js');
 const staticFiles = require('./static.js');
 const otreeExport = require('./export.js');
+const Group = require('../../Group.js');
+const Player = require('../../Player.js');
 
 /*
  * oTree apps: a folder with an __init__.py in oTree's format (one file: C, Subsession, Group,
@@ -83,6 +85,41 @@ function chatFor(session, key) {
     if (session.otreeChats == null) session.otreeChats = {};
     if (session.otreeChats[key] == null) session.otreeChats[key] = { messages: [], members: [] };
     return session.otreeChats[key];
+}
+
+/**
+ * creating_session, for an app that groups players by arrival: in oTree it sees every
+ * participant's player, which jtree makes only as they arrive (Period#arrivalGroupId). So it
+ * gets players of its own, in groups in the participants' order, and what it sets in them is
+ * given to the participants' players when they arrive (period.arrivalFields).
+ */
+function creatingSessionBeforeArrival(app, pkg, period) {
+    const size = app.groupSize || 1;
+    const groups = [];
+    const players = [];
+    for (const participant of Object.values(period.app.session.participants)) {
+        if (groups.length === 0 || groups[groups.length - 1].players.length >= size) {
+            groups.push(new Group.new(groups.length + 1, period));
+        }
+        const group = groups[groups.length - 1];
+        const player = new Player.new(participant.id, participant, group, group.players.length + 1);
+        group.players.push(player);
+        players.push(player);
+    }
+    const before = Object.create(period);
+    before.groups = groups;
+    runtime.getBridge().creating_session(pkg, before);
+    period.arrivalFields = {};
+    for (const player of players) {
+        const fresh = new Player.new(player.id, player.participant, player.group, player.idInGroup);
+        const fields = {};
+        for (const key of Object.keys(player)) {
+            if (!['group', 'participant'].includes(key) && JSON.stringify(player[key]) !== JSON.stringify(fresh[key])) {
+                fields[key] = player[key];
+            }
+        }
+        period.arrivalFields[player.participant.id] = fields;
+    }
 }
 
 /** End player's (wait) stage, after what is running now. */
@@ -202,7 +239,7 @@ module.exports = {
         staticFiles.register(pkg, dir);
         let info;
         try {
-            info = JSON.parse(bridge.load(pkg));
+            info = JSON.parse(bridge.load(pkg, path.basename(dir)));
         } catch (err) {
             err.jtreePosition = errorPosition(err, pkg, dir) || undefined;
             throw err;
@@ -243,7 +280,13 @@ module.exports = {
             return out;
         };
         if (info.creating_session) {
-            app.periodStart = (period) => runtime.getBridge().creating_session(pkg, period);
+            app.periodStart = (period) => {
+                if (app.groupByArrival) {
+                    creatingSessionBeforeArrival(app, pkg, period);
+                } else {
+                    runtime.getBridge().creating_session(pkg, period);
+                }
+            };
         }
         for (const page of info.pages) {
             definePage(app, page, pkg);

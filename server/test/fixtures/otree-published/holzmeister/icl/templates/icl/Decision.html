@@ -1,0 +1,125 @@
+{% extends "global/Page.html" %}
+{% load staticfiles otree %}
+{% load i18n %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** STYLES *** #}
+{# ****************************************************************************************************************** #}
+{% block styles %}
+    <link href="{% static 'icl/css/custom.css' %}" rel="stylesheet">
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** TITLE *** #}
+{# ****************************************************************************************************************** #}
+{% block title %}
+    {% trans "Your Decision" %}
+{% endblock %}
+
+
+{# ****************************************************************************************************************** #}
+{# *** CONTENT *** #}
+{# ****************************************************************************************************************** #}
+{% block content %}
+
+    <div class="wrapper">
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Progress Bar -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        {% if Constants.progress_bar == True %}
+            <label>
+                {% blocktrans trimmed with page=page total=total %}
+                    Page {{ page }} of {{ total }}
+                {% endblocktrans %}
+            </label>
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width:{{ progress|json }}%;">
+                    <span class="sr-only"></span>
+                </div>
+            </div>
+        {% endif %}
+
+
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <!-- Table - Lottery Decisions (Option A/B) -->
+        <!-- ------------------------------------------------------------------------------------------------------- -->
+        <div class="card">
+            <div class="card-header">
+                {% trans "What do you prefer?" %}
+            </div>
+            <table class="table">
+                <tr>
+                    <th>{% trans "Option A:" %}</th>
+                    <td>
+                        {% with hi=hi lo=lo p_hi=p_hi p_lo=p_lo %}
+                            {% blocktrans trimmed %}
+                                a {{ p_hi }} chance of winning {{ hi }} and <br/>
+                                a {{ p_lo }} chance of winning {{ lo }}
+                            {% endblocktrans %}
+                        {% endwith %}
+                    </td>
+                    <td>
+                        {% if Constants.buttons == True %}
+                            <button class="btn btn-primary choice" name="choice" value="A" required>
+                                {% trans "Option A" %}
+                            </button>
+                        {% else %}
+                            <input type="radio" name="choice" value="A" required>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        {% trans "Option B:" %}
+                    </th>
+                    <td>
+                        {% with sure_payoff=sure_payoff %}
+                            {% blocktrans trimmed %}
+                                an amount of {{ sure_payoff }}
+                                as a sure payment
+                            {% endblocktrans %}
+                        {% endwith %}
+                    </td>
+                    <td>
+                        {% if Constants.buttons == True %}
+                            <button class="btn btn-primary choice" name="choice" value="B" required>
+                                {% trans "Option B" %}
+                            </button>
+                        {% else %}
+                            <input type="radio" name="choice" value="B" required>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% if Constants.indifference == True %}
+                <tr>
+                    <th>
+                    </th>
+                    <td>
+                        {% blocktrans trimmed %}
+                            I'm indifferent between Option A and Option B
+                        {% endblocktrans %}
+                    </td>
+                    <td>
+                        {% if Constants.buttons == True %}
+                            <button class="btn btn-primary choice" name="choice" value="I" required>
+                                {% trans "Indifferent" %}
+                            </button>
+                        {% else %}
+                            <input type="radio" name="choice" value="I" required>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+
+    </div>
+
+    {% if Constants.buttons == False %}
+        {% next_button %}
+    {% endif %}
+
+{% endblock %}
