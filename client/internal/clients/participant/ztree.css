@@ -79,7 +79,8 @@ body {
     display: flex;
     justify-content: flex-end;
     gap: 0.6em;
-    margin-top: 0.6em;
+    margin-top: auto;
+    padding-top: 0.6em;
 }
 .ztree-button, .ztree-item-button, .ztree-message-ok {
     font-size: inherit;
