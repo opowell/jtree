@@ -84,7 +84,11 @@ def set_payoffs(group: Group):
 
 
 def describe(player: Player):
-    return 'Player {}'.format(player.id_in_group)
+    return 'Player ' + str(getattr(player, 'id_in_group'))
+
+
+def describe_format(player: Player):
+    return 'Player {} of {n}'.format(player.id_in_group, n=C.PLAYERS_PER_GROUP)
 
 
 # PAGES

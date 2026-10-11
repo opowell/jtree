@@ -104,6 +104,17 @@ RANDOM = {'randint': 'otree.randint', 'uniform': 'otree.uniform', 'choice': 'otr
 MATH = {'floor': 'Math.floor', 'ceil': 'Math.ceil', 'sqrt': 'Math.sqrt', 'exp': 'Math.exp', 'log': 'Math.log',
         'pow': 'Math.pow', 'fabs': 'Math.abs', 'pi': 'Math.PI', 'e': 'Math.E', 'inf': 'Infinity'}
 CURRENCY = {'cu', 'c', 'Currency'}
+# Other modules an app may import, and their functions, as the converted app's runtime has them.
+MODULES = {
+    'time': {'time': 'otree.time'},
+    'copy': {'deepcopy': 'otree.deepcopy', 'copy': 'otree.copy'},
+    'uuid': {'uuid4': 'otree.uuid4'},
+    'json': {'dumps': 'otree.jsonDumps', 'loads': 'JSON.parse'},
+}
+# String methods that test characters: str.isalnum() and the like.
+STRING_TESTS = {'isalnum': '^[\\p{L}\\p{N}]+$', 'isalpha': '^\\p{L}+$', 'isdigit': '^\\p{Nd}+$',
+                'isnumeric': '^\\p{N}+$', 'isspace': '^\\s+$', 'islower': '^[^\\p{Lu}]*\\p{Ll}[^\\p{Lu}]*$',
+                'isupper': '^[^\\p{Ll}]*\\p{Lu}[^\\p{Ll}]*$'}
 
 # JS operators' precedence, for parentheses.
 P_ASSIGN, P_COND, P_OR, P_AND, P_EQ, P_REL, P_ADD, P_MUL, P_POW, P_UNARY, P_ATOM = 2, 3, 4, 5, 9, 10, 12, 13, 14, 15, 20
@@ -181,8 +192,9 @@ class PyToJS:
         self.functions = functions  # module function name -> ast.FunctionDef
         self.report = report
         self.renames = {}
-        self.modules = {}  # local name -> 'random' / 'math', from imports
+        self.modules = {}  # local name -> 'random' / 'math' / one of MODULES, from imports
         self.random_names = {}  # from random import x -> x
+        self.module_names = {}  # from time import time -> its translation (MODULES)
         self.where = ''
 
     # --- Names -------------------------------------------------------------------------
@@ -220,6 +232,8 @@ class PyToJS:
             return 'null', P_ATOM
         if n in self.random_names:
             return RANDOM[self.random_names[n]], P_ATOM
+        if n in self.module_names:
+            return self.module_names[n], P_ATOM
         if n == 'Constants':
             return 'C', P_ATOM
         return self.name(n), P_ATOM
@@ -230,6 +244,8 @@ class PyToJS:
             module = self.modules.get(value.id)
             if module == 'math' and node.attr in MATH:
                 return MATH[node.attr], P_ATOM
+            if module in MODULES and node.attr in MODULES[module]:
+                return MODULES[module][node.attr], P_ATOM
             if module is not None:
                 raise Unsupported(node, value.id + '.' + node.attr + ' is not translated')
             if value.id in ('C', 'Constants'):
@@ -409,8 +425,9 @@ class PyToJS:
 
     def _iterable(self, node):
         code = self.expr(node, P_ATOM)
-        # Lists, and variables (a dict would fail loudly: for ... of a JS object throws).
-        if isinstance(node, (ast.List, ast.Tuple, ast.ListComp, ast.Name)) or code.startswith('otree.') and not code.startswith('otree.vars('):
+        # Lists as they are; a variable through otree.list, as it may be a dict (its keys) or a
+        # string (its characters), which Python iterates too.
+        if isinstance(node, (ast.List, ast.Tuple, ast.ListComp)) or code.startswith('otree.') and not code.startswith('otree.vars('):
             return code
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr in LIST_METHODS:
             return code
@@ -449,6 +466,8 @@ class PyToJS:
                 return ('otree.cu(' + args[0] + ', app)', P_ATOM) if args else ('0', P_ATOM)
             if n in self.random_names:
                 return RANDOM[self.random_names[n]] + '(' + ', '.join(args) + ')', P_ATOM
+            if n in self.module_names:
+                return self.module_names[n] + '(' + ', '.join(args) + ')', P_ATOM
             if n in self.functions:
                 return self.name(n) + '(' + ', '.join(self._positional(node, self.functions[n], args, kw)) + ')', P_ATOM
             if n in ('sorted',):
@@ -488,6 +507,11 @@ class PyToJS:
                 if f.attr not in MATH or kw:
                     raise Unsupported(node, 'math.' + f.attr + ' is not translated')
                 return MATH[f.attr] + '(' + ', '.join(args) + ')', P_ATOM
+            if isinstance(f.value, ast.Name) and self.modules.get(f.value.id) in MODULES:
+                module = self.modules[f.value.id]
+                if f.attr not in MODULES[module] or kw:
+                    raise Unsupported(node, module + '.' + f.attr + ' is not translated')
+                return MODULES[module][f.attr] + '(' + ', '.join(args) + ')', P_ATOM
             o = self.expr(f.value, P_ATOM)
             m = f.attr
             if m == 'join' and not kw and len(args) == 1:
@@ -504,7 +528,10 @@ class PyToJS:
             if m == 'split':
                 return (o + '.trim().split(/\\s+/)' if not args else o + '.split(' + args[0] + ')'), P_ATOM
             if m == 'format':
-                raise Unsupported(node, 'str.format')
+                # Python's str.format: {}, {0}, {name}, and their format specs (otree.strFormat).
+                return 'otree.strFormat(' + o + ', [' + ', '.join(args) + ']' + (', { ' + ', '.join(js_key(k) + ': ' + v for k, v in kw.items()) + ' }' if kw else '') + ')', P_ATOM
+            if m in STRING_TESTS and not args and not kw:
+                return '/' + STRING_TESTS[m] + '/u.test(' + o + ')', P_ATOM
             if m in METHODS and not kw:
                 a = ', '.join(args)
                 return METHODS[m].format(o=o, a=a, a0=args[0] if args else '', a1=args[1] if len(args) > 1 else ''), P_ATOM
@@ -694,7 +721,7 @@ class PyToJS:
 
     def s_Import(self, node, indent, scope):
         for alias in node.names:
-            if alias.name not in ('random', 'math'):
+            if alias.name not in ('random', 'math') and alias.name not in MODULES:
                 raise Unsupported(node, 'importing ' + alias.name)
             self.modules[alias.asname or alias.name] = alias.name
         return []
@@ -707,6 +734,13 @@ class PyToJS:
                 self.random_names[alias.asname or alias.name] = alias.name
             return []
         if node.module == 'otree.api':
+            return []
+        if node.module in MODULES or node.module == 'math':
+            names = MODULES.get(node.module, MATH)
+            for alias in node.names:
+                if alias.name not in names:
+                    raise Unsupported(node, node.module + '.' + alias.name + ' is not translated')
+                self.module_names[alias.asname or alias.name] = names[alias.name]
             return []
         raise Unsupported(node, 'importing from ' + str(node.module))
 
@@ -754,7 +788,7 @@ class PyToJS:
 
     def function(self, node, indent='', name=None, keyword='function '):
         """node as a JS function declaration (or, with keyword '', its parameters and body only)."""
-        saved = dict(self.modules), dict(self.random_names)
+        saved = dict(self.modules), dict(self.random_names), dict(self.module_names)
         try:
             if node.decorator_list and not all(isinstance(d, ast.Name) and d.id == 'staticmethod' for d in node.decorator_list):
                 raise Unsupported(node, 'decorators')
@@ -776,7 +810,7 @@ class PyToJS:
             self.report.items.pop()
             return [head] + body + [indent + '}']
         finally:
-            self.modules, self.random_names = saved
+            self.modules, self.random_names, self.module_names = saved
 
 
 def _names_in(target):
@@ -846,8 +880,12 @@ class TemplateToVue:
         self.where = where
         self.form = self._form()
 
-    def todo(self, what):
+    def todo(self, what, in_tag=False):
+        """Something not converted: in the report, and as a comment in the page (inside a tag,
+        where a comment would break it: nothing)."""
         self.report.add(self.where, 'todo', what)
+        if in_tag:
+            return ''
         return '<!-- TODO: ' + what.replace('--', '- -') + ' -->'
 
     def _form(self):
@@ -885,6 +923,24 @@ class TemplateToVue:
         html = otree_template.EMPTY_TITLE.sub('', html)
         return _attributes(html)
 
+    def constant(self, text):
+        """The value of a template expression that names only the app's constants (C.X, with
+        filters), as the template shows it; or None."""
+        expr = otree_template._split_filters(text)[0]
+        try:
+            tree = ast.parse(otree_template.dotted_index(expr.strip()), mode='eval')
+        except SyntaxError:
+            return None
+        names = {n.id for n in ast.walk(tree) if isinstance(n, ast.Name)}
+        if not names or not names <= {'C', 'Constants'}:
+            return None
+        info = jtree_otree._apps[self.pkg]
+        try:
+            value = otree_template.evaluate_with_filters(text, {'C': info.C, 'Constants': info.C})
+        except Exception:
+            return None
+        return str(value)
+
     def nodes(self, nodes, loop_vars, blocks):
         out = ''
         for node in nodes:
@@ -899,18 +955,22 @@ class TemplateToVue:
         in_code = _inside(before, 'script') or _inside(before, 'style')
         if k == 'expr':
             if in_code:
+                # Constants (C.X, Constants.X): their values, written in.
+                value = self.constant(node.arg)
+                if value is not None:
+                    return value
                 return '/* ' + self.todo('{{ ' + node.arg + ' }} in a script or style').replace('*/', '* /') + ' */'
             try:
                 code, raw = self.filtered(node.arg, loop_vars)
             except Unsupported as err:
-                return self.todo('{{ ' + node.arg + ' }}: ' + err.why)
+                return self.todo('{{ ' + node.arg + ' }}: ' + err.why, in_tag)
             if raw:
                 if in_tag:
                     return self.todo('{{ ' + node.arg + ' }} inside a tag')
                 return '<span v-html="' + code + '"></span>'
             return '{{ ' + code + ' }}'
         if k in ('if', 'for') and (in_tag or in_code):
-            return self.todo('{{ ' + k + ' }} inside a tag, script or style')
+            return self.todo('{{ ' + k + ' }} inside a tag, script or style', in_tag)
         if k == 'if':
             out = ''
             for i, (cond, branch) in enumerate(node.branches):
@@ -962,7 +1022,7 @@ class TemplateToVue:
             # convert.js puts the file in, as a data: URL.
             path = _literal(node.arg)
             if path is None:
-                return self.todo('{{ static ' + node.arg + ' }}: a static file named by an expression')
+                return self.todo('{{ static ' + node.arg + ' }}: a static file named by an expression', in_tag)
             return STATIC_MARK + path + STATIC_MARK
         if k == 'chat':
             return self.todo('{{ chat }}: jtree has no chat for converted apps; the oTree app runs as is with its chat')
@@ -1165,6 +1225,9 @@ class _VueExpr:
             return self.expr(left, prec) + ' ' + sym + ' ' + self.expr(right, prec + 1), prec
         if isinstance(node, (ast.List, ast.Tuple)):
             return '[' + ', '.join(self.expr(e) for e in node.elts) + ']', P_ATOM
+        if isinstance(node, ast.Call) and not node.args and not node.keywords:
+            # {{ participant.payoff_plus_participation_fee() }}: as without the brackets (oTree 5 calls it).
+            return self._expr(node.func)
         raise Unsupported(node, type(node).__name__ + ' in a template')
 
 
@@ -1249,6 +1312,11 @@ def convert(pkg, source_name='__init__.py'):
         if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
             n = node.targets[0].id
             if n in ('doc', 'page_sequence'):
+                continue
+            # c = cu (or Currency): another name for currency amounts.
+            if isinstance(node.value, ast.Name) and node.value.id in CURRENCY:
+                CURRENCY.add(n)
+                report.add(n, 'converted', 'another name for cu', node.lineno)
                 continue
             value = getattr(info.mod, n, None)
             if isinstance(value, (bool, int, float, str, list, dict, tuple)) or value is None:

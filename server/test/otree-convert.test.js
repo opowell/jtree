@@ -85,9 +85,11 @@ test('Python the converter translates: what its bots check, as the oTree app and
     const result = await convertAndPlay(dir, 3);
     // What it cannot translate is a TODO, with its line, in the code (throwing if it runs) and the report.
     const todo = result.report.find((i) => i.status === 'todo');
-    assert.ok(todo != null && /str\.format/.test(todo.note) && todo.line != null, JSON.stringify(result.report));
+    assert.ok(todo != null && /getattr/.test(todo.note) && todo.line != null, JSON.stringify(result.report));
     const code = fs.readFileSync(path.join(out, 'convert_features', 'app.jtt'), 'utf8');
-    assert.match(code, /\/\/ TODO \(from Python, line \d+\): str\.format\./);
+    assert.match(code, /\/\/ TODO \(from Python, line \d+\): getattr\(\) is not translated\./);
+    // str.format is translated (otree.strFormat).
+    assert.match(code, /otree\.strFormat\('Player \{\} of \{n\}', \[player\.idInGroup\], \{ n: C\.PLAYERS_PER_GROUP \}\)/);
     assert.match(code, /throw new Error\('Not converted from Python: line \d+'\)/);
     const report = fs.readFileSync(path.join(out, 'convert_features', 'CONVERSION.md'), 'utf8');
     assert.match(report, /\*\*Converts with TODOs\.\*\*/);

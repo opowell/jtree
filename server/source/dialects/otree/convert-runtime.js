@@ -212,7 +212,9 @@ const otree = {
         const own = (obj, skip) => {
             for (const [k, v] of Object.entries(obj)) {
                 if (skip.includes(k) || typeof v === 'function' || k === 'page') continue;
-                if (v == null || typeof v !== 'object' || Array.isArray(v) && v.every((e) => e == null || typeof e !== 'object')) out[k] = v;
+                if (v == null || typeof v !== 'object') out[k] = v;
+                // A copy: the page's data must not hold jtree's own lists, which change.
+                else if (Array.isArray(v) && v.every((e) => e == null || typeof e !== 'object')) out[k] = v.slice();
             }
         };
         if (otree.isPlayer(x)) {
@@ -223,6 +225,7 @@ const otree = {
             out.role = otree.role(x);
             out.id_in_subsession = otree.idInSubsession(x);
             out.participant = otree.view(x.participant, 0);
+            out.session = otree.view(otree.session(x), 0);
             if (depth > 1) out.group = otree.view(x.group, depth - 1);
         } else if (otree.isGroup(x)) {
             own(x, ['id', 'outputHide', 'outputHideAuto']);
@@ -243,7 +246,9 @@ const otree = {
             out.round_number = x.id;
             if (depth > 0) out.get_groups = x.groups.map((g) => otree.view(g, 1));
         } else {
-            // A session.
+            // A session: its fields (SESSION_FIELDS, set on it), then oTree's.
+            own(x, ['id', 'jt', 'name', 'clients', 'apps', 'users', 'addingQueues', 'potentialParticipantIds',
+                'outputHide', 'options', 'participants', 'mode', 'bots']);
             out.code = x.id;
             out.config = Object.assign({}, otree.config(x));
             out.vars = Object.assign({}, x.vars);
@@ -389,6 +394,44 @@ const otree = {
         return xs;
     },
     sample: (xs, k) => otree.shuffle(otree.list(xs).slice()).slice(0, k),
+    /** time.time(): seconds since 1970. */
+    time: () => Date.now() / 1000,
+    /** copy.deepcopy, copy.copy. */
+    deepcopy: (x) => (x == null || typeof x !== 'object' ? x : structuredClone(x)),
+    copy: (x) => (Array.isArray(x) ? x.slice() : x != null && typeof x === 'object' ? { ...x } : x),
+    /** uuid.uuid4(), as its text (str(uuid4()) and uuid4().hex are the same characters but dashes). */
+    uuid4: () => require('crypto').randomUUID(),
+    /** json.dumps, with Python's separators (', ' and ': '). */
+    jsonDumps: (x) => {
+        const dump = (v) => {
+            if (v === null || v === undefined) return 'null';
+            if (Array.isArray(v)) return '[' + v.map(dump).join(', ') + ']';
+            if (typeof v === 'object') return '{' + Object.entries(v).map(([k, w]) => JSON.stringify(k) + ': ' + dump(w)).join(', ') + '}';
+            if (typeof v === 'number' && Number.isInteger(v)) return String(v);
+            return JSON.stringify(v);
+        };
+        return dump(x);
+    },
+    /**
+     * Python's str.format: {} (in turn), {0}, {name}, {{ and }}; a spec after ':' with an
+     * optional ',' (thousands), '.N' (decimals) and type f, d or %.
+     */
+    strFormat: (text, args = [], kw = {}) => {
+        let next = 0;
+        return String(text).replace(/\{\{|\}\}|\{([^{}:]*)(?::([^{}]*))?\}/g, (m, field, spec) => {
+            if (m === '{{') return '{';
+            if (m === '}}') return '}';
+            const v = field === undefined || field === '' ? args[next++] : /^\d+$/.test(field) ? args[Number(field)] : kw[field];
+            if (!spec) return otree.str(v);
+            const s = /^(,)?(?:\.(\d+))?([fd%])?$/.exec(spec);
+            if (s == null) return otree.str(v);
+            let n = Number(v);
+            if (s[3] === '%') n *= 100;
+            let out = s[2] != null ? n.toFixed(Number(s[2])) : s[3] === 'f' ? n.toFixed(6) : s[3] === 'd' ? String(Math.trunc(n)) : String(n);
+            if (s[1]) out = out.replace(/^(-?\d+)/, (d) => d.replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+            return s[3] === '%' ? out + '%' : out;
+        });
+    },
 };
 
 module.exports = otree;

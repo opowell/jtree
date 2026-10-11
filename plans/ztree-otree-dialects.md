@@ -742,6 +742,17 @@ app is played by the oTree app's own bots in every case, which check its results
 pages, rendered by Vue in Node (`test/vue2.js`); a fixture of harder Python passes the same bots
 as oTree app and converted (`test/otree-convert.test.js`).
 
+The published experiments, converted (`test/otree-convert-published.test.js`): every #ManyDesigns
+app in oTree's current format converts, 11 with no TODOs; PRF65's, NJP79's, RPZ39's and
+YPZ45's session configs, converted, play to their end with the oTree apps' bots (each app's own
+converted copy, the project's config as session.config). What it took: `c = cu`; the modules
+time, copy, uuid and json; str.format (otree.strFormat), str.isalnum and the like; constants in
+scripts and styles written in; a method called in a template; a variable iterated as Python
+does (a dict's keys, a string's characters); TODOs inside a tag left out of it (the report has
+them); a player's session, and the session's own fields, in pages' data; the app's data files
+(CSV, fonts) where its code reads them. Left: custom_export, live pages, ExtraModel queries,
+static files named by an expression.
+
 The oTree admin's Apps page lists the oTree apps, each running as it is, with **Convert to
 jtree** (`otreeConvertApp`), which writes the jtree app beside it and shows the report.
 

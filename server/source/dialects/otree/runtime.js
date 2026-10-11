@@ -22,14 +22,14 @@ class PythonStarting extends Error {
     }
 }
 
-/** Copies the files under dir (on disk) to target in Pyodide's file system. */
-function copyDir(dir, target, keep = () => true) {
+/** Copies the files under dir (on disk) to target in Pyodide's file system (but folders skipDirs names). */
+function copyDir(dir, target, keep = () => true, skipDirs = []) {
     py.FS.mkdirTree(target);
     for (const name of fs.readdirSync(dir)) {
         const from = path.join(dir, name);
         const to = target + '/' + name;
         if (fs.statSync(from).isDirectory()) {
-            if (!name.startsWith('.') && name !== '__pycache__') copyDir(from, to, keep);
+            if (!name.startsWith('.') && name !== '__pycache__' && !skipDirs.includes(name)) copyDir(from, to, keep, skipDirs);
         } else if (keep(name)) {
             py.FS.writeFile(to, fs.readFileSync(from));
         }
@@ -102,7 +102,9 @@ function putApp(pkg, dir) {
     if (py.FS.analyzePath(target).exists) {
         py.runPython(`import shutil; shutil.rmtree(${JSON.stringify(target)})`);
     }
-    copyDir(dir, target, (name) => name.endsWith('.py') || name.endsWith('.html'));
+    // Its code and templates, and the files its code may read beside them (data, fonts, ...):
+    // all but its static files (served as they are) and compiled Python.
+    copyDir(dir, target, (name) => !name.endsWith('.pyc'), ['static', '_static', 'venv', '.venv', 'node_modules']);
     // Apps in oTree's older format import Page, WaitPage and Bot from ._builtin, which oTree
     // generated in each app (importing oTree's own modules): they get this one instead.
     if (fs.existsSync(path.join(dir, 'models.py'))) {
