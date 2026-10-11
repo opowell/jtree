@@ -118,7 +118,9 @@ async function launch() {
                             // The page may be loading.
                         }
                         if (Date.now() > end) {
-                            throw new Error('timed out waiting for ' + (what || String(fn)) + (page.errors.length ? '; page errors: ' + page.errors.join(' | ') : ''));
+                            const shown = await page.eval(() => document.body.innerText).catch(() => '?');
+                            throw new Error('timed out waiting for ' + (what || String(fn)) + (page.errors.length ? '; page errors: ' + page.errors.join(' | ') : '') +
+                                '; the page shows: ' + JSON.stringify(String(shown).slice(0, 1500)));
                         }
                         await sleep(50);
                     }

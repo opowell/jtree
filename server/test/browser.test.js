@@ -238,7 +238,7 @@ test('admin-ztree: a z-Tree treatment as z-Tree shows it: its stage tree, parame
     // The admin compiles its source in the browser first: slow in a new profile.
     await admin.waitFor(() => /Connection Monitor/.test(document.body.innerText), { what: 'admin-ztree', timeout: 240000 });
     await admin.eval((id) => { localStorage.setItem('jtree-ztree-session', id); location.reload(); }, session.id);
-    await admin.waitFor(() => /Seller Auction/.test(document.body.innerText), { what: "the session's clients, by stage", timeout: 240000 });
+    await admin.waitFor(() => /Seller Auction/.test(document.body.innerText), { what: "the session's clients, by stage", timeout: 120000 });
     const menu = async (name, item) => {
         await admin.click('button', name);
         await admin.waitFor((i) => [...document.querySelectorAll('*')].some((e) => e.children.length < 3 && e.textContent.trim().startsWith(i)), { what: item }, item);
