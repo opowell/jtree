@@ -466,3 +466,75 @@ test('admins convert a z-Tree treatment of the catalogue to a jtree app beside i
         fs.rmSync(dir, { recursive: true, force: true });
     }
 });
+
+// --- Plot boxes (z-Tree's graphics examples) -------------------------------------------------------
+
+test("z-Tree's graphics examples: plot boxes and their items are read", (t) => {
+    if (!examples(t)) return;
+    const { GRAPHICS } = require('./ztree-examples.js');
+    const plotsOf = (name) => {
+        const g = readTreatment(fs.readFileSync(file(name)));
+        assert.deepEqual(g.warnings, [], name);
+        const out = [];
+        const walk = (b) => { if (b.type === 'plot') out.push(b); b.boxes.forEach(walk); };
+        g.stages.forEach((s) => [...s.active, ...s.waiting].forEach(walk));
+        return out;
+    };
+    for (const name of GRAPHICS) assert.equal(plotsOf(name).length, 1, name);
+    const [smiley] = plotsOf('smiley');
+    assert.deepEqual(smiley.plotItems.map((i) => i.kind), ['pie', 'point', 'point', 'line', 'line', 'line']);
+    assert.deepEqual(smiley.range, { xLeft: '-100', xRight: '100', yBottom: '-100', yTop: '100' });
+    assert.equal(smiley.keepAspect, true);
+    assert.deepEqual([smiley.plotItems[3].x1, smiley.plotItems[3].lineWidth], ['-MouthXOut', '22']);
+    const [triangle] = plotsOf('colortriangle');
+    const inner = triangle.plotItems[0].items[0];
+    assert.deepEqual([inner.kind, inner.table, inner.graphCondition, inner.items[0].kind], ['graph', 'dim', 'i+:i<=1', 'rect']);
+    const [select] = plotsOf('selectlinkdemo');
+    const line = select.plotItems[0].items[0];
+    assert.deepEqual([line.kind, line.inputs[0].action, line.inputs[0].programs[0].table, line.lineColor], ['line', 1, 'lines', 'rgb(R,G,B)']);
+    const [draw] = plotsOf('z-draw');
+    assert.deepEqual(draw.plotItems[1], { ...draw.plotItems[1], kind: 'input', condition: 'State== AddPoint', action: 0, table: 'points', xVar: 'x', yVar: 'y' });
+    assert.equal(plotsOf('boxplotdemo')[0].keepAspect, false);
+});
+
+test('plot boxes drawn (as shapes for the page), and their inputs: a click moves a point, adds one, selects one', async (t) => {
+    if (!examples(t)) return;
+    const plotData = (html) => JSON.parse(html.match(/data-plot="([^"]*)"/)[1].replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>'));
+
+    // The colour triangle: a square cell for each pair (i, j) with i + j <= 1, coloured by both.
+    let g = await play('colortriangle', 1);
+    await g.bots[0].waitForStage('stage1');
+    let data = plotData(g.bots[0].player.ztreeHtml);
+    assert.equal(data.shapes.length, 55);
+    assert.ok(data.shapes.every((s) => s.kind === 'rect' && Math.abs((s.x2 - s.x1) - 0.1) < 1e-9 && Math.abs((s.y2 - s.y1) - 0.1) < 1e-9));
+    assert.equal(data.range.keepAspect, true);
+    assert.match(data.shapes[0].fill, /^rgb\(\d+,\d+,\d+\)$/);
+
+    // Move the point: a click (its subjects input) puts the subject's x and y there.
+    g = await play('movepointdemo', 1);
+    await g.bots[0].waitForStage('stage1');
+    data = plotData(g.bots[0].player.ztreeHtml);
+    assert.deepEqual(data.shapes.map((s) => [s.kind, s.x, s.y]), [['point', 0, 0]]);
+    g.bots[0].send('ztreePlot', { stage: 'stage1', box: '1', input: data.boxInputs[0], x: 40, y: -25 });
+    await g.bots[0].waitFor(() => g.subject(0).x === 40 && g.subject(0).y === -25, { what: 'the point to move' });
+    await g.bots[0].waitFor(() => /&quot;x&quot;:40,&quot;y&quot;:-25/.test(g.bots[0].player.ztreeHtml), { what: 'the point drawn there' });
+
+    // z-draw: a click adds a point (of the object being drawn); a click on it, deleting points, deletes it.
+    g = await play('z-draw', 1);
+    await g.bots[0].waitForStage('stage1');
+    data = plotData(g.bots[0].player.ztreeHtml);
+    const add = data.inputs.find((i) => i.action === 0);
+    g.bots[0].send('ztreePlot', { stage: 'stage1', box: '0', input: add.id, x: 10, y: 20 });
+    const points = () => g.run().periods[0].other.points || [];
+    await g.bots[0].waitFor(() => points().length === 1, { what: 'a new point' });
+    assert.deepEqual([points()[0].x, points()[0].y, points()[0].ObjID], [10, 20, 1]);
+    // The Del Pt button (which does not leave the stage), then a click on the point.
+    assert.equal(await g.press(0, 'stage1', 1, 1), null);
+    await g.bots[0].waitFor(() => /&quot;inputs&quot;:\[&quot;2\.0\.2:0@/.test(g.bots[0].player.ztreeHtml), { what: 'the point to take clicks' });
+    data = plotData(g.bots[0].player.ztreeHtml);
+    const point = data.shapes.find((s) => s.kind === 'point');
+    const del = data.inputs.find((i) => point.inputs.includes(i.id) && i.action === 1);
+    g.bots[0].send('ztreePlot', { stage: 'stage1', box: '0', input: del.id, x: 10, y: 20 });
+    await g.bots[0].waitFor(() => points()[0].Deleted === 1, { what: 'the point deleted' });
+    assert.deepEqual(g.run().errors, []);
+});

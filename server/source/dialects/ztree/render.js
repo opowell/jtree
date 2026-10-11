@@ -54,8 +54,12 @@ function parseLayout(layout, ctx) {
     for (const part of m[2].split(';')) {
         const p = part.trim();
         if (p === '') continue;
-        const opt = /^(-?[\d.]+)\s*=\s*"([^"]*)"$/.exec(p);
-        if (opt != null) options.push([Number(opt[1]), opt[2]]);
+        // value = "text": the value a number, or a variable's (State == AddPoint, ...).
+        const opt = /^([^=]+?)\s*=\s*"([^"]*)"$/s.exec(p);
+        if (opt != null) {
+            const key = /^-?[\d.]+$/.test(opt[1].trim()) ? Number(opt[1]) : lang.num(value(opt[1], ctx));
+            options.push([key, opt[2]]);
+        }
         else if (/^\d+$/.test(p)) count = Number(p);
     }
     return { kind: m[1].toLowerCase(), options, count, format };
@@ -151,12 +155,14 @@ function place(box, area) {
     const [x0, x1] = axis(box.left, box.right, box.width, area.x0, area.x1, W);
     const [y0, y1] = axis(box.top, box.bottom, box.height, area.y0, area.y1, H);
     const rect = { x0, y0, x1, y1 };
+    // The area left for the boxes after it: less the box's strip if it says so (its options:
+    // byte 1 left, 2 or 3 right, 4 or 5 top, 6 or 7 bottom; seen in z-Tree's examples).
+    const o = box.options || [];
     let rest = area;
-    if (measure(box.height, H) != null) {
-        rest = measure(box.bottom, H) != null && measure(box.top, H) == null ? { ...area, y1: y0 } : { ...area, y0: y1 };
-    } else if (measure(box.width, W) != null) {
-        rest = measure(box.right, W) != null && measure(box.left, W) == null ? { ...area, x1: x0 } : { ...area, x0: x1 };
-    }
+    if (o[1]) rest = { ...area, x0: x1 };
+    else if (o[2] || o[3]) rest = { ...area, x1: x0 };
+    else if (o[4] || o[5]) rest = { ...area, y0: y1 };
+    else if (o[6] || o[7]) rest = { ...area, y1: y0 };
     return { rect, rest };
 }
 
@@ -186,7 +192,7 @@ function renderScreen(boxes, view) {
 }
 
 function renderBox(box, rect, path, view) {
-    const attrs = 'class="ztree-box ztree-box--' + box.type + '" data-box="' + path + '" style="' + style(rect) + '"';
+    const attrs = 'class="ztree-box ztree-box--' + box.type + (box.frame ? ' ztree-box--frame' : '') + '" data-box="' + path + '" style="' + style(rect) + '"';
     if (box.type === 'container') {
         let area = { x0: len(0), y0: len(0), x1: len(100), y1: len(100) };
         let inner = '';
@@ -203,13 +209,14 @@ function renderBox(box, rect, path, view) {
         case 'header': body = headerBox(box, view); break;
         case 'help': body = '<div class="ztree-help-title">' + escape(box.title) + '</div><div class="ztree-help-text">' + formatText(box.text, view.ctx) + '</div>'; break;
         case 'contractList': body = contractList(box, path, view); break;
-        case 'contractCreation': body = itemsTable(box.items, view.ctx, path, 'new') + buttons(box, path); break;
+        case 'contractCreation': body = '<div class="ztree-box-main">' + itemsTable(box.items, view.ctx, path, 'new') + '</div>' + buttons(box, path); break;
         case 'history': body = history(box, view); break;
         case 'grid': body = grid(box, view.ctx, path) + buttons(box, path); break;
         case 'chat': body = chat(box, path, view); break;
+        case 'plot': body = plot(box, path, view) + buttons(box, path); break;
         case 'standard':
         case 'unknown':
-        default: body = itemsTable(box.items, view.ctx, path, '') + buttons(box, path);
+        default: body = '<div class="ztree-box-main">' + itemsTable(box.items, view.ctx, path, '') + '</div>' + buttons(box, path);
     }
     return '<div ' + attrs + '><div class="ztree-box-inner">' + body + '</div></div>';
 }
@@ -356,6 +363,134 @@ function chat(box, path, view) {
         out += '<div class="ztree-chat-input"><input type="text" class="ztree-chat-text" data-box="' + path + '" autocomplete="off"></div>';
     }
     return out;
+}
+
+// --- Plots ----------------------------------------------------------------------------------
+
+/**
+ * A plot box: its items evaluated (graphs' for each of their table's records) to shapes in the
+ * plot's coordinates, for participant/ztree.js to draw (as SVG, at the box's size): {range,
+ * shapes, inputs}. A shape a subject can click or drag has the inputs it takes, and the records
+ * it was drawn for (its graphs', innermost first).
+ */
+function plot(box, path, view) {
+    const ctx = view.ctx;
+    const num = (code, c, fallback = 0) => {
+        if (code == null || String(code).trim() === '') return fallback;
+        const v = value(code, c);
+        return v == null ? fallback : lang.num(v);
+    };
+    const color = (code, c) => {
+        if (code == null || String(code).trim() === '') return null;
+        const v = value(code, c);
+        return typeof v === 'string' ? v : null;
+    };
+    const r = box.range || {};
+    const data = {
+        range: { x1: num(r.xLeft, ctx), x2: num(r.xRight, ctx, 100), y1: num(r.yBottom, ctx), y2: num(r.yTop, ctx, 100), keepAspect: box.keepAspect === true },
+        shapes: [],
+        inputs: [],
+    };
+    // Inputs: their path in the box, what they take, and whether they apply now.
+    const input = (inp, id, c, records) => {
+        if (inp.condition && !lang.bool(value(inp.condition, c))) return null;
+        data.inputs.push({ id, action: inp.action || 0, records });
+        return id;
+    };
+    // collected: the inputs at this level (of a graph's record: its items take them).
+    const visit = (items, prefix, c, records, collected) => {
+        items.forEach((item, i) => {
+            const id = prefix + i;
+            if (item.kind === 'graph') {
+                const rt = c.rt;
+                const recs = rt.records(item.table || 'globals', {}).filter((rec) => !item.graphCondition ||
+                    lang.bool(value(item.graphCondition, { rt, table: item.table, rec, outer: c })));
+                const joined = [];
+                recs.forEach((rec) => {
+                    const inner = { rt, table: item.table, rec, outer: c, errors: c.errors };
+                    const before = data.shapes.length;
+                    const level = [];
+                    visit(item.items, id + '.', inner, [{ table: item.table, id: rec._id }, ...records], level);
+                    data.shapes.slice(before).forEach((sh) => { if (sh.inputs) sh.inputs.push(...level); });
+                    // The graph's line joins its points, record by record.
+                    data.shapes.slice(before).filter((s) => s.kind === 'point').forEach((s) => joined.push([s.x, s.y]));
+                });
+                const lineColor = color(item.lineColor, c);
+                if (lineColor && joined.length > 1) {
+                    data.shapes.unshift({ kind: 'polyline', points: joined, color: lineColor, width: num(item.lineWidth, c, 1) });
+                }
+                return;
+            }
+            if (item.kind === 'input') {
+                // In a graph: its record's items take it; in the box: a click anywhere.
+                const used = input(item, id + '@' + records.map((x) => x.table + ':' + x.id).join(','), c, records);
+                if (used) collected.push(used);
+                return;
+            }
+            if (item.condition && !lang.bool(value(item.condition, c))) return;
+            const shape = { kind: item.kind, inputs: [], records };
+            (item.inputs || []).forEach((inp, k) => {
+                const used = input(inp, id + ':' + k + '@' + records.map((x) => x.table + ':' + x.id).join(','), c, records);
+                if (used) shape.inputs.push(used);
+            });
+            switch (item.kind) {
+                case 'point':
+                    Object.assign(shape, { x: num(item.x, c), y: num(item.y, c), size: num(item.size, c, 5), corners: num(item.corners, c, 4),
+                        rotation: num(item.rotation, c), spokes: item.spokes, color: color(item.lineColor, c), width: num(item.lineWidth, c, 1),
+                        fill: color(item.fillColor, c) });
+                    break;
+                case 'line':
+                    Object.assign(shape, { x1: num(item.x1, c), y1: num(item.y1, c), x2: num(item.x2, c), y2: num(item.y2, c),
+                        // An arrow's start: none if not given (0, given: a bar).
+                        arrowStart: String(item.arrowStart || '').trim() === '' ? null : num(item.arrowStart, c),
+                        arrowWidth: num(item.arrowWidth, c), arrowEnd: num(item.arrowEnd, c),
+                        arrowFilled: item.arrowFilled, color: color(item.lineColor, c) || 'rgb(0,0,0)', width: num(item.lineWidth, c, 1) });
+                    break;
+                case 'rect': {
+                    const has = (code) => code != null && String(code).trim() !== '';
+                    const axis = (lo, hi, center, size) => {
+                        if (has(lo) && has(hi)) return [num(lo, c), num(hi, c)];
+                        const w = num(size, c);
+                        if (has(lo)) return [num(lo, c), num(lo, c) + w];
+                        if (has(hi)) return [num(hi, c) - w, num(hi, c)];
+                        return [num(center, c) - w / 2, num(center, c) + w / 2];
+                    };
+                    // Height grows up from the bottom (or down from the top) given.
+                    const [x1, x2] = axis(item.xLeft, item.xRight, item.xCenter, item.width);
+                    const [y1, y2] = axis(item.yBottom, item.yTop, item.yCenter, item.height);
+                    Object.assign(shape, { x1, x2, y1, y2, color: color(item.lineColor, c), width: num(item.lineWidth, c, 1), fill: color(item.fillColor, c) });
+                    break;
+                }
+                case 'pie':
+                    Object.assign(shape, { x: num(item.x, c), y: num(item.y, c), rx: num(item.rx, c, 1), ry: num(item.ry, c, 1),
+                        a1: num(item.angleStart, c), a2: num(item.angleEnd, c, 360), color: color(item.lineColor, c), width: num(item.lineWidth, c, 1),
+                        fill: color(item.fillColor, c) });
+                    break;
+                case 'text':
+                    Object.assign(shape, { x: num(item.x, c), y: num(item.y, c), text: formatText(item.text, c).replace(/<br>/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"'),
+                        hAlign: item.hAlign, vAlign: item.vAlign, color: color(item.color, c) || 'rgb(0,0,0)', size: num(item.fontSize, c, 12) });
+                    break;
+                case 'axis':
+                    Object.assign(shape, { horizontal: item.horizontal, position: num(item.position, c), from: num(item.from, c), to: num(item.to, c, 1),
+                        tick: num(item.tickStep, c), label: num(item.labelStep, c), layout: item.labelLayout || '1', caption: item.caption || '',
+                        color: color(item.lineColor, c) || 'rgb(0,0,0)', width: num(item.lineWidth, c, 1) });
+                    if (shape.label > 0) {
+                        shape.labels = [];
+                        for (let v = Math.ceil(shape.from / shape.label - 1e-9) * shape.label; v <= shape.to + 1e-9 && shape.labels.length < 200; v += shape.label) {
+                            shape.labels.push([v, formatValue(v, shape.layout, c)]);
+                        }
+                    }
+                    break;
+                default:
+                    return;
+            }
+            data.shapes.push(shape);
+        });
+    };
+    const boxInputs = [];
+    visit(box.plotItems || [], '', ctx, [], boxInputs);
+    data.boxInputs = boxInputs;
+    return '<div class="ztree-plot" data-box="' + path + '" data-plot="' + escape(JSON.stringify(data)) + '"></div>';
 }
 
 module.exports = { renderScreen, formatValue, formatText, parseLayout, place, measure, value, expression, escape };

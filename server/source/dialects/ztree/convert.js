@@ -59,12 +59,13 @@ class Translator {
     }
 
     /** The record (JS) a variable is read from, looking out from ctx. */
-    owner(ctx, name, scope) {
+    owner(ctx, name, scope, depth = 1) {
         if (scope === 'globals') return 'g';
-        let c = scope === 'outer' ? ctx.outer : ctx;
+        let c = ctx;
+        if (scope === 'outer') for (let k = 0; k < (depth || 1) && c != null; k++) c = c.outer;
         if (c == null) throw new Todo(':' + name + ' has no enclosing record here');
         for (let d = c; d != null; d = d.outer) {
-            if (this.has(d.table, name)) return d.rec;
+            if (this.has(d.table, name) || d.iterVar === name) return d.rec;
         }
         if (this.has('globals', name)) return 'g';
         return c.rec;
@@ -73,7 +74,7 @@ class Translator {
     /** The record (JS) a variable is set in. */
     target(ctx, t) {
         if (t.scope === 'globals') return 'g';
-        if (t.scope === 'outer') return this.owner(ctx, t.name, 'outer');
+        if (t.scope === 'outer') return this.owner(ctx, t.name, 'outer', t.depth);
         if (this.has(ctx.table, t.name)) return ctx.rec;
         for (let d = ctx.outer; d != null; d = d.outer) if (this.has(d.table, t.name)) return d.rec;
         if (ctx.table !== 'globals' && this.has('globals', t.name) && !this.has(ctx.table, t.name)) return 'g';
@@ -89,7 +90,7 @@ class Translator {
             case 'num': return String(node.v);
             case 'str': return js(node.v);
             case 'var': {
-                const ref = this.prop(this.owner(ctx, node.name, node.scope), node.name);
+                const ref = this.prop(this.owner(ctx, node.name, node.scope, node.depth), node.name);
                 return node.index == null ? ref : `z.at(${ref}, ${this.expr(node.index, ctx)})`;
             }
             case 'neg': return `-${this.atom(node.e, ctx)}`;
@@ -125,6 +126,8 @@ class Translator {
             case 'random': case 'randomgenerator': return 'Math.random()';
             case 'round': case 'rounddown': case 'roundup': case 'mod': return `z.${node.fn}(${a.join(', ')})`;
             case 'gettime': return '(Date.now() / 1000)';
+            case 'pi': return 'Math.PI';
+            case 'rgb': return `z.rgb(${a.join(', ')})`;
             case 'true': return 'true';
             case 'false': return 'false';
             default: throw new Todo('the function ' + node.fn + ' is not translated');
@@ -196,6 +199,13 @@ class Translator {
                 const { table, code } = this.records(s.table);
                 const r = 'r' + (++this.n);
                 return [`for (const ${r} of ${code}) {`, ...block(s.body, { ...ctx, table, rec: r, outer: ctx }), '}'];
+            }
+            case 'iter': {
+                const r = 'r' + (++this.n);
+                const a = s.args.map((x) => this.expr(x, ctx));
+                const range = a.length === 1 ? `z.range(1, ${a[0]})` : `z.range(${a.join(', ')})`;
+                return [`for (const ${r} of ${range}.map((v) => ({ ${s.name}: v }))) {`,
+                    ...block(s.body, { ...ctx, table: '__iterator', rec: r, outer: ctx, iterVar: s.name }), '}'];
             }
             case 'new': {
                 const r = 'r' + (++this.n);

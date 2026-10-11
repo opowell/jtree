@@ -52,6 +52,15 @@ const z = {
     rounddown: (x, step = 1) => Number((Math.floor(x / (Math.abs(step) || 1) + 1e-9) * (Math.abs(step) || 1)).toFixed(12)),
     roundup: (x, step = 1) => Number((Math.ceil(x / (Math.abs(step) || 1) - 1e-9) * (Math.abs(step) || 1)).toFixed(12)),
     mod: (a, b) => ((a % b) + b) % b,
+    /** A color, from red, green and blue between 0 and 1. */
+    rgb: (r, g, b) => 'rgb(' + [r, g, b].map((v) => Math.round(Math.max(0, Math.min(1, v)) * 255)).join(',') + ')',
+
+    /** iterator(i, from, to, step)'s values. */
+    range: (from, to, step = 1) => {
+        const out = [];
+        for (let v = from; step > 0 ? v <= to + 1e-9 : v >= to - 1e-9; v += step) out.push(Number(v.toFixed(12)));
+        return out;
+    },
 
     // Arrays: array x[n] (from 1 to n), array x[from, to(, step)].
     array: (lo, hi, step = 1) => ({ lo, step, values: new Array(Math.max(0, Math.floor((hi - lo) / step + 1e-9) + 1)).fill(0) }),

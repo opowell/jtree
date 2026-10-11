@@ -121,3 +121,16 @@ test('with endOnTimeout false, a timed-out stage stays open until the players su
     await Promise.all(bots.map(b => b.waitForStage('next')));
     assert.deepEqual(session.apps[0].seen, { P1: true, P2: true });
 });
+
+test('a timeUp message, which carries its stage, leaves the server\'s objects (and their timers) as they are', () => {
+    const Utils = require('../source/Utils.js');
+    const timer = setTimeout(() => {}, 1000);
+    const stage = new (class Stage {})();
+    stage.app = { socket: { pingIntervalTimer: timer }, duration: '30' };
+    assert.equal(Utils.parseFloatRec(stage), stage);
+    assert.equal(stage.app.socket.pingIntervalTimer, timer);
+    assert.equal(stage.app.duration, '30');
+    clearTimeout(timer);
+    // What clients send is still parsed.
+    assert.deepEqual(Utils.parseFloatRec({ a: '2', b: ['1.5', 'x'] }), { a: 2, b: [1.5, 'x'] });
+});

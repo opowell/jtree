@@ -284,3 +284,30 @@ test('admin-ztree: a z-Tree treatment as z-Tree shows it: its stage tree, parame
     assert.deepEqual(admin.errors, []);
     await admin.close();
 });
+
+test('z-Tree: a plot box in a browser: drawn as SVG, and a click on it moves the point there', { skip }, async (t) => {
+    if (!(await ztree.ensureExamples())) return t.skip("z-Tree's examples could not be downloaded");
+    const session = server.createSession(ztree.file('movepointdemo'), { numParticipants: 1 });
+    session.start();
+    const [page] = await openParticipants(session);
+    await page.waitFor(() => document.querySelector('.ztree-plot svg polygon') != null, { what: 'the plot, drawn' });
+    // A click a quarter of the way right and up from the plot's centre: x and y about 60 (of ±120).
+    const at = await page.eval(() => {
+        const r = document.querySelector('.ztree-plot').getBoundingClientRect();
+        const side = Math.min(r.width, r.height) * 0.88;
+        return [r.left + r.width / 2 + side / 4, r.top + r.height / 2 - side / 4];
+    });
+    await page.clickAt(at[0], at[1]);
+    const subject = () => session.apps[0].ztreeRun.periods[0].subjects[0];
+    const until = Date.now() + 30000;
+    while (!(subject().x > 0) && Date.now() < until) await new Promise((r) => setTimeout(r, 100));
+    assert.ok(Math.abs(subject().x - 60) < 8 && Math.abs(subject().y - 60) < 8, JSON.stringify([subject().x, subject().y]));
+    // The point is drawn there.
+    await page.waitFor((p) => {
+        const poly = document.querySelector('.ztree-plot svg polygon');
+        const box = poly.getBoundingClientRect();
+        return Math.abs(box.left + box.width / 2 - p[0]) < 8 && Math.abs(box.top + box.height / 2 - p[1]) < 8;
+    }, { what: 'the point, drawn where the click was' }, at);
+    assert.deepEqual(page.errors, []);
+    await page.close();
+});

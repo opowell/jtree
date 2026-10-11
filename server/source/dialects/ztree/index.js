@@ -253,6 +253,16 @@ module.exports = {
             draw(player);
         };
         app.messages.ztreeSelect.convertsOwnValues = true;
+        // A plot input used: {stage, box, input, x, y, x0, y0, x1, y1}.
+        app.messages.ztreePlot = function(data) {
+            const player = this.participant.player;
+            if (player == null || player.app() !== app || player.stage == null || player.stage.ztree == null || player.status !== 'playing') return;
+            if (data == null || data.stage !== player.stage.id) return;
+            const result = runOf(app).plotInput(player.group.period.id - 1, subjectIndex(player), player.stage.ztree, data);
+            if (result.error) player.session().io().to(player.participant.roomId()).emit('ztreeMessage', { text: result.error, box: data.box });
+            refresh(app);
+        };
+        app.messages.ztreePlot.convertsOwnValues = true;
         // A chat entry: {stage, box, text}.
         app.messages.ztreeChat = function(data) {
             const player = this.participant.player;

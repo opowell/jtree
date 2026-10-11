@@ -142,6 +142,12 @@ async function launch() {
                         el.dispatchEvent(new Event('change', { bubbles: true }));
                     }, selector, value);
                 },
+                /** A mouse click at (x, y) in the page, as a person's: pressed, then released. */
+                async clickAt(x, y) {
+                    for (const type of ['mouseMoved', 'mousePressed', 'mouseReleased']) {
+                        await send('Input.dispatchMouseEvent', { type, x, y, button: 'left', clickCount: type === 'mouseMoved' ? 0 : 1 });
+                    }
+                },
                 /** Saves a PNG of the page to file. */
                 async screenshot(file) {
                     const { data } = await send('Page.captureScreenshot', { format: 'png' });

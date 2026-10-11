@@ -184,6 +184,18 @@ function parse(code) {
             if (is(';')) next();
             return { k: 'exit', line: t.line };
         }
+        // iterator(i, n).do { } (i from 1 to n), iterator(i, from, to[, step]).do { }
+        if (isId('iterator') && is('(', 1)) {
+            next(); next();
+            const name = next();
+            const args = [];
+            while (is(',')) { next(); args.push(expr()); }
+            expect(')');
+            expect('.');
+            const kind = next();
+            if (kind.t !== 'id' || kind.v.toLowerCase() !== 'do') throw new ZtreeSyntaxError('only iterator( ).do { } is read', kind.line);
+            return { k: 'iter', name: name.v, args, body: block(), line: t.line };
+        }
         // table.do { } / table.new { }
         if (t.t === 'id' && is('.', 1) && peek(2).t === 'id' && ['do', 'new'].includes(peek(2).v.toLowerCase()) && is('{', 3)) {
             next(); next();
@@ -200,12 +212,15 @@ function parse(code) {
 
     function lvalue() {
         let scope = 'own';
-        if (is(':')) { next(); scope = 'outer'; } else if (is('\\')) { next(); scope = 'globals'; }
+        let depth = 0;
+        // :x is the enclosing record's, ::x the one enclosing that, ...
+        while (is(':')) { next(); scope = 'outer'; depth++; }
+        if (scope === 'own' && is('\\')) { next(); scope = 'globals'; }
         const name = next();
         if (name.t !== 'id') throw new ZtreeSyntaxError('expected a variable but found ' + (name.v || 'the end'), name.line);
         let index = null;
         if (is('[')) { next(); index = expr(); expect(']'); }
-        return { name: name.v, scope, index };
+        return { name: name.v, scope, index, depth };
     }
 
     // Precedence, lowest first: | & comparisons + - * / ^ unary.
@@ -266,10 +281,12 @@ function parse(code) {
         if (is('(')) { next(); const e = expr(); expect(')'); return e; }
         if (is(':') || is('\\')) {
             const scope = next().v === ':' ? 'outer' : 'globals';
+            let depth = scope === 'outer' ? 1 : 0;
+            while (scope === 'outer' && is(':')) { next(); depth++; }
             const name = next();
             let index = null;
             if (is('[')) { next(); index = expr(); expect(']'); }
-            return { k: 'var', name: name.v, scope, index };
+            return { k: 'var', name: name.v, scope, index, depth };
         }
         if (t.t === 'id') {
             next();
@@ -327,10 +344,11 @@ function arrayIndex(arr, i) {
 }
 
 /** The record (and its table) a variable is in, looking out from ctx; null if none. */
-function owner(ctx, name, scope) {
+function owner(ctx, name, scope, depth = 1) {
     const rt = ctx.rt;
     if (scope === 'globals') return { rec: rt.globals(), table: 'globals' };
-    let c = scope === 'outer' ? ctx.outer : ctx;
+    let c = ctx;
+    if (scope === 'outer') for (let k = 0; k < (depth || 1) && c != null; k++) c = c.outer;
     if (c == null) throw new Error(':' + name + ' has no enclosing record here');
     for (let d = c; d != null; d = d.outer) {
         if (d.rec != null && (Object.prototype.hasOwnProperty.call(d.rec, name) || rt.isVar(d.table, name))) {
@@ -344,7 +362,7 @@ function owner(ctx, name, scope) {
 }
 
 function readVar(ctx, node) {
-    const o = owner(ctx, node.name, node.scope);
+    const o = owner(ctx, node.name, node.scope, node.depth);
     let v = o == null ? 0 : o.rec[node.name];
     if (v === undefined) v = 0;
     if (node.index != null) {
@@ -359,8 +377,10 @@ function writeVar(ctx, target, value) {
     if (target.scope === 'globals') {
         rec = ctx.rt.globals();
     } else if (target.scope === 'outer') {
-        const o = owner(ctx, target.name, 'outer');
-        rec = o != null ? o.rec : ctx.outer.rec;
+        const o = owner(ctx, target.name, 'outer', target.depth);
+        let c = ctx;
+        for (let k = 0; k < (target.depth || 1) && c.outer != null; k++) c = c.outer;
+        rec = o != null ? o.rec : c.rec;
     } else {
         // A variable of this record's table, else of an enclosing record that has it, else new here.
         const o = owner(ctx, target.name, 'own');
@@ -411,6 +431,9 @@ const FUNCTIONS = {
     random: () => Math.random(),
     randomgenerator: () => Math.random(),
     gettime: (a, ctx) => ctx.rt.time(),
+    pi: () => Math.PI,
+    /** A color, from red, green and blue between 0 and 1. */
+    rgb: (a) => 'rgb(' + a.slice(0, 3).map((v) => Math.round(Math.max(0, Math.min(1, num(v))) * 255)).join(',') + ')',
     true: () => 1,
     false: () => 0,
 };
@@ -566,6 +589,17 @@ function exec(stmts, ctx) {
                 for (const r of records.slice()) exec(s.body, { rt: ctx.rt, table, rec: r, outer: ctx });
                 break;
             }
+            case 'iter': {
+                const a = s.args.map((x) => num(evaluate(x, ctx)));
+                const [from, to, step] = a.length === 1 ? [1, a[0], 1] : [a[0], a[1], a[2] == null ? 1 : a[2]];
+                if (!(step > 0) && !(step < 0)) break;
+                let n = 0;
+                for (let v = from; step > 0 ? v <= to + 1e-9 : v >= to - 1e-9; v += step) {
+                    if (++n > 1e6) throw new Error('an iterator ran a million times (line ' + s.line + ')');
+                    exec(s.body, { rt: ctx.rt, table: '__iterator', rec: { [s.name]: Number(v.toFixed(12)) }, outer: ctx });
+                }
+                break;
+            }
             case 'new': {
                 const rec = ctx.rt.newRecord(s.table);
                 exec(s.body, { rt: ctx.rt, table: s.table, rec, outer: ctx });
@@ -610,7 +644,7 @@ function assignedVariables(program, table, out = {}) {
             if (s.k === 'set' && s.target.scope === 'globals') add('globals', s.target.name);
             if (s.k === 'array') add(t, s.name);
             if (s.k === 'if') { s.branches.forEach((b) => visit(b.body, t)); if (s.otherwise) visit(s.otherwise, t); }
-            if (s.k === 'while' || s.k === 'repeat' || s.k === 'later') visit(s.body, t);
+            if (s.k === 'while' || s.k === 'repeat' || s.k === 'later' || s.k === 'iter') visit(s.body, t);
             if (s.k === 'do' || s.k === 'new') visit(s.body, s.table.replace(/^OLD/, ''));
         }
     };

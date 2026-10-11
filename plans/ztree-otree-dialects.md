@@ -601,7 +601,17 @@ pg, ug, pd and game222 convert with nothing left over and give the same results 
 dialect (`test/ztree.test.js`); contract, chat, history, grid and calculator boxes and `later`
 are TODOs (they run in the dialect).
 
-Not yet: plot and multimedia boxes; z-Tree's text export as input; stages' options other than "start if possible" and the header (bit 2 of the
+Plot boxes (z-Tree's graphics, from its eight graphics examples): points, lines (with arrows),
+rects, pies, texts, axes, graphs (their items for each record of a table, nested, and the line
+joining their points), and plot inputs (a click makes a record at the point, a click on an item
+or dragging it is its record's), with their programs; the server works out the shapes (all
+their values are expressions, colours `rgb()` ones), and the page draws them as SVG at the box's
+size, keeping the plot's proportions where the plot box says so. Also read from z-Tree 3.5's
+files: boxes' display conditions, and whether a button leaves the stage; and the language's
+`iterator( ).do`, `::x`, `rgb()`, `pi()`. Boxes take the screen's remaining area as their
+options say (left, top, bottom).
+
+Not yet: multimedia boxes (no example to read); z-Tree's text export as input; stages' options other than "start if possible" and the header (bit 2 of the
 first, set on the examples' market stages, is not known); boxes' frames and buttons' placement.
 
 ### Phase 8: converters (oTree's done)

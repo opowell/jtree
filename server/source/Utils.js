@@ -472,12 +472,20 @@ class Utils {
         fs.closeSync(fs.openSync(fn, 'w'));
     }
 
-    // Recursively parse data fields as float numbers.
+    // Recursively parse data fields as float numbers. Only plain data (what clients send) is
+    // parsed: other objects (a stage passed with a timeUp message, say) are left as they are,
+    // since walking them would reach, and rewrite, the server's own objects and sockets.
     static parseFloatRec(data, parsedObjs) {
         if (parsedObjs == null) {
             parsedObjs = [];
         }
         try {
+            if (data !== null && typeof data === 'object') {
+                var proto = Object.getPrototypeOf(data);
+                if (proto !== Object.prototype && proto !== Array.prototype && proto !== null) {
+                    return data;
+                }
+            }
             if (Utils.isNumeric(data)) {
                 data = parseFloat(data, 10);
             } else if (typeof data === 'object') {

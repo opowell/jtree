@@ -333,8 +333,71 @@ class Run {
                 this.exec(pr.code, c);
             }
         }
-        const leaves = d.itemButton || ['standard', 'help', 'header', 'grid', 'history', 'calculator', 'unknown'].includes(box.type);
+        // Whether it leaves the stage: as the button says (z-Tree 3.5's files), else as its box's
+        // kind has it (standard boxes' buttons do, contract and chat boxes' do not).
+        const leaves = d.itemButton || (typeof button.leaveStage === 'boolean' ? button.leaveStage
+            : ['standard', 'help', 'header', 'grid', 'history', 'calculator', 'plot', 'unknown'].includes(box.type));
         return { leave: leaves };
+    }
+
+    /**
+     * A subject used a plot input of a plot box: {box, input (its id: the item's path in the box,
+     * then @ and the records it was drawn for, table:id, innermost first), x, y (where), x0, y0,
+     * x1, y1 (a drag's start and end)}. A click (action 0) makes a record of the input's table at
+     * the point (or, for subjects, moves the subject's); a click on an item (1) or a drag (2) is
+     * its record's. Then the input's programs run, each on its table's record.
+     */
+    plotInput(p, subjectIndex, stage, d) {
+        const view = this.view(p);
+        const state = this.periods[p];
+        const subject = state.subjects[subjectIndex];
+        const box = findBox(stage, d.box);
+        if (box == null || box.type !== 'plot') return { error: 'There is no such plot.' };
+        const [path, recordsText] = String(d.input || '').split('@');
+        const input = plotItemAt(box, path);
+        if (input == null || input.kind !== 'input') return { error: 'There is no such input.' };
+        // The records it was drawn for, as contexts, outermost (the subject) first.
+        const own = { rt: view, table: 'subjects', rec: subject, outer: null };
+        const chain = [];
+        let c = own;
+        for (const ref of (recordsText ? recordsText.split(',') : []).reverse()) {
+            const [table, id] = [ref.slice(0, ref.lastIndexOf(':')), ref.slice(ref.lastIndexOf(':') + 1)];
+            const rec = view.records(table).find((r) => String(r._id) === id);
+            if (rec == null) return { error: 'That is gone.' };
+            c = { rt: view, table, rec, outer: c };
+            chain.unshift(c);
+        }
+        const inner = chain[0] || own;
+        if (input.condition && !lang.bool(this.value(input.condition, inner))) return {};
+        const n = (v) => (Number.isFinite(Number(v)) ? Number(v) : 0);
+        const coords = {};
+        if (input.xVar) coords[input.xVar] = input.action === 2 ? n(d.x1) - n(d.x0) : n(d.x);
+        if (input.yVar) coords[input.yVar] = input.action === 2 ? n(d.y1) - n(d.y0) : n(d.y);
+        if (input.action === 2) {
+            for (const [k, v] of [['x0Var', d.x0], ['y0Var', d.y0], ['x1Var', d.x1], ['y1Var', d.y1]]) if (input[k]) coords[input[k]] = n(v);
+        }
+        const table = input.table || 'subjects';
+        let target;
+        if (input.action === 0) {
+            target = table === 'subjects' ? own : { rt: view, table, rec: this.newRecord(p, table), outer: inner };
+        } else {
+            target = chain.find((x) => x.table === table) || inner;
+        }
+        Object.assign(target.rec, coords);
+        for (const pr of input.programs) {
+            const t = pr.table || 'subjects';
+            let pc = t === target.table ? target : chain.find((x) => x.table === t);
+            if (pc == null) {
+                if (t === 'subjects') pc = own;
+                else if (t === 'globals') pc = { rt: view, table: 'globals', rec: state.globals, outer: inner };
+                else continue;
+            }
+            // A drag's start and end are the program's record's too (its programs read them there).
+            if (input.action === 2 && pc !== target) Object.assign(pc.rec, coords);
+            if (pr.condition && !lang.bool(this.value(pr.condition, pc))) continue;
+            this.exec(pr.code, pc);
+        }
+        return {};
     }
 
     /** A subject's chat entry: a new record of the chat box's table, with its programs run. */
@@ -369,6 +432,21 @@ class Run {
         if (ctx.errors.length) ctx.errors.forEach((e) => this.note('on a screen: ' + e));
         return '<div class="ztree-screen" data-which="' + which + '"' + (deadline ? ' data-deadline="' + deadline + '"' : '') + '>' + html + '</div>';
     }
+}
+
+/** The plot item at path in a plot box ("1.0" in a graph; "2:0" the first input of item 2). */
+function plotItemAt(box, path) {
+    let list = box.plotItems || [];
+    let item = null;
+    for (const part of String(path).split('.')) {
+        const [i, k] = part.split(':').map(Number);
+        item = list[i];
+        if (item == null) return null;
+        if (k != null && !Number.isNaN(k)) item = (item.inputs || [])[k];
+        if (item == null) return null;
+        list = item.items || [];
+    }
+    return item;
 }
 
 /**
@@ -421,6 +499,18 @@ function variables(t) {
         }
         for (const b of box.buttons) b.programs.forEach((pr) => add(pr.code, pr.table || 'subjects'));
         box.programs.forEach((pr) => add(pr.code, pr.table || 'contracts'));
+        const plotItems = (items) => {
+            for (const item of items || []) {
+                for (const inp of [...(item.kind === 'input' ? [item] : []), ...(item.inputs || [])]) {
+                    const t = inp.table || 'subjects';
+                    out[t] = out[t] || new Set();
+                    for (const k of ['xVar', 'yVar', 'x0Var', 'y0Var', 'x1Var', 'y1Var']) if (/^\w+$/.test(inp[k] || '')) out[t].add(inp[k]);
+                    (inp.programs || []).forEach((pr) => add(pr.code, pr.table || 'subjects'));
+                }
+                plotItems(item.items);
+            }
+        };
+        plotItems(box.plotItems);
         if (box.type === 'chat' && box.variable) {
             out[box.table || 'contracts'] = out[box.table || 'contracts'] || new Set();
             out[box.table || 'contracts'].add(box.variable);

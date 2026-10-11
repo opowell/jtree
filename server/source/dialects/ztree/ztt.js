@@ -30,6 +30,11 @@ const BOX_CLASSES = {
     EEXMultimediaWindow: 'multimedia',
 };
 const ITEM_CLASSES = new Set(['EEXInfoItem']);
+// Plot boxes' items (z-Tree 3's graphics).
+const PLOT_CLASSES = {
+    EEXPlotPoint: 'point', EEXPlotLine: 'line', EEXPlotRect: 'rect', EEXPlotPie: 'pie', EEXPlotText: 'text',
+    EEXPlotAxis: 'axis', EEXPlotGraph: 'graph', EEXPlotInput: 'input',
+};
 
 // Windows-1252's characters 0x80-0x9f, where it differs from Latin-1.
 const CP1252 = '€\u0081‚ƒ„…†‡ˆ‰Š‹Œ\u008dŽ\u008f\u0090‘’“”•–—˜™š›œ\u009džŸ';
@@ -142,6 +147,9 @@ function readTreatment(buf) {
     let containers = [];    // open container boxes: {box, left}
     let box = null;
     let button = null;
+    // The plot box being read, and its graphs open: [{list, left}] (items still to come in each).
+    let plots = [];
+    let plotInput = null;
     let lastReader = null;  // the last object's reader, after its fields
 
     /** The fields of a stage after its programs, read where they are (after its last program). */
@@ -181,24 +189,61 @@ function readTreatment(buf) {
         if (newBox.type === 'container') containers.push({ box: newBox, left: newBox.childCount });
     }
 
+    // From file version 34, whether a button leaves the stage: after its checkers and programs
+    // (their counts, if it has none), byte 4 of its settings is 1 if it does not.
+    let buttonTail = null;
+    const settleButton = () => {
+        const b = buttonTail;
+        buttonTail = null;
+        if (b == null || lastReader == null || version <= 18) return;
+        try {
+            const r = new Reader(buf, lastReader.pos, lastReader.end);
+            if (b.programs.length === 0) r.skip(b.checkers.length === 0 ? 8 : 4);
+            r.skip(4);
+            b.leaveStage = r.u8() !== 1;
+        } catch (err) {
+            // Not there: the box's kind decides.
+        }
+    };
+
     // A box's settings after its lists are in the bytes after its last object (its last item,
     // or its last button's last checker or program).
     let tailBox = null;
     const settleTail = () => {
-        if (tailBox != null && lastReader != null) tailBox.tailStrings = lastReader.strings();
+        if (tailBox != null && lastReader != null) {
+            tailBox.tailStrings = lastReader.strings();
+            // A plot box's range, and whether it keeps the plot's proportions (one scale for x and
+            // y: 1 in the 10 bytes before its range's strings, 0 to stretch the plot to the box).
+            if (tailBox.type === 'plot') {
+                const raw = buf.subarray(lastReader.pos, lastReader.end);
+                const found = [];
+                for (let p = 0; p < raw.length;) {
+                    const n = raw[p];
+                    if (n >= 1 && n < 0xff && p + 1 + n <= raw.length && raw.subarray(p + 1, p + 1 + n).every((c) => c >= 32 && c < 127)) {
+                        found.push(p);
+                        p += 1 + n;
+                    } else p++;
+                }
+                const first = found[found.length - 4];
+                if (first != null && first >= 10) tailBox.keepAspect = raw[first - 10] === 1;
+            }
+        }
         tailBox = null;
     };
 
     for (let i = 1; i < tokens.length; i++) {
         const t = tokens[i];
         const r = reader(t);
+        if (buttonTail != null && !(t.cls === 'EEXChecker' || (t.cls === 'EEXProgram' && plotInput == null))) settleButton();
+        if (PLOT_CLASSES[t.cls] == null && t.cls !== 'EEXProgram') closePlots(true);
         if (BOX_CLASSES[t.cls] != null || /^EEX\w*Window$/.test(t.cls) || ['EEXStage', 'CPGXPeriodParam'].includes(t.cls)) settleTail();
         try {
             if (t.cls === 'EEXDatabaseInfo') {
                 game.tables.push({ name: r.str() });
             } else if (t.cls === 'EEXProgram') {
                 const program = { table: r.str(), owner: r.str(), condition: r.str(), code: r.str() };
-                if (button != null) button.programs.push(program);
+                if (plotInput != null) plotInput.programs.push(program);
+                else if (button != null) button.programs.push(program);
                 else if (box != null && box.type === 'chat') box.programs.push(program);
                 else if (box != null && box.type === 'contractCreation' && button == null) box.programs.push(program);
                 else {
@@ -217,17 +262,37 @@ function readTreatment(buf) {
             } else if (BOX_CLASSES[t.cls] != null || /^EEX\w*Window$/.test(t.cls)) {
                 box = readBox(r, t.cls);
                 button = null;
+                plotInput = null;
+                plots = box.type === 'plot' ? [{ item: box, list: box.plotItems, left: box.plotCount, root: true }] : [];
                 addBox(box);
                 tailBox = box;
             } else if (ITEM_CLASSES.has(t.cls)) {
                 const item = readItem(r);
                 if (box != null) box.items.push(item);
+            } else if (PLOT_CLASSES[t.cls] != null) {
+                closePlots(false);
+                const item = readPlotHead(r, PLOT_CLASSES[t.cls]);
+                const parent = plots[plots.length - 1];
+                if (parent != null) {
+                    parent.list.push(item);
+                    parent.left--;
+                }
+                if (item.kind === 'input') plotInput = item;
+                if (item.kind === 'graph') {
+                    plots.push({ item, list: item.items, left: item.count });
+                } else if (item.count > 0) {
+                    // Its plot inputs come first, then its own fields.
+                    plots.push({ item, list: item.inputs, left: item.count });
+                } else {
+                    readPlotFields(r, item);
+                }
             } else if (t.cls === 'EEXChecker') {
                 const checker = readChecker(r);
                 if (button != null) button.checkers.push(checker);
                 else if (box != null) box.items.push(checker);
             } else if (t.cls === 'EEXContractButton') {
                 button = readButton(r);
+                buttonTail = button;
                 if (box != null) box.buttons.push(button);
             } else if (t.cls === 'CPGXPeriodParam') {
                 finishStageFields();
@@ -255,6 +320,8 @@ function readTreatment(buf) {
         }
         lastReader = r;
     }
+    settleButton();
+    closePlots(true);
     settleTail();
     finishStageFields();
 
@@ -263,7 +330,8 @@ function readTreatment(buf) {
     /** A box's fields: its header (name, placement), and its type's own fields. */
     function readBox(r, cls) {
         const b = { type: BOX_CLASSES[cls] || 'unknown', cls, name: r.str(), items: [], buttons: [], boxes: [], programs: [] };
-        r.u8();
+        // Whether z-Leaf draws a frame round it.
+        b.frame = r.u8() !== 0;
         b.options = [...buf.subarray(r.pos, r.pos + 8)];
         r.skip(8);
         b.condition = r.str();
@@ -273,9 +341,16 @@ function readTreatment(buf) {
         b.top = r.str();
         b.bottom = r.str();
         b.height = r.str();
-        r.skip(BOX_EXTRA);
+        // From file version 34 (z-Tree 3.5?), the display condition comes after the placement.
+        if (BOX_EXTRA) {
+            b.first = b.condition;
+            b.condition = r.str();
+        }
         if (b.type === 'container') {
             b.childCount = r.i32();
+        } else if (b.type === 'plot') {
+            b.plotItems = [];
+            b.plotCount = r.i32();
         } else if (b.type === 'help') {
             b.title = r.str();
             b.text = r.str();
@@ -293,6 +368,103 @@ function readTreatment(buf) {
         // later, loosely, from the bytes after its items (see settleBoxes).
         b.tailStrings = [];
         return b;
+    }
+
+    /**
+     * The plot items open (graphs, and items with plot inputs), whose fields come after their
+     * items: those with all their items read get their fields from the bytes after the last one
+     * (innermost first). all: close the plot box's too (another box, or a stage, comes next).
+     */
+    function closePlots(all) {
+        while (plots.length > 0 && plots[plots.length - 1].left <= 0) {
+            const open = plots.pop();
+            if (open.root) {
+                if (!all) plots.push(open);
+                break;
+            }
+            try {
+                if (open.item.kind === 'graph') {
+                    // Its table and condition, and the line joining its points (color, width).
+                    open.item.table = lastReader.str() || 'globals';
+                    open.item.graphCondition = lastReader.str();
+                    lastReader.str();
+                    open.item.lineColor = lastReader.str();
+                    open.item.lineWidth = lastReader.str();
+                    if (lastReader.left >= 5) lastReader.skip(5);
+                } else {
+                    readPlotFields(lastReader, open.item);
+                }
+            } catch (err) {
+                warnings.push('plot item ' + open.item.kind + ': ' + err.message);
+            }
+        }
+        if (all) plots = [];
+    }
+
+    /** A plot item's name, display condition, and number of plot inputs (or, for a graph, items). */
+    function readPlotHead(r, kind) {
+        const item = { kind, name: r.str(), condition: r.str(), count: r.i32() };
+        if (kind === 'graph') item.items = [];
+        else item.inputs = [];
+        if (kind === 'input') item.programs = [];
+        return item;
+    }
+
+    /** A plot item's own fields (expressions, as text). */
+    function readPlotFields(r, item) {
+        const s = () => r.str();
+        switch (item.kind) {
+            case 'point':
+                Object.assign(item, { x: s(), y: s(), size: s(), corners: s(), rotation: s() });
+                item.spokes = r.u8() !== 0;
+                r.u8();
+                Object.assign(item, { lineColor: s(), lineWidth: s(), fillColor: s() });
+                break;
+            case 'line':
+                Object.assign(item, { x1: s(), y1: s(), x2: s(), y2: s(), arrowStart: s(), arrowWidth: s(), arrowEnd: s() });
+                item.arrowFilled = r.u8() !== 0;
+                r.u8();
+                Object.assign(item, { lineColor: s(), lineWidth: s() });
+                break;
+            case 'rect':
+                Object.assign(item, { xCenter: s(), yCenter: s(), width: s(), height: s(), xLeft: s(), xRight: s(), yTop: s(), yBottom: s() });
+                Object.assign(item, { lineColor: s(), lineWidth: s(), fillColor: s() });
+                break;
+            case 'pie':
+                Object.assign(item, { x: s(), y: s(), rx: s(), ry: s(), angleStart: s(), angleEnd: s(), lineColor: s(), lineWidth: s(), fillColor: s() });
+                break;
+            case 'text':
+                Object.assign(item, { x: s(), y: s() });
+                s();
+                item.text = s();
+                item.hAlign = r.i32();
+                item.vAlign = r.i32();
+                r.u8();
+                item.color = s();
+                s();
+                item.fontSize = s();
+                break;
+            case 'axis':
+                item.horizontal = r.u8() !== 0;
+                r.u8();
+                Object.assign(item, { position: s(), from: s(), to: s(), tickStep: s() });
+                s(); s(); s();
+                Object.assign(item, { labelStep: s(), labelLayout: s(), caption: s(), lineColor: s(), lineWidth: s() });
+                break;
+            case 'input':
+                // What it takes: a click (0: a new record at the point), a click on an item (1: that
+                // item's record), or dragging an item (2: from x0, y0 to x1, y1).
+                item.action = r.i32();
+                r.skip(4);
+                Object.assign(item, { table: s(), xVar: s(), yVar: s() });
+                if (r.left >= 9) {
+                    r.skip(9);
+                    Object.assign(item, { x0Var: s(), y0Var: s(), x1Var: s(), y1Var: s() });
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     function readItem(r) {
@@ -338,6 +510,11 @@ function readGameHeader(r, game) {
  */
 function settleBoxes(game) {
     const visit = (b) => {
+        if (b.type === 'plot') {
+            // Its range, after its items: x left and right, y bottom and top.
+            const [x1, x2, y1, y2] = (b.tailStrings || []).slice(-4);
+            b.range = { xLeft: x1 || '0', xRight: x2 || '100', yBottom: y1 || '0', yTop: y2 || '100' };
+        }
         if (['contractList', 'contractCreation', 'history', 'grid'].includes(b.type)) {
             const last = b.items.filter((i) => i.kind === 'item').pop();
             const after = last != null && last.after != null ? last.after : [];

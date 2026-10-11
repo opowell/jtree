@@ -38,11 +38,21 @@ body {
     flex-direction: column;
     justify-content: center;
 }
+.ztree-box-inner:has(> .ztree-box-main) { justify-content: flex-start; }
 .ztree-box--standard > .ztree-box-inner, .ztree-box--contractCreation > .ztree-box-inner { justify-content: center; }
 .ztree-box--contractList > .ztree-box-inner, .ztree-box--history > .ztree-box-inner, .ztree-box--chat > .ztree-box-inner { justify-content: flex-start; }
-.ztree-box--header {
-    border-bottom: 1px solid #888;
-    background: #f2f2f2;
+.ztree-box--header { background: #f2f2f2; }
+/* Boxes z-Tree frames, as z-Leaf draws them: a sunken line inside the box's edge. */
+.ztree-box--frame {
+    border: 1px solid #9a9a9a;
+    box-shadow: inset 1px 1px 0 #fff;
+}
+/* A box's items fill it, centred; its buttons are at its bottom right, as in z-Leaf. */
+.ztree-box-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 .ztree-header {
     display: flex;
@@ -50,7 +60,7 @@ body {
     align-items: center;
 }
 .ztree-header-time--over { color: #c00; font-weight: bold; }
-.ztree-box--help { border-top: 1px solid #888; background: #ffffe8; }
+.ztree-box--help { background: #ffffe8; }
 .ztree-help-title { font-weight: bold; margin-bottom: 0.3em; }
 .ztree-items {
     display: grid;
@@ -69,7 +79,7 @@ body {
     display: flex;
     justify-content: flex-end;
     gap: 0.6em;
-    margin-top: 1em;
+    margin-top: 0.6em;
 }
 .ztree-button, .ztree-item-button, .ztree-message-ok {
     font-size: inherit;
@@ -114,3 +124,7 @@ body {
 }
 .ztree-message-ok { margin-top: 1em; }
 .ztree-error { color: #b00; padding: 1em; }
+.ztree-box--plot > .ztree-box-inner { padding: 0; justify-content: stretch; }
+.ztree-plot { flex: 1; position: relative; min-height: 60px; }
+.ztree-plot-svg { position: absolute; inset: 0; user-select: none; }
+.ztree-plot-active { cursor: pointer; }
