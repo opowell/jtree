@@ -663,6 +663,17 @@ buttons' own colours. Its screens were compared with GIMS's documentation; the r
 too slow emulated (qemu on Apple silicon) to run GIMS, and GIMS 8.4.2 does not start on z-Tree 5
 as it is (its `session` table is z-Tree 5's `clients`).
 
+A generic z-Tree bot (`source/dialects/ztree/bots.js`, `runZtreeBots`): each subject fills in
+and presses what their screen offers (inputs within their bounds, choices, rows of a list),
+other values if refused, and a stage it cannot leave ends as on its timeout. With it, every
+z-Tree example plays to its end (`test/ztree.test.js`), and so do the 18 treatments of the
+replication of Duffy and Puzzello (2014) in the Experimental Economics Replication Project
+(`test/ztree-published.test.js`, downloaded from the OSF: no licence): a 31-period money
+treatment with a centralized market, its no-money twin, a Holt–Laury task and a payment
+questionnaire. On the way: `x[i] = …` in a subjects program sets globals' array `x`, as in z-Tree
+(it had made `x` a subjects variable). The money treatment's own slip (an index of 36 into an
+array of 6) is noted, and the session goes on; what z-Tree does then is unchecked.
+
 Not yet: multimedia boxes (no example to read); table loaders and dumpers, external programs
 (GIMS's settings file); inputs in contract lists' rows; in converted apps, z-Tree's placement of
 boxes (they follow one another).

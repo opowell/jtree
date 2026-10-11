@@ -681,7 +681,9 @@ function assignedVariables(program, table, out = {}) {
     const add = (t, name) => { (out[t] = out[t] || new Set()).add(name); };
     const visit = (stmts, t) => {
         for (const s of stmts) {
-            if (s.k === 'set' && s.target.scope === 'own') add(t, s.target.name);
+            // x[i] = ... sets an element of an array declared somewhere (array x[n];), maybe
+            // globals' from a subjects program: it does not make x a variable of t.
+            if (s.k === 'set' && s.target.scope === 'own' && s.target.index == null) add(t, s.target.name);
             if (s.k === 'set' && s.target.scope === 'globals') add('globals', s.target.name);
             if (s.k === 'array') add(t, s.name);
             if (s.k === 'if') { s.branches.forEach((b) => visit(b.body, t)); if (s.otherwise) visit(s.otherwise, t); }

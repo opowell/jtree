@@ -9,7 +9,8 @@ const { startServer } = require('./harness.js');
 const lang = require('../source/dialects/ztree/lang.js');
 const { readTreatment } = require('../source/dialects/ztree/ztt.js');
 
-const { ensureExamples, file, NAMES } = require('./ztree-examples.js');
+const { ensureExamples, file, NAMES, GRAPHICS } = require('./ztree-examples.js');
+const { runZtreeBots } = require('../source/dialects/ztree/bots.js');
 
 let server;
 let haveExamples = true;
@@ -757,4 +758,17 @@ test('plot boxes drawn (as shapes for the page), and their inputs: a click moves
     g.bots[0].send('ztreePlot', { stage: 'stage1', box: '0', input: del.id, x: 10, y: 20 });
     await g.bots[0].waitFor(() => points()[0].Deleted === 1, { what: 'the point deleted' });
     assert.deepEqual(g.run().errors, []);
+});
+
+test("every example, played to its end by the generic bot (each subject presses what their screen offers)", async (t) => {
+    if (!examples(t)) return;
+    for (const name of [...NAMES, ...GRAPHICS, 'brand16.ztq']) {
+        const n = name.endsWith('.ztq') ? 2 : Math.max(2, readTreatment(fs.readFileSync(file(name))).subjects.length);
+        const session = server.createSession(file(name), { numParticipants: n });
+        session.start();
+        const stats = await runZtreeBots(session, { timeout: 30000 });
+        assert.ok(stats.pressed > 0, name);
+        assert.deepEqual(session.apps[0].ztreeRun.errors, [], name);
+        assert.ok(Object.values(session.participants).every((p) => p.isFinishedSession()), name);
+    }
 });

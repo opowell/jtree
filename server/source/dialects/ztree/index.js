@@ -66,6 +66,27 @@ function leaveIfAsked(player) {
 }
 
 /** Draws player's screen (their stage's active screen, or the waiting screen they are on). */
+/**
+ * Player presses a button of their screen: data is {stage, box, button, values, others, record,
+ * itemButton}, as their page sends it ('ztreeButton'). Returns {error} (the message z-Leaf would
+ * show), {leave} (whether they leave the stage), or null if they are not playing that stage.
+ */
+function pressButton(app, player, data) {
+    if (player == null || player.app() !== app || player.stage == null || player.stage.ztree == null || player.status !== 'playing') return null;
+    if (data == null || data.stage !== player.stage.id) return null;
+    const run = runOf(app);
+    if (data.record != null) {
+        const sel = run.selected.get(player.participant.id) || {};
+        sel[data.box] = data.record;
+        run.selected.set(player.participant.id, sel);
+    }
+    const result = run.press(player.group.period.id - 1, subjectIndex(player), player.stage.ztree, data);
+    if (result.error) return result;
+    if (result.leave) endSoon(player);
+    refresh(app);
+    return result;
+}
+
 function draw(player, which) {
     const app = player.app();
     const run = runOf(app);
@@ -237,23 +258,15 @@ module.exports = {
         // A button pressed: {stage, box, button, values, record}.
         app.messages.ztreeButton = function(data) {
             const player = this.participant.player;
-            if (player == null || player.app() !== app || player.stage == null || player.stage.ztree == null || player.status !== 'playing') return;
-            if (data == null || data.stage !== player.stage.id) return;
-            const run = runOf(app);
-            if (data.record != null) {
-                const sel = run.selected.get(player.participant.id) || {};
-                sel[data.box] = data.record;
-                run.selected.set(player.participant.id, sel);
-            }
-            const result = run.press(player.group.period.id - 1, subjectIndex(player), player.stage.ztree, data);
+            const result = pressButton(app, player, data);
+            if (result == null) return;
             const io = player.session().io();
+            if (io == null) return;
             if (result.error) {
                 io.to(player.participant.roomId()).emit('ztreeMessage', { text: result.error, box: data.box });
                 return;
             }
             io.to(player.participant.roomId()).emit('ztreeAccepted', { box: data.box });
-            if (result.leave) endSoon(player);
-            refresh(app);
         };
         app.messages.ztreeButton.convertsOwnValues = true;
         // A row chosen in a contract list: {stage, box, record}.
@@ -302,4 +315,5 @@ module.exports = {
     runOf,
     draw,
     refresh,
+    pressButton,
 };
