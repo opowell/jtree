@@ -1,9 +1,11 @@
 // Published oTree experiments (fixtures/otree-published, see its README), each session config
 // played in jtree to its end: by its own bots (tests.py) where they work, and otherwise by the
-// generic bot, which fills in each page's form (see runBots' generic option).
+// generic bot, which fills in each page's form (see runBots' generic option). By oTree's rules
+// (sessions in mode 'otree'), as they ran.
 // Some load Python packages (scipy, Pillow, pandas, openpyxl), which Pyodide fetches.
 
 const { test, before, after } = require('node:test');
+const assert = require('node:assert/strict');
 const path = require('node:path');
 const { startServer } = require('./harness.js');
 const python = require('../source/dialects/otree/runtime.js');
@@ -20,7 +22,6 @@ const HOLZMEISTER = { bret: 1, cem: 1, eet: 2, icl: 1, mpl: 1, scl: 1 };
 const CONFIGS = [
     ['manydesigns/randomization', 'ManyDesigns', 100, false],
     ['manydesigns/BDQ29-Baseline', 'mds_bs', 4, 'always'],
-    ['manydesigns/BDQ29-Treatment', 'mds_tr', 4, 'always'],
     ['manydesigns/LGT85', 'manydesigns_comp', 12, 'always'],
     ['manydesigns/LGT85', 'manydesigns_nocomp', 12, 'always'],
     ['manydesigns/NJJ10', 'many_labs', 2, 'always'],
@@ -57,15 +58,15 @@ before(async () => {
 });
 after(async () => { await server.close(); });
 
-/** A started session of file: once Python has the packages its apps import. */
-async function sessionOf(file, participants) {
+/** A started session of file, by oTree's rules unless mode says: once Python has the packages its apps import. */
+async function sessionOf(file, participants, mode = 'otree') {
     try {
-        server.createSession(file, { numParticipants: participants });
+        server.createSession(file, { numParticipants: participants, mode });
     } catch (err) {
         // Loading packages: ready below.
     }
     await python.ready();
-    const session = server.createSession(file, { numParticipants: participants });
+    const session = server.createSession(file, { numParticipants: participants, mode });
     session.start();
     return session;
 }
@@ -90,3 +91,19 @@ for (const [app, participants] of Object.entries(XKM55)) {
         await runBots(session, { timeout: 60000, generic: 'always' });
     });
 }
+
+// BDQ29's treatment, as published, cannot show its Results_Part_1 page: its template writes
+// {{ if p.rank == 1 && p.role == ... }}, which oTree 5 cannot read either ("Unparsable expression",
+// checked with oTree 5.11.5: tools/otree).
+test('manydesigns/BDQ29-Treatment mds_tr stops where oTree does: Results_Part_1, a template with &&', async () => {
+    const session = await sessionOf(path.join(PUBLISHED, 'manydesigns/BDQ29-Treatment', 'settings.py') + '#mds_tr', 4);
+    await assert.rejects(runBots(session, { timeout: 120000, generic: 'always' }),
+        (err) => /page Results_Part_1 could not be shown/.test(err.message) && /cannot read .*&&/.test(err.message));
+});
+
+// By jtree's rules, a name a Django template (oTree's older apps) cannot find is an error, not
+// nothing: Holzmeister's cem shows {{ num_choices }}, which it never defines.
+test("Holzmeister's cem, by jtree's rules: its template's undefined name is reported", async () => {
+    const session = await sessionOf(path.join(PUBLISHED, 'holzmeister', 'cem', 'models.py'), 1, 'jtree');
+    await assert.rejects(runBots(session, { timeout: 60000 }), (err) => /num_choices/.test(err.message));
+});

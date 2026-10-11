@@ -24,6 +24,10 @@ class TemplateError(Exception):
     pass
 
 
+class TemplateSyntaxError(TemplateError):
+    """A template that cannot be read: an error by every engine's rules (even Django's lenient ones)."""
+
+
 class SafeText(str):
     """Text that is HTML already, not to be escaped."""
 
@@ -55,16 +59,14 @@ def evaluate(expr, context):
     try:
         tree = ast.parse(expr, mode='eval')
     except SyntaxError as err:
-        try:
-            # {{ if a && b }} (JavaScript's and), as some published apps write it.
-            tree = ast.parse(re.sub(r'\s*&&\s*', ' and ', expr), mode='eval')
-        except SyntaxError:
-            raise TemplateError(f'cannot read {expr!r}: {err.msg}')
+        raise TemplateSyntaxError(f'cannot read {expr!r}: {err.msg}')
     try:
         return _eval(tree.body, context)
+    except TemplateSyntaxError:
+        raise
     except (TemplateError, AttributeError, KeyError, IndexError, TypeError):
-        # Django's templates (oTree's older apps: LENIENT in their context) show what they
-        # cannot find as nothing; oTree's own say what is wrong.
+        # Django's templates show what they cannot find as nothing (LENIENT: oTree's older apps,
+        # by oTree's rules); oTree 5's, and jtree's rules, say what is wrong.
         if context.get(LENIENT):
             return ''
         raise
@@ -72,6 +74,8 @@ def evaluate(expr, context):
 
 # In a template's context: names and attributes it cannot find are '' (Django's way).
 LENIENT = '__django_lenient__'
+# In a template's context: the template is Django's (oTree's older apps): no calls, f().
+DJANGO = '__django__'
 
 
 def _eval(node, ctx):
@@ -90,9 +94,16 @@ def _eval(node, ctx):
         if isinstance(obj, dict) and node.attr in obj:
             return _auto_call(obj[node.attr])
         return _auto_call(getattr(obj, node.attr))
-    if isinstance(node, ast.Call) and not node.args and not node.keywords:
-        # {{ participant.payoff_plus_participation_fee() }}: the method, called (as without the brackets).
-        return _auto_call(_eval(node.func, ctx))
+    if isinstance(node, ast.Call) and not node.keywords and all(isinstance(a, ast.Constant) for a in node.args):
+        # {{ participant.payoff_plus_participation_fee() }}: oTree 5's templates call a method,
+        # with literal arguments; Django's (DJANGO) cannot.
+        if ctx.get(DJANGO):
+            raise TemplateSyntaxError("cannot call a method in a Django template (oTree's older apps): " + ast.unparse(node))
+        if isinstance(node.func, ast.Attribute) and node.func.attr.startswith('_'):
+            raise TemplateError(f'cannot use {node.func.attr!r} in a template')
+        fn = _eval(node.func.value, ctx) if isinstance(node.func, ast.Attribute) else None
+        target = getattr(fn, node.func.attr) if fn is not None and not isinstance(fn, dict) else _eval(node.func, ctx)
+        return target(*[a.value for a in node.args]) if callable(target) else target
     if isinstance(node, ast.Subscript):
         return _eval(node.value, ctx)[_eval(node.slice, ctx)]
     if isinstance(node, (ast.List, ast.Tuple)):

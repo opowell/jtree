@@ -119,8 +119,28 @@ const z = {
 
     // Arrays: array x[n] (from 1 to n), array x[from, to(, step)].
     array: (lo, hi, step = 1) => ({ lo, step, values: new Array(Math.max(0, Math.floor((hi - lo) / step + 1e-9) + 1)).fill(0) }),
-    at: (arr, i) => arr.values[Math.round((i - arr.lo) / arr.step)],
-    put: (arr, i, v) => { arr.values[Math.round((i - arr.lo) / arr.step)] = v; },
+    at: (arr, i, period) => arr.values[z.index(arr, i, period)],
+    put: (arr, i, v, period) => { arr.values[z.index(arr, i, period)] = v; },
+    /**
+     * The position in arr of index i (rounded to its nearest). Out of range: by z-Tree's rules
+     * (the session's mode is 'ztree'), the first or last element, as z-Tree 5 does; by jtree's, an error.
+     */
+    index: (arr, i, period) => {
+        const k = Math.round((i - arr.lo) / arr.step);
+        if (k >= 0 && k < arr.values.length) return k;
+        if (z.mode(period) === 'ztree' && arr.values.length > 0) return k < 0 ? 0 : arr.values.length - 1;
+        throw new Error('array index ' + i + ' out of range');
+    },
+    /** a / b; by z-Tree's rules, dividing by 0 gives an infinity (or NaN), as in z-Tree 5; by jtree's, an error. */
+    div: (a, b, period) => {
+        if (Number(b) === 0 && z.mode(period) !== 'ztree') throw new Error('division by zero');
+        return a / b;
+    },
+    /** Whose rules the session runs by (see Session#engineMode). */
+    mode: (period) => {
+        const session = period && period.app && period.app.session;
+        return session != null && typeof session.engineMode === 'function' ? session.engineMode() : 'jtree';
+    },
 
     /** RTF's text (a label or a value's text made as RTF): its control words and groups taken out. */
     rtf: (text) => {

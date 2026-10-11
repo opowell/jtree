@@ -48,6 +48,11 @@ export interface SessionShell {
   allowNewParts: boolean
   allowAdminClientsToPlay: boolean
   caseSensitiveLabels: boolean
+  /** Whose rules it runs by where z-Tree, oTree and jtree differ: its own ('jtree', 'ztree', 'otree'), or null for the server's. */
+  mode?: string | null
+  /** The rules it runs by: its mode, else the server's (serverMode). */
+  modeInForce?: string
+  serverMode?: string
   numParticipants?: number
   numApps?: number
   appSequence?: string[]

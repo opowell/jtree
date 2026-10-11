@@ -17,6 +17,10 @@ class Settings {
          this.openAdminOnStart       = true; // whether or not the admin page should be opened when the server starts.
          this.multipleUsers          = false;
          this.reloadApps             = true; // load apps every time they are accessed.
+         // Whose rules apply where z-Tree, oTree and jtree differ (division by zero, an array index
+         // out of range, ...): 'jtree' (they are errors, reported), 'ztree' or 'otree' (as that
+         // engine does them). A session may have its own (see Session#engineMode).
+         this.mode                   = 'jtree';
 
          this.clientJSFile           = 'internal/clients/shared/shared.js';
          this.clientJSTemplateFile   = 'internal/sharedTemplate.js';
@@ -92,9 +96,16 @@ class Settings {
             this.logMessage = err;
         }
 
-         // PORT, as JAS and the launchers use, wins over settings.json.
+         // PORT, as JAS and the launchers use, wins over settings.json; JTREE_MODE over its mode.
          if (process.env.PORT) {
              this.port               = parseInt(process.env.PORT);
+         }
+         if (process.env.JTREE_MODE) {
+             this.mode               = process.env.JTREE_MODE;
+         }
+         if (!Settings.MODES.includes(this.mode)) {
+             console.log('Unknown mode ' + JSON.stringify(this.mode) + ' (one of ' + Settings.MODES.join(', ') + '): using jtree');
+             this.mode = 'jtree';
          }
      }
 
@@ -169,5 +180,9 @@ class Settings {
 
 }
 
+/** The modes the server and its sessions can run in (see Settings#mode). */
+Settings.MODES = ['jtree', 'ztree', 'otree'];
+
 var exports = module.exports = {};
 exports.new = Settings;
+exports.MODES = Settings.MODES;

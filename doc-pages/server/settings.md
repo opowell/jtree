@@ -34,6 +34,22 @@ A list of participant IDs to be used for sessions.
 
 Whether to wait for player submissions after a stage timer has expired (`true`), or whether to proceed immediately to the next stage (`false`). The former is useful if you want to allow half-finished submissions, while the second is faster (no delay in waiting for submissions) and more secure (players cannot circumvent the stage timer).
 
+#### `mode`: 'jtree'
+
+Whose rules apply where z-Tree, oTree and jtree differ: `'jtree'`, `'ztree'` or `'otree'`. Each
+session runs by the server's mode unless it has its own: in the admin, a session's Options have
+a "Rules" setting ([`session.setMode()`]{@link Session#setMode}). Starting jtree,
+`node source/jtree.js --mode=ztree` or the environment variable `JTREE_MODE` set the server's.
+
+| Where they differ | `'jtree'` | `'ztree'` | `'otree'` |
+| --- | --- | --- | --- |
+| A z-Tree program divides by 0, or gives no number (`sqrt(-1)`) | an error, shown in the admin; the program stops | `inf`, `-inf` or NaN, as z-Tree 5 does; it goes on | as `'jtree'` |
+| A z-Tree array's index is out of range | an error; the program stops | the array's first or last element, as z-Tree 5 does | as `'jtree'` |
+| A template of an older oTree app (`models.py`, Django's) shows a name it cannot find | an error | nothing, as Django does | nothing |
+
+z-Tree's and oTree's columns were checked against z-Tree 5.1.21 and oTree 5.11.5 and 3.4.0
+(`server/test/fixtures/ztree5-probe/rules.txt`, `tools/otree`).
+
 #### Payment
 `settings.json` can set the defaults for new sessions' payment:
 

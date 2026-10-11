@@ -5,7 +5,8 @@
 const { test, before, after } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
-const { startServer } = require('./harness.js');
+const path = require('node:path');
+const { startServer, until } = require('./harness.js');
 const lang = require('../source/dialects/ztree/lang.js');
 const { readTreatment } = require('../source/dialects/ztree/ztt.js');
 
@@ -771,4 +772,58 @@ test("every example, played to its end by the generic bot (each subject presses 
         assert.deepEqual(session.apps[0].ztreeRun.errors, [], name);
         assert.ok(Object.values(session.participants).every((p) => p.isFinishedSession()), name);
     }
+});
+
+// --- Whose rules: the session's mode --------------------------------------------------------
+
+const RULES = path.join(__dirname, 'fixtures/ztree5-probe/rules.txt');
+
+/** The globals of a session of rules.txt in mode, once its programs have run; and its errors. */
+async function rulesIn(mode) {
+    const session = server.createSession(RULES, { numParticipants: 1, mode });
+    session.start();
+    const run = () => session.apps[0].ztreeRun;
+    await until(() => run() != null && run().periods[0] != null && 'F' in run().periods[0].subjects[0] && run().periods[0].subjects[0].F === 1, { what: 'the programs run' });
+    return { g: run().periods[0].globals, errors: run().errors, session };
+}
+
+test("by z-Tree's rules (mode ztree), arrays and arithmetic as z-Tree 5 does them (fixtures/ztree5-probe/rules.txt)", async () => {
+    const { g, errors, session } = await rulesIn('ztree');
+    assert.deepEqual(errors, []);
+    // Indexes rounded to the nearest element; out of range, the first or last one.
+    assert.deepEqual([g.R1, g.R2, g.R3, g.R4, g.R5, g.R6], [9, 1, 1, 9, 2, 2]);
+    assert.deepEqual([g.c.values, g.d.values, g.e.values, g.f.values], [[4, 0, 0], [6, 0, 0], [0, 0, 7], [8, 0, 0]]);
+    assert.deepEqual([g.W1, g.W2], [0, 1]);
+    // 1/0 and the like: infinities and NaN, and the program goes on.
+    assert.deepEqual([g.D1, g.D2], [Infinity, -Infinity]);
+    assert.ok([g.D3, g.D4, g.D5, g.D6].every(Number.isNaN));
+    assert.equal(g.D7, 2);
+    // Written as z-Tree writes them.
+    const text = session.apps[0].exporters(session)[0].write();
+    assert.match(text, /\tinf\t-inf\t-nan\(ind\)\t-nan\(ind\)\t-nan\(ind\)\t-nan\(ind\)\t2/);
+});
+
+test("by jtree's rules (mode jtree, and otree), they are errors, and the program stops there", async () => {
+    for (const mode of ['jtree', 'otree']) {
+        const { g, errors } = await rulesIn(mode);
+        assert.deepEqual(errors.map((e) => e.replace(/^in a program on (\w+) \(.*?\): /, '$1: ')), [
+            'globals: array index 7 out of range',
+            'globals: array index 0 out of range',
+            'globals: division by zero',
+        ], mode);
+        assert.equal(g.k, 7, mode);
+        assert.ok(!('R1' in g) || g.R1 === 0, mode);
+        assert.ok(!('D1' in g) || g.D1 === 0, mode);
+        assert.equal(g.F, undefined, mode); // a subjects variable
+    }
+});
+
+test("the session's mode is the server's unless it has its own", async () => {
+    const session = server.createSession(RULES, { numParticipants: 1 });
+    assert.equal(session.engineMode(), server.jt.settings.mode);
+    session.setMode('ztree');
+    assert.equal(session.engineMode(), 'ztree');
+    session.setMode(null);
+    assert.equal(session.engineMode(), 'jtree');
+    assert.throws(() => session.setMode('qualtrics'), /unknown mode/);
 });

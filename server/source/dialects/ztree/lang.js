@@ -350,10 +350,30 @@ function newArray(dims) {
     const n = Math.max(0, Math.floor((hi - lo) / step + 1e-9) + 1);
     return { zArray: true, lo, step, values: new Array(n).fill(0) };
 }
-function arrayIndex(arr, i) {
+/**
+ * Whether ctx runs by z-Tree's rules where they differ from jtree's (the session's mode is
+ * 'ztree'): an index out of range is its array's first or last element, and arithmetic gives
+ * infinities and NaN (1/0, sqrt(-1)) as z-Tree 5 does, with no error. By jtree's (and oTree's,
+ * which has none of its own for z-Tree's language), these are errors.
+ */
+function zTreeRules(ctx) {
+    return ctx != null && ctx.rt != null && ctx.rt.mode === 'ztree';
+}
+
+/** The position in arr of index i (rounded to its nearest, as z-Tree does). */
+function arrayIndex(arr, i, ctx) {
     const k = Math.round((i - arr.lo) / arr.step);
-    if (k < 0 || k >= arr.values.length) throw new Error('array index ' + i + ' out of range');
+    if (k < 0 || k >= arr.values.length) {
+        if (zTreeRules(ctx) && arr.values.length > 0) return k < 0 ? 0 : arr.values.length - 1;
+        throw new Error('array index ' + i + ' out of range');
+    }
     return k;
+}
+
+/** A number arithmetic or a function gave: by jtree's rules, not a finite one is an error. */
+function finite(v, ctx, what) {
+    if (typeof v === 'number' && !Number.isFinite(v) && !zTreeRules(ctx)) throw new Error(what() + ' is ' + (Number.isNaN(v) ? 'not a number' : v > 0 ? 'infinite' : 'minus infinite'));
+    return v;
 }
 
 /** The record (and its table) a variable is in, looking out from ctx; null if none. */
@@ -395,7 +415,7 @@ function readVar(ctx, node) {
     if (node.index != null) {
         if (o != null && !isArray(v)) v = declared(ctx, o.rec, o.table, node.name);
         if (!isArray(v)) throw new Error(node.name + ' is not an array');
-        return v.values[arrayIndex(v, num(evaluate(node.index, ctx)))];
+        return v.values[arrayIndex(v, num(evaluate(node.index, ctx)), ctx)];
     }
     return v;
 }
@@ -418,7 +438,7 @@ function writeVar(ctx, target, value) {
         const table = rec === ctx.rec ? ctx.table : rec === ctx.rt.globals() ? 'globals' : (owner(ctx, target.name, target.scope, target.depth) || {}).table;
         const arr = declared(ctx, rec, table, target.name);
         if (!isArray(arr)) throw new Error(target.name + ' is not an array');
-        arr.values[arrayIndex(arr, num(evaluate(target.index, ctx)))] = value;
+        arr.values[arrayIndex(arr, num(evaluate(target.index, ctx)), ctx)] = value;
     } else {
         rec[target.name] = value;
     }
@@ -493,14 +513,15 @@ function evaluate(node, ctx) {
             }
             const a = num(l);
             const b = num(r);
+            const what = () => a + ' ' + node.op + ' ' + b;
             switch (node.op) {
-                case '+': return a + b;
-                case '-': return a - b;
-                case '*': return a * b;
+                case '+': return finite(a + b, ctx, what);
+                case '-': return finite(a - b, ctx, what);
+                case '*': return finite(a * b, ctx, what);
                 case '/':
-                    if (b === 0) throw new Error('division by zero');
+                    if (b === 0 && !zTreeRules(ctx)) throw new Error('division by zero');
                     return a / b;
-                case '^': return Math.pow(a, b);
+                case '^': return finite(Math.pow(a, b), ctx, what);
                 // Comparisons allow for rounding errors, as z-Tree's do.
                 case '==': return Math.abs(a - b) < 1e-9 ? 1 : 0;
                 case '!=': return Math.abs(a - b) >= 1e-9 ? 1 : 0;
@@ -515,7 +536,8 @@ function evaluate(node, ctx) {
             const fn = FUNCTIONS[node.fn];
             if (fn == null) throw new Error('unknown function ' + node.fn + ' (line ' + node.line + ')');
             if (node.fn === 'if') return bool(evaluate(node.args[0], ctx)) ? evaluate(node.args[1], ctx) : evaluate(node.args[2], ctx);
-            return fn(node.args.map((a) => evaluate(a, ctx)), ctx);
+            const args = node.args.map((a) => evaluate(a, ctx));
+            return finite(fn(args, ctx), ctx, () => node.fn + '(' + args.join(', ') + ')');
         }
         case 'agg':
             return aggregate(node, ctx);
@@ -710,4 +732,4 @@ function arrayDeclarations(program, table, out = {}) {
     return out;
 }
 
-module.exports = { parse, parseExpr, run, evaluate, assignedVariables, arrayDeclarations, num, bool, roundTo, isArray, ZtreeSyntaxError };
+module.exports = { parse, parseExpr, run, evaluate, assignedVariables, arrayDeclarations, num, bool, roundTo, isArray, zTreeRules, ZtreeSyntaxError };

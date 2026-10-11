@@ -1,6 +1,7 @@
 // Published z-Tree treatments (fixtures/ztree-published, see its README: downloaded, not in the
 // repository), each played to its end by the generic z-Tree bot: every subject fills in and
-// presses what their screen offers, in every stage of every period.
+// presses what their screen offers, in every stage of every period. By z-Tree's rules (sessions
+// in mode 'ztree'), as they ran in the lab.
 
 const { test, before, after } = require('node:test');
 const assert = require('node:assert/strict');
@@ -22,9 +23,8 @@ const FILES = {
 };
 
 // The money treatment's own slip: its loop that shuffles tied bids indexes them with the outer
-// loop's counter (buys[i], i up to 36, of 6). jtree notes the error and goes on, ending that
-// program for that subject there (its last loop).
-const KNOWN_ERRORS = /^in a program on subjects \(\/\/sort all buys and sells in ascending order\): array index \d+ out of range$/;
+// loop's counter (buys[i], i up to 36, of 6). By z-Tree's rules that is buys[6]; by jtree's, an error.
+const SLIP = /^in a program on subjects \(\/\/sort all buys and sells in ascending order\): array index \d+ out of range$/;
 
 /** Downloads the files not here yet; resolves to whether all are here. */
 async function ensureFiles() {
@@ -74,12 +74,20 @@ test('Duffy and Puzzello: the treatments read with no warnings', (t) => {
 for (const name of Object.keys(FILES)) {
     test('Duffy and Puzzello: ' + name + ', played to its end by the generic bot', async (t) => {
         if (!files(t)) return;
-        const session = server.createSession(path.join(DIR, name), { numParticipants: 6 });
+        const session = server.createSession(path.join(DIR, name), { numParticipants: 6, mode: 'ztree' });
         session.start();
         const stats = await runZtreeBots(session, { timeout: 60000 });
         assert.ok(stats.pressed > 0, name + ': no button pressed');
-        const run = session.apps[0].ztreeRun;
-        assert.deepEqual(run.errors.filter((e) => !(name.startsWith('M6_') && KNOWN_ERRORS.test(e))), [], name);
+        assert.deepEqual(session.apps[0].ztreeRun.errors, [], name);
         assert.ok(Object.values(session.participants).every((p) => p.isFinishedSession()));
     });
 }
+
+test("Duffy and Puzzello: by jtree's rules, the money treatment's slip is reported", async (t) => {
+    if (!files(t)) return;
+    const session = server.createSession(path.join(DIR, 'M6_G1.ztt'), { numParticipants: 6, mode: 'jtree' });
+    session.start();
+    await runZtreeBots(session, { timeout: 60000 });
+    const errors = session.apps[0].ztreeRun.errors;
+    assert.ok(errors.length > 0 && errors.every((e) => SLIP.test(e)), JSON.stringify(errors.slice(0, 3)));
+});

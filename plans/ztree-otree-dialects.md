@@ -672,11 +672,25 @@ replication of Duffy and Puzzello (2014) in the Experimental Economics Replicati
 treatment with a centralized market, its no-money twin, a Holt–Laury task and a payment
 questionnaire. On the way: `x[i] = …` in a subjects program sets globals' array `x`, as in z-Tree
 (it had made `x` a subjects variable). The money treatment's own slip (an index of 36 into an
-array of 6) is noted, and the session goes on; what z-Tree does then is unchecked.
+array of 6) is, by z-Tree's rules (mode `ztree`), the array's last element, as z-Tree 5 does; by
+jtree's, an error (see Modes below).
 
 Not yet: multimedia boxes (no example to read); table loaders and dumpers, external programs
 (GIMS's settings file); inputs in contract lists' rows; in converted apps, z-Tree's placement of
 boxes (they follow one another).
+
+### Modes: whose rules apply
+
+The server runs in a mode, `settings.mode`: `jtree`, `ztree` or `otree`; a session may have its
+own (`Session#engineMode`; admin v2's session Options, "Rules"). Where the engines differ, jtree's
+rules report an error, and z-Tree's and oTree's do what those programs do, as checked against
+them (z-Tree 5.1.21 under Wine, `fixtures/ztree5-probe/rules.txt`; oTree 5.11.5 and 3.4.0 in
+`tools/otree`): z-Tree's arithmetic (1/0 is `inf`, 0/0 NaN) and array indexes (rounded; out of
+range, the first or last element), in treatments and converted apps; Django's templates showing
+nothing for a name they cannot find. Some leniencies jtree had are gone, as neither oTree has
+them: `&&` in a template (BDQ29's treatment stops at that page, as in oTree 5); a call `f()` in a
+Django template (oTree 5's templates may call methods). The published experiments' tests run in
+their engine's mode.
 
 ### Phase 8: converters (oTree's done)
 

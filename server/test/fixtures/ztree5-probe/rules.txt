@@ -1,0 +1,165 @@
+treatment "rules.ztt"{
+	background{
+		table globals{
+		}
+		table subjects{
+		}
+		table summary{
+		}
+		table contracts{
+		}
+		table clients{
+		}
+		table treatments{
+		}
+		table sessionglobals{
+		}
+		table participations{
+		}
+		numsubjects = 1;
+		numgroups = 1;
+		numpracticeperiods = 0;
+		numactualperiods = 1;
+		exchangerate = 1;
+		startendowment = 0;
+		showupfee = 0;
+		noAutoscope = FALSE;
+		firstBoxesOnTop = FALSE;
+		showupfeeawaytext = "Losses: use the show-up fee?";
+		showupfeeawayyestext = "Yes";
+		showupfeeawaynotext = "No";
+		moneyawaytext = "Losses: go on?";
+		moneyawayyestext = "Yes";
+		moneyawaynotext = "No";
+		bancruptwaittext = "Please wait.";
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			headerbox "Header"{
+				hasframe = TRUE;
+				height = 10%;
+				top = 0p;
+				cuttop = TRUE;
+				showPeriods = TRUE;
+				showNumPeriods = TRUE;
+				periodtext = "Round";
+				periodoftext = "of";
+				practiceperiodprefix = "Practice ";
+				showtime = TRUE;
+				timestr = "Seconds left:";
+				pleasedecidetext = "Time is up.";
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Wait"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Please wait.";
+				}
+			}
+		}
+	}
+	stage "S"{
+		startwaitforall = FALSE;
+		startConditionStr = "";
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = 5;
+		program{
+			table = globals;
+			do{
+				array a[3];
+				a[1] = 1;
+				a[2] = 2;
+				a[3] = 9;
+				k = 7;
+				R1 = a[k];
+				m = 0;
+				R2 = a[m];
+				n = -5;
+				R3 = a[n];
+				h = 2.5;
+				R4 = a[h];
+				h2 = 2.4;
+				R5 = a[h2];
+				R6 = a[1.6];
+			}
+		}
+		program{
+			table = globals;
+			do{
+				array c[3];
+				m = 0;
+				c[m] = 4;
+				array d[3];
+				n = -5;
+				d[n] = 6;
+				array e[3];
+				h = 2.5;
+				e[h] = 7;
+				array f[2, 4];
+				f[1] = 8;
+				W1 = f[9];
+				W2 = 1;
+			}
+		}
+		program{
+			table = globals;
+			do{
+				z = 0;
+				D1 = 1 / z;
+				D2 = -1 / z;
+				D3 = 0 / z;
+				D4 = D1 - D1;
+				D5 = D1 * 0;
+				D6 = sqrt(-1);
+				D7 = 2;
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				F = 1;
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Show"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "F";
+					variable = F;
+					format = "1";
+					input = FALSE;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	roles{
+		role "S 1"{
+		}
+	}
+	period "1"{
+		prompt = "";
+		subject 1{
+			name = "";
+			group = 1;
+		}
+	}
+}

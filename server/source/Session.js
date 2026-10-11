@@ -8,6 +8,7 @@ const Player        = require('./Player.js');
 const Client        = require('./Client.js');
 const Table         = require('./Table.js');
 const Utils         = require('./Utils.js');
+const { MODES }     = require('./core/Settings.js');
 const { dialectFor } = require('./dialects/index.js');
 const fs            = require('fs-extra');
 const path          = require('path');
@@ -116,6 +117,12 @@ class Session {
         */
         this.allowNewParts = this.jt.settings.allowClientsToCreateParticipants;
 
+        /**
+         * Whose rules apply where the engines differ, for this session: 'jtree', 'ztree' or
+         * 'otree'; null for the server's (settings.mode). See {@link Session#engineMode}.
+         */
+        this.mode = null;
+
         this.outputDelimiter = this.jt.settings.outputDelimiter;
 
         /**
@@ -208,7 +215,7 @@ class Session {
                         case 'SESSION':
                         // The session's fields as of this record; its participants and apps
                         // come from their own records.
-                        Utils.copySavedFields(session, json, ['participants', 'apps', 'clients']);
+                        Utils.copySavedFields(session, json, ['participants', 'apps', 'clients', 'modeInForce', 'serverMode']);
                         break;
                         case 'APP':
                         App.load(json, session);
@@ -798,6 +805,19 @@ class Session {
         this.emit('setAllowNewParts', d);
     }
 
+    /** Whose rules apply where z-Tree, oTree and jtree differ: the session's mode, else the server's. */
+    engineMode() {
+        return this.mode || this.jt.settings.mode || 'jtree';
+    }
+
+    /** Sets the session's mode ('jtree', 'ztree', 'otree'), or null for the server's. */
+    setMode(mode) {
+        if (mode != null && mode !== '' && !MODES.includes(mode)) throw new Error('unknown mode ' + mode);
+        this.mode = mode || null;
+        this.save();
+        this.emit('setSessionMode', { sId: this.id, value: this.mode, mode: this.engineMode() });
+    }
+
     setAllowAdminPlay(b) {
         this.allowAdminClientsToPlay = b;
         let data = {sId: this.id, value: b};
@@ -1042,6 +1062,9 @@ class Session {
         }
         out.clients = [];
         out.participants = [];
+        // Whose rules it runs by (its mode, else the server's; see engineMode).
+        out.modeInForce = this.engineMode();
+        out.serverMode = this.jt.settings.mode;
         // The formats its data can be downloaded in (see exporters).
         out.exports = require('./exporters/index.js').exportersFor(this).map((e) => ({ id: e.id, name: e.name }));
         return out;

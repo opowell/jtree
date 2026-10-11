@@ -7,7 +7,9 @@
 /** The run's tables as text. */
 function exportTables(run, session) {
     const lines = [];
-    const cell = (v) => (v == null ? '' : typeof v === 'object' ? (v.zArray ? v.values.join(' ') : '') : String(v).replace(/[\t\n\r]/g, ' '));
+    // Infinities and NaN (by z-Tree's rules, 1/0 and the like) as z-Tree 5 writes them.
+    const number = (v) => (Number.isNaN(v) ? '-nan(ind)' : v === Infinity ? 'inf' : v === -Infinity ? '-inf' : String(v));
+    const cell = (v) => (v == null ? '' : typeof v === 'number' ? number(v) : typeof v === 'object' ? (v.zArray ? v.values.map(number).join(' ') : '') : String(v).replace(/[\t\n\r]/g, ' '));
     run.periods.forEach((state, p) => {
         if (state == null) return;
         const tables = [['globals', [state.globals]], ['subjects', state.subjects], ['summary', [state.summary]], ['contracts', state.contracts]];

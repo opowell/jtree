@@ -53,11 +53,19 @@ class Run {
     // --- Tables -------------------------------------------------------------------------
 
     /** The runtime programs see in period p (0-based): tables, and what they call. */
+    /** Whose rules the treatment runs by: its session's mode (see Session#engineMode), else jtree's. */
+    mode() {
+        const session = this.app && this.app.session;
+        return session != null && typeof session.engineMode === 'function' ? session.engineMode() : 'jtree';
+    }
+
     view(p) {
         const run = this;
         const state = this.periods[p];
         return {
             period: p,
+            // Whose rules apply where the engines differ (see lang.js's zTreeRules).
+            mode: run.mode(),
             records(table, { old } = {}) {
                 const s = old ? run.periods[p - 1] : state;
                 if (s == null) return [];

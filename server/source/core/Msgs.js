@@ -612,6 +612,12 @@ class Msgs {
         session.setAllowNewParts(d.value);
     }
 
+    /** {sId, mode}: the session's mode ('jtree', 'ztree', 'otree'), or null for the server's. */
+    setSessionMode(d, socket) {
+        var session = this.jt.data.getSession(d.sId);
+        if (session != null) session.setMode(d.mode);
+    }
+
     setCaseSensitiveLabels(d, socket) {
         var session = this.jt.data.getSession(d.sId);
         session.setCaseSensitiveLabels(d.value);

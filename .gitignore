@@ -25,3 +25,6 @@ server/internal
 # tools/ztree-wine: what z-Tree makes there (from z-Tree's and your treatments).
 /tools/ztree-wine/work/
 /tools/ztree-wine/out/
+
+# tools/otree: oTree's installs (tools/otree/setup.sh), to check jtree against.
+/tools/otree/*/

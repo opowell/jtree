@@ -20,6 +20,7 @@ const StaticServer  = require('./core/StaticServer.js');
  * @param  {string} [options.path] Location of the client folder (apps, sessions, settings.json).
  * @param  {string} [options.basePath] Route to serve under, instead of settings.basePath.
  * @param  {http.Server} [options.httpServer] Server to attach to, instead of listening on settings.port.
+ * @param  {string} [options.mode] 'jtree', 'ztree' or 'otree', instead of settings.mode (see Settings#mode).
  * @return {Object} jt
  */
 function start(options) {
@@ -55,6 +56,10 @@ function start(options) {
      * @type {Settings}
      */
     jt.settings     = new Settings.new(jt);
+    if (options.mode != null) {
+        if (!Settings.MODES.includes(options.mode)) throw new Error('unknown mode ' + options.mode + ' (one of ' + Settings.MODES.join(', ') + ')');
+        jt.settings.mode = options.mode;
+    }
     if (jt.basePath === undefined) {
         jt.basePath = jt.settings.basePath;
     }
@@ -114,5 +119,7 @@ function start(options) {
 module.exports = { start };
 
 if (require.main === module) {
-    start();
+    // node jtree.js [--mode=jtree|ztree|otree]
+    const arg = process.argv.slice(2).find((a) => a.startsWith('--mode='));
+    start(arg == null ? {} : { mode: arg.slice('--mode='.length) });
 }

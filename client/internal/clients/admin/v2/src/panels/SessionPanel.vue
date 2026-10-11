@@ -54,6 +54,16 @@ async function remove() {
 }
 
 // For the checkboxes below: vue3-sfc-loader does not compile TypeScript in templates.
+// Whose rules a session runs by (server/source/core/Settings.js's mode).
+const MODES = ['jtree', 'ztree', 'otree']
+function modeName(mode?: string): string {
+  return ({ jtree: 'jtree', ztree: 'z-Tree', otree: 'oTree' } as Record<string, string>)[mode ?? 'jtree'] ?? String(mode)
+}
+
+function setMode(event: Event) {
+  server.setMode((event.target as HTMLSelectElement).value || null)
+}
+
 function checked(event: Event): boolean {
   return (event.target as HTMLInputElement).checked
 }
@@ -175,6 +185,14 @@ function checked(event: Event): boolean {
         <label class="check">
           <input type="checkbox" :checked="session.caseSensitiveLabels" @change="server.setCaseSensitiveLabels(checked($event))">
           <span>Case-sensitive participant ids<br><span class="hint">When on, “p1” and “P1” are different participants.</span></span>
+        </label>
+        <label class="option" for="session-mode">
+          <span>Rules</span>
+          <select id="session-mode" class="field" :value="session.mode ?? ''" @change="setMode($event)">
+            <option value="">The server's ({{ modeName(session.serverMode) }})</option>
+            <option v-for="m in MODES" :key="m" :value="m">{{ modeName(m) }}</option>
+          </select>
+          <span class="hint">Where z-Tree, oTree and jtree differ (dividing by 0, an array index out of range, a name a template cannot find): jtree's rules report them as errors; z-Tree's and oTree's do what those programs do.</span>
         </label>
       </section>
     </template>

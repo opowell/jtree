@@ -219,6 +219,16 @@ for (const [event, field] of [
   })
 }
 
+socket.on('setSessionMode', (md: { sId: string, value: string | null, mode: string }) => {
+  for (const s of [forOpenSession(md.sId), state.sessions.find((x) => x.id === md.sId)]) {
+    if (s) {
+      s.mode = md.value
+      s.modeInForce = md.mode
+    }
+  }
+  changed()
+})
+
 socket.on('dataUpdate', (changes: Array<{ field: string, value: unknown }>) => {
   if (!state.session) return
   for (const change of changes) {
@@ -264,6 +274,9 @@ function upsertSession(session: SessionShell) {
     allowNewParts: session.allowNewParts,
     allowAdminClientsToPlay: session.allowAdminClientsToPlay,
     caseSensitiveLabels: session.caseSensitiveLabels,
+    mode: session.mode,
+    modeInForce: session.modeInForce,
+    serverMode: session.serverMode,
     numParticipants: 'participants' in session
       ? Object.keys((session as SessionFull).participants).length
       : session.numParticipants,

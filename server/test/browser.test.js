@@ -6,7 +6,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const { startServer } = require('./harness.js');
+const { startServer, until } = require('./harness.js');
 const { launch, findChrome } = require('./browser.js');
 const python = require('../source/dialects/otree/runtime.js');
 const { convertApp } = require('../source/dialects/otree/convert.js');
@@ -144,6 +144,31 @@ test("admin v2: a session's rooms, and opening it in one", { skip }, async () =>
     await admin.waitFor(() => /this session is open here/.test([...document.querySelectorAll('li')].find((l) => /Online/.test(l.innerText)).innerText),
         { what: 'the room with the session' });
     assert.equal(server.jt.data.room('online').shell().sessionId, session.id);
+    assert.deepEqual(admin.errors, []);
+    await admin.close();
+});
+
+test("admin v2: a session's rules (its mode), set in its options", { skip }, async () => {
+    const session = server.createSession(path.join(apps, 'samples/public_goods_simple/__init__.py'), { numParticipants: 3 });
+    const admin = await browser.open(server.url + '/admin/');
+    await admin.waitFor(() => document.body.innerText.length > 0, { what: 'admin v2', timeout: 240000 });
+    await admin.eval((id) => { localStorage.setItem('jtree-admin2-session', id); location.reload(); }, session.id);
+    await admin.waitFor(() => document.querySelector('#session-mode') != null, { what: 'the rules select', timeout: 240000 });
+    assert.equal(await admin.eval(() => document.querySelector('#session-mode').value), '');
+    assert.match(await admin.eval(() => document.querySelector('#session-mode').options[0].text), /The server's \(jtree\)/);
+    await admin.eval(() => {
+        const select = document.querySelector('#session-mode');
+        select.value = 'ztree';
+        select.dispatchEvent(new Event('change'));
+    });
+    await until(() => session.mode === 'ztree', { what: "the session's mode" });
+    assert.equal(session.engineMode(), 'ztree');
+    await admin.eval(() => {
+        const select = document.querySelector('#session-mode');
+        select.value = '';
+        select.dispatchEvent(new Event('change'));
+    });
+    await until(() => session.mode === null, { what: "the session's mode back to the server's" });
     assert.deepEqual(admin.errors, []);
     await admin.close();
 });

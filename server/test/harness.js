@@ -137,9 +137,13 @@ async function startServer({ settings = {}, withApps = false, data: givenData, p
             return server.writeApp(name + '.app.json', JSON.stringify(app.toIR(), null, 2));
         },
 
-        /** A started session with the given apps (absolute paths) and number of participants. */
-        createSession(appPaths, { numParticipants, options } = {}) {
+        /**
+         * A started session with the given apps (absolute paths) and number of participants;
+         * mode: the session's own ('jtree', 'ztree', 'otree'; see Session#engineMode).
+         */
+        createSession(appPaths, { numParticipants, options, mode } = {}) {
             const session = jt.data.createSession();
+            if (mode != null) session.mode = mode;
             session.resume();
             jt.data.sessions.push(session);
             for (const p of [].concat(appPaths)) {

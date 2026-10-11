@@ -114,11 +114,13 @@ class Translator {
             case 'str': return js(node.v);
             case 'var': {
                 const rec = this.owner(ctx, node.name, node.scope, node.depth);
-                return node.index == null ? this.prop(rec, node.name) : `z.at(${this.arrayRef(ctx, rec, node.name)}, ${this.expr(node.index, ctx)})`;
+                return node.index == null ? this.prop(rec, node.name) : `z.at(${this.arrayRef(ctx, rec, node.name)}, ${this.expr(node.index, ctx)}, period)`;
             }
             case 'neg': return `-${this.atom(node.e, ctx)}`;
             case 'not': return `!(${this.expr(node.e, ctx)})`;
             case 'bin': {
+                // Division by zero: by the session's mode (z.div).
+                if (node.op === '/') return `z.div(${this.expr(node.l, ctx)}, ${this.expr(node.r, ctx)}, period)`;
                 const op = { '&': '&&', '|': '||', '==': '===', '!=': '!==', '^': '**' }[node.op] || node.op;
                 return `${this.atom(node.l, ctx)} ${op} ${this.atom(node.r, ctx)}`;
             }
@@ -199,7 +201,7 @@ class Translator {
             case 'set': {
                 const rec = this.target(ctx, s.target);
                 const value = this.expr(s.value, ctx);
-                if (s.target.index != null) return [`z.put(${this.arrayRef(ctx, rec, s.target.name)}, ${this.expr(s.target.index, ctx)}, ${value});`];
+                if (s.target.index != null) return [`z.put(${this.arrayRef(ctx, rec, s.target.name)}, ${this.expr(s.target.index, ctx)}, ${value}, period);`];
                 return [`${this.prop(rec, s.target.name)} = ${value};`];
             }
             case 'if': {

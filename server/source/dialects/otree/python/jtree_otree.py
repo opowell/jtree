@@ -342,6 +342,14 @@ def _form(info, page, player):
     return out
 
 
+def _mode(js_player):
+    """Whose rules the player's session runs by: 'jtree', 'ztree' or 'otree' (see Session#engineMode)."""
+    try:
+        return str(js_player.participant.session.engineMode())
+    except Exception:
+        return 'jtree'
+
+
 def render(pkg, page_name, js_player, static_url='/static/'):
     """The HTML of the page for the player: its template, with player, group, subsession,
     participant, session, C and what vars_for_template gives."""
@@ -350,9 +358,12 @@ def render(pkg, page_name, js_player, static_url='/static/'):
     player = info.Player(js_player)
     context = {'player': player, 'group': player.group, 'subsession': player.subsession,
                'participant': player.participant, 'session': player.session, 'C': info.C, 'Constants': info.C}
-    # Older apps' templates are Django's: what they cannot find is nothing (form.x.errors, ...).
+    # Older apps' templates are Django's: by oTree's rules (the session's mode), what they cannot
+    # find is nothing (form.x.errors, ...); by jtree's, an error.
     if info.old:
-        context[otree_template.LENIENT] = True
+        context[otree_template.DJANGO] = True
+        if _mode(js_player) == 'otree':
+            context[otree_template.LENIENT] = True
     if callable(info.vars_for_all):
         if info.old:
             instance = page()
