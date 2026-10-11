@@ -148,11 +148,24 @@ test("admin v2: a session's rooms, and opening it in one", { skip }, async () =>
     await admin.close();
 });
 
+/**
+ * Opens session id in admin v2 (page): the one it opens as it connects (localStorage). The page
+ * being replaced may save the session it had open after that is set; so it checks, and again.
+ */
+async function openInAdmin(page, id) {
+    for (let attempt = 1; ; attempt++) {
+        await page.eval((sId) => { localStorage.setItem('jtree-admin2-session', sId); location.reload(); }, id);
+        await page.waitFor(() => /Session \d{8}-/.test(document.body.innerText), { what: 'a session open', timeout: 240000 });
+        if (await page.eval((sId) => document.body.innerText.includes('Session ' + sId), id)) return;
+        if (attempt === 5) throw new Error('admin v2 did not open session ' + id);
+    }
+}
+
 test("admin v2: a session's rules (its mode), set in its options", { skip }, async () => {
     const session = server.createSession(path.join(apps, 'samples/public_goods_simple/__init__.py'), { numParticipants: 3 });
     const admin = await browser.open(server.url + '/admin/');
     await admin.waitFor(() => document.body.innerText.length > 0, { what: 'admin v2', timeout: 240000 });
-    await admin.eval((id) => { localStorage.setItem('jtree-admin2-session', id); location.reload(); }, session.id);
+    await openInAdmin(admin, session.id);
     await admin.waitFor(() => document.querySelector('#session-mode') != null, { what: 'the rules select', timeout: 240000 });
     assert.equal(await admin.eval(() => document.querySelector('#session-mode').value), '');
     assert.match(await admin.eval(() => document.querySelector('#session-mode').options[0].text), /The server's \(jtree\)/);
@@ -169,6 +182,19 @@ test("admin v2: a session's rules (its mode), set in its options", { skip }, asy
         select.dispatchEvent(new Event('change'));
     });
     await until(() => session.mode === null, { what: "the session's mode back to the server's" });
+    assert.deepEqual(admin.errors, []);
+    await admin.close();
+});
+
+test("admin v2: Play with bots plays a session of oTree apps to its end", { skip }, async () => {
+    const session = server.createSession(path.join(apps, 'samples/public_goods_simple/__init__.py'), { numParticipants: 3 });
+    const admin = await browser.open(server.url + '/admin/');
+    await admin.waitFor(() => document.body.innerText.length > 0, { what: 'admin v2', timeout: 240000 });
+    await openInAdmin(admin, session.id);
+    await admin.waitFor(() => [...document.querySelectorAll('button')].some((b) => b.innerText === 'Play with bots'), { what: 'the button', timeout: 240000 });
+    await admin.eval(() => [...document.querySelectorAll('button')].find((b) => b.innerText === 'Play with bots').click());
+    await admin.waitFor(() => /played the session to its end/.test(document.querySelector('#session-bots').innerText), { what: 'the bots done', timeout: 60000 });
+    assert.ok(Object.values(session.participants).every((p) => p.isFinishedSession()));
     assert.deepEqual(admin.errors, []);
     await admin.close();
 });

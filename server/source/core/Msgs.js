@@ -612,6 +612,12 @@ class Msgs {
         session.setAllowNewParts(d.value);
     }
 
+    /** {sId}: plays the session to its end with bots (see Session#playWithBots). */
+    sessionPlayWithBots(d, socket) {
+        var session = this.jt.data.getSession(d.sId);
+        if (session != null) session.playWithBots().catch((err) => console.log(err.stack));
+    }
+
     /** {sId, mode}: the session's mode ('jtree', 'ztree', 'otree'), or null for the server's. */
     setSessionMode(d, socket) {
         var session = this.jt.data.getSession(d.sId);

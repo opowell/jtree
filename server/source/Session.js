@@ -169,6 +169,7 @@ class Session {
             // 'started',
             'emitMessages',
             'addingQueues',
+            'botsPlaying',
         ];
 
         this.emitMessages = true;
@@ -811,6 +812,45 @@ class Session {
         this.allowNewParts = b;
         var d = {sId: this.id, value: b};
         this.emit('setAllowNewParts', d);
+    }
+
+    /**
+     * Plays the session to its end with bots (admin v2's "Play with bots"): oTree apps by their
+     * own bots (tests.py), and the generic bot where an app has none; z-Tree treatments by the
+     * generic z-Tree bot. Starts the session if it is not. Tells admins how it goes
+     * ('sessionBots': {sId, state: 'running' | 'done' | 'failed', message}). Resolves once done.
+     */
+    async playWithBots({ timeout = 10 * 60 * 1000 } = {}) {
+        if (this.botsPlaying) return;
+        const say = (state, message) => {
+            this.bots = { state, message };
+            this.emit('sessionBots', { sId: this.id, state, message });
+        };
+        const otree = this.apps.length > 0 && this.apps.every((a) => a.otree != null);
+        const ztree = this.apps.length > 0 && this.apps.every((a) => a.ztree != null);
+        if (!otree && !ztree) {
+            say('failed', 'Bots play sessions of oTree apps or of z-Tree treatments. For jtree apps, use Autoplay.');
+            return;
+        }
+        if (Object.keys(this.participants).length === 0) {
+            say('failed', 'The session has no participants.');
+            return;
+        }
+        this.botsPlaying = true;
+        say('running', otree ? "oTree's bots are playing (the generic bot where an app has none)." : 'The generic z-Tree bot is playing.');
+        try {
+            if (!this.started) this.start();
+            if (otree) {
+                await require('./dialects/otree/bots.js').runBots(this, { timeout, generic: 'missing' });
+            } else {
+                await require('./dialects/ztree/bots.js').runZtreeBots(this, { timeout });
+            }
+            say('done', 'The bots played the session to its end.');
+        } catch (err) {
+            say('failed', String(err && err.message || err));
+        } finally {
+            this.botsPlaying = false;
+        }
     }
 
     /** Whose rules apply where z-Tree, oTree and jtree differ: the session's mode, else the server's. */

@@ -693,6 +693,10 @@ as no oTree has them: `&&` in a template (BDQ29's treatment stops at that page, 
 a call `f()` in a Django template, a name a template does not define (Holzmeister's cem stops at
 its Instructions, as in oTree 2.5 and 3). The published experiments' tests run in their engine's mode.
 
+Admin v2's session panel has "Play with bots" (`Session#playWithBots`): a session of oTree apps
+is played by their bots (the generic bot where an app has none), a session of z-Tree treatments
+by the generic z-Tree bot, to its end, and the panel says how it went (jtree apps: Autoplay).
+
 ### Checked against oTree itself
 
 `tools/otree` installs oTree (5.11.5, 3.4.0, 2.5.8) beside jtree, and `tools/otree/compare.js`

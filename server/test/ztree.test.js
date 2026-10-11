@@ -827,3 +827,15 @@ test("the session's mode is the server's unless it has its own", async () => {
     assert.equal(session.engineMode(), 'jtree');
     assert.throws(() => session.setMode('qualtrics'), /unknown mode/);
 });
+
+test("Play with bots (admin v2): a session of z-Tree treatments, played by the generic bot; jtree apps: Autoplay", async (t) => {
+    if (!examples(t)) return;
+    const session = server.createSession(file('pd'), { numParticipants: 2 });
+    await session.playWithBots({ timeout: 30000 });
+    assert.deepEqual(session.bots, { state: 'done', message: 'The bots played the session to its end.' });
+    assert.ok(Object.values(session.participants).every((p) => p.isFinishedSession()));
+    const native = server.createSession(path.join(__dirname, '..', '..', 'client', 'apps', '1 sample games', 'public-good.jtt'), { numParticipants: 2 });
+    await native.playWithBots();
+    assert.equal(native.bots.state, 'failed');
+    assert.match(native.bots.message, /use Autoplay/);
+});

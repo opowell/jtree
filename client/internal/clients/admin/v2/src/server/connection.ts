@@ -219,6 +219,13 @@ for (const [event, field] of [
   })
 }
 
+socket.on('sessionBots', (md: { sId: string, state: 'running' | 'done' | 'failed', message: string }) => {
+  for (const s of [forOpenSession(md.sId), state.sessions.find((x) => x.id === md.sId)]) {
+    if (s) s.bots = { state: md.state, message: md.message }
+  }
+  changed()
+})
+
 socket.on('setSessionMode', (md: { sId: string, value: string | null, mode: string }) => {
   for (const s of [forOpenSession(md.sId), state.sessions.find((x) => x.id === md.sId)]) {
     if (s) {
@@ -277,6 +284,7 @@ function upsertSession(session: SessionShell) {
     mode: session.mode,
     modeInForce: session.modeInForce,
     serverMode: session.serverMode,
+    bots: session.bots,
     numParticipants: 'participants' in session
       ? Object.keys((session as SessionFull).participants).length
       : session.numParticipants,

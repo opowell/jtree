@@ -53,6 +53,8 @@ export interface SessionShell {
   /** The rules it runs by: its mode, else the server's (serverMode). */
   modeInForce?: string
   serverMode?: string
+  /** The bots playing it (Play with bots): how it goes. */
+  bots?: { state: 'running' | 'done' | 'failed', message: string } | null
   numParticipants?: number
   numApps?: number
   appSequence?: string[]

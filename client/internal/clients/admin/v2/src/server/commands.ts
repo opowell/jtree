@@ -43,6 +43,8 @@ export const server = {
   deleteParticipant: (pId: string) => onSession('deleteParticipant', (sId) => ({ sId, pId })),
   setAllowNewParts: (value: boolean) => onSession('setAllowNewParts', (sId) => ({ sId, value })),
   setCaseSensitiveLabels: (value: boolean) => onSession('setCaseSensitiveLabels', (sId) => ({ sId, value })),
+  /** Plays the session to its end with bots (oTree's, or the generic ones). */
+  playWithBots: () => onSession('sessionPlayWithBots', (sId) => ({ sId })),
   /** The session's rules: 'jtree', 'ztree', 'otree', or null for the server's. */
   setMode: (mode: string | null) => onSession('setSessionMode', (sId) => ({ sId, mode })),
   // The server reads `sessionId` for this one message and `sId` for the rest.

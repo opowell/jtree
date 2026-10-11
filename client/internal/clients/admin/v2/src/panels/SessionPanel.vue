@@ -170,6 +170,10 @@ function checked(event: Event): boolean {
         <div class="toolbar">
           <button type="button" class="btn" @click="server.reloadClients()">Reload all clients</button>
         </div>
+        <div class="toolbar">
+          <button type="button" class="btn" :disabled="session.bots?.state === 'running'" @click="server.playWithBots()">Play with bots</button>
+          <span class="hint" id="session-bots">{{ session.bots ? session.bots.message : 'oTree apps: their bots, or the generic bot. z-Tree treatments: the generic z-Tree bot. Each fills in what its page asks.' }}</span>
+        </div>
       </section>
 
       <section class="pane__section" aria-labelledby="session-options">
@@ -192,7 +196,7 @@ function checked(event: Event): boolean {
             <option value="">The server's ({{ modeName(session.serverMode) }})</option>
             <option v-for="m in MODES" :key="m" :value="m">{{ modeName(m) }}</option>
           </select>
-          <span class="hint">Where z-Tree, oTree and jtree differ (dividing by 0, an array index out of range, a name a template cannot find): jtree's rules report them as errors; z-Tree's and oTree's do what those programs do.</span>
+          <span class="hint">Where z-Tree, oTree and jtree differ (in z-Tree programs: dividing by 0, an array index out of range): jtree's rules report them as errors; z-Tree's and oTree's do what those programs do.</span>
         </label>
       </section>
     </template>
