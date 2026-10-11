@@ -45,10 +45,11 @@ a "Rules" setting ([`session.setMode()`]{@link Session#setMode}). Starting jtree
 | --- | --- | --- | --- |
 | A z-Tree program divides by 0, or gives no number (`sqrt(-1)`) | an error, shown in the admin; the program stops | `inf`, `-inf` or NaN, as z-Tree 5 does; it goes on | as `'jtree'` |
 | A z-Tree array's index is out of range | an error; the program stops | the array's first or last element, as z-Tree 5 does | as `'jtree'` |
-| A template of an older oTree app (`models.py`, Django's) shows a name it cannot find | an error | nothing, as Django does | nothing |
 
-z-Tree's and oTree's columns were checked against z-Tree 5.1.21 and oTree 5.11.5 and 3.4.0
-(`server/test/fixtures/ztree5-probe/rules.txt`, `tools/otree`).
+z-Tree's column was checked against z-Tree 5.1.21 (`server/test/fixtures/ztree5-probe/rules.txt`).
+oTree apps run as oTree runs them in every mode: checked against oTree 5.11.5, 3.4.0 and 2.5.8
+(`tools/otree`), their templates are strict, as jtree's rules are (a name a template cannot find
+is an error, also in oTree 2.5 and 3's Django templates, except before a filter: `{{ x|default:1 }}`).
 
 #### Payment
 `settings.json` can set the defaults for new sessions' payment:

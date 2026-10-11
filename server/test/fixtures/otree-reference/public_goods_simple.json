@@ -1,0 +1,55 @@
+{
+ "config": "public_goods_simple",
+ "participants": 3,
+ "otree": "5.11.5",
+ "seed": "5",
+ "cases": [
+  [
+   {
+    "participant.id_in_session": "1",
+    "participant.payoff": "101.0",
+    "session.config.participation_fee": "0.0",
+    "session.config.real_world_currency_per_point": "1.0",
+    "session.config.name": "public_goods_simple",
+    "public_goods_simple.1.player.id_in_group": "1",
+    "public_goods_simple.1.player.role": "",
+    "public_goods_simple.1.player.payoff": "101.0",
+    "public_goods_simple.1.player.contribution": "1.0",
+    "public_goods_simple.1.group.id_in_subsession": "1",
+    "public_goods_simple.1.group.total_contribution": "3.0",
+    "public_goods_simple.1.group.individual_share": "2.0",
+    "public_goods_simple.1.subsession.round_number": "1"
+   },
+   {
+    "participant.id_in_session": "2",
+    "participant.payoff": "101.0",
+    "session.config.participation_fee": "0.0",
+    "session.config.real_world_currency_per_point": "1.0",
+    "session.config.name": "public_goods_simple",
+    "public_goods_simple.1.player.id_in_group": "2",
+    "public_goods_simple.1.player.role": "",
+    "public_goods_simple.1.player.payoff": "101.0",
+    "public_goods_simple.1.player.contribution": "1.0",
+    "public_goods_simple.1.group.id_in_subsession": "1",
+    "public_goods_simple.1.group.total_contribution": "3.0",
+    "public_goods_simple.1.group.individual_share": "2.0",
+    "public_goods_simple.1.subsession.round_number": "1"
+   },
+   {
+    "participant.id_in_session": "3",
+    "participant.payoff": "101.0",
+    "session.config.participation_fee": "0.0",
+    "session.config.real_world_currency_per_point": "1.0",
+    "session.config.name": "public_goods_simple",
+    "public_goods_simple.1.player.id_in_group": "3",
+    "public_goods_simple.1.player.role": "",
+    "public_goods_simple.1.player.payoff": "101.0",
+    "public_goods_simple.1.player.contribution": "1.0",
+    "public_goods_simple.1.group.id_in_subsession": "1",
+    "public_goods_simple.1.group.total_contribution": "3.0",
+    "public_goods_simple.1.group.individual_share": "2.0",
+    "public_goods_simple.1.subsession.round_number": "1"
+   }
+  ]
+ ]
+}

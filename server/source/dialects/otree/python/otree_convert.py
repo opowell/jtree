@@ -445,7 +445,8 @@ class PyToJS:
             if n in CURRENCY:
                 if kw or len(args) > 1:
                     raise Unsupported(node, n + '() with these arguments')
-                return (args[0], P_ASSIGN) if args else ('0', P_ATOM)
+                # A currency: rounded as oTree rounds it (app.currencyPlaces).
+                return ('otree.cu(' + args[0] + ', app)', P_ATOM) if args else ('0', P_ATOM)
             if n in self.random_names:
                 return RANDOM[self.random_names[n]] + '(' + ', '.join(args) + ')', P_ATOM
             if n in self.functions:
@@ -597,6 +598,9 @@ class PyToJS:
 
     def s_Assign(self, node, indent, scope):
         value = self.expr(node.value, P_ASSIGN)
+        # payoff is a currency: rounded as oTree rounds it.
+        if any(isinstance(t, ast.Attribute) and t.attr == 'payoff' for t in node.targets):
+            value = 'otree.cu(' + value + ', app)'
         targets = [self._assign_target(t) for t in node.targets]
         decl = ''
         if len(node.targets) == 1 and id(node) in scope.get('let_at', set()):
@@ -622,7 +626,7 @@ class PyToJS:
             if op not in BINOPS:
                 raise Unsupported(node, 'this operator on payoff')
             sym, prec = BINOPS[op]
-            return [indent + o + '.points = ' + current + ' ' + sym + ' ' + self.expr(node.value, prec + 1) + ';']
+            return [indent + o + '.points = otree.cu(' + current + ' ' + sym + ' ' + self.expr(node.value, prec + 1) + ', app);']
         target = self._assign_target(t)
         if op is ast.FloorDiv:
             return [indent + target + ' = Math.floor(' + target + ' / ' + value + ');']
@@ -1208,6 +1212,10 @@ def convert(pkg, source_name='__init__.py'):
     if described['doc']:
         w('app.description = ' + js_str(re.sub(r'\s+', ' ', described['doc']).strip()) + ';')
     w('app.numPeriods = ' + str(described['num_rounds']) + ';')
+    # Currency amounts' decimal places (oTree's: POINTS_DECIMAL_PLACES with USE_POINTS, else the real currency's).
+    from otree import settings as otree_settings
+    places = otree_settings.POINTS_DECIMAL_PLACES if otree_settings.USE_POINTS else otree_settings.REAL_WORLD_CURRENCY_DECIMAL_PLACES
+    w('app.currencyPlaces = ' + str(int(places)) + ';')
     if described['players_per_group'] is not None:
         w('app.groupSize = ' + str(described['players_per_group']) + ';')
     w("app.groupMatchingType = 'PARTNER_1122'; // oTree's default: groups in order, the same in each round")

@@ -686,11 +686,28 @@ own (`Session#engineMode`; admin v2's session Options, "Rules"). Where the engin
 rules report an error, and z-Tree's and oTree's do what those programs do, as checked against
 them (z-Tree 5.1.21 under Wine, `fixtures/ztree5-probe/rules.txt`; oTree 5.11.5 and 3.4.0 in
 `tools/otree`): z-Tree's arithmetic (1/0 is `inf`, 0/0 NaN) and array indexes (rounded; out of
-range, the first or last element), in treatments and converted apps; Django's templates showing
-nothing for a name they cannot find. Some leniencies jtree had are gone, as neither oTree has
-them: `&&` in a template (BDQ29's treatment stops at that page, as in oTree 5); a call `f()` in a
-Django template (oTree 5's templates may call methods). The published experiments' tests run in
-their engine's mode.
+range, the first or last element), in treatments and converted apps. oTree apps run as oTree runs
+them in every mode, as oTree's rules and jtree's agree: their templates are strict (oTree 2.5 and
+3 make Django's so; a name before a filter may be missing). Some leniencies jtree had are gone,
+as no oTree has them: `&&` in a template (BDQ29's treatment stops at that page, as in oTree 5),
+a call `f()` in a Django template, a name a template does not define (Holzmeister's cem stops at
+its Instructions, as in oTree 2.5 and 3). The published experiments' tests run in their engine's mode.
+
+### Checked against oTree itself
+
+`tools/otree` installs oTree (5.11.5, 3.4.0, 2.5.8) beside jtree, and `tools/otree/compare.js`
+plays a session config with its bots in both and compares their data, column by column, seeded
+alike (oTree 5) so that random draws match too. Every oTree sample game, each bots' case, and
+#ManyDesigns' randomization project (100 participants) record the same data as in oTree 5.11.5
+(`test/otree-reference.test.js`, from oTree's saved data); Holzmeister's bret, mpl and scl as in
+oTree 3.4, eet as in oTree 2.5 (icl assigns a currency to a FloatField, which oTree 2.5 and 3 refuse:
+it was written for an older oTree). What the comparisons found, and fixed: oTree rounds currency
+(to whole points, or cents) whenever it is made, in apps and converted apps; fields' initial
+values are in their rows from the start; group_like_round keeps id_in_group; participant.label
+is None unless given; the export's columns are oTree 5's (no payoff_plus_participation_fee; its
+config keys; PARTICIPANT_FIELDS and SESSION_FIELDS); otree.settings is the project's (USE_POINTS);
+sessions of more than 99 participants have them all (P100, ...); group_randomly does not take
+from the apps' random numbers.
 
 ### Phase 8: converters (oTree's done)
 

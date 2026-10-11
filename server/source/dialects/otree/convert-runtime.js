@@ -44,6 +44,16 @@ const otree = {
     },
     C: (x) => otree.period(otree.isParticipant(x) ? x.player : x).app.C || {},
     inRounds: (x, first, last) => x.inAllPeriods().filter((y) => otree.roundNumber(y) >= first && otree.roundNumber(y) <= last),
+    /**
+     * A currency amount, rounded as oTree rounds it (half away from zero, as Decimal's
+     * ROUND_HALF_UP of the float): to app.currencyPlaces decimal places (0: points).
+     */
+    cu: (x, app) => {
+        const places = app != null && app.currencyPlaces != null ? app.currencyPlaces : 0;
+        const f = Math.pow(10, places);
+        const v = Number(x);
+        return Math.sign(v) * Math.round(Math.abs(v) * f) / f;
+    },
     /** A player's payoff (jtree's points), or a participant's over the session. */
     payoff: (x) => {
         if (typeof x.points === 'function') return x.points();

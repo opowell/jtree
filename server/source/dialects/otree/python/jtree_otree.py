@@ -236,6 +236,17 @@ def _js(value):
     return to_js(_json_value(value), dict_converter=Object.fromEntries)
 
 
+def init_fields(pkg, js_period):
+    """The round's subsession, groups and players get their fields' initial values, as oTree's
+    rows do when it makes them (before creating_session)."""
+    info = _apps[pkg]
+    sub = info.Subsession(js_period)
+    for obj in [sub] + sub.get_groups() + sub.get_players():
+        for name, field in type(obj)._fields.items():
+            if 'initial' in field.opts and api.js_get(obj._js, name) is None:
+                setattr(obj, name, field.opts['initial'])
+
+
 def creating_session(pkg, js_period):
     info = _apps[pkg]
     info.creating_session(info.Subsession(js_period))
@@ -342,12 +353,31 @@ def _form(info, page, player):
     return out
 
 
-def _mode(js_player):
-    """Whose rules the player's session runs by: 'jtree', 'ztree' or 'otree' (see Session#engineMode)."""
-    try:
-        return str(js_player.participant.session.engineMode())
-    except Exception:
-        return 'jtree'
+class _DjangoForm:
+    """The form a Django template (oTree's older apps) reads: form.errors, form.non_field_errors,
+    form.<field> (its errors, label, name). Errors are shown by jtree's page, so here none."""
+
+    errors = {}
+    non_field_errors = []
+
+    def __init__(self, fields):
+        self._fields = {f['name']: f for f in fields}
+
+    def __getattr__(self, name):
+        if name.startswith('_') or name not in self._fields:
+            raise AttributeError(name)
+        return _DjangoBoundField(self._fields[name])
+
+    def __iter__(self):
+        return iter(_DjangoBoundField(f) for f in self._fields.values())
+
+
+class _DjangoBoundField:
+    errors = []
+
+    def __init__(self, field):
+        self.name = field['name']
+        self.label = field.get('label') or ''
 
 
 def render(pkg, page_name, js_player, static_url='/static/'):
@@ -358,12 +388,12 @@ def render(pkg, page_name, js_player, static_url='/static/'):
     player = info.Player(js_player)
     context = {'player': player, 'group': player.group, 'subsession': player.subsession,
                'participant': player.participant, 'session': player.session, 'C': info.C, 'Constants': info.C}
-    # Older apps' templates are Django's: by oTree's rules (the session's mode), what they cannot
-    # find is nothing (form.x.errors, ...); by jtree's, an error.
+    form = _form(info, page, player)
+    # Older apps' templates are Django's, as oTree 2.5 and 3 run them (see otree_template.DJANGO),
+    # with Django's form (form.errors, form.<field>.errors).
     if info.old:
         context[otree_template.DJANGO] = True
-        if _mode(js_player) == 'otree':
-            context[otree_template.LENIENT] = True
+        context['form'] = _DjangoForm(form)
     if callable(info.vars_for_all):
         if info.old:
             instance = page()
@@ -386,7 +416,7 @@ def render(pkg, page_name, js_player, static_url='/static/'):
         chats[key] = name
         return key, name
 
-    renderer = otree_template.Renderer(lambda name: _read(pkg, name), _form(info, page, player), static_url, chat)
+    renderer = otree_template.Renderer(lambda name: _read(pkg, name), form, static_url, chat)
     html = _timer(page, player) + renderer.render(text, context)
     # The chats on the page, and the player's nickname in each (see dialects/otree/index.js).
     js_player.otreeChats = _js(chats)
@@ -442,6 +472,17 @@ def session_configs(settings_dir):
         merged.update(config)
         out.append(_json_value(merged))
     return json.dumps(out)
+
+
+def project_export(settings_dir):
+    """What the project's data export shows beyond its apps' fields, as JSON: PARTICIPANT_FIELDS,
+    SESSION_FIELDS and USE_POINTS (whether real_world_currency_per_point is a column)."""
+    settings = _settings(settings_dir)
+    return json.dumps({
+        'participant_fields': list(getattr(settings, 'PARTICIPANT_FIELDS', []) or []),
+        'session_fields': list(getattr(settings, 'SESSION_FIELDS', []) or []),
+        'use_points': bool(getattr(settings, 'USE_POINTS', True)),
+    })
 
 
 # --- Live pages ---------------------------------------------------------------------------

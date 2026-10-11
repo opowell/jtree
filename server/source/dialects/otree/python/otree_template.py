@@ -60,21 +60,16 @@ def evaluate(expr, context):
         tree = ast.parse(expr, mode='eval')
     except SyntaxError as err:
         raise TemplateSyntaxError(f'cannot read {expr!r}: {err.msg}')
-    try:
-        return _eval(tree.body, context)
-    except TemplateSyntaxError:
-        raise
-    except (TemplateError, AttributeError, KeyError, IndexError, TypeError):
-        # Django's templates show what they cannot find as nothing (LENIENT: oTree's older apps,
-        # by oTree's rules); oTree 5's, and jtree's rules, say what is wrong.
-        if context.get(LENIENT):
-            return ''
-        raise
+    return _eval(tree.body, context)
 
 
-# In a template's context: names and attributes it cannot find are '' (Django's way).
-LENIENT = '__django_lenient__'
-# In a template's context: the template is Django's (oTree's older apps): no calls, f().
+# otree_tools' tags (a package for oTree 2, {% load otree_tools %}): they track focus and time
+# into its own tables, which jtree does not have; on the page, nothing.
+OTREE_TOOLS_TAGS = ('tracking_focus', 'tracking_time')
+
+# In a template's context: the template is Django's (oTree's older apps), as oTree 2.5 and 3
+# render them: no calls (f()), and a name it cannot find is an error (oTree's strict templates),
+# except before filters ({{ x|default:1 }}), which get None.
 DJANGO = '__django__'
 
 
@@ -215,18 +210,22 @@ def _plain(value):
 
 def evaluate_with_filters(text, context):
     parts = _split_filters(text)
-    value = evaluate(parts[0], context)
+    if len(parts) > 1 and context.get(DJANGO):
+        # oTree's strict templates let a filtered name be missing: None, for the filters.
+        try:
+            value = evaluate(parts[0], context)
+        except TemplateSyntaxError:
+            raise
+        except (TemplateError, AttributeError, KeyError, IndexError, TypeError):
+            value = None
+    else:
+        value = evaluate(parts[0], context)
     for f in parts[1:]:
         name, _, arg = f.partition(':')
         name = name.strip()
         if name not in FILTERS:
             raise TemplateError(f'unknown filter {name!r}')
-        try:
-            value = FILTERS[name](value, evaluate(arg, context) if arg else None)
-        except (TypeError, ValueError):
-            if not context.get(LENIENT):
-                raise
-            value = ''
+        value = FILTERS[name](value, evaluate(arg, context) if arg else None)
     return value
 
 
@@ -393,7 +392,7 @@ class Renderer:
             return escape(self.static_url + str(evaluate(node.arg, ctx)))
         if k == 'chat':
             return self._chat(node.arg, ctx)
-        if k in ('load', 'url', 'extends'):
+        if k in ('load', 'url', 'extends') + OTREE_TOOLS_TAGS:
             return ''
         raise TemplateError(f'cannot render {k}')
 
@@ -555,7 +554,7 @@ def parse_tree(text):
             _append(top, node)
             stack.append(node)
         elif word in ('extends', 'include', 'include_sibling', 'formfields', 'formfield', 'formfield_errors',
-                      'next_button', 'static', 'chat', 'load', 'url'):
+                      'next_button', 'static', 'chat', 'load', 'url') + OTREE_TOOLS_TAGS:
             _append(top, Node(word, rest))
         else:
             _append(top, Node('expr', inner))

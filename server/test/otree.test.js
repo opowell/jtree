@@ -234,7 +234,8 @@ test("a bot's failed expect, or a page it does not expect, stops the bots and sa
     require('node:fs').writeFileSync(path.join(dir, 'tests.py'),
         'from otree.api import expect, Bot\nfrom . import *\n\nclass PlayerBot(Bot):\n    def play_round(self):\n' +
         '        yield Contribute, dict(contribution=1)\n        expect(self.player.payoff, 0)\n        yield Results\n');
-    await assert.rejects(playWithBots(path.join(dir, '__init__.py'), 3), /expected 0, got 100.80/);
+    // 100.8 points, rounded as oTree rounds points: 101.
+    await assert.rejects(playWithBots(path.join(dir, '__init__.py'), 3), /expected 0, got 101/);
     require('node:fs').writeFileSync(path.join(dir, 'tests.py'),
         'from otree.api import Bot\nfrom . import *\n\nclass PlayerBot(Bot):\n    def play_round(self):\n        yield Results\n');
     await assert.rejects(playWithBots(path.join(dir, '__init__.py'), 3), /the bot expects page Results, but the player is on Contribute/);
@@ -275,8 +276,8 @@ test("a session with oTree apps downloads as oTree's wide CSV, and as jtree's", 
     const col = (name) => { const i = header.indexOf(name); assert.ok(i >= 0, 'no column ' + name); return rows.map(r => r[i]); };
     assert.deepEqual(col('participant.code'), ['P1', 'P2']);
     assert.deepEqual(col('participant.payoff'), ['44', '32']);
-    // 5 + 44 * 0.5 and 5 + 32 * 0.5.
-    assert.deepEqual(col('participant.payoff_plus_participation_fee'), ['27', '21']);
+    // oTree 5's columns (otree/export.py): no payoff_plus_participation_fee.
+    assert.ok(!header.includes('participant.payoff_plus_participation_fee'));
     assert.deepEqual(col('session.config.bonus'), ['3', '3']);
     assert.deepEqual(col('trust.1.player.role'), ['Trustor', 'Trustee']);
     assert.deepEqual(col('trust.2.group.sent_amount'), ['4', '4']);

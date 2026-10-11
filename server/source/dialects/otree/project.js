@@ -68,6 +68,8 @@ function queueScript(settingsPath, name) {
     }
     const dir = path.dirname(settingsPath);
     const lines = ['session.otreeConfig = ' + JSON.stringify(config) + ';'];
+    // What its data export shows besides the apps' fields (PARTICIPANT_FIELDS, ...; see export.js).
+    lines.push('session.otreeProject = ' + runtime.getBridge().project_export(putSettings(settingsPath)) + ';');
     if (config.participation_fee != null) lines.push('session.showUpFee = ' + JSON.stringify(config.participation_fee) + ';');
     if (config.real_world_currency_per_point != null) lines.push('session.exchangeRate = ' + JSON.stringify(config.real_world_currency_per_point) + ';');
     if (config.num_demo_participants != null) lines.push('session.suggestedNumParticipants = ' + JSON.stringify(config.num_demo_participants) + ';');

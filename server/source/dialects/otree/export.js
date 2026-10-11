@@ -16,21 +16,32 @@ function cell(value) {
     return /[",\n\r]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
 }
 
-/** The session's "all apps, wide" CSV. */
+// A session config's keys oTree 5 does not export (otree/session.py's NON_EDITABLE_FIELDS).
+const NOT_EXPORTED = ['name', 'display_name', 'app_sequence', 'num_demo_participants', 'doc'];
+
+/**
+ * The session's "all apps, wide" CSV, with oTree 5's columns (otree/export.py): the participant's,
+ * its PARTICIPANT_FIELDS, the session's, its config's (name, participation_fee,
+ * real_world_currency_per_point if the project uses points, and the config's own keys), its
+ * SESSION_FIELDS; then the apps'.
+ */
 function wideCSV(session) {
     const participants = Object.values(session.participants);
     const config = session.otreeConfig || {};
+    const project = session.otreeProject || { participant_fields: [], session_fields: [], use_points: true };
+    const own = (obj, f) => (obj == null ? undefined : obj[f] !== undefined ? obj[f] : obj.vars != null ? obj.vars[f] : undefined);
     const columns = [
         ['participant.id_in_session', (p, i) => i + 1],
         ['participant.code', (p) => p.id],
-        ['participant.label', (p) => p.label != null ? p.label : p.id],
+        ['participant.label', (p) => p.label],
         ['participant.payoff', (p) => p.points()],
-        ['participant.payoff_plus_participation_fee', (p) => p.payment()],
-        ['session.code', () => session.id],
     ];
-    for (const key of Object.keys(config)) {
-        if (key !== 'app_sequence') columns.push(['session.config.' + key, () => config[key]]);
-    }
+    for (const f of project.participant_fields) columns.push(['participant.' + f, (p) => own(p, f)]);
+    columns.push(['session.code', () => session.id]);
+    const configKeys = ['name', 'participation_fee', ...(project.use_points ? ['real_world_currency_per_point'] : []),
+        ...Object.keys(config).filter((k) => !NOT_EXPORTED.includes(k) && k !== 'participation_fee' && k !== 'real_world_currency_per_point')];
+    for (const key of configKeys) columns.push(['session.config.' + key, () => config[key]]);
+    for (const f of project.session_fields) columns.push(['session.' + f, () => own(session, f)]);
     for (const app of session.apps) {
         if (app.otree == null) continue;
         const name = app.shortId;

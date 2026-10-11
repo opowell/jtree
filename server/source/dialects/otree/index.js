@@ -88,12 +88,13 @@ function chatFor(session, key) {
 }
 
 /**
- * creating_session, for an app that groups players by arrival: in oTree it sees every
- * participant's player, which jtree makes only as they arrive (Period#arrivalGroupId). So it
- * gets players of its own, in groups in the participants' order, and what it sets in them is
- * given to the participants' players when they arrive (period.arrivalFields).
+ * The round's initial values and creating_session, for an app that groups players by arrival: in
+ * oTree they are every participant's player's, which jtree makes only as they arrive
+ * (Period#arrivalGroupId). So they go into players of their own, in groups in the participants'
+ * order, and what they set there is given to the participants' players when they arrive
+ * (period.arrivalFields).
  */
-function creatingSessionBeforeArrival(app, pkg, period) {
+function creatingSessionBeforeArrival(app, pkg, period, creatingSession) {
     const size = app.groupSize || 1;
     const groups = [];
     const players = [];
@@ -106,9 +107,12 @@ function creatingSessionBeforeArrival(app, pkg, period) {
         group.players.push(player);
         players.push(player);
     }
+    // The round's own (subsession) initial values on the round itself; the players' on theirs.
+    runtime.getBridge().init_fields(pkg, period);
     const before = Object.create(period);
     before.groups = groups;
-    runtime.getBridge().creating_session(pkg, before);
+    runtime.getBridge().init_fields(pkg, before);
+    if (creatingSession) runtime.getBridge().creating_session(pkg, before);
     period.arrivalFields = {};
     for (const player of players) {
         const fresh = new Player.new(player.id, player.participant, player.group, player.idInGroup);
@@ -279,15 +283,15 @@ module.exports = {
             }
             return out;
         };
-        if (info.creating_session) {
-            app.periodStart = (period) => {
-                if (app.groupByArrival) {
-                    creatingSessionBeforeArrival(app, pkg, period);
-                } else {
-                    runtime.getBridge().creating_session(pkg, period);
-                }
-            };
-        }
+        // Each round: its fields' initial values, then creating_session (if the app has one).
+        app.periodStart = (period) => {
+            if (app.groupByArrival) {
+                creatingSessionBeforeArrival(app, pkg, period, info.creating_session);
+            } else {
+                runtime.getBridge().init_fields(pkg, period);
+                if (info.creating_session) runtime.getBridge().creating_session(pkg, period);
+            }
+        };
         for (const page of info.pages) {
             definePage(app, page, pkg);
         }

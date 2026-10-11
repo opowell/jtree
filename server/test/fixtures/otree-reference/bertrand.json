@@ -1,0 +1,40 @@
+{
+ "config": "bertrand",
+ "participants": 2,
+ "otree": "5.11.5",
+ "seed": "5",
+ "cases": [
+  [
+   {
+    "participant.id_in_session": "1",
+    "participant.payoff": "0.0",
+    "session.config.real_world_currency_per_point": "1.0",
+    "session.config.participation_fee": "0.0",
+    "session.config.name": "bertrand",
+    "bertrand.1.player.id_in_group": "1",
+    "bertrand.1.player.role": "",
+    "bertrand.1.player.payoff": "0.0",
+    "bertrand.1.player.price": "30.0",
+    "bertrand.1.player.is_winner": "0",
+    "bertrand.1.group.id_in_subsession": "1",
+    "bertrand.1.group.winning_price": "30.0",
+    "bertrand.1.subsession.round_number": "1"
+   },
+   {
+    "participant.id_in_session": "2",
+    "participant.payoff": "30.0",
+    "session.config.real_world_currency_per_point": "1.0",
+    "session.config.participation_fee": "0.0",
+    "session.config.name": "bertrand",
+    "bertrand.1.player.id_in_group": "2",
+    "bertrand.1.player.role": "",
+    "bertrand.1.player.payoff": "30.0",
+    "bertrand.1.player.price": "30.0",
+    "bertrand.1.player.is_winner": "1",
+    "bertrand.1.group.id_in_subsession": "1",
+    "bertrand.1.group.winning_price": "30.0",
+    "bertrand.1.subsession.round_number": "1"
+   }
+  ]
+ ]
+}

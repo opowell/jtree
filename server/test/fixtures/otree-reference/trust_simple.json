@@ -1,0 +1,98 @@
+{
+ "config": "trust_simple",
+ "participants": 2,
+ "otree": "5.11.5",
+ "seed": "5",
+ "cases": [
+  [
+   {
+    "participant.id_in_session": "1",
+    "participant.payoff": "10.0",
+    "session.config.name": "trust_simple",
+    "session.config.real_world_currency_per_point": "1.0",
+    "session.config.participation_fee": "0.0",
+    "trust_simple.1.player.id_in_group": "1",
+    "trust_simple.1.player.role": "",
+    "trust_simple.1.player.payoff": "10.0",
+    "trust_simple.1.group.id_in_subsession": "1",
+    "trust_simple.1.group.sent_amount": "0.0",
+    "trust_simple.1.group.sent_back_amount": "0.0",
+    "trust_simple.1.subsession.round_number": "1"
+   },
+   {
+    "participant.id_in_session": "2",
+    "participant.payoff": "0.0",
+    "session.config.name": "trust_simple",
+    "session.config.real_world_currency_per_point": "1.0",
+    "session.config.participation_fee": "0.0",
+    "trust_simple.1.player.id_in_group": "2",
+    "trust_simple.1.player.role": "",
+    "trust_simple.1.player.payoff": "0.0",
+    "trust_simple.1.group.id_in_subsession": "1",
+    "trust_simple.1.group.sent_amount": "0.0",
+    "trust_simple.1.group.sent_back_amount": "0.0",
+    "trust_simple.1.subsession.round_number": "1"
+   }
+  ],
+  [
+   {
+    "participant.id_in_session": "1",
+    "participant.payoff": "15.0",
+    "session.config.name": "trust_simple",
+    "session.config.real_world_currency_per_point": "1.0",
+    "session.config.participation_fee": "0.0",
+    "trust_simple.1.player.id_in_group": "1",
+    "trust_simple.1.player.role": "",
+    "trust_simple.1.player.payoff": "15.0",
+    "trust_simple.1.group.id_in_subsession": "1",
+    "trust_simple.1.group.sent_amount": "5.0",
+    "trust_simple.1.group.sent_back_amount": "10.0",
+    "trust_simple.1.subsession.round_number": "1"
+   },
+   {
+    "participant.id_in_session": "2",
+    "participant.payoff": "5.0",
+    "session.config.name": "trust_simple",
+    "session.config.real_world_currency_per_point": "1.0",
+    "session.config.participation_fee": "0.0",
+    "trust_simple.1.player.id_in_group": "2",
+    "trust_simple.1.player.role": "",
+    "trust_simple.1.player.payoff": "5.0",
+    "trust_simple.1.group.id_in_subsession": "1",
+    "trust_simple.1.group.sent_amount": "5.0",
+    "trust_simple.1.group.sent_back_amount": "10.0",
+    "trust_simple.1.subsession.round_number": "1"
+   }
+  ],
+  [
+   {
+    "participant.id_in_session": "1",
+    "participant.payoff": "30.0",
+    "session.config.name": "trust_simple",
+    "session.config.real_world_currency_per_point": "1.0",
+    "session.config.participation_fee": "0.0",
+    "trust_simple.1.player.id_in_group": "1",
+    "trust_simple.1.player.role": "",
+    "trust_simple.1.player.payoff": "30.0",
+    "trust_simple.1.group.id_in_subsession": "1",
+    "trust_simple.1.group.sent_amount": "10.0",
+    "trust_simple.1.group.sent_back_amount": "30.0",
+    "trust_simple.1.subsession.round_number": "1"
+   },
+   {
+    "participant.id_in_session": "2",
+    "participant.payoff": "0.0",
+    "session.config.name": "trust_simple",
+    "session.config.real_world_currency_per_point": "1.0",
+    "session.config.participation_fee": "0.0",
+    "trust_simple.1.player.id_in_group": "2",
+    "trust_simple.1.player.role": "",
+    "trust_simple.1.player.payoff": "0.0",
+    "trust_simple.1.group.id_in_subsession": "1",
+    "trust_simple.1.group.sent_amount": "10.0",
+    "trust_simple.1.group.sent_back_amount": "30.0",
+    "trust_simple.1.subsession.round_number": "1"
+   }
+  ]
+ ]
+}

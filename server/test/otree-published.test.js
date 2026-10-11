@@ -13,8 +13,8 @@ const { runBots } = require('../source/dialects/otree/bots.js');
 
 const PUBLISHED = path.join(__dirname, 'fixtures/otree-published');
 
-// Holzmeister's apps, each its own session: app -> participants. Played by their own bots.
-const HOLZMEISTER = { bret: 1, cem: 1, eet: 2, icl: 1, mpl: 1, scl: 1 };
+// Holzmeister's apps, each its own session: app -> participants. Played by their own bots. (cem: below.)
+const HOLZMEISTER = { bret: 1, eet: 2, icl: 1, mpl: 1, scl: 1 };
 
 // The projects' session configs: [project, config, participants, generic bot].
 // generic: 'missing' for apps without bots; 'always' where the project's bots are empty or out of
@@ -101,9 +101,10 @@ test('manydesigns/BDQ29-Treatment mds_tr stops where oTree does: Results_Part_1,
         (err) => /page Results_Part_1 could not be shown/.test(err.message) && /cannot read .*&&/.test(err.message));
 });
 
-// By jtree's rules, a name a Django template (oTree's older apps) cannot find is an error, not
-// nothing: Holzmeister's cem shows {{ num_choices }}, which it never defines.
-test("Holzmeister's cem, by jtree's rules: its template's undefined name is reported", async () => {
-    const session = await sessionOf(path.join(PUBLISHED, 'holzmeister', 'cem', 'models.py'), 1, 'jtree');
-    await assert.rejects(runBots(session, { timeout: 60000 }), (err) => /num_choices/.test(err.message));
+// Holzmeister's cem, as published, cannot show its Instructions page: its template shows
+// {{ num_choices }}, which it never defines, and oTree's templates (2.5 and 3, checked with
+// tools/otree) say so, as jtree's do.
+test("Holzmeister's cem stops where oTree does: Instructions, a name its template does not define", async () => {
+    const session = await sessionOf(path.join(PUBLISHED, 'holzmeister', 'cem', 'models.py'), 1);
+    await assert.rejects(runBots(session, { timeout: 60000 }), (err) => /page Instructions could not be shown/.test(err.message) && /num_choices/.test(err.message));
 });

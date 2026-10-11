@@ -8,6 +8,9 @@ Python holds nothing that needs saving. See plans/ztree-otree-dialects.md, secti
 
 import random as _random
 
+# oTree's own random numbers (group_randomly): not the apps' (random), which they may seed.
+_rng = _random.Random()
+
 from pyodide.ffi import JsProxy, to_js
 from js import Object, JSON
 
@@ -15,10 +18,15 @@ from js import Object, JSON
 # --- Values -------------------------------------------------------------------------------
 
 class Currency(float):
-    """An amount of points or money; arithmetic keeps it a Currency."""
+    """An amount of points or money; arithmetic keeps it a Currency. Rounded as oTree rounds it
+    (half up): to POINTS_DECIMAL_PLACES (0) with USE_POINTS, else REAL_WORLD_CURRENCY_DECIMAL_PLACES."""
 
     def __new__(cls, value=0):
-        return super().__new__(cls, 0 if value is None else float(value))
+        from decimal import Decimal, ROUND_HALF_UP
+        from otree import settings
+        places = settings.POINTS_DECIMAL_PLACES if settings.USE_POINTS else settings.REAL_WORLD_CURRENCY_DECIMAL_PLACES
+        amount = value if isinstance(value, Decimal) else Decimal.from_float(float(0 if value is None else value))
+        return super().__new__(cls, float(amount.quantize(Decimal('0.1') ** places, rounding=ROUND_HALF_UP)))
 
     def _of(self, value):
         return Currency(value)
@@ -290,6 +298,9 @@ class _Model:
         if isinstance(getattr(cls, name, None), property):
             object.__setattr__(self, name, value)
         elif name in cls._fields or name in cls._extra_settable:
+            # A CurrencyField's value is a currency, rounded as oTree rounds it.
+            if value is not None and name in cls._fields and cls._fields[name].kind == 'currency':
+                value = Currency(value)
             setattr(self._js, name, to_js_value(value))
         else:
             raise AttributeError(f'{cls.__name__} has no field {name!r}')
@@ -379,18 +390,19 @@ class BaseSubsession(_Model):
         if fixed_id_in_group:
             columns = [list(col) for col in zip(*groups)]
             for col in columns:
-                _random.shuffle(col)
+                _rng.shuffle(col)
             groups = [list(row) for row in zip(*columns)]
         else:
             players = [p for g in groups for p in g]
-            _random.shuffle(players)
+            _rng.shuffle(players)
             size = len(groups[0]) if groups else 0
             groups = [players[i:i + size] for i in range(0, len(players), size)]
         self.set_group_matrix(groups)
 
     def group_like_round(self, round_number):
+        # The earlier round's players, by id_in_group: set_group_matrix places their participants.
         before = self.in_round(round_number)
-        self.set_group_matrix([[str(p._js.participant.id) for p in g.get_players()] for g in before.get_groups()])
+        self.set_group_matrix([sorted(g.get_players(), key=lambda p: p.id_in_group) for g in before.get_groups()])
 
     def in_round(self, round_number):
         period = self._js.app.periods[round_number - 1]
@@ -465,7 +477,8 @@ class BasePlayer(_Model):
 
     @payoff.setter
     def payoff(self, value):
-        self._js.points = float(value if value is not None else 0)
+        # A currency, rounded as oTree rounds it.
+        self._js.points = float(Currency(value if value is not None else 0))
 
     @property
     def id_in_group(self):
@@ -555,7 +568,8 @@ class Participant(_Open):
 
     @property
     def label(self):
-        return js_get(self._js, 'label') or str(self._js.id)
+        # As oTree's: the label a room (or the experimenter) gave the participant, else None.
+        return js_get(self._js, 'label') or None
 
     @property
     def id_in_session(self):
@@ -785,6 +799,8 @@ class ExtraModel:
         if name in cls._links:
             setattr(self._row, name, _link_key(value) if value is not None else None)
         elif name in cls._fields:
+            if value is not None and cls._fields[name].kind == 'currency':
+                value = Currency(value)
             setattr(self._row, name, to_js_value(value))
         else:
             raise AttributeError(f'{cls.__name__} has no field {name!r}')

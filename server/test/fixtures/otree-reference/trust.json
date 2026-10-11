@@ -1,0 +1,38 @@
+{
+ "config": "trust",
+ "participants": 2,
+ "otree": "5.11.5",
+ "seed": "5",
+ "cases": [
+  [
+   {
+    "participant.id_in_session": "1",
+    "participant.payoff": "104.0",
+    "session.config.real_world_currency_per_point": "1.0",
+    "session.config.name": "trust",
+    "session.config.participation_fee": "0.0",
+    "trust.1.player.id_in_group": "1",
+    "trust.1.player.role": "",
+    "trust.1.player.payoff": "104.0",
+    "trust.1.group.id_in_subsession": "1",
+    "trust.1.group.sent_amount": "4.0",
+    "trust.1.group.sent_back_amount": "8.0",
+    "trust.1.subsession.round_number": "1"
+   },
+   {
+    "participant.id_in_session": "2",
+    "participant.payoff": "4.0",
+    "session.config.real_world_currency_per_point": "1.0",
+    "session.config.name": "trust",
+    "session.config.participation_fee": "0.0",
+    "trust.1.player.id_in_group": "2",
+    "trust.1.player.role": "",
+    "trust.1.player.payoff": "4.0",
+    "trust.1.group.id_in_subsession": "1",
+    "trust.1.group.sent_amount": "4.0",
+    "trust.1.group.sent_back_amount": "8.0",
+    "trust.1.subsession.round_number": "1"
+   }
+  ]
+ ]
+}

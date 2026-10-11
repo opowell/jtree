@@ -1,0 +1,27 @@
+{
+ "config": "survey",
+ "participants": 1,
+ "otree": "5.11.5",
+ "seed": "5",
+ "cases": [
+  [
+   {
+    "participant.id_in_session": "1",
+    "participant.payoff": "0.0",
+    "session.config.name": "survey",
+    "session.config.real_world_currency_per_point": "1.0",
+    "session.config.participation_fee": "0.0",
+    "survey.1.player.id_in_group": "1",
+    "survey.1.player.role": "",
+    "survey.1.player.payoff": "0.0",
+    "survey.1.player.age": "24",
+    "survey.1.player.gender": "Male",
+    "survey.1.player.crt_bat": "10",
+    "survey.1.player.crt_widget": "5",
+    "survey.1.player.crt_lake": "48",
+    "survey.1.group.id_in_subsession": "1",
+    "survey.1.subsession.round_number": "1"
+   }
+  ]
+ ]
+}

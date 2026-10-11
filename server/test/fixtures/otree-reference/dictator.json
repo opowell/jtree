@@ -1,0 +1,36 @@
+{
+ "config": "dictator",
+ "participants": 2,
+ "otree": "5.11.5",
+ "seed": "5",
+ "cases": [
+  [
+   {
+    "participant.id_in_session": "1",
+    "participant.payoff": "99.0",
+    "session.config.real_world_currency_per_point": "1.0",
+    "session.config.participation_fee": "0.0",
+    "session.config.name": "dictator",
+    "dictator.1.player.id_in_group": "1",
+    "dictator.1.player.role": "",
+    "dictator.1.player.payoff": "99.0",
+    "dictator.1.group.id_in_subsession": "1",
+    "dictator.1.group.kept": "99.0",
+    "dictator.1.subsession.round_number": "1"
+   },
+   {
+    "participant.id_in_session": "2",
+    "participant.payoff": "1.0",
+    "session.config.real_world_currency_per_point": "1.0",
+    "session.config.participation_fee": "0.0",
+    "session.config.name": "dictator",
+    "dictator.1.player.id_in_group": "2",
+    "dictator.1.player.role": "",
+    "dictator.1.player.payoff": "1.0",
+    "dictator.1.group.id_in_subsession": "1",
+    "dictator.1.group.kept": "99.0",
+    "dictator.1.subsession.round_number": "1"
+   }
+  ]
+ ]
+}

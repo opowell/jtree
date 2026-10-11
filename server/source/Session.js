@@ -737,6 +737,14 @@ class Session {
                 }
             }
         }
+        // More than the list has (settings.participantIds: P1 to P99): P100, P101, ...
+        for (let n = this.potentialParticipantIds.length + 1; partsAdded < num; n++) {
+            const pId = 'P' + n;
+            if (this.participants[pId] === undefined) {
+                this.participantCreate(pId);
+                partsAdded++;
+            }
+        }
     }
 
     saveOutput() {

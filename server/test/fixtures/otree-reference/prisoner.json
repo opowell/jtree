@@ -1,0 +1,36 @@
+{
+ "config": "prisoner",
+ "participants": 2,
+ "otree": "5.11.5",
+ "seed": "5",
+ "cases": [
+  [
+   {
+    "participant.id_in_session": "1",
+    "participant.payoff": "200.0",
+    "session.config.participation_fee": "0.0",
+    "session.config.name": "prisoner",
+    "session.config.real_world_currency_per_point": "1.0",
+    "prisoner.1.player.id_in_group": "1",
+    "prisoner.1.player.role": "",
+    "prisoner.1.player.payoff": "200.0",
+    "prisoner.1.player.cooperate": "1",
+    "prisoner.1.group.id_in_subsession": "1",
+    "prisoner.1.subsession.round_number": "1"
+   },
+   {
+    "participant.id_in_session": "2",
+    "participant.payoff": "200.0",
+    "session.config.participation_fee": "0.0",
+    "session.config.name": "prisoner",
+    "session.config.real_world_currency_per_point": "1.0",
+    "prisoner.1.player.id_in_group": "2",
+    "prisoner.1.player.role": "",
+    "prisoner.1.player.payoff": "200.0",
+    "prisoner.1.player.cooperate": "1",
+    "prisoner.1.group.id_in_subsession": "1",
+    "prisoner.1.subsession.round_number": "1"
+   }
+  ]
+ ]
+}
