@@ -1,3 +1,7 @@
 # Downloaded by the tests from z-Tree's site (see README.md); not ours to commit.
 *.ztt
 *.ztq
+# Made locally with z-Tree 5 (tools/ztree-wine) from the examples: not ours to commit either.
+ztree5/
+# GIMS (Palan 2015), downloaded by the tests from its repository.
+gims/

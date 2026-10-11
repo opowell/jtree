@@ -41,6 +41,13 @@ class Run {
         this.selected = new Map(); // participant id -> {boxPath: record id}
         this.errors = [];
         this.vars = variables(treatment);
+        this.arrays = arrayDeclarations(treatment);
+        // Tables that last the treatment or the session (lifetime TREATMENT or SESSION): their
+        // records, kept across periods; the others' are a period's.
+        this.lasting = {};
+        for (const t of treatment.tables || []) {
+            if (/^(TREATMENT|SESSION)$/i.test(t.lifetime || '') && !BUILT_IN[t.name]) this.lasting[t.name] = [];
+        }
     }
 
     // --- Tables -------------------------------------------------------------------------
@@ -60,11 +67,14 @@ class Run {
                     case 'contracts': return s.contracts;
                     case 'summary': return run.periods.slice(0, (old ? p - 1 : p) + 1).filter(Boolean).map((x) => x.summary);
                     case 'session': return run.sessionRecords;
-                    default: return (s.other[table] = s.other[table] || []);
+                    default:
+                        if (run.lasting[table] != null) return run.lasting[table];
+                        return (s.other[table] = s.other[table] || []);
                 }
             },
             globals() { return state.globals; },
             isVar(table, name) { return run.vars[table] != null && run.vars[table].has(name); },
+            declaredArray(table, name) { return (run.arrays[table] || {})[name] || null; },
             newRecord(table) { return run.newRecord(p, table); },
             later(seconds, fn) { run.later(seconds, fn); },
             time() { return (Date.now() - state.startedAt) / 1000; },
@@ -82,8 +92,32 @@ class Run {
         rec.Period = p + 1;
         const state = this.periods[p];
         if (table === 'contracts') state.contracts.push(rec);
+        else if (this.lasting[table] != null) this.lasting[table].push(rec);
         else if (table !== 'subjects' && table !== 'globals') (state.other[table] = state.other[table] || []).push(rec);
+        this.initRecord(p, table, rec);
         return rec;
+    }
+
+    /**
+     * A new record of a table: the background's programs for its table run on it, as z-Tree
+     * runs them (noda's contracts get Buyer = -1 and so on, GIMS's records their arrays).
+     */
+    initRecord(p, table, rec) {
+        const programs = this.treatment.background.programs.filter((pr) => (pr.table || 'subjects') === table);
+        if (programs.length === 0 || ['subjects', 'globals', 'summary', 'session'].includes(table)) return;
+        this.initDepth = (this.initDepth || 0) + 1;
+        try {
+            if (this.initDepth > 20) throw new Error('records of ' + table + ' make records without end');
+            const ctx = { rt: this.view(p), table, rec, outer: null };
+            for (const pr of programs) {
+                if (pr.condition && !lang.bool(this.value(pr.condition, ctx))) continue;
+                this.exec(pr.code, ctx);
+            }
+        } catch (err) {
+            this.note(err.message);
+        } finally {
+            this.initDepth--;
+        }
     }
 
     /** Starts period p (0-based) for the subjects (the session's participants, in order). */
@@ -166,7 +200,9 @@ class Run {
         try {
             lang.run(program(code), ctx);
         } catch (err) {
-            this.note('in a program on ' + ctx.table + ': ' + err.message);
+            // The program by its first line (often a comment saying what it is).
+            const first = String(code || '').split('\n').map((l) => l.trim()).find((l) => l !== '') || '';
+            this.note('in a program on ' + ctx.table + ' (' + first.slice(0, 60) + '): ' + err.message);
         }
     }
 
@@ -255,6 +291,7 @@ class Run {
             target = { _id: null };
             for (const name of this.vars[targetTable] || []) target[name] = 0;
             target.Period = p + 1;
+            this.initRecord(p, targetTable, target);
             isNew = true;
         } else if (box.type === 'contractList') {
             targetTable = box.table || 'contracts';
@@ -333,10 +370,10 @@ class Run {
                 this.exec(pr.code, c);
             }
         }
-        // Whether it leaves the stage: as the button says (z-Tree 3.5's files), else as its box's
-        // kind has it (standard boxes' buttons do, contract and chat boxes' do not).
-        const leaves = d.itemButton || (typeof button.leaveStage === 'boolean' ? button.leaveStage
-            : ['standard', 'help', 'header', 'grid', 'history', 'calculator', 'plot', 'unknown'].includes(box.type));
+        // Whether it leaves the stage: as the button says, else as z-Tree has it ("Normal"): it
+        // does, unless the stage is an auction (left after its timeout always) and the button is
+        // in a contract creation or list box.
+        const leaves = d.itemButton || leavesStage(button, box, stage);
         return { leave: leaves };
     }
 
@@ -434,6 +471,12 @@ class Run {
     }
 }
 
+/** Whether a button leaves the stage (see Run#press). */
+function leavesStage(button, box, stage) {
+    if (typeof button.leaveStage === 'boolean') return button.leaveStage;
+    return !(stage.timeoutAlways === true && ['contractCreation', 'contractList'].includes(box.type));
+}
+
 /** The plot item at path in a plot box ("1.0" in a graph; "2:0" the first input of item 2). */
 function plotItemAt(box, path) {
     let list = box.plotItems || [];
@@ -472,6 +515,28 @@ function findBox(stage, path) {
 }
 
 const plain = (s) => String(s).replace(/^<>/, '').replace(/<[^>]*>/g, '');
+
+/** The arrays the treatment's programs declare, by table (see lang.js's arrayDeclarations). */
+function arrayDeclarations(t) {
+    const out = {};
+    const add = (code, table) => {
+        try {
+            lang.arrayDeclarations(program(code), table, out);
+        } catch (err) {
+            // A program that does not parse declares nothing.
+        }
+    };
+    const visitBox = (box) => {
+        for (const b of box.buttons) b.programs.forEach((pr) => add(pr.code, pr.table || 'subjects'));
+        box.programs.forEach((pr) => add(pr.code, pr.table || 'contracts'));
+        box.boxes.forEach(visitBox);
+    };
+    for (const stage of [t.background, ...t.stages]) {
+        stage.programs.forEach((pr) => add(pr.code, pr.table || 'subjects'));
+        [...stage.active, ...stage.waiting].forEach(visitBox);
+    }
+    return out;
+}
 
 /** The variables of each table: built in, set by the treatment's programs, or by inputs. */
 function variables(t) {
@@ -527,4 +592,4 @@ function variables(t) {
     return out;
 }
 
-module.exports = { Run, findBox, variables, program };
+module.exports = { Run, findBox, variables, arrayDeclarations, program, leavesStage };

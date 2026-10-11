@@ -8,7 +8,7 @@
  * (the record whose program called a table function, or ran a do block), `\x` the globals'.
  *
  *   x = 1; a[i] = 2; array a[10]; array b[0, 10, 2];
- *   if (c) { ... } elseif (c) { ... } else { ... }
+ *   if (c) { ... } elseif (c) { ... } else { ... }   (elsif too)
  *   while (c) { ... }   repeat { ... } while (c);
  *   subjects.do { ... }   contracts.new { ... }   later (seconds) do { ... }   later (s) repeat { ... }
  *   expressions: + - * / ^, == != <> < <= > >=, & |, not(), if(c, a, b), numbers, "strings",
@@ -126,7 +126,7 @@ function parse(code) {
             branches.push({ cond: expr(), body: (expect(')'), block()) });
             let otherwise = null;
             for (;;) {
-                if (isId('elseif')) {
+                if (isId('elseif') || isId('elsif')) {
                     next(); expect('(');
                     branches.push({ cond: expr(), body: (expect(')'), block()) });
                 } else if (isId('else')) {
@@ -184,6 +184,17 @@ function parse(code) {
             if (is(';')) next();
             return { k: 'exit', line: t.line };
         }
+        // for (i, n) { } (i from 1 to n), for (i, from, to[, step]) { } (z-Tree 4): i is set as it
+        // goes, a variable of the record (as an assignment would set it: GIMS reads it as :i from
+        // the records the loop makes), or \\i of globals.
+        if (isId('for') && is('(', 1)) {
+            next(); next();
+            const target = lvalue();
+            const args = [];
+            while (is(',')) { next(); args.push(expr()); }
+            expect(')');
+            return { k: 'for', target, args, body: block(), line: t.line };
+        }
         // iterator(i, n).do { } (i from 1 to n), iterator(i, from, to[, step]).do { }
         if (isId('iterator') && is('(', 1)) {
             next(); next();
@@ -215,7 +226,7 @@ function parse(code) {
         let depth = 0;
         // :x is the enclosing record's, ::x the one enclosing that, ...
         while (is(':')) { next(); scope = 'outer'; depth++; }
-        if (scope === 'own' && is('\\')) { next(); scope = 'globals'; }
+        if (scope === 'own' && is('\\')) { while (is('\\')) next(); scope = 'globals'; }
         const name = next();
         if (name.t !== 'id') throw new ZtreeSyntaxError('expected a variable but found ' + (name.v || 'the end'), name.line);
         let index = null;
@@ -283,6 +294,8 @@ function parse(code) {
             const scope = next().v === ':' ? 'outer' : 'globals';
             let depth = scope === 'outer' ? 1 : 0;
             while (scope === 'outer' && is(':')) { next(); depth++; }
+            // \\x (as GIMS writes some): globals' still.
+            while (scope === 'globals' && is('\\')) next();
             const name = next();
             let index = null;
             if (is('[')) { next(); index = expr(); expect(']'); }
@@ -361,11 +374,26 @@ function owner(ctx, name, scope, depth = 1) {
     return null;
 }
 
+/**
+ * rec's array name, made if its table declares it (array X[n]; in any of its programs, even one
+ * that does not run: z-Tree's declarations are its table's, as GIMS uses them), sized as its
+ * declaration says, here.
+ */
+function declared(ctx, rec, table, name) {
+    const v = rec[name];
+    if (isArray(v)) return v;
+    const dims = ctx.rt.declaredArray ? ctx.rt.declaredArray(table, name) : null;
+    if (dims == null) return v;
+    rec[name] = newArray(dims.map((d) => num(evaluate(d, ctx))));
+    return rec[name];
+}
+
 function readVar(ctx, node) {
     const o = owner(ctx, node.name, node.scope, node.depth);
     let v = o == null ? 0 : o.rec[node.name];
     if (v === undefined) v = 0;
     if (node.index != null) {
+        if (o != null && !isArray(v)) v = declared(ctx, o.rec, o.table, node.name);
         if (!isArray(v)) throw new Error(node.name + ' is not an array');
         return v.values[arrayIndex(v, num(evaluate(node.index, ctx)))];
     }
@@ -387,7 +415,8 @@ function writeVar(ctx, target, value) {
         rec = o != null && !ctx.rt.isVar(ctx.table, target.name) && !Object.prototype.hasOwnProperty.call(ctx.rec, target.name) ? o.rec : ctx.rec;
     }
     if (target.index != null) {
-        const arr = rec[target.name];
+        const table = rec === ctx.rec ? ctx.table : rec === ctx.rt.globals() ? 'globals' : (owner(ctx, target.name, target.scope, target.depth) || {}).table;
+        const arr = declared(ctx, rec, table, target.name);
         if (!isArray(arr)) throw new Error(target.name + ' is not an array');
         arr.values[arrayIndex(arr, num(evaluate(target.index, ctx)))] = value;
     } else {
@@ -600,6 +629,18 @@ function exec(stmts, ctx) {
                 }
                 break;
             }
+            case 'for': {
+                const a = s.args.map((x) => num(evaluate(x, ctx)));
+                const [from, to, step] = a.length === 1 ? [1, a[0], 1] : [a[0], a[1], a[2] == null ? 1 : a[2]];
+                if (!(step > 0) && !(step < 0)) break;
+                let n = 0;
+                for (let v = from; step > 0 ? v <= to + 1e-9 : v >= to - 1e-9; v += step) {
+                    if (++n > 1e6) throw new Error('a for loop ran a million times (line ' + s.line + ')');
+                    writeVar(ctx, s.target, Number(v.toFixed(12)));
+                    exec(s.body, ctx);
+                }
+                break;
+            }
             case 'new': {
                 const rec = ctx.rt.newRecord(s.table);
                 exec(s.body, { rt: ctx.rt, table: s.table, rec, outer: ctx });
@@ -644,7 +685,8 @@ function assignedVariables(program, table, out = {}) {
             if (s.k === 'set' && s.target.scope === 'globals') add('globals', s.target.name);
             if (s.k === 'array') add(t, s.name);
             if (s.k === 'if') { s.branches.forEach((b) => visit(b.body, t)); if (s.otherwise) visit(s.otherwise, t); }
-            if (s.k === 'while' || s.k === 'repeat' || s.k === 'later' || s.k === 'iter') visit(s.body, t);
+            if (s.k === 'for') add(s.target.scope === 'globals' ? 'globals' : t, s.target.name);
+            if (s.k === 'while' || s.k === 'repeat' || s.k === 'later' || s.k === 'iter' || s.k === 'for') visit(s.body, t);
             if (s.k === 'do' || s.k === 'new') visit(s.body, s.table.replace(/^OLD/, ''));
         }
     };
@@ -652,4 +694,18 @@ function assignedVariables(program, table, out = {}) {
     return out;
 }
 
-module.exports = { parse, parseExpr, run, evaluate, assignedVariables, num, bool, roundTo, isArray, ZtreeSyntaxError };
+/** The arrays a program declares (array X[n];), by table: {table: {name: [dimension expressions]}}. */
+function arrayDeclarations(program, table, out = {}) {
+    const visit = (stmts, t) => {
+        for (const s of stmts) {
+            if (s.k === 'array') (out[t] = out[t] || {})[s.name] = s.dims;
+            if (s.k === 'if') { s.branches.forEach((b) => visit(b.body, t)); if (s.otherwise) visit(s.otherwise, t); }
+            if (['while', 'repeat', 'later', 'iter', 'for'].includes(s.k)) visit(s.body, t);
+            if (s.k === 'do' || s.k === 'new') visit(s.body, s.table.replace(/^OLD/, ''));
+        }
+    };
+    visit(program.body, table);
+    return out;
+}
+
+module.exports = { parse, parseExpr, run, evaluate, assignedVariables, arrayDeclarations, num, bool, roundTo, isArray, ZtreeSyntaxError };

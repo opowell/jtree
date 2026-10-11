@@ -623,9 +623,28 @@ options say (left, top, bottom).
 
 Boxes have z-Leaf's frames, and their buttons are at their bottom right.
 
-Not yet: multimedia boxes (no example to read); z-Tree's text export as input; stages' options
-other than "start if possible" and the header (bit 2 of the first, set on the examples' market
-stages, is not known); in converted apps, z-Tree's placement of boxes (they follow one another).
+Checked against z-Tree itself (5.1.21, run under Wine in a container: `tools/ztree-wine`, which
+scripts its menus): z-Tree's text export of every example, and every example saved again by
+z-Tree 5, read the same as the examples (`test/ztree-formats.test.js`). This found and fixed:
+- z-Tree 5's files (version 46: `CGame`, more bytes in boxes, rects, plot inputs; doubles in
+  questionnaires), which jtree could not read at all; a probe treatment saved by z-Tree 5 is a
+  fixture (`fixtures/ztree5-probe`);
+- the text export as input (`ztext.js`: `.txt` files that start with `treatment` or
+  `questionnaires`), as GIMS is published;
+- stage options: bit 2 of version 16 is an auction (timeout type "always", vs "if no input");
+  from version 18 `options[0]` is wait for all, `[7]` auction, `[11]` the background's boxes (the
+  3.5 examples had run as "start if possible" without their header); buttons' "Normal" (they
+  leave unless the stage is an auction and they are in a contract box), leave and do not leave;
+- arrows (sizes at start and end, then width: two were swapped), texts' alignments, plot inputs'
+  conditions and drag variables in the text, tables' lifetimes;
+- the language: `for (i, …) { }` (its variable the record's), `elsif`, `\\x`; arrays declared for
+  a table in a program that does not run; new records get their table's background programs.
+
+GIMS (Palan 2015, `test/ztree-formats.test.js`, downloaded at a fixed commit): read, its 2,400
+programs and expressions parse, and a session starts (the experimenter on its Settings stage).
+
+Not yet: multimedia boxes (no example to read); table loaders and dumpers, external programs
+(GIMS's settings file); in converted apps, z-Tree's placement of boxes (they follow one another).
 
 ### Phase 8: converters (oTree's done)
 

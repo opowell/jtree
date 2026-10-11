@@ -61,22 +61,24 @@
             var x1 = m.X(s.x1), y1 = m.Y(s.y1), x2 = m.X(s.x2), y2 = m.Y(s.y2);
             el('line', stroke({ x1: x1, y1: y1, x2: x2, y2: y2, 'stroke-linecap': 'round' }), g);
             var len = Math.hypot(x2 - x1, y2 - y1) || 1, ux = (x2 - x1) / len, uy = (y2 - y1) / len;
-            // An arrowhead of length L at an end (pointing back if its width is negative; L 0: a bar).
-            var head = function (tx, ty, dir, L) {
-                var W = s.arrowWidth / 2 || L / 2, back = W < 0 ? -1 : 1;
-                W = Math.abs(W);
+            // An arrowhead at an end: size its length (negative: pointing back along the line), its
+            // width the line's arrow width (else as wide as long); size 0 with a width: a bar.
+            var end = function (tx, ty, dir, size) {
+                if (size == null) return;
+                var W = Math.abs(s.arrowWidth) / 2 || Math.abs(size) / 2;
+                if (size === 0) {
+                    if (s.arrowWidth) el('line', stroke({ x1: tx - uy * W, y1: ty + ux * W, x2: tx + uy * W, y2: ty - ux * W }), g);
+                    return;
+                }
+                var L = Math.abs(size), back = size < 0;
                 var bx = tx - dir * ux * L, by = ty - dir * uy * L;
-                var tip = back < 0 ? [bx, by] : [tx, ty], base = back < 0 ? [tx, ty] : [bx, by];
+                var tip = back ? [bx, by] : [tx, ty], base = back ? [tx, ty] : [bx, by];
                 var wing1 = [base[0] - uy * W, base[1] + ux * W], wing2 = [base[0] + uy * W, base[1] - ux * W];
                 var pts2 = [wing1, tip, wing2].map(function (p) { return p.join(','); }).join(' ');
                 el(s.arrowFilled ? 'polygon' : 'polyline', { points: pts2, stroke: s.color, 'stroke-width': s.width, fill: s.arrowFilled ? s.color : 'none' }, g);
             };
-            if (s.arrowEnd) head(x2, y2, 1, s.arrowEnd);
-            if (s.arrowStart) head(x1, y1, -1, s.arrowStart);
-            else if (s.arrowWidth && s.arrowStart === 0) {
-                var W2 = Math.abs(s.arrowWidth) / 2;
-                el('line', stroke({ x1: x1 - uy * W2, y1: y1 + ux * W2, x2: x1 + uy * W2, y2: y1 - ux * W2 }), g);
-            }
+            end(x2, y2, 1, s.arrowEnd);
+            end(x1, y1, -1, s.arrowStart);
         } else if (s.kind === 'rect') {
             var rx1 = m.X(Math.min(s.x1, s.x2)), rx2 = m.X(Math.max(s.x1, s.x2)), ry1 = m.Y(s.y1), ry2 = m.Y(s.y2);
             el('rect', stroke({ x: Math.min(rx1, rx2), y: Math.min(ry1, ry2), width: Math.abs(rx2 - rx1), height: Math.abs(ry2 - ry1), fill: s.fill || 'none' }), g);
@@ -92,8 +94,10 @@
                 el('path', stroke({ d: 'M' + pcx + ',' + pcy + ' L' + p1.join(',') + ' A' + prx + ',' + pry + ' 0 ' + large + ',' + sweep + ' ' + p2.join(',') + ' Z', fill: s.fill || 'none' }), g);
             }
         } else if (s.kind === 'text') {
-            var anchor = s.hAlign === 0 ? 'start' : s.hAlign === 1 ? 'end' : 'middle';
-            var t = el('text', { x: m.X(s.x), y: m.Y(s.y), fill: s.color, 'font-size': s.size, 'text-anchor': anchor, 'dominant-baseline': 'middle' }, g);
+            // z-Tree's alignments: horizontal 0 left, 1 centre, 2 right; vertical 0 top, 2 centre, 3 bottom.
+            var anchor = s.hAlign === 0 ? 'start' : s.hAlign === 2 ? 'end' : 'middle';
+            var baseline = s.vAlign === 0 ? 'hanging' : s.vAlign === 3 ? 'text-after-edge' : 'middle';
+            var t = el('text', { x: m.X(s.x), y: m.Y(s.y), fill: s.color, 'font-size': s.size, 'text-anchor': anchor, 'dominant-baseline': baseline }, g);
             t.textContent = s.text;
         } else if (s.kind === 'axis') {
             var a = function (v) { return s.horizontal ? [m.X(v), m.Y(s.position)] : [m.X(s.position), m.Y(v)]; };

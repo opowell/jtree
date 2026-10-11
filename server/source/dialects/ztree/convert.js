@@ -2,7 +2,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const lang = require('./lang.js');
 const { readTreatment } = require('./ztt.js');
-const { variables } = require('./runtime.js');
+const { variables, arrayDeclarations, leavesStage } = require('./runtime.js');
 const { parseLayout } = require('./render.js');
 
 /*
@@ -41,10 +41,25 @@ const indent = (text, by) => text.split('\n').map((l) => (l ? by + l : l)).join(
 
 /** Translates z-Tree code (programs, expressions) to JS, with variables resolved by vars. */
 class Translator {
-    constructor(vars, report) {
+    constructor(vars, report, arrays = {}) {
         this.vars = vars;
         this.report = report;
+        this.arrays = arrays; // arrays declared for each table: {table: {name: dimensions}}
         this.n = 0;
+    }
+
+    /** The table of a record (JS) in ctx, if known. */
+    tableOf(ctx, rec) {
+        if (rec === 'g') return 'globals';
+        for (let d = ctx; d != null; d = d.outer) if (d.rec === rec) return d.table;
+        return null;
+    }
+
+    /** rec's array name: through z.arr if its table declares it (made when first used), else as it is. */
+    arrayRef(ctx, rec, name) {
+        const table = this.tableOf(ctx, rec);
+        if (table != null && (this.arrays[table] || {})[name] != null) return `z.arr(${rec}, ${js(name)}, ${js(table)}, period)`;
+        return this.prop(rec, name);
     }
 
     /** JS for the records of a table named in code (OLD<table>: the period before's). */
@@ -98,8 +113,8 @@ class Translator {
             case 'num': return String(node.v);
             case 'str': return js(node.v);
             case 'var': {
-                const ref = this.prop(this.owner(ctx, node.name, node.scope, node.depth), node.name);
-                return node.index == null ? ref : `z.at(${ref}, ${this.expr(node.index, ctx)})`;
+                const rec = this.owner(ctx, node.name, node.scope, node.depth);
+                return node.index == null ? this.prop(rec, node.name) : `z.at(${this.arrayRef(ctx, rec, node.name)}, ${this.expr(node.index, ctx)})`;
             }
             case 'neg': return `-${this.atom(node.e, ctx)}`;
             case 'not': return `!(${this.expr(node.e, ctx)})`;
@@ -183,7 +198,7 @@ class Translator {
             case 'set': {
                 const rec = this.target(ctx, s.target);
                 const value = this.expr(s.value, ctx);
-                if (s.target.index != null) return [`z.put(${this.prop(rec, s.target.name)}, ${this.expr(s.target.index, ctx)}, ${value});`];
+                if (s.target.index != null) return [`z.put(${this.arrayRef(ctx, rec, s.target.name)}, ${this.expr(s.target.index, ctx)}, ${value});`];
                 return [`${this.prop(rec, s.target.name)} = ${value};`];
             }
             case 'if': {
@@ -207,6 +222,13 @@ class Translator {
                 const { table, code } = this.records(s.table);
                 const r = 'r' + (++this.n);
                 return [`for (const ${r} of ${code}) {`, ...block(s.body, { ...ctx, table, rec: r, outer: ctx, iterVar: undefined }), '}'];
+            }
+            case 'for': {
+                // for (i, ...) { }: i set as it goes, a variable of the record (or \\i of globals).
+                const a = s.args.map((x) => this.expr(x, ctx));
+                const range = a.length === 1 ? `z.range(1, ${a[0]})` : `z.range(${a.join(', ')})`;
+                const v = 'v' + (++this.n);
+                return [`for (const ${v} of ${range}) {`, `    ${this.prop(this.target(ctx, s.target), s.target.name)} = ${v};`, ...block(s.body), '}'];
             }
             case 'iter': {
                 const r = 'r' + (++this.n);
@@ -351,9 +373,6 @@ class Translator {
 
 const html = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 
-/** The kinds of boxes whose buttons end the stage, unless the button says otherwise. */
-const LEAVING = ['standard', 'help', 'header', 'grid', 'history', 'calculator', 'plot', 'unknown'];
-
 /** Every box of boxes, with its path ("1", "1.0" in a container): [box, path]. */
 function allBoxes(boxes, prefix = '') {
     const out = [];
@@ -374,7 +393,7 @@ function isInteractive(stage) {
     const boxes = allBoxes(stage.active).map(([b]) => b);
     if (boxes.some((b) => ['contractCreation', 'chat', 'plot'].includes(b.type) || (b.type === 'contractList' && b.buttons.length))) return true;
     const buttons = boxes.flatMap((b) => b.buttons.map((button) => ({ box: b, button })));
-    if (buttons.some(({ box, button }) => (typeof button.leaveStage === 'boolean' ? button.leaveStage : LEAVING.includes(box.type)) === false)) return true;
+    if (buttons.some(({ box, button }) => !leavesStage(button, box, stage))) return true;
     return buttons.filter(({ button }) => button.programs.length).length > 1;
 }
 
@@ -394,12 +413,12 @@ class Screens {
     }
 
     /** What a stage's screens collect: s. */
-    start(stageId, where, interactive, active) {
+    start(stageId, where, interactive, active, zstage = {}) {
         // The inputs of the boxes without buttons: sent with a standard box's button.
         const loose = allBoxes(active).filter(([b]) => ['standard', 'grid'].includes(b.type) && b.buttons.length === 0)
             .flatMap(([b, path]) => b.items.filter((i) => i.kind === 'item' && i.input && /^\w+$/.test(i.variable || '')).map((item) => ({ item, path })));
         return {
-            stageId, where, interactive, loose, n: 0,
+            stageId, where, interactive, loose, n: 0, zstage,
             subject: { table: 'subjects', rec: 'player', outer: null },
             form: { inputs: [], buttons: [] },
             values: [], shows: [], lists: [], buttons: [], chats: [], plots: [],
@@ -545,7 +564,7 @@ class Screens {
         const kind = box.type === 'contractCreation' ? 'new' : box.type === 'contractList' ? 'list' : 'subject';
         const table = kind === 'subject' ? 'subjects' : (box.table || 'contracts');
         const ctx = kind === 'subject' ? s.subject : { table, rec: 'rec', outer: s.subject };
-        const leaves = typeof button.leaveStage === 'boolean' ? button.leaveStage : LEAVING.includes(box.type);
+        const leaves = leavesStage(button, box, s.zstage);
         const fn = (body) => `(player, rec, period, g) => ${body}`;
         const lines = [`// Box ${js(box.name || box.type)}, button ${js(button.name)}: ` +
             { new: `a new ${table} record`, list: `the chosen ${table} record`, subject: 'the subject' }[kind] + (leaves ? '; it ends the stage.' : '.')];
@@ -796,7 +815,7 @@ class Screens {
                     case 'line':
                         p('x1', num(item.x1, ctx)); p('y1', num(item.y1, ctx)); p('x2', num(item.x2, ctx)); p('y2', num(item.y2, ctx));
                         // An arrow's start: none if not given (0, given: a bar).
-                        p('arrowStart', has(item.arrowStart) ? num(item.arrowStart, ctx) : 'null'); p('arrowWidth', num(item.arrowWidth, ctx)); p('arrowEnd', num(item.arrowEnd, ctx));
+                        p('arrowStart', has(item.arrowStart) ? num(item.arrowStart, ctx) : 'null'); p('arrowWidth', num(item.arrowWidth, ctx)); p('arrowEnd', has(item.arrowEnd) ? num(item.arrowEnd, ctx) : 'null');
                         p('arrowFilled', !!item.arrowFilled); p('color', `${color(item.lineColor, ctx)} || 'rgb(0,0,0)'`); p('width', num(item.lineWidth, ctx, 1));
                         break;
                     case 'rect': {
@@ -918,7 +937,8 @@ class Screens {
 function convertTreatment(t, name) {
     const report = [];
     const vars = variables(t);
-    const tr = new Translator(vars, report);
+    const arrays = arrayDeclarations(t);
+    const tr = new Translator(vars, report, arrays);
     const screens = new Screens(t, vars, tr, report);
     let interactiveStages = 0;
     // The inputs of each stage's form, by stage: in app.fields, unless another stage's differ (then in stage.fields).
@@ -942,6 +962,45 @@ function convertTreatment(t, name) {
     for (const [table, names] of Object.entries(vars)) w(`    ${table}: ${js([...names])},`);
     w('};');
     w();
+
+    // Tables' arrays, tables that last, new records' programs.
+    const declared = Object.entries(arrays).filter(([, names]) => Object.keys(names).length);
+    if (declared.length) {
+        w('// Arrays declared for each table (array X[n]; in any of its programs, even one that does not run):');
+        w('// made in a record when it first uses them.');
+        w('app.ztArrays = {');
+        for (const [table, names] of declared) {
+            w(`    ${js(table)}: {`);
+            for (const [name, dims] of Object.entries(names)) {
+                const ctx = { table, rec: 'rec', outer: null, where: 'Arrays', code: '' };
+                const d = dims.map((x) => { try { return tr.expr(x, ctx); } catch (err) { return '1'; } });
+                w(`        ${js(name)}: (rec, period, g) => ${d.length === 1 ? `z.array(1, ${d[0]})` : `z.array(${d.join(', ')})`},`);
+            }
+            w('    },');
+        }
+        w('};');
+        w();
+    }
+    const lasting = (t.tables || []).filter((x) => /^(TREATMENT|SESSION)$/i.test(x.lifetime || '') && !['globals', 'subjects', 'summary', 'contracts', 'session', 'clients', 'treatments', 'sessionglobals', 'participations', 'logfile'].includes(x.name)).map((x) => x.name);
+    if (lasting.length) {
+        w('// Tables that last the treatment (or the session): their records are kept from period to period.');
+        w(`app.ztLasting = ${js(lasting)};`);
+        w();
+    }
+    const initTables = [...new Set(t.background.programs.map((p) => p.table || 'subjects'))].filter((x) => !['subjects', 'globals', 'summary', 'session'].includes(x));
+    if (initTables.length) {
+        w('// A new record of a table gets the background\'s programs for it, as in z-Tree.');
+        w('app.ztInits = {');
+        for (const table of initTables) {
+            w(`    ${js(table)}(rec, period, g) {`);
+            for (const p of t.background.programs.filter((x) => (x.table || 'subjects') === table)) {
+                w(indent(tr.programOn(p, 'Background, new ' + table + ' records', { table, rec: 'rec', outer: null }).join('\n'), '        '));
+            }
+            w('    },');
+        }
+        w('};');
+        w();
+    }
 
     // The parameter table.
     w('// The parameter table: each subject\'s group, by period and subject (z-Tree\'s Group).');
@@ -1023,7 +1082,7 @@ function convertTreatment(t, name) {
     t.stages.forEach((stage, i) => {
         const where = 'Stage ' + stage.name;
         const before = report.filter((x) => x.status === 'todo').length;
-        const waitForAll = (stage.options[0] & 1) !== 1;
+        const waitForAll = stage.startIfPossible !== true;
         const interactive = isInteractive(stage);
         w();
         w(`// Stage ${i + 1}: ${stage.name}${waitForAll ? ' (waits for all subjects)' : ' (starts as each subject gets there)'}.`);
@@ -1066,7 +1125,7 @@ function convertTreatment(t, name) {
             w(`    stage.getClientDuration = (player) => { const period = player.group.period; const g = z.globals(period); return Math.max(0, ${tr.subjectExpr(stage.timeout, where)}); };`);
         }
         // Screens.
-        const s = screens.start('stage' + (i + 1), where, interactive, stage.active);
+        const s = screens.start('stage' + (i + 1), where, interactive, stage.active, stage);
         const header = stage.showHeader ? t.background.active.find((b) => b.type === 'header') : null;
         let active = screens.screen(stage.active, s, { header });
         if (interactive) {

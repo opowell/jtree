@@ -11,7 +11,8 @@
  * put together from the objects' classes, with the lists' lengths where their place is known.
  */
 
-const CLASS_TAG = /^(EEX|CPGX)[A-Za-z]+$/;
+// z-Tree 5 (file version 46) names the treatment's own classes without PGX: CGame, CRole, ...
+const CLASS_TAG = /^(EEX[A-Za-z]+|CPGX[A-Za-z]+|CGame|CRole|CPeriodParam|CSubjectParam)$/;
 
 // Boxes (z-Tree's screen areas), items in them, and buttons.
 const BOX_CLASSES = {
@@ -83,7 +84,9 @@ class Reader {
             if (n >= 1 && n < 0xff && p + 1 + n <= this.end) {
                 const bytes = this.buf.subarray(p + 1, p + 1 + n);
                 if (bytes.every((c) => c >= 32 && c !== 127 || c === 9 || c === 10 || c === 13)) {
-                    out.push(decode(bytes).replace(/\r\n/g, '\n'));
+                    // Not the class of an object in the bytes (z-Tree 5's items hold CValueReal, ...).
+                    const text = decode(bytes).replace(/\r\n/g, '\n');
+                    if (!/^CValue[A-Za-z]*$/.test(text)) out.push(text);
                     p += 1 + n;
                     continue;
                 }
@@ -102,13 +105,13 @@ function tokenize(buf) {
     const tokens = [];
     for (let p = 0; p + 2 < buf.length; p++) {
         const n = buf[p];
-        if (n < 6 || n > 40 || p + 1 + n > buf.length) continue;
+        if (n < 5 || n > 40 || p + 1 + n > buf.length) continue;
         const first = buf[p + 1];
         if (first !== 0x45 && first !== 0x43) continue; // E, C
         const name = buf.toString('latin1', p + 1, p + 1 + n);
         if (!CLASS_TAG.test(name)) continue;
         // The next byte must not continue the name (a longer name with this one in it).
-        tokens.push({ cls: name, start: p, body: p + 1 + n });
+        tokens.push({ cls: name.replace(/^C(Game|Role|PeriodParam|SubjectParam)$/, 'CPGX$1'), start: p, body: p + 1 + n });
         p += n;
     }
     // An object's fields end where the next object starts (in a list, after a 0 byte before its
@@ -122,6 +125,9 @@ function tokenize(buf) {
 
 /** Reads a z-Tree treatment (.ztt) from buf; returns its description (see the end of this function). */
 function readTreatment(buf) {
+    // z-Tree's text export (File → Export → Treatment), as GIMS is published: see ztext.js.
+    const ztext = require('./ztext.js');
+    if (ztext.isText(buf)) return ztext.readTextTreatment(buf);
     const version = buf.readInt32LE(0);
     const tokens = tokenize(buf);
     if (tokens.length === 0 || tokens[0].cls !== 'CPGXGame') {
@@ -137,7 +143,7 @@ function readTreatment(buf) {
     readGameHeader(reader(tokens[0]), game);
 
     function newStage(name) {
-        return { name, programs: [], timeout: '', options: [], showHeader: true, active: [], waiting: [] };
+        return { name, programs: [], timeout: '', options: [], showHeader: true, startIfPossible: false, timeoutAlways: false, active: [], waiting: [] };
     }
 
     // The tree, built from the objects' classes.
@@ -150,6 +156,8 @@ function readTreatment(buf) {
     // The plot box being read, and its graphs open: [{list, left}] (items still to come in each).
     let plots = [];
     let plotInput = null;
+    let lastPlotKind = null; // the last plot item read (its bytes after its fields differ by kind)
+    let lastInputReader = null; // the last plot input's reader, after its fields
     let lastReader = null;  // the last object's reader, after its fields
 
     /** The fields of a stage after its programs, read where they are (after its last program). */
@@ -158,10 +166,12 @@ function readTreatment(buf) {
         const r = stageReader;
         stageReader = null;
         try {
+            // From file version 46 (z-Tree 5), another list's length (its table loaders?) comes first.
+            if (version >= 46) r.i32();
             stage.timeout = r.str();
             stage.options = [...buf.subarray(r.pos, r.pos + STAGE_OPTIONS)];
             r.skip(STAGE_OPTIONS);
-            stage.showHeader = stage.options[STAGE_OPTIONS - 2] !== 0;
+            stageMeaning(stage, version);
             activeLeft = r.i32();
         } catch (err) {
             warnings.push('stage ' + stage.name + ': ' + err.message);
@@ -199,8 +209,14 @@ function readTreatment(buf) {
         try {
             const r = new Reader(buf, lastReader.pos, lastReader.end);
             if (b.programs.length === 0) r.skip(b.checkers.length === 0 ? 8 : 4);
-            r.skip(4);
-            b.leaveStage = r.u8() !== 1;
+            // Its settings: byte 2 is 1 if it leaves the stage (terminatestage), byte 4 if it does
+            // not (donotterminatestage); neither, as the box and the stage have it ("Normal").
+            r.skip(2);
+            const leaves = r.u8();
+            r.skip(1);
+            const stays = r.u8();
+            if (leaves === 1) b.leaveStage = true;
+            else if (stays === 1) b.leaveStage = false;
         } catch (err) {
             // Not there: the box's kind decides.
         }
@@ -239,7 +255,9 @@ function readTreatment(buf) {
         if (BOX_CLASSES[t.cls] != null || /^EEX\w*Window$/.test(t.cls) || ['EEXStage', 'CPGXPeriodParam'].includes(t.cls)) settleTail();
         try {
             if (t.cls === 'EEXDatabaseInfo') {
-                game.tables.push({ name: r.str() });
+                // Its lifetime: the byte after its name (0 a period, 1 the treatment, 2 the session).
+                const name = r.str();
+                game.tables.push({ name, lifetime: ['PERIOD', 'TREATMENT', 'SESSION'][r.left > 0 ? r.u8() : 0] || 'PERIOD' });
             } else if (t.cls === 'EEXProgram') {
                 const program = { table: r.str(), owner: r.str(), condition: r.str(), code: r.str() };
                 if (plotInput != null) plotInput.programs.push(program);
@@ -285,7 +303,9 @@ function readTreatment(buf) {
                     plots.push({ item, list: item.inputs, left: item.count });
                 } else {
                     readPlotFields(r, item);
+                    if (item.kind === 'input') lastInputReader = r;
                 }
+                lastPlotKind = item.kind;
             } else if (t.cls === 'EEXChecker') {
                 const checker = readChecker(r);
                 if (button != null) button.checkers.push(checker);
@@ -299,12 +319,14 @@ function readTreatment(buf) {
                 box = button = null;
                 game.periods.push({ name: r.str(), program: r.str() });
             } else if (t.cls === 'CPGXRole') {
-                game.subjects.push({ name: r.str(), index: r.i32() });
+                // From file version 46, a role is its name only.
+                const name = r.str();
+                game.subjects.push({ name, index: version >= 46 ? game.subjects.length : r.i32() });
             } else if (t.cls === 'CPGXSubjectParam') {
                 const param = { label: r.str() };
-                // A role's own parameters (after the role) are its program only; the table's cells
-                // (period × subject) have a label, a group and a program.
-                if (lastToken(i).cls === 'CPGXRole') {
+                // A role's own parameters (after the role, before file version 46) are its program
+                // only; the table's cells (period × subject) have a label, a group and a program.
+                if (version < 46 && lastToken(i).cls === 'CPGXRole') {
                     game.subjects[game.subjects.length - 1].program = param.label;
                 } else if (r.left >= 5) {
                     param.group = r.i32();
@@ -346,6 +368,8 @@ function readTreatment(buf) {
             b.first = b.condition;
             b.condition = r.str();
         }
+        // From file version 46 (z-Tree 5), 4 more bytes before the kind's own fields.
+        if (version >= 46) r.skip(4);
         if (b.type === 'container') {
             b.childCount = r.i32();
         } else if (b.type === 'plot') {
@@ -384,6 +408,10 @@ function readTreatment(buf) {
             }
             try {
                 if (open.item.kind === 'graph') {
+                    // From file version 46, a rect has 13 more bytes after its fields (before the
+                    // graph's, if it is the graph's last item).
+                    if (version >= 46 && lastPlotKind === 'rect' && lastReader.left >= 13) lastReader.skip(13);
+                    lastPlotKind = 'graph';
                     // Its table and condition, and the line joining its points (color, width).
                     open.item.table = lastReader.str() || 'globals';
                     open.item.graphCondition = lastReader.str();
@@ -392,7 +420,11 @@ function readTreatment(buf) {
                     open.item.lineWidth = lastReader.str();
                     if (lastReader.left >= 5) lastReader.skip(5);
                 } else {
+                    // Its fields, after its plot inputs: from file version 46, after the last
+                    // input's 11 bytes more (if no program of it came after them).
+                    if (version >= 46 && lastPlotKind === 'input' && lastReader === lastInputReader && lastReader.left >= 11) lastReader.skip(11);
                     readPlotFields(lastReader, open.item);
+                    lastPlotKind = open.item.kind;
                 }
             } catch (err) {
                 warnings.push('plot item ' + open.item.kind + ': ' + err.message);
@@ -421,7 +453,8 @@ function readTreatment(buf) {
                 Object.assign(item, { lineColor: s(), lineWidth: s(), fillColor: s() });
                 break;
             case 'line':
-                Object.assign(item, { x1: s(), y1: s(), x2: s(), y2: s(), arrowStart: s(), arrowWidth: s(), arrowEnd: s() });
+                // The arrows' sizes at the start and the end, then their width (z-Tree 5's text export: arrowsize1, arrowsize2, arrowwidth).
+                Object.assign(item, { x1: s(), y1: s(), x2: s(), y2: s(), arrowStart: s(), arrowEnd: s(), arrowWidth: s() });
                 item.arrowFilled = r.u8() !== 0;
                 r.u8();
                 Object.assign(item, { lineColor: s(), lineWidth: s() });
@@ -457,8 +490,9 @@ function readTreatment(buf) {
                 item.action = r.i32();
                 r.skip(4);
                 Object.assign(item, { table: s(), xVar: s(), yVar: s() });
-                if (r.left >= 9) {
-                    r.skip(9);
+                // A drag's variables: after 9 bytes (10 from file version 46).
+                if (r.left >= (version >= 46 ? 10 : 9)) {
+                    r.skip(version >= 46 ? 10 : 9);
                     Object.assign(item, { x0Var: s(), y0Var: s(), x1Var: s(), y1Var: s() });
                 }
                 break;
@@ -539,6 +573,28 @@ function settleBoxes(game) {
     for (const s of [game.background, ...game.stages]) {
         s.active.forEach(visit);
         s.waiting.forEach(visit);
+    }
+}
+
+/**
+ * What a stage's option bytes mean, checked against z-Tree 5's text exports of the examples, and
+ * against treatments z-Tree 5 saved with each setting:
+ * - version 16 (z-Tree 3): options[0] bit 0, it starts as each subject gets there ("Start if
+ *   possible", not "Wait for all"); bit 2, it is left after its timeout always (an auction),
+ *   not only if there is no input; options[6], it shows the background's boxes (usesbg);
+ * - from version 18 (z-Tree 3.5, 5): options[0] is 1 if it waits for all, options[7] 1 if it is
+ *   an auction, options[11] usesbg.
+ */
+function stageMeaning(stage, version) {
+    const o = stage.options;
+    if (version <= 16) {
+        stage.startIfPossible = (o[0] & 1) === 1;
+        stage.showHeader = o[6] !== 0;
+        stage.timeoutAlways = (o[0] & 4) === 4;
+    } else {
+        stage.startIfPossible = o[0] === 0;
+        stage.timeoutAlways = o[7] === 1;
+        stage.showHeader = o[11] !== 0;
     }
 }
 

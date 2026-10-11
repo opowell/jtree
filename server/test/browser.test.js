@@ -259,7 +259,7 @@ test('admin-ztree: a z-Tree treatment as z-Tree shows it: its stage tree, parame
     await admin.waitFor(() => [...document.querySelectorAll('button')].some((b) => b.textContent.trim() === 'Open' && !b.disabled), { what: 'Open enabled' });
     await admin.eval(() => [...document.querySelectorAll('button')].find((b) => b.textContent.trim() === 'Open').click());
     try {
-        await admin.waitFor(() => /Seller Auction\s+=\|= \(TimeAuction\)/.test(document.body.innerText), { what: 'the stage tree' });
+        await admin.waitFor(() => /Seller Auction\s+=\|= \(TimeAuction\)A/.test(document.body.innerText), { what: 'the stage tree' });
     } catch (err) {
         throw new Error(err.message + '\nopen dialog: ' + JSON.stringify(await admin.eval(() => ({
             name: document.querySelector('#open-name')?.value,

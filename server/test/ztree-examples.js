@@ -31,4 +31,30 @@ async function ensureExamples() {
     return all;
 }
 
-module.exports = { ensureExamples, file, NAMES, GRAPHICS, DIR };
+// GIMS (Palan 2015), a z-Tree market treatment published as z-Tree's text export, at a fixed
+// version of its repository (https://github.com/stpalan/GIMS; BSD-style licence, its LICENSE).
+const GIMS_COMMIT = 'a2bb6e9838675f14db40d84ab21bff5483cc0b34';
+const GIMS = path.join(DIR, 'gims', 'GIMS.txt');
+
+/** Downloads GIMS if it is not here yet; resolves to its path, or null if it could not be. */
+async function ensureGims() {
+    if (fs.existsSync(GIMS)) return GIMS;
+    try {
+        const base = 'https://raw.githubusercontent.com/stpalan/GIMS/' + GIMS_COMMIT + '/';
+        fs.mkdirSync(path.dirname(GIMS), { recursive: true });
+        for (const [from, to] of [['GIMS_Source.txt', GIMS], ['LICENSE', path.join(DIR, 'gims', 'LICENSE')]]) {
+            const res = await fetch(base + from);
+            if (!res.ok) throw new Error(String(res.status));
+            fs.writeFileSync(to, Buffer.from(await res.arrayBuffer()));
+        }
+        return GIMS;
+    } catch (err) {
+        return null;
+    }
+}
+
+// z-Tree 5's own exports (export/<name>.txt) and saves (saved/<name>) of the examples, made
+// locally with tools/ztree-wine (not in the repository: they are made from z-Tree's files).
+const ZTREE5 = path.join(DIR, 'ztree5');
+
+module.exports = { ensureExamples, ensureGims, file, NAMES, GRAPHICS, DIR, ZTREE5 };

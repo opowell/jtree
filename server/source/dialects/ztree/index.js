@@ -100,7 +100,7 @@ function defineStage(app, zstage, index, treatment) {
     const stage = app.newStage('stage' + (index + 1));
     stage.ztree = zstage;
     stage.title = zstage.name;
-    const startIfPossible = (zstage.options[0] & 1) === 1;
+    const startIfPossible = zstage.startIfPossible === true;
     // Leaving the stage when its time is up is z-Tree's default. (The options' bit 2, set on the
     // examples' market stages, is not known yet.)
     const leaveAfterTimeout = true;
@@ -185,14 +185,16 @@ module.exports = {
     name: 'ztree',
 
     detect(appPath) {
-        return /\.zt[tq]$/i.test(appPath);
+        return /\.zt[tq]$/i.test(appPath) || (/\.txt$/i.test(appPath) && require('./ztext.js').isTextFile(appPath));
     },
 
     /** Makes app the z-Tree treatment in appPath. */
     define(app) {
         const buf = fs.readFileSync(app.appPath);
         // A questionnaire file (.ztq) runs as a treatment of its questionnaires (see ztq.js).
-        const treatment = /\.ztq$/i.test(app.appPath) ? ztq.toTreatment(ztq.readQuestionnaires(buf)) : readTreatment(buf);
+        // (A text export says which it is: questionnaires "…" { } or treatment "…" { }.)
+        const questionnaires = /\.ztq$/i.test(app.appPath) || /^\s*questionnaires\b/.test(buf.subarray(0, 64).toString('latin1').replace(/^\uFEFF|^\xEF\xBB\xBF/, ''));
+        const treatment = questionnaires ? ztq.toTreatment(ztq.readQuestionnaires(buf)) : readTreatment(buf);
         app.ztree = { treatment };
         // Not sent to pages, nor saved with the app.
         app.outputHideAuto.push('ztree', 'ztreeRun');

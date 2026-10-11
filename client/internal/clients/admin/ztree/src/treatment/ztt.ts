@@ -30,7 +30,7 @@ export interface ZttBox {
   condition?: string, width?: string, height?: string, table?: string, tableCondition?: string, sorting?: string
 }
 export interface ZttStage {
-  name: string, programs: ZttProgram[], timeout: string, options: number[], showHeader: boolean, active: ZttBox[], waiting: ZttBox[]
+  name: string, programs: ZttProgram[], timeout: string, options: number[], showHeader: boolean, startIfPossible?: boolean, timeoutAlways?: boolean, active: ZttBox[], waiting: ZttBox[]
 }
 export interface ZttTreatment {
   version: number
@@ -42,7 +42,7 @@ export interface ZttTreatment {
 }
 
 /** Whether a stage starts for each subject as they get to it (z-Tree's "start if possible"). */
-export const startsIfPossible = (stage: ZttStage) => (stage.options[0] & 1) === 1
+export const startsIfPossible = (stage: ZttStage) => stage.startIfPossible === true
 
 /** The treatment as this interface's Treatment: its tree, and a listing for the dialogs. */
 export function zttTreatment(t: ZttTreatment, name: string): Treatment {
@@ -143,7 +143,7 @@ export function zttTreatment(t: ZttTreatment, name: string): Treatment {
       id: id('stage'),
       kind: 'stage',
       label: stage.name,
-      note: `${startsIfPossible(stage) ? '' : '=|= '}(${stage.timeout.trim() || '-1'})`,
+      note: `${startsIfPossible(stage) ? '-=' : '=|='} (${stage.timeout.trim() || '-1'})${stage.timeoutAlways ? 'A' : ''}`,
       stageVar: varName,
       children: [...stage.programs.map((p) => programNode(p, `Stage ${stage.name}`)), ...screens(stage, `Stage ${stage.name}`)],
     }

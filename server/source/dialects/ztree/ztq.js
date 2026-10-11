@@ -1,6 +1,6 @@
 /*
  * Reads z-Tree questionnaires (.ztq), written from z-Tree's example (brand16.ztq, file version
- * 11): questionnaires, each a page of items (texts, and questions with a variable, its range and
+ * 11, and as z-Tree 5 saves it, version 46): questionnaires, each a page of items (texts, and questions with a variable, its range and
  * its labels) and a button. As a treatment (see toTreatment), they run as any treatment does:
  * one stage a questionnaire, which each subject takes at their own pace.
  */
@@ -9,6 +9,9 @@ const { tokenize, Reader, ZttError } = require('./ztt.js');
 
 /** The questionnaires in a .ztq file: {version, questionnaires: [{name, title, items, buttons}]}. */
 function readQuestionnaires(buf) {
+    // z-Tree's text export of them (see ztext.js).
+    const ztext = require('./ztext.js');
+    if (ztext.isText(buf)) return ztext.readTextQuestionnaires(buf);
     const version = buf.readInt32LE(0);
     const tokens = tokenize(buf);
     if (!tokens.some((t) => t.cls === 'EEXQuesterQuestionnaire')) {
@@ -26,9 +29,15 @@ function readQuestionnaires(buf) {
                 const item = { label: r.str(), type: r.i32(), variable: r.str() };
                 if (item.variable) {
                     r.skip(6);
-                    item.min = r.buf.readFloatLE(r.pos); r.skip(4);
-                    item.max = r.buf.readFloatLE(r.pos); r.skip(4);
-                    item.step = r.buf.readFloatLE(r.pos); r.skip(4);
+                    // Its range and step: floats (doubles from file version 46, z-Tree 5).
+                    const real = () => {
+                        const v = version >= 46 ? r.buf.readDoubleLE(r.pos) : r.buf.readFloatLE(r.pos);
+                        r.skip(version >= 46 ? 8 : 4);
+                        return v;
+                    };
+                    item.min = real();
+                    item.max = real();
+                    item.step = real();
                     item.layout = r.i32();
                     r.skip(4);
                     // The labels of the range's ends, a line each.
@@ -74,7 +83,7 @@ function toTreatment(q) {
     const stage = (questionnaire) => ({
         name: questionnaire.title || questionnaire.name,
         // Start if possible (bit 0): each subject at their own pace; no timeout.
-        programs: [], timeout: '', options: [1, 0, 0, 0, 0, 0, 0, 0], showHeader: false,
+        programs: [], timeout: '', options: [1, 0, 0, 0, 0, 0, 0, 0], showHeader: false, startIfPossible: true, timeoutAlways: false,
         active: [box(questionnaire)], waiting: [],
     });
     const waitingText = { type: 'standard', cls: 'EEXDialogWindow', name: 'Text', condition: '', left: '', right: '', width: '', top: '', bottom: '', height: '',

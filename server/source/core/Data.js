@@ -265,8 +265,8 @@ class Data {
                     } else if (id.endsWith('.js')) {
                         isApp = true;
                         id = id.substring(0, id.length - '.js'.length);
-                    } else if (/\.zt[tq]$/i.test(id)) {
-                        // A z-Tree treatment or questionnaire (see dialects/ztree).
+                    } else if (/\.zt[tq]$/i.test(id) || (/\.txt$/i.test(id) && require('../dialects/ztree/ztext.js').isTextFile(curPath))) {
+                        // A z-Tree treatment or questionnaire (see dialects/ztree), or z-Tree's text export of one.
                         isApp = true;
                         id = id.substring(0, id.length - '.ztt'.length);
                     } else if (id.endsWith('.jtt')) {

@@ -1,0 +1,10 @@
+#!/bin/bash
+# zt click X Y | key KEYS... | type TEXT | shot NAME | windows : drive the container's display.
+case "$1" in
+  click) docker exec jtree-ztree xdotool mousemove "$2" "$3" click 1 ;;
+  dclick) docker exec jtree-ztree xdotool mousemove "$2" "$3" click --repeat 2 1 ;;
+  key) shift; docker exec jtree-ztree xdotool key --delay 80 "$@" ;;
+  type) docker exec jtree-ztree xdotool type --delay 40 "$2" ;;
+  shot) docker exec jtree-ztree import -window root "/out/$2.png" ;;
+  windows) docker exec jtree-ztree bash -c 'for w in $(xdotool search --name "."); do echo "$w $(xdotool getwindowname $w)"; done' ;;
+esac

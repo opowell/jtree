@@ -443,7 +443,7 @@ function plot(box, path, view) {
                     Object.assign(shape, { x1: num(item.x1, c), y1: num(item.y1, c), x2: num(item.x2, c), y2: num(item.y2, c),
                         // An arrow's start: none if not given (0, given: a bar).
                         arrowStart: String(item.arrowStart || '').trim() === '' ? null : num(item.arrowStart, c),
-                        arrowWidth: num(item.arrowWidth, c), arrowEnd: num(item.arrowEnd, c),
+                        arrowWidth: num(item.arrowWidth, c), arrowEnd: String(item.arrowEnd || '').trim() === '' ? null : num(item.arrowEnd, c),
                         arrowFilled: item.arrowFilled, color: color(item.lineColor, c) || 'rgb(0,0,0)', width: num(item.lineWidth, c, 1) });
                     break;
                 case 'rect': {

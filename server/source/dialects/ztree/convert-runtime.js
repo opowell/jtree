@@ -26,11 +26,29 @@ const z = {
     table: (period, table) => {
         if (period == null) return [];
         if (table === 'contracts') return z.contracts(period);
+        // A table that lasts the treatment: the app's (app.ztLasting).
+        if ((period.app.ztLasting || []).includes(table)) {
+            const lasting = period.app.lasting_ || (Object.defineProperty(period.app, 'lasting_', { value: {}, enumerable: false }), period.app.lasting_);
+            return (lasting[table] = lasting[table] || []);
+        }
         period.tables = period.tables || {};
         return (period.tables[table] = period.tables[table] || []);
     },
-    /** A new record of a table (contracts, ...), its variables 0, with an id (_id) in its table. */
-    newRecord: (period, table, vars) => z.add(period, table, z.blank(period, vars)),
+    /** A new record of a table (contracts, ...), its variables 0, with an id (_id) in its table; then the background's programs for its table. */
+    newRecord: (period, table, vars) => z.initRecord(period, table, z.add(period, table, z.blank(period, vars))),
+    /** A new record gets the background's programs for its table (app.ztInits), as in z-Tree. */
+    initRecord: (period, table, rec) => {
+        const init = (period.app.ztInits || {})[table];
+        if (init) init(rec, period, z.globals(period));
+        return rec;
+    },
+    /** rec's array name, made as its table declares it (app.ztArrays) if it is not there yet. */
+    arr: (rec, name, table, period) => {
+        if (rec[name] != null && rec[name].values) return rec[name];
+        const make = ((period.app.ztArrays || {})[table] || {})[name];
+        if (make == null) return rec[name];
+        return (rec[name] = make(rec, period, z.globals(period)));
+    },
     /** A record not yet in a table: its variables 0, Period the period's. */
     blank: (period, vars) => {
         const rec = {};
@@ -238,7 +256,7 @@ const z = {
         if (input.vars.x) coords[input.vars.x] = input.action === 2 ? n(d.x1) - n(d.x0) : n(d.x);
         if (input.vars.y) coords[input.vars.y] = input.action === 2 ? n(d.y1) - n(d.y0) : n(d.y);
         if (input.action === 2) for (const k of ['x0', 'y0', 'x1', 'y1']) if (input.vars[k]) coords[input.vars[k]] = n(d[k]);
-        const rec = input.action === 0 && input.table !== 'subjects' ? z.add(period, input.table, z.blank(period, input.tableVars || [])) : null;
+        const rec = input.action === 0 && input.table !== 'subjects' ? z.initRecord(period, input.table, z.add(period, input.table, z.blank(period, input.tableVars || []))) : null;
         try {
             input.run(player, rec, period, g, recs, coords);
         } catch (err) {
@@ -283,7 +301,7 @@ const z = {
         const g = z.globals(period);
         let rec = player;
         if (button.kind === 'new') {
-            rec = z.blank(period, button.vars);
+            rec = z.initRecord(period, button.table, z.blank(period, button.vars));
         } else if (button.kind === 'list') {
             const rows = stage.lists[d.box].rows(player, period, g);
             rec = rows.find((r) => String(r._id) === String(d.record));
@@ -342,7 +360,7 @@ const z = {
         const text = String((d && d.text) || '').slice(0, 1000);
         if (chat == null || text.trim() === '') return;
         const period = player.group.period;
-        const rec = z.blank(period, chat.vars);
+        const rec = z.initRecord(period, chat.table, z.blank(period, chat.vars));
         rec[chat.variable] = text;
         z.add(period, chat.table, rec);
         try {

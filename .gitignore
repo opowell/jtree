@@ -18,3 +18,10 @@ desktop.ini
 node_modules
 server/internal
 
+
+# z-Tree itself (its licence forbids passing it on): kept locally, never committed.
+/ztree-*/
+
+# tools/ztree-wine: what z-Tree makes there (from z-Tree's and your treatments).
+/tools/ztree-wine/work/
+/tools/ztree-wine/out/
