@@ -33,7 +33,7 @@ function icon(node: TreeNode): string {
       :data-closed="Boolean(collapsed[node.id])"
       :aria-label="collapsed[node.id] ? 'Expand' : 'Collapse'"
       @click="emit('toggle', node.id)"
-    >{{ collapsed[node.id] ? '+' : '−' }}</button>
+    />
     <div class="zt-tree__row">
       <ZIcon v-if="icon(node)" class="zt-tree__icon" :name="icon(node)" />
       <span

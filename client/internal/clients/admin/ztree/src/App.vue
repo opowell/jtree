@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch, watchPostEffect } from 'vue'
 import { MenuBar, WindowFrame } from 'header-content-layout'
 import type { WindowNode } from 'header-content-layout'
 import ZIcon from './components/ZIcon.vue'
@@ -48,6 +48,20 @@ onMounted(() => {
   if (desktop.value) observer.observe(desktop.value)
 })
 onBeforeUnmount(() => observer?.disconnect())
+
+/* ---------------------------------------------------- the active window */
+
+// Windows draws the active child window's caption apart from the others.
+// appfr's frames stack by z-index without saying which is in front, so the
+// front window's frame is marked here for styles.css.
+watchPostEffect(() => {
+  const id = frontWindow.value
+  void workspace.layout // frames come and go with the layout
+  for (const frame of desktop.value?.querySelectorAll<HTMLElement>('.dc-window__desktop > .dc-float') ?? []) {
+    const front = [...frame.querySelectorAll<HTMLElement>('.dc-pane[data-dc-panel]')].some((pane) => pane.dataset.dcPanel === id)
+    frame.toggleAttribute('data-zt-front', front)
+  }
+})
 
 /* ------------------------------------------------- windows across reloads */
 

@@ -109,14 +109,44 @@ button, input, select, textarea {
 .zt-desktop { overflow: hidden; }
 .zt-desktop > * { height: 100%; box-sizing: border-box; }
 
-/* appfr's desktop, coloured and edged as an MDI client area. */
+/* appfr's desktop, coloured as an MDI client area, with no edge. */
 .zt { color-scheme: light; }
 .zt-desktop .dc-window { background: var(--zt-desktop); }
 .zt-desktop .dc-space[data-dc-space='desktop'] {
   background: var(--zt-desktop);
   border: 0;
   border-radius: 0;
-  box-shadow: inset 1px 1px 0 #808080;
+  box-shadow: none;
+}
+
+/* Child windows, active and inactive as Windows draws them: the active one
+   (the front window, marked data-zt-front by App.vue) has a white caption
+   with black text and a deeper shadow, the others a grey caption with grey
+   text. A caption drags with the ordinary arrow, not a hand. */
+.zt-desktop .dc-window__desktop > .dc-float {
+  --zt-caption: #f3f3f3;
+  --zt-caption-text: #9a9a9a;
+  border-color: #c4c4c4;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.12);
+}
+.zt-desktop .dc-window__desktop > .dc-float[data-zt-front] {
+  --zt-caption: #fff;
+  --zt-caption-text: #000;
+  border-color: var(--zt-border-dark);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.28);
+}
+.zt-desktop .dc-float .dc-pane__head {
+  background: var(--zt-caption);
+}
+.zt-desktop .dc-float .dc-pane__head,
+.zt-desktop .dc-float .dc-pane__head .dc-pane__grip,
+.zt-desktop .dc-float .dc-pane[data-dc-dragging='true'] .dc-pane__head {
+  cursor: default;
+}
+.zt-desktop .dc-float .dc-pane__head .dc-tab,
+.zt-desktop .dc-float .dc-pane__head .dc-pane__grip,
+.zt-desktop .dc-float .dc-pane__head .dc-control:not(:hover) {
+  color: var(--zt-caption-text);
 }
 
 .zt-status {
@@ -246,10 +276,11 @@ button, input, select, textarea {
   height: 22px;
   white-space: nowrap;
 }
+/* A 9px box (buttons are border-box) centred on the dotted lines at x 0, y 11. */
 .zt-tree__toggle {
   position: absolute;
-  left: -5px;
-  top: 6px;
+  left: -4px;
+  top: 7px;
   z-index: 1;
   width: 9px;
   height: 9px;
@@ -257,8 +288,6 @@ button, input, select, textarea {
   border: 1px solid #919191;
   background: #fff;
   cursor: pointer;
-  font-size: 0;
-  color: transparent;
 }
 /* The minus, and the upright that makes it a plus while the branch is closed. */
 .zt-tree__toggle::before,
