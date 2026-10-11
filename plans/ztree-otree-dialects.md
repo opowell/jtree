@@ -595,11 +595,21 @@ Phase 8 for z-Tree: `dialects/ztree/convert.js` (`node server/source/dialects/zt
 z-Tree's tables as jtree's objects (subjects the players, globals `period.globals`, contracts
 `period.contracts`), the programs translated to JS with each variable resolved to its table as
 the dialect resolves it at run time, the parameter table, stages (wait for all or not,
-Participate, timeouts), standard boxes as screens (inputs in `app.fields`, checkers in
-`stage.validate`, buttons' programs in `stage.playerEnd`), `ztree.cjs`, and `CONVERSION.md`.
-pg, ug, pd and game222 convert with nothing left over and give the same results as in the
-dialect (`test/ztree.test.js`); contract, chat, history, grid and calculator boxes and `later`
-are TODOs (they run in the dialect).
+Participate, timeouts), `ztree.cjs`, and `CONVERSION.md`. A stage whose buttons all end it is a
+form (inputs in `app.fields`, or the stage's own `stage.fields` where another stage's differ;
+checkers in `stage.validate`; the button's programs in `stage.playerEnd`). The others are
+interactive: contract creation and list boxes, chat, plots, buttons that do not end the stage,
+buttons with different programs. Each of their buttons (`stage.buttons`: inputs, checkers,
+programs, whether it leaves) runs as it is pressed (`z.press`, from the page's `ztButton`,
+`participant/ztree-app.js`); what the page cannot work out (lists' and histories' rows, chat
+entries, table functions, layouts that are variables, boxes' display conditions, plots'
+shapes) is worked out on the server for each subject (`z.refresh`, `player.zt_`) whenever
+anything changes. Also: history and grid boxes, `later ... do/repeat`, calculator boxes (empty,
+as in the dialect). All of z-Tree's 17 examples convert with nothing left over; the markets
+(noda, asset_da), dutchauction, chatdemo and ifelems_e, played converted, give the same results
+as in the dialect, and each graphics example's converted plot draws the same shapes; a converted
+market and plot are played in browsers (`test/browser.test.js`). Forms gained `step` (a number
+a multiple of it) and `stage.fields` for this.
 
 Plot boxes (z-Tree's graphics, from its eight graphics examples): points, lines (with arrows),
 rects, pies, texts, axes, graphs (their items for each record of a table, nested, and the line
@@ -611,8 +621,11 @@ files: boxes' display conditions, and whether a button leaves the stage; and the
 `iterator( ).do`, `::x`, `rgb()`, `pi()`. Boxes take the screen's remaining area as their
 options say (left, top, bottom).
 
-Not yet: multimedia boxes (no example to read); z-Tree's text export as input; stages' options other than "start if possible" and the header (bit 2 of the
-first, set on the examples' market stages, is not known); boxes' frames and buttons' placement.
+Boxes have z-Leaf's frames, and their buttons are at their bottom right.
+
+Not yet: multimedia boxes (no example to read); z-Tree's text export as input; stages' options
+other than "start if possible" and the header (bit 2 of the first, set on the examples' market
+stages, is not known); in converted apps, z-Tree's placement of boxes (they follow one another).
 
 ### Phase 8: converters (oTree's done)
 
@@ -646,5 +659,5 @@ as oTree app and converted (`test/otree-convert.test.js`).
 The oTree admin's Apps page lists the oTree apps, each running as it is, with **Convert to
 jtree** (`otreeConvertApp`), which writes the jtree app beside it and shows the report.
 
-Not yet: z-Tree's converter (Phase 6 first).
+z-Tree's converter: see Phases 6 and 9 above.
 

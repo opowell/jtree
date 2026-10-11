@@ -10,11 +10,14 @@
  *         'player.comment': { type: 'string', blank: true },
  *     };
  *
- * type is 'int', 'number', 'string', 'bool' or 'choice'. min, max and choices can be values
- * or functions of the player. A field is required unless blank is true. stage.formFields
+ * type is 'int', 'number', 'string', 'bool' or 'choice'. min, max, step (a number must be a
+ * multiple of it) and choices can be values or functions of the player. A field is required unless blank is true. stage.formFields
  * lists the fields a stage's form must send (oTree's form_fields), and stage.validate(player,
  * values) checks them together (oTree's error_message), returning a message, an object of
  * messages by field, or nothing.
+ *
+ * A stage's own fields (stage.fields, declared the same way) take the place of the app's of the
+ * same name on its form.
  *
  * Values for fields not declared are converted as they always have been: 'true' and
  * 'false' to booleans, and numbers to numbers.
@@ -28,6 +31,7 @@ const MESSAGES = {
     choice: 'Please choose one of the options.',
     min: (min) => 'Please enter a value of at least ' + min + '.',
     max: (max) => 'Please enter a value of at most ' + max + '.',
+    step: (step) => 'Please enter a multiple of ' + step + '.',
 };
 
 /** true or false for text that says yes or no ('true', 'True', '1', 'yes', 'on', ...); else undefined. */
@@ -92,6 +96,8 @@ function checkField(field, raw, player) {
         const max = valueFor(field.max, player);
         if (min != null && value < min) return { error: MESSAGES.min(min) };
         if (max != null && value > max) return { error: MESSAGES.max(max) };
+        const step = valueFor(field.step, player);
+        if (step > 0 && Math.abs(value / step - Math.round(value / step)) > 1e-6) return { error: MESSAGES.step(step) };
     }
     return { value };
 }
@@ -105,7 +111,7 @@ function checkField(field, raw, player) {
  * anything is wrong, the messages by field name ('' for the form as a whole).
  */
 function checkForm(stage, player, data) {
-    const declared = (stage.app && stage.app.fields) || {};
+    const declared = { ...((stage.app && stage.app.fields) || {}), ...(stage.fields || {}) };
     const values = {};
     const errors = {};
     const names = new Set(Object.keys(data));

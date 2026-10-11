@@ -435,14 +435,234 @@ test('z-Tree treatments converted to jtree apps (dialects/ztree/convert.js), pla
         for (const b of bots) await b.waitForStage('stage2');
         assert.deepEqual(bots.map((b) => b.player.Profit), [1, 4]);
 
-        // The others convert, with what they have that is not converted said in their reports.
-        for (const name of ['noda', 'asset_da', 'dutchauction', 'ifelems_e', 'chatdemo']) {
+        // All of z-Tree's examples convert, with nothing left to do by hand; the code compiles.
+        const { NAMES, GRAPHICS } = require('./ztree-examples.js');
+        for (const name of [...NAMES, ...GRAPHICS]) {
             const r = await convertTreatmentFile(file(name), path.join(out, name));
-            assert.equal(r.level, 'Converts with TODOs');
+            assert.equal(r.level, 'Converts', name + ': ' + JSON.stringify(r.report.filter((i) => i.status === 'todo')));
             const code = fs.readFileSync(path.join(out, name, 'app.jtt'), 'utf8');
             new (require('node:vm').Script)('(function (app, path, fs, require) {\n' + code + '\n})');
-            assert.match(fs.readFileSync(path.join(out, name, 'CONVERSION.md'), 'utf8'), /## Needs work by hand/);
         }
+    } finally {
+        fs.rmSync(out, { recursive: true, force: true });
+    }
+});
+
+/** A converted treatment's session, started, with bots; press as in play(), by ztButton. */
+async function playConverted(name, n, out) {
+    const path = require('node:path');
+    const { convertTreatmentFile } = require('../source/dialects/ztree/convert.js');
+    const r = await convertTreatmentFile(file(name), path.join(out, name));
+    const session = server.createSession(path.join(out, name, 'app.jtt'), { numParticipants: n });
+    const bots = await server.connectAll(session);
+    session.start();
+    const player = (i) => Object.values(session.participants)[i].player;
+    return {
+        report: r, session, bots, player,
+        period: () => player(0).group.period,
+        async press(i, stage, box, button, values = {}, extra = {}) {
+            const answer = Promise.race([
+                bots[i].nextMessage('ztMessage', { timeout: 3000 }).then((d) => d.text),
+                bots[i].nextMessage('ztAccepted', { timeout: 3000 }).then(() => null),
+            ]);
+            bots[i].send('ztButton', { stage, box: 'b' + box, button, values: stringify(values), ...extra });
+            return answer;
+        },
+        timeout(i) { session.pushMessage(player(i), true, 'endStage'); },
+    };
+}
+
+test('converted markets (noda, asset_da): contract boxes as interactive stages, the same results as in the dialect', async (t) => {
+    if (!examples(t)) return;
+    const os = require('node:os');
+    const path = require('node:path');
+    const out = fs.mkdtempSync(path.join(os.tmpdir(), 'jtree-ztree-markets-'));
+    try {
+        // noda: offers, checkers, a trade, and both sides' profits.
+        let g = await playConverted('noda', 8, out);
+        assert.equal(g.report.level, 'Converts', JSON.stringify(g.report.report.filter((i) => i.status === 'todo')));
+        await g.bots[0].waitForStage('stage1');
+        await g.bots[4].waitForStage('stage2');
+        assert.equal(await g.press(0, 'stage1', '1.1', 0, { Price: 150 }), null);
+        assert.equal(await g.press(1, 'stage1', '1.1', 0, { Price: 160 }), 'You must make a lower offer than current standing offer');
+        const offer = g.period().contracts.find((c) => c.Price === 150);
+        assert.equal(offer.Seller, 1);
+        // A buyer sees the offer (worked out for their screen), and buys it.
+        await g.bots[4].waitFor(() => (g.bots[4].player.zt_.lists['b1.2'] || []).some((row) => row.id === offer._id), { what: 'the offer on the buyer\'s screen' });
+        assert.deepEqual(g.bots[4].player.zt_.lists['b1.2'].map((row) => row.cells), [['150']]);
+        assert.equal(await g.press(4, 'stage2', '1.2', 0, {}, { record: String(offer._id) }), null);
+        assert.equal(offer.Buyer, 5);
+        assert.deepEqual([g.player(0).Profit, g.player(4).Profit, g.player(0).NumTrades], [130, 250, 1]);
+        assert.equal(await g.press(5, 'stage2', '1.2', 0, {}, { record: String(offer._id) }), 'There is nothing to choose.');
+
+        // asset_da: money and stock carry over to the next period.
+        g = await playConverted('asset_da', 2, out);
+        assert.equal(g.report.level, 'Converts', JSON.stringify(g.report.report.filter((i) => i.status === 'todo')));
+        for (const b of g.bots) await b.waitForStage('stage1');
+        assert.equal(await g.press(0, 'stage1', '2.1.0', 0, { p: 50 }), null);
+        const ask = g.period().contracts.find((c) => c.p === 50);
+        assert.equal(await g.press(1, 'stage1', '2.1.0', 0, { p: 60 }), null);
+        assert.equal(await g.press(1, 'stage1', '2.1.1', 0, {}, { record: String(ask._id) }), null);
+        assert.deepEqual([g.player(0).Money, g.player(0).Stock, g.player(1).Money, g.player(1).Stock], [275, 2, 175, 4]);
+        for (let i = 0; i < 2; i++) g.timeout(i);
+        for (const b of g.bots) await b.waitForStage('stage2');
+        const dividend = g.period().globals.Dividende;
+        assert.equal(g.player(1).Money, 175 + 4 * dividend);
+        // Its results stage is a form (a button with nothing else to do), sent as one.
+        for (const b of g.bots) { b.submit({}); await b.waitForStage('stage1', { period: 2 }); }
+        assert.deepEqual([g.player(1).Money, g.player(1).Stock], [175 + 4 * dividend, 4]);
+    } finally {
+        fs.rmSync(out, { recursive: true, force: true });
+    }
+});
+
+test('converted dutchauction: later ... repeat lowers the price every 3 seconds; the first to accept gets it', async (t) => {
+    if (!examples(t)) return;
+    const os = require('node:os');
+    const path = require('node:path');
+    const out = fs.mkdtempSync(path.join(os.tmpdir(), 'jtree-ztree-later-'));
+    try {
+        const g = await playConverted('dutchauction', 2, out);
+        assert.equal(g.report.level, 'Converts', JSON.stringify(g.report.report.filter((i) => i.status === 'todo')));
+        for (const b of g.bots) await b.waitForStage('stage1');
+        const globals = () => g.period().globals;
+        assert.equal(globals().Price, 100);
+        // The pages get the new price as it falls.
+        await g.bots[0].waitFor(() => g.bots[0].player.group.period.globals.Price === 95, { timeout: 5000, what: 'the price to fall, on the page' });
+        g.bots[0].submit({});
+        await g.bots[0].waitFor(() => g.player(0).myPrice === 95, { what: 'the first to accept to get it' });
+        g.bots[1].submit({});
+        assert.deepEqual(await g.bots[1].waitForFormErrors(), { '': 'Another participant was quicker' });
+        // Accepting stopped the clock (Delay = -1).
+        await wait(3500);
+        assert.equal(globals().Price, 95);
+    } finally {
+        fs.rmSync(out, { recursive: true, force: true });
+    }
+});
+
+test('converted chatdemo: entries go to the chat boxes that show them', async (t) => {
+    if (!examples(t)) return;
+    const os = require('node:os');
+    const path = require('node:path');
+    const out = fs.mkdtempSync(path.join(os.tmpdir(), 'jtree-ztree-chat-'));
+    try {
+        const g = await playConverted('chatdemo', 2, out);
+        assert.equal(g.report.level, 'Converts', JSON.stringify(g.report.report.filter((i) => i.status === 'todo')));
+        for (const b of g.bots) await b.waitForStage('stage1');
+        g.bots[0].send('ztChat', { stage: 'stage1', box: 'b1', text: 'hello from the left' });
+        g.bots[1].send('ztChat', { stage: 'stage1', box: 'b2', text: 'hi from the right' });
+        const lines = (box) => ((g.bots[1].player.zt_ || { lists: {} }).lists[box] || []).map((row) => row.cells[0]);
+        await g.bots[1].waitFor(() => lines('b6').length === 1 && lines('b4').length === 1, { what: 'both entries on the page' });
+        assert.deepEqual(lines('b4'), ['S1, Box 1: hello from the left']);
+        assert.deepEqual(lines('b6'), ['S2, Box 2: hi from the right']);
+        assert.deepEqual(lines('b1'), ['S1, Box 1: hello from the left', 'S2, Box 2: hi from the right']);
+    } finally {
+        fs.rmSync(out, { recursive: true, force: true });
+    }
+});
+
+test("converted ifelems_e (z-Tree's boxes and items): every stage, as forms, with z-Tree's checks", async (t) => {
+    if (!examples(t)) return;
+    const os = require('node:os');
+    const path = require('node:path');
+    const out = fs.mkdtempSync(path.join(os.tmpdir(), 'jtree-ztree-items-'));
+    try {
+        const g = await playConverted('ifelems_e', 1, out);
+        assert.equal(g.report.level, 'Converts', JSON.stringify(g.report.report.filter((i) => i.status === 'todo')));
+        const bot = g.bots[0];
+        const at = (s) => bot.waitForStage('stage' + s);
+        const refused = async (values) => { bot.submit(values); const e = await bot.waitForFormErrors(); bot.formErrors = null; return e; };
+        for (const s of [1, 2, 3]) { await at(s); g.timeout(0); }
+        await at(4); bot.submit({});
+        await at(5);
+        assert.equal(g.player(0).outVar, 17);
+        assert.deepEqual(await refused({ 'player.inVar': 11 }), { 'player.inVar': 'Please enter a value of at most 10.' });
+        bot.submit({ 'player.inVar': 3 });
+        for (const s of [6, 7, 8, 9, 10]) { await at(s); bot.submit({}); }
+        // Item types; a number's layout is its step.
+        await at(11);
+        const items = { 'player.even': 4, 'player.radio': 24, 'player.linie': 5, 'player.capito': 1, 'player.slider': 50, 'player.scrollbar': 1, 'player.number': 7, 'player.n2': 2.5, 'player.button': 3 };
+        assert.deepEqual(await refused({ ...items, 'player.even': 3 }), { 'player.even': 'Please enter a multiple of 2.' });
+        bot.submit(items);
+        await at(12);
+        assert.deepEqual(['even', 'radio', 'button', 'n2'].map((k) => g.player(0)[k]), [4, 24, 3, 2.5]);
+        bot.submit({});
+        // Checkers (n2 is a whole number here: this stage's own field).
+        await at(13);
+        assert.deepEqual(await refused({ 'player.n': 3, 'player.n2': 10, 'player.CX': 1, 'player.CY': 1 }), { '': 'Wrong calculation of the square.' });
+        assert.deepEqual(await refused({ 'player.n': 3, 'player.n2': 9, 'player.CX': 60, 'player.CY': 50 }), { '': 'You cannot distribute more than 100 points' });
+        bot.submit({ 'player.n': 3, 'player.n2': 9, 'player.CX': 60, 'player.CY': 40 });
+        await at(14); bot.submit({ 'player.expx': 162755 });
+        // History: the periods before (none yet); grid: inputs in columns.
+        await at(15);
+        assert.deepEqual(g.player(0).zt_.lists, { b1: [] });
+        bot.submit({});
+        await at(16);
+        bot.submit({ 'player.z1s1': 1, 'player.z2s1': 2, 'player.z3s1': 3, 'player.z1s2': 4, 'player.z2s2': 5, 'player.z3s2': 6 });
+        await at(17);
+        assert.equal(g.player(0).z2s2, 5);
+        bot.submit({});
+        await bot.waitForEnd();
+    } finally {
+        fs.rmSync(out, { recursive: true, force: true });
+    }
+});
+
+test("converted plot boxes: the same shapes as the dialect draws, for z-Tree's graphics examples; their inputs", async (t) => {
+    if (!examples(t)) return;
+    const os = require('node:os');
+    const path = require('node:path');
+    const { GRAPHICS } = require('./ztree-examples.js');
+    const out = fs.mkdtempSync(path.join(os.tmpdir(), 'jtree-ztree-plots-'));
+    const dialectPlot = (html) => JSON.parse(html.match(/data-plot="([^"]*)"/)[1].replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>'));
+    // Records' ids are each runtime's own: shapes compared without them, inputs by number.
+    const comparable = (data) => ({
+        range: data.range,
+        shapes: data.shapes.map(({ records, inputs, layout, ...shape }) => ({ ...shape, inputs: (inputs || []).length })), // (an axis's layout: its labels' own)
+        inputs: data.inputs.map((i) => i.action),
+        boxInputs: data.boxInputs.length,
+    });
+    try {
+        // The same random numbers for both (boxplotdemo's bars are random).
+        const random = Math.random;
+        const seed = () => { let x = 12345; Math.random = () => ((x = (x * 1103515245 + 12345) % 2147483648) / 2147483648); };
+        t.after(() => { Math.random = random; });
+        for (const name of GRAPHICS) {
+            seed();
+            const d = await play(name, 1);
+            await d.bots[0].waitForStage('stage1');
+            seed();
+            const c = await playConverted(name, 1, out);
+            assert.equal(c.report.level, 'Converts', name + ': ' + JSON.stringify(c.report.report.filter((i) => i.status === 'todo')));
+            await c.bots[0].waitForStage('stage1');
+            const key = Object.keys(c.player(0).zt_.plots)[0];
+            assert.deepEqual(comparable(JSON.parse(c.player(0).zt_.plots[key])), comparable(dialectPlot(d.bots[0].player.ztreeHtml)), name);
+        }
+        Math.random = random;
+
+        // Move the point: a click puts the subject's x and y there; the page gets it drawn there.
+        let g = await playConverted('movepointdemo', 1, out);
+        await g.bots[0].waitForStage('stage1');
+        let data = JSON.parse(g.player(0).zt_.plots.b1);
+        g.bots[0].send('ztPlot', { stage: 'stage1', box: 'b1', input: data.boxInputs[0], x: 40, y: -25 });
+        await g.bots[0].waitFor(() => g.player(0).x === 40 && g.player(0).y === -25, { what: 'the point to move' });
+        await g.bots[0].waitFor(() => JSON.parse(g.bots[0].player.zt_.plots.b1).shapes[0].x === 40, { what: 'the point drawn there, on the page' });
+
+        // z-draw: a click adds a point; the Del Pt button (it does not leave the stage), then a click on the point, deletes it.
+        g = await playConverted('z-draw', 1, out);
+        await g.bots[0].waitForStage('stage1');
+        data = JSON.parse(g.player(0).zt_.plots.b0);
+        g.bots[0].send('ztPlot', { stage: 'stage1', box: 'b0', input: data.inputs.find((i) => i.action === 0).id, x: 10, y: 20 });
+        const points = () => (g.period().tables || {}).points || [];
+        await g.bots[0].waitFor(() => points().length === 1, { what: 'a new point' });
+        assert.deepEqual([points()[0].x, points()[0].y, points()[0].ObjID], [10, 20, 1]);
+        assert.equal(await g.press(0, 'stage1', 1, 1), null);
+        data = JSON.parse(g.player(0).zt_.plots.b0);
+        const point = data.shapes.find((s) => s.kind === 'point');
+        const del = data.inputs.find((i) => point.inputs.includes(i.id) && i.action === 1);
+        g.bots[0].send('ztPlot', { stage: 'stage1', box: 'b0', input: del.id, x: 10, y: 20 });
+        await g.bots[0].waitFor(() => points()[0].Deleted === 1, { what: 'the point deleted' });
     } finally {
         fs.rmSync(out, { recursive: true, force: true });
     }

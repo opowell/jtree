@@ -1,0 +1,27 @@
+/* The pages of jtree apps converted from z-Tree treatments (see ztree-app.js). */
+.zt-screen { display: flex; flex-wrap: wrap; gap: 0.8em; align-items: flex-start; }
+.zt-header { flex: 1 1 100%; display: flex; justify-content: space-between; background: #f2f2f2; padding: 0.5em 1em; }
+.zt-box { border: 1px solid #ccc; padding: 0.6em 1em; min-width: 12em; }
+.zt-container { display: flex; flex-wrap: wrap; gap: 0.8em; border: none; padding: 0; }
+.zt-list { border-collapse: collapse; }
+.zt-list th, .zt-list td { padding: 2px 10px; text-align: center; }
+.zt-list thead th { border-bottom: 1px solid #888; }
+.zt-own { color: #1a4fa0; }
+.zt-buttons { text-align: right; }
+.zt-chat-log { max-height: 15em; overflow: auto; border: 1px solid #aaa; padding: 0.3em; }
+.zt-chat-input { width: 100%; box-sizing: border-box; margin-top: 0.4em; }
+.zt-message {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+.zt-message-box { background: #fff; border: 1px solid #555; padding: 1.5em 2em; max-width: 30em; text-align: center; white-space: pre-line; }
+.zt-message-ok { margin-top: 1em; }
+.zt-plot { flex: 1 1 100%; }
+.zt-plot .ztree-plot { position: relative; width: 100%; height: 60vh; min-height: 200px; }
+.ztree-plot-svg { position: absolute; inset: 0; user-select: none; }
+.ztree-plot-active { cursor: pointer; }

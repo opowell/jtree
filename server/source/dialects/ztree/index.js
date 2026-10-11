@@ -20,7 +20,7 @@ const exportTables = require('./export.js');
  *   every subject's screen is drawn again after anything changes.
  */
 
-const SCREEN_ASSETS = '<link rel="stylesheet" href="/participant/ztree.css"><script src="/participant/ztree.js"></script>';
+const SCREEN_ASSETS = '<link rel="stylesheet" href="/participant/ztree.css"><script src="/participant/ztree-plot.js"></script><script src="/participant/ztree.js"></script>';
 
 /** Ends player's stage after what is running now. */
 function endSoon(player) {

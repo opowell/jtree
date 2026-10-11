@@ -103,3 +103,18 @@ test('yes/no choices take True and False as oTree pages write them', () => {
     assert.deepEqual(checkField(field, 'False', {}), { value: false });
     assert.deepEqual(checkField({ type: 'bool' }, 'True', {}), { value: true });
 });
+
+test("a number field's step: what is entered must be a multiple of it", () => {
+    const field = { type: 'number', step: 0.5 };
+    assert.deepEqual(checkField(field, '2.5', null), { value: 2.5 });
+    assert.deepEqual(checkField(field, '2.3', null), { error: 'Please enter a multiple of 0.5.' });
+    assert.deepEqual(checkField({ type: 'number', step: (player) => player.step }, '6', { step: 4 }), { error: 'Please enter a multiple of 4.' });
+});
+
+test("a stage's own fields take the place of the app's on its form", () => {
+    const { checkForm } = require('../source/forms.js');
+    const app = { fields: { 'player.x': { type: 'number', max: 10 } } };
+    assert.deepEqual(checkForm({ app, formFields: ['player.x'] }, null, { 'player.x': '20' }).errors, { 'player.x': 'Please enter a value of at most 10.' });
+    const stage = { app, formFields: ['player.x'], fields: { 'player.x': { type: 'number', max: 100 } } };
+    assert.deepEqual(checkForm(stage, null, { 'player.x': '20' }), { values: { 'player.x': 20 }, errors: null });
+});

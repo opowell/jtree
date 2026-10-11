@@ -277,7 +277,7 @@ test('admin-ztree: a z-Tree treatment as z-Tree shows it: its stage tree, parame
     await admin.eval(() => [...document.querySelectorAll('button')].find((b) => b.textContent.trim() === 'OK').click());
     // Treatment → Convert to jtree…: the report, and the app beside the treatment.
     await menu('Treatment', 'Convert to jtree');
-    await admin.waitFor(() => /Converts with TODOs\. The jtree app is in/.test(document.body.innerText), { what: 'the conversion report' });
+    await admin.waitFor(() => /Converts\. The jtree app is in/.test(document.body.innerText), { what: 'the conversion report' });
     assert.ok(fs.existsSync(path.join(folder, 'noda-jtree', 'app.jtt')));
     await admin.eval(() => [...document.querySelectorAll('button')].find((b) => b.textContent.trim() === 'OK').click());
     // Run → contracts Table: the offer made.
@@ -310,6 +310,52 @@ test('z-Tree: a plot box in a browser: drawn as SVG, and a click on it moves the
         const box = poly.getBoundingClientRect();
         return Math.abs(box.left + box.width / 2 - p[0]) < 8 && Math.abs(box.top + box.height / 2 - p[1]) < 8;
     }, { what: 'the point, drawn where the click was' }, at);
+    assert.deepEqual(page.errors, []);
+    await page.close();
+});
+
+test('a z-Tree market converted to a jtree app, in browsers: an offer made on one page, chosen and bought on the other; a plot clicked', { skip }, async (t) => {
+    if (!(await ztree.ensureExamples())) return t.skip("z-Tree's examples could not be downloaded");
+    const { convertTreatmentFile } = require('../source/dialects/ztree/convert.js');
+    const out = path.join(apps, 'converted-ztree');
+    await convertTreatmentFile(ztree.file('asset_da'), path.join(out, 'asset_da'));
+    const session = server.createSession(path.join(out, 'asset_da', 'app.jtt'), { numParticipants: 2 });
+    session.start();
+    const [seller, buyer] = await openParticipants(session);
+    // The seller types an ask and makes it.
+    await seller.type('[data-zt-box="b2.1.0"] input[name=p]', '50');
+    await seller.click('[data-zt-box="b2.1.0"] .zt-button');
+    // The buyer sees it among the asks, chooses it, and buys it.
+    await buyer.waitFor(() => [...document.querySelectorAll('[data-zt-box="b2.1.1"] tbody tr')].some((tr) => tr.textContent.trim() === '50'), { what: 'the ask on the buyer\'s page' });
+    await buyer.click('[data-zt-box="b2.1.1"] tbody input[type=radio]');
+    await buyer.click('[data-zt-box="b2.1.1"] .zt-button');
+    const player = (i) => Object.values(session.participants)[i].player;
+    await buyer.waitFor(() => /\b175\b/.test(document.body.innerText), { what: 'the buyer\'s money, less the price' });
+    assert.deepEqual([player(0).Money, player(0).Stock, player(1).Money, player(1).Stock], [275, 2, 175, 4]);
+    // The trade is among the prices on both pages; nothing is left to buy, as z-Leaf would say.
+    await seller.waitFor(() => /Handelspreise\s+50/.test(document.querySelector('[data-zt-box="b2.3"]').innerText), { what: 'the trade on the seller\'s page' });
+    await buyer.click('[data-zt-box="b2.1.1"] .zt-button');
+    await buyer.waitFor(() => /There is nothing to choose/.test((document.querySelector('.zt-message') || {}).innerText || ''), { what: 'z-Leaf\'s message' });
+    assert.deepEqual([...seller.errors, ...buyer.errors], []);
+    await seller.close();
+    await buyer.close();
+
+    // A converted plot box: drawn, and a click moves the point.
+    await convertTreatmentFile(ztree.file('movepointdemo'), path.join(out, 'movepointdemo'));
+    const plotSession = server.createSession(path.join(out, 'movepointdemo', 'app.jtt'), { numParticipants: 1 });
+    plotSession.start();
+    const [page] = await openParticipants(plotSession);
+    await page.waitFor(() => document.querySelector('.ztree-plot svg polygon') != null, { what: 'the plot, drawn' });
+    const at = await page.eval(() => {
+        const r = document.querySelector('.ztree-plot').getBoundingClientRect();
+        const side = Math.min(r.width, r.height) * 0.88;
+        return [r.left + r.width / 2 + side / 4, r.top + r.height / 2 - side / 4];
+    });
+    await page.clickAt(at[0], at[1]);
+    const subject = () => Object.values(plotSession.participants)[0].player;
+    const until = Date.now() + 30000;
+    while (!(subject().x > 0) && Date.now() < until) await new Promise((r) => setTimeout(r, 100));
+    assert.ok(Math.abs(subject().x - 60) < 8 && Math.abs(subject().y - 60) < 8, JSON.stringify([subject().x, subject().y]));
     assert.deepEqual(page.errors, []);
     await page.close();
 });
