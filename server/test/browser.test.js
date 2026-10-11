@@ -234,11 +234,13 @@ test('admin-ztree: a z-Tree treatment as z-Tree shows it: its stage tree, parame
     await bots[0].waitForStage('stage1');
     bots[0].send('ztreeButton', { stage: 'stage1', box: '1.1', button: 0, values: { Price: '150' } });
 
-    const admin = await browser.open(server.url + '/admin/ztree/');
+    // The admin opens the session it last had, kept in the server's origin's storage: set it first.
+    // (Set after the admin has loaded, a session it makes for itself on first load can overwrite it.)
+    const admin = await browser.open(server.url + '/participant/ztree.css');
+    await admin.eval((id) => { localStorage.setItem('jtree-ztree-session', id); location.href = '/admin/ztree/'; }, session.id);
     // The admin compiles its source in the browser first: slow in a new profile.
     await admin.waitFor(() => /Connection Monitor/.test(document.body.innerText), { what: 'admin-ztree', timeout: 240000 });
-    await admin.eval((id) => { localStorage.setItem('jtree-ztree-session', id); location.reload(); }, session.id);
-    await admin.waitFor(() => /Seller Auction/.test(document.body.innerText), { what: "the session's clients, by stage", timeout: 120000 });
+    await admin.waitFor(() => /Seller Auction/.test(document.body.innerText), { what: "the session's clients, by stage" });
     const menu = async (name, item) => {
         await admin.click('button', name);
         await admin.waitFor((i) => [...document.querySelectorAll('*')].some((e) => e.children.length < 3 && e.textContent.trim().startsWith(i)), { what: item }, item);
