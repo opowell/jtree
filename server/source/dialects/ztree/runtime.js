@@ -308,6 +308,8 @@ class Run {
         const inputs = box.items.map((item) => [item, d.values || {}]);
         if (!['contractCreation', 'contractList', 'chat'].includes(box.type)) {
             const visit = (b, path) => {
+                // A box not shown (its display condition false) asks for nothing, nor do its boxes.
+                if (b.condition && !lang.bool(this.value(b.condition, own))) return;
                 if (path !== String(d.box) && ['standard', 'grid'].includes(b.type) && b.buttons.length === 0) {
                     for (const item of b.items) inputs.push([item, (d.others || {})[path] || {}]);
                 }
@@ -337,16 +339,22 @@ class Run {
             }
             updates[item.variable] = v;
         }
+        // An input into a variable, or into an array's element (CQ[1], as GIMS has them).
+        const isName = (k) => /^\w+$/.test(k);
+        const set = (k, v) => {
+            if (isName(k)) target[k] = v;
+            else lang.run({ body: [{ k: 'set', target: lang.parse(k + ' = 0;').body[0].target, value: { k: 'num', v } }] }, ctx);
+        };
         const saved = {};
         for (const [k, v] of Object.entries(updates)) {
-            saved[k] = Object.prototype.hasOwnProperty.call(target, k) ? target[k] : undefined;
-            target[k] = v;
+            saved[k] = isName(k) ? (Object.prototype.hasOwnProperty.call(target, k) ? target[k] : undefined) : lang.evaluate(lang.parseExpr(k), ctx);
+            set(k, v);
         }
         // Checkers: the box's, then the button's.
         for (const checker of [...box.items.filter((i) => i.kind === 'checker'), ...button.checkers]) {
             if (!lang.bool(this.value(checker.condition, ctx))) {
                 for (const [k, v] of Object.entries(saved)) {
-                    if (v === undefined) delete target[k]; else target[k] = v;
+                    if (v === undefined) delete target[k]; else set(k, v);
                 }
                 return { error: render.formatText(checker.message, ctx).replace(/<br>/g, '\n') || 'Not allowed.' };
             }

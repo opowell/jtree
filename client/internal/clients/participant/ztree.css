@@ -28,8 +28,11 @@ body {
     position: absolute;
     box-sizing: border-box;
     overflow: auto;
+    /* Opaque, as z-Leaf draws boxes: a later box covers an earlier one in its place (GIMS shows
+       its multi-market summary over its single-market one so). */
+    background: #fff;
 }
-.ztree-box--container { overflow: visible; }
+.ztree-box--container { overflow: visible; background: transparent; }
 .ztree-box-inner {
     box-sizing: border-box;
     min-height: 100%;

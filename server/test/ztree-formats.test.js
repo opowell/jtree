@@ -84,6 +84,19 @@ function allCode(t) {
     return out;
 }
 
+test("texts with values, as GIMS writes them: values in a value's text, > in an expression, RTF made with values", () => {
+    const render = require('../source/dialects/ztree/render.js');
+    const layout = String.raw`!text: 1="Market<if(\N>1,1,0)|!text: 0="";1=" <D[1]|1>">" 2="Markt"`;
+    assert.deepEqual(render.layoutParts(layout.slice(7)).map((p) => p.key), ['1', '2']);
+    assert.deepEqual(render.textParts(String.raw`a < b, <\N|1>.`).map((p) => p.text || p.expr), ['a < b, ', '\\N', '.']);
+    const rec = {};
+    const rt = { globals: () => ({ Language: 1, N: 2 }), isVar: () => false, records: () => [] };
+    lang.run(lang.parse('array D[2]; D[1] = 4;'), { rt, table: 'subjects', rec, outer: null });
+    const ctx = { rt, table: 'subjects', rec, outer: null, errors: [] };
+    assert.equal(render.formatText(String.raw`<>{\rtf \fs18 \qc \b <\Language|${layout}>}`, ctx), 'Market 4');
+    assert.equal(render.formatText(String.raw`{\rtf F\'fcr \{x\}\par Zeile}`, ctx), 'Für {x}<br>Zeile');
+});
+
 test("z-Tree's text export is read: the probe's tables, stages, boxes, plot items and parameter table", () => {
     const t = readTextTreatment(fs.readFileSync(path.join(PROBE, 'probe.txt')));
     assert.deepEqual(t.tables.filter((x) => x.lifetime).map((x) => [x.name, x.lifetime]), [['offers', 'PERIOD'], ['settings', 'TREATMENT']]);
@@ -186,7 +199,7 @@ test('the probe converted to a jtree app: the same records, initialised the same
     }
 });
 
-test('GIMS (a market treatment published as a text export): read, every program parses, and a session starts', async (t) => {
+test('GIMS (a market treatment published as a text export): read, every program parses, played to its market; and converted', async (t) => {
     const file = await examples.ensureGims();
     if (file == null) return t.skip('GIMS could not be downloaded');
     const gims = readTextTreatment(fs.readFileSync(file));
@@ -199,16 +212,37 @@ test('GIMS (a market treatment published as a text export): read, every program 
     }
     assert.deepEqual(failed, []);
     assert.ok(code.length > 2000);
-    // A session: the experimenter (subject 3) gets the Settings stage; the others wait.
-    const dir = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'jtree-gims-'));
-    try {
-        fs.copyFileSync(file, path.join(dir, 'GIMS.txt'));
-        const session = server.createSession(path.join(dir, 'GIMS.txt'), { numParticipants: 3 });
+    // A session, played to its market (a continuous double auction): the experimenter (subject
+    // 3) starts it from the Settings stage (START NOW: the hidden boxes' inputs are not asked
+    // for), and moves everybody past the control questions (LeaveStage: LeaveStage = 1).
+    const os = require('node:os');
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'jtree-gims-'));
+    const toMarket = async (app, press) => {
+        const session = server.createSession(app, { numParticipants: 3 });
         const bots = await server.connectAll(session);
         session.start();
         await bots[2].waitForStage('stage1');
-        assert.equal(bots[2].player.status, 'playing');
-        assert.deepEqual(session.apps[0].ztreeRun.errors, []);
+        press(bots[2], 'stage1', '0.0', 1);
+        await bots[2].waitForStage('stage2');
+        press(bots[2], 'stage2', '2', 2);
+        for (const b of bots) await b.waitForStage('stage8');
+        return { session, bots };
+    };
+    try {
+        fs.copyFileSync(file, path.join(dir, 'GIMS.txt'));
+        const g = await toMarket(path.join(dir, 'GIMS.txt'), (bot, stage, box, button) => bot.send('ztreeButton', { stage, box, button, values: {} }));
+        assert.deepEqual(g.session.apps[0].ztreeRun.errors, []);
+        const screen = g.bots[0].player.ztreeHtml.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+        assert.match(screen, /Cash: 2340\.00 Assets: 2 Last price: No trade/);
+        assert.doesNotMatch(screen, /\\rtf/);
+
+        // Converted: GIMS's multi-unit orders (inputs in a contract list's rows) are left to do by hand.
+        const { convertTreatmentFile } = require('../source/dialects/ztree/convert.js');
+        const r = await convertTreatmentFile(path.join(dir, 'GIMS.txt'), path.join(dir, 'GIMS-jtree'));
+        assert.deepEqual([...new Set(r.report.filter((i) => i.status === 'todo').map((i) => i.note))], ["inputs in a contract list's rows are not converted"]);
+        const c = await toMarket(path.join(dir, 'GIMS-jtree', 'app.jtt'), (bot, stage, box, button) => bot.send('ztButton', { stage, box: 'b' + box, button, values: {}, others: {} }));
+        await c.bots[0].waitFor(() => c.bots[0].player.zt_ != null, { what: 'the market screen\'s values' });
+        assert.match(Object.values(c.bots[0].player.zt_.v).join(' | '), /Cash: \| 2340\.00 \| Assets: \| 2 \| Last price: \| No trade/);
     } finally {
         fs.rmSync(dir, { recursive: true, force: true });
     }

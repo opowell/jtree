@@ -49,8 +49,20 @@ function refresh(app) {
     for (const participant of Object.values(session.participants)) {
         const player = participant.player;
         if (player == null || player.app() !== app || player.stage == null || player.stage.ztree == null) continue;
+        leaveIfAsked(player);
         draw(player);
     }
+}
+
+/** A subject whose LeaveStage a program set to 1 leaves their stage (z-Tree's LeaveStage); it is 0 again. */
+function leaveIfAsked(player) {
+    if (player.status !== 'playing') return;
+    const run = player.app().ztreeRun;
+    const state = run == null ? null : run.periods[player.group.period.id - 1];
+    const rec = state == null ? null : state.subjects[subjectIndex(player)];
+    if (rec == null || lang().num(rec.LeaveStage) !== 1) return;
+    rec.LeaveStage = 0;
+    endSoon(player);
 }
 
 /** Draws player's screen (their stage's active screen, or the waiting screen they are on). */

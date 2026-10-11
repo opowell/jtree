@@ -641,10 +641,19 @@ z-Tree 5, read the same as the examples (`test/ztree-formats.test.js`). This fou
   a table in a program that does not run; new records get their table's background programs.
 
 GIMS (Palan 2015, `test/ztree-formats.test.js`, downloaded at a fixed commit): read, its 2,400
-programs and expressions parse, and a session starts (the experimenter on its Settings stage).
+programs and expressions parse, and a session is played to its market (the experimenter starts
+it, and moves everybody on with LeaveStage), in the dialect and converted (all but its multi-unit
+orders, inputs in a contract list's rows, convert). On the way: boxes are opaque (a later box
+covers an earlier one, as GIMS relies on), a hidden box's inputs are not asked for, `LeaveStage = 1`
+ends a subject's stage, inputs into an array's element (`CQ[1]`), texts and layouts with values in
+values (`<\\Language|!text: 1="<\\N|1> orders";>`, `<if(\\N>1,1,0)|…>`) and RTF made with them,
+buttons' own colours. Its screens were compared with GIMS's documentation; the real z-Tree is
+too slow emulated (qemu on Apple silicon) to run GIMS, and GIMS 8.4.2 does not start on z-Tree 5
+as it is (its `session` table is z-Tree 5's `clients`).
 
 Not yet: multimedia boxes (no example to read); table loaders and dumpers, external programs
-(GIMS's settings file); in converted apps, z-Tree's placement of boxes (they follow one another).
+(GIMS's settings file); inputs in contract lists' rows; in converted apps, z-Tree's placement of
+boxes (they follow one another).
 
 ### Phase 8: converters (oTree's done)
 

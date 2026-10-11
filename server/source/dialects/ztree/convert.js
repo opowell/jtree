@@ -3,7 +3,7 @@ const path = require('path');
 const lang = require('./lang.js');
 const { readTreatment } = require('./ztt.js');
 const { variables, arrayDeclarations, leavesStage } = require('./runtime.js');
-const { parseLayout } = require('./render.js');
+const { parseLayout, layoutParts, textParts } = require('./render.js');
 
 /*
  * Converting a z-Tree treatment (.ztt) to a jtree app (plans/ztree-otree-dialects.md, sections
@@ -124,6 +124,7 @@ class Translator {
             }
             case 'call': return this.call(node, ctx);
             case 'agg': return this.aggregate(node, ctx);
+            case 'js': return node.code;
             default: throw new Todo('cannot translate ' + node.k);
         }
     }
@@ -171,7 +172,7 @@ class Translator {
         else value = node.args[0];
         const c = cond == null ? 'null' : `(${r}) => ${this.expr(cond, inner)}`;
         const v = value == null ? (node.fn === 'find' ? 'null' : '() => 0') : `(${r}) => ${this.expr(value, inner)}`;
-        if (!['count', 'sum', 'product', 'average', 'minimum', 'maximum', 'find'].includes(node.fn)) throw new Todo('the table function ' + node.fn + ' is not translated');
+        if (!['count', 'sum', 'product', 'average', 'minimum', 'maximum', 'median', 'find'].includes(node.fn)) throw new Todo('the table function ' + node.fn + ' is not translated');
         return node.fn === 'count' ? `z.count(${code}, ${c})` : `z.${node.fn}(${code}, ${c}, ${v})`;
     }
 
@@ -331,11 +332,12 @@ class Translator {
             return `{ step: ${this.exprOr(text, ctx, where, '1')} }`;
         }
         const options = [];
-        for (const part of m[2].split(';')) {
-            const opt = /^([^=]+?)\s*=\s*"([^"]*)"$/s.exec(part.trim());
-            if (opt == null) continue;
-            const key = /^-?[\d.]+$/.test(opt[1].trim()) ? String(Number(opt[1])) : this.exprOr(opt[1], ctx, where, 'NaN');
-            options.push(`[${key}, ${js(opt[2])}]`);
+        for (const part of layoutParts(m[2])) {
+            if (part.text == null) continue;
+            const key = /^-?[\d.]+$/.test(part.key) ? String(Number(part.key)) : this.exprOr(part.key, ctx, where, 'NaN');
+            // A text with values in it (<\\N|1> orders): a function, worked out when it is shown.
+            const hasValues = textParts(part.text).some((x) => x.expr != null && x.expr.trim() !== '');
+            options.push(`[${key}, ${hasValues ? `() => ${this.text('<>' + part.text, ctx, where)}` : js(part.text)}]`);
         }
         return `{ options: [${options.join(', ')}] }`;
     }
@@ -345,16 +347,13 @@ class Translator {
         const s = String(text == null ? '' : text);
         if (!s.startsWith('<>')) return js(s);
         const parts = [];
-        const re = /<([^<>|]*)\|([^<>]*)>/g;
-        let last = 0;
-        let m;
-        while ((m = re.exec(s.slice(2))) != null) {
-            parts.push(js(s.slice(2).slice(last, m.index)));
-            if (m[1].trim()) parts.push(`z.fmt(${this.exprOr(m[1], ctx, where, "''")}, ${this.layout(m[2], ctx, where)})`);
-            last = re.lastIndex;
+        for (const part of textParts(s.slice(2))) {
+            if (part.text != null) parts.push(js(part.text));
+            else if (part.expr.trim()) parts.push(`z.fmt(${this.exprOr(part.expr, ctx, where, "''")}, ${this.layout(part.layout, ctx, where)})`);
         }
-        parts.push(js(s.slice(2).slice(last)));
-        return parts.filter((p) => p !== '""').join(' + ') || '""';
+        // RTF made with the values (GIMS's labels): its text (z.rtf).
+        const joined = parts.filter((p) => p !== '""').join(' + ') || '""';
+        return /^\s*\{\\rtf/.test(s.slice(2)) ? `z.rtf(${joined})` : joined;
     }
 
     /** An expression of a subject's (a timeout, an input's minimum), with player and its period in scope. */
@@ -373,13 +372,14 @@ class Translator {
 
 const html = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 
-/** Every box of boxes, with its path ("1", "1.0" in a container): [box, path]. */
-function allBoxes(boxes, prefix = '') {
+/** Every box of boxes, with its path ("1", "1.0" in a container) and the display conditions on it (its and its containers'): [box, path, conditions]. */
+function allBoxes(boxes, prefix = '', conditions = []) {
     const out = [];
     boxes.forEach((box, i) => {
         const path = prefix + i;
-        out.push([box, path]);
-        out.push(...allBoxes(box.boxes || [], path + '.'));
+        const c = box.condition && box.condition.trim() ? [...conditions, box.condition] : conditions;
+        out.push([box, path, c]);
+        out.push(...allBoxes(box.boxes || [], path + '.', c));
     });
     return out;
 }
@@ -392,6 +392,8 @@ function allBoxes(boxes, prefix = '') {
 function isInteractive(stage) {
     const boxes = allBoxes(stage.active).map(([b]) => b);
     if (boxes.some((b) => ['contractCreation', 'chat', 'plot'].includes(b.type) || (b.type === 'contractList' && b.buttons.length))) return true;
+    // An input into an array's element (CQ[1]): sent as a button's message (a form's fields are names).
+    if (boxes.some((b) => b.items.some((i) => i.kind === 'item' && i.input && i.variable && !/^\w+$/.test(i.variable)))) return true;
     const buttons = boxes.flatMap((b) => b.buttons.map((button) => ({ box: b, button })));
     if (buttons.some(({ box, button }) => !leavesStage(button, box, stage))) return true;
     return buttons.filter(({ button }) => button.programs.length).length > 1;
@@ -416,7 +418,7 @@ class Screens {
     start(stageId, where, interactive, active, zstage = {}) {
         // The inputs of the boxes without buttons: sent with a standard box's button.
         const loose = allBoxes(active).filter(([b]) => ['standard', 'grid'].includes(b.type) && b.buttons.length === 0)
-            .flatMap(([b, path]) => b.items.filter((i) => i.kind === 'item' && i.input && /^\w+$/.test(i.variable || '')).map((item) => ({ item, path })));
+            .flatMap(([b, path, conditions]) => b.items.filter((i) => i.kind === 'item' && i.input && i.variable).map((item) => ({ item, path, conditions })));
         return {
             stageId, where, interactive, loose, n: 0, zstage,
             subject: { table: 'subjects', rec: 'player', outer: null },
@@ -492,17 +494,15 @@ class Screens {
         let str = String(text || '');
         if (str.startsWith('{\\rtf')) str = str.replace(/\\par[d]?/g, '\n').replace(/\{\\\*[^}]*\}/g, '').replace(/\\[a-z]+-?\d* ?/g, '').replace(/[{}]/g, '').trim();
         if (!str.startsWith('<>')) return html(str).replace(/\n/g, '<br>');
+        // RTF made with values (GIMS's labels): worked out on the server as a whole.
+        if (/^\s*\{\\rtf/.test(str.slice(2))) return this.serverValue(s, this.tr.text(str, s.subject, where));
         str = str.slice(2);
         let out = '';
-        let last = 0;
-        const re = /<([^<>|]*)\|([^<>]*)>/g;
-        let m;
-        while ((m = re.exec(str)) != null) {
-            out += html(str.slice(last, m.index));
-            out += m[1].trim() ? this.shown(m[1], m[2], s, where) : '';
-            last = re.lastIndex;
+        for (const part of textParts(str)) {
+            if (part.text != null) out += html(part.text).replace(/\n/g, '<br>');
+            else if (part.expr.trim()) out += this.shown(part.expr, part.layout, s, where);
         }
-        return out + html(str.slice(last)).replace(/\n/g, '<br>');
+        return out;
     }
 
     /** An item: text, a value, or an input (named player.X in a form, X otherwise); bare: without its label (a grid's cell). */
@@ -514,7 +514,7 @@ class Screens {
             const value = this.shown(item.variable, item.layout, s, where);
             return bare ? value : `    <p class="zt-item"><span class="zt-label">${label}</span> <span class="zt-value">${value}</span></p>\n`;
         }
-        if (!/^\w+$/.test(item.variable)) {
+        if (!/^\w+$/.test(item.variable) && !s.interactive) {
             this.report.push({ status: 'todo', part: where, note: 'an input into ' + item.variable + ' (not a variable)' });
             return '';
         }
@@ -547,10 +547,10 @@ class Screens {
         if (box.buttons.length === 0) return '';
         if (!s.interactive) {
             s.form.buttons.push(...box.buttons.map((b) => ({ ...b, box })));
-            return '    <p class="zt-buttons">' + box.buttons.map((b) => `<button>${html(b.name)}</button>`).join(' ') + '</p>\n';
+            return '    <p class="zt-buttons">' + box.buttons.map((b) => `<button${b.color ? ` style="background:${html(b.color)}"` : ''}>${html(b.name)}</button>`).join(' ') + '</p>\n';
         }
         box.buttons.forEach((button, i) => s.buttons.push(this.button(box, path, button, i, s, where, inputs)));
-        return '    <p class="zt-buttons">' + box.buttons.map((b, i) => `<button type="button" class="zt-button" data-zt-button="${i}">${html(b.name)}</button>`).join(' ') + '</p>\n';
+        return '    <p class="zt-buttons">' + box.buttons.map((b, i) => `<button type="button" class="zt-button" data-zt-button="${i}"${b.color ? ` style="background:${html(b.color)}"` : ''}>${html(b.name)}</button>`).join(' ') + '</p>\n';
     }
 
     /**
@@ -574,14 +574,27 @@ class Screens {
         const all = (inputs || []).map((item) => ({ item, path: null }));
         if (kind === 'subject') all.push(...s.loose.filter((x) => x.path !== path));
         lines.push('    inputs: [');
-        for (const { item, path: from } of all) {
+        for (const { item, path: from, conditions } of all) {
             const l = parseLayout(item.layout, { rt: null });
             const literal = (code) => /^-?[\d.]+$/.test(String(code).trim());
             const bound = (code) => (literal(code) ? `() => ${Number(code)}` : fn(tr.exprOr(code, ctx, w, '0')));
             const stepText = String(item.layout || '').trim();
             const step = l.kind !== 'number' ? 'null' : stepText === '' ? '1' : literal(stepText) ? String(Number(stepText)) : fn(tr.exprOr(stepText, ctx, w, '1'));
             const parts = [`name: ${js(item.variable)}`, `label: ${js(String(item.label || item.variable).replace(/^<>/, '').replace(/<[^>]*>/g, ''))}`];
+            // An array's element (CQ[1]): read and set as the program would.
+            if (!/^\w+$/.test(item.variable)) {
+                try {
+                    const target = lang.parse(item.variable + ' = 0;').body[0].target;
+                    const c = { ...ctx, where: w, code: item.variable };
+                    parts.push(`get: ${fn(tr.expr(lang.parseExpr(item.variable), c))}`);
+                    parts.push(`set: (player, rec, period, g, v) => { ${tr.statement({ k: 'set', target, value: { k: 'js', code: 'v' } }, c).join(' ')} }`);
+                } catch (err) {
+                    this.report.push({ status: 'todo', part: w, note: 'an input into ' + item.variable + ': ' + err.message });
+                }
+            }
             if (from != null) parts.push(`box: ${js('b' + from)}`);
+            // Another box's input: asked for only while that box is shown.
+            if (conditions && conditions.length) parts.push(`shown: ${fn(conditions.map((c) => `(${tr.exprOr(c, s.subject, w, 'true')})`).join(' && '))}`);
             if (item.min) parts.push(`min: ${bound(item.min)}`);
             if (item.max) parts.push(`max: ${bound(item.max)}`);
             parts.push(`step: ${step}`, `numeric: ${l.kind === 'number'}`);

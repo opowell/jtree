@@ -78,6 +78,12 @@ const z = {
         return xs.length === 0 ? 0 : z.sum(xs, null, value) / xs.length;
     },
     minimum: (records, cond, value) => Math.min(...records.filter((r) => !cond || cond(r)).map((r) => Number(value(r)))),
+    median: (records, cond, value) => {
+        const xs = records.filter((r) => !cond || cond(r)).map((r) => Number(value(r))).sort((a, b) => a - b);
+        if (xs.length === 0) return 0;
+        const m = Math.floor(xs.length / 2);
+        return xs.length % 2 ? xs[m] : (xs[m - 1] + xs[m]) / 2;
+    },
     maximum: (records, cond, value) => Math.max(...records.filter((r) => !cond || cond(r)).map((r) => Number(value(r)))),
     find: (records, cond, value) => {
         const r = records.find((x) => !cond || cond(x));
@@ -116,6 +122,19 @@ const z = {
     at: (arr, i) => arr.values[Math.round((i - arr.lo) / arr.step)],
     put: (arr, i, v) => { arr.values[Math.round((i - arr.lo) / arr.step)] = v; },
 
+    /** RTF's text (a label or a value's text made as RTF): its control words and groups taken out. */
+    rtf: (text) => {
+        const s = String(text);
+        if (!s.trimStart().startsWith('{\\rtf')) return s;
+        const cp1252 = '€\u0081‚ƒ„…†‡ˆ‰Š‹Œ\u008dŽ\u008f\u0090‘’“”•–—˜™š›œ\u009džŸ';
+        const char = (b) => (b >= 0x80 && b <= 0x9f ? cp1252[b - 0x80] : String.fromCharCode(b));
+        return s.trimStart().replace(/\\'([0-9a-fA-F]{2})/g, (all, hex) => char(parseInt(hex, 16)))
+            .replace(/\\([{}\\])/g, (all, c) => ({ '{': '\ue000', '}': '\ue001', '\\': '\ue002' })[c])
+            .replace(/\\par[d]? ?/g, '\n').replace(/\{\\\*[^}]*\}/g, '')
+            .replace(/\\[a-z]+-?\d* ?/g, '').replace(/[{}]/g, '')
+            .replace(/[\ue000-\ue002]/g, (c) => ({ '\ue000': '{', '\ue001': '}', '\ue002': '\\' })[c]).trim();
+    },
+
     /**
      * A value shown with a layout: {step} (a number, rounded to it) or {options} ([value, text]:
      * the text of the value, else of the largest value below it; <|1> in it, the value).
@@ -134,8 +153,8 @@ const z = {
             if (Math.abs(k - v) < 1e-9) { best = { k, text }; break; }
             if (k <= v && (best == null || k > best.k)) best = { k, text };
         }
-        const text = best == null ? String(v) : best.text;
-        return text.replace(/<\|([^>]*)>/g, (all, step) => z.fmt(v, { step: Number(step) || 1 }));
+        const text = best == null ? String(v) : typeof best.text === 'function' ? String(best.text()) : best.text;
+        return z.rtf(text.replace(/<\|([^>]*)>/g, (all, step) => z.fmt(v, { step: Number(step) || 1 })));
     },
 
     /**
@@ -268,6 +287,11 @@ const z = {
     /** After a change to the tables: each subject's screen is worked out again and sent. */
     changed: (period) => {
         for (const player of z.subjects(period)) {
+            // LeaveStage set to 1 by a program (z-Tree's): the subject leaves the stage; it is 0 again.
+            if (Number(player.LeaveStage) === 1 && player.status === 'playing') {
+                player.LeaveStage = 0;
+                z.endStage(player);
+            }
             z.refresh(player);
             player.participant.emitUpdate();
         }
@@ -310,11 +334,12 @@ const z = {
         // Inputs: checked, then set (undone if a checker says no).
         const updates = {};
         for (const input of button.inputs) {
+            if (input.shown && !input.shown(player, rec, period, g)) continue;
             const from = input.box == null ? d.values : ((d.others || {})[input.box] || {});
             const raw = from == null ? undefined : from[input.name];
             const text = raw == null ? '' : String(raw).trim();
             if (text === '') {
-                if (input.checkbox) { updates[input.name] = 0; continue; }
+                if (input.checkbox) { updates[input.name] = { input, v: 0 }; continue; }
                 return z.message(player, 'Please enter a value for "' + input.label + '".');
             }
             const v = Number(text.replace(',', '.'));
@@ -328,18 +353,25 @@ const z = {
             if (step > 0 && input.numeric && Math.abs(v / step - Math.round(v / step)) > 1e-6) {
                 return z.message(player, 'Please enter a multiple of ' + step + '.');
             }
-            updates[input.name] = v;
+            updates[input.name] = { input, v };
         }
-        const saved = {};
-        for (const [k, v] of Object.entries(updates)) {
-            saved[k] = Object.prototype.hasOwnProperty.call(rec, k) ? rec[k] : undefined;
-            rec[k] = v;
+        // Set (an array's element through its input's set), undone if a checker says no.
+        const saved = [];
+        for (const { input, v } of Object.values(updates)) {
+            if (input.set) {
+                const old = input.get(player, rec, period, g);
+                saved.push(() => input.set(player, rec, period, g, old));
+                input.set(player, rec, period, g, v);
+            } else {
+                const k = input.name;
+                const old = Object.prototype.hasOwnProperty.call(rec, k) ? rec[k] : undefined;
+                saved.push(() => { if (old === undefined) delete rec[k]; else rec[k] = old; });
+                rec[k] = v;
+            }
         }
         const no = button.check ? button.check(player, rec, period, g) : null;
         if (no != null) {
-            for (const [k, v] of Object.entries(saved)) {
-                if (v === undefined) delete rec[k]; else rec[k] = v;
-            }
+            for (const undo of saved.reverse()) undo();
             return z.message(player, no);
         }
         if (button.kind === 'new') z.add(period, button.table, rec);

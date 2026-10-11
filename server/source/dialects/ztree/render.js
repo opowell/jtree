@@ -51,18 +51,45 @@ function parseLayout(layout, ctx) {
     }
     const options = [];
     let count = null;
-    for (const part of m[2].split(';')) {
-        const p = part.trim();
-        if (p === '') continue;
-        // value = "text": the value a number, or a variable's (State == AddPoint, ...).
-        const opt = /^([^=]+?)\s*=\s*"([^"]*)"$/s.exec(p);
-        if (opt != null) {
-            const key = /^-?[\d.]+$/.test(opt[1].trim()) ? Number(opt[1]) : lang.num(value(opt[1], ctx));
-            options.push([key, opt[2]]);
-        }
-        else if (/^\d+$/.test(p)) count = Number(p);
+    for (const part of layoutParts(m[2])) {
+        // value = "text": the value a number, or a variable's (State == AddPoint, \I-1, ...).
+        if (part.text != null) {
+            const key = /^-?[\d.]+$/.test(part.key) ? Number(part.key) : lang.num(value(part.key, ctx));
+            options.push([key, part.text]);
+        } else if (/^\d+$/.test(part.key)) count = Number(part.key);
     }
     return { kind: m[1].toLowerCase(), options, count, format };
+}
+
+/**
+ * A !kind: layout's parts, separated by ;: {key, text} for value = "text", {key} for the others
+ * (a count). A text may hold <var|layout> with quotes of their own, and RTF with ; in it (as
+ * GIMS's do): a quote inside <...> does not end it, nor a ; inside quotes.
+ */
+function layoutParts(text) {
+    const parts = [];
+    let i = 0;
+    const n = text.length;
+    while (i < n) {
+        while (i < n && /[\s;]/.test(text[i])) i++;
+        if (i >= n) break;
+        let key = '';
+        while (i < n && text[i] !== '=' && text[i] !== ';') key += text[i++];
+        if (text[i] !== '=') { parts.push({ key: key.trim() }); continue; }
+        i++;
+        while (i < n && /\s/.test(text[i])) i++;
+        if (text[i] !== '"') {
+            let rest = '';
+            while (i < n && text[i] !== ';') rest += text[i++];
+            parts.push({ key: key.trim(), text: rest.trim() });
+            continue;
+        }
+        // The text: to its closing ", its <expr|layout> taken whole (options may follow without ;).
+        const end = quotedEnd(text, i + 1);
+        parts.push({ key: key.trim(), text: text.slice(i + 1, end - 1) });
+        i = end;
+    }
+    return parts;
 }
 
 /** decimals for a resolution step (0.01 → 2). */
@@ -86,7 +113,10 @@ function formatValue(v, layout, ctx) {
         if (Math.abs(k - v) < 1e-9) { best = label; break; }
         if (k <= v && (best == null || k > best.k)) best = { k, label };
     }
-    const label = best == null ? String(v) : typeof best === 'string' ? best : best.label;
+    let label = best == null ? String(v) : typeof best === 'string' ? best : best.label;
+    // An option's text may be RTF ({\rtf \qc English}, as GIMS writes its options): its text.
+    // (In a <> format, after its values are put in: formatText.)
+    if (!l.format && label.startsWith('{\\rtf')) label = rtfToText(label);
     // "<|1>" in the text: the value itself, with layout 1.
     return label.replace(/<\|([^>]*)>/g, (all, lay) => formatValue(v, lay || '1', ctx));
 }
@@ -100,22 +130,100 @@ function formatText(text, ctx) {
     if (s.startsWith('{\\rtf')) s = rtfToText(s);
     if (!s.startsWith('<>')) return escape(s).replace(/\n/g, '<br>');
     s = s.slice(2);
-    let out = '';
-    const re = /<([^<>|]*)\|([^<>]*)>/g;
-    let last = 0;
-    let m;
-    while ((m = re.exec(s)) != null) {
-        out += escape(s.slice(last, m.index));
-        const v = m[1].trim() === '' ? null : value(m[1], ctx);
-        out += escape(formatValue(v, m[2], ctx));
-        last = re.lastIndex;
-    }
-    out += escape(s.slice(last));
-    return out.replace(/\n/g, '<br>');
+    // The values first, then the text as a whole: it may be RTF made with them (GIMS writes
+    // <>{\rtf \fs<\FontSize|1> \qc <\Language|!text: 1="..."; ...>}).
+    let raw = fillValues(s, ctx);
+    if (raw.trimStart().startsWith('{\\rtf')) raw = rtfToText(raw.trimStart());
+    return escape(raw).replace(/\n/g, '<br>');
 }
 
+/** A text with its <expr|layout> as their values; a value's text may have its own, filled in too. */
+function fillValues(s, ctx, depth = 0) {
+    let raw = '';
+    for (const part of textParts(s)) {
+        if (part.text != null) { raw += part.text; continue; }
+        const v = part.expr.trim() === '' ? null : value(part.expr, ctx);
+        const piece = formatValue(v, part.layout, ctx);
+        raw += depth < 5 && textParts(piece).some((x) => x.expr != null) ? fillValues(piece, ctx, depth + 1) : piece;
+    }
+    return raw;
+}
+
+/**
+ * z-Tree's <expr|layout> in a text: the expression runs to the |, and may hold > (<if(\\N>1,1,0)|1>);
+ * the layout runs to its >, its quoted texts and the <expr|layout> in them taken whole, so it may
+ * hold its own (GIMS: <\\Language|!text: 1="<\\N|1> orders";>). substitutionAt(s, i): where the
+ * one starting at s[i] ends (after its >), with its parts; null if there is none there.
+ */
+function substitutionAt(s, i) {
+    if (s[i] !== '<') return null;
+    let bar = i + 1;
+    while (bar < s.length && !'|<">\n'.includes(s[bar])) bar++;
+    // (A > in the expression: one with no | before the next <, ", or line end is not one.)
+    if (s[bar] === '>') {
+        let k = bar;
+        while (k < s.length && !'|<"\n'.includes(s[k])) k++;
+        if (s[k] !== '|') return null;
+        bar = k;
+    }
+    if (s[bar] !== '|') return null;
+    const end = layoutEnd(s, bar + 1);
+    if (end < 0) return null;
+    return { end: end + 1, expr: s.slice(i + 1, bar), layout: s.slice(bar + 1, end) };
+}
+
+/** Where the layout starting at s[j] ends (its >), quoted texts and substitutions in it skipped; -1 if it does not. */
+function layoutEnd(s, j) {
+    while (j < s.length) {
+        if (s[j] === '"') { j = quotedEnd(s, j + 1); continue; }
+        const sub = substitutionAt(s, j);
+        if (sub != null) { j = sub.end; continue; }
+        if (s[j] === '>') return j;
+        j++;
+    }
+    return -1;
+}
+
+/** Where a quoted text starting after its " at s[j] ends (after its closing "), its substitutions taken whole. */
+function quotedEnd(s, j) {
+    while (j < s.length) {
+        if (s[j] === '"') return j + 1;
+        const sub = substitutionAt(s, j);
+        if (sub != null) { j = sub.end; continue; }
+        j++;
+    }
+    return j;
+}
+
+/** A "<>" text's parts: {text}, and {expr, layout} for each <expr|layout>. */
+function textParts(s) {
+    const parts = [];
+    let text = '';
+    let i = 0;
+    while (i < s.length) {
+        const sub = substitutionAt(s, i);
+        if (sub != null) {
+            if (text) parts.push({ text });
+            text = '';
+            parts.push({ expr: sub.expr, layout: sub.layout });
+            i = sub.end;
+            continue;
+        }
+        text += s[i++];
+    }
+    if (text) parts.push({ text });
+    return parts;
+}
+
+/** RTF's text: its paragraphs as lines, its control words and groups taken out, its \'xx characters (Windows-1252). */
 function rtfToText(rtf) {
-    return rtf.replace(/\\par[d]?/g, '\n').replace(/\{\\\*[^}]*\}/g, '').replace(/\\[a-z]+-?\d* ?/g, '').replace(/[{}]/g, '').trim();
+    const { decode } = require('./ztt.js');
+    // Escaped braces and backslashes kept aside (private-use characters) while groups go.
+    return rtf.replace(/\\'([0-9a-fA-F]{2})/g, (all, hex) => decode([parseInt(hex, 16)]))
+        .replace(/\\([{}\\])/g, (all, c) => ({ '{': '\ue000', '}': '\ue001', '\\': '\ue002' })[c])
+        .replace(/\\par[d]? ?/g, '\n').replace(/\{\\\*[^}]*\}/g, '')
+        .replace(/\\[a-z]+-?\d* ?/g, '').replace(/[{}]/g, '')
+        .replace(/[\ue000-\ue002]/g, (c) => ({ '\ue000': '{', '\ue001': '}', '\ue002': '\\' })[c]).trim();
 }
 
 // --- Placement ----------------------------------------------------------------------------
@@ -293,7 +401,7 @@ function itemCell(item, ctx, id, prefix, withLabel) {
 function buttons(box, path) {
     if (box.buttons.length === 0) return '';
     return '<div class="ztree-buttons">' + box.buttons.map((b, i) =>
-        '<button type="button" class="ztree-button" data-box="' + path + '" data-button="' + i + '">' + escape(b.name) + '</button>').join('') + '</div>';
+        '<button type="button" class="ztree-button" data-box="' + path + '" data-button="' + i + '"' + (b.color ? ' style="background:' + escape(b.color) + '"' : '') + '>' + escape(b.name) + '</button>').join('') + '</div>';
 }
 
 /** A contract list: the table's records that meet the box's condition, one a row, to choose from. */
@@ -493,4 +601,4 @@ function plot(box, path, view) {
     return '<div class="ztree-plot" data-box="' + path + '" data-plot="' + escape(JSON.stringify(data)) + '"></div>';
 }
 
-module.exports = { renderScreen, formatValue, formatText, parseLayout, place, measure, value, expression, escape };
+module.exports = { renderScreen, formatValue, formatText, parseLayout, layoutParts, textParts, rtfToText, place, measure, value, expression, escape };

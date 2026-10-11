@@ -223,6 +223,11 @@ function button(b) {
         programs: children(b, 'program').map(program),
     };
     if (leaveStage !== undefined) out.leaveStage = leaveStage;
+    // Its own colour (a Windows COLORREF: 0x00BBGGRR), if it has one.
+    if (bool(b, 'specialbuttoncolor')) {
+        const c = num(b, 'buttoncolor');
+        out.color = 'rgb(' + (c & 255) + ',' + ((c >> 8) & 255) + ',' + ((c >> 16) & 255) + ')';
+    }
     return out;
 }
 
