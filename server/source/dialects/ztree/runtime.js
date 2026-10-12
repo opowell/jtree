@@ -8,6 +8,8 @@
  * OLD<table> is the period before's.
  */
 
+const fs = require('fs');
+const path = require('path');
 const lang = require('./lang.js');
 const render = require('./render.js');
 
@@ -155,8 +157,9 @@ class Run {
         }
         for (const name of this.vars.globals) if (!(name in state.globals)) state.globals[name] = 0;
         const view = this.view(p);
-        // The background's programs, then the parameter table's: the period's, the subject's
-        // (role's), then the cell's.
+        // The background's table loaders, then its programs, then the parameter table's: the
+        // period's, the subject's (role's), then the cell's.
+        this.loadTables(p, t.background.loaders);
         this.runPrograms(t.background.programs, view, state.subjects);
         const periodProgram = (t.periods[p] || {}).program;
         if (periodProgram) this.exec(periodProgram, { rt: view, table: 'globals', rec: state.globals, outer: null });
@@ -220,6 +223,114 @@ class Run {
         } catch (err) {
             this.note(code + ': ' + err.message);
             return 0;
+        }
+    }
+
+    /**
+     * The file a table loader or dumper names: its name (z-Tree's may be a Windows path) in
+     * folder.
+     */
+    tableFile(name, folder, p) {
+        let text = String(name).trim().replace(/^"|"$/g, '');
+        // A z-Tree text with values (GIMS: <>GIMS_P<\Period|...>_<gettime()|1>.zBackup).
+        if (text.startsWith('<>') && p != null) {
+            text = render.formatText(text, { rt: this.view(p), table: 'globals', rec: this.periods[p].globals, outer: null })
+                .replace(/<[^>]*>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+        }
+        return path.join(folder, text.split(/[\\/]/).pop().replace(/[<>:"|?*]/g, '_'));
+    }
+
+    /** Whether a loader's or dumper's condition holds (on the globals; none: it does). */
+    tableCondition(code, p) {
+        if (code == null || String(code).trim() === '') return true;
+        return lang.bool(this.value(code, { rt: this.view(p), table: 'globals', rec: this.periods[p].globals, outer: null }));
+    }
+
+    /**
+     * Table loaders, as z-Tree 5 runs them (before the stage's programs): each whose condition
+     * holds reads its file, a dumper's (a line naming a table and its variables, then a line
+     * for each record: the table's name and the values; tab-separated), from the session's
+     * output folder (where dumpers write, so that a treatment can load what one before dumped),
+     * else the treatment's. A table's records are replaced by the file's: a variable the file
+     * does not have is 0, as in z-Tree, but for jtree's own in subjects and globals (Period,
+     * Subject, Group, Participate; NumPeriods), which its sessions need. A variable the
+     * treatment does not have is an error, noted (as z-Tree shows it), and left out.
+     */
+    loadTables(p, loaders) {
+        const session = this.app && this.app.session;
+        for (const loader of loaders || []) {
+            if (!this.tableCondition(loader.condition, p)) continue;
+            const folders = [session && session.getOutputDir(), this.app && this.app.appPath && path.dirname(this.app.appPath)].filter(Boolean);
+            const file = folders.map((f) => this.tableFile(loader.file, f, p)).find((f) => fs.existsSync(f));
+            if (file == null) {
+                this.note('table loader: no file ' + loader.file);
+                continue;
+            }
+            const blocks = [];
+            for (const line of fs.readFileSync(file, 'latin1').split(/\r?\n/)) {
+                if (line.trim() === '') continue;
+                const cells = line.split('\t');
+                const last = blocks[blocks.length - 1];
+                if (last == null || last.table !== cells[0]) blocks.push({ table: cells[0], names: cells.slice(1), rows: [] });
+                else last.rows.push(cells.slice(1));
+            }
+            for (const b of blocks) this.loadTable(p, b);
+        }
+    }
+
+    loadTable(p, { table, names, rows }) {
+        const state = this.periods[p];
+        const known = this.vars[table] || new Set();
+        const unknown = names.filter((n) => !known.has(n) && !['Period', 'Subject'].includes(n));
+        if (unknown.length) this.note('Error(s) reading table "' + table + '":Variable(s) not defined: ' + unknown.join(', '));
+        const value = (text) => {
+            const t = String(text).trim();
+            if (/^".*"$/.test(t)) return t.slice(1, -1);
+            const n = Number(t);
+            return t === '' || Number.isNaN(n) ? t : n;
+        };
+        const fill = (rec, row, keep) => {
+            for (const name of known) if (!keep.includes(name)) rec[name] = 0;
+            names.forEach((n, i) => { if (!unknown.includes(n) && !keep.includes(n) && i < row.length) rec[n] = value(row[i]); });
+            return rec;
+        };
+        if (table === 'subjects') {
+            rows.forEach((row, i) => { if (state.subjects[i] != null) fill(state.subjects[i], row, ['Period', 'Subject', 'Group', 'Participate']); });
+        } else if (table === 'globals') {
+            if (rows[0] != null) fill(state.globals, rows[0], ['Period', 'NumPeriods', 'RepeatTreatment']);
+        } else {
+            const records = rows.map((row) => fill({ _id: this.nextId++, Period: p + 1 }, row, ['Period']));
+            if (table === 'contracts') state.contracts = records;
+            else if (this.lasting[table] != null) this.lasting[table] = records;
+            else state.other[table] = records;
+        }
+        this.onChange();
+    }
+
+    /**
+     * Table dumpers, as z-Tree 5 runs them (as the stage starts, after its programs): each whose
+     * condition holds writes its tables (semicolon-separated names) to its file, in the session's
+     * output folder, as z-Tree writes them (see loadTables).
+     */
+    dumpTables(p, dumpers) {
+        const session = this.app && this.app.session;
+        if (session == null) return;
+        const view = this.view(p);
+        const cell = (v) => (typeof v === 'string' ? '"' + v.replace(/[\t\r\n]/g, ' ') + '"' : v == null ? '' :
+            typeof v === 'object' ? '' : Number.isNaN(v) ? '-nan(ind)' : v === Infinity ? 'inf' : v === -Infinity ? '-inf' : String(v));
+        for (const dumper of dumpers || []) {
+            if (!this.tableCondition(dumper.condition, p)) continue;
+            const lines = [];
+            for (const table of String(dumper.tables || '').split(';').map((t) => t.trim()).filter(Boolean)) {
+                const records = view.records(table);
+                const names = [];
+                for (const rec of records) for (const k of Object.keys(rec)) if (k !== '_id' && !names.includes(k)) names.push(k);
+                lines.push([table, ...names].join('\t'));
+                for (const rec of records) lines.push([table, ...names.map((n) => cell(rec[n]))].join('\t'));
+            }
+            const file = this.tableFile(dumper.file, session.getOutputDir(), p);
+            fs.mkdirSync(path.dirname(file), { recursive: true });
+            fs.writeFileSync(file, lines.map((l) => l + '\r\n').join(''), 'latin1');
         }
     }
 
@@ -372,6 +483,8 @@ class Run {
             if (targetTable === 'contracts') state.contracts.push(target);
             else (state.other[targetTable] = state.other[targetTable] || []).push(target);
         }
+        // The button's table loaders (GIMS's "Load from disk"), before its programs.
+        this.loadTables(p, button.loaders);
         // The button's programs: on the box's record for its table, the subject's, the globals'.
         for (const pr of button.programs) {
             const table = pr.table || 'subjects';
@@ -389,6 +502,8 @@ class Run {
         // Whether it leaves the stage: as the button says, else as z-Tree has it ("Normal"): it
         // does, unless the stage is an auction (left after its timeout always) and the button is
         // in a contract creation or list box.
+        // Its table dumpers (GIMS's settings, saved with "START NOW"), after its programs.
+        this.dumpTables(p, button.dumpers);
         const leaves = d.itemButton || leavesStage(button, box, stage);
         return { leave: leaves };
     }

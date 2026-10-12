@@ -839,3 +839,40 @@ test("Play with bots (admin v2): a session of z-Tree treatments, played by the g
     assert.equal(native.bots.state, 'failed');
     assert.match(native.bots.message, /use Autoplay/);
 });
+
+test("table dumpers and loaders, as z-Tree 5 runs them (fixtures/ztree5-probe/tables.txt)", async () => {
+    const session = server.createSession(path.join(__dirname, 'fixtures/ztree5-probe/tables.txt'), { numParticipants: 1, mode: 'ztree' });
+    const [bot] = await server.connectAll(session);
+    session.start();
+    await bot.waitForStage('stage1');
+    const run = session.apps[0].ztreeRun;
+    // The dumper, as the stage starts, after its programs (X set; Z, set 2 seconds later, not yet).
+    const dump = fs.readFileSync(path.join(session.getOutputDir(), 'dump.txt'), 'latin1');
+    const [head, row] = dump.split('\r\n').map((l) => l.split('\t'));
+    assert.equal(head[0], 'subjects');
+    const col = (n) => row[head.indexOf(n)];
+    assert.deepEqual([row[0], col('Subject'), col('X'), col('Z')], ['subjects', '1', '10', '0']);
+    // The loader, as the next stage starts, before its programs: X from the file, V = X + 1; the
+    // variables the file has not, 0; W, which the treatment has not, an error.
+    session.pushMessage(bot.player, true, 'endStage');
+    await bot.waitForStage('stage2');
+    const s = run.periods[0].subjects[0];
+    assert.deepEqual([s.X, s.V, s.Z, s.F], [99, 100, 0, 0]);
+    assert.deepEqual([s.Subject, s.Participate], [1, 1]);
+    assert.deepEqual(run.errors, ['Error(s) reading table "subjects":Variable(s) not defined: W']);
+});
+
+test("a value with no text of its own (!text:) takes the nearest one's, as in z-Tree 5 (fixtures/ztree5-probe/textmap.txt)", async () => {
+    const render = require('../source/dialects/ztree/render.js');
+    const ctx = { rt: { globals: () => ({}), isVar: () => false, records: () => [] }, table: 'globals', rec: {}, outer: null };
+    const layout = '!text:9="nine";10="ten";99="nn";';
+    // z-Tree 5.1.21's texts for these values.
+    assert.deepEqual([3, 50, 200, 90, 9.6, 9.5].map((v) => render.formatValue(v, layout, ctx)), ['nine', 'ten', 'nn', 'nn', 'ten', 'nine']);
+    // The probe's dumpers, named so: the files z-Tree wrote.
+    const session = server.createSession(path.join(__dirname, 'fixtures/ztree5-probe/textmap.txt'), { numParticipants: 1, mode: 'ztree' });
+    const [bot] = await server.connectAll(session);
+    session.start();
+    await bot.waitForStage('stage1');
+    const files = fs.readdirSync(session.getOutputDir()).filter((f) => f.startsWith('tm_')).sort();
+    assert.deepEqual(files, ['tm_k_nine.txt', 'tm_l_ten.txt', 'tm_m_nn.txt']);
+});

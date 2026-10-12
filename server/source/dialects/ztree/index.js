@@ -155,7 +155,14 @@ function defineStage(app, zstage, index, treatment) {
         const view = run.view(p);
         const subjects = players.map((pl) => run.periods[p].subjects[subjectIndex(pl)]).filter(Boolean);
         for (const rec of subjects) rec.Participate = 1;
+        // Its table loaders, once a period, before its programs; its dumpers after them.
+        const loaded = run.periods[p].loaded = run.periods[p].loaded || new Set();
+        if (!loaded.has(zstage)) {
+            loaded.add(zstage);
+            run.loadTables(p, zstage.loaders);
+        }
         run.runPrograms(zstage.programs, view, subjects, { globalsOnce: startIfPossible ? run.periods[p].globalsRun : null });
+        run.dumpTables(p, zstage.dumpers);
     };
     if (!startIfPossible) {
         stage.allGroupsStart = (period) => {
@@ -186,6 +193,8 @@ function defineStage(app, zstage, index, treatment) {
         const seconds = stage.getClientDuration(player);
         player.ztreeDeadline = seconds > 0 ? Date.now() + seconds * 1000 : null;
         draw(player, 'active');
+        // What the subject's stage programs made (records in a list, ...) shows on the others' screens too.
+        refresh(app);
     };
     stage.playerEnd = (player) => {
         // Until the next stage, the subject sees this stage's waiting screen.

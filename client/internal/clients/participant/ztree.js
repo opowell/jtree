@@ -36,15 +36,22 @@
         return box ? box.getAttribute('data-box') : '';
     }
 
+    /** An input's key among its box's: its name, and in a contract list, its row's record (rows have the same names). */
+    function fieldKey(input) {
+        var row = input.closest && input.closest('.ztree-row');
+        return row ? row.getAttribute('data-record') + '/' + input.name : input.name;
+    }
+
     function remember(input) {
         var box = boxOf(input);
         typed[box] = typed[box] || {};
+        var key = fieldKey(input);
         if (input.type === 'radio') {
-            if (input.checked) typed[box][input.name] = input.value;
+            if (input.checked) typed[box][key] = input.value;
         } else if (input.type === 'checkbox') {
-            typed[box][input.name] = input.checked ? input.value : '';
+            typed[box][key] = input.checked ? input.value : '';
         } else {
-            typed[box][input.name] = input.value;
+            typed[box][key] = input.value;
         }
     }
 
@@ -53,8 +60,9 @@
         for (var i = 0; i < inputs.length; i++) {
             var input = inputs[i];
             var values = typed[boxOf(input)];
-            if (values == null || !(input.name in values)) continue;
-            var v = values[input.name];
+            var key = fieldKey(input);
+            if (values == null || !(key in values)) continue;
+            var v = values[key];
             if (input.type === 'radio') input.checked = String(input.value) === String(v);
             else if (input.type === 'checkbox') input.checked = v !== '' && v != null;
             else input.value = v;
@@ -73,12 +81,12 @@
         var page = visibleScreen();
         if (page == null) return;
         var focus = document.activeElement;
-        var focusName = focus && focus.name ? [boxOf(focus), focus.name] : null;
+        var focusName = focus && focus.name ? [boxOf(focus), focus.name, focus.closest && focus.closest('.ztree-row') ? focus.closest('.ztree-row').getAttribute('data-record') : null] : null;
         page.innerHTML = html;
         restore(page);
         drawPlots(page);
         if (focusName) {
-            var again = page.querySelector('.ztree-box[data-box="' + focusName[0] + '"] [name="' + focusName[1] + '"]');
+            var again = page.querySelector('.ztree-box[data-box="' + focusName[0] + '"] ' + (focusName[2] != null ? '.ztree-row[data-record="' + focusName[2] + '"] ' : '') + '[name="' + focusName[1] + '"]');
             if (again && again.focus) again.focus();
         }
         tick();
@@ -88,12 +96,17 @@
         return jt.data && jt.data.player && jt.data.player.stage ? jt.data.player.stage.id : null;
     }
 
-    /** The values of a box's inputs (a contract creation or standard box), by variable. */
-    function values(boxEl) {
+    /**
+     * The values of a box's inputs (a contract creation or standard box), by variable; in a
+     * contract list, those in the row of record (the chosen one) only.
+     */
+    function values(boxEl, record) {
         var out = {};
         var inputs = boxEl.querySelectorAll('.ztree-input input, .ztree-input select');
         for (var i = 0; i < inputs.length; i++) {
             var input = inputs[i];
+            var row = input.closest('.ztree-row');
+            if (row && row.getAttribute('data-record') !== String(record)) continue;
             if (input.type === 'radio') {
                 if (input.checked) out[input.name] = input.value;
                 else if (!(input.name in out)) out[input.name] = '';
@@ -107,7 +120,8 @@
     }
 
     function press(boxEl, button, extra) {
-        var data = { stage: stageId(), box: boxEl.getAttribute('data-box'), button: button, values: values(boxEl), others: {} };
+        var chosen = boxEl.querySelector('.ztree-list input[type=radio]:checked');
+        var data = { stage: stageId(), box: boxEl.getAttribute('data-box'), button: button, values: values(boxEl, chosen && chosen.value), others: {} };
         // The other boxes' inputs (a standard box's button takes those of boxes with no buttons).
         var screen = boxEl.closest('.ztree-screen') || document;
         var boxes = screen.querySelectorAll('.ztree-box[data-box]');
@@ -115,7 +129,6 @@
             if (boxes[i] !== boxEl && boxes[i].querySelector('.ztree-input')) data.others[boxes[i].getAttribute('data-box')] = values(boxes[i]);
         }
         if (extra) data.itemButton = true;
-        var chosen = boxEl.querySelector('.ztree-list input[type=radio]:checked');
         if (chosen) data.record = chosen.value;
         if (extra) for (var k in extra) data.values[k] = extra[k];
         jt.sendMessage('ztreeButton', data);
@@ -166,7 +179,7 @@
             jt.sendMessage('ztreeChat', { stage: stageId(), box: e.target.getAttribute('data-box'), text: e.target.value });
             e.target.value = '';
             var box = boxOf(e.target);
-            if (typed[box]) delete typed[box][e.target.name];
+            if (typed[box]) delete typed[box][fieldKey(e.target)];
         } else if (e.target.closest && e.target.closest('.ztree-input')) {
             // Enter presses the box's first button.
             e.preventDefault();

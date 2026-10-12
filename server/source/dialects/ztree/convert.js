@@ -570,6 +570,8 @@ class Screens {
         const fn = (body) => `(player, rec, period, g) => ${body}`;
         const lines = [`// Box ${js(box.name || box.type)}, button ${js(button.name)}: ` +
             { new: `a new ${table} record`, list: `the chosen ${table} record`, subject: 'the subject' }[kind] + (leaves ? '; it ends the stage.' : '.')];
+        for (const l of button.loaders || []) this.report.push({ status: 'todo', part: w, note: 'a table loader (' + l.file + ') is not converted; the treatment runs it as it is' });
+        for (const d of button.dumpers || []) this.report.push({ status: 'todo', part: w, note: 'a table dumper (' + d.file + ') is not converted; the treatment runs it as it is' });
         lines.push(`${js('b' + path + '/' + i)}: {`);
         lines.push(`    kind: ${js(kind)}, table: ${js(table)}, vars: VARS[${js(table)}] || [], leaves: ${leaves},`);
         // Inputs: the box's; a standard box's button also sends those of the boxes without buttons.
@@ -650,12 +652,15 @@ class Screens {
         if (box.owner) lines.push(`    own: (rec, player) => rec.${box.owner.trim()} === player.Subject,`);
         lines.push('},');
         s.lists.push(lines.join('\n'));
-        if (items.some((it) => it.input)) this.report.push({ status: 'todo', part: where, note: 'inputs in a contract list\'s rows are not converted' });
         const choose = box.buttons.length > 0;
+        // An input item: an input in each row, for the chosen row's record (its buttons take it).
+        const cell = (it, k) => (it.input && it.variable && choose
+            ? `<td><input type="text" inputmode="decimal" autocomplete="off" class="zt-row-input" name="${html(it.variable)}"></td>`
+            : `<td>{{ row.cells[${k}] }}</td>`);
         let out = `<table class="zt-list">\n    <thead><tr>${choose ? '<th></th>' : ''}${items.map((it) => `<th>${this.label(it.label, s, where)}</th>`).join('')}</tr></thead>\n`;
         out += `    <tbody><tr v-for="row in (player.zt_ ? player.zt_.lists['${key}'] : [])" :key="row.id" :class="{ 'zt-own': row.own }">` +
             (choose ? `<td><input type="radio" name="zt-row-${key}" :value="row.id"></td>` : '') +
-            '<td v-for="(cell, k) in row.cells" :key="k">{{ cell }}</td></tr></tbody>\n</table>\n';
+            items.map(cell).join('') + '</tr></tbody>\n</table>\n';
         return out;
     }
 
@@ -920,7 +925,7 @@ class Screens {
                 return out + '</div>\n';
             }
             case 'contractList':
-                return open('zt-list-box') + this.list(box, path, s, where) + this.buttons(box, path, s, where, []) + '</div>\n';
+                return open('zt-list-box') + this.list(box, path, s, where) + this.buttons(box, path, s, where, box.items.filter((it) => it.kind === 'item' && it.input && it.variable)) + '</div>\n';
             case 'chat':
                 return open('zt-chat') + this.chat(box, path, s, where) + '</div>\n';
             case 'history':
@@ -1141,6 +1146,9 @@ function convertTreatment(t, name) {
         }
         // Screens.
         const s = screens.start('stage' + (i + 1), where, interactive, stage.active, stage);
+        // Table loaders and dumpers (files the treatment reads and writes): run in the dialect, not in converted apps.
+        for (const l of stage.loaders || []) report.push({ status: 'todo', part: where, note: 'a table loader (' + l.file + ') is not converted; the treatment runs it as it is' });
+        for (const d of stage.dumpers || []) report.push({ status: 'todo', part: where, note: 'a table dumper (' + d.file + ') is not converted; the treatment runs it as it is' });
         const header = stage.showHeader ? t.background.active.find((b) => b.type === 'header') : null;
         let active = screens.screen(stage.active, s, { header });
         if (interactive) {

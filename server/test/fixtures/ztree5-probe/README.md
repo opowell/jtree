@@ -20,3 +20,22 @@ Wine), its globals table was:
 
 That is: an index is rounded to the nearest element, and out of range is the first or last one.
 `test/ztree.test.js` expects the same in a session in 'ztree' mode, and errors in 'jtree' mode.
+
+`rowinputs.txt` is `probe.txt` with an input in each row of its contract list (Offers: "How
+many", 1 to 5, into the row's Qty), which its Take button records (Taken = Qty), as GIMS's
+multi-unit orders have them.
+
+`tables.txt` is a treatment for z-Tree's table dumpers and loaders: its first stage's programs set
+X = Subject * 10 and, 2 seconds later, Z = 5, and its dumper writes the subjects table to
+`dump.txt`; its second stage's loader reads `load.txt` (subjects: X = 99, and W, which the treatment
+does not have), then its program sets V = X + 1. In z-Tree 5.1.21, the dump (a line naming the
+table and its variables, then one per record, tab-separated) had X = 10 and Z = 0: dumpers run as
+the stage starts, after its programs. The loader reported "Error(s) reading table "subjects":
+Variable(s) not defined: W", and the subject then had X = 99, V = 100, and every other variable
+0 (Z, and Group, Participate, ...): a loader replaces the table's records, before the stage's
+programs.
+
+`textmap.txt` names its dumpers' files with z-Tree's text mapping (`<\K|!text:9="nine";10="ten";99="nn";>`)
+of values that have no text of their own: in z-Tree 5.1.21, K = 3, 50 and 200 gave tm_k_nine.txt,
+tm_l_ten.txt and tm_m_nn.txt, and (the same with K = 90, 9.6, 9.5) "nn", "ten" and "nine": a value
+takes the text of the nearest one listed, of two as near the lower.

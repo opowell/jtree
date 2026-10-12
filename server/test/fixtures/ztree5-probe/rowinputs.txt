@@ -1,0 +1,323 @@
+treatment "rowinputs.ztt"{
+	background{
+		table globals{
+		}
+		table subjects{
+		}
+		table summary{
+		}
+		table contracts{
+		}
+		table clients{
+		}
+		table treatments{
+		}
+		table sessionglobals{
+		}
+		table participations{
+		}
+		table offers{
+			lifetime = PERIOD;
+			execute = WITHEACH;
+		}
+		table settings{
+			lifetime = TREATMENT;
+			execute = WITHEACH;
+		}
+		numsubjects = 2;
+		numgroups = 1;
+		numpracticeperiods = 0;
+		numactualperiods = 2;
+		exchangerate = 1;
+		startendowment = 0;
+		showupfee = 0;
+		noAutoscope = FALSE;
+		firstBoxesOnTop = FALSE;
+		showupfeeawaytext = "Losses: use the show-up fee?";
+		showupfeeawayyestext = "Yes";
+		showupfeeawaynotext = "No";
+		moneyawaytext = "Losses: go on?";
+		moneyawayyestext = "Yes";
+		moneyawaynotext = "No";
+		bancruptwaittext = "Please wait.";
+		program{
+			table = globals;
+			do{
+				Rate = 3;
+				Markets = 2;
+			}
+		}
+		program{
+			table = offers;
+			condition = FALSE;
+			do{
+				Fresh = 1;
+				array Units[\Markets];
+			}
+		}
+		program{
+			table = offers;
+			do{
+				Fresh = 7;
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			headerbox "Header"{
+				hasframe = TRUE;
+				height = 10%;
+				top = 0p;
+				cuttop = TRUE;
+				showPeriods = TRUE;
+				showNumPeriods = TRUE;
+				periodtext = "Round";
+				periodoftext = "of";
+				practiceperiodprefix = "Practice ";
+				showtime = TRUE;
+				timestr = "Seconds left:";
+				pleasedecidetext = "Time is up.";
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Wait"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Please wait.";
+				}
+			}
+		}
+	}
+	stage "Market"{
+		startwaitforall = FALSE;
+		startConditionStr = "";
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = 60;
+		program{
+			table = subjects;
+			do{
+				for(m, \Markets){
+					offers.new{
+						Market = :m;
+						Units[:m] = :m * 10;
+					}
+				}
+			}
+		}
+		screen action{
+			usesbg = FALSE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			selectcontractbox "Offers"{
+				hasframe = TRUE;
+				width = 40%;
+				cutleft = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				table = offers;
+				condition = Market == 1;
+				sortfields = "-Price; Market";
+				ownervariable = Seller;
+				item{
+					label = "Price";
+					variable = Price;
+					format = "0.1";
+					input = FALSE;
+				}
+				item{
+					label = "How many";
+					variable = Qty;
+					format = "1";
+					input = TRUE;
+					showdefault = FALSE;
+					emptyallowed = FALSE;
+					min = 1;
+					max = 5;
+				}
+				button "Take"{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = TRUE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+					checker{
+						condition = Seller != :Subject;
+						message = "Not your own.";
+						yesButtonStr = "";
+						noButtonStr = "OK";
+					}
+					program{
+						table = offers;
+						do{
+							Buyer = :Subject;
+							Taken = Qty;
+						}
+					}
+				}
+			}
+			plotbox "Plot"{
+				hasframe = FALSE;
+				cutbottom = TRUE;
+				height = 50%;
+				xleft = 0;
+				xright = 10;
+				ybottom = 0;
+				ytop = 10;
+				maintainaspectratio = TRUE;
+				plotline ""{
+					x1 = 1;
+					y1 = 1;
+					x2 = 9;
+					y2 = 1;
+					arrowsize1 = 0;
+					arrowsize2 = 4;
+					arrowwidth = 2;
+					linecolor = rgb(1,0,0);
+					linewidth = 2;
+					arrowclosed = TRUE;
+				}
+				plottext ""{
+					text = "corner";
+					x = 10;
+					y = 10;
+					horizontalalignment = RIGHT;
+					verticalalignment = TOP;
+					textcolor = rgb(0,0,0);
+				}
+				plotgraph ""{
+					table = offers;
+					condition = Market == 2;
+					filltoxaxis = FALSE;
+					connecttopreviouspoint = FALSE;
+					plotpoint ""{
+						x = Market;
+						y = Price;
+						size = 4;
+						numedges = 4;
+						startat = 45;
+						isstar = FALSE;
+						linecolor = rgb(0,0,0);
+						linewidth = 1;
+						fillcolor = rgb(0,0,1);
+						plotinput ""{
+							displaycondition = Market > 0;
+							event = LEFTCLICK;
+							key = " ";
+							action = DRAG;
+							table = offers;
+							xvariable = dx;
+							yvariable = dy;
+							dragsnapx0 = fromx;
+							dragsnapy0 = fromy;
+							dragsnapx = tox;
+							dragsnapy = toy;
+							leavestage = FALSE;
+						}
+					}
+				}
+			}
+			standardbox "Leave"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				button "Done"{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = TRUE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Settings"{
+		startwaitforall = TRUE;
+		startConditionStr = "";
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = never;
+		timeout = -1;
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Enter"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Rate";
+					variable = MyRate;
+					format = "1";
+					input = TRUE;
+					showdefault = FALSE;
+					emptyallowed = FALSE;
+					min = 0;
+					max = \Rate * 2;
+				}
+				button "OK"{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	roles{
+		role "S 1"{
+		}
+		role "S 2"{
+		}
+	}
+	period "1"{
+		prompt = "";
+		subject 1{
+			name = "s";
+			group = 1;
+			do{
+				Type = 1;
+			}
+		}
+		subject 2{
+			name = "b";
+			group = 1;
+			do{
+				Type = 2;
+			}
+		}
+	}
+	period "2"{
+		prompt = "";
+		subject 1{
+			name = "";
+			group = 1;
+		}
+		subject 2{
+			name = "";
+			group = 2;
+		}
+	}
+}

@@ -107,13 +107,14 @@ function formatValue(v, layout, ctx) {
     if (l.kind === 'number') {
         return lang.roundTo(Number(v), l.step).toFixed(decimals(l.step));
     }
-    // A text for the value: its own, else the one of the largest value below it.
+    // A text for the value: the one of the nearest value listed (of two as near, the lower), as
+    // z-Tree 5 does (fixtures/ztree5-probe/textmap.txt: 3, 50, 90, 200, 9.6, 9.5 with 9, 10, 99).
     let best = null;
     for (const [k, label] of l.options) {
-        if (Math.abs(k - v) < 1e-9) { best = label; break; }
-        if (k <= v && (best == null || k > best.k)) best = { k, label };
+        const d = Math.abs(k - v);
+        if (best == null || d < best.d - 1e-9 || (Math.abs(d - best.d) <= 1e-9 && k < best.k)) best = { k, d, label };
     }
-    let label = best == null ? String(v) : typeof best === 'string' ? best : best.label;
+    let label = best == null ? String(v) : best.label;
     // An option's text may be RTF ({\rtf \qc English}, as GIMS writes its options): its text.
     // (In a <> format, after its values are put in: formatText.)
     if (!l.format && label.startsWith('{\\rtf')) label = rtfToText(label);

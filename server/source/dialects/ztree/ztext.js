@@ -223,6 +223,11 @@ function button(b) {
         programs: children(b, 'program').map(program),
     };
     if (leaveStage !== undefined) out.leaveStage = leaveStage;
+    // Its table loaders and dumpers (GIMS's "Save to disk" and "Load from disk"), if it has any.
+    const loaders = children(b, 'tableloader').map((c) => ({ condition: text(c, 'condition'), file: text(c, 'inputreplacefilename') }));
+    const dumpers = children(b, 'tabledumper').map((c) => ({ condition: text(c, 'condition'), file: text(c, 'outputfilename'), tables: text(c, 'tabledescriptions') }));
+    if (loaders.length) out.loaders = loaders;
+    if (dumpers.length) out.dumpers = dumpers;
     // Its own colour (a Windows COLORREF: 0x00BBGGRR), if it has one.
     if (bool(b, 'specialbuttoncolor')) {
         const c = num(b, 'buttoncolor');

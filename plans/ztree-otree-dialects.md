@@ -675,9 +675,21 @@ questionnaire. On the way: `x[i] = …` in a subjects program sets globals' arra
 array of 6) is, by z-Tree's rules (mode `ztree`), the array's last element, as z-Tree 5 does; by
 jtree's, an error (see Modes below).
 
-Not yet: multimedia boxes (no example to read); table loaders and dumpers, external programs
-(GIMS's settings file); inputs in contract lists' rows; in converted apps, z-Tree's placement of
-boxes (they follow one another).
+Then, checked against z-Tree 5 where it was unclear (`fixtures/ztree5-probe`): inputs in a
+contract list's rows (GIMS's multi-unit orders), in the dialect and converted: the chosen row's
+record takes them (`rowinputs.txt`), and a list shows at once the records another subject's
+stage programs made; table loaders and dumpers, at stages and in buttons (GIMS's settings file
+and backups; `tables.txt`): a dumper writes its tables as the stage starts, after its programs
+(a line naming the table and its variables, a line for each record, tab-separated), in the
+session's output folder; a loader replaces its file's tables' records before the stage's
+programs (a variable not in the file is 0, but for jtree's own; one the treatment has not, an
+error), from the session's output folder, else the treatment's; their file names may be texts
+with values; `!text:` gives a value the text of the nearest value listed, of two the lower
+(`textmap.txt`; it had been the largest below).
+
+Not yet: multimedia boxes (no example to read); external programs (GIMS's settings creator, a
+Windows batch file); table loaders and dumpers in converted apps (their report says so); in
+converted apps, z-Tree's placement of boxes (they follow one another).
 
 ### Modes: whose rules apply
 

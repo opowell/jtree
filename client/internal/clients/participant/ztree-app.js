@@ -9,13 +9,18 @@
     if (window.jtZtreeApp) return;
     window.jtZtreeApp = true;
 
-    /** The values of the inputs in el, by name (a checkbox not ticked: none). */
-    function values(el) {
+    /**
+     * The values of the inputs in el, by name (a checkbox not ticked: none); of a list's rows,
+     * only the chosen row's (row: its radio).
+     */
+    function values(el, row) {
         var out = {};
         var inputs = el.querySelectorAll('input[name], select[name], textarea[name]');
         for (var i = 0; i < inputs.length; i++) {
             var input = inputs[i];
             if (/^zt-row-/.test(input.name)) continue;
+            var tr = input.closest('tr');
+            if (tr && tr.querySelector('input[name^="zt-row-"]') && (row == null || !tr.contains(row))) continue;
             if ((input.type === 'radio' || input.type === 'checkbox') && !input.checked) continue;
             out[input.name] = input.value;
         }
@@ -27,6 +32,10 @@
     }
 
     document.addEventListener('click', function (e) {
+        // A click in a list's row (in its input, say) chooses it.
+        var tr = e.target.closest && e.target.closest('tr');
+        var radio = tr && tr.querySelector('input[name^="zt-row-"]');
+        if (radio) radio.checked = true;
         var button = e.target.closest && e.target.closest('.zt-button');
         if (button == null) return;
         var box = button.closest('[data-zt-box]');
@@ -40,7 +49,7 @@
             stage: screen.getAttribute('data-zt-stage'),
             box: box.getAttribute('data-zt-box'),
             button: Number(button.getAttribute('data-zt-button')),
-            values: values(box),
+            values: values(box, row),
             others: others,
             record: row ? row.value : null,
         });

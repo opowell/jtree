@@ -225,6 +225,32 @@ test('z-Tree: a public goods game in browsers, with z-Leaf\'s messages and waiti
     for (const page of pages) await page.close();
 });
 
+test('z-Tree: a contract list with an input in each row: typed in the second row, Take takes that row with it', { skip }, async () => {
+    const session = server.createSession(path.join(__dirname, 'fixtures/ztree5-probe/rowinputs.txt'), { numParticipants: 2 });
+    session.start();
+    const pages = await openParticipants(session);
+    const [p1] = pages;
+    await p1.waitFor(() => document.querySelectorAll('.ztree-list .ztree-row input[name="Qty"]').length === 2, { what: 'the rows\' inputs' });
+    // As a person: a click in the second row's input (which chooses the row), then typing.
+    await p1.eval(() => document.querySelectorAll('.ztree-list .ztree-row input[name="Qty"]')[1].click());
+    await p1.eval(() => {
+        const input = document.querySelectorAll('.ztree-list .ztree-row input[name="Qty"]')[1];
+        input.value = '2';
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await p1.click('.ztree-button', 'Take');
+    const run = session.apps[0].ztreeRun;
+    const rows = () => run.periods[0].other.offers.filter((o) => o.Market === 1);
+    await until(() => rows().some((o) => o.Taken === 2), { what: 'a row taken', timeout: 10000 });
+    // The chosen (second shown) row's record, and only it.
+    const chosen = rows().find((o) => o.Taken === 2);
+    const second = await p1.eval(() => document.querySelectorAll('.ztree-list .ztree-row')[1].getAttribute('data-record'));
+    assert.equal(String(chosen._id), second);
+    assert.equal(rows().filter((o) => o.Taken).length, 1);
+    assert.deepEqual([...p1.errors], []);
+    for (const page of pages) await page.close();
+});
+
 test('z-Tree: a double auction in browsers: an offer shows at once on a buyer\'s screen, who buys it', { skip }, async (t) => {
     if (!(await ztree.ensureExamples())) return t.skip("z-Tree's examples could not be downloaded");
     const session = server.createSession(ztree.file('noda'), { numParticipants: 8 });

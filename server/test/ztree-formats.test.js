@@ -199,6 +199,52 @@ test('the probe converted to a jtree app: the same records, initialised the same
     }
 });
 
+test('a contract list with an input in each row: the chosen row\'s record takes it, in the dialect and converted', async () => {
+    const os = require('node:os');
+    const { convertTreatmentFile } = require('../source/dialects/ztree/convert.js');
+    const file = path.join(PROBE, 'rowinputs.txt');
+    // The dialect: the page sends the chosen row's input (ztreeButton), its record takes it.
+    const session = server.createSession(file, { numParticipants: 2 });
+    const bots = await server.connectAll(session);
+    session.start();
+    for (const b of bots) await b.waitForStage('stage1');
+    assert.match(bots[0].player.ztreeHtml, /<td><div class="ztree-input" data-prefix="record"><input type="text"[^>]*name="Qty"/);
+    const run = session.apps[0].ztreeRun;
+    const row = run.periods[0].other.offers.filter((o) => o.Market === 1)[1];
+    const press = async (qty) => {
+        const answer = Promise.race([
+            bots[0].nextMessage('ztreeMessage', { timeout: 3000 }).then((d) => d.text),
+            bots[0].nextMessage('ztreeAccepted', { timeout: 3000 }).then(() => null),
+        ]);
+        bots[0].send('ztreeButton', { stage: 'stage1', box: '0', button: 0, values: { Qty: String(qty) }, record: row._id });
+        return answer;
+    };
+    assert.equal(await press(9), 'Please enter a number from 1 to 5.');
+    assert.equal(await press(3), null);
+    assert.deepEqual([row.Qty, row.Taken, row.Buyer], [3, 3, 1]);
+    assert.deepEqual(run.errors, []);
+
+    // Converted: the same (ztButton, with the chosen row's values).
+    const out = fs.mkdtempSync(path.join(os.tmpdir(), 'jtree-ztree-rowinputs-'));
+    try {
+        const r = await convertTreatmentFile(file, path.join(out, 'rows'));
+        assert.equal(r.level, 'Converts', JSON.stringify(r.report.filter((i) => i.status === 'todo')));
+        const screen = fs.readFileSync(path.join(out, 'rows', 'app.jtt'), 'utf8');
+        assert.match(screen, /class="zt-row-input" name="Qty"/);
+        const converted = server.createSession(path.join(out, 'rows', 'app.jtt'), { numParticipants: 2 });
+        const cbots = await server.connectAll(converted);
+        converted.start();
+        for (const b of cbots) await b.waitForStage('stage1');
+        const period = Object.values(converted.participants)[0].player.group.period;
+        const crow = period.tables.offers.filter((o) => o.Market === 1)[1];
+        cbots[0].send('ztButton', { stage: 'stage1', box: 'b0', button: 0, values: { Qty: '4' }, record: crow._id });
+        await cbots[0].waitFor(() => crow.Taken === 4, { what: 'the row taken' });
+        assert.deepEqual([crow.Qty, crow.Buyer], [4, 1]);
+    } finally {
+        fs.rmSync(out, { recursive: true, force: true });
+    }
+});
+
 test('GIMS (a market treatment published as a text export): read, every program parses, played to its market; and converted', async (t) => {
     const file = await examples.ensureGims();
     if (file == null) return t.skip('GIMS could not be downloaded');
@@ -236,10 +282,12 @@ test('GIMS (a market treatment published as a text export): read, every program 
         assert.match(screen, /Cash: 2340\.00 Assets: 2 Last price: No trade/);
         assert.doesNotMatch(screen, /\\rtf/);
 
-        // Converted: GIMS's multi-unit orders (inputs in a contract list's rows) are left to do by hand.
+        // Converted: all of it, its multi-unit orders (inputs in a contract list's rows) too, but
+        // its table loaders and dumpers (its settings file, its backups), which the dialect runs.
         const { convertTreatmentFile } = require('../source/dialects/ztree/convert.js');
         const r = await convertTreatmentFile(path.join(dir, 'GIMS.txt'), path.join(dir, 'GIMS-jtree'));
-        assert.deepEqual([...new Set(r.report.filter((i) => i.status === 'todo').map((i) => i.note))], ["inputs in a contract list's rows are not converted"]);
+        const todos = [...new Set(r.report.filter((i) => i.status === 'todo').map((i) => i.note))];
+        assert.ok(todos.length > 0 && todos.every((n) => /^a table (loader|dumper) \(.*\) is not converted/.test(n)), JSON.stringify(todos));
         const c = await toMarket(path.join(dir, 'GIMS-jtree', 'app.jtt'), (bot, stage, box, button) => bot.send('ztButton', { stage, box: 'b' + box, button, values: {}, others: {} }));
         await c.bots[0].waitFor(() => c.bots[0].player.zt_ != null, { what: 'the market screen\'s values' });
         assert.match(Object.values(c.bots[0].player.zt_.v).join(' | '), /Cash: \| 2340\.00 \| Assets: \| 2 \| Last price: \| No trade/);
