@@ -2,9 +2,19 @@ This tutorial will show you how to program the simple public goods game used in 
 
 [Note: "App", "Game" and "Treatment" are used interchangeably in jtree.]
 
-An app is a Javascript file. The App editor shows it in parts: its **Settings**, its **Functions**, each of its **stages** (with its screens, settings and functions), **Other code**, and the whole **Source**. Changing a part changes only that statement in the file, and Source shows the whole file, where you can write anything; "Apply" (Ctrl+Enter) reads it into the other parts again. This tutorial gives the code, to type in Source; the other parts show what each piece is as you go. "Save" (Ctrl+S) writes the file, and "Save and start a session" also starts a session with the app. You can just as well edit the file in any text editor, then use File → Reload apps.
+An app is a Javascript file. The App editor shows it in three modes:
 
-<img src="images/editor.png" alt="The App editor, showing the decide stage's screen, settings and functions" style="max-width: 100%; border: 1px solid #ddd">
+- **Structured**: the app as a tree, as z-Tree shows a treatment: its stages, each stage's screens, the elements on each screen (paragraphs, inputs, buttons, ...), and its functions. Choose something in the tree to change it beside the tree: the app's and a stage's settings, an element's text, the variable an input sets (`player.contribution`), its type and limits, and any other attribute. **Add…** puts in a stage, a screen, a function, or an element (a paragraph, a number, a dropdown, radio buttons, a slider, buttons, a table, ...) after the element chosen, or at the end of the screen chosen. Elements can be moved (Alt+↑/↓), duplicated (Ctrl+D), copied, cut and pasted (Ctrl+C/X/V) and deleted (Del). A preview shows the chosen screen, with the chosen element outlined.
+- **Forms**: a page for each part: the app's **Settings** and **Functions**, each **stage** (its screens, settings and functions), and **Other code**.
+- **Source**: the whole file, where you can write anything; "Apply" (Ctrl+Enter) reads it into the other modes again.
+
+Each change changes only the statement, or the element of a screen, it is about, so the rest of the file stays as you wrote it. "Undo" and "Redo" (Ctrl+Z, Ctrl+Shift+Z) go back and forth through the changes. This tutorial gives the code, to type in Source; the other modes show what each piece is as you go. "Save" (Ctrl+S) writes the file, and "Save and start a session" also starts a session with the app. You can just as well edit the file in any text editor, then use File → Reload apps.
+
+<img src="images/editor.png" alt="The App editor in Structured mode: the app's tree, with the decide stage's number input chosen and its fields beside it" style="max-width: 100%; border: 1px solid #ddd">
+
+In Forms mode, a stage's page has its screens, settings and functions:
+
+<img src="images/editor-forms.png" alt="The App editor in Forms mode, showing the decide stage's screen, settings and functions" style="max-width: 100%; border: 1px solid #ddd">
 
 First, we will define the parameters and stages of the app. Each app file begins with a pre-defined App object called `app`, and fields are modified and/or added to this object using regular Javascript. Replace what the new app has with the following code:
 
@@ -29,7 +39,7 @@ let decideStage  = app.newStage('decide');
 let resultsStage = app.newStage('results');
 ```
 
-In the editor, each stage is listed under the app's parts, where stages can also be added, renamed, moved and deleted.
+In the editor, the stages are in the tree (Structured) or listed under the app's parts (Forms), where they can also be added, renamed, moved and deleted.
 
 The `content` field of a stage is shown to players when they are active in the stage. Content is mostly regular HTML, which consists of sets of tags. Tags are written in between greater than `<` and less than `>` characters, such as `<p>`. Tags can contain content, in which case they should also usually have an ending tag: `<p>This is a paragraph.</p>`.
 
@@ -52,7 +62,7 @@ jtree uses the Vue framework to bind screen elements to player data. For example
 
 <img src="images/participant.png" alt="The decision screen, as players see it" style="max-width: 100%; border: 1px solid #ddd">
 
-The `name` attribute of an `<input>` tag is the name of the field where the input will be stored. So, `player.contribution` will store the value of the input in a field called `contribution` on the `player` object.
+The `name` attribute of an `<input>` tag is the name of the field where the input will be stored. So, `player.contribution` will store the value of the input in a field called `contribution` on the `player` object. In the Structured mode, this screen is three paragraphs under the stage's Active screen, the last with the text and the input in it; choosing the input shows its Variable (`name`), Type, Minimum, Maximum (`:max`, an expression), Step and Required.
 
 "OK" buttons do not need to be explicitly added in many cases. They are added automatically to active screens if the screen does not contain any buttons already (see [`Stage.addOKButtonIfNone`]{@link Stage#addOKButtonIfNone}).
 

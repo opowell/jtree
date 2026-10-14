@@ -29,7 +29,7 @@ Everyone then logs in at `/admin/login`, on this computer too.
 
 #### Features
 - participants only need a browser; the server runs on Windows, macOS and Linux.
-- apps in Javascript, with an app editor in the admin.
+- apps in Javascript, with an app editor in the admin: an app as a tree of its stages, their screens and the elements on them, as z-Tree and oTree Studio show theirs, or as forms, or as source.
 - runs z-Tree treatments and oTree apps as they are, edits them as z-Tree and oTree Studio do, and converts them to jtree apps.
 - three admin interfaces: jtree's own, one laid out after z-Tree, and one after oTree's.
 - autoplay and bots for testing.
@@ -87,7 +87,7 @@ Open http://localhost:3000/admin/ (or the next free port, which the launcher pri
 | `client/internal/clients/admin/v2/` | The admin interface (admin2), served at `/admin/` with no build step, with jtree's own app editor. The older one is at `/admin/multiuser/`. |
 | `client/internal/clients/admin/ztree/` | An admin interface laid out after z-Tree, at `/admin/ztree/`, also with no build step; it edits z-Tree treatments as z-Tree does |
 | `client/internal/clients/admin/otree/` | An admin interface for oTree users, at `/admin/otree/`, with a Studio that edits oTree projects as oTree Studio does |
-| `server/source/editors/` | What the three app editors ask the server (`/api/editor/<jtree, ztree or otree>/…`): files read into their parts, edits made in place, files written |
+| `server/source/editors/` | What the three app editors ask the server (`/api/editor/<jtree, ztree or otree>/…`): files read into their parts (a jtree screen's HTML into its elements), edits made in place, files written |
 
 The launchers (and the release archives, which use them) make jtree JAS's default app (`JAS_DEFAULT_APP=jtree`), so jtree has the server to itself and serves everything from the root: the admin (`/admin/`), participant links (`/P1`, `/session/<id>/P1`), shared files and socket.io.
 

@@ -15,7 +15,30 @@ export interface Value {
   value?: unknown
   params?: string[]
   body?: string
+  /** A screen's (kind text) elements, with ranges in value. */
+  nodes?: ScreenNode[]
 }
+
+/** An element, text or comment of a screen, as the server reads it (server/source/editors/html.js). */
+export interface ScreenNode {
+  type: 'element' | 'text' | 'comment'
+  tag?: string
+  attrs?: Array<{ name: string, value: string | null }>
+  text?: string
+  range: Range
+  /** An element's content: between its tags. */
+  inner?: Range | null
+  children?: ScreenNode[]
+}
+
+/** A change to a screen; path is the node's indexes into children, from the top. */
+export type ScreenEdit =
+  | { do: 'insert', path?: number[], where?: 'before' | 'after' | 'inside', html: string }
+  | { do: 'remove', path: number[] }
+  | { do: 'move', path: number[], by: -1 | 1 }
+  | { do: 'replace', path: number[], html: string }
+  | { do: 'setContent', path: number[], html: string }
+  | { do: 'setAttr', path: number[], name: string, value?: string | null, remove?: boolean }
 
 export interface Prop extends Value {
   name: string
@@ -50,6 +73,7 @@ export type Edit =
   | { op: 'moveStage', name: string, to: number }
   | { op: 'setStageProp', stage: string, name: string, value: Value }
   | { op: 'removeStageProp', stage: string, name: string }
+  | { op: 'editScreen', stage?: string, name: string, edit: ScreenEdit }
 
 /** Calls an editor action; rejects with the server's message if it refuses. */
 export async function editorCall<T>(dialect: string, action: string, body: unknown): Promise<T> {

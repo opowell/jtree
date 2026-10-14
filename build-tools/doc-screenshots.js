@@ -4,7 +4,7 @@
 //
 //     node build-tools/doc-screenshots.js [<names>...]
 //
-// takes them all, or only those named (admin, participant, editor, ztree-admin, ztree-participant,
+// takes them all, or only those named (admin, participant, editor (and editor-forms), ztree-admin, ztree-participant,
 // otree-sessions, otree-session, otree-participant, otree-studio). Then rebuild the docs.
 const fs = require('node:fs');
 const path = require('node:path');
@@ -118,16 +118,26 @@ SECRET_KEY = 'x'
             await fill(page, '#new-name', 'my-public-goods');
             await fill(page, '#new-desc', 'A public goods game.');
             await clickText(page, 'button', '^Create$');
-            await page.waitFor(() => document.querySelector('.ed__nav'), { what: 'the editor' });
+            await page.waitFor(() => document.querySelector('.ed__mode'), { what: 'the editor' });
             const src = fs.readFileSync(path.join(apps, '1 sample games/public-good.jtt'), 'utf8').replace(/^app\.description = .*\n\n/, "app.description = 'A public goods game.';\n\n");
-            await clickText(page, '.ed__link', '^Source');
+            await clickText(page, '.ed__mode', '^Source$');
             await page.waitFor(() => document.querySelector('.ed__source'), { what: 'source' });
             await fill(page, '.ed__source', src);
             await clickText(page, '.btn', '^Apply$');
             await sleep(800);
             await clickText(page, '.btn', '^Save$');
             await page.waitFor(() => !/not saved/.test(document.body.innerText), { what: 'saved' });
+            // Forms: the decide stage's page.
+            await clickText(page, '.ed__mode', '^Forms$');
+            await page.waitFor(() => document.querySelector('.ed__nav'), { what: 'the forms' });
             await clickText(page, '.ed__link', 'decide');
+            await shot(page, 'editor-forms', { x: 0, y: 0, width: 508, height: 813 });
+            // Structured: the tree, the decide stage's number input chosen in it.
+            await clickText(page, '.ed__mode', '^Structured$');
+            await page.waitFor(() => document.querySelector('.at__tree'), { what: 'the tree' });
+            await page.eval(() => [...document.querySelectorAll('.tr')].find((r) => /^input/.test(r.innerText.trim())).dispatchEvent(new MouseEvent('mousedown', { bubbles: true })));
+            await page.waitFor(() => document.querySelector('#el-name'), { what: "the input's fields" });
+            await sleep(500);
             await shot(page, 'editor', { x: 0, y: 0, width: 508, height: 813 });
             await page.close();
         }

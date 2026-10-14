@@ -2,6 +2,7 @@ const path = require('path');
 const fs = require('fs-extra');
 const { pathToFileURL } = require('url');
 const { fail } = require('./util.js');
+const html = require('./html.js');
 
 /*
  * jtree apps (.jtt) as jtree's app editor shows them: the app's settings (`app.x = value;`),
@@ -64,7 +65,11 @@ function describeValue(source, node) {
     const out = { kind: valueKind(node), code: source.slice(node.start, node.end) };
     if (out.kind === 'number') out.value = Number(out.code);
     else if (out.kind === 'boolean' || out.kind === 'string') out.value = node.value;
-    else if (out.kind === 'text') out.value = node.quasis[0].value.cooked;
+    else if (out.kind === 'text') {
+        out.value = node.quasis[0].value.cooked;
+        // A screen's elements, for the structured mode (ranges are in value).
+        out.nodes = html.describe(html.parse(out.value));
+    }
     else if (out.kind === 'function') {
         out.params = node.params.map((p) => source.slice(p.start, p.end));
         out.async = Boolean(node.async);
@@ -250,6 +255,20 @@ function findStage(m, name) {
     return stage;
 }
 
+/** Every identifier in node that names a variable (not `x` in `a.x` or `{x: 1}`). */
+function identifiers(node, out = []) {
+    if (!node || typeof node.type !== 'string') return out;
+    if (node.type === 'Identifier') out.push(node);
+    for (const key of Object.keys(node)) {
+        if (key === 'property' && node.type === 'MemberExpression' && !node.computed) continue;
+        if (key === 'key' && /^(Property|MethodDefinition|PropertyDefinition)$/.test(node.type) && !node.computed && !node.shorthand) continue;
+        const v = node[key];
+        if (Array.isArray(v)) v.forEach((c) => identifiers(c, out));
+        else if (v && typeof v === 'object') identifiers(v, out);
+    }
+    return out;
+}
+
 /** The stage's statements, end of the source first (to cut them without moving the others). */
 const lastFirst = (ranges) => ranges.slice().sort((a, b) => b.start - a.start);
 
@@ -259,6 +278,8 @@ const lastFirst = (ranges) => ranges.slice().sort((a, b) => b.start - a.start);
  * - {op: 'addStage', name, after?}, {op: 'renameStage', name, to}, {op: 'deleteStage', name}
  * - {op: 'moveStage', name, to} (to: the stage's new index)
  * - {op: 'setStageProp', stage, name, value}, {op: 'removeStageProp', stage, name}
+ * - {op: 'editScreen', stage?, name, edit}: a screen of the stage (of the app, with no stage),
+ *   changed by edit, as html.js's edit takes it; the rest of the screen stays as it was.
  * Values are as valueSource takes them.
  */
 function apply(source, op) {
@@ -294,7 +315,16 @@ function apply(source, op) {
             const to = String(op.to || '').trim();
             if (!to) fail('a stage needs a name');
             if (to !== op.name && m.stages.some((s) => s.name === to)) fail('there is already a stage ' + JSON.stringify(to));
-            return replace(source, stage.nameRange, valueSource({ kind: 'string', value: to }));
+            source = replace(source, stage.nameRange, valueSource({ kind: 'string', value: to }));
+            // A variable the editor named after the stage is named after its new name.
+            const others = new Set(m.stages.filter((s) => s !== stage).map((s) => s.varName));
+            if (stage.varName && stage.varName === stageVariable(op.name, others)) {
+                const program = acorn.parse(source, PARSE_OPTIONS);
+                const names = identifiers(program);
+                const varName = stageVariable(to, new Set([...others, ...names.map((n) => n.name)]));
+                for (const n of names.filter((x) => x.name === stage.varName).sort((a, b) => b.start - a.start)) source = replace(source, n, varName);
+            }
+            return source;
         }
         case 'deleteStage': {
             const stage = findStage(m, op.name);
@@ -338,6 +368,13 @@ function apply(source, op) {
             const stage = findStage(m, op.stage);
             const prop = stage.props.find((p) => p.name === op.name);
             return prop ? replace(source, prop.range, '') : source;
+        }
+        case 'editScreen': {
+            const props = op.stage != null ? findStage(m, op.stage).props : m.app;
+            const prop = props.find((p) => p.name === op.name);
+            if (!prop) fail('there is no ' + op.name);
+            if (prop.kind !== 'text') fail(op.name + ' is made by code: change it as code');
+            return replace(source, prop.valueRange, templateLiteral(html.edit(prop.value, op.edit || {})));
         }
         default:
             fail('unknown edit: ' + op.op);

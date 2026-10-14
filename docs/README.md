@@ -14,7 +14,7 @@ The admin page opens in your browser, at http://localhost:3000/admin/. On macOS,
 
 #### Features
 - participants only need a browser; the server runs on Windows, macOS and Linux.
-- apps in Javascript, with an app editor in the admin.
+- apps in Javascript, with an app editor in the admin: an app as a tree of its stages, their screens and the elements on them, as z-Tree and oTree Studio show theirs, or as forms, or as source.
 - runs z-Tree treatments and oTree apps as they are, edits them as z-Tree and oTree Studio do, and converts them to jtree apps.
 - three admin interfaces: jtree's own, one laid out after z-Tree, and one after oTree's.
 - autoplay and bots for testing.

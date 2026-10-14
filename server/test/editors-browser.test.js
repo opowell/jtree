@@ -66,7 +66,9 @@ test("jtree's editor: a new app, a stage and a function, saved", { skip }, async
     await fill(page, '#new-name', 'mine/ultimatum');
     await fill(page, '#new-desc', 'An ultimatum game.');
     await clickText(page, 'button', '^Create$');
-    await page.waitFor(() => document.querySelector('.ed__nav'), { what: 'the editor' });
+    await page.waitFor(() => document.querySelector('.ed__mode'), { what: 'the editor' });
+    await clickText(page, '.ed__mode', '^Forms$');
+    await page.waitFor(() => document.querySelector('.ed__nav'), { what: 'the forms' });
     // A number setting, typed in its field.
     await fill(page, '#vf-numPeriods', '3');
     await page.waitFor(() => /not saved/.test(document.body.innerText), { what: 'numPeriods set' });
@@ -91,6 +93,67 @@ test("jtree's editor: a new app, a stage and a function, saved", { skip }, async
     assert.deepEqual(app.stages.map((s) => s.id), ['decide', 'respond']);
     assert.equal(app.numPeriods, 3);
     assert.match(fs.readFileSync(file, 'utf8'), /respondStage\.groupStart = function\(group\) \{\n {4}group\.done = true;\n\};\n/);
+    assert.deepEqual(page.errors, []);
+    await page.close();
+});
+
+test("jtree's editor, structured: a screen's elements added, changed and moved in its tree, saved", { skip }, async () => {
+    const page = await browser.open(server.url + '/admin/');
+    await page.waitFor(() => document.querySelector('.admin__status[data-connected=true]'), { what: 'admin v2', timeout: 240000 });
+    await menu(page, 'File', '^New app');
+    await page.waitFor(() => document.querySelector('#new-name'), { what: 'the new app form' });
+    await fill(page, '#new-name', 'mine/offer');
+    await clickText(page, 'button', '^Create$');
+    await page.waitFor(() => document.querySelector('.ed__mode'), { what: 'the editor' });
+    await clickText(page, '.ed__mode', '^Structured$');
+    await page.waitFor(() => document.querySelector('.at__tree'), { what: 'the tree' });
+
+    /** Chooses the tree's row whose text matches pattern. */
+    const choose = (pattern) => page.eval((r) => {
+        const row = [...document.querySelectorAll('.tr')].find((el) => new RegExp(r).test(el.innerText.trim()));
+        if (!row) throw new Error('no row ' + r);
+        row.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    }, pattern);
+    /** Adds what Add offers as label. */
+    const add = (label) => page.eval((l) => {
+        const menu = document.querySelector('.at__add');
+        menu.value = [...menu.options].find((o) => o.text === l).value;
+        menu.dispatchEvent(new Event('change'));
+    }, label);
+    /** Presses key on the tree. */
+    const press = (key, altKey = false) => page.eval((k, a) => document.querySelector('.at__tree').dispatchEvent(new KeyboardEvent('keydown', { key: k, altKey: a, bubbles: true })), key, altKey);
+    const tree = () => page.eval(() => document.querySelector('.at__tree').innerText.replace(/\s+/g, ' '));
+
+    // A number and a heading put in the stage's screen; the number's variable and limit set.
+    await choose('Active screen');
+    await add('Number');
+    await page.waitFor(() => /Your choice/.test(document.querySelector('.at__tree').innerText), { what: 'the number' });
+    await add('Heading');
+    await page.waitFor(() => /Heading/.test(document.querySelector('.at__tree').innerText), { what: 'the heading' });
+    await choose('^input');
+    await page.waitFor(() => document.querySelector('#el-name'), { what: "the input's fields" });
+    await fill(page, '#el-name', 'player.offer');
+    await page.waitFor(() => /player\.offer/.test(document.querySelector('.at__tree').innerText), { what: 'the variable' });
+    await fill(page, '#el-max', '50');
+    await page.waitFor(() => /max='50'/.test(document.querySelector('.at__preview iframe')?.srcdoc ?? ''), { what: 'the maximum' });
+    // The heading moved up, above the number's paragraph; deleted, and the delete undone.
+    await choose('^h3');
+    await press('ArrowUp', true);
+    await page.waitFor(() => /decide.*Heading.*Your choice/.test(document.querySelector('.at__tree').innerText.replace(/\s+/g, ' ')), { what: 'the heading moved' });
+    const before = await tree();
+    await press('Delete');
+    await page.waitFor(() => !/Heading/.test(document.querySelector('.at__tree').innerText), { what: 'the heading deleted' });
+    await clickText(page, '.btn', '^Undo$');
+    await page.waitFor(() => /Heading/.test(document.querySelector('.at__tree').innerText), { what: 'the heading back' });
+    assert.equal(await tree(), before);
+    await sleep(300);
+    await clickText(page, '.btn', '^Save$');
+    await page.waitFor(() => !/not saved/.test(document.body.innerText), { what: 'saved' });
+
+    const file = path.join(apps, 'mine/offer.jtt');
+    const app = server.jt.data.loadApp(file, null, file, {});
+    assert.equal(app.hasError, false);
+    assert.equal(app.stages[0].activeScreen, "\n    <p>decide</p>\n    <h3>Heading</h3>\n    <p>Your choice: <input name='player.offer' type='number' required min='0' max='50' step='1'></p>\n");
     assert.deepEqual(page.errors, []);
     await page.close();
 });

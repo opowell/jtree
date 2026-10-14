@@ -1,23 +1,40 @@
 <script lang="ts">
 /** The editor panel last clicked or typed in, which Ctrl+S saves when the focus is on nothing. */
 let lastUsed: string | null = null
+
+export type Mode = 'structured' | 'forms' | 'source'
+const MODE_KEY = 'jtree.appEditor.mode'
+const MODES: Record<Mode, string> = { structured: 'Structured', forms: 'Forms', source: 'Source' }
+
+/** The mode last chosen, in this browser. */
+function storedMode(): Mode {
+  try {
+    const m = localStorage.getItem(MODE_KEY)
+    if (m === 'forms' || m === 'structured') return m
+  } catch { /* no storage: the default */ }
+  return 'structured'
+}
 </script>
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
+import AppTree from '../components/AppTree.vue'
 import ConfirmButton from '../components/ConfirmButton.vue'
 import ValueField from '../components/ValueField.vue'
 import { state } from '../server/connection'
 import { server } from '../server/commands'
 import { APP_SETTINGS, SETTING_HINTS, STAGE_SETTINGS, emptyValue, jtreeEditor } from '../server/editor'
 import type { AppModel, Edit, Prop, Value } from '../server/editor'
+import type { TreeView } from '../appTree'
 import { relativePath } from '../schema'
 import { renameEditor, showPanel } from '../workspace'
 
 /*
  * jtree's app editor: an app's settings, its stages (each with its settings, screens and
- * functions) and the rest of its code, from its .jtt file. Every change is made in the source by
- * the server, which leaves the rest as it was written; File → Save writes it.
+ * functions) and the rest of its code, from its .jtt file, in one of three modes: Structured (the
+ * app as a tree down to its screens' elements, AppTree), Forms (a page per part) and Source.
+ * Every change is made in the source by the server, which leaves the rest as it was written, and
+ * can be undone; File → Save writes it.
  */
 const props = defineProps<{ panelId: string, appPath: string }>()
 
@@ -26,6 +43,10 @@ const saved = ref('')
 const model = ref<AppModel | null>(null)
 const path = ref(props.appPath === 'new' ? '' : props.appPath)
 const selected = ref('settings')
+const mode = ref<Mode>(storedMode())
+const treeView = reactive<TreeView>({ selected: 'app', collapsed: {} })
+const undone = ref<string[]>([])
+const redone = ref<string[]>([])
 const problem = ref('')
 const busy = ref(false)
 const loading = ref(props.appPath !== 'new')
@@ -47,6 +68,7 @@ const stageFunctions = computed(() => (stage.value?.props ?? []).filter((p) => p
 const missingStageSettings = computed(() => Object.keys(STAGE_SETTINGS).filter((n) => !stage.value?.props.some((p) => p.name === n)))
 const missingStageScreens = computed(() => ['activeScreen', 'waitingScreen'].filter((n) => !stage.value?.props.some((p) => p.name === n)))
 const missingStageHooks = computed(() => Object.keys(model.value?.stageHooks ?? {}).filter((n) => !stage.value?.props.some((p) => p.name === n)))
+const fileName = computed(() => relativePath(path.value).split(/[\\/]/).pop() ?? '')
 const app = computed(() => Object.values(state.apps).find((a) => a.appPath === path.value) ?? null)
 
 async function open() {
@@ -56,7 +78,7 @@ async function open() {
     path.value = opened.appPath
     source.value = saved.value = sourceDraft.value = opened.source
     model.value = opened.model
-    if (opened.model.error) selected.value = 'source'
+    if (opened.model.error) mode.value = 'source'
     problem.value = ''
   } catch (err) {
     problem.value = (err as Error).message
@@ -66,7 +88,35 @@ async function open() {
 }
 onMounted(() => { if (props.appPath !== 'new') void open() })
 
-watch(source, (s) => { if (selected.value !== 'source') sourceDraft.value = s })
+watch(source, (s) => { if (mode.value !== 'source') sourceDraft.value = s })
+
+function setMode(m: Mode) {
+  if (m === mode.value) return
+  // Leaving Source applies what was typed there.
+  if (mode.value === 'source') void applySource()
+  mode.value = m
+  if (m !== 'source') try { localStorage.setItem(MODE_KEY, m) } catch { /* not remembered */ }
+}
+
+/** Source changed (by an edit, Source or Revert): what it was, to undo it. */
+function changed(to: string) {
+  if (to === source.value) return
+  undone.value.push(source.value)
+  if (undone.value.length > 200) undone.value.shift()
+  redone.value = []
+  source.value = to
+}
+
+async function undo(back = true) {
+  await queue
+  const from = back ? undone.value : redone.value
+  const to = back ? redone.value : undone.value
+  const s = from.pop()
+  if (s == null) return
+  to.push(source.value)
+  source.value = sourceDraft.value = s
+  await applySourceNow()
+}
 
 // Edits run one after another, each on the source the one before left.
 let queue: Promise<void> = Promise.resolve()
@@ -75,7 +125,7 @@ function edit(op: Edit) {
     busy.value = true
     try {
       const out = await jtreeEditor.apply(source.value, op)
-      source.value = out.source
+      changed(out.source)
       model.value = out.model
       problem.value = ''
     } catch (err) {
@@ -92,7 +142,7 @@ async function applySource() {
   busy.value = true
   try {
     model.value = (await jtreeEditor.model(sourceDraft.value)).model
-    source.value = sourceDraft.value
+    changed(sourceDraft.value)
     problem.value = ''
   } catch (err) {
     problem.value = (err as Error).message
@@ -103,7 +153,7 @@ async function applySource() {
 
 async function save() {
   await queue
-  if (selected.value === 'source') await applySource()
+  if (mode.value === 'source') await applySource()
   busy.value = true
   try {
     await jtreeEditor.save(path.value, source.value)
@@ -117,11 +167,17 @@ async function save() {
 }
 
 function revert() {
-  source.value = sourceDraft.value = saved.value
+  changed(saved.value)
+  sourceDraft.value = saved.value
   void applySourceNow()
 }
 async function applySourceNow() {
-  model.value = (await jtreeEditor.model(source.value)).model
+  try {
+    model.value = (await jtreeEditor.model(source.value)).model
+    problem.value = ''
+  } catch (err) {
+    problem.value = (err as Error).message
+  }
 }
 
 async function create() {
@@ -206,18 +262,28 @@ function sourceKey(event: KeyboardEvent) {
 }
 
 /*
- * Ctrl+S saves this app: when the focus is in this panel, or when it was the editor last used and
- * the focus is on nothing (a button that went away after its click leaves it on the page).
+ * Ctrl+S saves this app, and Ctrl+Z / Ctrl+Shift+Z (Ctrl+Y) undo and redo its changes (outside
+ * text fields, which undo their own typing): when the focus is in this panel, or when it was the
+ * editor last used and the focus is on nothing (a button that went away after its click leaves
+ * it on the page).
  */
 const pane = ref<HTMLElement | null>(null)
 function keys(event: KeyboardEvent) {
-  if (event.key !== 's' || !(event.ctrlKey || event.metaKey)) return
+  if (!(event.ctrlKey || event.metaKey)) return
+  const key = event.key.toLowerCase()
+  if (key !== 's' && key !== 'z' && key !== 'y') return
   const active = document.activeElement
   const here = pane.value?.contains(active) || ((!active || active === document.body) && lastUsed === props.panelId)
   if (!here || !path.value) return
+  if (key !== 's') {
+    if (active && /^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName)) return
+    event.preventDefault()
+    void undo(key === 'z' && !event.shiftKey)
+    return
+  }
   event.preventDefault()
   ;(active as HTMLElement | null)?.blur()
-  if (selected.value === 'source') void applySource().then(save)
+  if (mode.value === 'source') void applySource().then(save)
   else void save()
 }
 const used = () => { lastUsed = props.panelId }
@@ -243,21 +309,39 @@ onUnmounted(() => window.removeEventListener('keydown', keys))
 
     <template v-else>
       <header class="pane__head">
-        <h2 class="pane__title">{{ relativePath(path).split(/[\\/]/).pop() }}</h2>
+        <h2 class="pane__title">{{ fileName }}</h2>
         <span class="muted dc-mono dc-truncate" style="flex: 1 1 0">{{ relativePath(path) }}</span>
         <span v-if="dirty" class="ed__dirty" title="Changed since it was saved">● not saved</span>
+        <button type="button" class="btn" :disabled="!undone.length || busy" title="Undo (Ctrl+Z)" @click="undo(true)">Undo</button>
+        <button type="button" class="btn" :disabled="!redone.length || busy" title="Redo (Ctrl+Shift+Z)" @click="undo(false)">Redo</button>
         <button type="button" class="btn" :disabled="!dirty || busy" @click="revert">Revert</button>
         <button type="button" class="btn btn--primary" :disabled="!dirty || busy" title="Ctrl+S" @click="save">Save</button>
         <button type="button" class="btn" :disabled="busy || !state.connected || Boolean(model?.error)" @click="startSession">Save and start a session</button>
       </header>
+      <div class="ed__modes" role="tablist" aria-label="Mode">
+        <button v-for="(label, m) in MODES" :key="m" type="button" role="tab" class="ed__mode" :aria-selected="mode === m" @click="setMode(m)">{{ label }}</button>
+      </div>
       <p v-if="problem" class="ed__problem" role="alert">{{ problem }}</p>
       <p v-if="loading" class="hint">Opening…</p>
 
-      <div v-if="model" class="ed__body">
+      <div v-if="model && mode === 'source'" class="ed__main">
+        <div class="toolbar">
+          <p class="hint" style="margin: 0 auto 0 0">The whole file. Apply (Ctrl+Enter) reads it again into the other modes.</p>
+          <button type="button" class="btn" :disabled="sourceDraft === source || busy" title="Ctrl+Enter" @click="applySource">Apply</button>
+        </div>
+        <p v-if="model.error" class="ed__problem">The source does not parse (line {{ model.error.line }}): {{ model.error.message }}.</p>
+        <textarea v-model="sourceDraft" class="field dc-mono ed__source" spellcheck="false" aria-label="Source" @keydown="sourceKey" />
+      </div>
+
+      <p v-else-if="model && model.error" class="ed__problem">The source does not parse (line {{ model.error.line }}): {{ model.error.message }}. Fix it in Source.</p>
+
+      <AppTree v-else-if="model && mode === 'structured'" :model="model" :title="fileName" :busy="busy" :edit="edit" :view="treeView" />
+
+      <div v-else-if="model" class="ed__body">
         <nav class="ed__nav" aria-label="Parts of the app">
           <div class="dc-eyebrow">App</div>
-          <button type="button" class="ed__link" :aria-current="selected === 'settings'" :disabled="Boolean(model.error)" @click="selected = 'settings'">Settings <span class="muted">{{ appSettings.length }}</span></button>
-          <button type="button" class="ed__link" :aria-current="selected === 'functions'" :disabled="Boolean(model.error)" @click="selected = 'functions'">Functions <span class="muted">{{ appFunctions.length }}</span></button>
+          <button type="button" class="ed__link" :aria-current="selected === 'settings'" @click="selected = 'settings'">Settings <span class="muted">{{ appSettings.length }}</span></button>
+          <button type="button" class="ed__link" :aria-current="selected === 'functions'" @click="selected = 'functions'">Functions <span class="muted">{{ appFunctions.length }}</span></button>
           <div class="dc-eyebrow ed__group">Stages</div>
           <ol class="ed__stages">
             <li v-for="(s, i) in model.stages" :key="s.name">
@@ -266,19 +350,16 @@ onUnmounted(() => window.removeEventListener('keydown', keys))
           </ol>
           <p v-if="model.otherStages" class="hint">Some stages are made by other code; see Other code.</p>
           <form class="ed__add" @submit.prevent="addStage">
-            <input v-model="newStage" class="field" placeholder="New stage" aria-label="Name of a new stage" :disabled="Boolean(model.error)">
+            <input v-model="newStage" class="field" placeholder="New stage" aria-label="Name of a new stage">
             <button type="submit" class="btn btn--small" :disabled="!newStage.trim() || busy">Add</button>
           </form>
           <div class="dc-eyebrow ed__group">Code</div>
           <button type="button" class="ed__link" :aria-current="selected === 'other'" @click="selected = 'other'">Other code <span class="muted">{{ model.other.length }}</span></button>
-          <button type="button" class="ed__link" :aria-current="selected === 'source'" @click="selected = 'source'">Source</button>
         </nav>
 
         <section class="ed__main">
-          <p v-if="model.error && selected !== 'source'" class="ed__problem">The source does not parse (line {{ model.error.line }}): {{ model.error.message }}. Fix it in Source.</p>
-
           <!-- App settings -->
-          <template v-else-if="selected === 'settings'">
+          <template v-if="selected === 'settings'">
             <h3 class="ed__title">Settings</h3>
             <p class="hint">What the app sets on <code>app</code>: <code>app.numPeriods = 10;</code> and the like. Values used in screens and functions go here too.</p>
             <ValueField v-for="p in appSettings" :key="p.name" :name="p.name" :value="p" :hint="SETTING_HINTS[p.name]" removable @set="setApp(p, $event)" @remove="edit({ op: 'removeAppProp', name: p.name })" />
@@ -345,15 +426,6 @@ onUnmounted(() => window.removeEventListener('keydown', keys))
             <p v-if="!model.other.length" class="hint">None.</p>
           </template>
 
-          <template v-else-if="selected === 'source'">
-            <div class="toolbar">
-              <h3 class="ed__title" style="margin-right: auto">Source</h3>
-              <button type="button" class="btn" :disabled="sourceDraft === source || busy" title="Ctrl+Enter" @click="applySource">Apply</button>
-            </div>
-            <p class="hint">The whole file. Apply (Ctrl+Enter) reads it again into the other views.</p>
-            <textarea v-model="sourceDraft" class="field dc-mono ed__source" spellcheck="false" aria-label="Source" @keydown="sourceKey" />
-          </template>
-
           <p v-else class="hint">Choose a part of the app.</p>
         </section>
       </div>
@@ -364,6 +436,10 @@ onUnmounted(() => window.removeEventListener('keydown', keys))
 <style scoped>
 .ed { gap: 10px; }
 .ed__dirty { color: var(--dc-warn); font-size: var(--dc-text-meta); }
+.ed__modes { display: flex; gap: 2px; border-bottom: 1px solid var(--dc-line); }
+.ed__mode { padding: 4px 12px; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; background: none; color: var(--dc-fg-1); font: inherit; font-size: var(--dc-text-meta); cursor: pointer; }
+.ed__mode:hover { color: var(--dc-fg-0); }
+.ed__mode[aria-selected='true'] { border-bottom-color: var(--dc-accent); color: var(--dc-accent); font-weight: var(--dc-weight-semibold); }
 .ed__problem { margin: 0; padding: 6px 10px; border-radius: var(--dc-radius-sm); background: var(--dc-danger-bg); color: var(--dc-danger); font-size: var(--dc-text-meta); }
 .ed__body { display: grid; grid-template-columns: minmax(150px, 200px) minmax(0, 1fr); gap: 16px; min-height: 0; flex: 1 1 auto; }
 .ed__nav { display: flex; flex-direction: column; gap: 2px; border-right: 1px solid var(--dc-line); padding-right: 10px; min-width: 0; }

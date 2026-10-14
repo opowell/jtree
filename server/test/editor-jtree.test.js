@@ -98,9 +98,99 @@ test('edits change only what they are about, and jtree runs the result', () => {
     assert.match(source, /app\.endowment {3}= 20;\napp\.factor = 1\.5;\n\nlet decideStage/);
 });
 
+test("a renamed stage's variable is renamed too, if the editor named it after the stage", () => {
+    const source = "let stageStage = app.newStage('stage');\nstageStage.duration = 5;\nplayer.stageStage = {stageStage: 1};\nlet mine = app.newStage('b');\n";
+    let out = editor.apply(source, { op: 'renameStage', name: 'stage', to: 'my survey' });
+    assert.equal(out, "let mySurveyStage = app.newStage('my survey');\nmySurveyStage.duration = 5;\nplayer.stageStage = {stageStage: 1};\nlet mine = app.newStage('b');\n");
+    out = editor.apply(out, { op: 'renameStage', name: 'b', to: 'c' });
+    assert.match(out, /let mine = app\.newStage\('c'\);/, 'a name of its own stays');
+});
+
 test('a stage made without a variable gets one when something is set on it', () => {
     const source = editor.apply("app.newStage('a');\napp.newStage('b');\n", { op: 'setStageProp', stage: 'b', name: 'duration', value: { kind: 'number', value: 5 } });
     assert.equal(source, "app.newStage('a');\nlet bStage = app.newStage('b');\nbStage.duration = 5;\n");
+});
+
+/** Each node's tag (or type), and its children's, as nested arrays. */
+const shape = (nodes) => nodes.map((n) => (n.type === 'element' ? (n.children.length ? [n.tag, shape(n.children)] : n.tag) : n.type));
+
+test("every sample app's screens are read into their elements, each where it is written", () => {
+    const within = (nodes, start, end, rel) => {
+        let at = start;
+        for (const n of nodes) {
+            assert.ok(n.range.start >= at && n.range.end <= end && n.range.start <= n.range.end, rel);
+            at = n.range.end;
+            if (n.children) within(n.children, n.inner ? n.inner.start : n.range.start, n.inner ? n.inner.end : n.range.end, rel);
+        }
+    };
+    for (const rel of SAMPLES) {
+        const m = editor.model(fs.readFileSync(sampleApp(rel), 'utf8'));
+        for (const p of [...m.app, ...m.stages.flatMap((s) => s.props)].filter((x) => x.kind === 'text')) {
+            assert.ok(Array.isArray(p.nodes), rel + ' ' + p.name);
+            within(p.nodes, 0, p.value.length, rel + ' ' + p.name);
+        }
+    }
+    const decide = editor.model(fs.readFileSync(sampleApp('1 sample games/public-good.jtt'), 'utf8')).stages[0];
+    const screen = decide.props.find((p) => p.name === 'activeScreen');
+    assert.deepEqual(shape(screen.nodes), [['p', ['text']], ['p', ['text']], ['p', ['text', 'input']]]);
+    const input = screen.nodes[2].children[1];
+    assert.deepEqual(input.attrs.map((a) => [a.name, a.value]), [['name', 'player.contribution'], ['required', null], ['type', 'number'], ['min', '0'], [':max', 'app.endowment'], ['step', '1']]);
+    assert.equal(screen.value.slice(input.range.start, input.range.end), "<input name='player.contribution' required type='number' min='0' :max='app.endowment' step='1'>");
+});
+
+test('screen edits change only the element they are about, and jtree runs the result', () => {
+    const original = fs.readFileSync(sampleApp('1 sample games/public-good.jtt'), 'utf8');
+    const screenEdit = (source, edit, stage = 'decide') => editor.apply(source, { op: 'editScreen', stage, name: 'activeScreen', edit });
+    const decideScreen = (source) => editor.model(source).stages[0].props.find((p) => p.name === 'activeScreen').value;
+
+    let source = screenEdit(original, { do: 'setAttr', path: [2, 1], name: 'step', value: '5' });
+    assert.equal(source, original.replace("app.endowment' step='1'>", "app.endowment' step='5'>"));
+    source = screenEdit(source, { do: 'setAttr', path: [2, 1], name: 'required', remove: true });
+    assert.equal(source, original.replace("contribution' required type", "contribution' type").replace("step='1'>", "step='5'>"));
+    source = screenEdit(source, { do: 'setAttr', path: [2, 1], name: 'placeholder', value: "e.g. 'ten'" });
+    assert.match(source, /step='5' placeholder="e\.g\. 'ten'">/);
+
+    source = screenEdit(original, { do: 'setContent', path: [0], html: 'DECIDE' });
+    assert.equal(source, original.replace('<p>DECISION</p>', '<p>DECIDE</p>'));
+    source = screenEdit(original, { do: 'replace', path: [1, 0], html: 'You have {{app.endowment}} E$.' });
+    assert.equal(source, original.replace('Your endowment is {{app.endowment}} E$.', 'You have {{app.endowment}} E$.'));
+
+    // Put in after an element, and as the last of a box's children: on lines of their own, indented as it is.
+    source = screenEdit(original, { do: 'insert', path: [0], where: 'after', html: '<div>\n    <b>Round {{period.id}}</b>\n</div>' });
+    assert.equal(decideScreen(source), '\n    <p>DECISION</p>\n    <div>\n        <b>Round {{period.id}}</b>\n    </div>\n    <p>Your endowment is {{app.endowment}} E$.</p>\n' +
+        "    <p>Your contribution (E$): <input name='player.contribution' required type='number' min='0' :max='app.endowment' step='1'></p>\n");
+    source = screenEdit(source, { do: 'insert', path: [1], where: 'inside', html: '<br>' });
+    assert.match(decideScreen(source), /<b>Round \{\{period\.id\}\}<\/b>\n {8}<br>\n {4}<\/div>/);
+    source = screenEdit(source, { do: 'insert', html: '<button>OK</button>' });
+    assert.match(decideScreen(source), /step='1'><\/p>\n {4}<button>OK<\/button>\n$/);
+    assert.deepEqual(stagesJtreeMakes(source), ['decide', 'results']);
+
+    // Moved down past its sibling, then taken out with its line: as it was.
+    source = screenEdit(original, { do: 'move', path: [0], by: 1 });
+    assert.equal(source, original.replace('<p>DECISION</p>\n    <p>Your endowment is {{app.endowment}} E$.</p>', '<p>Your endowment is {{app.endowment}} E$.</p>\n    <p>DECISION</p>'));
+    source = screenEdit(source, { do: 'move', path: [1], by: -1 });
+    assert.equal(source, original);
+    source = screenEdit(original, { do: 'remove', path: [1] });
+    assert.equal(source, original.replace('    <p>Your endowment is {{app.endowment}} E$.</p>\n', ''));
+    assert.throws(() => screenEdit(original, { do: 'move', path: [0], by: -1 }), /already the first/);
+    assert.throws(() => screenEdit(original, { do: 'remove', path: [7] }), /no element at \[7\]/);
+
+    // An app's screen; a screen made by code is not edited as elements.
+    source = editor.apply("app.waitingScreen = `<p>Wait</p>`;\n", { op: 'editScreen', name: 'waitingScreen', edit: { do: 'insert', path: [0], where: 'after', html: '<p>{{x}}</p>' } });
+    assert.equal(source, "app.waitingScreen = `<p>Wait</p>\n<p>{{x}}</p>`;\n");
+    assert.throws(() => editor.apply('let s = app.newStage(\'a\');\ns.activeScreen = `<p>${1}</p>`;\n', { op: 'editScreen', stage: 'a', name: 'activeScreen', edit: { do: 'remove', path: [0] } }), /made by code/);
+});
+
+test('screens are read as browsers read them: end tags left out, raw text, comments', () => {
+    const html = require('../source/editors/html.js');
+    const text = "<p>one<p>two</p></div>\n<select name='x'>\n    <option value=1>A\n    <option value=2>B\n</select>\n<script>if (a < b) s = '</p>';</script>\n<!-- note -->\n<textarea><b>not</b></textarea>{{ a < b }}";
+    const nodes = html.parse(text);
+    assert.deepEqual(shape(nodes), [['p', ['text']], ['p', ['text']], ['select', [['option', ['text']], ['option', ['text']]]], ['script', ['text']], 'comment', ['textarea', ['text']], 'text']);
+    const option = nodes[2].children[0];
+    assert.equal(text.slice(option.range.start, option.range.end), '<option value=1>A', 'an element left open ends at the last thing in it');
+    assert.equal(nodes[6].text, '{{ a < b }}');
+    // Put in after the open option: on its own line, inside the select.
+    assert.match(html.edit(text, { do: 'insert', path: [2, 0], where: 'after', html: '<option value=3>C' }), /<option value=1>A\n {4}<option value=3>C\n {4}<option value=2>B/);
 });
 
 test('source that does not parse says where', () => {

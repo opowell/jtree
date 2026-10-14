@@ -63,7 +63,7 @@ File → New jtree App, or opening a `.jtt`, shows a jtree app as a treatment (`
 its stage tree made from its source. Treatment → New Stage…, New Program…, and Edit →
 Cut/Copy/Paste change the source; the Stage and Program dialogs change a stage and its hooks.
 Edits stay in the window until File → Save writes the file on the server. (jtree's own app editor,
-in the main admin, edits them field by field.)
+in the main admin, edits them as a tree of stages, screens and elements, or field by field.)
 
 ## Windows
 
