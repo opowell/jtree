@@ -20,6 +20,8 @@
 
 8. Press "Start".
 
+<img src="images/admin.png" alt="The admin with a running public goods session: the Session panel, and the Participants panel showing where each participant is" style="max-width: 100%; border: 1px solid #ddd">
+
 Participants open the address the Session panel shows, `http://<this computer's address>:3000/P1` and so on. To try the session on your own, open participants from the Participants panel, or turn Autoplay on. For more, see <a href='tutorial-3-running-a-session.html'>Running a Session</a>.
 
 #### Stop jtree

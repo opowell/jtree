@@ -15,6 +15,8 @@ The admin at `/admin/` is a menu bar over panels. Panels can be dragged into tab
 - **Participant views**: chosen participants' own pages, side by side.
 - **App**: one per app you open. **App editor**: one per app you edit.
 
+<img src="images/admin.png" alt="The admin: Browse on the left; the Session and Participants panels on the right" style="max-width: 100%; border: 1px solid #ddd">
+
 #### Start a session
 
 1. In Browse, open the `public-good` app.
@@ -27,6 +29,8 @@ The session is now running. To add more apps, choose them under Apps and press "
 #### Watch and test
 
 Participants join at the link the Session panel shows, with their own id in place of the last part (`/P1`, `/P2`, ...). The Participants panel shows where each one is. Opening a participant shows their page in Participant views, where you can play as them.
+
+<img src="images/participant.png" alt="A participant's page in the public goods game's decision stage" style="max-width: 100%; border: 1px solid #ddd">
 
 To test a session alone, turn Autoplay "On for all": each participant's page then fills in its inputs and presses its buttons, after a delay you can set. A session of oTree apps or z-Tree treatments can also be played by bots ("Play with bots"): oTree apps by their own bots (`tests.py`), or a generic bot that fills in what each page asks; z-Tree treatments by a generic z-Tree bot.
 

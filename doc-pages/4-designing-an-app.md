@@ -4,6 +4,8 @@ This tutorial will show you how to program the simple public goods game used in 
 
 An app is a Javascript file. The App editor shows it in parts: its **Settings**, its **Functions**, each of its **stages** (with its screens, settings and functions), **Other code**, and the whole **Source**. Changing a part changes only that statement in the file, and Source shows the whole file, where you can write anything; "Apply" (Ctrl+Enter) reads it into the other parts again. This tutorial gives the code, to type in Source; the other parts show what each piece is as you go. "Save" (Ctrl+S) writes the file, and "Save and start a session" also starts a session with the app. You can just as well edit the file in any text editor, then use File → Reload apps.
 
+<img src="images/editor.png" alt="The App editor, showing the decide stage's screen, settings and functions" style="max-width: 100%; border: 1px solid #ddd">
+
 First, we will define the parameters and stages of the app. Each app file begins with a pre-defined App object called `app`, and fields are modified and/or added to this object using regular Javascript. Replace what the new app has with the following code:
 
 ```javascript
@@ -47,6 +49,8 @@ We will use the following tags: `<p>` (paragraph) to display text, `<input>` to 
 ```
 
 jtree uses the Vue framework to bind screen elements to player data. For example, regular text that is encapsulated by double curly braces, `{{` and `}}`, is evaluated, rather than interpreted literally. For example, in the decision screen, `{{app.endowment}}` would be replaced with "20". The same applies to tag properties (such as the `max` property in the above example) that are preceded with a `:` character. Available data objects are `player`, `group` (the current player's group), `period` (the group's period), `app`, `session` and `stage`.
+
+<img src="images/participant.png" alt="The decision screen, as players see it" style="max-width: 100%; border: 1px solid #ddd">
 
 The `name` attribute of an `<input>` tag is the name of the field where the input will be stored. So, `player.contribution` will store the value of the input in a field called `contribution` on the `player` object.
 

@@ -20,6 +20,9 @@
   },
   "templates": {
       "name": "jtree",
-      "footerText": "owen powell - opowell@gmail.com"
+      "footerText": "owen powell - opowell@gmail.com",
+      "default": {
+          "staticFiles": { "include": ["./doc-pages/static"] }
+      }
   }
 }

@@ -150,9 +150,9 @@ async function launch() {
                         await send('Input.dispatchMouseEvent', { type, x, y, button: 'left', clickCount: type === 'mouseMoved' ? 0 : 1 });
                     }
                 },
-                /** Saves a PNG of the page to file. */
-                async screenshot(file) {
-                    const { data } = await send('Page.captureScreenshot', { format: 'png' });
+                /** Saves a PNG of the page to file; of only clip ({x, y, width, height}) if given. */
+                async screenshot(file, clip) {
+                    const { data } = await send('Page.captureScreenshot', { format: 'png', ...(clip ? { clip: { ...clip, scale: 1 } } : {}) });
                     fs.writeFileSync(file, Buffer.from(data, 'base64'));
                 },
                 async close() {

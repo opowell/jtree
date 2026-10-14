@@ -14,6 +14,8 @@ To test a treatment alone, "Play with bots" in the Session panel plays it to its
 
 Where z-Tree and jtree differ, for example dividing by 0, a session's "Rules" decide: by z-Tree's, the program goes on as z-Tree 5 does (`inf`, an array's first or last element); by jtree's, it stops with an error, shown in the admin (see <a href='tutorial-settings_.html'>Settings</a>). jtree's reading and running of treatments has been checked against z-Tree 5.1.21.
 
+<img src="images/ztree-participant.png" alt="z-Tree's public goods example (pg.ztt) in a participant's browser, as z-Leaf shows it" style="max-width: 100%; border: 1px solid #ddd">
+
 #### The z-Tree admin
 
 `/admin/ztree/` is an admin laid out after z-Tree: z-Tree's menu bar (File, Edit, Treatment, Run, Tools, View, ?) over a desktop of windows. It follows the z-Tree 5.1 manual.
@@ -24,6 +26,8 @@ Where z-Tree and jtree differ, for example dividing by 0, a session's "Rules" de
 - **Tools → Start z-Leaf…**: a client in a window, by name, as `zleaf.exe /name first` does, for testing on one computer.
 
 What jtree has no counterpart for (the matching menu, GameSafe, the data tools, ...) is greyed out.
+
+<img src="images/ztree-admin.png" alt="The z-Tree admin: the Connection Monitor, and pg.ztt's stage tree" style="max-width: 100%; border: 1px solid #ddd">
 
 #### Editing a treatment
 

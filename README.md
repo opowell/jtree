@@ -25,7 +25,7 @@ Everyone then logs in at `/admin/login`, on this computer too.
 
 ![](double-auction.png)
 
-![](adminUI.png)
+![The admin, with a running session](doc-pages/static/images/admin.png)
 
 #### Features
 - participants only need a browser; the server runs on Windows, macOS and Linux.
@@ -128,4 +128,4 @@ npx jsdoc@4.0.4 -c build-tools/jsdoc-config.json   # writes client/internal/docs
 rm -rf docs/reference && cp -R client/internal/docs docs/reference   # the website's copy
 ```
 
-`docs/README.md` is the website's front page.
+`docs/README.md` is the website's front page. The screenshots are in `doc-pages/static/images/` (jsdoc copies them to `images/`), and `node build-tools/doc-screenshots.js [<names>]` takes them again, in headless Chrome, from a jtree with the sample games and the test fixtures: run it when an admin or a participant page they show changes, then rebuild.

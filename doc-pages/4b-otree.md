@@ -11,6 +11,8 @@ Put an oTree project (a folder with its `settings.py`) or an oTree app in `clien
 
 Python starts when the first oTree app is loaded, which takes a moment; until then the app says it is starting.
 
+<img src="images/otree-participant.png" alt="oTree's public goods sample in a participant's browser" style="max-width: 100%; border: 1px solid #ddd">
+
 To test a session alone, "Play with bots" plays it to its end with the apps' bots (`tests.py`), or, for an app without bots, a generic bot that fills in what each page asks.
 
 A session's data downloads as jtree's CSV and as oTree's: "all apps, wide", each app's CSV, page times, and the apps' `custom_export`s. jtree has been checked against oTree 5.11.5, 3.4.0 and 2.5.8: oTree's sample games and published experiments record the same data in both. Templates are strict, as oTree's are: a name a template cannot find is an error.
@@ -25,6 +27,10 @@ A session's data downloads as jtree's CSV and as oTree's: "all apps, wide", each
 - **Apps**: the oTree apps, each with Convert to jtree (below).
 - **Studio**: oTree projects and apps, edited as in oTree Studio (below).
 
+<img src="images/otree-sessions.png" alt="The oTree admin's Sessions page: creating a session from a project's session config" style="max-width: 100%; border: 1px solid #ddd">
+
+<img src="images/otree-session.png" alt="A session's Monitor: where each participant is, and their time on the page" style="max-width: 100%; border: 1px solid #ddd">
+
 #### Studio
 
 The Studio lists the oTree projects and apps in the apps folder, and makes new ones as oTree Studio starts them.
@@ -33,6 +39,8 @@ The Studio lists the oTree projects and apps in the apps folder, and makes new o
 - **An app**: its constants; its Subsession, Group and Player fields (name, type, label, min, max, initial, choices, blank, widget, doc, and any other argument); its functions; its pages in their order (added, renamed, moved, left out, deleted), each with its template's title and content, its form model and fields, its timeout, a wait page's `after_all_players_arrive`, and its methods (`is_displayed`, `vars_for_template`, `before_next_page`, ...); and the whole `__init__.py`.
 
 Each change is made only in the part of the file it is about, so code written by hand, and comments, stay as they were. Save writes the app's `__init__.py` and its templates, or the project's `settings.py`. The files stay oTree's: they run in jtree and in oTree. Apps in the older format run in jtree but are not edited in the Studio.
+
+<img src="images/otree-studio.png" alt="The Studio, showing an app's Player fields, its pages, and its code" style="max-width: 100%; border: 1px solid #ddd">
 
 #### Converting to a jtree app
 

@@ -45,7 +45,7 @@ Or without JAS: `cd server && pnpm i`, then `cd ../client && node ../server/sour
 
 ### Building the documentation
 
-From the repository's folder: `npx jsdoc@4.0.4 -c build-tools/jsdoc-config.json`, which writes `client/internal/docs/`; then copy it to `docs/reference/` for the website (`build-tools/linux/buildDocs.sh` does both).
+From the repository's folder: `npx jsdoc@4.0.4 -c build-tools/jsdoc-config.json`, which writes `client/internal/docs/`; then copy it to `docs/reference/` for the website (`build-tools/linux/buildDocs.sh` does both). The screenshots are in `doc-pages/static/images/`; `node build-tools/doc-screenshots.js` takes them again, in headless Chrome.
 
 ### Contributing
 
