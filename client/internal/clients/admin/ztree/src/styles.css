@@ -432,6 +432,17 @@ textarea.zt-field {
 .zt-check { display: flex; align-items: center; gap: 6px; }
 .zt-check input { margin: 0; }
 .zt-hint { color: var(--zt-muted); margin: 0; }
+.zt-mono { font-family: var(--zt-mono); }
+/* The element dialogs of a z-Tree treatment (ZNodeDialog): radio rows, fields side by side, other settings. */
+.zt-form__radios { display: flex; gap: 16px; flex-wrap: wrap; }
+.zt-form__row { display: flex; gap: 8px 14px; flex-wrap: wrap; align-items: center; }
+.zt-form__pair { display: flex; align-items: center; gap: 4px; }
+.zt-form__pair .zt-field { width: 64px; }
+.zt-others { border-collapse: collapse; width: 100%; }
+.zt-others td { padding: 1px 3px 1px 0; }
+.zt-others td:first-child { width: 34%; }
+.zt-others .zt-field { width: 100%; }
+.zt-btn--small { min-width: 0; padding: 0 6px; height: 21px; }
 .zt-msg { display: flex; gap: 14px; align-items: flex-start; max-width: 460px; }
 .zt-msg svg { width: 32px; height: 32px; flex: 0 0 auto; }
 .zt-msg p { margin: 0; white-space: pre-wrap; }

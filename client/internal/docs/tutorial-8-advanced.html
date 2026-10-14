@@ -25,6 +25,8 @@
     
     <ul>
         <li><a href="tutorial-session-flow-details.html">Session Flow Details</a></li>
+    
+        <li><a href="tutorial-admin-clients.html">Admin interfaces</a></li>
     </ul>
     
 
@@ -34,46 +36,50 @@
 <article>
     <p>These tutorials cover advanced topics.</p>
 <h3>Technical details</h3>
-<p>jtree is a <code>node.js</code> app, packaged using <code>pkg</code>. As such, it uses standard web technologies: Javascript, CSS and HTML. Documentation is written in Markdown, then compiled to HTML using <code>jsdoc</code>. Clients and servers communicate via standard web requests and websockets (via <code>socket.io</code>).</p>
+<p>jtree is a Node.js server (Node.js 22 or later), which runs as an app on <a href="https://github.com/opowell/jas">JAS</a>. The downloads include Node.js and JAS, and their launchers start JAS with jtree as its default app. Clients and the server talk over standard web requests and websockets (socket.io 4). The admin interfaces are Vue 3 single-file components, compiled in the browser, with no build step. The participants' pages use Vue 2.7 and jQuery 3. oTree apps' Python runs in Pyodide, inside the server.</p>
+<p>Documentation is written in Markdown (<code>doc-pages/</code>), and compiled to HTML with <code>jsdoc</code>, together with the reference from the server's comments.</p>
 <h3>Project structure</h3>
-<p>The jtree project is divided into parts roughly based on its folder structure:</p>
 <ul>
-<li>build-tools:
+<li><code>apps/jtree/</code>: the JAS app, which starts jtree's server with <code>client/</code> as its data folder.</li>
+<li><code>vendor/jas/</code>: JAS (a git submodule).</li>
+<li><code>start.sh</code>, <code>start.command</code>, <code>start.cmd</code>: the launchers.</li>
+<li><code>client/</code>: jtree's data folder.
 <ul>
-<li>scripts and tools for compiling releases.</li>
+<li><code>apps/</code>: experiment apps, queues, z-Tree treatments and oTree apps.</li>
+<li><code>sessions/</code>, <code>rooms/</code>, <code>settings.json</code>.</li>
+<li><code>internal/clients/admin/v2/</code>: the admin interface, at <code>/admin/</code>.</li>
+<li><code>internal/clients/admin/ztree/</code>: the z-Tree admin, at <code>/admin/ztree/</code>.</li>
+<li><code>internal/clients/admin/otree/</code>: the oTree admin, at <code>/admin/otree/</code>.</li>
+<li><code>internal/clients/participant/</code>: participants' pages.</li>
+<li><code>internal/docs/</code>: this documentation, as HTML.</li>
 </ul>
 </li>
-<li>client:
+<li><code>server/source/</code>: the server.
 <ul>
-<li>files used by clients.</li>
+<li>the game engine (<code>Session</code>, <code>App</code>, <code>Period</code>, <code>Stage</code>, <code>Group</code>, <code>Player</code>, ...), which puts participants through stages;</li>
+<li><code>core/</code>: the static file server, the websocket server and its messages (<code>Msgs.js</code>), settings and data;</li>
+<li><code>dialects/</code>: how jtree reads and runs apps: jtree's, z-Tree's (<code>ztree/</code>) and oTree's (<code>otree/</code>), and the converters;</li>
+<li><code>editors/</code>: what the three app editors ask the server (<code>/api/editor/&lt;jtree, ztree or otree&gt;/…</code>);</li>
+<li><code>exporters/</code>: the formats a session's data downloads in.</li>
 </ul>
 </li>
-<li>doc-pages:
-<ul>
-<li>source files for documentation.</li>
-<li>written in markdown, compiled to HTML.</li>
+<li><code>server/test/</code>: the tests.</li>
+<li><code>doc-pages/</code>: these documents, in Markdown. <code>docs/</code>: the website, opowell.github.io/jtree, with a copy of the HTML in <code>docs/reference/</code>.</li>
+<li><code>build-tools/</code>: building releases and documentation.</li>
 </ul>
-</li>
-<li>docs:
-<ul>
-<li>help files to serve on github.io.</li>
-</ul>
-</li>
-<li>server:
-<ul>
-<li>the game engine, which puts players through stages.</li>
-<li>static content server, for serving files.</li>
-<li>websocket server, for sending and receiving websocket messages.</li>
-</ul>
-</li>
-<li>vueadmin:
-<ul>
-<li>source files for the &quot;vue&quot; admin UI.</li>
-</ul>
-</li>
-</ul>
+<h3>Running from source</h3>
+<pre class="prettyprint source lang-sh"><code>git clone --recurse-submodules https://github.com/opowell/jtree.git
+cd jtree
+./start.sh          # macOS, Linux
+start.cmd           REM Windows
+</code></pre>
+<p>Or without JAS: <code>cd server &amp;&amp; pnpm i</code>, then <code>cd ../client &amp;&amp; node ../server/source/jtree.js</code>.</p>
+<h3>Tests</h3>
+<p><code>cd server &amp;&amp; pnpm test</code>. The tests start jtree with a throwaway data folder and play apps with bots; where Chrome is installed, some also play in browsers. They run on every push.</p>
+<h3>Building the documentation</h3>
+<p>From the repository's folder: <code>npx jsdoc@4.0.4 -c build-tools/jsdoc-config.json</code>, which writes <code>client/internal/docs/</code>; then copy it to <code>docs/reference/</code> for the website (<code>build-tools/linux/buildDocs.sh</code> does both).</p>
 <h3>Contributing</h3>
-<p>Anyone is welcome to contribute to the project. Either edit files directly on Github, or submit groups of changes as a pull request.</p>
+<p>Anyone is welcome to contribute to the project. Either edit files directly on Github, or submit groups of changes as a pull request. Changes that users can see go into the documentation too.</p>
 </article>
 
 </section>
@@ -81,13 +87,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AdminAuth.html">AdminAuth</a></li><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="Data.html">Data</a></li><li><a href="Exit.html">Exit</a></li><li><a href="Group.html">Group</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="QueueRecorder.html">QueueRecorder</a></li><li><a href="Reader.html">Reader</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Run.html">Run</a></li><li><a href="Screens.html">Screens</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="Translator.html">Translator</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="global.html#start">start</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-4a-ztree.html">z-Tree treatments</a></li><li><a href="tutorial-4b-otree.html">oTree apps</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-other.html">Other</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ADMIN_LOGIN_REQUIRED">ADMIN_LOGIN_REQUIRED</a></li><li><a href="global.html#APP_HOOKS">APP_HOOKS</a></li><li><a href="global.html#STAGE_HOOKS">STAGE_HOOKS</a></li><li><a href="global.html#addToClass">addToClass</a></li><li><a href="global.html#allBoxes">allBoxes</a></li><li><a href="global.html#appCSV">appCSV</a></li><li><a href="global.html#appFile">appFile</a></li><li><a href="global.html#appInsertAt">appInsertAt</a></li><li><a href="global.html#appRoots">appRoots</a></li><li><a href="global.html#appTemplate">appTemplate</a></li><li><a href="global.html#appToIR">appToIR</a></li><li><a href="global.html#apply">apply</a></li><li><a href="global.html#applyIR">applyIR</a></li><li><a href="global.html#applySettings">applySettings</a></li><li><a href="global.html#arrayDeclarations">arrayDeclarations</a></li><li><a href="global.html#arrayIndex">arrayIndex</a></li><li><a href="global.html#assignedVariables">assignedVariables</a></li><li><a href="global.html#boolValue">boolValue</a></li><li><a href="global.html#botCases">botCases</a></li><li><a href="global.html#boxOptions">boxOptions</a></li><li><a href="global.html#chat">chat</a></li><li><a href="global.html#chatFor">chatFor</a></li><li><a href="global.html#check">check</a></li><li><a href="global.html#checkField">checkField</a></li><li><a href="global.html#checkForm">checkForm</a></li><li><a href="global.html#compileProgram">compileProgram</a></li><li><a href="global.html#compiled">compiled</a></li><li><a href="global.html#context">context</a></li><li><a href="global.html#contractList">contractList</a></li><li><a href="global.html#convertApp">convertApp</a></li><li><a href="global.html#convertTreatment">convertTreatment</a></li><li><a href="global.html#convertTreatmentFile">convertTreatmentFile</a></li><li><a href="global.html#copyDir">copyDir</a></li><li><a href="global.html#copyToPlayer">copyToPlayer</a></li><li><a href="global.html#creatingSessionBeforeArrival">creatingSessionBeforeArrival</a></li><li><a href="global.html#cut">cut</a></li><li><a href="global.html#decimals">decimals</a></li><li><a href="global.html#declared">declared</a></li><li><a href="global.html#dedent">dedent</a></li><li><a href="global.html#describeValue">describeValue</a></li><li><a href="global.html#dialectFor">dialectFor</a></li><li><a href="global.html#drawn">drawn</a></li><li><a href="global.html#encode">encode</a></li><li><a href="global.html#endSoon">endSoon</a></li><li><a href="global.html#errorPosition">errorPosition</a></li><li><a href="global.html#exportTables">exportTables</a></li><li><a href="global.html#exporter">exporter</a></li><li><a href="global.html#exportersFor">exportersFor</a></li><li><a href="global.html#expression">expression</a></li><li><a href="global.html#fail">fail</a></li><li><a href="global.html#file">file</a></li><li><a href="global.html#fillValues">fillValues</a></li><li><a href="global.html#findBox">findBox</a></li><li><a href="global.html#finite">finite</a></li><li><a href="global.html#formatText">formatText</a></li><li><a href="global.html#formatValue">formatValue</a></li><li><a href="global.html#fromDescription">fromDescription</a></li><li><a href="global.html#getBridge">getBridge</a></li><li><a href="global.html#grid">grid</a></li><li><a href="global.html#history">history</a></li><li><a href="global.html#inAppFolders">inAppFolders</a></li><li><a href="global.html#indent">indent</a></li><li><a href="global.html#indentBy">indentBy</a></li><li><a href="global.html#insertAfter">insertAfter</a></li><li><a href="global.html#isInteractive">isInteractive</a></li><li><a href="global.html#isProject">isProject</a></li><li><a href="global.html#isSessionsLastPage">isSessionsLastPage</a></li><li><a href="global.html#isText">isText</a></li><li><a href="global.html#isTextFile">isTextFile</a></li><li><a href="global.html#itemCell">itemCell</a></li><li><a href="global.html#itemsTable">itemsTable</a></li><li><a href="global.html#jsonErrorPosition">jsonErrorPosition</a></li><li><a href="global.html#lanAddress">lanAddress</a></li><li><a href="global.html#lastFirst">lastFirst</a></li><li><a href="global.html#layoutEnd">layoutEnd</a></li><li><a href="global.html#layoutParts">layoutParts</a></li><li><a href="global.html#leaveIfAsked">leaveIfAsked</a></li><li><a href="global.html#leavesStage">leavesStage</a></li><li><a href="global.html#legacyValue">legacyValue</a></li><li><a href="global.html#lines">lines</a></li><li><a href="global.html#loadPackagesFor">loadPackagesFor</a></li><li><a href="global.html#measure">measure</a></li><li><a href="global.html#memberAssignment">memberAssignment</a></li><li><a href="global.html#model">model</a></li><li><a href="global.html#mountProject">mountProject</a></li><li><a href="global.html#newTreatment">newTreatment</a></li><li><a href="global.html#normalizeCode">normalizeCode</a></li><li><a href="global.html#openUrl">openUrl</a></li><li><a href="global.html#owner">owner</a></li><li><a href="global.html#packageFor">packageFor</a></li><li><a href="global.html#pageTimesCSV">pageTimesCSV</a></li><li><a href="global.html#paramCell">paramCell</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseExpr">parseExpr</a></li><li><a href="global.html#parseLayout">parseLayout</a></li><li><a href="global.html#parseQueueId">parseQueueId</a></li><li><a href="global.html#place">place</a></li><li><a href="global.html#plot">plot</a></li><li><a href="global.html#plotInput">plotInput</a></li><li><a href="global.html#plotItemAt">plotItemAt</a></li><li><a href="global.html#prefixHtmlUrls">prefixHtmlUrls</a></li><li><a href="global.html#pressButton">pressButton</a></li><li><a href="global.html#program">program</a></li><li><a href="global.html#programItems">programItems</a></li><li><a href="global.html#putApp">putApp</a></li><li><a href="global.html#putSettings">putSettings</a></li><li><a href="global.html#py">py</a></li><li><a href="global.html#queueId">queueId</a></li><li><a href="global.html#queueScript">queueScript</a></li><li><a href="global.html#quote">quote</a></li><li><a href="global.html#quotedEnd">quotedEnd</a></li><li><a href="global.html#readGameHeader">readGameHeader</a></li><li><a href="global.html#readQuestionnaires">readQuestionnaires</a></li><li><a href="global.html#readScreen">readScreen</a></li><li><a href="global.html#readTextQuestionnaires">readTextQuestionnaires</a></li><li><a href="global.html#readTextTreatment">readTextTreatment</a></li><li><a href="global.html#readTreatment">readTreatment</a></li><li><a href="global.html#ready">ready</a></li><li><a href="global.html#refresh">refresh</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#reload">reload</a></li><li><a href="global.html#renderScreen">renderScreen</a></li><li><a href="global.html#reportMarkdown">reportMarkdown</a></li><li><a href="global.html#rooms">rooms</a></li><li><a href="global.html#router">router</a></li><li><a href="global.html#rtfToText">rtfToText</a></li><li><a href="global.html#run">run</a></li><li><a href="global.html#runAppCode">runAppCode</a></li><li><a href="global.html#runBots">runBots</a></li><li><a href="global.html#runOf">runOf</a></li><li><a href="global.html#runZtreeBots">runZtreeBots</a></li><li><a href="global.html#scan">scan</a></li><li><a href="global.html#screen">screen</a></li><li><a href="global.html#sessionConfigs">sessionConfigs</a></li><li><a href="global.html#settleBoxes">settleBoxes</a></li><li><a href="global.html#stageDeclaration">stageDeclaration</a></li><li><a href="global.html#stageMeaning">stageMeaning</a></li><li><a href="global.html#stageVariable">stageVariable</a></li><li><a href="global.html#statementRange">statementRange</a></li><li><a href="global.html#str">str</a></li><li><a href="global.html#subjectIndex">subjectIndex</a></li><li><a href="global.html#submitGeneric">submitGeneric</a></li><li><a href="global.html#substitutionAt">substitutionAt</a></li><li><a href="global.html#syntaxErrors">syntaxErrors</a></li><li><a href="global.html#tableRecords">tableRecords</a></li><li><a href="global.html#tablesChangedTimers">tablesChangedTimers</a></li><li><a href="global.html#template">template</a></li><li><a href="global.html#templateLiteral">templateLiteral</a></li><li><a href="global.html#templates">templates</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#textParts">textParts</a></li><li><a href="global.html#toTreatment">toTreatment</a></li><li><a href="global.html#tokenize">tokenize</a></li><li><a href="global.html#topInsert">topInsert</a></li><li><a href="global.html#treatmentFile">treatmentFile</a></li><li><a href="global.html#unindent">unindent</a></li><li><a href="global.html#urlFor">urlFor</a></li><li><a href="global.html#validate">validate</a></li><li><a href="global.html#value">value</a></li><li><a href="global.html#valueFor">valueFor</a></li><li><a href="global.html#valueKind">valueKind</a></li><li><a href="global.html#valueSource">valueSource</a></li><li><a href="global.html#variables">variables</a></li><li><a href="global.html#whenReady">whenReady</a></li><li><a href="global.html#wideCSV">wideCSV</a></li><li><a href="global.html#withBlocks">withBlocks</a></li><li><a href="global.html#withStatics">withStatics</a></li><li><a href="global.html#write">write</a></li><li><a href="global.html#zTreeRules">zTreeRules</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Sat Feb 15 2020 16:24:17 GMT+0100 (Central European Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Oct 14 2026 09:40:18 GMT+0200 (Central European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

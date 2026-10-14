@@ -3,10 +3,10 @@ import { computed, ref } from 'vue'
 import { StatusPill } from 'header-content-layout'
 import type { RecordStatus } from 'header-content-layout'
 import ConfirmButton from '../components/ConfirmButton.vue'
-import { state } from '../server/connection'
+import { serverUrl, state } from '../server/connection'
 import { server } from '../server/commands'
 import { appLabel, folderOf, relativePath } from '../schema'
-import { closePanel, showPanel } from '../workspace'
+import { closePanel, editApp, showPanel } from '../workspace'
 
 const props = defineProps<{ appId: string, panelId: string }>()
 
@@ -15,6 +15,14 @@ const app = computed(() => state.apps[props.appId])
 const status = computed<RecordStatus>(() => (app.value?.hasError ? 'failed' : 'ok'))
 const kind = computed(() => (app.value?.isQueue ? 'queue' : 'app'))
 const queueTarget = ref('')
+// jtree's editor edits jtree apps (.jtt); z-Tree's and oTree's have editors in their admins.
+const editable = computed(() => !app.value?.isQueue && /\.(jtt|js)$/i.test(app.value?.appPath ?? ''))
+const otherEditor = computed(() => {
+  const p = app.value?.appPath ?? ''
+  if (/\.(ztt|ztq|txt)$/i.test(p)) return { label: 'Edit in the z-Tree admin', href: `${serverUrl}/admin/ztree/` }
+  if (/[\\/](__init__|models)\.py$/.test(p) || /settings\.py#/.test(p)) return { label: 'Edit in oTree Studio', href: `${serverUrl}/admin/otree/#/studio` }
+  return null
+})
 
 // A queue can hold any app, other queues included, but not itself.
 const queues = computed(() =>
@@ -67,6 +75,8 @@ async function removeQueue() {
           </select>
           <button type="button" class="btn" :disabled="!queueTarget" @click="addToQueue">Add</button>
         </template>
+        <button v-if="editable" type="button" class="btn" @click="editApp(app.appPath)">Edit</button>
+        <a v-else-if="otherEditor" class="btn" :href="otherEditor.href" target="_blank" rel="noopener">{{ otherEditor.label }}</a>
         <ConfirmButton v-if="app.isQueue" label="Delete" @confirm="removeQueue" />
       </div>
 

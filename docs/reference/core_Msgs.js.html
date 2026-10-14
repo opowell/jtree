@@ -191,6 +191,189 @@ class Msgs {
         this.openSession(session.id, sock);
     }
 
+    /**
+     * Creates and starts a session from an oTree project's session config (the oTree admin's
+     * "Create session"): {configId (a queue id, settings.py#name), numParticipants, config
+     * (values to change in session.config), userId}. Opens it for the admin who asked.
+     */
+    otreeCreateSession(d, sock) {
+        var session = this.jt.data.createSession(d.userId);
+        session.resume();
+        this.jt.data.sessions.push(session);
+        session.addApp(d.configId);
+        if (session.otreeConfig != null &amp;&amp; d.config != null) {
+            Object.assign(session.otreeConfig, d.config);
+            if (d.config.participation_fee != null) session.showUpFee = Number(d.config.participation_fee);
+            if (d.config.real_world_currency_per_point != null) session.exchangeRate = Number(d.config.real_world_currency_per_point);
+        }
+        var n = parseInt(d.numParticipants);
+        session.setNumParticipants(n > 0 ? n : (session.suggestedNumParticipants || 1));
+        session.save();
+        session.start();
+        this.jt.socketServer.emitToAdmins('addSession', session.shell());
+        if (sock != null) {
+            this.openSession(session.id, sock);
+        }
+        return session;
+    }
+
+    /**
+     * Sends the admin who asked where each participant of a session is (the oTree admin's
+     * monitor): {sessionId, rows: [{code, label, app, round, page, status, secondsOnPage, payoff, payment}]}.
+     */
+    otreeMonitor(sessionId, sock) {
+        var session = this.jt.data.session(sessionId);
+        if (session == null || sock == null) {
+            return;
+        }
+        var rows = Object.values(session.participants).map((p) => {
+            var player = p.player;
+            var row = { code: p.id, label: p.label || '', app: '', round: null, page: '', status: 'not started',
+                secondsOnPage: null, payoff: p.points(), payment: p.payment() };
+            if (p.isFinishedSession() &amp;&amp; p.appIndex > 0) {
+                row.status = 'finished';
+            } else if (player != null) {
+                row.app = player.app().shortId;
+                row.round = player.group.period.id;
+                row.page = player.stage != null ? player.stage.id : '';
+                row.status = player.status;
+                var start = player.stage != null ? player['timeStart_' + player.stage.id] : null;
+                if (start != null) {
+                    row.secondsOnPage = Math.round((Date.now() - Utils.dateFromStr(start).getTime()) / 1000);
+                }
+            }
+            return row;
+        });
+        this.jt.io.to('socket_' + sock.id).emit('otreeMonitor', { sessionId: sessionId, rows: rows });
+    }
+
+    /**
+     * Sends the admin who asked the admin reports of a session's oTree apps (their
+     * admin_report.html): {sessionId, reports: [{app, round, html}]}, for the rounds started.
+     */
+    otreeReports(sessionId, sock) {
+        var session = this.jt.data.session(sessionId);
+        if (session == null || sock == null) {
+            return;
+        }
+        var reports = [];
+        var bridge = require('../dialects/otree/runtime.js');
+        var otreeStatic = require('../dialects/otree/static.js');
+        for (var app of session.apps) {
+            if (app.otree == null || !bridge.getBridge().has_admin_report(app.otree.pkg)) {
+                continue;
+            }
+            app.periods.forEach((period) => {
+                if (period == null) return;
+                var html;
+                try {
+                    html = bridge.getBridge().admin_report(app.otree.pkg, period, otreeStatic.urlFor(this.jt.basePath, app.otree.pkg));
+                } catch (err) {
+                    html = '&lt;div class="alert alert-danger">The report could not be shown: ' + Utils.escapeHTML(String(err.message).trim().split('\n').pop()) + '&lt;/div>';
+                }
+                reports.push({ app: app.shortId, round: period.id, html: html });
+            });
+        }
+        this.jt.io.to('socket_' + sock.id).emit('otreeReports', { sessionId: sessionId, reports: reports });
+    }
+
+    /**
+     * Converts an oTree app of the catalogue to a jtree app (dialects/otree/convert.js), in a
+     * folder beside it (&lt;app>-jtree, or -jtree-2, ...), which joins the catalogue; tells the
+     * admin who asked: otreeConverted {appPath, outPath, level, report} or {appPath, error}.
+     * Returns a promise of that.
+     */
+    otreeConvertApp(d, sock) {
+        var appPath = d != null ? d.appPath : null;
+        var app = appPath != null ? this.jt.data.apps[appPath] : null;
+        var reply = (result) => {
+            if (sock != null) this.jt.io.to('socket_' + sock.id).emit('otreeConverted', result);
+            return result;
+        };
+        if (app == null || app.otree == null) {
+            return Promise.resolve(reply({ appPath: appPath, error: 'not an oTree app of the catalogue' }));
+        }
+        var dir = path.dirname(appPath);
+        var outPath = dir + '-jtree';
+        for (var n = 2; fs.existsSync(outPath); n++) {
+            outPath = dir + '-jtree-' + n;
+        }
+        var { convertApp } = require('../dialects/otree/convert.js');
+        return convertApp(dir, outPath).then((result) => {
+            this.jt.data.reloadApps();
+            this.jt.socketServer.refreshAdmins();
+            return reply({ appPath: appPath, outPath: outPath, level: result.level, report: result.report });
+        }, (err) => {
+            fs.removeSync(outPath);
+            return reply({ appPath: appPath, error: String(err.message || err) });
+        });
+    }
+
+    /**
+     * Converts a z-Tree treatment of the catalogue to a jtree app (dialects/ztree/convert.js), in a
+     * folder beside it (&lt;name>-jtree, or -jtree-2, ...), which joins the catalogue; tells the admin
+     * who asked: ztreeConverted {appPath, outPath, level, report} or {appPath, error}.
+     */
+    ztreeConvertApp(d, sock) {
+        var appPath = d != null ? d.appPath : null;
+        var app = appPath != null ? this.jt.data.apps[appPath] : null;
+        var reply = (result) => {
+            if (sock != null) this.jt.io.to('socket_' + sock.id).emit('ztreeConverted', result);
+            return result;
+        };
+        if (app == null || app.ztree == null || !/\.ztt$/i.test(appPath)) {
+            return Promise.resolve(reply({ appPath: appPath, error: 'not a z-Tree treatment (.ztt) of the catalogue' }));
+        }
+        var base = appPath.replace(/\.ztt$/i, '');
+        var outPath = base + '-jtree';
+        for (var n = 2; fs.existsSync(outPath); n++) {
+            outPath = base + '-jtree-' + n;
+        }
+        var { convertTreatmentFile } = require('../dialects/ztree/convert.js');
+        return convertTreatmentFile(appPath, outPath).then((result) => {
+            this.jt.data.loadAppDir(outPath);
+            this.jt.socketServer.refreshAdmins();
+            return reply({ appPath: appPath, outPath: outPath, level: result.level, report: result.report });
+        }, (err) => {
+            fs.removeSync(outPath);
+            return reply({ appPath: appPath, error: String(err.message || err) });
+        });
+    }
+
+    /**
+     * Sends the admin who asked the z-Tree tables of a session's z-Tree treatments:
+     * ztreeTables {sessionId, apps: {&lt;index in the session, from 1>: {periods: [{globals,
+     * subjects, summary, contracts}], session, current (period index)}}}.
+     */
+    ztreeTables(sessionId, sock) {
+        var session = this.jt.data.session(sessionId);
+        if (session == null || sock == null) {
+            return;
+        }
+        var apps = {};
+        session.apps.forEach((app, i) => {
+            var run = app.ztreeRun;
+            if (run == null) return;
+            var plain = (records) => records.map((r) => {
+                var out = {};
+                for (var k in r) {
+                    if (k === '_id') continue;
+                    var v = r[k];
+                    out[k] = v != null &amp;&amp; typeof v === 'object' ? (v.zArray ? v.values.join(' ') : null) : v;
+                }
+                return out;
+            });
+            apps[i + 1] = {
+                periods: run.periods.map((p) => p == null ? null : {
+                    globals: plain([p.globals]), subjects: plain(p.subjects), summary: plain([p.summary]), contracts: plain(p.contracts),
+                }),
+                session: plain(run.sessionRecords),
+                current: run.periods.length - 1,
+            };
+        });
+        this.jt.io.to('socket_' + sock.id).emit('ztreeTables', { sessionId: sessionId, apps: apps });
+    }
+
     createApp(appId, sock) {
         var app = this.jt.data.createApp(appId);
         if (app !== null) {
@@ -213,27 +396,9 @@ class Msgs {
         this.jt.io.to('socket_' + socket.id).emit('updateAppPreview', app.shellWithChildren());
     }
 
+    /** Older name for {@link Msgs#createSessionAndAddApp}, from when queues were not apps. */
     startSessionFromQueue(data, sock) {
-        var session = this.jt.data.createSession(data.userId);
-        session.resume();
-        this.jt.data.sessions.push(session);
-        var queue = this.jt.data.queue(data.qId);
-        session.queue = queue;
-        let options = data.options;
-        for (let i in options) {
-            session[i] = options[i];
-        }
-        // if (queue.code == null) {
-        //     for (var a in queue.apps) {
-        //         var app = queue.apps[a];
-        //         var d = {sId: session.id, appPath: app.appId, options: app.options};
-        //         this.sessionAddApp(d);
-        //     }
-        // } else {
-            session.queuePath = path.dirname(queue.id);
-            eval(queue.code);
-        // }
-        this.openSession(session.id, sock);
+        this.createSessionAndAddApp({appId: data.qId, options: data.options, userId: data.userId}, sock);
     }
 
     createRoom(id, sock) {
@@ -266,14 +431,9 @@ class Msgs {
     }
 
     deleteQueue(id, sock) {
-        this.jt.data.deleteQueue(id);
+        this.jt.data.deleteApp(id);
         this.jt.socketServer.emitToAdmins('deleteQueue', id);
-    }
-
-    deleteAppFromQueue(qId, aId, appIndex) {
-        var queue = this.jt.data.queue(qId);
-        queue.deleteApp(aId, appIndex);
-        this.jt.socketServer.emitToAdmins('deleteAppFromQueue', {qId: qId, aId: aId, appIndex: appIndex});
+        this.jt.socketServer.emitToAdmins('deleteApp', id);
     }
 
     deleteApp(id, sock) {
@@ -319,7 +479,11 @@ class Msgs {
             var msgName = data[i].msgName;
             var msgData = data[i].msgData;
             this.jt.log('received message ' + msgName + ': ' + JSON.stringify(msgData));
-            eval('this.' + msgName + "(msgData, sock)");
+            if (!Msgs.names().includes(msgName)) {
+                this.jt.log('ignoring unknown message ' + msgName);
+                continue;
+            }
+            this[msgName](msgData, sock);
         }
     }
 
@@ -371,8 +535,18 @@ class Msgs {
         this.jt.data.getSession(d.sId).addUser(d.uId);
     }
 
+    /** Older name for {@link Msgs#sessionAddApp}, from when queues were not apps. */
     sessionAddQueue(d) {
-        this.jt.data.getSession(d.sId).addQueue(d.qId);
+        this.jt.data.getSession(d.sId).addApp(d.qId);
+    }
+
+    /** Opens a session in a room: {roomId, sessionId} (see Room#openSession). */
+    roomOpenSession(d) {
+        var room = this.jt.data.room(d.roomId);
+        var session = this.jt.data.session(d.sessionId);
+        if (room != null &amp;&amp; session != null) {
+            room.openSession(session);
+        }
     }
 
     roomAddApp(d) {
@@ -381,6 +555,8 @@ class Msgs {
 
     queueAddApp(d) {
         this.jt.data.queue(d.queueId).addApp(d.appId, d.options);
+        var queue = this.jt.data.reloadQueue(d.queueId);
+        this.jt.socketServer.emitToAdmins('queueAddApp', {queueId: queue.id, app: queue.apps[queue.apps.length - 1]});
     }
 
     /*
@@ -464,6 +640,18 @@ class Msgs {
         session.setAllowNewParts(d.value);
     }
 
+    /** {sId}: plays the session to its end with bots (see Session#playWithBots). */
+    sessionPlayWithBots(d, socket) {
+        var session = this.jt.data.getSession(d.sId);
+        if (session != null) session.playWithBots().catch((err) => console.log(err.stack));
+    }
+
+    /** {sId, mode}: the session's mode ('jtree', 'ztree', 'otree'), or null for the server's. */
+    setSessionMode(d, socket) {
+        var session = this.jt.data.getSession(d.sId);
+        if (session != null) session.setMode(d.mode);
+    }
+
     setCaseSensitiveLabels(d, socket) {
         var session = this.jt.data.getSession(d.sId);
         session.setCaseSensitiveLabels(d.value);
@@ -499,10 +687,87 @@ class Msgs {
         }
     }
 
+    /*
+     * startTreatment - Appends an app to the session and starts it at once for
+     * the given participants (all of them when none are given), the way z-Tree
+     * starts a treatment for the selected clients. Participants still playing
+     * an earlier app are left where they are.
+     *
+     * @param {string} d.sId the id of the session.
+     * @param {string} d.appId the app to start.
+     * @param {Object} [d.options] options for the app.
+     * @param {string[]} [d.pIds] the participants to start it for.
+     */
+    startTreatment(d) {
+        let session = this.jt.data.getSession(d.sId);
+        let app = session.addApp(d.appId, d.options || {});
+        if (app == null) {
+            return;
+        }
+        let appIndex = session.apps.length;
+        let pIds = d.pIds != null &amp;&amp; d.pIds.length > 0 ? d.pIds : Object.keys(session.participants);
+        if (!session.started) {
+            session.started = true;
+            session.emit('dataUpdate', [{roomId: session.roomId(), field: 'started', value: true}]);
+        }
+        for (let i in pIds) {
+            let participant = session.participants[pIds[i]];
+            if (participant == null || participant.player != null) {
+                continue;
+            }
+            participant.appIndex = appIndex;
+            participant.save();
+            session.participantBeginApp(participant);
+        }
+        session.emitParticipantUpdates();
+    }
+
+    /*
+     * leaveStage - Moves the given participants out of the stage they are
+     * playing, as if they had submitted it. See {@link Player#endStage}.
+     *
+     * @param {string} d.sId the id of the session.
+     * @param {string[]} d.pIds the participants.
+     */
+    leaveStage(d) {
+        let session = this.jt.data.getSession(d.sId);
+        for (let i in d.pIds) {
+            let participant = session.participants[d.pIds[i]];
+            if (participant != null &amp;&amp; participant.player != null) {
+                participant.player.endStage(true);
+            }
+        }
+        session.emitParticipantUpdates();
+    }
+
+    /*
+     * setStopAfterPeriod - Ends an app of the session once its current period
+     * is over, instead of going on to the next period.
+     *
+     * @param {string} d.sId the id of the session.
+     * @param {number} d.appIndex the app's (1-based) position in the session.
+     * @param {boolean} d.value whether to stop.
+     */
+    setStopAfterPeriod(d) {
+        let session = this.jt.data.getSession(d.sId);
+        let app = session.apps[d.appIndex - 1];
+        if (app != null) {
+            app.stopAfterPeriod = d.value === true;
+        }
+    }
+
 }
+
+/** The messages admins may send: the methods above. */
+Msgs.names = function() {
+    return Object.getOwnPropertyNames(Msgs.prototype).filter((name) => {
+        return name !== 'constructor' &amp;&amp; typeof Msgs.prototype[name] === 'function';
+    });
+};
 
 var exports = module.exports = {};
 exports.new = Msgs;
+exports.names = Msgs.names;
 </code></pre>
         </article>
     </section>
@@ -513,13 +778,13 @@ exports.new = Msgs;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AdminAuth.html">AdminAuth</a></li><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="Data.html">Data</a></li><li><a href="Exit.html">Exit</a></li><li><a href="Group.html">Group</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="QueueRecorder.html">QueueRecorder</a></li><li><a href="Reader.html">Reader</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Run.html">Run</a></li><li><a href="Screens.html">Screens</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="Translator.html">Translator</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="global.html#start">start</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-4a-ztree.html">z-Tree treatments</a></li><li><a href="tutorial-4b-otree.html">oTree apps</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-other.html">Other</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ADMIN_LOGIN_REQUIRED">ADMIN_LOGIN_REQUIRED</a></li><li><a href="global.html#APP_HOOKS">APP_HOOKS</a></li><li><a href="global.html#STAGE_HOOKS">STAGE_HOOKS</a></li><li><a href="global.html#addToClass">addToClass</a></li><li><a href="global.html#allBoxes">allBoxes</a></li><li><a href="global.html#appCSV">appCSV</a></li><li><a href="global.html#appFile">appFile</a></li><li><a href="global.html#appInsertAt">appInsertAt</a></li><li><a href="global.html#appRoots">appRoots</a></li><li><a href="global.html#appTemplate">appTemplate</a></li><li><a href="global.html#appToIR">appToIR</a></li><li><a href="global.html#apply">apply</a></li><li><a href="global.html#applyIR">applyIR</a></li><li><a href="global.html#applySettings">applySettings</a></li><li><a href="global.html#arrayDeclarations">arrayDeclarations</a></li><li><a href="global.html#arrayIndex">arrayIndex</a></li><li><a href="global.html#assignedVariables">assignedVariables</a></li><li><a href="global.html#boolValue">boolValue</a></li><li><a href="global.html#botCases">botCases</a></li><li><a href="global.html#boxOptions">boxOptions</a></li><li><a href="global.html#chat">chat</a></li><li><a href="global.html#chatFor">chatFor</a></li><li><a href="global.html#check">check</a></li><li><a href="global.html#checkField">checkField</a></li><li><a href="global.html#checkForm">checkForm</a></li><li><a href="global.html#compileProgram">compileProgram</a></li><li><a href="global.html#compiled">compiled</a></li><li><a href="global.html#context">context</a></li><li><a href="global.html#contractList">contractList</a></li><li><a href="global.html#convertApp">convertApp</a></li><li><a href="global.html#convertTreatment">convertTreatment</a></li><li><a href="global.html#convertTreatmentFile">convertTreatmentFile</a></li><li><a href="global.html#copyDir">copyDir</a></li><li><a href="global.html#copyToPlayer">copyToPlayer</a></li><li><a href="global.html#creatingSessionBeforeArrival">creatingSessionBeforeArrival</a></li><li><a href="global.html#cut">cut</a></li><li><a href="global.html#decimals">decimals</a></li><li><a href="global.html#declared">declared</a></li><li><a href="global.html#dedent">dedent</a></li><li><a href="global.html#describeValue">describeValue</a></li><li><a href="global.html#dialectFor">dialectFor</a></li><li><a href="global.html#drawn">drawn</a></li><li><a href="global.html#encode">encode</a></li><li><a href="global.html#endSoon">endSoon</a></li><li><a href="global.html#errorPosition">errorPosition</a></li><li><a href="global.html#exportTables">exportTables</a></li><li><a href="global.html#exporter">exporter</a></li><li><a href="global.html#exportersFor">exportersFor</a></li><li><a href="global.html#expression">expression</a></li><li><a href="global.html#fail">fail</a></li><li><a href="global.html#file">file</a></li><li><a href="global.html#fillValues">fillValues</a></li><li><a href="global.html#findBox">findBox</a></li><li><a href="global.html#finite">finite</a></li><li><a href="global.html#formatText">formatText</a></li><li><a href="global.html#formatValue">formatValue</a></li><li><a href="global.html#fromDescription">fromDescription</a></li><li><a href="global.html#getBridge">getBridge</a></li><li><a href="global.html#grid">grid</a></li><li><a href="global.html#history">history</a></li><li><a href="global.html#inAppFolders">inAppFolders</a></li><li><a href="global.html#indent">indent</a></li><li><a href="global.html#indentBy">indentBy</a></li><li><a href="global.html#insertAfter">insertAfter</a></li><li><a href="global.html#isInteractive">isInteractive</a></li><li><a href="global.html#isProject">isProject</a></li><li><a href="global.html#isSessionsLastPage">isSessionsLastPage</a></li><li><a href="global.html#isText">isText</a></li><li><a href="global.html#isTextFile">isTextFile</a></li><li><a href="global.html#itemCell">itemCell</a></li><li><a href="global.html#itemsTable">itemsTable</a></li><li><a href="global.html#jsonErrorPosition">jsonErrorPosition</a></li><li><a href="global.html#lanAddress">lanAddress</a></li><li><a href="global.html#lastFirst">lastFirst</a></li><li><a href="global.html#layoutEnd">layoutEnd</a></li><li><a href="global.html#layoutParts">layoutParts</a></li><li><a href="global.html#leaveIfAsked">leaveIfAsked</a></li><li><a href="global.html#leavesStage">leavesStage</a></li><li><a href="global.html#legacyValue">legacyValue</a></li><li><a href="global.html#lines">lines</a></li><li><a href="global.html#loadPackagesFor">loadPackagesFor</a></li><li><a href="global.html#measure">measure</a></li><li><a href="global.html#memberAssignment">memberAssignment</a></li><li><a href="global.html#model">model</a></li><li><a href="global.html#mountProject">mountProject</a></li><li><a href="global.html#newTreatment">newTreatment</a></li><li><a href="global.html#normalizeCode">normalizeCode</a></li><li><a href="global.html#openUrl">openUrl</a></li><li><a href="global.html#owner">owner</a></li><li><a href="global.html#packageFor">packageFor</a></li><li><a href="global.html#pageTimesCSV">pageTimesCSV</a></li><li><a href="global.html#paramCell">paramCell</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseExpr">parseExpr</a></li><li><a href="global.html#parseLayout">parseLayout</a></li><li><a href="global.html#parseQueueId">parseQueueId</a></li><li><a href="global.html#place">place</a></li><li><a href="global.html#plot">plot</a></li><li><a href="global.html#plotInput">plotInput</a></li><li><a href="global.html#plotItemAt">plotItemAt</a></li><li><a href="global.html#prefixHtmlUrls">prefixHtmlUrls</a></li><li><a href="global.html#pressButton">pressButton</a></li><li><a href="global.html#program">program</a></li><li><a href="global.html#programItems">programItems</a></li><li><a href="global.html#putApp">putApp</a></li><li><a href="global.html#putSettings">putSettings</a></li><li><a href="global.html#py">py</a></li><li><a href="global.html#queueId">queueId</a></li><li><a href="global.html#queueScript">queueScript</a></li><li><a href="global.html#quote">quote</a></li><li><a href="global.html#quotedEnd">quotedEnd</a></li><li><a href="global.html#readGameHeader">readGameHeader</a></li><li><a href="global.html#readQuestionnaires">readQuestionnaires</a></li><li><a href="global.html#readScreen">readScreen</a></li><li><a href="global.html#readTextQuestionnaires">readTextQuestionnaires</a></li><li><a href="global.html#readTextTreatment">readTextTreatment</a></li><li><a href="global.html#readTreatment">readTreatment</a></li><li><a href="global.html#ready">ready</a></li><li><a href="global.html#refresh">refresh</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#reload">reload</a></li><li><a href="global.html#renderScreen">renderScreen</a></li><li><a href="global.html#reportMarkdown">reportMarkdown</a></li><li><a href="global.html#rooms">rooms</a></li><li><a href="global.html#router">router</a></li><li><a href="global.html#rtfToText">rtfToText</a></li><li><a href="global.html#run">run</a></li><li><a href="global.html#runAppCode">runAppCode</a></li><li><a href="global.html#runBots">runBots</a></li><li><a href="global.html#runOf">runOf</a></li><li><a href="global.html#runZtreeBots">runZtreeBots</a></li><li><a href="global.html#scan">scan</a></li><li><a href="global.html#screen">screen</a></li><li><a href="global.html#sessionConfigs">sessionConfigs</a></li><li><a href="global.html#settleBoxes">settleBoxes</a></li><li><a href="global.html#stageDeclaration">stageDeclaration</a></li><li><a href="global.html#stageMeaning">stageMeaning</a></li><li><a href="global.html#stageVariable">stageVariable</a></li><li><a href="global.html#statementRange">statementRange</a></li><li><a href="global.html#str">str</a></li><li><a href="global.html#subjectIndex">subjectIndex</a></li><li><a href="global.html#submitGeneric">submitGeneric</a></li><li><a href="global.html#substitutionAt">substitutionAt</a></li><li><a href="global.html#syntaxErrors">syntaxErrors</a></li><li><a href="global.html#tableRecords">tableRecords</a></li><li><a href="global.html#tablesChangedTimers">tablesChangedTimers</a></li><li><a href="global.html#template">template</a></li><li><a href="global.html#templateLiteral">templateLiteral</a></li><li><a href="global.html#templates">templates</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#textParts">textParts</a></li><li><a href="global.html#toTreatment">toTreatment</a></li><li><a href="global.html#tokenize">tokenize</a></li><li><a href="global.html#topInsert">topInsert</a></li><li><a href="global.html#treatmentFile">treatmentFile</a></li><li><a href="global.html#unindent">unindent</a></li><li><a href="global.html#urlFor">urlFor</a></li><li><a href="global.html#validate">validate</a></li><li><a href="global.html#value">value</a></li><li><a href="global.html#valueFor">valueFor</a></li><li><a href="global.html#valueKind">valueKind</a></li><li><a href="global.html#valueSource">valueSource</a></li><li><a href="global.html#variables">variables</a></li><li><a href="global.html#whenReady">whenReady</a></li><li><a href="global.html#wideCSV">wideCSV</a></li><li><a href="global.html#withBlocks">withBlocks</a></li><li><a href="global.html#withStatics">withStatics</a></li><li><a href="global.html#write">write</a></li><li><a href="global.html#zTreeRules">zTreeRules</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Jan 24 2020 16:57:25 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Oct 14 2026 09:40:18 GMT+0200 (Central European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

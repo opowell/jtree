@@ -23,19 +23,24 @@ export const menus = computed<MenuItemDef[]>(() => {
   const commands = front ? windowCommands[front] : undefined
   const treatments = session?.apps.length ?? 0
   const editable = Boolean(doc && !doc.readOnly)
+  // A z-Tree treatment, edited as z-Tree edits it (treatment/zdocs.ts).
+  const z = Boolean(doc?.z)
+  const zNew = (label: string, kind: string, shortcut?: string): MenuItemDef =>
+    z ? { label, shortcut, action: () => void act.zNew(kind) } : off(label, shortcut)
   const running = Boolean(session?.started && Object.values(session.participants).some((p) => p.player))
 
   const file: MenuItemDef = {
     label: 'File',
     items: [
-      { label: 'New Treatment', action: act.newTreatment },
+      { label: 'New Treatment', action: () => void act.newTreatment() },
+      { label: 'New jtree App', action: act.newJtreeTreatment },
       off('New Questionnaire'),
       { label: 'Open…', shortcut: 'Ctrl+O', disabled: !state.loaded, action: () => void act.openTreatmentDialog() },
       { label: 'Close', disabled: !front, action: act.closeFront },
       { label: 'Save', shortcut: 'Ctrl+S', disabled: !doc, action: () => act.saveFront() },
       { label: 'Save As…', disabled: !doc, action: () => act.saveFront(true) },
       sep,
-      { label: 'Export Treatment…', disabled: !doc, action: act.exportTreatment },
+      { label: 'Export Treatment…', disabled: !doc, action: () => void act.exportTreatment() },
       off('Export Questionnaire…'),
       off('Export GameSafe…'),
       { label: 'Export Table…', disabled: !commands?.exportText || Boolean(doc), action: act.exportTable },
@@ -58,11 +63,19 @@ export const menus = computed<MenuItemDef[]>(() => {
   const edit: MenuItemDef = {
     label: 'Edit',
     items: [
-      off('Undo', 'Ctrl+Z'),
+      z ? { label: 'Undo', shortcut: 'Ctrl+Z', disabled: !doc!.z!.undo.length, action: () => act.undoTree(doc) } : off('Undo', 'Ctrl+Z'),
+      ...(z ? [{ label: 'Redo', shortcut: 'Ctrl+Y', disabled: !doc!.z!.redo.length, action: () => act.redoTree(doc) }] : []),
       sep,
       { label: 'Cut', shortcut: 'Ctrl+X', disabled: !commands?.cut || !commands.canCut?.(), action: act.editCut },
       { label: 'Copy', shortcut: 'Ctrl+C', disabled: !commands?.copy, action: act.editCopy },
       { label: 'Paste', shortcut: 'Ctrl+V', disabled: !commands?.paste || !commands.canPaste?.(), action: act.editPaste },
+      ...(z
+        ? [
+            { label: 'Delete', shortcut: 'Del', disabled: !act.canMoveTree(doc), action: () => act.deleteTree(doc!) },
+            { label: 'Move Up', shortcut: 'Alt+↑', disabled: !act.canMoveTree(doc), action: () => act.moveTree(doc!, -1) },
+            { label: 'Move Down', shortcut: 'Alt+↓', disabled: !act.canMoveTree(doc), action: () => act.moveTree(doc!, 1) },
+          ]
+        : []),
       sep,
       off('Copy groups'),
       off('Paste groups'),
@@ -74,32 +87,40 @@ export const menus = computed<MenuItemDef[]>(() => {
     ],
   }
 
-  const box = (name: string) => off(`New ${name} Box…`)
+  const BOX_KINDS: Record<string, string> = {
+    Header: 'headerbox', Standard: 'standardbox', 'Calculator Button': 'calulatorbox', History: 'historybox', Help: 'helpbox', Container: 'containerbox',
+    Grid: 'gridbox', 'Contract Creation': 'makecontractbox', 'Contract List': 'selectcontractbox', 'Contract Grid': 'contractgridbox', Message: 'messagebox',
+    Multimedia: 'multimediabox', Plot: 'plotbox', Chat: 'chatterbox',
+  }
+  const PLOT_KINDS: Record<string, string> = {
+    Point: 'plotpoint', 'Plot Input': 'plotinput', 'Plot Graph': 'plotgraph', 'Plot Text': 'plottext', Line: 'plotline', Rect: 'plotrect', Pie: 'plotpie', Axis: 'plotaxis',
+  }
+  const box = (name: string) => zNew(`New ${name} Box…`, BOX_KINDS[name])
   const treatment: MenuItemDef = {
     label: 'Treatment',
     items: [
       { label: 'Info…', disabled: !doc, action: act.frontInfo },
       sep,
       { label: 'New Stage…', disabled: !editable, action: () => void act.newStage() },
-      off('New Table…'),
-      off('New Table Loader…'),
-      off('New Table Dumper…'),
+      zNew('New Table…', 'table'),
+      zNew('New Table Loader…', 'tableloader'),
+      zNew('New Table Dumper…', 'tabledumper'),
       { label: 'New Program…', disabled: !editable, action: () => void act.newProgram() },
-      off('New External Program…'),
+      zNew('New External Program…', 'externalprogram'),
       {
         label: 'New Box',
         items: ['Header', 'Standard', 'Calculator Button', 'History', 'Help', 'Container', 'Grid', 'Contract Creation', 'Contract List', 'Contract Grid', 'Message', 'Multimedia', 'Plot', 'Chat'].map(box),
       },
       off('New On-Off Trigger…'),
-      off('New Button…'),
-      off('New Checker…'),
-      off('New Item…'),
+      zNew('New Button…', 'button'),
+      zNew('New Checker…', 'checker'),
+      zNew('New Item…', 'item'),
       off('New Connector…'),
       off('New Inlet…'),
       off('New Outlet…'),
       {
         label: 'New Plot',
-        items: ['Point', 'Plot Input', 'Plot Graph', 'Plot Text', 'Line', 'Rect', 'Pie', 'Axis'].map((name) => off(`New ${name}…`)),
+        items: Object.entries(PLOT_KINDS).map(([name, kind]) => zNew(`New ${name}…`, kind)),
       },
       { label: 'New Slide Show', items: [off('New Slide Show…'), off('Slide sequence…'), off('New Slide…')] },
       sep,

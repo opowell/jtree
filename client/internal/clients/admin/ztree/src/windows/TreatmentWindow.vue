@@ -2,7 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import ZTreeNode from '../components/ZTreeNode.vue'
 import { windowCommands } from '../clients'
-import { canCutTree, canPasteTree, copyTree, cutTree, info, pasteTree } from '../actions'
+import { canCutTree, canPasteTree, copyTree, cutTree, deleteTree, info, moveTree, pasteTree, redoTree, undoTree } from '../actions'
 import { docs } from '../treatment/docs'
 import type { TreeNode } from '../treatment/parse'
 
@@ -51,6 +51,15 @@ function keydown(event: KeyboardEvent) {
   const index = list.findIndex((n) => n.id === d.selected)
   const current = list[index]
   const mod = event.ctrlKey || event.metaKey
+  // A z-Tree treatment: Delete, Undo (Ctrl+Z), Redo (Ctrl+Y), and Alt+↑/↓ to move an element.
+  if (d.z) {
+    const key = event.key.toLowerCase()
+    const done = () => { event.preventDefault(); event.stopPropagation() }
+    if (event.key === 'Delete') { deleteTree(d); return done() }
+    if (mod && key === 'z' && !event.shiftKey) { undoTree(d); return done() }
+    if (mod && (key === 'y' || (key === 'z' && event.shiftKey))) { redoTree(d); return done() }
+    if (event.altKey && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) { moveTree(d, event.key === 'ArrowUp' ? -1 : 1); return done() }
+  }
   if (mod && ['c', 'x', 'v'].includes(event.key.toLowerCase())) {
     event.preventDefault()
     event.stopPropagation()

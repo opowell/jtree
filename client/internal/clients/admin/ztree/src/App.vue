@@ -12,7 +12,8 @@ import { connectedCount, windowCommands } from './clients'
 import { closeDialog, dialogStack } from './dialogs'
 import { menus } from './menus'
 import * as act from './actions'
-import { docs, newDoc, openDoc } from './treatment/docs'
+import { docs, openDoc } from './treatment/docs'
+import { isZtreeFile, openZDoc } from './treatment/zdocs'
 import { closeWindow, frontTreatment, frontWindow, openWindow, panels, setLayout, windowIds, windowTitle, workspace } from './windows'
 
 /*
@@ -72,16 +73,19 @@ let restored = false
 watch(() => state.loaded, (loaded) => {
   if (!loaded || restored) return
   restored = true
-  for (const id of windowIds.value) {
-    if (!id.startsWith('treatment:')) continue
-    const key = id.slice('treatment:'.length)
-    if (key.startsWith('untitled:') || !openDoc(key)) closeWindow(id)
-  }
-  if (!windowIds.value.length) openWindow('monitor')
-  if (!windowIds.value.some((id) => id.startsWith('treatment:'))) {
-    const doc = newDoc()
-    openWindow(`treatment:${doc.key}`)
-  }
+  void (async () => {
+    for (const id of windowIds.value) {
+      if (!id.startsWith('treatment:')) continue
+      const key = id.slice('treatment:'.length)
+      const path = state.apps[key]?.appPath ?? ''
+      if (key.startsWith('untitled:') || !state.apps[key]) closeWindow(id)
+      // z-Tree's treatments are read by the server, to be edited as z-Tree edits them.
+      else if (isZtreeFile(path)) await openZDoc(key, path).catch(() => closeWindow(id))
+      else if (!openDoc(key)) closeWindow(id)
+    }
+    if (!windowIds.value.length) openWindow('monitor')
+    if (!windowIds.value.some((id) => id.startsWith('treatment:'))) await act.newTreatment()
+  })()
 }, { immediate: true })
 
 /* --------------------------------------------------------------- keyboard */

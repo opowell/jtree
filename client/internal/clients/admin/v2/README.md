@@ -6,7 +6,8 @@ over a window of rearrangeable panels, with the lists in those panels drawn by
 appfr's `DataShell`.
 
 It talks to the server over the same socket.io messages as the previous
-interface (`server/source/core/Msgs.js`), and needs no server changes.
+interface (`server/source/core/Msgs.js`), and, for its app editor, to the
+server's editor API (`/api/editor/jtree/…`, `server/source/editors/`).
 
 ## Panels
 
@@ -16,7 +17,8 @@ interface (`server/source/core/Msgs.js`), and needs no server changes.
 | Session | The open session: start, pause/resume, advance slowest, reset, download output, delete; its apps; participant count, autoplay, login options. |
 | Participants | The open session's participants, live: app, period, group, stage, clients, points, state. Opening one shows its page in Participant views. |
 | Participant views | Each chosen participant's own page, side by side, with autoplay and reload per view. |
-| App | One per app opened: details, and starting a session from it or adding it to the open one. A queue is an app made of other apps, and its panel lists them. |
+| App | One per app opened: details, and starting a session from it or adding it to the open one. A queue is an app made of other apps, and its panel lists them. Edit opens a jtree app in the app editor; z-Tree treatments and oTree apps link to the editors in their admins. |
+| App editor | jtree's own editor for a `.jtt` app (an app's Edit, or File → New app…): its settings, its stages (added, renamed, moved, deleted), each stage's screens (with a preview), settings and functions, its other code, and the whole source. Each change is made in the source by the server (`server/source/editors/jtree.js`), which changes only the statement it is about; Save (Ctrl+S) writes the file. |
 | Log | Messages sent and received in this browser. |
 | Settings | Theme, layout reset, and the server's settings (read-only). |
 

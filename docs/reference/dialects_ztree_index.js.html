@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: dialects/ztree/index.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: dialects/ztree/index.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const fs = require('fs-extra');
+const path = require('path');
+const { readTreatment } = require('./ztt.js');
+const ztq = require('./ztq.js');
+const { Run } = require('./runtime.js');
+const exportTables = require('./export.js');
+
+/*
+ * z-Tree treatments (.ztt files) as jtree apps: read by ztt.js, their programs run by lang.js
+ * over z-Tree's tables (runtime.js), their screens drawn by render.js and shown by
+ * participant/ztree.js. See plans/ztree-otree-dialects.md, section 5.
+ *
+ * How a treatment becomes a jtree app:
+ * - its periods are periods; all its subjects are one jtree group (z-Tree's Group is a variable);
+ * - each stage is a stage: "wait for all" stages start when every subject is there, the others as
+ *   each subject gets there; their programs run then, and Participate decides who takes part;
+ * - a stage's timeout is each subject's time on it: shown in the header box, and ending the stage
+ *   if the stage leaves after its timeout;
+ * - buttons are handled by the server (ztreeButton): inputs, checkers, programs, leaving the stage;
+ *   every subject's screen is drawn again after anything changes.
+ */
+
+const SCREEN_ASSETS = '&lt;link rel="stylesheet" href="/participant/ztree.css">&lt;script src="/participant/ztree-plot.js">&lt;/script>&lt;script src="/participant/ztree.js">&lt;/script>';
+
+/** Ends player's stage after what is running now. */
+function endSoon(player) {
+    player.session().pushMessage(player, true, 'endStage');
+}
+
+/** The treatment's run in app (a session's app): made when it starts. */
+function runOf(app) {
+    if (app.ztreeRun == null) {
+        app.ztreeRun = new Run(app.ztree.treatment, app);
+        app.ztreeRun.onChange = () => refresh(app);
+    }
+    return app.ztreeRun;
+}
+
+/** The subject index of player (their participant's place in the session). */
+function subjectIndex(player) {
+    return Object.keys(player.session().participants).indexOf(String(player.participant.id));
+}
+
+/** Draws again the screen of each of app's players who is in it, and sends it if it changed. */
+function refresh(app) {
+    const session = app.session;
+    if (session == null) return;
+    tablesChanged(session);
+    for (const participant of Object.values(session.participants)) {
+        const player = participant.player;
+        if (player == null || player.app() !== app || player.stage == null || player.stage.ztree == null) continue;
+        leaveIfAsked(player);
+        draw(player);
+    }
+}
+
+/** A subject whose LeaveStage a program set to 1 leaves their stage (z-Tree's LeaveStage); it is 0 again. */
+function leaveIfAsked(player) {
+    if (player.status !== 'playing') return;
+    const run = player.app().ztreeRun;
+    const state = run == null ? null : run.periods[player.group.period.id - 1];
+    const rec = state == null ? null : state.subjects[subjectIndex(player)];
+    if (rec == null || lang().num(rec.LeaveStage) !== 1) return;
+    rec.LeaveStage = 0;
+    endSoon(player);
+}
+
+/** Draws player's screen (their stage's active screen, or the waiting screen they are on). */
+/**
+ * Player presses a button of their screen: data is {stage, box, button, values, others, record,
+ * itemButton}, as their page sends it ('ztreeButton'). Returns {error} (the message z-Leaf would
+ * show), {leave} (whether they leave the stage), or null if they are not playing that stage.
+ */
+function pressButton(app, player, data) {
+    if (player == null || player.app() !== app || player.stage == null || player.stage.ztree == null || player.status !== 'playing') return null;
+    if (data == null || data.stage !== player.stage.id) return null;
+    const run = runOf(app);
+    if (data.record != null) {
+        const sel = run.selected.get(player.participant.id) || {};
+        sel[data.box] = data.record;
+        run.selected.set(player.participant.id, sel);
+    }
+    const result = run.press(player.group.period.id - 1, subjectIndex(player), player.stage.ztree, data);
+    if (result.error) return result;
+    if (result.leave) endSoon(player);
+    refresh(app);
+    return result;
+}
+
+function draw(player, which) {
+    const app = player.app();
+    const run = runOf(app);
+    const stage = player.stage;
+    if (which == null) which = player.ztreeWhich || (player.status === 'playing' ? 'active' : 'waiting');
+    player.ztreeWhich = which;
+    const shown = which === 'active' || player.ztreeWaitingStage == null ? stage : app.stages[player.ztreeWaitingStage];
+    let html;
+    try {
+        html = run.screen(player.group.period.id - 1, subjectIndex(player), shown.ztree, which, player.participant.id,
+            which === 'active' ? player.ztreeDeadline : null);
+    } catch (err) {
+        run.note('drawing a screen: ' + err.message);
+        html = '&lt;div class="ztree-error">This screen could not be shown: ' + String(err.message).replace(/&lt;/g, '&amp;lt;') + '&lt;/div>';
+    }
+    if (html !== drawn.get(player)) {
+        drawn.set(player, html);
+        // Numbered, so that a page shows the newest screen it got, whichever way it came
+        // ('ztreeScreen', or jtree's update of the player, which may come later).
+        player.ztreeVersion = (player.ztreeVersion || 0) + 1;
+        player.ztreeHtml = html.replace('&lt;div class="ztree-screen"', '&lt;div class="ztree-screen" data-version="' + player.ztreeVersion + '"');
+        const io = player.session().io();
+        if (io != null) io.to(player.participant.roomId()).emit('ztreeScreen', { html: player.ztreeHtml, stage: player.stage.id, version: player.ztreeVersion });
+    }
+}
+
+/** Tells admins a session's z-Tree tables changed (at most every half second), to ask for them. */
+const tablesChangedTimers = new WeakMap();
+function tablesChanged(session) {
+    if (tablesChangedTimers.has(session)) return;
+    const timer = setTimeout(() => {
+        tablesChangedTimers.delete(session);
+        const ss = session.jt != null ? session.jt.socketServer : null;
+        if (ss != null) ss.emitToAdmins('ztreeTablesChanged', { sessionId: session.id });
+    }, 500);
+    if (timer.unref) timer.unref();
+    tablesChangedTimers.set(session, timer);
+}
+
+/** The screen last drawn for each player (without its number). */
+const drawn = new WeakMap();
+
+function defineStage(app, zstage, index, treatment) {
+    const stage = app.newStage('stage' + (index + 1));
+    stage.ztree = zstage;
+    stage.title = zstage.name;
+    const startIfPossible = zstage.startIfPossible === true;
+    // Leaving the stage when its time is up is z-Tree's default. (The options' bit 2, set on the
+    // examples' market stages, is not known yet.)
+    const leaveAfterTimeout = true;
+    stage.wrapPlayingScreenInFormTag = 'no';
+    stage.addOKButtonIfNone = false;
+    stage.waitToEnd = false;
+    stage.waitToStart = !startIfPossible;
+    stage.waitForAllGroups = !startIfPossible;
+    stage.endOnTimeout = leaveAfterTimeout;
+    stage.useAppWaitingScreen = false;
+    const id = stage.id;
+    stage.activeScreen = SCREEN_ASSETS + '&lt;div class="ztree-page" v-if="stage.id == \'' + id + '\' &amp;&amp; player.status == \'playing\'" v-html="player.ztreeHtml">&lt;/div>';
+    stage.waitingScreen = '&lt;div class="ztree-page" v-if="stage.id == \'' + id + '\' &amp;&amp; player.status != \'playing\'" v-html="player.ztreeHtml">&lt;/div>';
+
+    const started = new Set(); // period/participant: programs run
+    const startSubjects = (period, players) => {
+        const run = runOf(app);
+        const p = period.id - 1;
+        const view = run.view(p);
+        const subjects = players.map((pl) => run.periods[p].subjects[subjectIndex(pl)]).filter(Boolean);
+        for (const rec of subjects) rec.Participate = 1;
+        // Its table loaders, once a period, before its programs; its dumpers after them.
+        const loaded = run.periods[p].loaded = run.periods[p].loaded || new Set();
+        if (!loaded.has(zstage)) {
+            loaded.add(zstage);
+            run.loadTables(p, zstage.loaders);
+        }
+        run.runPrograms(zstage.programs, view, subjects, { globalsOnce: startIfPossible ? run.periods[p].globalsRun : null });
+        run.dumpTables(p, zstage.dumpers);
+    };
+    if (!startIfPossible) {
+        stage.allGroupsStart = (period) => {
+            const players = period.groups.flatMap((g) => g.players);
+            players.forEach((pl) => started.add(period.id + '/' + pl.participant.id));
+            startSubjects(period, players);
+            refresh(app);
+        };
+    }
+    stage.canPlayerParticipate = (player) => {
+        const key = player.group.period.id + '/' + player.participant.id;
+        if (!started.has(key)) {
+            started.add(key);
+            startSubjects(player.group.period, [player]);
+        }
+        const rec = runOf(app).periods[player.group.period.id - 1].subjects[subjectIndex(player)];
+        return rec == null || lang().num(rec.Participate) !== 0;
+    };
+    // The stage's timeout: an expression, for each subject (0 or less: none).
+    stage.getClientDuration = (player) => {
+        const run = runOf(app);
+        const p = player.group.period.id - 1;
+        const rec = run.periods[p].subjects[subjectIndex(player)];
+        const seconds = zstage.timeout ? lang().num(run.value(zstage.timeout, { rt: run.view(p), table: 'subjects', rec, outer: null })) : 0;
+        return seconds > 0 ? seconds : 0;
+    };
+    stage.playerStart = (player) => {
+        const seconds = stage.getClientDuration(player);
+        player.ztreeDeadline = seconds > 0 ? Date.now() + seconds * 1000 : null;
+        draw(player, 'active');
+        // What the subject's stage programs made (records in a list, ...) shows on the others' screens too.
+        refresh(app);
+    };
+    stage.playerEnd = (player) => {
+        // Until the next stage, the subject sees this stage's waiting screen.
+        player.ztreeWaitingStage = stage.indexInApp();
+        copyToPlayer(player);
+        draw(player, 'waiting');
+        refresh(app);
+    };
+    return stage;
+}
+
+/** The subject's variables as the player's fields (for jtree's data), and Profit as points. */
+function copyToPlayer(player) {
+    const run = runOf(player.app());
+    const rec = run.periods[player.group.period.id - 1].subjects[subjectIndex(player)];
+    if (rec == null) return;
+    for (const [k, v] of Object.entries(rec)) {
+        if (k === '_id' || (v != null &amp;&amp; typeof v === 'object')) continue;
+        if (!/^[A-Z]/.test(k) &amp;&amp; Object.prototype.hasOwnProperty.call(player, k) &amp;&amp; !(k in (player.ztreeFields || {}))) continue;
+        (player.ztreeFields = player.ztreeFields || {})[k] = true;
+        player[k] = v;
+    }
+    player.points = lang().num(rec.Profit);
+}
+
+let langModule = null;
+const lang = () => (langModule = langModule || require('./lang.js'));
+
+module.exports = {
+    name: 'ztree',
+
+    detect(appPath) {
+        return /\.zt[tq]$/i.test(appPath) || (/\.txt$/i.test(appPath) &amp;&amp; require('./ztext.js').isTextFile(appPath));
+    },
+
+    /** Makes app the z-Tree treatment in appPath. */
+    define(app) {
+        const buf = fs.readFileSync(app.appPath);
+        // A questionnaire file (.ztq) runs as a treatment of its questionnaires (see ztq.js).
+        // (A text export says which it is: questionnaires "…" { } or treatment "…" { }.)
+        const questionnaires = /\.ztq$/i.test(app.appPath) || /^\s*questionnaires\b/.test(buf.subarray(0, 64).toString('latin1').replace(/^\uFEFF|^\xEF\xBB\xBF/, ''));
+        const treatment = questionnaires ? ztq.toTreatment(ztq.readQuestionnaires(buf)) : readTreatment(buf);
+        app.ztree = { treatment };
+        // Not sent to pages, nor saved with the app.
+        app.outputHideAuto.push('ztree', 'ztreeRun');
+        app.appjs = '';
+        app.shortId = path.basename(app.appPath, path.extname(app.appPath));
+        app.title = app.shortId;
+        app.description = treatment.questionnaire
+            ? 'z-Tree questionnaire, ' + treatment.stages.length + ' page' + (treatment.stages.length === 1 ? '' : 's') + '.'
+            : 'z-Tree treatment, ' + treatment.subjects.length + ' subjects, ' + treatment.periods.length + ' period' +
+            (treatment.periods.length === 1 ? '' : 's') + ', ' + treatment.stages.length + ' stages.';
+        app.numPeriods = Math.max(1, treatment.periods.length);
+        if (!treatment.questionnaire) app.suggestedNumParticipants = treatment.subjects.length;
+        app.playerFieldsNotInOutput = ['ztreeHtml', 'ztreeWhich', 'ztreeWaitingStage', 'ztreeDeadline', 'ztreeFields', 'ztreeVersion'];
+        app.waitingScreen = SCREEN_ASSETS + '&lt;div class="ztree-page" v-if="player.stage == null || player.stage.ztree == null" v-html="player.ztreeHtml">&lt;/div>';
+        if (treatment.warnings.length) app.ztree.warnings = treatment.warnings;
+
+        app.periodStart = (period) => {
+            const run = runOf(app);
+            run.startPeriod(period.id - 1, Object.keys(app.session.participants).length);
+        };
+        app.periodEnd = (period) => {
+            const run = runOf(app);
+            run.endPeriod(period.id - 1);
+            for (const group of period.groups) for (const player of group.players) copyToPlayer(player);
+        };
+        treatment.stages.forEach((s, i) => defineStage(app, s, i, treatment));
+
+        // A button pressed: {stage, box, button, values, record}.
+        app.messages.ztreeButton = function(data) {
+            const player = this.participant.player;
+            const result = pressButton(app, player, data);
+            if (result == null) return;
+            const io = player.session().io();
+            if (io == null) return;
+            if (result.error) {
+                io.to(player.participant.roomId()).emit('ztreeMessage', { text: result.error, box: data.box });
+                return;
+            }
+            io.to(player.participant.roomId()).emit('ztreeAccepted', { box: data.box });
+        };
+        app.messages.ztreeButton.convertsOwnValues = true;
+        // A row chosen in a contract list: {stage, box, record}.
+        app.messages.ztreeSelect = function(data) {
+            const player = this.participant.player;
+            if (player == null || player.app() !== app || data == null) return;
+            const run = runOf(app);
+            const sel = run.selected.get(player.participant.id) || {};
+            sel[data.box] = data.record;
+            run.selected.set(player.participant.id, sel);
+            draw(player);
+        };
+        app.messages.ztreeSelect.convertsOwnValues = true;
+        // A plot input used: {stage, box, input, x, y, x0, y0, x1, y1}.
+        app.messages.ztreePlot = function(data) {
+            const player = this.participant.player;
+            if (player == null || player.app() !== app || player.stage == null || player.stage.ztree == null || player.status !== 'playing') return;
+            if (data == null || data.stage !== player.stage.id) return;
+            const result = runOf(app).plotInput(player.group.period.id - 1, subjectIndex(player), player.stage.ztree, data);
+            if (result.error) player.session().io().to(player.participant.roomId()).emit('ztreeMessage', { text: result.error, box: data.box });
+            refresh(app);
+        };
+        app.messages.ztreePlot.convertsOwnValues = true;
+        // A chat entry: {stage, box, text}.
+        app.messages.ztreeChat = function(data) {
+            const player = this.participant.player;
+            if (player == null || player.app() !== app || player.stage == null || player.stage.ztree == null || data == null || data.stage !== player.stage.id) return;
+            runOf(app).chat(player.group.period.id - 1, subjectIndex(player), player.stage.ztree, data);
+            refresh(app);
+        };
+        app.messages.ztreeChat.convertsOwnValues = true;
+
+        // Downloads: the treatment's tables, as z-Tree writes them.
+        app.exporters = (session) => [{
+            id: 'ztree-tables-' + app.shortId,
+            name: 'z-Tree tables of ' + app.shortId,
+            filename: () => app.shortId + '-' + session.id + '.xls',
+            contentType: 'text/tab-separated-values',
+            write: () => {
+                const own = session.apps.find((a) => a.ztree != null &amp;&amp; a.appPath === app.appPath) || app;
+                return own.ztreeRun == null ? '' : exportTables(own.ztreeRun, session);
+            },
+        }];
+    },
+
+    runOf,
+    draw,
+    refresh,
+    pressButton,
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AdminAuth.html">AdminAuth</a></li><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="Data.html">Data</a></li><li><a href="Exit.html">Exit</a></li><li><a href="Group.html">Group</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="QueueRecorder.html">QueueRecorder</a></li><li><a href="Reader.html">Reader</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Run.html">Run</a></li><li><a href="Screens.html">Screens</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="Translator.html">Translator</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="global.html#start">start</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-4a-ztree.html">z-Tree treatments</a></li><li><a href="tutorial-4b-otree.html">oTree apps</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-other.html">Other</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ADMIN_LOGIN_REQUIRED">ADMIN_LOGIN_REQUIRED</a></li><li><a href="global.html#APP_HOOKS">APP_HOOKS</a></li><li><a href="global.html#STAGE_HOOKS">STAGE_HOOKS</a></li><li><a href="global.html#addToClass">addToClass</a></li><li><a href="global.html#allBoxes">allBoxes</a></li><li><a href="global.html#appCSV">appCSV</a></li><li><a href="global.html#appFile">appFile</a></li><li><a href="global.html#appInsertAt">appInsertAt</a></li><li><a href="global.html#appRoots">appRoots</a></li><li><a href="global.html#appTemplate">appTemplate</a></li><li><a href="global.html#appToIR">appToIR</a></li><li><a href="global.html#apply">apply</a></li><li><a href="global.html#applyIR">applyIR</a></li><li><a href="global.html#applySettings">applySettings</a></li><li><a href="global.html#arrayDeclarations">arrayDeclarations</a></li><li><a href="global.html#arrayIndex">arrayIndex</a></li><li><a href="global.html#assignedVariables">assignedVariables</a></li><li><a href="global.html#boolValue">boolValue</a></li><li><a href="global.html#botCases">botCases</a></li><li><a href="global.html#boxOptions">boxOptions</a></li><li><a href="global.html#chat">chat</a></li><li><a href="global.html#chatFor">chatFor</a></li><li><a href="global.html#check">check</a></li><li><a href="global.html#checkField">checkField</a></li><li><a href="global.html#checkForm">checkForm</a></li><li><a href="global.html#compileProgram">compileProgram</a></li><li><a href="global.html#compiled">compiled</a></li><li><a href="global.html#context">context</a></li><li><a href="global.html#contractList">contractList</a></li><li><a href="global.html#convertApp">convertApp</a></li><li><a href="global.html#convertTreatment">convertTreatment</a></li><li><a href="global.html#convertTreatmentFile">convertTreatmentFile</a></li><li><a href="global.html#copyDir">copyDir</a></li><li><a href="global.html#copyToPlayer">copyToPlayer</a></li><li><a href="global.html#creatingSessionBeforeArrival">creatingSessionBeforeArrival</a></li><li><a href="global.html#cut">cut</a></li><li><a href="global.html#decimals">decimals</a></li><li><a href="global.html#declared">declared</a></li><li><a href="global.html#dedent">dedent</a></li><li><a href="global.html#describeValue">describeValue</a></li><li><a href="global.html#dialectFor">dialectFor</a></li><li><a href="global.html#drawn">drawn</a></li><li><a href="global.html#encode">encode</a></li><li><a href="global.html#endSoon">endSoon</a></li><li><a href="global.html#errorPosition">errorPosition</a></li><li><a href="global.html#exportTables">exportTables</a></li><li><a href="global.html#exporter">exporter</a></li><li><a href="global.html#exportersFor">exportersFor</a></li><li><a href="global.html#expression">expression</a></li><li><a href="global.html#fail">fail</a></li><li><a href="global.html#file">file</a></li><li><a href="global.html#fillValues">fillValues</a></li><li><a href="global.html#findBox">findBox</a></li><li><a href="global.html#finite">finite</a></li><li><a href="global.html#formatText">formatText</a></li><li><a href="global.html#formatValue">formatValue</a></li><li><a href="global.html#fromDescription">fromDescription</a></li><li><a href="global.html#getBridge">getBridge</a></li><li><a href="global.html#grid">grid</a></li><li><a href="global.html#history">history</a></li><li><a href="global.html#inAppFolders">inAppFolders</a></li><li><a href="global.html#indent">indent</a></li><li><a href="global.html#indentBy">indentBy</a></li><li><a href="global.html#insertAfter">insertAfter</a></li><li><a href="global.html#isInteractive">isInteractive</a></li><li><a href="global.html#isProject">isProject</a></li><li><a href="global.html#isSessionsLastPage">isSessionsLastPage</a></li><li><a href="global.html#isText">isText</a></li><li><a href="global.html#isTextFile">isTextFile</a></li><li><a href="global.html#itemCell">itemCell</a></li><li><a href="global.html#itemsTable">itemsTable</a></li><li><a href="global.html#jsonErrorPosition">jsonErrorPosition</a></li><li><a href="global.html#lanAddress">lanAddress</a></li><li><a href="global.html#lastFirst">lastFirst</a></li><li><a href="global.html#layoutEnd">layoutEnd</a></li><li><a href="global.html#layoutParts">layoutParts</a></li><li><a href="global.html#leaveIfAsked">leaveIfAsked</a></li><li><a href="global.html#leavesStage">leavesStage</a></li><li><a href="global.html#legacyValue">legacyValue</a></li><li><a href="global.html#lines">lines</a></li><li><a href="global.html#loadPackagesFor">loadPackagesFor</a></li><li><a href="global.html#measure">measure</a></li><li><a href="global.html#memberAssignment">memberAssignment</a></li><li><a href="global.html#model">model</a></li><li><a href="global.html#mountProject">mountProject</a></li><li><a href="global.html#newTreatment">newTreatment</a></li><li><a href="global.html#normalizeCode">normalizeCode</a></li><li><a href="global.html#openUrl">openUrl</a></li><li><a href="global.html#owner">owner</a></li><li><a href="global.html#packageFor">packageFor</a></li><li><a href="global.html#pageTimesCSV">pageTimesCSV</a></li><li><a href="global.html#paramCell">paramCell</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseExpr">parseExpr</a></li><li><a href="global.html#parseLayout">parseLayout</a></li><li><a href="global.html#parseQueueId">parseQueueId</a></li><li><a href="global.html#place">place</a></li><li><a href="global.html#plot">plot</a></li><li><a href="global.html#plotInput">plotInput</a></li><li><a href="global.html#plotItemAt">plotItemAt</a></li><li><a href="global.html#prefixHtmlUrls">prefixHtmlUrls</a></li><li><a href="global.html#pressButton">pressButton</a></li><li><a href="global.html#program">program</a></li><li><a href="global.html#programItems">programItems</a></li><li><a href="global.html#putApp">putApp</a></li><li><a href="global.html#putSettings">putSettings</a></li><li><a href="global.html#py">py</a></li><li><a href="global.html#queueId">queueId</a></li><li><a href="global.html#queueScript">queueScript</a></li><li><a href="global.html#quote">quote</a></li><li><a href="global.html#quotedEnd">quotedEnd</a></li><li><a href="global.html#readGameHeader">readGameHeader</a></li><li><a href="global.html#readQuestionnaires">readQuestionnaires</a></li><li><a href="global.html#readScreen">readScreen</a></li><li><a href="global.html#readTextQuestionnaires">readTextQuestionnaires</a></li><li><a href="global.html#readTextTreatment">readTextTreatment</a></li><li><a href="global.html#readTreatment">readTreatment</a></li><li><a href="global.html#ready">ready</a></li><li><a href="global.html#refresh">refresh</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#reload">reload</a></li><li><a href="global.html#renderScreen">renderScreen</a></li><li><a href="global.html#reportMarkdown">reportMarkdown</a></li><li><a href="global.html#rooms">rooms</a></li><li><a href="global.html#router">router</a></li><li><a href="global.html#rtfToText">rtfToText</a></li><li><a href="global.html#run">run</a></li><li><a href="global.html#runAppCode">runAppCode</a></li><li><a href="global.html#runBots">runBots</a></li><li><a href="global.html#runOf">runOf</a></li><li><a href="global.html#runZtreeBots">runZtreeBots</a></li><li><a href="global.html#scan">scan</a></li><li><a href="global.html#screen">screen</a></li><li><a href="global.html#sessionConfigs">sessionConfigs</a></li><li><a href="global.html#settleBoxes">settleBoxes</a></li><li><a href="global.html#stageDeclaration">stageDeclaration</a></li><li><a href="global.html#stageMeaning">stageMeaning</a></li><li><a href="global.html#stageVariable">stageVariable</a></li><li><a href="global.html#statementRange">statementRange</a></li><li><a href="global.html#str">str</a></li><li><a href="global.html#subjectIndex">subjectIndex</a></li><li><a href="global.html#submitGeneric">submitGeneric</a></li><li><a href="global.html#substitutionAt">substitutionAt</a></li><li><a href="global.html#syntaxErrors">syntaxErrors</a></li><li><a href="global.html#tableRecords">tableRecords</a></li><li><a href="global.html#tablesChangedTimers">tablesChangedTimers</a></li><li><a href="global.html#template">template</a></li><li><a href="global.html#templateLiteral">templateLiteral</a></li><li><a href="global.html#templates">templates</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#textParts">textParts</a></li><li><a href="global.html#toTreatment">toTreatment</a></li><li><a href="global.html#tokenize">tokenize</a></li><li><a href="global.html#topInsert">topInsert</a></li><li><a href="global.html#treatmentFile">treatmentFile</a></li><li><a href="global.html#unindent">unindent</a></li><li><a href="global.html#urlFor">urlFor</a></li><li><a href="global.html#validate">validate</a></li><li><a href="global.html#value">value</a></li><li><a href="global.html#valueFor">valueFor</a></li><li><a href="global.html#valueKind">valueKind</a></li><li><a href="global.html#valueSource">valueSource</a></li><li><a href="global.html#variables">variables</a></li><li><a href="global.html#whenReady">whenReady</a></li><li><a href="global.html#wideCSV">wideCSV</a></li><li><a href="global.html#withBlocks">withBlocks</a></li><li><a href="global.html#withStatics">withStatics</a></li><li><a href="global.html#write">write</a></li><li><a href="global.html#zTreeRules">zTreeRules</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Oct 14 2026 09:40:18 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

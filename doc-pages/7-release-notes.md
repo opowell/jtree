@@ -3,6 +3,16 @@
 - Listen to incremental game changes via observer.
 
 #### Unreleased
+- App editors: jtree's own in the admin (File → New app…, or an app's Edit): an app's settings, stages, screens and functions, and its whole source. The z-Tree admin edits z-Tree treatments as z-Tree does (Treatment → New …, element dialogs, undo, Check) and saves them in z-Tree's text format. The oTree admin's Studio edits oTree projects and apps as oTree Studio does. Each changes only the part of the file it is about.
+- z-Tree treatments run in jtree: `.ztt` files from z-Tree 3 to 5, z-Tree's text export and questionnaires (`.ztq`), their programs in z-Tree's language, and z-Leaf's screens in participants' browsers, plot boxes, contract lists and table loaders and dumpers included. Checked against z-Tree 5.1.21.
+- oTree apps run in jtree, in oTree's current format and its older one (`models.py`, Django templates), with their Python (in Pyodide, nothing to install), templates, live pages, chat, timeouts, `ExtraModel`, admin reports and bots. A project's session configs are queues and its `ROOMS` rooms. Checked against oTree 5.11.5, 3.4.0 and 2.5.8: the same data recorded.
+- An admin for oTree users at `/admin/otree/`: sessions from session configs, links, monitor, data, reports, payments, rooms.
+- Converters: z-Tree treatments (Treatment → Convert to jtree… in the z-Tree admin) and oTree apps (Convert to jtree in the oTree admin) to jtree apps, with a report of anything left to do by hand.
+- Play with bots: a session of oTree apps is played by their bots, or a generic bot; z-Tree treatments by a generic z-Tree bot.
+- Modes: whose rules apply where z-Tree, oTree and jtree differ (the `mode` setting, `--mode=`, `JTREE_MODE`, or a session's "Rules").
+- Downloads: a session's data as oTree's CSVs (all apps wide, per app, page times, `custom_export`) too.
+- Rooms: a session can be opened in a room, and the room's participants go to their page in it.
+- `participant.skipToApp(index)` ends a participant's app and starts a later one.
 - Payment: sessions' `showUpFee`, `exchangeRate` and `currency` (defaults in `settings.json`), `app.exchangeRate`, and `participant.payment()`.
 - The server checks forms: `app.fields` declares fields' types and limits, `stage.formFields` what a form must send, and `stage.validate(player, values)` checks them together. A form with mistakes is not stored and the page shows why.
 - A player's own time for a stage (`stage.clientDuration`, or `stage.getClientDuration(player)`) is kept by the server too: a page that does not submit when the time is up is ended after `timeoutGrace`. `stage.endOnTimeout = false` keeps a timed-out stage open until the players submit.

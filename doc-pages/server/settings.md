@@ -1,38 +1,54 @@
-The server may be customized by modifying the contents of the `jtree/internal/settings.js` file. To overwrite option `name` with the value `value`, just add the following to the file:
+Settings are read from `client/settings.json` when jtree starts. Create the file if it is not there, and restart jtree after changing it:
 
+```json
+{
+    "defaultAdminPwd": "choose-a-password",
+    "loadSessions": true,
+    "mode": "ztree"
+}
 ```
-settings.name = value
-```
 
-The following options (with default values shown) are available:
+The admin's Settings panel shows the server's settings. The following are available (defaults shown):
 
-#### `defaultAdminPwd`: undefined
+#### `defaultAdminPwd`: none
 
-A password for accessing the administrator page. A value of "undefined" means no password is required.
+The admin password. Without one, the admin interface only opens on the computer running jtree; with one, everyone logs in at `/admin/login`. `admins` adds more logins: `{ "anna": { "pwd": "..." } }`.
 
 #### `openAdminOnStart`: true
 
-Whether or not the administrator window should open when server is started.
+Whether to open the admin page in a browser when jtree starts.
 
-#### `port`: 80 on Windows, 3000 otherwise
+#### `port`: 3000 (80 on Windows when started without the launchers)
 
-The port which the server will run on.
+The port jtree listens on. The launchers start at 3000 and take the next free port; the environment variable `PORT` sets where they start, and wins over this setting.
 
-#### `sessionShowFullLinks`: false
+#### `basePath`: `'/jtree'`
 
-Whether or not sessions should display links with explicit session id.
+The route jtree is served under when it runs without JAS (`''` for the root). The launchers serve it from the root; inside a JAS that hosts other apps, JAS sets the route.
+
+#### `appFolders`: `['apps']`
+
+The folders apps are read from: relative to the `client` folder, or absolute.
+
+#### `loadSessions`: false
+
+Whether to load the saved sessions when jtree starts. They carry on where they stopped: participants reconnect to their stage, and stage timers run on with the time they had left.
 
 #### `allowClientsToCreateParticipants`: true
 
-Whether or not clients can login (with a valid participant ID) before the participant actually exists in the session.
+Whether, in new sessions, a participant can log in with an id the session does not have yet. Each session's Options can change it.
 
-#### `participantIds`: ['P1', 'P2', ..., 'P100']
+#### `participantIds`: `['P1', 'P2', ..., 'P99']`
 
-A list of participant IDs to be used for sessions.
+The ids given to a session's participants, in order.
 
-#### `waitOnTimerEnd`: true
+#### `outputDelimiter`: `';'`
 
-Whether to wait for player submissions after a stage timer has expired (`true`), or whether to proceed immediately to the next stage (`false`). The former is useful if you want to allow half-finished submissions, while the second is faster (no delay in waiting for submissions) and more secure (players cannot circumvent the stage timer).
+The column delimiter of the session's output file.
+
+#### `useHTTPS`: false
+
+Whether to serve over HTTPS, with a self-signed certificate jtree makes. Only when jtree runs without JAS: under JAS, and so from the launchers, JAS decides the protocol.
 
 #### `mode`: 'jtree'
 

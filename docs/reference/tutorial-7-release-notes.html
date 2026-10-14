@@ -28,49 +28,108 @@
 </header>
 
 <article>
-    <h5>PLANNED</h5><ul>
+    <h5>PLANNED</h5>
+<ul>
 <li>Generic game trees.</li>
 <li>Listen to incremental game changes via observer.</li>
 </ul>
-<h4>2020.01.24 - 0.8.6</h4><ul>
+<h4>Unreleased</h4>
+<ul>
+<li>App editors: jtree's own in the admin (File → New app…, or an app's Edit): an app's settings, stages, screens and functions, and its whole source. The z-Tree admin edits z-Tree treatments as z-Tree does (Treatment → New …, element dialogs, undo, Check) and saves them in z-Tree's text format. The oTree admin's Studio edits oTree projects and apps as oTree Studio does. Each changes only the part of the file it is about.</li>
+<li>z-Tree treatments run in jtree: <code>.ztt</code> files from z-Tree 3 to 5, z-Tree's text export and questionnaires (<code>.ztq</code>), their programs in z-Tree's language, and z-Leaf's screens in participants' browsers, plot boxes, contract lists and table loaders and dumpers included. Checked against z-Tree 5.1.21.</li>
+<li>oTree apps run in jtree, in oTree's current format and its older one (<code>models.py</code>, Django templates), with their Python (in Pyodide, nothing to install), templates, live pages, chat, timeouts, <code>ExtraModel</code>, admin reports and bots. A project's session configs are queues and its <code>ROOMS</code> rooms. Checked against oTree 5.11.5, 3.4.0 and 2.5.8: the same data recorded.</li>
+<li>An admin for oTree users at <code>/admin/otree/</code>: sessions from session configs, links, monitor, data, reports, payments, rooms.</li>
+<li>Converters: z-Tree treatments (Treatment → Convert to jtree… in the z-Tree admin) and oTree apps (Convert to jtree in the oTree admin) to jtree apps, with a report of anything left to do by hand.</li>
+<li>Play with bots: a session of oTree apps is played by their bots, or a generic bot; z-Tree treatments by a generic z-Tree bot.</li>
+<li>Modes: whose rules apply where z-Tree, oTree and jtree differ (the <code>mode</code> setting, <code>--mode=</code>, <code>JTREE_MODE</code>, or a session's &quot;Rules&quot;).</li>
+<li>Downloads: a session's data as oTree's CSVs (all apps wide, per app, page times, <code>custom_export</code>) too.</li>
+<li>Rooms: a session can be opened in a room, and the room's participants go to their page in it.</li>
+<li><code>participant.skipToApp(index)</code> ends a participant's app and starts a later one.</li>
+<li>Payment: sessions' <code>showUpFee</code>, <code>exchangeRate</code> and <code>currency</code> (defaults in <code>settings.json</code>), <code>app.exchangeRate</code>, and <code>participant.payment()</code>.</li>
+<li>The server checks forms: <code>app.fields</code> declares fields' types and limits, <code>stage.formFields</code> what a form must send, and <code>stage.validate(player, values)</code> checks them together. A form with mistakes is not stored and the page shows why.</li>
+<li>A player's own time for a stage (<code>stage.clientDuration</code>, or <code>stage.getClientDuration(player)</code>) is kept by the server too: a page that does not submit when the time is up is ended after <code>timeoutGrace</code>. <code>stage.endOnTimeout = false</code> keeps a timed-out stage open until the players submit.</li>
+<li><code>period.setGroups(matrix)</code> in <code>app.periodStart</code> regroups a period; <code>app.groupByArrival</code> groups participants in the order they arrive.</li>
+<li><code>player.inPeriod(n)</code>, <code>player.inAllPeriods()</code>, <code>player.inPreviousPeriods()</code>, and the same for groups. <code>group.old()</code> works (it threw).</li>
+<li>The <code>PARTNER_1122</code> and <code>PARTNER_1212</code> matchings work (they threw when a period started).</li>
+<li><code>stage.waitForAllGroups</code>: no group starts the stage until every group of the period has arrived; then <code>stage.allGroupsStart(period)</code> runs, once.</li>
+<li>App hooks <code>app.appStart()</code>, <code>app.periodStart(period)</code> and <code>app.periodEnd(period)</code>; <code>app.end()</code> is called again when everyone has finished an app, and the app's data is written to the session's CSV file then, as before.</li>
+<li>When a group ends a stage that waits for everyone, players move on after <code>groupEnd</code>, not before it: the next stage, or the next period's first, no longer starts before <code>groupEnd</code> has run. Errors in <code>groupEnd</code> and <code>playerEnd</code> are logged instead of stopping the session.</li>
+<li>Apps as folders work: <code>app.jtt</code> with one <code>.jtt</code> file per stage beside it, added in name order (<code>1_decide.jtt</code> is stage <code>decide</code>). In a stage's file, <code>stage</code> is the stage and <code>app</code> the app. A folder's stage files no longer show up as apps of their own.</li>
+<li>Stage timeouts no longer depend on participants' pages: if a page does not submit within <code>stage.timeoutGrace</code> seconds (default 5) of the timeout, the server ends the stage for that player. <code>player.timedOut</code> tells <code>playerEnd</code> and <code>groupEnd</code> which players timed out.</li>
+<li>A syntax error in an app is reported with its line and position, also in a folder app's stage files (<code>app.errorFile</code>).</li>
+<li><code>jt.stop()</code> stops a jtree started from another program, for example tests.</li>
+<li>Tests: <code>cd server &amp;&amp; pnpm test</code>.</li>
+<li>The moving-slider feature app runs on its own.</li>
+<li>Saved sessions load again (the <code>loadSessions</code> setting), and carry on where they stopped: participants reconnect to their stage, groups' tables (e.g. a double auction's offers) are back, and a stage timer runs on with the time it had left when jtree stopped (paused, if the session was). Since mid-2019, session files separated each record's type with the CSV delimiter (<code>;</code>), which is not JSON, so nothing was loaded; such files are read too. Apps are loaded from the session's own copy, folder apps included.</li>
+<li>Participants removed from a session stay removed when it is loaded; a session that had started is not started again.</li>
+<li>jtree saves the time every 5 seconds (<code>autoSaveFreq</code>, previously 100), and when it stops: after a crash, restored stage timers are off by at most that much.</li>
+</ul>
+<h4>2026.10.05 - 0.9.0</h4>
+<ul>
+<li>Downloads bundle Node.js (current LTS) and run through JAS: unpack and run <code>start.command</code> (macOS), <code>start.cmd</code> (Windows) or <code>start.sh</code> (Linux). Native Apple Silicon build. Windows XP and 32-bit Windows are no longer supported.</li>
+<li>Admin access: without an admin password, the admin interface only opens on the computer running jtree. Set <code>defaultAdminPwd</code> in <code>settings.json</code> to log in from other computers. Previously any participant could connect as an admin.</li>
+<li>Session output downloads and <code>/api</code> need admin access.</li>
+<li>New default admin interface at <code>/admin</code> (admin2), which runs without a build step. The previous one is at <code>/admin/multiuser</code>. The Vue 2 &quot;beta&quot; admin is removed.</li>
+<li>Admin interface laid out after z-Tree at <code>/admin/ztree</code>, also without a build step.</li>
+<li>Server: socket.io 4, Express 5, Node.js 22 or later. Unused dependencies removed.</li>
+<li>Participant page: jQuery 3.7.1 (with jQuery Migrate, for code written for jQuery 1.x) and Vue 2.7.16. The old files stay in <code>/shared</code> for apps that load them.</li>
+<li>Downloads serve jtree from the root (<code>/admin/</code>, <code>/P1</code>). Added to a JAS that hosts other apps, jtree is served under <code>/jtree</code>.</li>
+<li>Starts on port 3000, or the next free port. The <code>PORT</code> environment variable sets where to start.</li>
+</ul>
+<h4>2020.02.14 - 0.8.7</h4>
+<ul>
+<li>Remove some user games.</li>
+<li>Add Linux compilation scripts.</li>
+</ul>
+<h4>2020.01.24 - 0.8.6</h4>
+<ul>
 <li>Queue options respect limits.</li>
 <li>Method to get player time in stage.</li>
 </ul>
-<h4>2019.12.13 - 0.8.5</h4><ul>
+<h4>2019.12.13 - 0.8.5</h4>
+<ul>
 <li>Sort participants.</li>
 <li>Submit form on autoplay.</li>
 <li>Change App.onSubmit to a string, instead of a function, that gets evaluated when a stage is submitted.</li>
 </ul>
-<h4>2019.12.12 - 0.8.4</h4><ul>
+<h4>2019.12.12 - 0.8.4</h4>
+<ul>
 <li>App option: App.isStandaloneApp or //NOTSTANDLONEAPP.</li>
 <li>Stage submission: check for current player, instead of just current stage name.</li>
 <li>disable folder queues.</li>
 <li>Queue options.</li>
 </ul>
-<h4>2019.11.15 - 0.8.3</h4><ul>
+<h4>2019.11.15 - 0.8.3</h4>
+<ul>
 <li>remove &quot;showAllStages&quot; option.</li>
 <li>focus modal inputs on show.</li>
 <li>fix showNewApp / playerUpdate mix up at end of an App.</li>
 </ul>
-<h5>2019.10.17 - 0.8.2.3</h5><ul>
+<h5>2019.10.17 - 0.8.2.3</h5>
+<ul>
 <li>CHANGED: AdminUI: default to old interface, added link to new (BETA) interface.</li>
 <li>FIXED: defaultClient.js: set array values using Vue.set.</li>
 <li>ADDED: new App (13victor).</li>
 <li>FIXED: bug for listening to messages on client.</li>
 </ul>
-<h5>2019.10.17 - 0.8.2.2</h5><ul>
+<h5>2019.10.17 - 0.8.2.2</h5>
+<ul>
 <li>FIXED: If default port (80 or 3000) is in use, try again with new port.</li>
 </ul>
-<h5>2019.10.08 - 0.8.2.1</h5><ul>
+<h5>2019.10.08 - 0.8.2.1</h5>
+<ul>
 <li>FIXED: Admin UI, broken link to shared.js.</li>
 </ul>
-<h5>2019.10.08 - 0.8.2</h5><ul>
+<h5>2019.10.08 - 0.8.2</h5>
+<ul>
 <li>FIXED: Help tutorials.</li>
 </ul>
-<h4>2019.10.07 - 0.8.1</h4><ul>
+<h4>2019.10.07 - 0.8.1</h4>
+<ul>
 <li>Windowed Admin interface.</li>
 </ul>
-<h5>2019.09.24 - 0.7.17</h5><ul>
+<h5>2019.09.24 - 0.7.17</h5>
+<ul>
 <li>FIXED: # clients not updating.</li>
 <li>ADDED: show apps with errors.</li>
 <li>ADDED, Settings: suggestedNumParticipants.</li>
@@ -78,13 +137,15 @@
 <li>REMOVED: features/messaging app.</li>
 <li>FIXED: samples/double-auction-fancy app.</li>
 <li>CHANGED, Group: automatically stringify and parse message data.</li>
-<li>ADDED: messages object on client.<br>Admin UI</li>
+<li>ADDED: messages object on client.<br>
+Admin UI</li>
 <li>ADDED: Restart session (with same Apps).</li>
 <li>ADDED: feedback on button clicks.</li>
 <li>ADDED: feature app, adding external library.</li>
 <li>ADDED: feature chart app.</li>
 </ul>
-<h5>2019.09.19 - 0.7.16</h5><ul>
+<h5>2019.09.19 - 0.7.16</h5>
+<ul>
 <li>ADDED: option to serve files over HTTPS instead of HTTP.</li>
 <li>FIXED: allow socket connections from outside local network.</li>
 <li>CHANGED: custom settings now located in <em>jtree/settings.json</em>.</li>
@@ -94,23 +155,27 @@
 <li>ADDED: table sample app.</li>
 <li>ADDED, setting: loadSessions (false by default).</li>
 </ul>
-<h5>2019.09.07 - 0.7.15</h5><ul>
+<h5>2019.09.07 - 0.7.15</h5>
+<ul>
 <li>FIXED, Participant: calculate points scored in an app / session.</li>
 <li>FIXED, Player.js: check for whether player is already finished a particular stage.</li>
 <li>FIXED, 1natalia app: outcome for ultimatum game &amp; strategy method.</li>
 <li>FIXED, double-auction-bootstrap app: proper check for available inventory.</li>
 </ul>
-<h5>2019.09.06 - 0.7.14</h5><ul>
+<h5>2019.09.06 - 0.7.14</h5>
+<ul>
 <li>UPDATED: double-auction-bootstrap app.</li>
 <li>UPDATED: 11simone app.</li>
 <li>UPDATED: Admin UI, Apps view, shortened id length.</li>
 <li>UPDATED, App.js: added check if jt.autoplay exists before creating it.</li>
 <li>UPDATED, Admin UI: Display number of apps in queue properly.</li>
 </ul>
-<h5>2019.09.04 - 0.7.13</h5><ul>
+<h5>2019.09.04 - 0.7.13</h5>
+<ul>
 <li>UPDATED: double auction app.</li>
 </ul>
-<h5>2019.09.02 - 0.7.12</h5><ul>
+<h5>2019.09.02 - 0.7.12</h5>
+<ul>
 <li>FIXED: buttons store values for multiple periods.</li>
 <li>FIXED: passing methods to Vue on client.</li>
 <li>FIXED: removed 'updateScheduled' for Participant output.</li>
@@ -119,15 +184,18 @@
 <li>UPDATED: &quot;11simone&quot; app.</li>
 <li>REMOVED: unused client files.</li>
 </ul>
-<h5>2019.08.28 - 0.7.11</h5><ul>
+<h5>2019.08.28 - 0.7.11</h5>
+<ul>
 <li>REMOVED: unused client files.</li>
 <li>FIXED: bug that cleared inputs when other players finished a stage.</li>
 <li>UPDATED: &quot;11simone&quot; app.</li>
 </ul>
-<h5>2019.08.27 - 0.7.10</h5><ul>
+<h5>2019.08.27 - 0.7.10</h5>
+<ul>
 <li>fix for ending stages automatically after timeout.</li>
 </ul>
-<h5>2019.07.06 - 0.7.8</h5><ul>
+<h5>2019.07.06 - 0.7.8</h5>
+<ul>
 <li>script for updating version numbers.</li>
 <li>remove releases from repo.</li>
 <li>added &quot;10ali&quot; user app.</li>
@@ -139,171 +207,213 @@
 <li>remove log statements from all apps</li>
 <li>re-add code to prompt during page unload</li>
 </ul>
-<h5>2019.04.22 - 0.7.7</h5><ul>
+<h5>2019.04.22 - 0.7.7</h5>
+<ul>
 <li>send circular data in messages.</li>
 <li>menu collapses at smaller width.</li>
 </ul>
-<h5>2019.04.10 - 0.7.6</h5><ul>
+<h5>2019.04.10 - 0.7.6</h5>
+<ul>
 <li>clean up icons.</li>
 <li>fix &quot;double auction&quot; app.</li>
 <li>re-organize apps folder.</li>
 </ul>
-<h5>2019.03.29 - 0.7.5</h5><ul>
+<h5>2019.03.29 - 0.7.5</h5>
+<ul>
 <li>Added: display version on Home tab.</li>
 <li>Fix: &quot;test&quot; player no longer created.</li>
 <li>Cleaned up menu.</li>
 </ul>
-<h5>2019.03.28 - 0.7.4</h5><ul>
+<h5>2019.03.28 - 0.7.4</h5>
+<ul>
 <li>Disable autocomplete on forms.</li>
 <li>Stop players advancing two periods by accident.</li>
 </ul>
-<h5>2018.12.28 - 0.7.3</h5><ul>
+<h5>2018.12.28 - 0.7.3</h5>
+<ul>
 <li>Apps are reloaded just before first participant starts them.</li>
 <li>Admin UIs must be explcitly added to build.</li>
 <li>Removed unused admin UI files.</li>
 </ul>
-<h5>2018.12.20 - 0.7.2</h5><ul>
+<h5>2018.12.20 - 0.7.2</h5>
+<ul>
 <li>Fix: Apps not ending correctly.</li>
 </ul>
-<h5>2018.12.20 - 0.7.1</h5><ul>
+<h5>2018.12.20 - 0.7.1</h5>
+<ul>
 <li>catch errors in admin UI.</li>
 <li>Fix: Groups end stages with duration correctly.</li>
 <li>remove duplicate participant updates.</li>
 </ul>
-<h4>2018.12.07 - 0.7.0</h4><ul>
+<h4>2018.12.07 - 0.7.0</h4>
+<ul>
 <li>fix stage engine</li>
 <li>sort participants alphanumerically when downloading output</li>
 </ul>
-<h5>2018.11.28 - 0.6.13</h5><ul>
+<h5>2018.11.28 - 0.6.13</h5>
+<ul>
 <li>app randomization via queue (session.getApp(participant). See &quot;random-order&quot; app.</li>
 <li>Admin UI: fix Participants table showing blank spaces.</li>
 <li>Stage.autoplay: write autoplay code for each stage individually.</li>
 <li>App.periodText: text to display for &quot;Period&quot;.</li>
 </ul>
-<h5>2018.11.21 - 0.6.12</h5><ul>
+<h5>2018.11.21 - 0.6.12</h5>
+<ul>
 <li>update <code>3james</code> app to work with latest release.</li>
 <li>update <code>7simone</code> app to include two timers.</li>
 <li>clients run two seperate timers (stage.duration and stage.clientDuration).</li>
 </ul>
-<h5>2018.11.16 - 0.6.11</h5><ul>
+<h5>2018.11.16 - 0.6.11</h5>
+<ul>
 <li>Fixed font size for smaller screens (phones).</li>
 <li>App order is customizable (Session.getApp(participant)).</li>
 <li>Added Utils.drawRandomly function.</li>
 <li>Added App.end() function.</li>
 <li>Queues can be defined programmatically (i.e. &quot;session.addApp(...)&quot;);</li>
 </ul>
-<h5>2018.11.14 - 0.6.10</h5><ul>
+<h5>2018.11.14 - 0.6.10</h5>
+<ul>
 <li>Session: fixed &quot;Download&quot; button.</li>
 </ul>
-<h5>2018.11.08 - 0.6.9</h5><ul>
+<h5>2018.11.08 - 0.6.9</h5>
+<ul>
 <li>Added &quot;Stage.getGroupDuration(group)&quot; function to allow stage duration to be dynamic.</li>
 <li>Allow editing of session ids.</li>
 </ul>
-<h5>2018.10.31 - 0.6.8</h5><ul>
+<h5>2018.10.31 - 0.6.8</h5>
+<ul>
 <li>Fix for Queue options.</li>
 <li>Added &quot;timeElapsed&quot; field to client.</li>
 </ul>
-<h5>2018.10.22 - 0.6.7</h5><ul>
+<h5>2018.10.22 - 0.6.7</h5>
+<ul>
 <li>Added fields: App.stageWaitToStart, App.stageWaitToEnd.</li>
 <li>Fix for Queues in admin UI.</li>
 </ul>
-<h5>2018.10.16 - 0.6.6</h5><ul>
+<h5>2018.10.16 - 0.6.6</h5>
+<ul>
 <li>Queues turned on by default.</li>
 <li>Record time spent in each stage.</li>
 </ul>
-<h5>2018.09.27 - 0.6.5</h5><ul>
+<h5>2018.09.27 - 0.6.5</h5>
+<ul>
 <li>Integrate Vue.js on clients.</li>
 <li>Added: Double auction app.</li>
 </ul>
-<h5>0.6.4</h5><ul>
+<h5>0.6.4</h5>
+<ul>
 <li>Added Stage.getClientDuration(player) function.</li>
 </ul>
-<h5>0.6.2</h5><ul>
+<h5>0.6.2</h5>
+<ul>
 <li>Documentation for App.id and using static files.</li>
 <li>Removed console error for missing settings.js file.</li>
 </ul>
-<h5>0.6.1</h5><ul>
+<h5>0.6.1</h5>
+<ul>
 <li>Cleaned up extra files.</li>
 </ul>
-<h5>0.6.0</h5><ul>
+<h5>0.6.0</h5>
+<ul>
 <li>Show # of participants in UI.</li>
 <li>various model fixes.</li>
 </ul>
-<h5>0.5.4</h5><ul>
+<h5>0.5.4</h5>
+<ul>
 <li>Fixed docs.</li>
 <li>Client: fixed duration timer not displaying correctly.</li>
 </ul>
-<h5>0.5.3</h5><ul>
+<h5>0.5.3</h5>
+<ul>
 <li>Add: Client onClockUpdate function.</li>
 </ul>
-<h5>0.5.2</h5><ul>
+<h5>0.5.2</h5>
+<ul>
 <li>Fix: Participant fields not being saved on App end.</li>
 </ul>
-<h5>0.5.1</h5><ul>
+<h5>0.5.1</h5>
+<ul>
 <li>added Stage.clientDuration property.</li>
 </ul>
-<h4>0.5.0</h4><ul>
+<h4>0.5.0</h4>
+<ul>
 <li>fix for multiple periods.</li>
 </ul>
-<h5>0.4.9</h5><ul>
+<h5>0.4.9</h5>
+<ul>
 <li>save session data</li>
 </ul>
-<h5>0.4.8</h5><ul>
+<h5>0.4.8</h5>
+<ul>
 <li>catch errors when parsing client values.</li>
 <li>save session data on demand.</li>
 <li>fix to display participant points properly.</li>
 </ul>
-<h5>0.4.7</h5><ul>
+<h5>0.4.7</h5>
+<ul>
 <li>fix to reload apps on participant connect.</li>
 </ul>
-<h5>0.4.6</h5><ul>
+<h5>0.4.6</h5>
+<ul>
 <li>participant IDs can include '.' character.</li>
 </ul>
-<h5>0.4.5</h5><ul>
+<h5>0.4.5</h5>
+<ul>
 <li>load apps from .js and .jtt files.</li>
 </ul>
-<h5>0.4.4</h5><ul>
+<h5>0.4.4</h5>
+<ul>
 <li>fixes</li>
 </ul>
-<h5>0.4.3</h5><ul>
+<h5>0.4.3</h5>
+<ul>
 <li>added Stag Hunt game</li>
 <li>app UI: use brackets &quot;{}&quot; to indicate text that should be dynamic. Configurable in App.textMarkerBegin and App.textMarkerEnd.</li>
 <li>started work on WindowUI.</li>
 </ul>
-<h5>0.4.2</h5><ul>
+<h5>0.4.2</h5>
+<ul>
 <li>do not set attribute on 'jt-enabledIf' tags on client.</li>
 <li>update to Double Auction (LNF) app</li>
 </ul>
-<h5>0.4.1</h5><ul>
+<h5>0.4.1</h5>
+<ul>
 <li>shortcut to make client previews full screen screen</li>
 <li>update to Double Auction (LNF) app</li>
 </ul>
-<h4>0.4.0</h4><ul>
+<h4>0.4.0</h4>
+<ul>
 <li>User functionality.</li>
 <li>various fixes.</li>
 </ul>
-<h5>0.3.3</h5><ul>
+<h5>0.3.3</h5>
+<ul>
 <li>added &quot;description&quot; field to App Options.</li>
 <li>allow connections without explicit Participant ID.</li>
 <li>hide / show Queues.</li>
 </ul>
-<h5>0.3.2</h5><ul>
+<h5>0.3.2</h5>
+<ul>
 <li>refactoring admin UI.</li>
 <li>App &quot;2peter&quot;: changed grouping to &quot;stranger&quot;.</li>
 </ul>
-<h5>0.3.1</h5><ul>
+<h5>0.3.1</h5>
+<ul>
 <li>minor changes to some default apps.</li>
 </ul>
-<h4>0.3.0</h4><ul>
+<h4>0.3.0</h4>
+<ul>
 <li>split session page into tabs.</li>
 <li>added &quot;Data&quot; tab to session page.</li>
 <li>group buttons.</li>
 <li>added breakpoint to participant css.</li>
 </ul>
-<h5>0.2.5</h5><ul>
+<h5>0.2.5</h5>
+<ul>
 <li>participant UI: improvement to mobile view.</li>
 </ul>
-<h5>0.2.4</h5><ul>
+<h5>0.2.4</h5>
+<ul>
 <li>fixed: in sessions with repeats of the same app, the last player in the session would skip first instance of the app.</li>
 <li>added: client autoplay now uses player.id in text fields.</li>
 <li>added: queues prompt on delete.</li>
@@ -311,79 +421,98 @@
 <li>changed, autoplay: if no empty input field is found, click random submit button.</li>
 <li>tidied up documentation a bit</li>
 </ul>
-<h5>0.2.3</h5><ul>
+<h5>0.2.3</h5>
+<ul>
 <li>bug fix: timers not ending stages correctly</li>
 <li>added: delete session.</li>
 </ul>
-<h5>0.2.2</h5><ul>
+<h5>0.2.2</h5>
+<ul>
 <li>fixed: would not start without valid settings.js file.</li>
 </ul>
-<h5>0.2.1</h5><ul>
+<h5>0.2.1</h5>
+<ul>
 <li>include example Queue</li>
 </ul>
-<h4>0.2.0</h4><ul>
+<h4>0.2.0</h4>
+<ul>
 <li>fix session flow</li>
 <li>added app options</li>
 <li>added queues</li>
 <li>various Admin UI improvements</li>
 </ul>
-<h5>0.1.4</h5><ul>
+<h5>0.1.4</h5>
+<ul>
 <li>UI improvements</li>
 <li>started work on rooms</li>
 <li>changed participation links to be either 1) server/pId, or 2) server/session/sId/pId</li>
 </ul>
-<h5>0.1.3</h5><ul>
+<h5>0.1.3</h5>
+<ul>
 <li>added: switching between admin UIs via URL.</li>
 <li>added: menu to admin UI</li>
 <li>added: placeholders for rooms and users</li>
 <li>fixed: bug in autoplay that played hidden inputs.</li>
 <li>fixed: sessions in admin UIs showing participants from other sessions.</li>
 </ul>
-<h5>0.1.2</h5><ul>
+<h5>0.1.2</h5>
+<ul>
 <li>bug fix: expiry of group timers now use session message queue.</li>
 <li>app finished: public goods with punishment</li>
 </ul>
-<h5>0.1.1</h5><ul>
+<h5>0.1.1</h5>
+<ul>
 <li>added stage timers back to default apps.</li>
 <li>fixed bug with displaying timers on clients.</li>
 <li>fixed bugs with stage flow.</li>
 </ul>
-<h4>0.1.0</h4><ul>
+<h4>0.1.0</h4>
+<ul>
 <li>fixed stage flow pattern to match docs.</li>
 </ul>
-<h5>0.0.11</h5><ul>
+<h5>0.0.11</h5>
+<ul>
 <li>bug fix: clients could not use &quot;participant&quot; object.</li>
 </ul>
-<h5>0.0.10</h5><ul>
+<h5>0.0.10</h5>
+<ul>
 <li>can delete participants from admin interface.</li>
 <li>added &quot;allow new participants&quot; setting to sessions.</li>
 </ul>
-<h5>0.0.9</h5><ul>
+<h5>0.0.9</h5>
+<ul>
 <li>changed participant links to be x.x.x.x/PID</li>
 <li>added participantIds setting, allows to specify the PIDs to use on the server.</li>
 </ul>
-<h5>0.0.8</h5><ul>
+<h5>0.0.8</h5>
+<ul>
 <li>added 3 games: Beauty Contest, Market Entry Game, and Travellers Dilemma.</li>
 <li>added help.</li>
 </ul>
-<h5>0.0.7</h5><ul>
+<h5>0.0.7</h5>
+<ul>
 <li>updated version number</li>
 </ul>
-<h5>0.0.5</h5><p>** clients</p>
+<h5>0.0.5</h5>
+<p>** clients</p>
 <ul>
 <li>added &quot;jt-value&quot; functionality, lets you set elements to expressions instead of single variables.</li>
 <li>added &quot;jt-displayIf&quot; functionality, lets you dynamically hide or show elements.</li>
 <li>added &quot;real-effort-sums&quot; app.</li>
 </ul>
-<h5>0.0.1</h5><p>** server</p>
+<h5>0.0.1</h5>
+<p>** server</p>
 <ul>
-<li>fixed bug with stage timers expiring multiple times.<br>** clients</li>
+<li>fixed bug with stage timers expiring multiple times.<br>
+** clients</li>
 <li>added missing sharedTemplate.js file.</li>
-<li>hide stage content on load.<br>** general</li>
+<li>hide stage content on load.<br>
+** general</li>
 <li>changed default port to 80.</li>
 <li>hide port from participant urls if it is 80.</li>
 </ul>
-<h4>0.0.0</h4><ul>
+<h4>0.0.0</h4>
+<ul>
 <li>initial release</li>
 </ul>
 </article>
@@ -393,13 +522,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AdminAuth.html">AdminAuth</a></li><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="Data.html">Data</a></li><li><a href="Exit.html">Exit</a></li><li><a href="Group.html">Group</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="QueueRecorder.html">QueueRecorder</a></li><li><a href="Reader.html">Reader</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Run.html">Run</a></li><li><a href="Screens.html">Screens</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="Translator.html">Translator</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="global.html#start">start</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-4a-ztree.html">z-Tree treatments</a></li><li><a href="tutorial-4b-otree.html">oTree apps</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-other.html">Other</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ADMIN_LOGIN_REQUIRED">ADMIN_LOGIN_REQUIRED</a></li><li><a href="global.html#APP_HOOKS">APP_HOOKS</a></li><li><a href="global.html#STAGE_HOOKS">STAGE_HOOKS</a></li><li><a href="global.html#addToClass">addToClass</a></li><li><a href="global.html#allBoxes">allBoxes</a></li><li><a href="global.html#appCSV">appCSV</a></li><li><a href="global.html#appFile">appFile</a></li><li><a href="global.html#appInsertAt">appInsertAt</a></li><li><a href="global.html#appRoots">appRoots</a></li><li><a href="global.html#appTemplate">appTemplate</a></li><li><a href="global.html#appToIR">appToIR</a></li><li><a href="global.html#apply">apply</a></li><li><a href="global.html#applyIR">applyIR</a></li><li><a href="global.html#applySettings">applySettings</a></li><li><a href="global.html#arrayDeclarations">arrayDeclarations</a></li><li><a href="global.html#arrayIndex">arrayIndex</a></li><li><a href="global.html#assignedVariables">assignedVariables</a></li><li><a href="global.html#boolValue">boolValue</a></li><li><a href="global.html#botCases">botCases</a></li><li><a href="global.html#boxOptions">boxOptions</a></li><li><a href="global.html#chat">chat</a></li><li><a href="global.html#chatFor">chatFor</a></li><li><a href="global.html#check">check</a></li><li><a href="global.html#checkField">checkField</a></li><li><a href="global.html#checkForm">checkForm</a></li><li><a href="global.html#compileProgram">compileProgram</a></li><li><a href="global.html#compiled">compiled</a></li><li><a href="global.html#context">context</a></li><li><a href="global.html#contractList">contractList</a></li><li><a href="global.html#convertApp">convertApp</a></li><li><a href="global.html#convertTreatment">convertTreatment</a></li><li><a href="global.html#convertTreatmentFile">convertTreatmentFile</a></li><li><a href="global.html#copyDir">copyDir</a></li><li><a href="global.html#copyToPlayer">copyToPlayer</a></li><li><a href="global.html#creatingSessionBeforeArrival">creatingSessionBeforeArrival</a></li><li><a href="global.html#cut">cut</a></li><li><a href="global.html#decimals">decimals</a></li><li><a href="global.html#declared">declared</a></li><li><a href="global.html#dedent">dedent</a></li><li><a href="global.html#describeValue">describeValue</a></li><li><a href="global.html#dialectFor">dialectFor</a></li><li><a href="global.html#drawn">drawn</a></li><li><a href="global.html#encode">encode</a></li><li><a href="global.html#endSoon">endSoon</a></li><li><a href="global.html#errorPosition">errorPosition</a></li><li><a href="global.html#exportTables">exportTables</a></li><li><a href="global.html#exporter">exporter</a></li><li><a href="global.html#exportersFor">exportersFor</a></li><li><a href="global.html#expression">expression</a></li><li><a href="global.html#fail">fail</a></li><li><a href="global.html#file">file</a></li><li><a href="global.html#fillValues">fillValues</a></li><li><a href="global.html#findBox">findBox</a></li><li><a href="global.html#finite">finite</a></li><li><a href="global.html#formatText">formatText</a></li><li><a href="global.html#formatValue">formatValue</a></li><li><a href="global.html#fromDescription">fromDescription</a></li><li><a href="global.html#getBridge">getBridge</a></li><li><a href="global.html#grid">grid</a></li><li><a href="global.html#history">history</a></li><li><a href="global.html#inAppFolders">inAppFolders</a></li><li><a href="global.html#indent">indent</a></li><li><a href="global.html#indentBy">indentBy</a></li><li><a href="global.html#insertAfter">insertAfter</a></li><li><a href="global.html#isInteractive">isInteractive</a></li><li><a href="global.html#isProject">isProject</a></li><li><a href="global.html#isSessionsLastPage">isSessionsLastPage</a></li><li><a href="global.html#isText">isText</a></li><li><a href="global.html#isTextFile">isTextFile</a></li><li><a href="global.html#itemCell">itemCell</a></li><li><a href="global.html#itemsTable">itemsTable</a></li><li><a href="global.html#jsonErrorPosition">jsonErrorPosition</a></li><li><a href="global.html#lanAddress">lanAddress</a></li><li><a href="global.html#lastFirst">lastFirst</a></li><li><a href="global.html#layoutEnd">layoutEnd</a></li><li><a href="global.html#layoutParts">layoutParts</a></li><li><a href="global.html#leaveIfAsked">leaveIfAsked</a></li><li><a href="global.html#leavesStage">leavesStage</a></li><li><a href="global.html#legacyValue">legacyValue</a></li><li><a href="global.html#lines">lines</a></li><li><a href="global.html#loadPackagesFor">loadPackagesFor</a></li><li><a href="global.html#measure">measure</a></li><li><a href="global.html#memberAssignment">memberAssignment</a></li><li><a href="global.html#model">model</a></li><li><a href="global.html#mountProject">mountProject</a></li><li><a href="global.html#newTreatment">newTreatment</a></li><li><a href="global.html#normalizeCode">normalizeCode</a></li><li><a href="global.html#openUrl">openUrl</a></li><li><a href="global.html#owner">owner</a></li><li><a href="global.html#packageFor">packageFor</a></li><li><a href="global.html#pageTimesCSV">pageTimesCSV</a></li><li><a href="global.html#paramCell">paramCell</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseExpr">parseExpr</a></li><li><a href="global.html#parseLayout">parseLayout</a></li><li><a href="global.html#parseQueueId">parseQueueId</a></li><li><a href="global.html#place">place</a></li><li><a href="global.html#plot">plot</a></li><li><a href="global.html#plotInput">plotInput</a></li><li><a href="global.html#plotItemAt">plotItemAt</a></li><li><a href="global.html#prefixHtmlUrls">prefixHtmlUrls</a></li><li><a href="global.html#pressButton">pressButton</a></li><li><a href="global.html#program">program</a></li><li><a href="global.html#programItems">programItems</a></li><li><a href="global.html#putApp">putApp</a></li><li><a href="global.html#putSettings">putSettings</a></li><li><a href="global.html#py">py</a></li><li><a href="global.html#queueId">queueId</a></li><li><a href="global.html#queueScript">queueScript</a></li><li><a href="global.html#quote">quote</a></li><li><a href="global.html#quotedEnd">quotedEnd</a></li><li><a href="global.html#readGameHeader">readGameHeader</a></li><li><a href="global.html#readQuestionnaires">readQuestionnaires</a></li><li><a href="global.html#readScreen">readScreen</a></li><li><a href="global.html#readTextQuestionnaires">readTextQuestionnaires</a></li><li><a href="global.html#readTextTreatment">readTextTreatment</a></li><li><a href="global.html#readTreatment">readTreatment</a></li><li><a href="global.html#ready">ready</a></li><li><a href="global.html#refresh">refresh</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#reload">reload</a></li><li><a href="global.html#renderScreen">renderScreen</a></li><li><a href="global.html#reportMarkdown">reportMarkdown</a></li><li><a href="global.html#rooms">rooms</a></li><li><a href="global.html#router">router</a></li><li><a href="global.html#rtfToText">rtfToText</a></li><li><a href="global.html#run">run</a></li><li><a href="global.html#runAppCode">runAppCode</a></li><li><a href="global.html#runBots">runBots</a></li><li><a href="global.html#runOf">runOf</a></li><li><a href="global.html#runZtreeBots">runZtreeBots</a></li><li><a href="global.html#scan">scan</a></li><li><a href="global.html#screen">screen</a></li><li><a href="global.html#sessionConfigs">sessionConfigs</a></li><li><a href="global.html#settleBoxes">settleBoxes</a></li><li><a href="global.html#stageDeclaration">stageDeclaration</a></li><li><a href="global.html#stageMeaning">stageMeaning</a></li><li><a href="global.html#stageVariable">stageVariable</a></li><li><a href="global.html#statementRange">statementRange</a></li><li><a href="global.html#str">str</a></li><li><a href="global.html#subjectIndex">subjectIndex</a></li><li><a href="global.html#submitGeneric">submitGeneric</a></li><li><a href="global.html#substitutionAt">substitutionAt</a></li><li><a href="global.html#syntaxErrors">syntaxErrors</a></li><li><a href="global.html#tableRecords">tableRecords</a></li><li><a href="global.html#tablesChangedTimers">tablesChangedTimers</a></li><li><a href="global.html#template">template</a></li><li><a href="global.html#templateLiteral">templateLiteral</a></li><li><a href="global.html#templates">templates</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#textParts">textParts</a></li><li><a href="global.html#toTreatment">toTreatment</a></li><li><a href="global.html#tokenize">tokenize</a></li><li><a href="global.html#topInsert">topInsert</a></li><li><a href="global.html#treatmentFile">treatmentFile</a></li><li><a href="global.html#unindent">unindent</a></li><li><a href="global.html#urlFor">urlFor</a></li><li><a href="global.html#validate">validate</a></li><li><a href="global.html#value">value</a></li><li><a href="global.html#valueFor">valueFor</a></li><li><a href="global.html#valueKind">valueKind</a></li><li><a href="global.html#valueSource">valueSource</a></li><li><a href="global.html#variables">variables</a></li><li><a href="global.html#whenReady">whenReady</a></li><li><a href="global.html#wideCSV">wideCSV</a></li><li><a href="global.html#withBlocks">withBlocks</a></li><li><a href="global.html#withStatics">withStatics</a></li><li><a href="global.html#write">write</a></li><li><a href="global.html#zTreeRules">zTreeRules</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Jan 24 2020 16:57:26 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Oct 14 2026 09:40:18 GMT+0200 (Central European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

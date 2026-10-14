@@ -29,6 +29,8 @@ export interface TreeNode {
   /** For a program, the jtree hook (`playerStart`, …). */
   hook?: string
   item?: ItemInfo
+  /** In a z-Tree treatment (znodes.ts), the node's path from the root: item indexes joined by dots. */
+  zpath?: string
 }
 
 export interface ItemInfo {

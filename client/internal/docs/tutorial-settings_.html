@@ -28,24 +28,77 @@
 </header>
 
 <article>
-    <p>The server may be customized by modifying the contents of the <code>jtree/internal/settings.js</code> file. To overwrite option <code>name</code> with the value <code>value</code>, just add the following to the file:</p>
-<pre class="prettyprint source"><code>settings.name = value
+    <p>Settings are read from <code>client/settings.json</code> when jtree starts. Create the file if it is not there, and restart jtree after changing it:</p>
+<pre class="prettyprint source lang-json"><code>{
+    &quot;defaultAdminPwd&quot;: &quot;choose-a-password&quot;,
+    &quot;loadSessions&quot;: true,
+    &quot;mode&quot;: &quot;ztree&quot;
+}
 </code></pre>
-<p>The following options (with default values shown) are available:</p>
-<h4><code>defaultAdminPwd</code>: undefined</h4>
-<p>A password for accessing the administrator page. A value of &quot;undefined&quot; means no password is required.</p>
+<p>The admin's Settings panel shows the server's settings. The following are available (defaults shown):</p>
+<h4><code>defaultAdminPwd</code>: none</h4>
+<p>The admin password. Without one, the admin interface only opens on the computer running jtree; with one, everyone logs in at <code>/admin/login</code>. <code>admins</code> adds more logins: <code>{ &quot;anna&quot;: { &quot;pwd&quot;: &quot;...&quot; } }</code>.</p>
 <h4><code>openAdminOnStart</code>: true</h4>
-<p>Whether or not the administrator window should open when server is started.</p>
-<h4><code>port</code>: 80 on Windows, 3000 otherwise</h4>
-<p>The port which the server will run on.</p>
-<h4><code>sessionShowFullLinks</code>: false</h4>
-<p>Whether or not sessions should display links with explicit session id.</p>
+<p>Whether to open the admin page in a browser when jtree starts.</p>
+<h4><code>port</code>: 3000 (80 on Windows when started without the launchers)</h4>
+<p>The port jtree listens on. The launchers start at 3000 and take the next free port; the environment variable <code>PORT</code> sets where they start, and wins over this setting.</p>
+<h4><code>basePath</code>: <code>'/jtree'</code></h4>
+<p>The route jtree is served under when it runs without JAS (<code>''</code> for the root). The launchers serve it from the root; inside a JAS that hosts other apps, JAS sets the route.</p>
+<h4><code>appFolders</code>: <code>['apps']</code></h4>
+<p>The folders apps are read from: relative to the <code>client</code> folder, or absolute.</p>
+<h4><code>loadSessions</code>: false</h4>
+<p>Whether to load the saved sessions when jtree starts. They carry on where they stopped: participants reconnect to their stage, and stage timers run on with the time they had left.</p>
 <h4><code>allowClientsToCreateParticipants</code>: true</h4>
-<p>Whether or not clients can login (with a valid participant ID) before the participant actually exists in the session.</p>
-<h4><code>participantIds</code>: ['P1', 'P2', ..., 'P100']</h4>
-<p>A list of participant IDs to be used for sessions.</p>
-<h4><code>waitOnTimerEnd</code>: true</h4>
-<p>Whether to wait for player submissions after a stage timer has expired (<code>true</code>), or whether to proceed immediately to the next stage (<code>false</code>). The former is useful if you want to allow half-finished submissions, while the second is faster (no delay in waiting for submissions) and more secure (players cannot circumvent the stage timer).</p>
+<p>Whether, in new sessions, a participant can log in with an id the session does not have yet. Each session's Options can change it.</p>
+<h4><code>participantIds</code>: <code>['P1', 'P2', ..., 'P99']</code></h4>
+<p>The ids given to a session's participants, in order.</p>
+<h4><code>outputDelimiter</code>: <code>';'</code></h4>
+<p>The column delimiter of the session's output file.</p>
+<h4><code>useHTTPS</code>: false</h4>
+<p>Whether to serve over HTTPS, with a self-signed certificate jtree makes. Only when jtree runs without JAS: under JAS, and so from the launchers, JAS decides the protocol.</p>
+<h4><code>mode</code>: 'jtree'</h4>
+<p>Whose rules apply where z-Tree, oTree and jtree differ: <code>'jtree'</code>, <code>'ztree'</code> or <code>'otree'</code>. Each<br>
+session runs by the server's mode unless it has its own: in the admin, a session's Options have<br>
+a &quot;Rules&quot; setting (<a href="Session.html#setMode"><code>session.setMode()</code></a>). Starting jtree,<br>
+<code>node source/jtree.js --mode=ztree</code> or the environment variable <code>JTREE_MODE</code> set the server's.</p>
+<table>
+<thead>
+<tr>
+<th>Where they differ</th>
+<th><code>'jtree'</code></th>
+<th><code>'ztree'</code></th>
+<th><code>'otree'</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A z-Tree program divides by 0, or gives no number (<code>sqrt(-1)</code>)</td>
+<td>an error, shown in the admin; the program stops</td>
+<td><code>inf</code>, <code>-inf</code> or NaN, as z-Tree 5 does; it goes on</td>
+<td>as <code>'jtree'</code></td>
+</tr>
+<tr>
+<td>A z-Tree array's index is out of range</td>
+<td>an error; the program stops</td>
+<td>the array's first or last element, as z-Tree 5 does</td>
+<td>as <code>'jtree'</code></td>
+</tr>
+</tbody>
+</table>
+<p>z-Tree's column was checked against z-Tree 5.1.21 (<code>server/test/fixtures/ztree5-probe/rules.txt</code>).<br>
+oTree apps run as oTree runs them in every mode: checked against oTree 5.11.5, 3.4.0 and 2.5.8<br>
+(<code>tools/otree</code>), their templates are strict, as jtree's rules are (a name a template cannot find<br>
+is an error, also in oTree 2.5 and 3's Django templates, except before a filter: <code>{{ x|default:1 }}</code>).</p>
+<h4>Payment</h4>
+<p><code>settings.json</code> can set the defaults for new sessions' payment:</p>
+<pre class="prettyprint source lang-json"><code>{ &quot;session&quot;: { &quot;suggestedNumParticipants&quot;: 4, &quot;showUpFee&quot;: 5, &quot;exchangeRate&quot;: 0.1, &quot;currency&quot;: &quot;EUR&quot; } }
+</code></pre>
+<ul>
+<li><code>showUpFee</code>: money every participant is paid for taking part (default 0).</li>
+<li><code>exchangeRate</code>: money per point (default 1). An app can set its own, <code>app.exchangeRate</code>.</li>
+<li><code>currency</code>: what the money is in, for showing it.</li>
+</ul>
+<p>A participant's payment (<a href="Participant.html#payment"><code>participant.payment()</code></a>) is the show-up fee plus, for each app, the points they earned in it (<code>player.points</code>) times its exchange rate, rounded to cents. <a href="Session.html#payments"><code>session.payments()</code></a> lists everyone's.</p>
 </article>
 
 </section>
@@ -53,13 +106,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AdminAuth.html">AdminAuth</a></li><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="Data.html">Data</a></li><li><a href="Exit.html">Exit</a></li><li><a href="Group.html">Group</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="QueueRecorder.html">QueueRecorder</a></li><li><a href="Reader.html">Reader</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Run.html">Run</a></li><li><a href="Screens.html">Screens</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="Translator.html">Translator</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="global.html#start">start</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-4a-ztree.html">z-Tree treatments</a></li><li><a href="tutorial-4b-otree.html">oTree apps</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-other.html">Other</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ADMIN_LOGIN_REQUIRED">ADMIN_LOGIN_REQUIRED</a></li><li><a href="global.html#APP_HOOKS">APP_HOOKS</a></li><li><a href="global.html#STAGE_HOOKS">STAGE_HOOKS</a></li><li><a href="global.html#addToClass">addToClass</a></li><li><a href="global.html#allBoxes">allBoxes</a></li><li><a href="global.html#appCSV">appCSV</a></li><li><a href="global.html#appFile">appFile</a></li><li><a href="global.html#appInsertAt">appInsertAt</a></li><li><a href="global.html#appRoots">appRoots</a></li><li><a href="global.html#appTemplate">appTemplate</a></li><li><a href="global.html#appToIR">appToIR</a></li><li><a href="global.html#apply">apply</a></li><li><a href="global.html#applyIR">applyIR</a></li><li><a href="global.html#applySettings">applySettings</a></li><li><a href="global.html#arrayDeclarations">arrayDeclarations</a></li><li><a href="global.html#arrayIndex">arrayIndex</a></li><li><a href="global.html#assignedVariables">assignedVariables</a></li><li><a href="global.html#boolValue">boolValue</a></li><li><a href="global.html#botCases">botCases</a></li><li><a href="global.html#boxOptions">boxOptions</a></li><li><a href="global.html#chat">chat</a></li><li><a href="global.html#chatFor">chatFor</a></li><li><a href="global.html#check">check</a></li><li><a href="global.html#checkField">checkField</a></li><li><a href="global.html#checkForm">checkForm</a></li><li><a href="global.html#compileProgram">compileProgram</a></li><li><a href="global.html#compiled">compiled</a></li><li><a href="global.html#context">context</a></li><li><a href="global.html#contractList">contractList</a></li><li><a href="global.html#convertApp">convertApp</a></li><li><a href="global.html#convertTreatment">convertTreatment</a></li><li><a href="global.html#convertTreatmentFile">convertTreatmentFile</a></li><li><a href="global.html#copyDir">copyDir</a></li><li><a href="global.html#copyToPlayer">copyToPlayer</a></li><li><a href="global.html#creatingSessionBeforeArrival">creatingSessionBeforeArrival</a></li><li><a href="global.html#cut">cut</a></li><li><a href="global.html#decimals">decimals</a></li><li><a href="global.html#declared">declared</a></li><li><a href="global.html#dedent">dedent</a></li><li><a href="global.html#describeValue">describeValue</a></li><li><a href="global.html#dialectFor">dialectFor</a></li><li><a href="global.html#drawn">drawn</a></li><li><a href="global.html#encode">encode</a></li><li><a href="global.html#endSoon">endSoon</a></li><li><a href="global.html#errorPosition">errorPosition</a></li><li><a href="global.html#exportTables">exportTables</a></li><li><a href="global.html#exporter">exporter</a></li><li><a href="global.html#exportersFor">exportersFor</a></li><li><a href="global.html#expression">expression</a></li><li><a href="global.html#fail">fail</a></li><li><a href="global.html#file">file</a></li><li><a href="global.html#fillValues">fillValues</a></li><li><a href="global.html#findBox">findBox</a></li><li><a href="global.html#finite">finite</a></li><li><a href="global.html#formatText">formatText</a></li><li><a href="global.html#formatValue">formatValue</a></li><li><a href="global.html#fromDescription">fromDescription</a></li><li><a href="global.html#getBridge">getBridge</a></li><li><a href="global.html#grid">grid</a></li><li><a href="global.html#history">history</a></li><li><a href="global.html#inAppFolders">inAppFolders</a></li><li><a href="global.html#indent">indent</a></li><li><a href="global.html#indentBy">indentBy</a></li><li><a href="global.html#insertAfter">insertAfter</a></li><li><a href="global.html#isInteractive">isInteractive</a></li><li><a href="global.html#isProject">isProject</a></li><li><a href="global.html#isSessionsLastPage">isSessionsLastPage</a></li><li><a href="global.html#isText">isText</a></li><li><a href="global.html#isTextFile">isTextFile</a></li><li><a href="global.html#itemCell">itemCell</a></li><li><a href="global.html#itemsTable">itemsTable</a></li><li><a href="global.html#jsonErrorPosition">jsonErrorPosition</a></li><li><a href="global.html#lanAddress">lanAddress</a></li><li><a href="global.html#lastFirst">lastFirst</a></li><li><a href="global.html#layoutEnd">layoutEnd</a></li><li><a href="global.html#layoutParts">layoutParts</a></li><li><a href="global.html#leaveIfAsked">leaveIfAsked</a></li><li><a href="global.html#leavesStage">leavesStage</a></li><li><a href="global.html#legacyValue">legacyValue</a></li><li><a href="global.html#lines">lines</a></li><li><a href="global.html#loadPackagesFor">loadPackagesFor</a></li><li><a href="global.html#measure">measure</a></li><li><a href="global.html#memberAssignment">memberAssignment</a></li><li><a href="global.html#model">model</a></li><li><a href="global.html#mountProject">mountProject</a></li><li><a href="global.html#newTreatment">newTreatment</a></li><li><a href="global.html#normalizeCode">normalizeCode</a></li><li><a href="global.html#openUrl">openUrl</a></li><li><a href="global.html#owner">owner</a></li><li><a href="global.html#packageFor">packageFor</a></li><li><a href="global.html#pageTimesCSV">pageTimesCSV</a></li><li><a href="global.html#paramCell">paramCell</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseExpr">parseExpr</a></li><li><a href="global.html#parseLayout">parseLayout</a></li><li><a href="global.html#parseQueueId">parseQueueId</a></li><li><a href="global.html#place">place</a></li><li><a href="global.html#plot">plot</a></li><li><a href="global.html#plotInput">plotInput</a></li><li><a href="global.html#plotItemAt">plotItemAt</a></li><li><a href="global.html#prefixHtmlUrls">prefixHtmlUrls</a></li><li><a href="global.html#pressButton">pressButton</a></li><li><a href="global.html#program">program</a></li><li><a href="global.html#programItems">programItems</a></li><li><a href="global.html#putApp">putApp</a></li><li><a href="global.html#putSettings">putSettings</a></li><li><a href="global.html#py">py</a></li><li><a href="global.html#queueId">queueId</a></li><li><a href="global.html#queueScript">queueScript</a></li><li><a href="global.html#quote">quote</a></li><li><a href="global.html#quotedEnd">quotedEnd</a></li><li><a href="global.html#readGameHeader">readGameHeader</a></li><li><a href="global.html#readQuestionnaires">readQuestionnaires</a></li><li><a href="global.html#readScreen">readScreen</a></li><li><a href="global.html#readTextQuestionnaires">readTextQuestionnaires</a></li><li><a href="global.html#readTextTreatment">readTextTreatment</a></li><li><a href="global.html#readTreatment">readTreatment</a></li><li><a href="global.html#ready">ready</a></li><li><a href="global.html#refresh">refresh</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#reload">reload</a></li><li><a href="global.html#renderScreen">renderScreen</a></li><li><a href="global.html#reportMarkdown">reportMarkdown</a></li><li><a href="global.html#rooms">rooms</a></li><li><a href="global.html#router">router</a></li><li><a href="global.html#rtfToText">rtfToText</a></li><li><a href="global.html#run">run</a></li><li><a href="global.html#runAppCode">runAppCode</a></li><li><a href="global.html#runBots">runBots</a></li><li><a href="global.html#runOf">runOf</a></li><li><a href="global.html#runZtreeBots">runZtreeBots</a></li><li><a href="global.html#scan">scan</a></li><li><a href="global.html#screen">screen</a></li><li><a href="global.html#sessionConfigs">sessionConfigs</a></li><li><a href="global.html#settleBoxes">settleBoxes</a></li><li><a href="global.html#stageDeclaration">stageDeclaration</a></li><li><a href="global.html#stageMeaning">stageMeaning</a></li><li><a href="global.html#stageVariable">stageVariable</a></li><li><a href="global.html#statementRange">statementRange</a></li><li><a href="global.html#str">str</a></li><li><a href="global.html#subjectIndex">subjectIndex</a></li><li><a href="global.html#submitGeneric">submitGeneric</a></li><li><a href="global.html#substitutionAt">substitutionAt</a></li><li><a href="global.html#syntaxErrors">syntaxErrors</a></li><li><a href="global.html#tableRecords">tableRecords</a></li><li><a href="global.html#tablesChangedTimers">tablesChangedTimers</a></li><li><a href="global.html#template">template</a></li><li><a href="global.html#templateLiteral">templateLiteral</a></li><li><a href="global.html#templates">templates</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#textParts">textParts</a></li><li><a href="global.html#toTreatment">toTreatment</a></li><li><a href="global.html#tokenize">tokenize</a></li><li><a href="global.html#topInsert">topInsert</a></li><li><a href="global.html#treatmentFile">treatmentFile</a></li><li><a href="global.html#unindent">unindent</a></li><li><a href="global.html#urlFor">urlFor</a></li><li><a href="global.html#validate">validate</a></li><li><a href="global.html#value">value</a></li><li><a href="global.html#valueFor">valueFor</a></li><li><a href="global.html#valueKind">valueKind</a></li><li><a href="global.html#valueSource">valueSource</a></li><li><a href="global.html#variables">variables</a></li><li><a href="global.html#whenReady">whenReady</a></li><li><a href="global.html#wideCSV">wideCSV</a></li><li><a href="global.html#withBlocks">withBlocks</a></li><li><a href="global.html#withStatics">withStatics</a></li><li><a href="global.html#write">write</a></li><li><a href="global.html#zTreeRules">zTreeRules</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Sat Feb 15 2020 16:24:17 GMT+0100 (Central European Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Oct 14 2026 09:40:18 GMT+0200 (Central European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

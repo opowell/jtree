@@ -161,6 +161,9 @@ class StaticServer {
             res.send(out);
         });
 
+        // The admin interfaces' app editors (admins only, as all of /api).
+        expApp.use('/api/editor', require('../editors/index.js').router(jt));
+
         expApp.get('/api/apps', function(req, res) {
             res.send(Object.values(self.jt.data.appsMetaData));
         });

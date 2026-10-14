@@ -6,10 +6,11 @@ import ShellPanel from './panels/ShellPanel.vue'
 import SessionPanel from './panels/SessionPanel.vue'
 import ClientsPanel from './panels/ClientsPanel.vue'
 import AppPanel from './panels/AppPanel.vue'
+import EditorPanel from './panels/EditorPanel.vue'
 import SettingsPanel from './panels/SettingsPanel.vue'
 import { serverUrl, state } from './server/connection'
 import { downloadOutputUrl, server } from './server/commands'
-import { closePanel, openSession, panels, resetLayout, showPanel, togglePanel, TOOLS, workspace } from './workspace'
+import { closePanel, editApp, openSession, panels, resetLayout, showPanel, togglePanel, TOOLS, workspace } from './workspace'
 
 const session = computed(() => state.session)
 
@@ -36,6 +37,7 @@ const menus = computed<MenuItemDef[]>(() => {
             : [{ label: 'No sessions yet', disabled: true }],
         },
         { separator: true },
+        { label: 'New app…', action: () => editApp('new') },
         { label: 'Reload apps', disabled: !state.connected, action: () => void server.reloadApps() },
         { label: 'Previous admin interface', action: () => window.open(serverUrl + '/admin/multiuser/', '_blank') },
       ],
@@ -113,6 +115,7 @@ const menus = computed<MenuItemDef[]>(() => {
         <ShellPanel v-else-if="panel.id === 'log'" id="log" entity="log" view="table" />
         <SettingsPanel v-else-if="panel.id === 'settings'" />
         <AppPanel v-else-if="panel.id.startsWith('app:')" :app-id="panel.id.slice(4)" :panel-id="panel.id" />
+        <EditorPanel v-else-if="panel.id.startsWith('edit:')" :key="panel.id" :app-path="panel.id.slice(5)" :panel-id="panel.id" />
         <!-- Queues are apps now; layouts saved before that still name queue panels. -->
         <AppPanel v-else-if="panel.id.startsWith('queue:')" :app-id="panel.id.slice(6)" :panel-id="panel.id" />
       </template>

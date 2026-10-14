@@ -1,19 +1,19 @@
-This tutorial will show you how to program the simple public goods game used in the previous section. From the Welcome screen, click "Create App...". Type `my-public-goods` as the filename, then click "Create".
+This tutorial will show you how to program the simple public goods game used in the previous section. In the admin, choose File → New app…. Type `my-public-goods` as the file name, then press "Create". jtree writes `client/apps/my-public-goods.jtt`, and opens it in the App editor.
 
 [Note: "App", "Game" and "Treatment" are used interchangeably in jtree.]
 
-The App window will open. Click "Code..." to edit the code of your App.
+An app is a Javascript file. The App editor shows it in parts: its **Settings**, its **Functions**, each of its **stages** (with its screens, settings and functions), **Other code**, and the whole **Source**. Changing a part changes only that statement in the file, and Source shows the whole file, where you can write anything; "Apply" (Ctrl+Enter) reads it into the other parts again. This tutorial gives the code, to type in Source; the other parts show what each piece is as you go. "Save" (Ctrl+S) writes the file, and "Save and start a session" also starts a session with the app. You can just as well edit the file in any text editor, then use File → Reload apps.
 
-First, we will define the parameters and stages of the app. Each app file begins with a pre-defined App object called `app`, and fields are modified and/or added to this object using regular Javascript. Add the following code to your file now:
+First, we will define the parameters and stages of the app. Each app file begins with a pre-defined App object called `app`, and fields are modified and/or added to this object using regular Javascript. Replace what the new app has with the following code:
 
 ```javascript
 app.numPeriods  = 10;
 app.groupSize   = 4;
 app.endowment   = 20;
-app.prodFactor  = 2;
+app.factor      = 2;
 ```
 
-The code above sets the number of periods for this App to 10, and the number of players per group to 4. The last two lines create new fields specific to this app, the endowment that each player will begin with (20), and the production factor (2).
+The code above sets the number of periods for this App to 10, and the number of players per group to 4. The last two lines create new fields specific to this app, the endowment that each player will begin with (20), and the production factor (2). In the editor, these are the app's Settings.
 
 The next step is determining the stages of your app. Stages of an app are repeated a given number of times. The repeated public goods game has the following stages:
 
@@ -23,9 +23,11 @@ The next step is determining the stages of your app. Stages of an app are repeat
 Stages are created and added to the app using the [`app.newStage(stageId)`]{@link App#newStage} function. Add the following code to your file:
 
 ```javascript
-var decideStage  = app.newStage('decide');
-var resultsStage = app.newStage('results');
+let decideStage  = app.newStage('decide');
+let resultsStage = app.newStage('results');
 ```
+
+In the editor, each stage is listed under the app's parts, where stages can also be added, renamed, moved and deleted.
 
 The `content` field of a stage is shown to players when they are active in the stage. Content is mostly regular HTML, which consists of sets of tags. Tags are written in between greater than `<` and less than `>` characters, such as `<p>`. Tags can contain content, in which case they should also usually have an ending tag: `<p>This is a paragraph.</p>`.
 
@@ -66,8 +68,8 @@ resultsStage.groupStart = function(group) {
     group.contributions = group.sum('contribution');
     group.production = group.contributions * app.factor;
     group.prodPerPlayer = group.production / group.players.length;
-    for (var i in group.players) { // i = 0, 1, 2, 3
-        var player = group.players[i];
+    for (let i in group.players) { // i = 0, 1, 2, 3
+        let player = group.players[i];
         player.points = app.endowment - player.contribution + group.prodPerPlayer;
     }
 }
@@ -81,10 +83,12 @@ Now add the screen content:
 resultsStage.activeScreen = `
 <p>RESULTS</p>
 <p>Your endowment was {{app.endowment}} E$. You contributed {{player.contribution}} E$.</p>
-<p>In total, players in your group contributed {{group.contributions}} E$, thus the total amount produced was {{group.production.toFixed(2)}} E$.</p>
-<p>Thus, your payoff in this period is {{player.points.toFixed(2)}} E$.</p>
+<p>In total, players in your group contributed {{group.contributions}} E$, thus the total amount produced was {{group.production | round(2)}} E$.</p>
+<p>Thus, your payoff in this period is {{player.points | round(2)}} E$.</p>
 `;
 ```
+
+`| round(2)` shows a number rounded to 2 decimal places.
 
 In summary, the content of the app file is the following:
 
@@ -94,20 +98,20 @@ app.groupSize   = 4;
 app.endowment   = 20;
 app.factor      = 2;
 
-var decideStage = app.newStage('decide');
+let decideStage = app.newStage('decide');
 decideStage.activeScreen = `
     <p>DECISION</p>
     <p>Your endowment is {{app.endowment}} E$.</p>
     <p>Your contribution (E$): <input name='player.contribution' required type='number' min='0' :max='app.endowment' step='1'></p>
 `;
 
-var resultsStage = app.newStage('results');
+let resultsStage = app.newStage('results');
 resultsStage.groupStart = function(group) {
     group.contributions = group.sum('contribution');
     group.production = group.contributions * app.factor;
     group.prodPerPlayer = group.production / group.players.length;
-    for (var i in group.players) { // i = 0, 1, 2, 3
-        var player = group.players[i];
+    for (let i in group.players) { // i = 0, 1, 2, 3
+        let player = group.players[i];
         player.points = app.endowment - player.contribution + group.prodPerPlayer;
     }
 }
@@ -119,7 +123,7 @@ resultsStage.activeScreen = `
 `;
 ```
 
-And now the app is complete. To test it, simply follow the previous tutorial on <a href='tutorial-3-running-a-session.html'>running a session.</a>
+And now the app is complete. Press "Save and start a session" to test it, then follow the previous tutorial on <a href='tutorial-3-running-a-session.html'>running a session.</a> If the app has a mistake, its panel says where (file, line and position).
 
 #### An app as a folder
 An app can also be a folder: a file `app.jtt` that sets up the app, and one `.jtt` file per stage beside it. The stage files are added after `app.jtt` has run, in the order of their names; a leading number orders them and is not part of the stage's id, so `1_decide.jtt` is the stage `decide`. In a stage's file, `stage` is that stage and `app` is the app. The public goods game above, as a folder (see `apps/1 sample games/public-good-v2`):

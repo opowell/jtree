@@ -7,6 +7,6 @@ You can include an external resource (image, stylesheet or javascript library/fi
 ```
 
 where `<appId>` is the [unique identifier]{@link App#id} of the app.
-The corresponding files should be located in the folder `jtree/apps/<appId>` folder. The `src` attributes must include the appId.
+The corresponding files should be in the folder `client/apps/<appId>`. The `src` attributes must include the appId.
 
 For example, see the `pictures` app.

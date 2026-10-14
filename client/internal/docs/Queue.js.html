@@ -30,99 +30,164 @@
 const path      = require('path');
 const Utils     = require('./Utils.js');
 const Session   = require('./Session.js');
+const otreeProject = require('./dialects/otree/project.js');
 
 
 /**
- * A Queue definition for sessions.
+ * A queue is an app made of other apps: a .jtq file that, when added to a session, adds its apps
+ * to that session in its place. It sits in the app catalogue next to the apps, and is added to a
+ * session with {@link Session#addApp} like any app.
+ *
+ * A .jtq file is a script run with the session in scope as `session`. Paths it gives to
+ * `session.addApp` are relative to the .jtq file, and may name other queues. The script can also
+ * declare session options (`session.addNumberOption(...)`) and set session fields and hooks
+ * (`session.getApp = ...`), as these act on the whole session.
+ *
+ * An older format is JSON, `{displayName, apps: [appId | {appId, options}]}`, where an appId
+ * without an extension is a .jtt file next to the queue.
 */
 class Queue {
 
     constructor(id, jt) {
         this.jt             = jt;
         this.id             = id;
-        this.shortId        = path.basename(id);
+        this.appPath        = id;
+        this.shortId        = path.basename(id, '.jtq');
         this.displayName    = this.shortId;
+        this.description    = undefined;
+        /** The file's contents. */
+        this.appjs          = '';
+        /** For a JSON queue, its parsed contents, otherwise null. */
+        this.json           = null;
+        /** The apps this queue adds, as {appId, options}, with appId resolved to a full path. */
         this.apps           = [];
-        this.dummy          = false;
+        /** The session options this queue declares. */
+        this.options        = [];
+        this.optionValues   = {};
+        this.hasError       = false;
     }
 
-    /** Deprecated 2018.10.11. Replaced by Queue.loadJTQ. */
-    static load(fn, id, jt) {
-        var queue = new Queue(id, jt);
-        
-        // Read fields, if any.
-        if (fs.existsSync(fn)) {
-            var json = Utils.readJSON(fn);
-            if (json.displayName !== undefined) {
-                queue.displayName = json.displayName;
-            }
-            if (json.apps !== undefined) {
-                queue.apps = json.apps;
-            }
-        }
-
-        return queue;
-    }
-
-    static loadJTQ(id, jt, folder) {
-        var queue = new Queue(id, jt);
-        if (fs.existsSync(id)) {
-            var json = Utils.readJSON(id);
-            if (json === 'JSON error') {
-                // let session = new Session.new(jt, id, {createFolder: false});
-                queue.code = Utils.readJS(id);
-                // eval(queue.code);
-                // for (let i=0; i&lt;session.apps.length; i++) {
-                //     let app = session.apps[i];
-                //     queue.addApp(app.appPath, app.givenOptions);
-                // }
+    /** Reads the .jtq file at filePath, and lists the apps and options it declares. */
+    static load(filePath, jt) {
+        var queue = new Queue(filePath, jt);
+        // An oTree project's session config (see dialects/otree/project.js).
+        const otreeConfig = otreeProject.parseQueueId(filePath);
+        try {
+            if (otreeConfig != null) {
+                const { script, config } = otreeProject.queueScript(otreeConfig.settingsPath, otreeConfig.name);
+                queue.appjs = script;
+                queue.shortId = config.name;
+                queue.displayName = config.display_name || config.name;
+                queue.description = config.doc;
+                queue.dirPath = path.dirname(otreeConfig.settingsPath);
+                queue.otreeConfig = config;
             } else {
-                if (json.displayName !== undefined) {
-                    queue.displayName = json.displayName;
+                queue.appjs = Utils.readJS(filePath);
+            }
+        } catch (err) {
+            queue.setError(err);
+            return queue;
+        }
+        if (queue.appjs.trim().startsWith('{')) {
+            try {
+                queue.json = JSON.parse(queue.appjs);
+                if (queue.json.displayName != null) {
+                    queue.displayName = queue.json.displayName;
                 }
-                if (json.apps !== undefined) {
-                    for (let i=0; i&lt;json.apps.length; i++) {
-                        let curJSON = json.apps[i];
-                        let appId = curJSON;
-                        let options = {};
-                        if (curJSON.appId != null) {
-                            appId = curJSON.appId;
-                            options = curJSON.options;
-                        }
-                        queue.addApp(path.join(folder, appId + '.jtt'), options);
-                    }
-                }
+            } catch (err) {
+                // Not JSON after all: run it as a script.
             }
         }
+        var recorder = new QueueRecorder(queue);
+        try {
+            queue.run(recorder);
+        } catch (err) {
+            queue.setError(err);
+        }
+        queue.apps = recorder.apps;
+        queue.options = recorder.options;
+        queue.optionValues = recorder.optionValues;
         return queue;
+    }
+
+    /** The folder this queue's app paths are relative to. */
+    dir() {
+        return this.dirPath || path.dirname(this.id);
+    }
+
+    /** Whether id is a queue's: a .jtq file, or an oTree project's session config. */
+    static isQueueId(id) {
+        return String(id).endsWith('.jtq') || otreeProject.parseQueueId(id) != null;
+    }
+
+    resolve(appPath) {
+        return path.isAbsolute(appPath) ? appPath : path.join(this.dir(), appPath);
     }
 
     /**
-    * Add the app with the given ID to this session.
-    *
-    * FUNCTIONALITY:
-    * - load the given app {@link Session#loadApp}
-    * - add app to this session's apps field.
-    * - copy app source files {@link Utils#copyFiles}.
-    * - save app and its stages {@link App#saveSelfAndChildren}.
-    * - emit 'sessionAddApp' message.
-    *
-    * @param  {string} appId The ID of the app to add to this session.
-    */
-    addApp(appId, options) {
+     * Runs this queue against target, a {@link Session} or a {@link QueueRecorder}, whose addApp
+     * resolves paths relative to this queue.
+     */
+    run(target) {
+        if (this.json != null) {
+            var entries = this.json.apps || [];
+            for (let i=0; i&lt;entries.length; i++) {
+                let appId = entries[i];
+                let options = {};
+                if (appId.appId != null) {
+                    options = appId.options || {};
+                    appId = appId.appId;
+                }
+                if (path.extname(appId) === '') {
+                    appId += '.jtt';
+                }
+                target.addApp(appId, options);
+            }
+        } else {
+            // The script refers to its target as `session`.
+            let session = target; // jshint ignore:line
+            eval(this.appjs); // jshint ignore:line
+        }
+    }
+
+    /** Adds an app at the end of this queue's file. Reload the queue to see it. */
+    addApp(appPath, options) {
         if (options == null) {
             options = {};
         }
-        var app = {
-            appId: appId, 
-            options: options, 
-            indexInQueue: this.apps.length + 1
-        };
-        this.apps.push(app);
-        if (!this.dummy &amp;&amp; this.jt.socketServer != null) {
-            this.save();
-            this.jt.socketServer.sendOrQueueAdminMsg(null, 'queueAddApp', {queueId: this.id, app: app});
+        var relPath = path.relative(this.dir(), appPath).split(path.sep).join('/');
+        if (this.json != null) {
+            if (this.json.apps == null) {
+                this.json.apps = [];
+            }
+            this.json.apps.push(Object.keys(options).length > 0 ? {appId: relPath, options: options} : relPath);
+            fs.writeJSONSync(this.id, this.json, {spaces: 4});
+        } else {
+            var line = 'session.addApp(' + JSON.stringify(relPath);
+            if (Object.keys(options).length > 0) {
+                line += ', ' + JSON.stringify(options);
+            }
+            line += ');\n';
+            var contents = this.appjs;
+            if (contents.length > 0 &amp;&amp; !contents.endsWith('\n')) {
+                contents += '\n';
+            }
+            fs.writeFileSync(this.id, contents + line);
         }
+    }
+
+    setFileContents(contents) {
+        fs.writeFileSync(this.id, contents);
+    }
+
+    reload() {
+        return Queue.load(this.id, this.jt);
+    }
+
+    setError(err) {
+        this.hasError = true;
+        this.errorMessage = String(err);
+        this.jt.log('Error loading queue ' + this.id + ': ' + err);
     }
 
     parentFolderName() {
@@ -141,6 +206,32 @@ class Queue {
         return this.id.substring(0, x);
     }
 
+    /** What the admin interfaces read about an app, see {@link App#metaData}. */
+    metaData() {
+        return {
+            id:             this.id,
+            shortId:        this.shortId,
+            title:          this.displayName,
+            description:    this.description,
+            appPath:        this.appPath,
+            isQueue:        true,
+            apps:           this.apps,
+            options:        this.options,
+            hasError:       this.hasError,
+            errorMessage:   this.errorMessage,
+            isStandaloneApp: true,
+            stages:         [],
+            appjs:          this.appjs,
+            // An oTree project's session config (see dialects/otree/project.js).
+            otreeConfig:    this.otreeConfig,
+        };
+    }
+
+    shellWithChildren() {
+        return this.metaData();
+    }
+
+    /** The shape older admin interfaces read from their list of queues. */
     shell() {
         var out = {}
         out.id              = this.id;
@@ -151,25 +242,43 @@ class Queue {
         return out;
     }
 
-    /**
-    * this - description
-    *
-    * @return {type}  description
-    */
-    save() {
-        try {
-            fs.writeJSONSync(this.jt.data.queuePath(this.id), this.shell(), {spaces: 4});
-        } catch (err) {
-            console.log(err);
-        }
+}
+
+/**
+ * Stands in for a session when a queue is read for the catalogue: records the apps and options
+ * the queue declares, without loading them or writing anything to disk.
+ */
+class QueueRecorder {
+
+    constructor(queue) {
+        this.queue          = queue;
+        this.apps           = [];
+        this.options        = [];
+        this.optionValues   = {};
     }
 
+    addApp(appPath, options) {
+        this.apps.push({
+            appId: this.queue.resolve(appPath),
+            options: options || {},
+            indexInQueue: this.apps.length + 1,
+        });
+    }
+
+    setNumParticipants(num) {
+        this.suggestedNumParticipants = num;
+    }
+
+}
+
+for (const name of ['addNumberOption', 'addTextOption', 'addSelectOption', 'setOptionValue']) {
+    QueueRecorder.prototype[name] = Session.new.prototype[name];
 }
 
 var exports = module.exports = {};
 exports.new = Queue;
 exports.load = Queue.load;
-exports.loadJTQ = Queue.loadJTQ;
+exports.isQueueId = Queue.isQueueId;
 </code></pre>
         </article>
     </section>
@@ -180,13 +289,13 @@ exports.loadJTQ = Queue.loadJTQ;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AdminAuth.html">AdminAuth</a></li><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="Data.html">Data</a></li><li><a href="Exit.html">Exit</a></li><li><a href="Group.html">Group</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="QueueRecorder.html">QueueRecorder</a></li><li><a href="Reader.html">Reader</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Run.html">Run</a></li><li><a href="Screens.html">Screens</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="Translator.html">Translator</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="global.html#start">start</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-4a-ztree.html">z-Tree treatments</a></li><li><a href="tutorial-4b-otree.html">oTree apps</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-other.html">Other</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ADMIN_LOGIN_REQUIRED">ADMIN_LOGIN_REQUIRED</a></li><li><a href="global.html#APP_HOOKS">APP_HOOKS</a></li><li><a href="global.html#STAGE_HOOKS">STAGE_HOOKS</a></li><li><a href="global.html#addToClass">addToClass</a></li><li><a href="global.html#allBoxes">allBoxes</a></li><li><a href="global.html#appCSV">appCSV</a></li><li><a href="global.html#appFile">appFile</a></li><li><a href="global.html#appInsertAt">appInsertAt</a></li><li><a href="global.html#appRoots">appRoots</a></li><li><a href="global.html#appTemplate">appTemplate</a></li><li><a href="global.html#appToIR">appToIR</a></li><li><a href="global.html#apply">apply</a></li><li><a href="global.html#applyIR">applyIR</a></li><li><a href="global.html#applySettings">applySettings</a></li><li><a href="global.html#arrayDeclarations">arrayDeclarations</a></li><li><a href="global.html#arrayIndex">arrayIndex</a></li><li><a href="global.html#assignedVariables">assignedVariables</a></li><li><a href="global.html#boolValue">boolValue</a></li><li><a href="global.html#botCases">botCases</a></li><li><a href="global.html#boxOptions">boxOptions</a></li><li><a href="global.html#chat">chat</a></li><li><a href="global.html#chatFor">chatFor</a></li><li><a href="global.html#check">check</a></li><li><a href="global.html#checkField">checkField</a></li><li><a href="global.html#checkForm">checkForm</a></li><li><a href="global.html#compileProgram">compileProgram</a></li><li><a href="global.html#compiled">compiled</a></li><li><a href="global.html#context">context</a></li><li><a href="global.html#contractList">contractList</a></li><li><a href="global.html#convertApp">convertApp</a></li><li><a href="global.html#convertTreatment">convertTreatment</a></li><li><a href="global.html#convertTreatmentFile">convertTreatmentFile</a></li><li><a href="global.html#copyDir">copyDir</a></li><li><a href="global.html#copyToPlayer">copyToPlayer</a></li><li><a href="global.html#creatingSessionBeforeArrival">creatingSessionBeforeArrival</a></li><li><a href="global.html#cut">cut</a></li><li><a href="global.html#decimals">decimals</a></li><li><a href="global.html#declared">declared</a></li><li><a href="global.html#dedent">dedent</a></li><li><a href="global.html#describeValue">describeValue</a></li><li><a href="global.html#dialectFor">dialectFor</a></li><li><a href="global.html#drawn">drawn</a></li><li><a href="global.html#encode">encode</a></li><li><a href="global.html#endSoon">endSoon</a></li><li><a href="global.html#errorPosition">errorPosition</a></li><li><a href="global.html#exportTables">exportTables</a></li><li><a href="global.html#exporter">exporter</a></li><li><a href="global.html#exportersFor">exportersFor</a></li><li><a href="global.html#expression">expression</a></li><li><a href="global.html#fail">fail</a></li><li><a href="global.html#file">file</a></li><li><a href="global.html#fillValues">fillValues</a></li><li><a href="global.html#findBox">findBox</a></li><li><a href="global.html#finite">finite</a></li><li><a href="global.html#formatText">formatText</a></li><li><a href="global.html#formatValue">formatValue</a></li><li><a href="global.html#fromDescription">fromDescription</a></li><li><a href="global.html#getBridge">getBridge</a></li><li><a href="global.html#grid">grid</a></li><li><a href="global.html#history">history</a></li><li><a href="global.html#inAppFolders">inAppFolders</a></li><li><a href="global.html#indent">indent</a></li><li><a href="global.html#indentBy">indentBy</a></li><li><a href="global.html#insertAfter">insertAfter</a></li><li><a href="global.html#isInteractive">isInteractive</a></li><li><a href="global.html#isProject">isProject</a></li><li><a href="global.html#isSessionsLastPage">isSessionsLastPage</a></li><li><a href="global.html#isText">isText</a></li><li><a href="global.html#isTextFile">isTextFile</a></li><li><a href="global.html#itemCell">itemCell</a></li><li><a href="global.html#itemsTable">itemsTable</a></li><li><a href="global.html#jsonErrorPosition">jsonErrorPosition</a></li><li><a href="global.html#lanAddress">lanAddress</a></li><li><a href="global.html#lastFirst">lastFirst</a></li><li><a href="global.html#layoutEnd">layoutEnd</a></li><li><a href="global.html#layoutParts">layoutParts</a></li><li><a href="global.html#leaveIfAsked">leaveIfAsked</a></li><li><a href="global.html#leavesStage">leavesStage</a></li><li><a href="global.html#legacyValue">legacyValue</a></li><li><a href="global.html#lines">lines</a></li><li><a href="global.html#loadPackagesFor">loadPackagesFor</a></li><li><a href="global.html#measure">measure</a></li><li><a href="global.html#memberAssignment">memberAssignment</a></li><li><a href="global.html#model">model</a></li><li><a href="global.html#mountProject">mountProject</a></li><li><a href="global.html#newTreatment">newTreatment</a></li><li><a href="global.html#normalizeCode">normalizeCode</a></li><li><a href="global.html#openUrl">openUrl</a></li><li><a href="global.html#owner">owner</a></li><li><a href="global.html#packageFor">packageFor</a></li><li><a href="global.html#pageTimesCSV">pageTimesCSV</a></li><li><a href="global.html#paramCell">paramCell</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseExpr">parseExpr</a></li><li><a href="global.html#parseLayout">parseLayout</a></li><li><a href="global.html#parseQueueId">parseQueueId</a></li><li><a href="global.html#place">place</a></li><li><a href="global.html#plot">plot</a></li><li><a href="global.html#plotInput">plotInput</a></li><li><a href="global.html#plotItemAt">plotItemAt</a></li><li><a href="global.html#prefixHtmlUrls">prefixHtmlUrls</a></li><li><a href="global.html#pressButton">pressButton</a></li><li><a href="global.html#program">program</a></li><li><a href="global.html#programItems">programItems</a></li><li><a href="global.html#putApp">putApp</a></li><li><a href="global.html#putSettings">putSettings</a></li><li><a href="global.html#py">py</a></li><li><a href="global.html#queueId">queueId</a></li><li><a href="global.html#queueScript">queueScript</a></li><li><a href="global.html#quote">quote</a></li><li><a href="global.html#quotedEnd">quotedEnd</a></li><li><a href="global.html#readGameHeader">readGameHeader</a></li><li><a href="global.html#readQuestionnaires">readQuestionnaires</a></li><li><a href="global.html#readScreen">readScreen</a></li><li><a href="global.html#readTextQuestionnaires">readTextQuestionnaires</a></li><li><a href="global.html#readTextTreatment">readTextTreatment</a></li><li><a href="global.html#readTreatment">readTreatment</a></li><li><a href="global.html#ready">ready</a></li><li><a href="global.html#refresh">refresh</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#reload">reload</a></li><li><a href="global.html#renderScreen">renderScreen</a></li><li><a href="global.html#reportMarkdown">reportMarkdown</a></li><li><a href="global.html#rooms">rooms</a></li><li><a href="global.html#router">router</a></li><li><a href="global.html#rtfToText">rtfToText</a></li><li><a href="global.html#run">run</a></li><li><a href="global.html#runAppCode">runAppCode</a></li><li><a href="global.html#runBots">runBots</a></li><li><a href="global.html#runOf">runOf</a></li><li><a href="global.html#runZtreeBots">runZtreeBots</a></li><li><a href="global.html#scan">scan</a></li><li><a href="global.html#screen">screen</a></li><li><a href="global.html#sessionConfigs">sessionConfigs</a></li><li><a href="global.html#settleBoxes">settleBoxes</a></li><li><a href="global.html#stageDeclaration">stageDeclaration</a></li><li><a href="global.html#stageMeaning">stageMeaning</a></li><li><a href="global.html#stageVariable">stageVariable</a></li><li><a href="global.html#statementRange">statementRange</a></li><li><a href="global.html#str">str</a></li><li><a href="global.html#subjectIndex">subjectIndex</a></li><li><a href="global.html#submitGeneric">submitGeneric</a></li><li><a href="global.html#substitutionAt">substitutionAt</a></li><li><a href="global.html#syntaxErrors">syntaxErrors</a></li><li><a href="global.html#tableRecords">tableRecords</a></li><li><a href="global.html#tablesChangedTimers">tablesChangedTimers</a></li><li><a href="global.html#template">template</a></li><li><a href="global.html#templateLiteral">templateLiteral</a></li><li><a href="global.html#templates">templates</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#textParts">textParts</a></li><li><a href="global.html#toTreatment">toTreatment</a></li><li><a href="global.html#tokenize">tokenize</a></li><li><a href="global.html#topInsert">topInsert</a></li><li><a href="global.html#treatmentFile">treatmentFile</a></li><li><a href="global.html#unindent">unindent</a></li><li><a href="global.html#urlFor">urlFor</a></li><li><a href="global.html#validate">validate</a></li><li><a href="global.html#value">value</a></li><li><a href="global.html#valueFor">valueFor</a></li><li><a href="global.html#valueKind">valueKind</a></li><li><a href="global.html#valueSource">valueSource</a></li><li><a href="global.html#variables">variables</a></li><li><a href="global.html#whenReady">whenReady</a></li><li><a href="global.html#wideCSV">wideCSV</a></li><li><a href="global.html#withBlocks">withBlocks</a></li><li><a href="global.html#withStatics">withStatics</a></li><li><a href="global.html#write">write</a></li><li><a href="global.html#zTreeRules">zTreeRules</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Sat Feb 15 2020 16:24:12 GMT+0100 (Central European Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Oct 14 2026 09:40:18 GMT+0200 (Central European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

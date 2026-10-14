@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: dialects/ztree/ztt.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: dialects/ztree/ztt.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*
+ * Reads z-Tree treatments (.ztt): z-Tree's binary format, as z-Tree 3 writes it (file versions
+ * 16, 18 and 34 at least), into a plain object (see readTreatment). Written from z-Tree's example
+ * treatments; z-Tree's format is not published.
+ *
+ * The format is a tree of objects. Each object is its class's name (a length-prefixed string such
+ * as "EEXStage"), then its fields; in a list, each object is preceded by a 0 byte, and the list by
+ * its length (4 bytes). Strings are MFC's: a length byte (or 0xff and 2 more bytes, ...) and
+ * Windows-1252 text. Each class's leading fields are read exactly; the bytes after them, which hold
+ * display settings this reader does not need, are skipped up to the next object, and the tree is
+ * put together from the objects' classes, with the lists' lengths where their place is known.
+ */
+
+// z-Tree 5 (file version 46) names the treatment's own classes without PGX: CGame, CRole, ...
+const CLASS_TAG = /^(EEX[A-Za-z]+|CPGX[A-Za-z]+|CGame|CRole|CPeriodParam|CSubjectParam)$/;
+
+// Boxes (z-Tree's screen areas), items in them, and buttons.
+const BOX_CLASSES = {
+    EEXDialogWindow: 'standard',
+    EEXHeaderWindow: 'header',
+    EEXHelpWindow: 'help',
+    EEXContainerWindow: 'container',
+    EEXShowContractWindow: 'contractList',
+    EEXMakeContractWindow: 'contractCreation',
+    EEXHistoryWindow: 'history',
+    EEXGridWindow: 'grid',
+    EEXChatterbox: 'chat',
+    EEXButtonWindow: 'calculator',
+    EEXMessageWindow: 'message',
+    EEXPlotWindow: 'plot',
+    EEXMultimediaWindow: 'multimedia',
+};
+const ITEM_CLASSES = new Set(['EEXInfoItem']);
+// Plot boxes' items (z-Tree 3's graphics).
+const PLOT_CLASSES = {
+    EEXPlotPoint: 'point', EEXPlotLine: 'line', EEXPlotRect: 'rect', EEXPlotPie: 'pie', EEXPlotText: 'text',
+    EEXPlotAxis: 'axis', EEXPlotGraph: 'graph', EEXPlotInput: 'input',
+};
+
+// Windows-1252's characters 0x80-0x9f, where it differs from Latin-1.
+const CP1252 = '€\u0081‚ƒ„…†‡ˆ‰Š‹Œ\u008dŽ\u008f\u0090‘’“”•–—˜™š›œ\u009džŸ';
+function decode(bytes) {
+    let out = '';
+    for (const b of bytes) out += b >= 0x80 &amp;&amp; b &lt;= 0x9f ? CP1252[b - 0x80] : String.fromCharCode(b);
+    return out;
+}
+
+class ZttError extends Error {}
+
+/** Reads fields from bytes buf[start, end). */
+class Reader {
+    constructor(buf, start = 0, end = buf.length) {
+        this.buf = buf;
+        this.pos = start;
+        this.end = end;
+    }
+    get left() { return this.end - this.pos; }
+    need(n) {
+        if (this.pos + n > this.end) throw new ZttError('the file ends early, at byte ' + this.pos);
+    }
+    u8() { this.need(1); return this.buf[this.pos++]; }
+    u16() { this.need(2); const v = this.buf.readUInt16LE(this.pos); this.pos += 2; return v; }
+    i32() { this.need(4); const v = this.buf.readInt32LE(this.pos); this.pos += 4; return v; }
+    skip(n) { this.need(n); this.pos += n; }
+    /** An MFC CString. */
+    str() {
+        let n = this.u8();
+        if (n === 0xff) {
+            n = this.u16();
+            if (n === 0xfffe) throw new ZttError('Unicode strings are not read yet (byte ' + this.pos + ')');
+            if (n === 0xffff) n = this.i32();
+        }
+        this.need(n);
+        const s = decode(this.buf.subarray(this.pos, this.pos + n));
+        this.pos += n;
+        return s.replace(/\r\n/g, '\n');
+    }
+    /** The strings that look like CStrings in what is left (for fields after lists, read loosely). */
+    strings() {
+        const out = [];
+        let p = this.pos;
+        while (p &lt; this.end) {
+            const n = this.buf[p];
+            if (n >= 1 &amp;&amp; n &lt; 0xff &amp;&amp; p + 1 + n &lt;= this.end) {
+                const bytes = this.buf.subarray(p + 1, p + 1 + n);
+                if (bytes.every((c) => c >= 32 &amp;&amp; c !== 127 || c === 9 || c === 10 || c === 13)) {
+                    // Not the class of an object in the bytes (z-Tree 5's items hold CValueReal, ...).
+                    const text = decode(bytes).replace(/\r\n/g, '\n');
+                    if (!/^CValue[A-Za-z]*$/.test(text)) out.push(text);
+                    p += 1 + n;
+                    continue;
+                }
+            }
+            p++;
+        }
+        return out;
+    }
+}
+
+/**
+ * The file's objects, in order: {cls, start (of its class name), body (where its fields start),
+ * end (where the next object starts)}.
+ */
+function tokenize(buf) {
+    const tokens = [];
+    for (let p = 0; p + 2 &lt; buf.length; p++) {
+        const n = buf[p];
+        if (n &lt; 5 || n > 40 || p + 1 + n > buf.length) continue;
+        const first = buf[p + 1];
+        if (first !== 0x45 &amp;&amp; first !== 0x43) continue; // E, C
+        const name = buf.toString('latin1', p + 1, p + 1 + n);
+        if (!CLASS_TAG.test(name)) continue;
+        // The next byte must not continue the name (a longer name with this one in it).
+        tokens.push({ cls: name.replace(/^C(Game|Role|PeriodParam|SubjectParam)$/, 'CPGX$1'), start: p, body: p + 1 + n });
+        p += n;
+    }
+    // An object's fields end where the next object starts (in a list, after a 0 byte before its
+    // class name; the readers read only the fields they know, so that byte does no harm).
+    for (let i = 0; i &lt; tokens.length; i++) {
+        const next = tokens[i + 1];
+        tokens[i].end = next == null ? buf.length : next.start;
+    }
+    return tokens;
+}
+
+/** Reads a z-Tree treatment (.ztt) from buf; returns its description (see the end of this function). */
+function readTreatment(buf) {
+    // z-Tree's text export (File → Export → Treatment), as GIMS is published: see ztext.js.
+    const ztext = require('./ztext.js');
+    if (ztext.isText(buf)) return ztext.readTextTreatment(buf);
+    const version = buf.readInt32LE(0);
+    const tokens = tokenize(buf);
+    if (tokens.length === 0 || tokens[0].cls !== 'CPGXGame') {
+        throw new ZttError('not a z-Tree treatment (no CPGXGame at its start)');
+    }
+    const warnings = [];
+    const reader = (t) => new Reader(buf, t.body, t.end);
+    // Bytes between a stage's timeout and its active screen's length, by file version.
+    const STAGE_OPTIONS = version &lt;= 16 ? 8 : version &lt;= 18 ? 13 : 17;
+    const BOX_EXTRA = version > 18 ? 1 : 0;
+
+    const game = { version, tables: [], background: newStage('Background'), stages: [], periods: [], subjects: [], params: [] };
+    readGameHeader(reader(tokens[0]), game);
+
+    function newStage(name) {
+        return { name, programs: [], timeout: '', options: [], showHeader: true, startIfPossible: false, timeoutAlways: false, active: [], waiting: [] };
+    }
+
+    // The tree, built from the objects' classes.
+    let stage = game.background;
+    let stageReader = null; // where the current stage's fields after its programs are
+    let activeLeft = null;  // boxes of the current stage's active screen still to come
+    let containers = [];    // open container boxes: {box, left}
+    let box = null;
+    let button = null;
+    // The plot box being read, and its graphs open: [{list, left}] (items still to come in each).
+    let plots = [];
+    let plotInput = null;
+    let lastPlotKind = null; // the last plot item read (its bytes after its fields differ by kind)
+    let lastInputReader = null; // the last plot input's reader, after its fields
+    let lastReader = null;  // the last object's reader, after its fields
+
+    /** The fields of a stage after its programs, read where they are (after its last program). */
+    function finishStageFields() {
+        if (stageReader == null) return;
+        const r = stageReader;
+        stageReader = null;
+        try {
+            // From file version 46 (z-Tree 5), another list's length (its table loaders?) comes first.
+            if (version >= 46) r.i32();
+            stage.timeout = r.str();
+            stage.options = [...buf.subarray(r.pos, r.pos + STAGE_OPTIONS)];
+            r.skip(STAGE_OPTIONS);
+            stageMeaning(stage, version);
+            activeLeft = r.i32();
+        } catch (err) {
+            warnings.push('stage ' + stage.name + ': ' + err.message);
+            activeLeft = Infinity;
+        }
+    }
+
+    function addBox(newBox) {
+        // A child of the innermost container with children to come; else a box of the stage's screens.
+        while (containers.length > 0 &amp;&amp; containers[containers.length - 1].left === 0) containers.pop();
+        if (containers.length > 0) {
+            containers[containers.length - 1].box.boxes.push(newBox);
+            containers[containers.length - 1].left--;
+        } else if (stage === game.background) {
+            (newBox.type === 'header' ? stage.active : stage.waiting).push(newBox);
+        } else {
+            finishStageFields();
+            if (activeLeft > 0) {
+                stage.active.push(newBox);
+                activeLeft--;
+            } else {
+                stage.waiting.push(newBox);
+            }
+        }
+        if (newBox.type === 'container') containers.push({ box: newBox, left: newBox.childCount });
+    }
+
+    // From file version 34, whether a button leaves the stage: after its checkers and programs
+    // (their counts, if it has none), byte 4 of its settings is 1 if it does not.
+    let buttonTail = null;
+    const settleButton = () => {
+        const b = buttonTail;
+        buttonTail = null;
+        if (b == null || lastReader == null || version &lt;= 18) return;
+        try {
+            const r = new Reader(buf, lastReader.pos, lastReader.end);
+            if (b.programs.length === 0) r.skip(b.checkers.length === 0 ? 8 : 4);
+            // Its settings: byte 2 is 1 if it leaves the stage (terminatestage), byte 4 if it does
+            // not (donotterminatestage); neither, as the box and the stage have it ("Normal").
+            r.skip(2);
+            const leaves = r.u8();
+            r.skip(1);
+            const stays = r.u8();
+            if (leaves === 1) b.leaveStage = true;
+            else if (stays === 1) b.leaveStage = false;
+        } catch (err) {
+            // Not there: the box's kind decides.
+        }
+    };
+
+    // A box's settings after its lists are in the bytes after its last object (its last item,
+    // or its last button's last checker or program).
+    let tailBox = null;
+    const settleTail = () => {
+        if (tailBox != null &amp;&amp; lastReader != null) {
+            tailBox.tailStrings = lastReader.strings();
+            // A plot box's range, and whether it keeps the plot's proportions (one scale for x and
+            // y: 1 in the 10 bytes before its range's strings, 0 to stretch the plot to the box).
+            if (tailBox.type === 'plot') {
+                const raw = buf.subarray(lastReader.pos, lastReader.end);
+                const found = [];
+                for (let p = 0; p &lt; raw.length;) {
+                    const n = raw[p];
+                    if (n >= 1 &amp;&amp; n &lt; 0xff &amp;&amp; p + 1 + n &lt;= raw.length &amp;&amp; raw.subarray(p + 1, p + 1 + n).every((c) => c >= 32 &amp;&amp; c &lt; 127)) {
+                        found.push(p);
+                        p += 1 + n;
+                    } else p++;
+                }
+                const first = found[found.length - 4];
+                if (first != null &amp;&amp; first >= 10) tailBox.keepAspect = raw[first - 10] === 1;
+            }
+        }
+        tailBox = null;
+    };
+
+    for (let i = 1; i &lt; tokens.length; i++) {
+        const t = tokens[i];
+        const r = reader(t);
+        if (buttonTail != null &amp;&amp; !(t.cls === 'EEXChecker' || (t.cls === 'EEXProgram' &amp;&amp; plotInput == null))) settleButton();
+        if (PLOT_CLASSES[t.cls] == null &amp;&amp; t.cls !== 'EEXProgram') closePlots(true);
+        if (BOX_CLASSES[t.cls] != null || /^EEX\w*Window$/.test(t.cls) || ['EEXStage', 'CPGXPeriodParam'].includes(t.cls)) settleTail();
+        try {
+            if (t.cls === 'EEXDatabaseInfo') {
+                // Its lifetime: the byte after its name (0 a period, 1 the treatment, 2 the session).
+                const name = r.str();
+                game.tables.push({ name, lifetime: ['PERIOD', 'TREATMENT', 'SESSION'][r.left > 0 ? r.u8() : 0] || 'PERIOD' });
+            } else if (t.cls === 'EEXProgram') {
+                const program = { table: r.str(), owner: r.str(), condition: r.str(), code: r.str() };
+                if (plotInput != null) plotInput.programs.push(program);
+                else if (button != null) button.programs.push(program);
+                else if (box != null &amp;&amp; box.type === 'chat') box.programs.push(program);
+                else if (box != null &amp;&amp; box.type === 'contractCreation' &amp;&amp; button == null) box.programs.push(program);
+                else {
+                    stage.programs.push(program);
+                    if (stage !== game.background) stageReader = r;
+                }
+            } else if (t.cls === 'EEXStage') {
+                finishStageFields();
+                stage = newStage(r.str());
+                game.stages.push(stage);
+                r.i32(); // its programs' count
+                stageReader = r;
+                activeLeft = null;
+                containers = [];
+                box = button = null;
+            } else if (BOX_CLASSES[t.cls] != null || /^EEX\w*Window$/.test(t.cls)) {
+                box = readBox(r, t.cls);
+                button = null;
+                plotInput = null;
+                plots = box.type === 'plot' ? [{ item: box, list: box.plotItems, left: box.plotCount, root: true }] : [];
+                addBox(box);
+                tailBox = box;
+            } else if (ITEM_CLASSES.has(t.cls)) {
+                const item = readItem(r);
+                if (box != null) box.items.push(item);
+            } else if (PLOT_CLASSES[t.cls] != null) {
+                closePlots(false);
+                const item = readPlotHead(r, PLOT_CLASSES[t.cls]);
+                const parent = plots[plots.length - 1];
+                if (parent != null) {
+                    parent.list.push(item);
+                    parent.left--;
+                }
+                if (item.kind === 'input') plotInput = item;
+                if (item.kind === 'graph') {
+                    plots.push({ item, list: item.items, left: item.count });
+                } else if (item.count > 0) {
+                    // Its plot inputs come first, then its own fields.
+                    plots.push({ item, list: item.inputs, left: item.count });
+                } else {
+                    readPlotFields(r, item);
+                    if (item.kind === 'input') lastInputReader = r;
+                }
+                lastPlotKind = item.kind;
+            } else if (t.cls === 'EEXChecker') {
+                const checker = readChecker(r);
+                if (button != null) button.checkers.push(checker);
+                else if (box != null) box.items.push(checker);
+            } else if (t.cls === 'EEXContractButton') {
+                button = readButton(r);
+                buttonTail = button;
+                if (box != null) box.buttons.push(button);
+            } else if (t.cls === 'CPGXPeriodParam') {
+                finishStageFields();
+                box = button = null;
+                game.periods.push({ name: r.str(), program: r.str() });
+            } else if (t.cls === 'CPGXRole') {
+                // From file version 46, a role is its name only.
+                const name = r.str();
+                game.subjects.push({ name, index: version >= 46 ? game.subjects.length : r.i32() });
+            } else if (t.cls === 'CPGXSubjectParam') {
+                const param = { label: r.str() };
+                // A role's own parameters (after the role, before file version 46) are its program
+                // only; the table's cells (period × subject) have a label, a group and a program.
+                if (version &lt; 46 &amp;&amp; lastToken(i).cls === 'CPGXRole') {
+                    game.subjects[game.subjects.length - 1].program = param.label;
+                } else if (r.left >= 5) {
+                    param.group = r.i32();
+                    param.program = r.str();
+                    game.params.push(param);
+                }
+            } else {
+                warnings.push('an object of class ' + t.cls + ' (at byte ' + t.start + ') is not read');
+            }
+        } catch (err) {
+            if (!(err instanceof ZttError)) throw err;
+            warnings.push(t.cls + ' at byte ' + t.start + ': ' + err.message);
+        }
+        lastReader = r;
+    }
+    settleButton();
+    closePlots(true);
+    settleTail();
+    finishStageFields();
+
+    function lastToken(i) { return tokens[i - 1]; }
+
+    /** A box's fields: its header (name, placement), and its type's own fields. */
+    function readBox(r, cls) {
+        const b = { type: BOX_CLASSES[cls] || 'unknown', cls, name: r.str(), items: [], buttons: [], boxes: [], programs: [] };
+        // Whether z-Leaf draws a frame round it.
+        b.frame = r.u8() !== 0;
+        b.options = [...buf.subarray(r.pos, r.pos + 8)];
+        r.skip(8);
+        b.condition = r.str();
+        b.left = r.str();
+        b.right = r.str();
+        b.width = r.str();
+        b.top = r.str();
+        b.bottom = r.str();
+        b.height = r.str();
+        // From file version 34 (z-Tree 3.5?), the display condition comes after the placement.
+        if (BOX_EXTRA) {
+            b.first = b.condition;
+            b.condition = r.str();
+        }
+        // From file version 46 (z-Tree 5), 4 more bytes before the kind's own fields.
+        if (version >= 46) r.skip(4);
+        if (b.type === 'container') {
+            b.childCount = r.i32();
+        } else if (b.type === 'plot') {
+            b.plotItems = [];
+            b.plotCount = r.i32();
+        } else if (b.type === 'help') {
+            b.title = r.str();
+            b.text = r.str();
+        } else if (b.type === 'header') {
+            r.skip(4);
+            b.texts = { period: r.str(), of: r.str(), trial: r.str(), time: r.str(), timeout: r.str() };
+        } else if (b.type === 'chat') {
+            b.table = r.str();
+            b.variable = r.str();
+            const rest = r.strings();
+            b.condition2 = rest.find((s) => s !== b.table) || '';
+            b.outputs = rest.filter((s) => s.includes('&lt;')).slice(0, 1);
+        }
+        // Settings after the box's lists (contract boxes' table, condition and sorting) are read
+        // later, loosely, from the bytes after its items (see settleBoxes).
+        b.tailStrings = [];
+        return b;
+    }
+
+    /**
+     * The plot items open (graphs, and items with plot inputs), whose fields come after their
+     * items: those with all their items read get their fields from the bytes after the last one
+     * (innermost first). all: close the plot box's too (another box, or a stage, comes next).
+     */
+    function closePlots(all) {
+        while (plots.length > 0 &amp;&amp; plots[plots.length - 1].left &lt;= 0) {
+            const open = plots.pop();
+            if (open.root) {
+                if (!all) plots.push(open);
+                break;
+            }
+            try {
+                if (open.item.kind === 'graph') {
+                    // From file version 46, a rect has 13 more bytes after its fields (before the
+                    // graph's, if it is the graph's last item).
+                    if (version >= 46 &amp;&amp; lastPlotKind === 'rect' &amp;&amp; lastReader.left >= 13) lastReader.skip(13);
+                    lastPlotKind = 'graph';
+                    // Its table and condition, and the line joining its points (color, width).
+                    open.item.table = lastReader.str() || 'globals';
+                    open.item.graphCondition = lastReader.str();
+                    lastReader.str();
+                    open.item.lineColor = lastReader.str();
+                    open.item.lineWidth = lastReader.str();
+                    if (lastReader.left >= 5) lastReader.skip(5);
+                } else {
+                    // Its fields, after its plot inputs: from file version 46, after the last
+                    // input's 11 bytes more (if no program of it came after them).
+                    if (version >= 46 &amp;&amp; lastPlotKind === 'input' &amp;&amp; lastReader === lastInputReader &amp;&amp; lastReader.left >= 11) lastReader.skip(11);
+                    readPlotFields(lastReader, open.item);
+                    lastPlotKind = open.item.kind;
+                }
+            } catch (err) {
+                warnings.push('plot item ' + open.item.kind + ': ' + err.message);
+            }
+        }
+        if (all) plots = [];
+    }
+
+    /** A plot item's name, display condition, and number of plot inputs (or, for a graph, items). */
+    function readPlotHead(r, kind) {
+        const item = { kind, name: r.str(), condition: r.str(), count: r.i32() };
+        if (kind === 'graph') item.items = [];
+        else item.inputs = [];
+        if (kind === 'input') item.programs = [];
+        return item;
+    }
+
+    /** A plot item's own fields (expressions, as text). */
+    function readPlotFields(r, item) {
+        const s = () => r.str();
+        switch (item.kind) {
+            case 'point':
+                Object.assign(item, { x: s(), y: s(), size: s(), corners: s(), rotation: s() });
+                item.spokes = r.u8() !== 0;
+                r.u8();
+                Object.assign(item, { lineColor: s(), lineWidth: s(), fillColor: s() });
+                break;
+            case 'line':
+                // The arrows' sizes at the start and the end, then their width (z-Tree 5's text export: arrowsize1, arrowsize2, arrowwidth).
+                Object.assign(item, { x1: s(), y1: s(), x2: s(), y2: s(), arrowStart: s(), arrowEnd: s(), arrowWidth: s() });
+                item.arrowFilled = r.u8() !== 0;
+                r.u8();
+                Object.assign(item, { lineColor: s(), lineWidth: s() });
+                break;
+            case 'rect':
+                Object.assign(item, { xCenter: s(), yCenter: s(), width: s(), height: s(), xLeft: s(), xRight: s(), yTop: s(), yBottom: s() });
+                Object.assign(item, { lineColor: s(), lineWidth: s(), fillColor: s() });
+                break;
+            case 'pie':
+                Object.assign(item, { x: s(), y: s(), rx: s(), ry: s(), angleStart: s(), angleEnd: s(), lineColor: s(), lineWidth: s(), fillColor: s() });
+                break;
+            case 'text':
+                Object.assign(item, { x: s(), y: s() });
+                s();
+                item.text = s();
+                item.hAlign = r.i32();
+                item.vAlign = r.i32();
+                r.u8();
+                item.color = s();
+                s();
+                item.fontSize = s();
+                break;
+            case 'axis':
+                item.horizontal = r.u8() !== 0;
+                r.u8();
+                Object.assign(item, { position: s(), from: s(), to: s(), tickStep: s() });
+                s(); s(); s();
+                Object.assign(item, { labelStep: s(), labelLayout: s(), caption: s(), lineColor: s(), lineWidth: s() });
+                break;
+            case 'input':
+                // What it takes: a click (0: a new record at the point), a click on an item (1: that
+                // item's record), or dragging an item (2: from x0, y0 to x1, y1).
+                item.action = r.i32();
+                r.skip(4);
+                Object.assign(item, { table: s(), xVar: s(), yVar: s() });
+                // A drag's variables: after 9 bytes (10 from file version 46).
+                if (r.left >= (version >= 46 ? 10 : 9)) {
+                    r.skip(version >= 46 ? 10 : 9);
+                    Object.assign(item, { x0Var: s(), y0Var: s(), x1Var: s(), y1Var: s() });
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    function readItem(r) {
+        const item = { kind: 'item', label: r.str(), variable: r.str() };
+        item.input = r.u8() !== 0;
+        r.skip(5);
+        item.min = r.str();
+        item.max = r.str();
+        item.layout = r.str();
+        // A contract box's settings come after its last item, among the item's display settings.
+        item.after = r.strings();
+        return item;
+    }
+
+    function readChecker(r) {
+        const checker = { kind: 'checker', label: r.str(), condition: r.str() };
+        r.skip(4);
+        checker.message = r.str();
+        r.u8();
+        checker.button = r.str();
+        return checker;
+    }
+
+    function readButton(r) {
+        r.skip(4);
+        return { name: r.str(), checkers: [], programs: [], after: r.strings() };
+    }
+
+    settleBoxes(game);
+    game.warnings = warnings;
+    return game;
+}
+
+/** The treatment's settings before its tables: the texts shown to bankrupt subjects, ... (loosely). */
+function readGameHeader(r, game) {
+    const strings = r.strings();
+    game.texts = strings;
+}
+
+/**
+ * Contract boxes' table, condition and sorting, from the strings after their last item (where
+ * z-Tree keeps them): [table, condition, sorting].
+ */
+function settleBoxes(game) {
+    const visit = (b) => {
+        if (b.type === 'plot') {
+            // Its range, after its items: x left and right, y bottom and top.
+            const [x1, x2, y1, y2] = (b.tailStrings || []).slice(-4);
+            b.range = { xLeft: x1 || '0', xRight: x2 || '100', yBottom: y1 || '0', yTop: y2 || '100' };
+        }
+        if (['contractList', 'contractCreation', 'history', 'grid'].includes(b.type)) {
+            const last = b.items.filter((i) => i.kind === 'item').pop();
+            const after = last != null &amp;&amp; last.after != null ? last.after : [];
+            b.table = after[0] || (b.type === 'history' ? 'subjects' : 'contracts');
+            // Its condition and sorting: after its buttons, or (with none) after the table's name.
+            let tail = b.tailStrings || [];
+            if (b.buttons.length === 0 &amp;&amp; tail[0] === b.table) tail = tail.slice(1);
+            // An owner variable (a variable's name) may come first; empty, it is not seen here.
+            const isName = (x) => /^\w+$/.test(x || '');
+            if (tail.length >= 2 &amp;&amp; isName(tail[0]) &amp;&amp; !isName(tail[1])) {
+                b.owner = tail[0];
+                tail = tail.slice(1);
+            }
+            b.tableCondition = b.type === 'contractList' ? (tail[0] || '') : '';
+            b.sorting = b.type === 'contractList' ? (tail[1] || '') : '';
+        }
+        for (const item of b.items) delete item.after;
+        for (const btn of b.buttons) delete btn.after;
+        b.boxes.forEach(visit);
+        delete b.tailStrings;
+    };
+    for (const s of [game.background, ...game.stages]) {
+        s.active.forEach(visit);
+        s.waiting.forEach(visit);
+    }
+}
+
+/**
+ * What a stage's option bytes mean, checked against z-Tree 5's text exports of the examples, and
+ * against treatments z-Tree 5 saved with each setting:
+ * - version 16 (z-Tree 3): options[0] bit 0, it starts as each subject gets there ("Start if
+ *   possible", not "Wait for all"); bit 2, it is left after its timeout always (an auction),
+ *   not only if there is no input; options[6], it shows the background's boxes (usesbg);
+ * - from version 18 (z-Tree 3.5, 5): options[0] is 1 if it waits for all, options[7] 1 if it is
+ *   an auction, options[11] usesbg.
+ */
+function stageMeaning(stage, version) {
+    const o = stage.options;
+    if (version &lt;= 16) {
+        stage.startIfPossible = (o[0] &amp; 1) === 1;
+        stage.showHeader = o[6] !== 0;
+        stage.timeoutAlways = (o[0] &amp; 4) === 4;
+    } else {
+        stage.startIfPossible = o[0] === 0;
+        stage.timeoutAlways = o[7] === 1;
+        stage.showHeader = o[11] !== 0;
+    }
+}
+
+module.exports = { readTreatment, tokenize, Reader, ZttError, decode };
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AdminAuth.html">AdminAuth</a></li><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="Data.html">Data</a></li><li><a href="Exit.html">Exit</a></li><li><a href="Group.html">Group</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="QueueRecorder.html">QueueRecorder</a></li><li><a href="Reader.html">Reader</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Run.html">Run</a></li><li><a href="Screens.html">Screens</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="Translator.html">Translator</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="global.html#start">start</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-4a-ztree.html">z-Tree treatments</a></li><li><a href="tutorial-4b-otree.html">oTree apps</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-other.html">Other</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ADMIN_LOGIN_REQUIRED">ADMIN_LOGIN_REQUIRED</a></li><li><a href="global.html#APP_HOOKS">APP_HOOKS</a></li><li><a href="global.html#STAGE_HOOKS">STAGE_HOOKS</a></li><li><a href="global.html#addToClass">addToClass</a></li><li><a href="global.html#allBoxes">allBoxes</a></li><li><a href="global.html#appCSV">appCSV</a></li><li><a href="global.html#appFile">appFile</a></li><li><a href="global.html#appInsertAt">appInsertAt</a></li><li><a href="global.html#appRoots">appRoots</a></li><li><a href="global.html#appTemplate">appTemplate</a></li><li><a href="global.html#appToIR">appToIR</a></li><li><a href="global.html#apply">apply</a></li><li><a href="global.html#applyIR">applyIR</a></li><li><a href="global.html#applySettings">applySettings</a></li><li><a href="global.html#arrayDeclarations">arrayDeclarations</a></li><li><a href="global.html#arrayIndex">arrayIndex</a></li><li><a href="global.html#assignedVariables">assignedVariables</a></li><li><a href="global.html#boolValue">boolValue</a></li><li><a href="global.html#botCases">botCases</a></li><li><a href="global.html#boxOptions">boxOptions</a></li><li><a href="global.html#chat">chat</a></li><li><a href="global.html#chatFor">chatFor</a></li><li><a href="global.html#check">check</a></li><li><a href="global.html#checkField">checkField</a></li><li><a href="global.html#checkForm">checkForm</a></li><li><a href="global.html#compileProgram">compileProgram</a></li><li><a href="global.html#compiled">compiled</a></li><li><a href="global.html#context">context</a></li><li><a href="global.html#contractList">contractList</a></li><li><a href="global.html#convertApp">convertApp</a></li><li><a href="global.html#convertTreatment">convertTreatment</a></li><li><a href="global.html#convertTreatmentFile">convertTreatmentFile</a></li><li><a href="global.html#copyDir">copyDir</a></li><li><a href="global.html#copyToPlayer">copyToPlayer</a></li><li><a href="global.html#creatingSessionBeforeArrival">creatingSessionBeforeArrival</a></li><li><a href="global.html#cut">cut</a></li><li><a href="global.html#decimals">decimals</a></li><li><a href="global.html#declared">declared</a></li><li><a href="global.html#dedent">dedent</a></li><li><a href="global.html#describeValue">describeValue</a></li><li><a href="global.html#dialectFor">dialectFor</a></li><li><a href="global.html#drawn">drawn</a></li><li><a href="global.html#encode">encode</a></li><li><a href="global.html#endSoon">endSoon</a></li><li><a href="global.html#errorPosition">errorPosition</a></li><li><a href="global.html#exportTables">exportTables</a></li><li><a href="global.html#exporter">exporter</a></li><li><a href="global.html#exportersFor">exportersFor</a></li><li><a href="global.html#expression">expression</a></li><li><a href="global.html#fail">fail</a></li><li><a href="global.html#file">file</a></li><li><a href="global.html#fillValues">fillValues</a></li><li><a href="global.html#findBox">findBox</a></li><li><a href="global.html#finite">finite</a></li><li><a href="global.html#formatText">formatText</a></li><li><a href="global.html#formatValue">formatValue</a></li><li><a href="global.html#fromDescription">fromDescription</a></li><li><a href="global.html#getBridge">getBridge</a></li><li><a href="global.html#grid">grid</a></li><li><a href="global.html#history">history</a></li><li><a href="global.html#inAppFolders">inAppFolders</a></li><li><a href="global.html#indent">indent</a></li><li><a href="global.html#indentBy">indentBy</a></li><li><a href="global.html#insertAfter">insertAfter</a></li><li><a href="global.html#isInteractive">isInteractive</a></li><li><a href="global.html#isProject">isProject</a></li><li><a href="global.html#isSessionsLastPage">isSessionsLastPage</a></li><li><a href="global.html#isText">isText</a></li><li><a href="global.html#isTextFile">isTextFile</a></li><li><a href="global.html#itemCell">itemCell</a></li><li><a href="global.html#itemsTable">itemsTable</a></li><li><a href="global.html#jsonErrorPosition">jsonErrorPosition</a></li><li><a href="global.html#lanAddress">lanAddress</a></li><li><a href="global.html#lastFirst">lastFirst</a></li><li><a href="global.html#layoutEnd">layoutEnd</a></li><li><a href="global.html#layoutParts">layoutParts</a></li><li><a href="global.html#leaveIfAsked">leaveIfAsked</a></li><li><a href="global.html#leavesStage">leavesStage</a></li><li><a href="global.html#legacyValue">legacyValue</a></li><li><a href="global.html#lines">lines</a></li><li><a href="global.html#loadPackagesFor">loadPackagesFor</a></li><li><a href="global.html#measure">measure</a></li><li><a href="global.html#memberAssignment">memberAssignment</a></li><li><a href="global.html#model">model</a></li><li><a href="global.html#mountProject">mountProject</a></li><li><a href="global.html#newTreatment">newTreatment</a></li><li><a href="global.html#normalizeCode">normalizeCode</a></li><li><a href="global.html#openUrl">openUrl</a></li><li><a href="global.html#owner">owner</a></li><li><a href="global.html#packageFor">packageFor</a></li><li><a href="global.html#pageTimesCSV">pageTimesCSV</a></li><li><a href="global.html#paramCell">paramCell</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseExpr">parseExpr</a></li><li><a href="global.html#parseLayout">parseLayout</a></li><li><a href="global.html#parseQueueId">parseQueueId</a></li><li><a href="global.html#place">place</a></li><li><a href="global.html#plot">plot</a></li><li><a href="global.html#plotInput">plotInput</a></li><li><a href="global.html#plotItemAt">plotItemAt</a></li><li><a href="global.html#prefixHtmlUrls">prefixHtmlUrls</a></li><li><a href="global.html#pressButton">pressButton</a></li><li><a href="global.html#program">program</a></li><li><a href="global.html#programItems">programItems</a></li><li><a href="global.html#putApp">putApp</a></li><li><a href="global.html#putSettings">putSettings</a></li><li><a href="global.html#py">py</a></li><li><a href="global.html#queueId">queueId</a></li><li><a href="global.html#queueScript">queueScript</a></li><li><a href="global.html#quote">quote</a></li><li><a href="global.html#quotedEnd">quotedEnd</a></li><li><a href="global.html#readGameHeader">readGameHeader</a></li><li><a href="global.html#readQuestionnaires">readQuestionnaires</a></li><li><a href="global.html#readScreen">readScreen</a></li><li><a href="global.html#readTextQuestionnaires">readTextQuestionnaires</a></li><li><a href="global.html#readTextTreatment">readTextTreatment</a></li><li><a href="global.html#readTreatment">readTreatment</a></li><li><a href="global.html#ready">ready</a></li><li><a href="global.html#refresh">refresh</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#reload">reload</a></li><li><a href="global.html#renderScreen">renderScreen</a></li><li><a href="global.html#reportMarkdown">reportMarkdown</a></li><li><a href="global.html#rooms">rooms</a></li><li><a href="global.html#router">router</a></li><li><a href="global.html#rtfToText">rtfToText</a></li><li><a href="global.html#run">run</a></li><li><a href="global.html#runAppCode">runAppCode</a></li><li><a href="global.html#runBots">runBots</a></li><li><a href="global.html#runOf">runOf</a></li><li><a href="global.html#runZtreeBots">runZtreeBots</a></li><li><a href="global.html#scan">scan</a></li><li><a href="global.html#screen">screen</a></li><li><a href="global.html#sessionConfigs">sessionConfigs</a></li><li><a href="global.html#settleBoxes">settleBoxes</a></li><li><a href="global.html#stageDeclaration">stageDeclaration</a></li><li><a href="global.html#stageMeaning">stageMeaning</a></li><li><a href="global.html#stageVariable">stageVariable</a></li><li><a href="global.html#statementRange">statementRange</a></li><li><a href="global.html#str">str</a></li><li><a href="global.html#subjectIndex">subjectIndex</a></li><li><a href="global.html#submitGeneric">submitGeneric</a></li><li><a href="global.html#substitutionAt">substitutionAt</a></li><li><a href="global.html#syntaxErrors">syntaxErrors</a></li><li><a href="global.html#tableRecords">tableRecords</a></li><li><a href="global.html#tablesChangedTimers">tablesChangedTimers</a></li><li><a href="global.html#template">template</a></li><li><a href="global.html#templateLiteral">templateLiteral</a></li><li><a href="global.html#templates">templates</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#textParts">textParts</a></li><li><a href="global.html#toTreatment">toTreatment</a></li><li><a href="global.html#tokenize">tokenize</a></li><li><a href="global.html#topInsert">topInsert</a></li><li><a href="global.html#treatmentFile">treatmentFile</a></li><li><a href="global.html#unindent">unindent</a></li><li><a href="global.html#urlFor">urlFor</a></li><li><a href="global.html#validate">validate</a></li><li><a href="global.html#value">value</a></li><li><a href="global.html#valueFor">valueFor</a></li><li><a href="global.html#valueKind">valueKind</a></li><li><a href="global.html#valueSource">valueSource</a></li><li><a href="global.html#variables">variables</a></li><li><a href="global.html#whenReady">whenReady</a></li><li><a href="global.html#wideCSV">wideCSV</a></li><li><a href="global.html#withBlocks">withBlocks</a></li><li><a href="global.html#withStatics">withStatics</a></li><li><a href="global.html#write">write</a></li><li><a href="global.html#zTreeRules">zTreeRules</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Oct 14 2026 09:40:18 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -3,7 +3,7 @@ import { state, refreshAdmin, socket } from './server/connection'
 import { downloadOutputUrl, leafUrl, server } from './server/commands'
 import { clients, isActive, monitor, restoreClientOrder, saveClientOrder, shuffleClients, sortClients, windowCommands } from './clients'
 import { messageBox, showDialog } from './dialogs'
-import { closeDoc, docs, findNode, isDirty, markSaved, newDoc, openDoc, setSource } from './treatment/docs'
+import { closeDoc, docs, fileName, findNode, isDirty, markSaved, newDoc, openDoc, setSource } from './treatment/docs'
 import type { TreatmentDoc } from './treatment/docs'
 import { newStageCode, parseTreatment, replaceRange, stageVariable } from './treatment/parse'
 import type { TreeNode } from './treatment/parse'
@@ -21,6 +21,11 @@ import RestoreSessionDialog from './dialogs/RestoreSessionDialog.vue'
 import LeafDialog from './dialogs/LeafDialog.vue'
 import AddressDialog from './dialogs/AddressDialog.vue'
 import AboutDialog from './dialogs/AboutDialog.vue'
+import ZNodeDialog from './dialogs/ZNodeDialog.vue'
+import { zeditor } from './server/editor'
+import { changeZ, isZtreeFile, markZSaved, newZDoc, openZDoc, redoZ, selectedPath, undoZ } from './treatment/zdocs'
+import { BOXES, PLOTS, at, clone, fitParameterTable, newNode, pathId, placeFor, tablesOf } from './treatment/znodes'
+import type { ZNode, ZPath } from './treatment/znodes'
 
 /*
  * What the menus, the toolbar and the keyboard do. Each command acts the way
@@ -39,17 +44,40 @@ export function say(text: string) {
 
 /* ------------------------------------------------------------------ File */
 
-export function newTreatment() {
+/** File → New Treatment: z-Tree's new treatment (its background, no stages yet). */
+export async function newTreatment() {
+  try {
+    const doc = await newZDoc()
+    openWindow(`treatment:${doc.key}`)
+  } catch (err) {
+    await messageBox(`A new treatment could not be made: ${(err as Error).message}`, { icon: 'stop' })
+  }
+}
+
+/** File → New jtree App: a jtree app (.jtt), shown as a treatment. */
+export function newJtreeTreatment() {
   const doc = newDoc()
   openWindow(`treatment:${doc.key}`)
 }
 
 export async function openTreatmentDialog() {
   const appId = await showDialog<string>(OpenDialog)
-  if (appId) openTreatment(appId)
+  if (appId) void openTreatment(appId)
 }
 
-export function openTreatment(appId: string) {
+export async function openTreatment(appId: string) {
+  const path = state.apps[appId]?.appPath || appId
+  if (isZtreeFile(path)) {
+    try {
+      const doc = await openZDoc(appId, path)
+      rememberRecent(appId)
+      openWindow(`treatment:${doc.key}`)
+      if (doc.z?.format === 'binary') say(`${doc.name} is in z-Tree's binary format: Save writes it as text, to ${fileName(doc.z.savePath ?? '')}`)
+    } catch (err) {
+      await messageBox(`${fileName(path)} could not be opened: ${(err as Error).message}`, { icon: 'stop' })
+    }
+    return
+  }
   const doc = openDoc(appId)
   if (!doc) {
     void messageBox(`The file ${appId} could not be found.`, { icon: 'stop' })
@@ -82,6 +110,7 @@ export function closeFront() {
 }
 
 export async function saveDoc(doc: TreatmentDoc, saveAs = false): Promise<boolean> {
+  if (doc.z) return saveZDoc(doc, saveAs)
   if (doc.readOnly && !saveAs) {
     await messageBox(`${doc.name} is a folder app, which this interface cannot write back as one file. Use File → Save As… to save it as a new .jtt file.`, { icon: 'info' })
     return false
@@ -115,19 +144,21 @@ async function writeDoc(doc: TreatmentDoc, appId: string, name: string): Promise
     return false
   }
   markSaved(doc, appId, name)
-  if (oldKey !== doc.key) {
-    // The window is now the saved file's.
-    const at = workspace.layout.frames.findIndex((f) => f.node.kind === 'group' && f.node.panels.includes(`treatment:${oldKey}`))
-    if (at !== -1) {
-      const frames = [...workspace.layout.frames]
-      const held = frames[at]
-      frames[at] = { ...held, node: { ...held.node, panels: [`treatment:${doc.key}`], active: `treatment:${doc.key}` } as typeof held.node }
-      workspace.layout = { ...workspace.layout, frames }
-    }
-  }
+  rebindWindow(oldKey, doc.key)
   rememberRecent(appId)
   say(`Saved ${name}`)
   return true
+}
+
+/** After a save under another name, the treatment's window is the saved file's. */
+function rebindWindow(oldKey: string, newKey: string) {
+  if (oldKey === newKey) return
+  const at = workspace.layout.frames.findIndex((f) => f.node.kind === 'group' && f.node.panels.includes(`treatment:${oldKey}`))
+  if (at === -1) return
+  const frames = [...workspace.layout.frames]
+  const held = frames[at]
+  frames[at] = { ...held, node: { ...held.node, panels: [`treatment:${newKey}`], active: `treatment:${newKey}` } as typeof held.node }
+  workspace.layout = { ...workspace.layout, frames }
 }
 
 /** The app saved under `apps/<name>`. */
@@ -154,8 +185,18 @@ function download(name: string, text: string) {
   setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 
-export function exportTreatment() {
+export async function exportTreatment() {
   const doc = frontTreatment.value
+  if (doc?.z) {
+    // File → Export Treatment…: z-Tree's text format, which z-Tree imports (File → Import…).
+    try {
+      const { text } = await zeditor.text(doc.z.root)
+      download(`${doc.name.replace(/\.(ztt|txt)$/i, '')}.txt`, text)
+    } catch (err) {
+      await messageBox((err as Error).message, { icon: 'stop' })
+    }
+    return
+  }
   if (doc) download(/\.(jtt|js)$/i.test(doc.name) ? doc.name : `${doc.name}.jtt`, doc.source)
 }
 
@@ -190,10 +231,20 @@ function nodeRange(doc: TreatmentDoc, node: TreeNode | null) {
 }
 
 export function canCutTree(doc: TreatmentDoc): boolean {
+  if (doc.z) return isMovable(doc)
   return !doc.readOnly && nodeRange(doc, selectedNode(doc)) != null
 }
 
 export function copyTree(doc: TreatmentDoc) {
+  if (doc.z) {
+    const path = selectedPath(doc)
+    const node = path && at(doc.z.root, path)
+    if (!node || !path.length) return
+    zClipboard = clone(node)
+    void navigator.clipboard?.writeText(JSON.stringify(node))
+    say('Copied')
+    return
+  }
   const range = nodeRange(doc, selectedNode(doc))
   if (!range) return
   clipboard = doc.source.slice(range.start, range.end)
@@ -202,6 +253,13 @@ export function copyTree(doc: TreatmentDoc) {
 }
 
 export function cutTree(doc: TreatmentDoc) {
+  if (doc.z) {
+    if (!canCutTree(doc)) return
+    copyTree(doc)
+    deleteTree(doc, false)
+    say('Cut')
+    return
+  }
   const range = nodeRange(doc, selectedNode(doc))
   if (!range || doc.readOnly) return
   clipboard = doc.source.slice(range.start, range.end)
@@ -215,10 +273,15 @@ export function cutTree(doc: TreatmentDoc) {
 }
 
 export function canPasteTree(doc: TreatmentDoc): boolean {
+  if (doc.z) return zClipboard != null
   return !doc.readOnly && clipboard !== ''
 }
 
 export function pasteTree(doc: TreatmentDoc) {
+  if (doc.z) {
+    if (zClipboard) void insertZ(doc, clone(zClipboard), false)
+    return
+  }
   if (!clipboard || doc.readOnly) return
   const at = insertionPoint(doc)
   setSource(doc, `${doc.source.slice(0, at)}\n${clipboard}${doc.source.slice(at)}`)
@@ -280,6 +343,11 @@ export async function parameterTable(doc: TreatmentDoc) {
 }
 
 export async function info(doc: TreatmentDoc, nodeId?: string) {
+  if (doc.z) {
+    if (nodeId) doc.selected = nodeId
+    await zInfo(doc)
+    return
+  }
   const node = findNode(doc.treatment.tree, nodeId ?? doc.selected ?? 'bg')
   if (!node) return
   const ro = doc.readOnly
@@ -347,6 +415,7 @@ export function frontInfo() {
 
 export async function newStage() {
   const doc = frontTreatment.value
+  if (doc?.z) return zNew('stage')
   if (!doc || doc.readOnly) return
   const taken = new Set(doc.treatment.stages.map((s) => s.varName))
   const names = new Set(doc.treatment.stages.map((s) => s.id))
@@ -369,6 +438,7 @@ export async function newStage() {
 
 export async function newProgram() {
   const doc = frontTreatment.value
+  if (doc?.z) return zNew('program')
   if (!doc || doc.readOnly) return
   const node = selectedNode(doc)
   const stage = node?.stageVar
@@ -385,6 +455,19 @@ export function expandAll() {
 /** Treatment → Check: z-Tree reports the first error, or that there is none. */
 export async function check(doc = frontTreatment.value) {
   if (!doc) return
+  if (doc.z) {
+    try {
+      const { errors, stages } = await zeditor.check(doc.z.root)
+      if (errors.length) {
+        await messageBox(`${errors.length} syntax error${errors.length === 1 ? '' : 's'}:\n${errors.slice(0, 12).map((e) => `${e.where}: ${e.message}`).join('\n')}`, { icon: 'stop', title: 'Check' })
+      } else {
+        await messageBox(stages ? `No syntax errors found. ${stages} stage${stages === 1 ? '' : 's'}.` : 'No syntax errors found, but the treatment has no stages.', { icon: 'info', title: 'Check' })
+      }
+    } catch (err) {
+      await messageBox((err as Error).message, { icon: 'stop', title: 'Check' })
+    }
+    return
+  }
   const error = doc.treatment.error
   if (error) {
     await messageBox(`Syntax error in line ${error.line}, column ${error.column + 1}:\n${error.message}`, { icon: 'stop', title: 'Check' })
@@ -575,3 +658,160 @@ export async function reloadTreatments() {
 export function about() {
   void showDialog(AboutDialog)
 }
+
+/* --------------------------------------------- z-Tree treatments (text) */
+
+let zClipboard: ZNode | null = null
+
+/**
+ * Saves a z-Tree treatment in z-Tree's text format. One read from z-Tree's binary format is
+ * written beside it as a .txt (jtree runs that as it is; z-Tree opens it with File → Import…).
+ */
+async function saveZDoc(doc: TreatmentDoc, saveAs: boolean): Promise<boolean> {
+  const z = doc.z!
+  let path = z.savePath
+  if (z.format === 'binary' && !saveAs && path) {
+    const answer = await messageBox(
+      `${doc.name} is in z-Tree's binary format, which jtree reads but does not write.\n\nSave writes the treatment in z-Tree's text format, to ${fileName(path)}, beside it: jtree runs it as it is, and z-Tree opens it with File → Import…` +
+        (z.savePathExists ? `\n\n${fileName(path)} is there already, and is replaced.` : ''),
+      { icon: 'info', buttons: ['Cancel', `Save as ${fileName(path)}`] },
+    )
+    if (answer !== `Save as ${fileName(path)}`) return false
+  }
+  if (!path || saveAs) {
+    const base = doc.name.replace(/^Untitled Treatment (\d+)$/, 'treatment$1').replace(/\.(ztt|txt|jtt)$/i, '').replace(/\s+/g, '-').toLowerCase()
+    const name = await showDialog<string>(SaveAsDialog, { name: `${base}${saveAs && z.savePath ? '-copy' : ''}.txt`, kind: 'ztree' })
+    if (!name) return false
+    if (Object.values(state.apps).some((a) => sameFile(a.appPath, name))) {
+      const answer = await messageBox(`${name} already exists.\nDo you want to replace it?`, { icon: 'warning', buttons: ['No', 'Yes'] })
+      if (answer !== 'Yes') return false
+    }
+    path = name
+  }
+  try {
+    const saved = await zeditor.save(path, z.root)
+    await server.reloadApps()
+    const app = Object.values(state.apps).find((a) => sameFile(a.appPath, saved.appPath))
+    const oldKey = doc.key
+    markZSaved(doc, app?.id ?? null, saved.appPath)
+    rebindWindow(oldKey, doc.key)
+    if (app) rememberRecent(app.id)
+    say(`Saved ${fileName(saved.appPath)}`)
+    return true
+  } catch (err) {
+    await messageBox(`${fileName(path)} could not be saved: ${(err as Error).message}`, { icon: 'stop' })
+    return false
+  }
+}
+
+/** Whether an app's path is the file at path (absolute, or under the apps folder). */
+function sameFile(appPath: string | undefined, path: string): boolean {
+  if (!appPath) return false
+  const a = appPath.replace(/\\/g, '/')
+  const b = path.replace(/\\/g, '/').replace(/^\/+/, '')
+  return a === path.replace(/\\/g, '/') || a.endsWith(`/${b}`)
+}
+
+/** Treatment → Info… (or a double-click) on an element of a z-Tree treatment: its dialog. */
+async function zInfo(doc: TreatmentDoc) {
+  const path = selectedPath(doc)
+  if (!path || !path.length) return
+  const node = at(doc.z!.root, path)!
+  if (['roles', 'role', 'period', 'subject'].includes(node.kind)) return
+  const result = await showDialog<ZNode>(ZNodeDialog, { node, tables: tablesOf(doc.z!.root) })
+  if (!result) return
+  changeZ(doc, (root) => {
+    const parent = at(root, path.slice(0, -1))!
+    parent.items[path[path.length - 1]] = { node: result }
+    if (result.kind === 'background') fitParameterTable(root)
+  })
+  say(`${result.kind === 'background' ? 'Background' : result.name || result.kind} changed`)
+}
+
+/** What a new element of kind goes into, said when the selection is not in one. */
+const GOES_IN: Record<string, string> = {
+  stage: 'the treatment', table: 'the Background', program: 'the Background, a stage, a box or a button', screen: 'a stage',
+  item: 'a box', button: 'a box', checker: 'a button', plotinput: 'a plot item', box: 'a screen or a container box', plot: 'a plot box or a plot graph',
+}
+
+/** Treatment → New …: an element of kind where the selection says, after its dialog's OK. */
+export async function zNew(kind: string) {
+  const doc = frontTreatment.value
+  if (!doc?.z) return
+  const node = newNode(kind, tablesOf(doc.z.root))
+  if (kind === 'stage') {
+    const names = new Set(doc.treatment.stages.map((s) => s.id))
+    let name = 'stage'
+    for (let i = 2; names.has(name); i++) name = `stage ${i}`
+    node.name = name
+  }
+  const result = await showDialog<ZNode>(ZNodeDialog, { node, isNew: true, tables: tablesOf(doc.z.root) })
+  if (result) await insertZ(doc, result, true)
+}
+
+/** Puts node into the treatment where the selection says, and selects it. */
+async function insertZ(doc: TreatmentDoc, node: ZNode, isNew: boolean): Promise<boolean> {
+  const z = doc.z!
+  const selected = selectedPath(doc) ?? [z.root.items.findIndex((i) => i.node?.kind === 'background')]
+  const place = placeFor(z.root, selected, node.kind)
+  if (!place) {
+    const what = /box$/.test(node.kind) ? 'box' : /^plot/.test(node.kind) && node.kind !== 'plotinput' ? 'plot' : node.kind
+    await messageBox(`A ${isNew ? 'new ' : ''}${node.kind} goes in ${GOES_IN[what] ?? 'something else'}: select that, or something in it, first.`, { icon: 'info' })
+    return false
+  }
+  changeZ(doc, (root) => at(root, place.parent)!.items.splice(place.index, 0, { node }))
+  doc.selected = pathId([...place.parent, place.index])
+  say(isNew ? `New ${BOXES[node.kind] ? `${BOXES[node.kind].toLowerCase()} box` : PLOTS[node.kind]?.toLowerCase() ?? node.kind}` : 'Pasted')
+  return true
+}
+
+/** Whether the selection is an element that can be cut, deleted or moved (not the Background). */
+function isMovable(doc: TreatmentDoc): boolean {
+  const path = selectedPath(doc)
+  const node = path && at(doc.z!.root, path)
+  return Boolean(node && path!.length && node.kind !== 'background' && !(path!.length === 1 && node.kind === 'treatment'))
+}
+
+/** Edit → Delete: the selected element goes. */
+export function deleteTree(doc: TreatmentDoc, tell = true) {
+  if (!doc.z || !isMovable(doc)) return
+  const path = selectedPath(doc)!
+  changeZ(doc, (root) => at(root, path.slice(0, -1))!.items.splice(path[path.length - 1], 1))
+  // The one before it (or its parent) is selected then.
+  const parent = at(doc.z.root, path.slice(0, -1))!
+  let i = path[path.length - 1] - 1
+  while (i >= 0 && !parent.items[i].node) i--
+  doc.selected = i >= 0 ? pathId([...path.slice(0, -1), i]) : pathId(path.slice(0, -1))
+  if (tell) say('Deleted')
+}
+
+/** Edit → Move Up / Move Down: the selected element changes places with the one before or after it. */
+export function moveTree(doc: TreatmentDoc, by: -1 | 1) {
+  if (!doc.z || !isMovable(doc)) return
+  const path = selectedPath(doc)!
+  const parent = at(doc.z.root, path.slice(0, -1))!
+  const from = path[path.length - 1]
+  let to = from + by
+  while (to >= 0 && to < parent.items.length && !parent.items[to].node) to += by
+  const other = parent.items[to]?.node
+  if (!other || other.kind === 'background' || ['roles', 'period'].includes(other.kind)) return
+  changeZ(doc, (root) => {
+    const p = at(root, path.slice(0, -1))!
+    ;[p.items[from], p.items[to]] = [p.items[to], p.items[from]]
+  })
+  doc.selected = pathId([...path.slice(0, -1), to])
+}
+
+export function canMoveTree(doc: TreatmentDoc | null): boolean {
+  return Boolean(doc?.z && isMovable(doc))
+}
+
+export function undoTree(doc: TreatmentDoc | null) {
+  if (doc?.z && undoZ(doc)) say('Undone')
+}
+
+export function redoTree(doc: TreatmentDoc | null) {
+  if (doc?.z && redoZ(doc)) say('Redone')
+}
+
+export type { ZPath }

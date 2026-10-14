@@ -4,6 +4,7 @@ import { parseTreatment } from './parse'
 import type { Treatment, TreeNode } from './parse'
 import { zttTreatment } from './ztt'
 import type { ZttTreatment } from './ztt'
+import type { ZDoc } from './znodes'
 
 /*
  * The treatments open in windows. Each holds its source as last read or
@@ -28,6 +29,8 @@ export interface TreatmentDoc {
   readOnly: boolean
   /** A z-Tree treatment's description, for one from a .ztt file. */
   ztt?: ZttTreatment
+  /** A z-Tree treatment edited as z-Tree edits it (see zdocs.ts). */
+  z?: ZDoc
 }
 
 export const docs = reactive<Record<string, TreatmentDoc>>({})

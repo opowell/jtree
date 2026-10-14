@@ -28,12 +28,13 @@ Everyone then logs in at `/admin/login`, on this computer too.
 ![](adminUI.png)
 
 #### Features
-- functions, objects.
-- subjects not required to run separate program / use Windows.
-- server runs natively on Windows, MacOS and Linux.
-- autoplay for testing.
-- treatment options: facilitate switching between important parameter configurations of a treatment.
-- session queues: save sequences of treatments (including their options) for re-use.
+- participants only need a browser; the server runs on Windows, macOS and Linux.
+- apps in Javascript, with an app editor in the admin.
+- runs z-Tree treatments and oTree apps as they are, edits them as z-Tree and oTree Studio do, and converts them to jtree apps.
+- three admin interfaces: jtree's own, one laid out after z-Tree, and one after oTree's.
+- autoplay and bots for testing.
+- rooms: permanent links for participants.
+- queues: sequences of apps, with their options, for re-use.
 
 #### <a href='https://opowell.github.io/jtree/reference/tutorial-1-quick-start.html'>Quick start</a>
 
@@ -42,6 +43,10 @@ Everyone then logs in at `/admin/login`, on this computer too.
 #### <a href='https://opowell.github.io/jtree/reference/tutorial-3-running-a-session.html'>Running a session</a>
 
 #### <a href='https://opowell.github.io/jtree/reference/tutorial-4-designing-an-app.html'>Designing an app</a>
+
+#### <a href='https://opowell.github.io/jtree/reference/tutorial-4a-ztree.html'>z-Tree treatments</a>
+
+#### <a href='https://opowell.github.io/jtree/reference/tutorial-4b-otree.html'>oTree apps</a>
 
 #### <a href='https://opowell.github.io/jtree/reference/tutorial-7-release-notes.html'>Release notes</a>
 
@@ -79,8 +84,10 @@ Open http://localhost:3000/admin/ (or the next free port, which the launcher pri
 | `vendor/jas/` | JAS (submodule) |
 | `start.sh`, `start.command`, `start.cmd` | Run JAS on this repo's `apps/` folder |
 | `scripts/` | `find-port.js`, which the launchers use to pick a free port, and `kill-port.sh`, which runs JAS's |
-| `client/internal/clients/admin/v2/` | The admin interface (admin2), served at `/admin/` with no build step. The older one is at `/admin/multiuser/`. |
-| `client/internal/clients/admin/ztree/` | An admin interface laid out after z-Tree, at `/admin/ztree/`, also with no build step |
+| `client/internal/clients/admin/v2/` | The admin interface (admin2), served at `/admin/` with no build step, with jtree's own app editor. The older one is at `/admin/multiuser/`. |
+| `client/internal/clients/admin/ztree/` | An admin interface laid out after z-Tree, at `/admin/ztree/`, also with no build step; it edits z-Tree treatments as z-Tree does |
+| `client/internal/clients/admin/otree/` | An admin interface for oTree users, at `/admin/otree/`, with a Studio that edits oTree projects as oTree Studio does |
+| `server/source/editors/` | What the three app editors ask the server (`/api/editor/<jtree, ztree or otree>/…`): files read into their parts, edits made in place, files written |
 
 The launchers (and the release archives, which use them) make jtree JAS's default app (`JAS_DEFAULT_APP=jtree`), so jtree has the server to itself and serves everything from the root: the admin (`/admin/`), participant links (`/P1`, `/session/<id>/P1`), shared files and socket.io.
 
@@ -103,10 +110,22 @@ To change the route, set `route` in [apps/jtree/settings.json](apps/jtree/settin
    1. cd client
    2. node ../server/source/jtree.js
 4. Admin interfaces: edit the files in `client/internal/clients/admin/v2/` (or `ztree/`) and reload the page; there is no build step. See [admin2's README](client/internal/clients/admin/v2/README.md) and [admin-ztree's](client/internal/clients/admin/ztree/README.md).
-5. Tests: `cd server && pnpm test`. They start jtree headless with a throwaway data folder and play apps with bots (see [server/test/harness.js](server/test/harness.js)); set `JTREE_TEST_VERBOSE=1` to see jtree's log. They also run on every push ([.github/workflows/test.yml](.github/workflows/test.yml)).
+5. Documentation: edit the Markdown in `doc-pages/`, then build the HTML (see below). Changes that users can see go into the documentation in the same commit.
+6. Tests: `cd server && pnpm test`. They start jtree headless with a throwaway data folder and play apps with bots (see [server/test/harness.js](server/test/harness.js)); set `JTREE_TEST_VERBOSE=1` to see jtree's log. They also run on every push ([.github/workflows/test.yml](.github/workflows/test.yml)).
 
 #### Releasing
 1. Set the version in [server/package.json](server/package.json) and commit.
 2. Push a tag `v<version>`, e.g. `git tag v0.9.0 && git push origin v0.9.0`. [.github/workflows/release.yml](.github/workflows/release.yml) builds the archives and publishes the release.
 
 To build the archives locally (needs git, pnpm, zip, tar and an internet connection): `node build-tools/build-release.mjs`, or `--targets darwin-arm64` for one platform. They go to `dist/`.
+
+#### Documentation
+The documentation at [opowell.github.io/jtree](https://opowell.github.io/jtree) is written in Markdown in `doc-pages/` (its order and titles in `doc-pages/table-of-contents.json`), and built to HTML with jsdoc, together with the reference from the server's comments:
+
+```sh
+rm -rf client/internal/docs
+npx jsdoc@4.0.4 -c build-tools/jsdoc-config.json   # writes client/internal/docs/, served at /help.html
+rm -rf docs/reference && cp -R client/internal/docs docs/reference   # the website's copy
+```
+
+`docs/README.md` is the website's front page.

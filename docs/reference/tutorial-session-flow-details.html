@@ -36,15 +36,18 @@
 <li><code>periodIndex = 0</code></li>
 <li><code>stageIndex = 0</code></li>
 </ul>
-<h3>Session start / advance slowest</h3><p>For each of slowest participants in the session, the participant moves to their next stage.</p>
-<h3>Participant moves to their next stage</h3><p>FUNCTION: <a href="Participant.html#moveToNextStage"><code>Participant.moveToNextStage()</code></a></p>
+<h3>Session start / advance slowest</h3>
+<p>For each of slowest participants in the session, the participant moves to their next stage.</p>
+<h3>Participant moves to their next stage</h3>
+<p>FUNCTION: <a href="Participant.html#moveToNextStage"><code>Participant.moveToNextStage()</code></a></p>
 <p>If participant is in a stage, participant's player attempts to end their current stage.</p>
 <p>Otherwise, participant starts their first app.</p>
 <p>DUE TO:</p>
 <ul>
 <li>session start / advance slowest.</li>
 </ul>
-<h3>Participant starts an app</h3><p>FUNCTION: <a href="App.html#participantBegin"><code>App.participantBegin()</code></a></p>
+<h3>Participant starts an app</h3>
+<p>FUNCTION: <a href="App.html#participantBegin"><code>App.participantBegin()</code></a></p>
 <p>If <code>app.started</code> is <code>false</code>, evaluate the app's <code>app.js</code> file. Set <code>app.started</code> to <code>true</code>.</p>
 <p>Call <a href="App.html#participantStart"><code>App.participantStart(participant)</code></a>.</p>
 <p>Participant starts the first period of the app.</p>
@@ -53,19 +56,24 @@
 <li>session start</li>
 <li>player ends a stage</li>
 </ul>
-<h3>Participant starts a period.</h3><p>If this is the first participant to start this period, initialize the period (create players, assign players to groups).</p>
+<h3>Participant starts a period.</h3>
+<p>If this is the first participant to start this period, initialize the period (create players, assign players to groups).</p>
 <p>Participant's player attempts to start first stage.</p>
 <p>DUE TO:</p>
 <ul>
 <li>participant starting an app</li>
 <li>player ending a stage</li>
 </ul>
-<h3>Player attempts to start a stage</h3><ol>
-<li><p><a href="Player.html#status"><code>player.status</code></a> is set to <code>'ready'</code>.</p>
+<h3>Player attempts to start a stage</h3>
+<ol>
+<li>
+<p><a href="Player.html#status"><code>player.status</code></a> is set to <code>'ready'</code>.</p>
 </li>
-<li><p>Group attempts to start the stage.</p>
+<li>
+<p>Group attempts to start the stage.</p>
 </li>
-<li><p>If <a href="Stage.html#waitToStart"><code>Stage.waitToStart</code></a> is <code>false</code>, player starts the stage.</p>
+<li>
+<p>If <a href="Stage.html#waitToStart"><code>Stage.waitToStart</code></a> is <code>false</code>, player starts the stage.</p>
 </li>
 </ol>
 <p>DUE TO:</p>
@@ -73,13 +81,15 @@
 <li>participant starts a period.</li>
 <li>player ending a stage</li>
 </ul>
-<h3>Group attempts to start a stage</h3><p>If <a href="Stage.html#waitToStart"><code>Stage.waitToStart</code></a> is <code>false</code>, or all players in group are ready, then Group starts the stage.</p>
+<h3>Group attempts to start a stage</h3>
+<p>If <a href="Stage.html#waitToStart"><code>Stage.waitToStart</code></a> is <code>false</code>, or all players in group are ready, then Group starts the stage.</p>
 <p>DUE TO:</p>
 <ul>
 <li>player attempting to start a stage.</li>
 <li>group ends a stage.</li>
 </ul>
-<h3>Group starts a stage</h3><ol>
+<h3>Group starts a stage</h3>
+<ol>
 <li>Group timers start. When timer elapses, group wraps up the stage.</li>
 <li>Run the function <code>Stage.groupPlay(group)</code>.</li>
 <li>If <a href="Stage.html#waitToStart"><code>Stage.waitToStart</code></a> is <code>true</code>, then each player of the group starts the stage.</li>
@@ -88,13 +98,12 @@
 <ul>
 <li>participant starting a period.</li>
 </ul>
-<h3>Player starts a stage.</h3><ul>
-<li>If <code>Stage.canParticipate(player)</code> returns <code>true</code>, then:<ul>
+<h3>Player starts a stage.</h3>
+<ul>
+<li>If <code>Stage.canParticipate(player)</code> returns <code>true</code>, then:</li>
 <li>Player's status set to <code>'playing'</code>.</li>
 <li>Call <a href="Stage.html#playerStart"><code>Stage.playerStart(player)</code></a>.</li>
 <li>Update clients via <code>playerUpdate</code> message.</li>
-</ul>
-</li>
 <li>Otherwise, player attempts to end the stage.</li>
 </ul>
 <p>DUE TO:</p>
@@ -103,21 +112,27 @@
 <li>participant ending a stage</li>
 <li>group starting a stage</li>
 </ul>
-<h3>Group wraps up a stage</h3><ul>
+<h3>Group wraps up a stage</h3>
+<ul>
 <li>For each player in the group, the player attempts to end this stage.</li>
 </ul>
 <p>DUE TO:</p>
 <ul>
 <li>group timer elapsing.</li>
 </ul>
-<h3>Player attempts to end a stage</h3><p><code>Player.attemptToEndStage()</code><br>If player is not in this stage, then stop.</p>
+<h3>Player attempts to end a stage</h3>
+<p><code>Player.attemptToEndStage()</code><br>
+If player is not in this stage, then stop.</p>
 <hr>
 <ul>
-<li><p>Player's status set to <code>'finished'</code>.</p>
+<li>
+<p>Player's status set to <code>'finished'</code>.</p>
 </li>
-<li><p>If <a href="Stage.html#waitToEnd"><code>Stage.waitToEnd</code></a> is <code>false</code>, player ends stage.</p>
+<li>
+<p>If <a href="Stage.html#waitToEnd"><code>Stage.waitToEnd</code></a> is <code>false</code>, player ends stage.</p>
 </li>
-<li><p>Player's group attempts to end stage.</p>
+<li>
+<p>Player's group attempts to end stage.</p>
 </li>
 </ul>
 <p>DUE TO:</p>
@@ -125,7 +140,8 @@
 <li>submitting stage data.</li>
 <li>not participating.</li>
 </ul>
-<h3>Player ends a stage</h3><p><code>Player.endStage()</code></p>
+<h3>Player ends a stage</h3>
+<p><a href="Player.html#endStage"><code>Player.endStage()</code></a></p>
 <p>If stage is not null,</p>
 <ul>
 <li>call <a href="Stage.html#playerEnd"><code>Stage.playerEnd(player)</code></a>.</li>
@@ -140,53 +156,69 @@
 <li>Player attempts to end a stage.</li>
 <li>Group ends a stage.</li>
 </ul>
-<h3>Player's next stage</h3><p>Call <a href="App.html#getNextStageForPlayer"><code>App.getNextStageForPlayer(player)</code></a>.</p>
-<h3>Participant's next period</h3><p>Call <code>App.getNextPeriod(participant)</code>.</p>
-<h3>Group attempts to end a stage</h3><ul>
+<h3>Player's next stage</h3>
+<p>Call <a href="App.html#getNextStageForPlayer"><code>App.getNextStageForPlayer(player)</code></a>.</p>
+<h3>Participant's next period</h3>
+<p>Call <code>App.getNextPeriod(participant)</code>.</p>
+<h3>Group attempts to end a stage</h3>
+<ul>
 <li>If <code>player.status</code> is <code>finished</code> for all players of group, group ends the stage.</li>
 </ul>
 <p>DUE TO:</p>
 <ul>
 <li>Player attempts to end a stage.</li>
 </ul>
-<h3>Group ends a stage</h3><ul>
-<li><p>If group has a stage timer, it is cancelled.</p>
-</li>
-<li><p>If no stage, or <a href="Stage.html#waitToEnd"><code>Stage.waitToEnd</code></a> is <code>true</code>, each player ends the stage.</p>
-</li>
-<li><p>Call <a href="Stage.html#groupEnd"><code>Stage.groupEnd(group)</code></a>.</p>
-</li>
-<li><p>If not last stage in period:</p>
+<h3>Group ends a stage</h3>
 <ul>
-<li>group attempts to start next stage in period.<ul>
+<li>
+<p>If group has a stage timer, it is cancelled.</p>
+</li>
+<li>
+<p>If no stage, or <a href="Stage.html#waitToEnd"><code>Stage.waitToEnd</code></a> is <code>true</code>, each player ends the stage.</p>
+</li>
+<li>
+<p>Call <a href="Stage.html#groupEnd"><code>Stage.groupEnd(group)</code></a>.</p>
+</li>
+<li>
+<p>If not last stage in period:</p>
+</li>
+<li>
+<p>group attempts to start next stage in period.</p>
+<ul>
 <li>Cannot simply start the next stage, since it is possible that group membership changed between periods.</li>
 </ul>
 </li>
-</ul>
+<li>
+<p>Otherwise, if not the last period in the app:</p>
 </li>
-<li>Otherwise, if not the last period in the app:<ul>
-<li>group ends this period.</li>
-</ul>
+<li>
+<p>group ends this period.</p>
 </li>
 </ul>
 <p>DUE TO:</p>
 <ul>
 <li>Group attempting to end a stage.</li>
 </ul>
-<h3>Group ends a period</h3><p>Call <code>Period.groupEnd(group)</code>.</p>
+<h3>Group ends a period</h3>
+<p>Call <code>Period.groupEnd(group)</code>.</p>
 <p>If all groups have finished this period, and this period is last period of App, write output of this app to the Session's .csv file.</p>
 <p>DUE TO:</p>
 <ul>
 <li>group ending a stage.</li>
 </ul>
-<h3>Participant ends an app</h3><p>If app not null, call <code>App.participantEnd(participant)</code>.<br>If participant's next app is not null, participant starts next their app of session.<br>Otherwise, participant ends the session.</p>
+<h3>Participant ends an app</h3>
+<p>If app not null, call <code>App.participantEnd(participant)</code>.<br>
+If participant's next app is not null, participant starts next their app of session.<br>
+Otherwise, participant ends the session.</p>
 <p>DUE TO:</p>
 <ul>
 <li>group ending a stage.</li>
 <li>player ending a stage.</li>
 </ul>
-<h3>Participant's next app</h3><p>Call <code>Session.getNextApp(participant)</code>, which usually returns the next app in the session app sequence for this participant (given by <a href="Participant.html#appIndex"><code>Participant.appIndex</code></a>).</p>
-<h3>Participant ends a session</h3><p>Call <a href="Session.html#participantEnd"><code>Session.participantEnd(participant)</code></a>.</p>
+<h3>Participant's next app</h3>
+<p>Call <code>Session.getNextApp(participant)</code>, which usually returns the next app in the session app sequence for this participant (given by <a href="Participant.html#appIndex"><code>Participant.appIndex</code></a>).</p>
+<h3>Participant ends a session</h3>
+<p>Call <a href="Session.html#participantEnd"><code>Session.participantEnd(participant)</code></a>.</p>
 </article>
 
 </section>
@@ -194,13 +226,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AdminAuth.html">AdminAuth</a></li><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="Data.html">Data</a></li><li><a href="Exit.html">Exit</a></li><li><a href="Group.html">Group</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="QueueRecorder.html">QueueRecorder</a></li><li><a href="Reader.html">Reader</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Run.html">Run</a></li><li><a href="Screens.html">Screens</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="Translator.html">Translator</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="global.html#start">start</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-4a-ztree.html">z-Tree treatments</a></li><li><a href="tutorial-4b-otree.html">oTree apps</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-other.html">Other</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ADMIN_LOGIN_REQUIRED">ADMIN_LOGIN_REQUIRED</a></li><li><a href="global.html#APP_HOOKS">APP_HOOKS</a></li><li><a href="global.html#STAGE_HOOKS">STAGE_HOOKS</a></li><li><a href="global.html#addToClass">addToClass</a></li><li><a href="global.html#allBoxes">allBoxes</a></li><li><a href="global.html#appCSV">appCSV</a></li><li><a href="global.html#appFile">appFile</a></li><li><a href="global.html#appInsertAt">appInsertAt</a></li><li><a href="global.html#appRoots">appRoots</a></li><li><a href="global.html#appTemplate">appTemplate</a></li><li><a href="global.html#appToIR">appToIR</a></li><li><a href="global.html#apply">apply</a></li><li><a href="global.html#applyIR">applyIR</a></li><li><a href="global.html#applySettings">applySettings</a></li><li><a href="global.html#arrayDeclarations">arrayDeclarations</a></li><li><a href="global.html#arrayIndex">arrayIndex</a></li><li><a href="global.html#assignedVariables">assignedVariables</a></li><li><a href="global.html#boolValue">boolValue</a></li><li><a href="global.html#botCases">botCases</a></li><li><a href="global.html#boxOptions">boxOptions</a></li><li><a href="global.html#chat">chat</a></li><li><a href="global.html#chatFor">chatFor</a></li><li><a href="global.html#check">check</a></li><li><a href="global.html#checkField">checkField</a></li><li><a href="global.html#checkForm">checkForm</a></li><li><a href="global.html#compileProgram">compileProgram</a></li><li><a href="global.html#compiled">compiled</a></li><li><a href="global.html#context">context</a></li><li><a href="global.html#contractList">contractList</a></li><li><a href="global.html#convertApp">convertApp</a></li><li><a href="global.html#convertTreatment">convertTreatment</a></li><li><a href="global.html#convertTreatmentFile">convertTreatmentFile</a></li><li><a href="global.html#copyDir">copyDir</a></li><li><a href="global.html#copyToPlayer">copyToPlayer</a></li><li><a href="global.html#creatingSessionBeforeArrival">creatingSessionBeforeArrival</a></li><li><a href="global.html#cut">cut</a></li><li><a href="global.html#decimals">decimals</a></li><li><a href="global.html#declared">declared</a></li><li><a href="global.html#dedent">dedent</a></li><li><a href="global.html#describeValue">describeValue</a></li><li><a href="global.html#dialectFor">dialectFor</a></li><li><a href="global.html#drawn">drawn</a></li><li><a href="global.html#encode">encode</a></li><li><a href="global.html#endSoon">endSoon</a></li><li><a href="global.html#errorPosition">errorPosition</a></li><li><a href="global.html#exportTables">exportTables</a></li><li><a href="global.html#exporter">exporter</a></li><li><a href="global.html#exportersFor">exportersFor</a></li><li><a href="global.html#expression">expression</a></li><li><a href="global.html#fail">fail</a></li><li><a href="global.html#file">file</a></li><li><a href="global.html#fillValues">fillValues</a></li><li><a href="global.html#findBox">findBox</a></li><li><a href="global.html#finite">finite</a></li><li><a href="global.html#formatText">formatText</a></li><li><a href="global.html#formatValue">formatValue</a></li><li><a href="global.html#fromDescription">fromDescription</a></li><li><a href="global.html#getBridge">getBridge</a></li><li><a href="global.html#grid">grid</a></li><li><a href="global.html#history">history</a></li><li><a href="global.html#inAppFolders">inAppFolders</a></li><li><a href="global.html#indent">indent</a></li><li><a href="global.html#indentBy">indentBy</a></li><li><a href="global.html#insertAfter">insertAfter</a></li><li><a href="global.html#isInteractive">isInteractive</a></li><li><a href="global.html#isProject">isProject</a></li><li><a href="global.html#isSessionsLastPage">isSessionsLastPage</a></li><li><a href="global.html#isText">isText</a></li><li><a href="global.html#isTextFile">isTextFile</a></li><li><a href="global.html#itemCell">itemCell</a></li><li><a href="global.html#itemsTable">itemsTable</a></li><li><a href="global.html#jsonErrorPosition">jsonErrorPosition</a></li><li><a href="global.html#lanAddress">lanAddress</a></li><li><a href="global.html#lastFirst">lastFirst</a></li><li><a href="global.html#layoutEnd">layoutEnd</a></li><li><a href="global.html#layoutParts">layoutParts</a></li><li><a href="global.html#leaveIfAsked">leaveIfAsked</a></li><li><a href="global.html#leavesStage">leavesStage</a></li><li><a href="global.html#legacyValue">legacyValue</a></li><li><a href="global.html#lines">lines</a></li><li><a href="global.html#loadPackagesFor">loadPackagesFor</a></li><li><a href="global.html#measure">measure</a></li><li><a href="global.html#memberAssignment">memberAssignment</a></li><li><a href="global.html#model">model</a></li><li><a href="global.html#mountProject">mountProject</a></li><li><a href="global.html#newTreatment">newTreatment</a></li><li><a href="global.html#normalizeCode">normalizeCode</a></li><li><a href="global.html#openUrl">openUrl</a></li><li><a href="global.html#owner">owner</a></li><li><a href="global.html#packageFor">packageFor</a></li><li><a href="global.html#pageTimesCSV">pageTimesCSV</a></li><li><a href="global.html#paramCell">paramCell</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseExpr">parseExpr</a></li><li><a href="global.html#parseLayout">parseLayout</a></li><li><a href="global.html#parseQueueId">parseQueueId</a></li><li><a href="global.html#place">place</a></li><li><a href="global.html#plot">plot</a></li><li><a href="global.html#plotInput">plotInput</a></li><li><a href="global.html#plotItemAt">plotItemAt</a></li><li><a href="global.html#prefixHtmlUrls">prefixHtmlUrls</a></li><li><a href="global.html#pressButton">pressButton</a></li><li><a href="global.html#program">program</a></li><li><a href="global.html#programItems">programItems</a></li><li><a href="global.html#putApp">putApp</a></li><li><a href="global.html#putSettings">putSettings</a></li><li><a href="global.html#py">py</a></li><li><a href="global.html#queueId">queueId</a></li><li><a href="global.html#queueScript">queueScript</a></li><li><a href="global.html#quote">quote</a></li><li><a href="global.html#quotedEnd">quotedEnd</a></li><li><a href="global.html#readGameHeader">readGameHeader</a></li><li><a href="global.html#readQuestionnaires">readQuestionnaires</a></li><li><a href="global.html#readScreen">readScreen</a></li><li><a href="global.html#readTextQuestionnaires">readTextQuestionnaires</a></li><li><a href="global.html#readTextTreatment">readTextTreatment</a></li><li><a href="global.html#readTreatment">readTreatment</a></li><li><a href="global.html#ready">ready</a></li><li><a href="global.html#refresh">refresh</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#reload">reload</a></li><li><a href="global.html#renderScreen">renderScreen</a></li><li><a href="global.html#reportMarkdown">reportMarkdown</a></li><li><a href="global.html#rooms">rooms</a></li><li><a href="global.html#router">router</a></li><li><a href="global.html#rtfToText">rtfToText</a></li><li><a href="global.html#run">run</a></li><li><a href="global.html#runAppCode">runAppCode</a></li><li><a href="global.html#runBots">runBots</a></li><li><a href="global.html#runOf">runOf</a></li><li><a href="global.html#runZtreeBots">runZtreeBots</a></li><li><a href="global.html#scan">scan</a></li><li><a href="global.html#screen">screen</a></li><li><a href="global.html#sessionConfigs">sessionConfigs</a></li><li><a href="global.html#settleBoxes">settleBoxes</a></li><li><a href="global.html#stageDeclaration">stageDeclaration</a></li><li><a href="global.html#stageMeaning">stageMeaning</a></li><li><a href="global.html#stageVariable">stageVariable</a></li><li><a href="global.html#statementRange">statementRange</a></li><li><a href="global.html#str">str</a></li><li><a href="global.html#subjectIndex">subjectIndex</a></li><li><a href="global.html#submitGeneric">submitGeneric</a></li><li><a href="global.html#substitutionAt">substitutionAt</a></li><li><a href="global.html#syntaxErrors">syntaxErrors</a></li><li><a href="global.html#tableRecords">tableRecords</a></li><li><a href="global.html#tablesChangedTimers">tablesChangedTimers</a></li><li><a href="global.html#template">template</a></li><li><a href="global.html#templateLiteral">templateLiteral</a></li><li><a href="global.html#templates">templates</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#textParts">textParts</a></li><li><a href="global.html#toTreatment">toTreatment</a></li><li><a href="global.html#tokenize">tokenize</a></li><li><a href="global.html#topInsert">topInsert</a></li><li><a href="global.html#treatmentFile">treatmentFile</a></li><li><a href="global.html#unindent">unindent</a></li><li><a href="global.html#urlFor">urlFor</a></li><li><a href="global.html#validate">validate</a></li><li><a href="global.html#value">value</a></li><li><a href="global.html#valueFor">valueFor</a></li><li><a href="global.html#valueKind">valueKind</a></li><li><a href="global.html#valueSource">valueSource</a></li><li><a href="global.html#variables">variables</a></li><li><a href="global.html#whenReady">whenReady</a></li><li><a href="global.html#wideCSV">wideCSV</a></li><li><a href="global.html#withBlocks">withBlocks</a></li><li><a href="global.html#withStatics">withStatics</a></li><li><a href="global.html#write">write</a></li><li><a href="global.html#zTreeRules">zTreeRules</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Jan 24 2020 16:57:26 GMT+0100 (Mitteleuropäische Zeit)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Oct 14 2026 09:40:18 GMT+0200 (Central European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

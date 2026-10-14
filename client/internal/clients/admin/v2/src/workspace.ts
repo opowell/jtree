@@ -18,7 +18,7 @@ import { appLabel } from './schema'
 /*
  * Which panels are open and how they are arranged. Panels are named by id:
  * a fixed set of tools, plus one per app opened (`app:<id>`; layouts saved
- * before queues were apps may hold `queue:<id>`). The arrangement is appfr's layout tree, kept as data and
+ * before queues were apps may hold `queue:<id>`), and one per app being edited (`edit:<path>`). The arrangement is appfr's layout tree, kept as data and
  * saved per browser.
  */
 
@@ -86,6 +86,8 @@ watch(
 )
 
 function titleFor(id: string): string {
+  if (id === 'edit:new') return 'New app'
+  if (id.startsWith('edit:')) return `Edit ${id.slice(5).split(/[\\/]/).pop()}`
   if (id.startsWith('app:')) return appLabel(id.slice(4))
   if (id.startsWith('queue:')) return appLabel(id.slice(6))
   return TOOLS[id] ?? id
@@ -95,6 +97,7 @@ function subtitleFor(id: string): string | undefined {
   if (id === 'session' || id === 'participants') return state.session?.id
   if (id.startsWith('app:')) return state.apps[id.slice(4)]?.isQueue ? 'queue' : 'app'
   if (id.startsWith('queue:')) return 'queue'
+  if (id.startsWith('edit:')) return 'editor'
   return undefined
 }
 
@@ -121,6 +124,7 @@ export const panels = computed<WindowPanelDef[]>(() =>
  */
 const HOMES: Record<string, string[]> = {
   detail: ['session', 'settings', 'participants', 'browse'],
+  edit: ['browse', 'session', 'participants'],
   session: ['settings', 'participants', 'browse'],
   participants: ['clients', 'log', 'session', 'browse'],
   clients: ['participants', 'log', 'session', 'browse'],
@@ -135,12 +139,30 @@ export function showPanel(id: string) {
     return
   }
   if (!workspace.ids.includes(id)) workspace.ids.push(id)
-  const kind = id.includes(':') ? 'detail' : id
+  const kind = id.startsWith('edit:') ? 'edit' : id.includes(':') ? 'detail' : id
   const home = (HOMES[kind] ?? []).find((candidate) => workspace.layout && hasPanel(workspace.layout, candidate))
     ?? workspace.ids.find((candidate) => candidate !== id && workspace.layout && hasPanel(workspace.layout, candidate))
   workspace.layout = workspace.layout && home
     ? insertPanel(workspace.layout, id, home, 'center')
     : panelNode(id)
+}
+
+/** Opens jtree's app editor on an app's file ('new' for a new app). */
+export function editApp(appPath: string) {
+  showPanel(`edit:${appPath}`)
+}
+
+/** The editor of a new app, once it has a file, is that file's editor. */
+export function renameEditor(id: string, appPath: string) {
+  const to = `edit:${appPath}`
+  if (id === to) return
+  if (workspace.ids.includes(to)) {
+    closePanel(id)
+    showPanel(to)
+    return
+  }
+  workspace.ids = workspace.ids.map((x) => (x === id ? to : x))
+  workspace.layout = workspace.layout ? JSON.parse(JSON.stringify(workspace.layout).split(JSON.stringify(id)).join(JSON.stringify(to))) : null
 }
 
 export function closePanel(id: string) {

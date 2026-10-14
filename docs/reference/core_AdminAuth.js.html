@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: core/AdminAuth.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: core/AdminAuth.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const crypto    = require('crypto');
+const session   = require('express-session');
+
+/**
+ * Decides who may use the admin interface: its pages, its socket.io connection
+ * and the admin-only HTTP routes (session output downloads, /api).
+ *
+ * - With no admin password set (no {@link Settings#defaultAdminPwd}, no entries
+ *   in {@link Settings#admins}, {@link Settings#multipleUsers} off), only the
+ *   computer running jtree may, without logging in.
+ * - Otherwise everyone, on this computer or another, logs in at /admin/login with
+ *   the password (or as a user). The login is kept in a session cookie, which the
+ *   admin's socket.io connection carries too.
+ *
+ * Sessions are kept in memory with a secret made at startup, so restarting jtree
+ * logs every admin out.
+ */
+class AdminAuth {
+
+    constructor(jt) {
+        this.jt = jt;
+
+        /** Express (and socket.io engine) middleware that loads req.session. */
+        this.sessionMiddleware = session({
+            name: 'jtree.sid',
+            secret: crypto.randomBytes(32).toString('hex'),
+            resave: false,
+            saveUninitialized: false,
+            cookie: {
+                path: jt.basePath === '' ? '/' : jt.basePath,
+                httpOnly: true,
+                sameSite: 'lax',
+                maxAge: 24 * 60 * 60 * 1000,
+            },
+        });
+    }
+
+    /** Whether any admin password or user account is configured. */
+    passwordSet() {
+        const s = this.jt.settings;
+        return (
+            s.multipleUsers === true ||
+            nonEmpty(s.defaultAdminPwd) ||
+            Object.keys(s.admins || {}).length > 0
+        );
+    }
+
+    /** Whether a request comes from the computer running jtree. */
+    isLocal(req) {
+        const address = req.socket &amp;&amp; req.socket.remoteAddress;
+        return (
+            address === '127.0.0.1' ||
+            address === '::1' ||
+            address === '::ffff:127.0.0.1'
+        );
+    }
+
+    /** Whether a request (an HTTP request, or a socket's handshake request) may act as admin. */
+    isAuthorized(req) {
+        if (req.session != null &amp;&amp; req.session.jtreeAdmin === true) {
+            return true;
+        }
+        return !this.passwordSet() &amp;&amp; this.isLocal(req);
+    }
+
+    /**
+     * The account matching a login, or null.
+     *
+     * @return {User|string|null} the user (multiple users mode), the id in settings.admins, 'defaultAdmin', or null.
+     */
+    findAccount(id, pwd) {
+        const s = this.jt.settings;
+        if (typeof pwd !== 'string') {
+            return null;
+        }
+        if (s.multipleUsers === true) {
+            for (const i in this.jt.data.users) {
+                const user = this.jt.data.users[i];
+                if (user.matches(id, pwd)) {
+                    return user;
+                }
+            }
+        }
+        const admin = (s.admins || {})[id];
+        if (admin != null &amp;&amp; nonEmpty(admin.pwd) &amp;&amp; safeEqual(admin.pwd, pwd)) {
+            return id;
+        }
+        if (nonEmpty(s.defaultAdminPwd) &amp;&amp; safeEqual(s.defaultAdminPwd, pwd)) {
+            return 'defaultAdmin';
+        }
+        return null;
+    }
+
+    /** Express middleware: lets admins through, sends everyone else to the login page. */
+    requireAdmin() {
+        return (req, res, next) => {
+            if (this.isAuthorized(req)) {
+                return next();
+            }
+            if ((req.method === 'GET' || req.method === 'HEAD') &amp;&amp; req.accepts('html')) {
+                return res.redirect(this.loginUrl(req.originalUrl));
+            }
+            res.status(401).type('text').send('jtree: admin login required.');
+        };
+    }
+
+    loginUrl(next) {
+        return this.jt.basePath + '/admin/login?next=' + encodeURIComponent(next || '');
+    }
+
+    /** Where to go after logging in: a page of this jtree, otherwise the admin. */
+    safeNext(next) {
+        const base = this.jt.basePath;
+        if (
+            typeof next === 'string' &amp;&amp;
+            next.startsWith(base + '/') &amp;&amp;
+            !next.startsWith('//') &amp;&amp;
+            !next.includes('\\')
+        ) {
+            return next;
+        }
+        return base + '/admin/';
+    }
+
+    /** GET /admin/login */
+    sendLoginPage(req, res, error) {
+        const jt = this.jt;
+        const next = this.safeNext(req.query.next || (req.body &amp;&amp; req.body.next));
+        const askId = jt.settings.multipleUsers === true || Object.keys(jt.settings.admins || {}).length > 0;
+        let body;
+        if (!this.passwordSet()) {
+            body = `
+            &lt;p>No admin password is set, so the admin interface only opens on the computer running jtree
+            (&lt;a href="http://localhost:${esc(String(jt.settings.port))}${esc(jt.basePath)}/admin/">http://localhost:${esc(String(jt.settings.port))}${esc(jt.basePath)}/admin/&lt;/a>).&lt;/p>
+            &lt;p>To use it from other computers, set &lt;code>"defaultAdminPwd"&lt;/code> in &lt;code>client/settings.json&lt;/code>
+            in the jtree folder, then restart jtree.&lt;/p>`;
+        } else {
+            body = `
+            &lt;form method="post" action="${esc(jt.basePath)}/admin/login">
+                &lt;input type="hidden" name="next" value="${esc(next)}">
+                ${askId ? '&lt;label>User&lt;input name="uId" autocomplete="username" autofocus>&lt;/label>' : ''}
+                &lt;label>Password&lt;input name="pwd" type="password" autocomplete="current-password" ${askId ? '' : 'autofocus'}>&lt;/label>
+                ${error ? `&lt;p class="error">${esc(error)}&lt;/p>` : ''}
+                &lt;button type="submit">Log in&lt;/button>
+            &lt;/form>`;
+        }
+        res.status(error ? 401 : 200).type('html').send(`&lt;!doctype html>
+&lt;html lang="en">
+&lt;head>
+&lt;meta charset="utf-8">
+&lt;meta name="viewport" content="width=device-width, initial-scale=1">
+&lt;title>jtree admin login&lt;/title>
+&lt;style>
+    :root { color-scheme: light dark; --bg: #f4f4f5; --fg: #18181b; --card: #fff; --line: #d4d4d8; --accent: #2563eb; --err: #b91c1c; }
+    @media (prefers-color-scheme: dark) { :root { --bg: #18181b; --fg: #f4f4f5; --card: #27272a; --line: #3f3f46; --accent: #60a5fa; --err: #f87171; } }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: var(--bg); color: var(--fg); font: 16px/1.5 system-ui, sans-serif; }
+    main { width: min(24rem, calc(100vw - 2rem)); background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 1.5rem; box-sizing: border-box; }
+    h1 { margin: 0 0 1rem; font-size: 1.25rem; }
+    label { display: block; margin-bottom: 0.75rem; font-size: 0.875rem; }
+    input { display: block; width: 100%; box-sizing: border-box; margin-top: 0.25rem; padding: 0.5rem; font: inherit; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--fg); }
+    button { padding: 0.5rem 1rem; font: inherit; border: 0; border-radius: 4px; background: var(--accent); color: #fff; cursor: pointer; }
+    .error { color: var(--err); margin: 0 0 0.75rem; }
+    code { font-size: 0.875em; }
+    a { color: var(--accent); }
+&lt;/style>
+&lt;/head>
+&lt;body>
+&lt;main>
+    &lt;h1>jtree admin&lt;/h1>
+    ${body}
+&lt;/main>
+&lt;/body>
+&lt;/html>`);
+    }
+
+    /** POST /admin/login */
+    login(req, res) {
+        const body = req.body || {};
+        const account = this.findAccount(body.uId, body.pwd);
+        if (account === null) {
+            return this.sendLoginPage(req, res, 'Wrong user or password.');
+        }
+        req.session.regenerate((err) => {
+            if (err) {
+                return res.status(500).type('text').send('jtree: could not start a session.');
+            }
+            req.session.jtreeAdmin = true;
+            if (typeof account === 'object') {
+                account.sessionIds.push(req.session.id);
+                req.session.userId = account.id;
+                res.cookie('userId', account.id);
+            }
+            res.redirect(this.safeNext(body.next));
+        });
+    }
+
+}
+
+function nonEmpty(s) {
+    return typeof s === 'string' &amp;&amp; s !== '';
+}
+
+function safeEqual(a, b) {
+    const ha = crypto.createHash('sha256').update(String(a)).digest();
+    const hb = crypto.createHash('sha256').update(String(b)).digest();
+    return crypto.timingSafeEqual(ha, hb);
+}
+
+function esc(s) {
+    return String(s).replace(/[&amp;&lt;>"']/g, (c) => ({ '&amp;': '&amp;amp;', '&lt;': '&amp;lt;', '>': '&amp;gt;', '"': '&amp;quot;', "'": '&amp;#39;' })[c]);
+}
+
+var exports = module.exports = {};
+exports.new = AdminAuth;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AdminAuth.html">AdminAuth</a></li><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="Data.html">Data</a></li><li><a href="Exit.html">Exit</a></li><li><a href="Group.html">Group</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="QueueRecorder.html">QueueRecorder</a></li><li><a href="Reader.html">Reader</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Run.html">Run</a></li><li><a href="Screens.html">Screens</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="Translator.html">Translator</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="global.html#start">start</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-4a-ztree.html">z-Tree treatments</a></li><li><a href="tutorial-4b-otree.html">oTree apps</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-other.html">Other</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ADMIN_LOGIN_REQUIRED">ADMIN_LOGIN_REQUIRED</a></li><li><a href="global.html#APP_HOOKS">APP_HOOKS</a></li><li><a href="global.html#STAGE_HOOKS">STAGE_HOOKS</a></li><li><a href="global.html#addToClass">addToClass</a></li><li><a href="global.html#allBoxes">allBoxes</a></li><li><a href="global.html#appCSV">appCSV</a></li><li><a href="global.html#appFile">appFile</a></li><li><a href="global.html#appInsertAt">appInsertAt</a></li><li><a href="global.html#appRoots">appRoots</a></li><li><a href="global.html#appTemplate">appTemplate</a></li><li><a href="global.html#appToIR">appToIR</a></li><li><a href="global.html#apply">apply</a></li><li><a href="global.html#applyIR">applyIR</a></li><li><a href="global.html#applySettings">applySettings</a></li><li><a href="global.html#arrayDeclarations">arrayDeclarations</a></li><li><a href="global.html#arrayIndex">arrayIndex</a></li><li><a href="global.html#assignedVariables">assignedVariables</a></li><li><a href="global.html#boolValue">boolValue</a></li><li><a href="global.html#botCases">botCases</a></li><li><a href="global.html#boxOptions">boxOptions</a></li><li><a href="global.html#chat">chat</a></li><li><a href="global.html#chatFor">chatFor</a></li><li><a href="global.html#check">check</a></li><li><a href="global.html#checkField">checkField</a></li><li><a href="global.html#checkForm">checkForm</a></li><li><a href="global.html#compileProgram">compileProgram</a></li><li><a href="global.html#compiled">compiled</a></li><li><a href="global.html#context">context</a></li><li><a href="global.html#contractList">contractList</a></li><li><a href="global.html#convertApp">convertApp</a></li><li><a href="global.html#convertTreatment">convertTreatment</a></li><li><a href="global.html#convertTreatmentFile">convertTreatmentFile</a></li><li><a href="global.html#copyDir">copyDir</a></li><li><a href="global.html#copyToPlayer">copyToPlayer</a></li><li><a href="global.html#creatingSessionBeforeArrival">creatingSessionBeforeArrival</a></li><li><a href="global.html#cut">cut</a></li><li><a href="global.html#decimals">decimals</a></li><li><a href="global.html#declared">declared</a></li><li><a href="global.html#dedent">dedent</a></li><li><a href="global.html#describeValue">describeValue</a></li><li><a href="global.html#dialectFor">dialectFor</a></li><li><a href="global.html#drawn">drawn</a></li><li><a href="global.html#encode">encode</a></li><li><a href="global.html#endSoon">endSoon</a></li><li><a href="global.html#errorPosition">errorPosition</a></li><li><a href="global.html#exportTables">exportTables</a></li><li><a href="global.html#exporter">exporter</a></li><li><a href="global.html#exportersFor">exportersFor</a></li><li><a href="global.html#expression">expression</a></li><li><a href="global.html#fail">fail</a></li><li><a href="global.html#file">file</a></li><li><a href="global.html#fillValues">fillValues</a></li><li><a href="global.html#findBox">findBox</a></li><li><a href="global.html#finite">finite</a></li><li><a href="global.html#formatText">formatText</a></li><li><a href="global.html#formatValue">formatValue</a></li><li><a href="global.html#fromDescription">fromDescription</a></li><li><a href="global.html#getBridge">getBridge</a></li><li><a href="global.html#grid">grid</a></li><li><a href="global.html#history">history</a></li><li><a href="global.html#inAppFolders">inAppFolders</a></li><li><a href="global.html#indent">indent</a></li><li><a href="global.html#indentBy">indentBy</a></li><li><a href="global.html#insertAfter">insertAfter</a></li><li><a href="global.html#isInteractive">isInteractive</a></li><li><a href="global.html#isProject">isProject</a></li><li><a href="global.html#isSessionsLastPage">isSessionsLastPage</a></li><li><a href="global.html#isText">isText</a></li><li><a href="global.html#isTextFile">isTextFile</a></li><li><a href="global.html#itemCell">itemCell</a></li><li><a href="global.html#itemsTable">itemsTable</a></li><li><a href="global.html#jsonErrorPosition">jsonErrorPosition</a></li><li><a href="global.html#lanAddress">lanAddress</a></li><li><a href="global.html#lastFirst">lastFirst</a></li><li><a href="global.html#layoutEnd">layoutEnd</a></li><li><a href="global.html#layoutParts">layoutParts</a></li><li><a href="global.html#leaveIfAsked">leaveIfAsked</a></li><li><a href="global.html#leavesStage">leavesStage</a></li><li><a href="global.html#legacyValue">legacyValue</a></li><li><a href="global.html#lines">lines</a></li><li><a href="global.html#loadPackagesFor">loadPackagesFor</a></li><li><a href="global.html#measure">measure</a></li><li><a href="global.html#memberAssignment">memberAssignment</a></li><li><a href="global.html#model">model</a></li><li><a href="global.html#mountProject">mountProject</a></li><li><a href="global.html#newTreatment">newTreatment</a></li><li><a href="global.html#normalizeCode">normalizeCode</a></li><li><a href="global.html#openUrl">openUrl</a></li><li><a href="global.html#owner">owner</a></li><li><a href="global.html#packageFor">packageFor</a></li><li><a href="global.html#pageTimesCSV">pageTimesCSV</a></li><li><a href="global.html#paramCell">paramCell</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseExpr">parseExpr</a></li><li><a href="global.html#parseLayout">parseLayout</a></li><li><a href="global.html#parseQueueId">parseQueueId</a></li><li><a href="global.html#place">place</a></li><li><a href="global.html#plot">plot</a></li><li><a href="global.html#plotInput">plotInput</a></li><li><a href="global.html#plotItemAt">plotItemAt</a></li><li><a href="global.html#prefixHtmlUrls">prefixHtmlUrls</a></li><li><a href="global.html#pressButton">pressButton</a></li><li><a href="global.html#program">program</a></li><li><a href="global.html#programItems">programItems</a></li><li><a href="global.html#putApp">putApp</a></li><li><a href="global.html#putSettings">putSettings</a></li><li><a href="global.html#py">py</a></li><li><a href="global.html#queueId">queueId</a></li><li><a href="global.html#queueScript">queueScript</a></li><li><a href="global.html#quote">quote</a></li><li><a href="global.html#quotedEnd">quotedEnd</a></li><li><a href="global.html#readGameHeader">readGameHeader</a></li><li><a href="global.html#readQuestionnaires">readQuestionnaires</a></li><li><a href="global.html#readScreen">readScreen</a></li><li><a href="global.html#readTextQuestionnaires">readTextQuestionnaires</a></li><li><a href="global.html#readTextTreatment">readTextTreatment</a></li><li><a href="global.html#readTreatment">readTreatment</a></li><li><a href="global.html#ready">ready</a></li><li><a href="global.html#refresh">refresh</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#reload">reload</a></li><li><a href="global.html#renderScreen">renderScreen</a></li><li><a href="global.html#reportMarkdown">reportMarkdown</a></li><li><a href="global.html#rooms">rooms</a></li><li><a href="global.html#router">router</a></li><li><a href="global.html#rtfToText">rtfToText</a></li><li><a href="global.html#run">run</a></li><li><a href="global.html#runAppCode">runAppCode</a></li><li><a href="global.html#runBots">runBots</a></li><li><a href="global.html#runOf">runOf</a></li><li><a href="global.html#runZtreeBots">runZtreeBots</a></li><li><a href="global.html#scan">scan</a></li><li><a href="global.html#screen">screen</a></li><li><a href="global.html#sessionConfigs">sessionConfigs</a></li><li><a href="global.html#settleBoxes">settleBoxes</a></li><li><a href="global.html#stageDeclaration">stageDeclaration</a></li><li><a href="global.html#stageMeaning">stageMeaning</a></li><li><a href="global.html#stageVariable">stageVariable</a></li><li><a href="global.html#statementRange">statementRange</a></li><li><a href="global.html#str">str</a></li><li><a href="global.html#subjectIndex">subjectIndex</a></li><li><a href="global.html#submitGeneric">submitGeneric</a></li><li><a href="global.html#substitutionAt">substitutionAt</a></li><li><a href="global.html#syntaxErrors">syntaxErrors</a></li><li><a href="global.html#tableRecords">tableRecords</a></li><li><a href="global.html#tablesChangedTimers">tablesChangedTimers</a></li><li><a href="global.html#template">template</a></li><li><a href="global.html#templateLiteral">templateLiteral</a></li><li><a href="global.html#templates">templates</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#textParts">textParts</a></li><li><a href="global.html#toTreatment">toTreatment</a></li><li><a href="global.html#tokenize">tokenize</a></li><li><a href="global.html#topInsert">topInsert</a></li><li><a href="global.html#treatmentFile">treatmentFile</a></li><li><a href="global.html#unindent">unindent</a></li><li><a href="global.html#urlFor">urlFor</a></li><li><a href="global.html#validate">validate</a></li><li><a href="global.html#value">value</a></li><li><a href="global.html#valueFor">valueFor</a></li><li><a href="global.html#valueKind">valueKind</a></li><li><a href="global.html#valueSource">valueSource</a></li><li><a href="global.html#variables">variables</a></li><li><a href="global.html#whenReady">whenReady</a></li><li><a href="global.html#wideCSV">wideCSV</a></li><li><a href="global.html#withBlocks">withBlocks</a></li><li><a href="global.html#withStatics">withStatics</a></li><li><a href="global.html#write">write</a></li><li><a href="global.html#zTreeRules">zTreeRules</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Oct 14 2026 09:40:18 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

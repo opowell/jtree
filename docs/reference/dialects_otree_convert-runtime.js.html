@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: dialects/otree/convert-runtime.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: dialects/otree/convert-runtime.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*
+ * What jtree apps converted from oTree apps use (see convert.js): written beside each converted
+ * app as otree.cjs, and required by its app.jtt. It does what oTree's models' methods and Python's
+ * built-ins do, for the code translated from Python, and sets stages up as oTree's pages.
+ *
+ * Python does not say what type a variable is, so helpers look at what they are given (a
+ * player, group or period, oTree's subsession).
+ */
+const fs = require('fs');
+const path = require('path');
+
+// oTree's pages are written for Bootstrap 5; converted screens link these (see convert.js).
+const STYLES = '&lt;link rel="stylesheet" href="/shared/bootstrap-5.3.8/bootstrap.min.css">' +
+    '&lt;link rel="stylesheet" href="/participant/otree.css">';
+
+const otree = {
+    STYLES,
+
+    // jtree's classes, by name (their objects have methods named like the others' fields).
+    isPlayer: (x) => x != null &amp;&amp; typeof x === 'object' &amp;&amp; x.constructor.name === 'Player',
+    isGroup: (x) => x != null &amp;&amp; typeof x === 'object' &amp;&amp; x.constructor.name === 'Group',
+    isParticipant: (x) => x != null &amp;&amp; typeof x === 'object' &amp;&amp; x.constructor.name === 'Participant',
+
+    // --- Models ---------------------------------------------------------------------------
+
+    /** The period (oTree's subsession) of a player or group, or itself. */
+    period: (x) => (otree.isPlayer(x) ? x.group.period : otree.isGroup(x) ? x.period : x),
+    roundNumber: (x) => otree.period(x).id,
+    session: (x) => {
+        if (otree.isPlayer(x) || otree.isParticipant(x)) return (x.participant || x).session;
+        return otree.period(x).app.session;
+    },
+    getPlayers: (x) => (otree.isGroup(x) ? x.players.slice() : otree.period(x).groups.flatMap((g) => g.players)),
+    getGroups: (x) => otree.period(x).groups.slice(),
+    playerById: (group, id) => group.players.find((p) => p.idInGroup === id),
+    playerByRole: (group, role) => group.players.find((p) => otree.role(p) === role),
+    others: (player) => player.group.players.filter((p) => p !== player),
+    othersInSubsession: (player) => otree.getPlayers(otree.period(player)).filter((p) => p !== player),
+    idInSubsession: (x) => (otree.isGroup(x) ? otree.period(x).groups.indexOf(x) + 1 : otree.getPlayers(otree.period(x)).indexOf(x) + 1),
+    /** A player's role: the C.*_ROLE for their id in the group, in order ('' if there are none). */
+    role: (player) => {
+        const roles = Object.keys(otree.C(player)).filter((k) => k.endsWith('_ROLE')).map((k) => otree.C(player)[k]);
+        return roles[player.idInGroup - 1] || '';
+    },
+    C: (x) => otree.period(otree.isParticipant(x) ? x.player : x).app.C || {},
+    inRounds: (x, first, last) => x.inAllPeriods().filter((y) => otree.roundNumber(y) >= first &amp;&amp; otree.roundNumber(y) &lt;= last),
+    /**
+     * A currency amount, rounded as oTree rounds it (half away from zero, as Decimal's
+     * ROUND_HALF_UP of the float): to app.currencyPlaces decimal places (0: points).
+     */
+    cu: (x, app) => {
+        const places = app != null &amp;&amp; app.currencyPlaces != null ? app.currencyPlaces : 0;
+        const f = Math.pow(10, places);
+        const v = Number(x);
+        return Math.sign(v) * Math.round(Math.abs(v) * f) / f;
+    },
+    /** A player's payoff (jtree's points), or a participant's over the session. */
+    payoff: (x) => {
+        if (typeof x.points === 'function') return x.points();
+        return x.points == null ? 0 : x.points;
+    },
+    paymentWithFee: (participant) => participant.payment(),
+    /** participant.vars, session.vars: an object kept on the participant or session. */
+    vars: (x) => {
+        if (x.vars == null) x.vars = {};
+        return x.vars;
+    },
+    config: (session) => session.otreeConfig || {},
+    /** A field's value, or null (field_maybe_none). */
+    field: (x, name) => (x[name] === undefined ? null : x[name]),
+
+    // Grouping (oTree's group matrix: rows of players, or of their ids in the subsession).
+    groupMatrix: (period) => otree.period(period).groups.map((g) => g.players.slice()),
+    setGroups: (period, matrix) => {
+        const players = otree.getPlayers(period);
+        otree.period(period).setGroups(matrix.map((row) => row.map((p) => (typeof p === 'object' ? p : players[p - 1]).participant.id)));
+    },
+    groupRandomly: (period) => {
+        const players = otree.shuffle(otree.getPlayers(period));
+        const size = otree.period(period).groups[0].players.length;
+        const rows = [];
+        for (let i = 0; i &lt; players.length; i += size) rows.push(players.slice(i, i + size));
+        otree.setGroups(period, rows);
+    },
+    groupLikeRound: (period, n) => {
+        const before = otree.period(period).app.periods[n - 1];
+        otree.period(period).setGroups(before.groups.map((g) => g.players.map((p) => p.participant.id)));
+    },
+
+    /** A field's value as shown: its choice's label, Yes or No, or the value (field_display). */
+    display: (x, name) => {
+        const field = (otree.period(x).app.fields || {})[(otree.isGroup(x) ? 'group.' : 'player.') + name] || {};
+        const value = x[name];
+        const choices = typeof field.choices === 'function' ? field.choices(otree.isGroup(x) ? x.players[0] : x) : field.choices;
+        for (const c of choices || []) {
+            if (Array.isArray(c) &amp;&amp; c[0] === value) return c[1];
+        }
+        if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+        return value;
+    },
+
+    /** Sets fields' initial values (oTree's initial=) on a period's players and groups. */
+    initialize: (period, initial) => {
+        for (const group of period.groups) {
+            for (const [name, value] of Object.entries(initial.group || {})) {
+                if (group[name] === undefined) group[name] = value;
+            }
+            for (const player of group.players) {
+                for (const [name, value] of Object.entries(initial.player || {})) {
+                    if (player[name] === undefined) player[name] = value;
+                }
+            }
+        }
+    },
+
+    // --- Pages ----------------------------------------------------------------------------
+
+    /** Sets stage up as an oTree page: each player on their own, with a form and its own Next button. */
+    page: (stage) => {
+        stage.wrapPlayingScreenInFormTag = 'yes';
+        stage.waitToStart = false;
+        stage.waitToEnd = false;
+        stage.addOKButtonIfNone = false;
+        stage.formFields = [];
+        stage.playerStart = (player) => {
+            player.page = otree.pageVars(player, {});
+        };
+    },
+
+    /** Sets stage up as an oTree wait page: it waits for the group, and then ends. */
+    waitPage: (stage, title, body) => {
+        stage.wrapPlayingScreenInFormTag = 'no';
+        stage.waitToStart = true;
+        stage.waitToEnd = true;
+        stage.addOKButtonIfNone = false;
+        stage.activeScreen = STYLES + '&lt;div class="otree-page">&lt;h2 class="otree-title">' + title + '&lt;/h2>&lt;p>' + body + '&lt;/p>&lt;/div>';
+        stage.playerStart = otree.endSoon;
+    },
+
+    /** A page's screen: pages/&lt;name>.html beside the app. */
+    screen: (app, name) => fs.readFileSync(path.join(path.dirname(app.appPath), 'pages', name + '.html'), 'utf8'),
+
+    /** Ends a player's wait page as soon as it has started. */
+    endSoon: (player) => player.session().pushMessage(player, true, 'endStage'),
+
+    /**
+     * Checks a page's form as oTree does: each field's &lt;field>_error_message(model, value), then
+     * the page's error_message(player, values). Returns messages by field ('' for the page).
+     */
+    validate: (player, values, model, fieldChecks, pageCheck) => {
+        const obj = model === 'group' ? player.group : player;
+        const short = {};
+        for (const [full, value] of Object.entries(values)) short[full.split('.').slice(1).join('.')] = value;
+        const errors = {};
+        for (const [name, check] of Object.entries(fieldChecks || {})) {
+            if (name in short) {
+                const message = check(obj, short[name]);
+                if (message) errors[model + '.' + name] = String(message);
+            }
+        }
+        if (Object.keys(errors).length === 0 &amp;&amp; pageCheck != null) {
+            const result = pageCheck(player, short);
+            if (result != null &amp;&amp; typeof result === 'object') {
+                for (const [k, v] of Object.entries(result)) if (v) errors[model + '.' + k] = String(v);
+            } else if (result) {
+                errors[''] = String(result);
+            }
+        }
+        return Object.keys(errors).length > 0 ? errors : undefined;
+    },
+
+    /**
+     * What a page's screen shows (as player.page): player, group, subsession, participant,
+     * session and C as oTree's templates see them, with what vars_for_template gave, and the
+     * form's fields' choices, min and max for the player.
+     */
+    pageVars: (player, vars) => {
+        const app = otree.period(player).app;
+        const page = {
+            player: otree.view(player, 2),
+            group: otree.view(player.group, 2),
+            subsession: otree.view(otree.period(player), 1),
+            participant: otree.view(player.participant, 1),
+            session: otree.view(otree.session(player), 1),
+            C: app.C || {},
+            form: {},
+        };
+        page.player.in_all_rounds = player.inAllPeriods().map((p) => otree.view(p, 0));
+        page.player.in_previous_rounds = player.inPreviousPeriods().map((p) => otree.view(p, 0));
+        for (const name of player.stage.formFields || []) {
+            const field = (app.fields || {})[name] || {};
+            const value = (v) => (typeof v === 'function' ? v(player) : v);
+            const choices = value(field.choices);
+            page.form[name.split('.').pop()] = {
+                min: value(field.min),
+                max: value(field.max),
+                choices: choices == null ? null : choices.map((c) => (Array.isArray(c) ? c : [c, c])),
+            };
+        }
+        for (const [k, v] of Object.entries(vars || {})) page[k] = otree.data(v);
+        return page;
+    },
+
+    /**
+     * A player, group, period, participant or session as oTree's templates see it: its fields,
+     * with oTree's names (payoff, id_in_group, round_number, ...); depth says how far to follow
+     * it to the others (a group's players, a player's group).
+     */
+    view: (x, depth) => {
+        if (x == null) return null;
+        const out = {};
+        const own = (obj, skip) => {
+            for (const [k, v] of Object.entries(obj)) {
+                if (skip.includes(k) || typeof v === 'function' || k === 'page') continue;
+                if (v == null || typeof v !== 'object') out[k] = v;
+                // A copy: the page's data must not hold jtree's own lists, which change.
+                else if (Array.isArray(v) &amp;&amp; v.every((e) => e == null || typeof e !== 'object')) out[k] = v.slice();
+            }
+        };
+        if (otree.isPlayer(x)) {
+            own(x, ['id', 'status', 'stageIndex', 'timeInStage', 'points', 'outputHide', 'outputHideAuto']);
+            out.payoff = otree.payoff(x);
+            out.id_in_group = x.idInGroup;
+            out.round_number = otree.roundNumber(x);
+            out.role = otree.role(x);
+            out.id_in_subsession = otree.idInSubsession(x);
+            out.participant = otree.view(x.participant, 0);
+            out.session = otree.view(otree.session(x), 0);
+            if (depth > 1) out.group = otree.view(x.group, depth - 1);
+        } else if (otree.isGroup(x)) {
+            own(x, ['id', 'outputHide', 'outputHideAuto']);
+            out.id_in_subsession = otree.idInSubsession(x);
+            out.round_number = otree.roundNumber(x);
+            if (depth > 0) out.get_players = x.players.map((p) => otree.view(p, 0));
+        } else if (otree.isParticipant(x)) {
+            out.vars = Object.assign({}, x.vars);
+            out.label = x.label || null;
+            out.code = x.id;
+            out.id_in_session = Object.keys(x.session.participants).indexOf(String(x.id)) + 1;
+            out.payoff = otree.payoff(x);
+            out.payoff_plus_participation_fee = x.payment();
+            for (const k of Object.keys(x)) {
+                if (!(k in out) &amp;&amp; (x[k] == null || typeof x[k] !== 'object') &amp;&amp; typeof x[k] !== 'function') out[k] = x[k];
+            }
+        } else if (x.constructor.name === 'Period') {
+            out.round_number = x.id;
+            if (depth > 0) out.get_groups = x.groups.map((g) => otree.view(g, 1));
+        } else {
+            // A session: its fields (SESSION_FIELDS, set on it), then oTree's.
+            own(x, ['id', 'jt', 'name', 'clients', 'apps', 'users', 'addingQueues', 'potentialParticipantIds',
+                'outputHide', 'options', 'participants', 'mode', 'bots']);
+            out.code = x.id;
+            out.config = Object.assign({}, otree.config(x));
+            out.vars = Object.assign({}, x.vars);
+            out.num_participants = Object.keys(x.participants).length;
+        }
+        return out;
+    },
+
+    /** What vars_for_template gives, as data for the page: players and groups as their views. */
+    data: (value) => {
+        if (otree.isPlayer(value) || otree.isGroup(value) || otree.isParticipant(value)) return otree.view(value, 1);
+        if (Array.isArray(value)) return value.map(otree.data);
+        if (value != null &amp;&amp; typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, otree.data(v)]));
+        return value;
+    },
+
+    // --- Python's built-ins -----------------------------------------------------------------
+
+    list: (x) => (x == null ? [] : Array.isArray(x) ? x : typeof x === 'string' ? Array.from(x) : typeof x[Symbol.iterator] === 'function' ? Array.from(x) : Object.keys(x)),
+    sum: (xs, start = 0) => otree.list(xs).reduce((a, b) => a + b, start),
+    len: (x) => (x == null ? 0 : Array.isArray(x) || typeof x === 'string' ? x.length : Object.keys(x).length),
+    min: (...args) => otree.extreme(args, -1),
+    max: (...args) => otree.extreme(args, 1),
+    /** min (sign -1) or max (1) of a list, or of the arguments; the last may be {key}. */
+    extreme: (args, sign) => {
+        let key = (x) => x;
+        if (args.length > 1 &amp;&amp; args[args.length - 1] != null &amp;&amp; typeof args[args.length - 1] === 'object' &amp;&amp; !Array.isArray(args[args.length - 1]) &amp;&amp; 'key' in args[args.length - 1]) {
+            key = args.pop().key;
+        }
+        const xs = args.length === 1 ? otree.list(args[0]) : args;
+        let best;
+        for (const x of xs) {
+            if (best === undefined || otree.cmp(key(x), key(best)) === sign) best = x;
+        }
+        return best;
+    },
+    /** Python's round: halves to even. */
+    round: (x, n = 0) => {
+        const f = Math.pow(10, n);
+        const v = x * f;
+        const r = Math.round(v);
+        const exact = Math.abs(Math.abs(v % 1) - 0.5) &lt; 1e-9;
+        return (exact &amp;&amp; r % 2 !== 0 ? r - 1 : r) / f;
+    },
+    range: (a, b, step = 1) => {
+        if (b === undefined) { b = a; a = 0; }
+        const out = [];
+        for (let i = a; step > 0 ? i &lt; b : i > b; i += step) out.push(i);
+        return out;
+    },
+    /** oTree's currency_range: from a to b, both included. */
+    currencyRange: (a, b, step = 1) => {
+        const out = [];
+        for (let i = a; i &lt;= b + 1e-9; i += step) out.push(Math.round(i * 1e6) / 1e6);
+        return out;
+    },
+    /** Python's ordering: -1, 0 or 1; lists (tuples) item by item. */
+    cmp: (a, b) => {
+        if (Array.isArray(a) &amp;&amp; Array.isArray(b)) {
+            for (let i = 0; i &lt; Math.min(a.length, b.length); i++) {
+                const c = otree.cmp(a[i], b[i]);
+                if (c !== 0) return c;
+            }
+            return a.length - b.length &lt; 0 ? -1 : a.length > b.length ? 1 : 0;
+        }
+        return a &lt; b ? -1 : a > b ? 1 : 0;
+    },
+    sorted: (xs, opts = {}) => {
+        const key = opts.key || ((x) => x);
+        // Stable, as Python's sort; reverse keeps equal items in order.
+        const out = otree.list(xs).slice().sort((a, b) => otree.cmp(key(a), key(b)) * (opts.reverse ? -1 : 1));
+        return out;
+    },
+    sortInPlace: (xs, opts = {}) => {
+        const sorted = otree.sorted(xs, opts);
+        xs.splice(0, xs.length, ...sorted);
+    },
+    enumerate: (xs, start = 0) => otree.list(xs).map((x, i) => [i + start, x]),
+    zip: (...lists) => {
+        const ls = lists.map(otree.list);
+        return ls[0].slice(0, Math.min(...ls.map((l) => l.length))).map((_, i) => ls.map((l) => l[i]));
+    },
+    contains: (container, x) => {
+        if (container == null) return false;
+        if (Array.isArray(container)) return container.some((y) => otree.eq(x, y));
+        if (typeof container === 'string') return container.includes(x);
+        return Object.prototype.hasOwnProperty.call(container, otree.key(x));
+    },
+    /** Python's ==: lists by their items. */
+    eq: (a, b) => (Array.isArray(a) &amp;&amp; Array.isArray(b) ? a.length === b.length &amp;&amp; a.every((x, i) => otree.eq(x, b[i])) : a === b),
+    /** A dict's key, for a tuple too. */
+    key: (k) => (Array.isArray(k) ? JSON.stringify(k) : k),
+    unique: (xs) => Array.from(new Set(otree.list(xs))),
+    items: (d) => Object.entries(d),
+    keys: (d) => Object.keys(d),
+    values: (d) => Object.values(d),
+    get: (d, k, fallback = null) => (d != null &amp;&amp; Object.prototype.hasOwnProperty.call(d, otree.key(k)) ? d[otree.key(k)] : fallback),
+    setdefault: (d, k, value = null) => {
+        if (!Object.prototype.hasOwnProperty.call(d, otree.key(k))) d[otree.key(k)] = value;
+        return d[otree.key(k)];
+    },
+    /** xs[i], for i &lt; 0 from the end. */
+    at: (xs, i) => (i &lt; 0 ? xs[xs.length + i] : xs[i]),
+    remove: (xs, x) => {
+        const i = xs.findIndex((y) => otree.eq(x, y));
+        if (i >= 0) xs.splice(i, 1);
+    },
+    count: (xs, x) => otree.list(xs).filter((y) => otree.eq(x, y)).length,
+    popAt: (xs, i) => xs.splice(i &lt; 0 ? xs.length + i : i, 1)[0],
+    str: (x) => (x === true ? 'True' : x === false ? 'False' : x == null ? 'None' : Array.isArray(x) ? '[' + x.map(otree.repr).join(', ') + ']' : String(x)),
+    repr: (x) => (typeof x === 'string' ? "'" + x + "'" : otree.str(x)),
+    int: (x) => (typeof x === 'string' ? parseInt(x, 10) : Math.trunc(Number(x))),
+    float: (x) => Number(x),
+    bool: (x) => (Array.isArray(x) ? x.length > 0 : x != null &amp;&amp; typeof x === 'object' ? Object.keys(x).length > 0 : !!x),
+    /** Python's +: lists and strings joined, numbers added. */
+    add: (a, b) => (Array.isArray(a) ? a.concat(b) : a + b),
+    repeat: (xs, n) => Array.from({ length: n }, () => xs).flat(),
+    floordiv: (a, b) => Math.floor(a / b),
+    mod: (a, b) => ((a % b) + b) % b,
+    any: (xs) => otree.list(xs).some(Boolean),
+    all: (xs) => otree.list(xs).every(Boolean),
+    /** A value in an f-string, with a format spec ('.2f', 'd', ',', ...). */
+    format: (x, spec) => {
+        const m = /^(,)?(?:\.(\d+))?([fd%]?)$/.exec(spec || '');
+        if (m == null) return String(x);
+        let v = Number(x);
+        if (m[3] === '%') v *= 100;
+        let s = m[2] != null ? v.toFixed(Number(m[2])) : m[3] === 'd' ? String(Math.trunc(v)) : String(x);
+        if (m[1]) s = s.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return m[3] === '%' ? s + '%' : s;
+    },
+
+    // Python's random.
+    random: () => Math.random(),
+    randint: (a, b) => a + Math.floor(Math.random() * (b - a + 1)),
+    uniform: (a, b) => a + Math.random() * (b - a),
+    choice: (xs) => xs[Math.floor(Math.random() * xs.length)],
+    shuffle: (xs) => {
+        for (let i = xs.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [xs[i], xs[j]] = [xs[j], xs[i]];
+        }
+        return xs;
+    },
+    sample: (xs, k) => otree.shuffle(otree.list(xs).slice()).slice(0, k),
+    /** time.time(): seconds since 1970. */
+    time: () => Date.now() / 1000,
+    /** copy.deepcopy, copy.copy. */
+    deepcopy: (x) => (x == null || typeof x !== 'object' ? x : structuredClone(x)),
+    copy: (x) => (Array.isArray(x) ? x.slice() : x != null &amp;&amp; typeof x === 'object' ? { ...x } : x),
+    /** uuid.uuid4(), as its text (str(uuid4()) and uuid4().hex are the same characters but dashes). */
+    uuid4: () => require('crypto').randomUUID(),
+    /** json.dumps, with Python's separators (', ' and ': '). */
+    jsonDumps: (x) => {
+        const dump = (v) => {
+            if (v === null || v === undefined) return 'null';
+            if (Array.isArray(v)) return '[' + v.map(dump).join(', ') + ']';
+            if (typeof v === 'object') return '{' + Object.entries(v).map(([k, w]) => JSON.stringify(k) + ': ' + dump(w)).join(', ') + '}';
+            if (typeof v === 'number' &amp;&amp; Number.isInteger(v)) return String(v);
+            return JSON.stringify(v);
+        };
+        return dump(x);
+    },
+    /**
+     * Python's str.format: {} (in turn), {0}, {name}, {{ and }}; a spec after ':' with an
+     * optional ',' (thousands), '.N' (decimals) and type f, d or %.
+     */
+    strFormat: (text, args = [], kw = {}) => {
+        let next = 0;
+        return String(text).replace(/\{\{|\}\}|\{([^{}:]*)(?::([^{}]*))?\}/g, (m, field, spec) => {
+            if (m === '{{') return '{';
+            if (m === '}}') return '}';
+            const v = field === undefined || field === '' ? args[next++] : /^\d+$/.test(field) ? args[Number(field)] : kw[field];
+            if (!spec) return otree.str(v);
+            const s = /^(,)?(?:\.(\d+))?([fd%])?$/.exec(spec);
+            if (s == null) return otree.str(v);
+            let n = Number(v);
+            if (s[3] === '%') n *= 100;
+            let out = s[2] != null ? n.toFixed(Number(s[2])) : s[3] === 'f' ? n.toFixed(6) : s[3] === 'd' ? String(Math.trunc(n)) : String(n);
+            if (s[1]) out = out.replace(/^(-?\d+)/, (d) => d.replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+            return s[3] === '%' ? out + '%' : out;
+        });
+    },
+};
+
+module.exports = otree;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AdminAuth.html">AdminAuth</a></li><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="Data.html">Data</a></li><li><a href="Exit.html">Exit</a></li><li><a href="Group.html">Group</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="QueueRecorder.html">QueueRecorder</a></li><li><a href="Reader.html">Reader</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Run.html">Run</a></li><li><a href="Screens.html">Screens</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="Translator.html">Translator</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="global.html#start">start</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-4a-ztree.html">z-Tree treatments</a></li><li><a href="tutorial-4b-otree.html">oTree apps</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-other.html">Other</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ADMIN_LOGIN_REQUIRED">ADMIN_LOGIN_REQUIRED</a></li><li><a href="global.html#APP_HOOKS">APP_HOOKS</a></li><li><a href="global.html#STAGE_HOOKS">STAGE_HOOKS</a></li><li><a href="global.html#addToClass">addToClass</a></li><li><a href="global.html#allBoxes">allBoxes</a></li><li><a href="global.html#appCSV">appCSV</a></li><li><a href="global.html#appFile">appFile</a></li><li><a href="global.html#appInsertAt">appInsertAt</a></li><li><a href="global.html#appRoots">appRoots</a></li><li><a href="global.html#appTemplate">appTemplate</a></li><li><a href="global.html#appToIR">appToIR</a></li><li><a href="global.html#apply">apply</a></li><li><a href="global.html#applyIR">applyIR</a></li><li><a href="global.html#applySettings">applySettings</a></li><li><a href="global.html#arrayDeclarations">arrayDeclarations</a></li><li><a href="global.html#arrayIndex">arrayIndex</a></li><li><a href="global.html#assignedVariables">assignedVariables</a></li><li><a href="global.html#boolValue">boolValue</a></li><li><a href="global.html#botCases">botCases</a></li><li><a href="global.html#boxOptions">boxOptions</a></li><li><a href="global.html#chat">chat</a></li><li><a href="global.html#chatFor">chatFor</a></li><li><a href="global.html#check">check</a></li><li><a href="global.html#checkField">checkField</a></li><li><a href="global.html#checkForm">checkForm</a></li><li><a href="global.html#compileProgram">compileProgram</a></li><li><a href="global.html#compiled">compiled</a></li><li><a href="global.html#context">context</a></li><li><a href="global.html#contractList">contractList</a></li><li><a href="global.html#convertApp">convertApp</a></li><li><a href="global.html#convertTreatment">convertTreatment</a></li><li><a href="global.html#convertTreatmentFile">convertTreatmentFile</a></li><li><a href="global.html#copyDir">copyDir</a></li><li><a href="global.html#copyToPlayer">copyToPlayer</a></li><li><a href="global.html#creatingSessionBeforeArrival">creatingSessionBeforeArrival</a></li><li><a href="global.html#cut">cut</a></li><li><a href="global.html#decimals">decimals</a></li><li><a href="global.html#declared">declared</a></li><li><a href="global.html#dedent">dedent</a></li><li><a href="global.html#describeValue">describeValue</a></li><li><a href="global.html#dialectFor">dialectFor</a></li><li><a href="global.html#drawn">drawn</a></li><li><a href="global.html#encode">encode</a></li><li><a href="global.html#endSoon">endSoon</a></li><li><a href="global.html#errorPosition">errorPosition</a></li><li><a href="global.html#exportTables">exportTables</a></li><li><a href="global.html#exporter">exporter</a></li><li><a href="global.html#exportersFor">exportersFor</a></li><li><a href="global.html#expression">expression</a></li><li><a href="global.html#fail">fail</a></li><li><a href="global.html#file">file</a></li><li><a href="global.html#fillValues">fillValues</a></li><li><a href="global.html#findBox">findBox</a></li><li><a href="global.html#finite">finite</a></li><li><a href="global.html#formatText">formatText</a></li><li><a href="global.html#formatValue">formatValue</a></li><li><a href="global.html#fromDescription">fromDescription</a></li><li><a href="global.html#getBridge">getBridge</a></li><li><a href="global.html#grid">grid</a></li><li><a href="global.html#history">history</a></li><li><a href="global.html#inAppFolders">inAppFolders</a></li><li><a href="global.html#indent">indent</a></li><li><a href="global.html#indentBy">indentBy</a></li><li><a href="global.html#insertAfter">insertAfter</a></li><li><a href="global.html#isInteractive">isInteractive</a></li><li><a href="global.html#isProject">isProject</a></li><li><a href="global.html#isSessionsLastPage">isSessionsLastPage</a></li><li><a href="global.html#isText">isText</a></li><li><a href="global.html#isTextFile">isTextFile</a></li><li><a href="global.html#itemCell">itemCell</a></li><li><a href="global.html#itemsTable">itemsTable</a></li><li><a href="global.html#jsonErrorPosition">jsonErrorPosition</a></li><li><a href="global.html#lanAddress">lanAddress</a></li><li><a href="global.html#lastFirst">lastFirst</a></li><li><a href="global.html#layoutEnd">layoutEnd</a></li><li><a href="global.html#layoutParts">layoutParts</a></li><li><a href="global.html#leaveIfAsked">leaveIfAsked</a></li><li><a href="global.html#leavesStage">leavesStage</a></li><li><a href="global.html#legacyValue">legacyValue</a></li><li><a href="global.html#lines">lines</a></li><li><a href="global.html#loadPackagesFor">loadPackagesFor</a></li><li><a href="global.html#measure">measure</a></li><li><a href="global.html#memberAssignment">memberAssignment</a></li><li><a href="global.html#model">model</a></li><li><a href="global.html#mountProject">mountProject</a></li><li><a href="global.html#newTreatment">newTreatment</a></li><li><a href="global.html#normalizeCode">normalizeCode</a></li><li><a href="global.html#openUrl">openUrl</a></li><li><a href="global.html#owner">owner</a></li><li><a href="global.html#packageFor">packageFor</a></li><li><a href="global.html#pageTimesCSV">pageTimesCSV</a></li><li><a href="global.html#paramCell">paramCell</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseExpr">parseExpr</a></li><li><a href="global.html#parseLayout">parseLayout</a></li><li><a href="global.html#parseQueueId">parseQueueId</a></li><li><a href="global.html#place">place</a></li><li><a href="global.html#plot">plot</a></li><li><a href="global.html#plotInput">plotInput</a></li><li><a href="global.html#plotItemAt">plotItemAt</a></li><li><a href="global.html#prefixHtmlUrls">prefixHtmlUrls</a></li><li><a href="global.html#pressButton">pressButton</a></li><li><a href="global.html#program">program</a></li><li><a href="global.html#programItems">programItems</a></li><li><a href="global.html#putApp">putApp</a></li><li><a href="global.html#putSettings">putSettings</a></li><li><a href="global.html#py">py</a></li><li><a href="global.html#queueId">queueId</a></li><li><a href="global.html#queueScript">queueScript</a></li><li><a href="global.html#quote">quote</a></li><li><a href="global.html#quotedEnd">quotedEnd</a></li><li><a href="global.html#readGameHeader">readGameHeader</a></li><li><a href="global.html#readQuestionnaires">readQuestionnaires</a></li><li><a href="global.html#readScreen">readScreen</a></li><li><a href="global.html#readTextQuestionnaires">readTextQuestionnaires</a></li><li><a href="global.html#readTextTreatment">readTextTreatment</a></li><li><a href="global.html#readTreatment">readTreatment</a></li><li><a href="global.html#ready">ready</a></li><li><a href="global.html#refresh">refresh</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#reload">reload</a></li><li><a href="global.html#renderScreen">renderScreen</a></li><li><a href="global.html#reportMarkdown">reportMarkdown</a></li><li><a href="global.html#rooms">rooms</a></li><li><a href="global.html#router">router</a></li><li><a href="global.html#rtfToText">rtfToText</a></li><li><a href="global.html#run">run</a></li><li><a href="global.html#runAppCode">runAppCode</a></li><li><a href="global.html#runBots">runBots</a></li><li><a href="global.html#runOf">runOf</a></li><li><a href="global.html#runZtreeBots">runZtreeBots</a></li><li><a href="global.html#scan">scan</a></li><li><a href="global.html#screen">screen</a></li><li><a href="global.html#sessionConfigs">sessionConfigs</a></li><li><a href="global.html#settleBoxes">settleBoxes</a></li><li><a href="global.html#stageDeclaration">stageDeclaration</a></li><li><a href="global.html#stageMeaning">stageMeaning</a></li><li><a href="global.html#stageVariable">stageVariable</a></li><li><a href="global.html#statementRange">statementRange</a></li><li><a href="global.html#str">str</a></li><li><a href="global.html#subjectIndex">subjectIndex</a></li><li><a href="global.html#submitGeneric">submitGeneric</a></li><li><a href="global.html#substitutionAt">substitutionAt</a></li><li><a href="global.html#syntaxErrors">syntaxErrors</a></li><li><a href="global.html#tableRecords">tableRecords</a></li><li><a href="global.html#tablesChangedTimers">tablesChangedTimers</a></li><li><a href="global.html#template">template</a></li><li><a href="global.html#templateLiteral">templateLiteral</a></li><li><a href="global.html#templates">templates</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#textParts">textParts</a></li><li><a href="global.html#toTreatment">toTreatment</a></li><li><a href="global.html#tokenize">tokenize</a></li><li><a href="global.html#topInsert">topInsert</a></li><li><a href="global.html#treatmentFile">treatmentFile</a></li><li><a href="global.html#unindent">unindent</a></li><li><a href="global.html#urlFor">urlFor</a></li><li><a href="global.html#validate">validate</a></li><li><a href="global.html#value">value</a></li><li><a href="global.html#valueFor">valueFor</a></li><li><a href="global.html#valueKind">valueKind</a></li><li><a href="global.html#valueSource">valueSource</a></li><li><a href="global.html#variables">variables</a></li><li><a href="global.html#whenReady">whenReady</a></li><li><a href="global.html#wideCSV">wideCSV</a></li><li><a href="global.html#withBlocks">withBlocks</a></li><li><a href="global.html#withStatics">withStatics</a></li><li><a href="global.html#write">write</a></li><li><a href="global.html#zTreeRules">zTreeRules</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Oct 14 2026 09:40:18 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

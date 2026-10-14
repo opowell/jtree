@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: dialects/ztree/runtime.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: dialects/ztree/runtime.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*
+ * A z-Tree treatment running in a jtree session (one Run per app of a session): its tables, its
+ * programs, its buttons and its screens.
+ *
+ * Tables, each period: globals (one record), subjects (one per participant: Period, Subject,
+ * Group, Profit, TotalProfit, Participate), summary (one per period, all periods'), contracts
+ * (created by the programs and contract boxes), session (one per participant, all periods').
+ * OLD&lt;table> is the period before's.
+ */
+
+const fs = require('fs');
+const path = require('path');
+const lang = require('./lang.js');
+const render = require('./render.js');
+
+const BUILT_IN = {
+    globals: ['Period', 'NumPeriods', 'RepeatTreatment'],
+    subjects: ['Period', 'Subject', 'Group', 'Profit', 'TotalProfit', 'Participate', 'LeaveStage'],
+    summary: ['Period'],
+    session: ['Subject', 'FinalProfit', 'ShowUpFee', 'MoneyAdded'],
+    contracts: [],
+};
+
+/** Parsed programs, by their code. */
+const compiled = new Map();
+function program(code) {
+    if (!compiled.has(code)) compiled.set(code, lang.parse(code || ''));
+    return compiled.get(code);
+}
+
+class Run {
+    /**
+     * @param {Object} treatment From ztt.js.
+     * @param {App} app The session's app.
+     */
+    constructor(treatment, app) {
+        this.treatment = treatment;
+        this.app = app;
+        this.periods = [];     // by period index: {globals, subjects, contracts, summary, started}
+        this.sessionRecords = []; // by subject index
+        this.nextId = 1;
+        this.timers = [];
+        this.selected = new Map(); // participant id -> {boxPath: record id}
+        this.errors = [];
+        this.vars = variables(treatment);
+        this.arrays = arrayDeclarations(treatment);
+        // Tables that last the treatment or the session (lifetime TREATMENT or SESSION): their
+        // records, kept across periods; the others' are a period's.
+        this.lasting = {};
+        for (const t of treatment.tables || []) {
+            if (/^(TREATMENT|SESSION)$/i.test(t.lifetime || '') &amp;&amp; !BUILT_IN[t.name]) this.lasting[t.name] = [];
+        }
+    }
+
+    // --- Tables -------------------------------------------------------------------------
+
+    /** The runtime programs see in period p (0-based): tables, and what they call. */
+    /** Whose rules the treatment runs by: its session's mode (see Session#engineMode), else jtree's. */
+    mode() {
+        const session = this.app &amp;&amp; this.app.session;
+        return session != null &amp;&amp; typeof session.engineMode === 'function' ? session.engineMode() : 'jtree';
+    }
+
+    view(p) {
+        const run = this;
+        const state = this.periods[p];
+        return {
+            period: p,
+            // Whose rules apply where the engines differ (see lang.js's zTreeRules).
+            mode: run.mode(),
+            records(table, { old } = {}) {
+                const s = old ? run.periods[p - 1] : state;
+                if (s == null) return [];
+                switch (table) {
+                    case 'subjects': return s.subjects;
+                    case 'globals': return [s.globals];
+                    case 'contracts': return s.contracts;
+                    case 'summary': return run.periods.slice(0, (old ? p - 1 : p) + 1).filter(Boolean).map((x) => x.summary);
+                    case 'session': return run.sessionRecords;
+                    default:
+                        if (run.lasting[table] != null) return run.lasting[table];
+                        return (s.other[table] = s.other[table] || []);
+                }
+            },
+            globals() { return state.globals; },
+            isVar(table, name) { return run.vars[table] != null &amp;&amp; run.vars[table].has(name); },
+            declaredArray(table, name) { return (run.arrays[table] || {})[name] || null; },
+            newRecord(table) { return run.newRecord(p, table); },
+            later(seconds, fn) { run.later(seconds, fn); },
+            time() { return (Date.now() - state.startedAt) / 1000; },
+            history(ctx) {
+                const subject = ctx.rec.Subject;
+                return run.periods.slice(0, p).filter(Boolean).map((s) => s.subjects.find((r) => r.Subject === subject)).filter(Boolean);
+            },
+            contractRows(box, ctx) { return run.contractRows(box, ctx, this); },
+        };
+    }
+
+    newRecord(p, table) {
+        const rec = { _id: this.nextId++ };
+        for (const name of this.vars[table] || []) rec[name] = 0;
+        rec.Period = p + 1;
+        const state = this.periods[p];
+        if (table === 'contracts') state.contracts.push(rec);
+        else if (this.lasting[table] != null) this.lasting[table].push(rec);
+        else if (table !== 'subjects' &amp;&amp; table !== 'globals') (state.other[table] = state.other[table] || []).push(rec);
+        this.initRecord(p, table, rec);
+        return rec;
+    }
+
+    /**
+     * A new record of a table: the background's programs for its table run on it, as z-Tree
+     * runs them (noda's contracts get Buyer = -1 and so on, GIMS's records their arrays).
+     */
+    initRecord(p, table, rec) {
+        const programs = this.treatment.background.programs.filter((pr) => (pr.table || 'subjects') === table);
+        if (programs.length === 0 || ['subjects', 'globals', 'summary', 'session'].includes(table)) return;
+        this.initDepth = (this.initDepth || 0) + 1;
+        try {
+            if (this.initDepth > 20) throw new Error('records of ' + table + ' make records without end');
+            const ctx = { rt: this.view(p), table, rec, outer: null };
+            for (const pr of programs) {
+                if (pr.condition &amp;&amp; !lang.bool(this.value(pr.condition, ctx))) continue;
+                this.exec(pr.code, ctx);
+            }
+        } catch (err) {
+            this.note(err.message);
+        } finally {
+            this.initDepth--;
+        }
+    }
+
+    /** Starts period p (0-based) for the subjects (the session's participants, in order). */
+    startPeriod(p, numSubjects) {
+        const t = this.treatment;
+        const before = this.periods[p - 1];
+        const state = {
+            globals: { _id: this.nextId++, Period: p + 1, NumPeriods: t.periods.length, RepeatTreatment: 0 },
+            subjects: [],
+            contracts: [],
+            summary: { _id: this.nextId++, Period: p + 1 },
+            other: {},
+            startedAt: Date.now(),
+            globalsRun: new Set(), // stages whose globals programs have run (stages started one by one)
+        };
+        this.periods[p] = state;
+        for (let i = 0; i &lt; numSubjects; i++) {
+            const cell = paramCell(t, p, i) || { group: 1, program: '' };
+            const rec = { _id: this.nextId++ };
+            for (const name of this.vars.subjects) rec[name] = 0;
+            Object.assign(rec, {
+                Period: p + 1, Subject: i + 1, Group: cell.group == null ? 1 : cell.group, Profit: 0,
+                TotalProfit: before != null &amp;&amp; before.subjects[i] != null ? before.subjects[i].TotalProfit : 0, Participate: 1,
+            });
+            state.subjects.push(rec);
+            if (this.sessionRecords[i] == null) this.sessionRecords[i] = { _id: this.nextId++, Subject: i + 1 };
+        }
+        for (const name of this.vars.globals) if (!(name in state.globals)) state.globals[name] = 0;
+        const view = this.view(p);
+        // The background's table loaders, then its programs, then the parameter table's: the
+        // period's, the subject's (role's), then the cell's.
+        this.loadTables(p, t.background.loaders);
+        this.runPrograms(t.background.programs, view, state.subjects);
+        const periodProgram = (t.periods[p] || {}).program;
+        if (periodProgram) this.exec(periodProgram, { rt: view, table: 'globals', rec: state.globals, outer: null });
+        state.subjects.forEach((rec, i) => {
+            const role = t.subjects[i % Math.max(1, t.subjects.length)];
+            if (role &amp;&amp; role.program) this.exec(role.program, { rt: view, table: 'subjects', rec, outer: null });
+            const cell = paramCell(t, p, i);
+            if (cell &amp;&amp; cell.program) this.exec(cell.program, { rt: view, table: 'subjects', rec, outer: null });
+        });
+    }
+
+    /** Ends period p: profits added up. */
+    endPeriod(p) {
+        const state = this.periods[p];
+        if (state == null || state.ended) return;
+        state.ended = true;
+        for (const rec of state.subjects) rec.TotalProfit = lang.num(rec.TotalProfit) + lang.num(rec.Profit);
+        this.clearTimers();
+    }
+
+    /**
+     * Runs programs (a stage's, the background's) for the subjects starting it: each program, in
+     * order, on its table's records (subjects: those starting; globals: once).
+     */
+    runPrograms(programs, view, subjects, { globalsOnce } = {}) {
+        for (const pr of programs) {
+            const table = pr.table || 'subjects';
+            let records;
+            if (table === 'subjects') records = subjects;
+            else if (table === 'globals') {
+                if (globalsOnce != null) {
+                    if (globalsOnce.has(pr)) continue;
+                    globalsOnce.add(pr);
+                }
+                records = [view.globals()];
+            } else if (table === 'summary') records = [view.records('summary').slice(-1)[0]];
+            else if (table === 'session') records = subjects.map((s) => this.sessionRecords[s.Subject - 1]).filter(Boolean);
+            else records = view.records(table);
+            for (const rec of records.slice()) {
+                const ctx = { rt: view, table, rec, outer: null };
+                if (pr.condition &amp;&amp; !lang.bool(this.value(pr.condition, ctx))) continue;
+                this.exec(pr.code, ctx);
+            }
+        }
+    }
+
+    /** Runs code in ctx; an error is noted (and logged), not thrown. */
+    exec(code, ctx) {
+        try {
+            lang.run(program(code), ctx);
+        } catch (err) {
+            // The program by its first line (often a comment saying what it is).
+            const first = String(code || '').split('\n').map((l) => l.trim()).find((l) => l !== '') || '';
+            this.note('in a program on ' + ctx.table + ' (' + first.slice(0, 60) + '): ' + err.message);
+        }
+    }
+
+    value(code, ctx) {
+        try {
+            return lang.evaluate(render.expression(code), ctx);
+        } catch (err) {
+            this.note(code + ': ' + err.message);
+            return 0;
+        }
+    }
+
+    /**
+     * The file a table loader or dumper names: its name (z-Tree's may be a Windows path) in
+     * folder.
+     */
+    tableFile(name, folder, p) {
+        let text = String(name).trim().replace(/^"|"$/g, '');
+        // A z-Tree text with values (GIMS: &lt;>GIMS_P&lt;\Period|...>_&lt;gettime()|1>.zBackup).
+        if (text.startsWith('&lt;>') &amp;&amp; p != null) {
+            text = render.formatText(text, { rt: this.view(p), table: 'globals', rec: this.periods[p].globals, outer: null })
+                .replace(/&lt;[^>]*>/g, '').replace(/&amp;lt;/g, '&lt;').replace(/&amp;gt;/g, '>').replace(/&amp;quot;/g, '"').replace(/&amp;amp;/g, '&amp;');
+        }
+        return path.join(folder, text.split(/[\\/]/).pop().replace(/[&lt;>:"|?*]/g, '_'));
+    }
+
+    /** Whether a loader's or dumper's condition holds (on the globals; none: it does). */
+    tableCondition(code, p) {
+        if (code == null || String(code).trim() === '') return true;
+        return lang.bool(this.value(code, { rt: this.view(p), table: 'globals', rec: this.periods[p].globals, outer: null }));
+    }
+
+    /**
+     * Table loaders, as z-Tree 5 runs them (before the stage's programs): each whose condition
+     * holds reads its file, a dumper's (a line naming a table and its variables, then a line
+     * for each record: the table's name and the values; tab-separated), from the session's
+     * output folder (where dumpers write, so that a treatment can load what one before dumped),
+     * else the treatment's. A table's records are replaced by the file's: a variable the file
+     * does not have is 0, as in z-Tree, but for jtree's own in subjects and globals (Period,
+     * Subject, Group, Participate; NumPeriods), which its sessions need. A variable the
+     * treatment does not have is an error, noted (as z-Tree shows it), and left out.
+     */
+    loadTables(p, loaders) {
+        const session = this.app &amp;&amp; this.app.session;
+        for (const loader of loaders || []) {
+            if (!this.tableCondition(loader.condition, p)) continue;
+            const folders = [session &amp;&amp; session.getOutputDir(), this.app &amp;&amp; this.app.appPath &amp;&amp; path.dirname(this.app.appPath)].filter(Boolean);
+            const file = folders.map((f) => this.tableFile(loader.file, f, p)).find((f) => fs.existsSync(f));
+            if (file == null) {
+                this.note('table loader: no file ' + loader.file);
+                continue;
+            }
+            const blocks = [];
+            for (const line of fs.readFileSync(file, 'latin1').split(/\r?\n/)) {
+                if (line.trim() === '') continue;
+                const cells = line.split('\t');
+                const last = blocks[blocks.length - 1];
+                if (last == null || last.table !== cells[0]) blocks.push({ table: cells[0], names: cells.slice(1), rows: [] });
+                else last.rows.push(cells.slice(1));
+            }
+            for (const b of blocks) this.loadTable(p, b);
+        }
+    }
+
+    loadTable(p, { table, names, rows }) {
+        const state = this.periods[p];
+        const known = this.vars[table] || new Set();
+        const unknown = names.filter((n) => !known.has(n) &amp;&amp; !['Period', 'Subject'].includes(n));
+        if (unknown.length) this.note('Error(s) reading table "' + table + '":Variable(s) not defined: ' + unknown.join(', '));
+        const value = (text) => {
+            const t = String(text).trim();
+            if (/^".*"$/.test(t)) return t.slice(1, -1);
+            const n = Number(t);
+            return t === '' || Number.isNaN(n) ? t : n;
+        };
+        const fill = (rec, row, keep) => {
+            for (const name of known) if (!keep.includes(name)) rec[name] = 0;
+            names.forEach((n, i) => { if (!unknown.includes(n) &amp;&amp; !keep.includes(n) &amp;&amp; i &lt; row.length) rec[n] = value(row[i]); });
+            return rec;
+        };
+        if (table === 'subjects') {
+            rows.forEach((row, i) => { if (state.subjects[i] != null) fill(state.subjects[i], row, ['Period', 'Subject', 'Group', 'Participate']); });
+        } else if (table === 'globals') {
+            if (rows[0] != null) fill(state.globals, rows[0], ['Period', 'NumPeriods', 'RepeatTreatment']);
+        } else {
+            const records = rows.map((row) => fill({ _id: this.nextId++, Period: p + 1 }, row, ['Period']));
+            if (table === 'contracts') state.contracts = records;
+            else if (this.lasting[table] != null) this.lasting[table] = records;
+            else state.other[table] = records;
+        }
+        this.onChange();
+    }
+
+    /**
+     * Table dumpers, as z-Tree 5 runs them (as the stage starts, after its programs): each whose
+     * condition holds writes its tables (semicolon-separated names) to its file, in the session's
+     * output folder, as z-Tree writes them (see loadTables).
+     */
+    dumpTables(p, dumpers) {
+        const session = this.app &amp;&amp; this.app.session;
+        if (session == null) return;
+        const view = this.view(p);
+        const cell = (v) => (typeof v === 'string' ? '"' + v.replace(/[\t\r\n]/g, ' ') + '"' : v == null ? '' :
+            typeof v === 'object' ? '' : Number.isNaN(v) ? '-nan(ind)' : v === Infinity ? 'inf' : v === -Infinity ? '-inf' : String(v));
+        for (const dumper of dumpers || []) {
+            if (!this.tableCondition(dumper.condition, p)) continue;
+            const lines = [];
+            for (const table of String(dumper.tables || '').split(';').map((t) => t.trim()).filter(Boolean)) {
+                const records = view.records(table);
+                const names = [];
+                for (const rec of records) for (const k of Object.keys(rec)) if (k !== '_id' &amp;&amp; !names.includes(k)) names.push(k);
+                lines.push([table, ...names].join('\t'));
+                for (const rec of records) lines.push([table, ...names.map((n) => cell(rec[n]))].join('\t'));
+            }
+            const file = this.tableFile(dumper.file, session.getOutputDir(), p);
+            fs.mkdirSync(path.dirname(file), { recursive: true });
+            fs.writeFileSync(file, lines.map((l) => l + '\r\n').join(''), 'latin1');
+        }
+    }
+
+    note(message) {
+        this.errors.push(message);
+        if (this.app.jt != null) this.app.jt.log('z-Tree: ' + message);
+    }
+
+    later(seconds, fn) {
+        const timer = setTimeout(() => {
+            this.timers = this.timers.filter((t) => t !== timer);
+            try {
+                fn();
+            } catch (err) {
+                this.note('in a later block: ' + err.message);
+            }
+            this.onChange();
+        }, seconds * 1000);
+        if (timer.unref) timer.unref();
+        this.timers.push(timer);
+    }
+
+    clearTimers() {
+        this.timers.forEach(clearTimeout);
+        this.timers = [];
+    }
+
+    /** Called when the tables change outside a participant's action (later blocks). */
+    onChange() {}
+
+    /** A contract list's rows: the box table's records that meet its condition, sorted. */
+    contractRows(box, ctx, view) {
+        const table = box.table || 'contracts';
+        let records = view.records(table).filter((rec) => !box.tableCondition ||
+            lang.bool(this.value(box.tableCondition, { rt: view, table, rec, outer: ctx })));
+        if (box.sorting) {
+            // Keys separated by ;, each descending with a - before it: "-p; -contractID".
+            const keys = box.sorting.split(';').map((k) => k.trim()).filter(Boolean).map((k) => ({
+                desc: k.startsWith('-'), code: k.replace(/^[-+]\s*/, ''),
+            }));
+            const k = (rec, key) => lang.num(this.value(key.code, { rt: view, table, rec, outer: ctx }));
+            records = records.slice().sort((a, b) => {
+                for (const key of keys) {
+                    const d = k(a, key) - k(b, key);
+                    if (Math.abs(d) > 1e-12) return key.desc ? -d : d;
+                }
+                return 0;
+            });
+        }
+        return records;
+    }
+
+    // --- Buttons ------------------------------------------------------------------------
+
+    /**
+     * A subject pressed a button of a box of their stage's screen: its inputs are checked and put
+     * in their record (or a new one, or the chosen one, for contract boxes), its checkers are
+     * checked, and its programs run. Returns {error} (a message for the subject), or {leave}
+     * (whether the subject leaves the stage).
+     * @param {Object} d {box (path), button (index), values (by input name), record (chosen)}
+     */
+    press(p, subjectIndex, stage, d) {
+        const view = this.view(p);
+        const state = this.periods[p];
+        const subject = state.subjects[subjectIndex];
+        const box = findBox(stage, d.box);
+        if (box == null) return { error: 'There is no such box.' };
+        // An item with buttons (layout !button) leaves the stage, as a button with no checkers.
+        const button = d.itemButton ? { name: '', checkers: [], programs: [] } : box.buttons[Number(d.button)];
+        if (button == null) return { error: 'There is no such button.' };
+        const own = { rt: view, table: 'subjects', rec: subject, outer: null };
+        let target = subject;
+        let targetTable = 'subjects';
+        let isNew = false;
+        if (box.type === 'contractCreation') {
+            targetTable = box.table || 'contracts';
+            target = { _id: null };
+            for (const name of this.vars[targetTable] || []) target[name] = 0;
+            target.Period = p + 1;
+            this.initRecord(p, targetTable, target);
+            isNew = true;
+        } else if (box.type === 'contractList') {
+            targetTable = box.table || 'contracts';
+            const rows = this.contractRows(box, own, view);
+            target = rows.find((r) => String(r._id) === String(d.record));
+            if (target == null) {
+                return { error: rows.length === 0 ? 'There is nothing to choose.' : 'Please choose a row first.' };
+            }
+        }
+        const ctx = targetTable === 'subjects' ? own : { rt: view, table: targetTable, rec: target, outer: own };
+
+        // Inputs: the box's, and (for a standard box's button) those of the screen's boxes that
+        // have no buttons of their own; checked, then set (on a copy until the checkers pass).
+        const inputs = box.items.map((item) => [item, d.values || {}]);
+        if (!['contractCreation', 'contractList', 'chat'].includes(box.type)) {
+            const visit = (b, path) => {
+                // A box not shown (its display condition false) asks for nothing, nor do its boxes.
+                if (b.condition &amp;&amp; !lang.bool(this.value(b.condition, own))) return;
+                if (path !== String(d.box) &amp;&amp; ['standard', 'grid'].includes(b.type) &amp;&amp; b.buttons.length === 0) {
+                    for (const item of b.items) inputs.push([item, (d.others || {})[path] || {}]);
+                }
+                b.boxes.forEach((c, i) => visit(c, path + '.' + i));
+            };
+            stage.active.forEach((b, i) => visit(b, String(i)));
+        }
+        const updates = {};
+        for (const [item, values] of inputs) {
+            if (item.kind !== 'item' || !item.input || !item.variable) continue;
+            const raw = values[item.variable];
+            const text = raw == null ? '' : String(raw).trim();
+            const layout = render.parseLayout(item.layout, ctx);
+            if (text === '') {
+                if (layout.kind === 'checkbox') { updates[item.variable] = 0; continue; }
+                return { error: 'Please enter a value for "' + plain(item.label || item.variable) + '".' };
+            }
+            const v = Number(text.replace(',', '.'));
+            if (!Number.isFinite(v)) return { error: '"' + text + '" is not a number.' };
+            const min = item.min ? lang.num(this.value(item.min, ctx)) : null;
+            const max = item.max ? lang.num(this.value(item.max, ctx)) : null;
+            if ((min != null &amp;&amp; v &lt; min - 1e-9) || (max != null &amp;&amp; v > max + 1e-9)) {
+                return { error: 'Please enter a number from ' + render.formatValue(min, layout, ctx) + ' to ' + render.formatValue(max, layout, ctx) + '.' };
+            }
+            if (layout.kind === 'number' &amp;&amp; layout.step > 0 &amp;&amp; Math.abs(v / layout.step - Math.round(v / layout.step)) > 1e-6) {
+                return { error: 'Please enter a multiple of ' + layout.step + '.' };
+            }
+            updates[item.variable] = v;
+        }
+        // An input into a variable, or into an array's element (CQ[1], as GIMS has them).
+        const isName = (k) => /^\w+$/.test(k);
+        const set = (k, v) => {
+            if (isName(k)) target[k] = v;
+            else lang.run({ body: [{ k: 'set', target: lang.parse(k + ' = 0;').body[0].target, value: { k: 'num', v } }] }, ctx);
+        };
+        const saved = {};
+        for (const [k, v] of Object.entries(updates)) {
+            saved[k] = isName(k) ? (Object.prototype.hasOwnProperty.call(target, k) ? target[k] : undefined) : lang.evaluate(lang.parseExpr(k), ctx);
+            set(k, v);
+        }
+        // Checkers: the box's, then the button's.
+        for (const checker of [...box.items.filter((i) => i.kind === 'checker'), ...button.checkers]) {
+            if (!lang.bool(this.value(checker.condition, ctx))) {
+                for (const [k, v] of Object.entries(saved)) {
+                    if (v === undefined) delete target[k]; else set(k, v);
+                }
+                return { error: render.formatText(checker.message, ctx).replace(/&lt;br>/g, '\n') || 'Not allowed.' };
+            }
+        }
+        if (isNew) {
+            target._id = this.nextId++;
+            if (targetTable === 'contracts') state.contracts.push(target);
+            else (state.other[targetTable] = state.other[targetTable] || []).push(target);
+        }
+        // The button's table loaders (GIMS's "Load from disk"), before its programs.
+        this.loadTables(p, button.loaders);
+        // The button's programs: on the box's record for its table, the subject's, the globals'.
+        for (const pr of button.programs) {
+            const table = pr.table || 'subjects';
+            let records;
+            if (table === targetTable &amp;&amp; targetTable !== 'subjects') records = [target];
+            else if (table === 'subjects') records = [subject];
+            else if (table === 'globals') records = [state.globals];
+            else records = view.records(table);
+            for (const rec of records) {
+                const c = { rt: view, table, rec, outer: table === 'subjects' &amp;&amp; rec === subject ? null : own };
+                if (pr.condition &amp;&amp; !lang.bool(this.value(pr.condition, c))) continue;
+                this.exec(pr.code, c);
+            }
+        }
+        // Whether it leaves the stage: as the button says, else as z-Tree has it ("Normal"): it
+        // does, unless the stage is an auction (left after its timeout always) and the button is
+        // in a contract creation or list box.
+        // Its table dumpers (GIMS's settings, saved with "START NOW"), after its programs.
+        this.dumpTables(p, button.dumpers);
+        const leaves = d.itemButton || leavesStage(button, box, stage);
+        return { leave: leaves };
+    }
+
+    /**
+     * A subject used a plot input of a plot box: {box, input (its id: the item's path in the box,
+     * then @ and the records it was drawn for, table:id, innermost first), x, y (where), x0, y0,
+     * x1, y1 (a drag's start and end)}. A click (action 0) makes a record of the input's table at
+     * the point (or, for subjects, moves the subject's); a click on an item (1) or a drag (2) is
+     * its record's. Then the input's programs run, each on its table's record.
+     */
+    plotInput(p, subjectIndex, stage, d) {
+        const view = this.view(p);
+        const state = this.periods[p];
+        const subject = state.subjects[subjectIndex];
+        const box = findBox(stage, d.box);
+        if (box == null || box.type !== 'plot') return { error: 'There is no such plot.' };
+        const [path, recordsText] = String(d.input || '').split('@');
+        const input = plotItemAt(box, path);
+        if (input == null || input.kind !== 'input') return { error: 'There is no such input.' };
+        // The records it was drawn for, as contexts, outermost (the subject) first.
+        const own = { rt: view, table: 'subjects', rec: subject, outer: null };
+        const chain = [];
+        let c = own;
+        for (const ref of (recordsText ? recordsText.split(',') : []).reverse()) {
+            const [table, id] = [ref.slice(0, ref.lastIndexOf(':')), ref.slice(ref.lastIndexOf(':') + 1)];
+            const rec = view.records(table).find((r) => String(r._id) === id);
+            if (rec == null) return { error: 'That is gone.' };
+            c = { rt: view, table, rec, outer: c };
+            chain.unshift(c);
+        }
+        const inner = chain[0] || own;
+        if (input.condition &amp;&amp; !lang.bool(this.value(input.condition, inner))) return {};
+        const n = (v) => (Number.isFinite(Number(v)) ? Number(v) : 0);
+        const coords = {};
+        if (input.xVar) coords[input.xVar] = input.action === 2 ? n(d.x1) - n(d.x0) : n(d.x);
+        if (input.yVar) coords[input.yVar] = input.action === 2 ? n(d.y1) - n(d.y0) : n(d.y);
+        if (input.action === 2) {
+            for (const [k, v] of [['x0Var', d.x0], ['y0Var', d.y0], ['x1Var', d.x1], ['y1Var', d.y1]]) if (input[k]) coords[input[k]] = n(v);
+        }
+        const table = input.table || 'subjects';
+        let target;
+        if (input.action === 0) {
+            target = table === 'subjects' ? own : { rt: view, table, rec: this.newRecord(p, table), outer: inner };
+        } else {
+            target = chain.find((x) => x.table === table) || inner;
+        }
+        Object.assign(target.rec, coords);
+        for (const pr of input.programs) {
+            const t = pr.table || 'subjects';
+            let pc = t === target.table ? target : chain.find((x) => x.table === t);
+            if (pc == null) {
+                if (t === 'subjects') pc = own;
+                else if (t === 'globals') pc = { rt: view, table: 'globals', rec: state.globals, outer: inner };
+                else continue;
+            }
+            // A drag's start and end are the program's record's too (its programs read them there).
+            if (input.action === 2 &amp;&amp; pc !== target) Object.assign(pc.rec, coords);
+            if (pr.condition &amp;&amp; !lang.bool(this.value(pr.condition, pc))) continue;
+            this.exec(pr.code, pc);
+        }
+        return {};
+    }
+
+    /** A subject's chat entry: a new record of the chat box's table, with its programs run. */
+    chat(p, subjectIndex, stage, d) {
+        const view = this.view(p);
+        const subject = this.periods[p].subjects[subjectIndex];
+        const box = findBox(stage, d.box);
+        if (box == null || box.type !== 'chat' || !box.variable) return;
+        const text = String(d.text || '').slice(0, 1000);
+        if (text.trim() === '') return;
+        const rec = this.newRecord(p, box.table || 'contracts');
+        rec[box.variable] = text;
+        const own = { rt: view, table: 'subjects', rec: subject, outer: null };
+        for (const pr of box.programs) this.exec(pr.code, { rt: view, table: box.table || 'contracts', rec, outer: own });
+    }
+
+    // --- Screens ------------------------------------------------------------------------
+
+    /** The screen a subject sees: stage's active or waiting screen (the background's, if it has none). */
+    screen(p, subjectIndex, stage, which, participantId, deadline) {
+        const t = this.treatment;
+        const view = this.view(p);
+        const state = this.periods[p];
+        if (state == null) return '';
+        const ctx = { rt: view, table: 'subjects', rec: state.subjects[subjectIndex], outer: null, errors: [] };
+        const boxes = which === 'active' ? stage.active : (stage.waiting.length ? stage.waiting : t.background.waiting);
+        const header = stage.showHeader ? t.background.active.find((b) => b.type === 'header') : null;
+        const html = render.renderScreen(boxes, {
+            ctx, screen: which, header, period: p + 1, numPeriods: t.periods.length,
+            selected: this.selected.get(participantId) || {}, rt: this,
+        });
+        if (ctx.errors.length) ctx.errors.forEach((e) => this.note('on a screen: ' + e));
+        return '&lt;div class="ztree-screen" data-which="' + which + '"' + (deadline ? ' data-deadline="' + deadline + '"' : '') + '>' + html + '&lt;/div>';
+    }
+}
+
+/** Whether a button leaves the stage (see Run#press). */
+function leavesStage(button, box, stage) {
+    if (typeof button.leaveStage === 'boolean') return button.leaveStage;
+    return !(stage.timeoutAlways === true &amp;&amp; ['contractCreation', 'contractList'].includes(box.type));
+}
+
+/** The plot item at path in a plot box ("1.0" in a graph; "2:0" the first input of item 2). */
+function plotItemAt(box, path) {
+    let list = box.plotItems || [];
+    let item = null;
+    for (const part of String(path).split('.')) {
+        const [i, k] = part.split(':').map(Number);
+        item = list[i];
+        if (item == null) return null;
+        if (k != null &amp;&amp; !Number.isNaN(k)) item = (item.inputs || [])[k];
+        if (item == null) return null;
+        list = item.items || [];
+    }
+    return item;
+}
+
+/**
+ * The parameter table's cell of subject i in period p; for subjects beyond the treatment's (a
+ * session with more participants), the treatment's subjects' cells in turn.
+ */
+function paramCell(t, p, i) {
+    const n = Math.max(1, t.subjects.length);
+    return t.params[p * n + (i % n)] || null;
+}
+
+/** The box at path ("2", "1.0" in a container) of a stage's active screen. */
+function findBox(stage, path) {
+    const parts = String(path).split('.').map(Number);
+    let list = stage.active;
+    let box = null;
+    for (const i of parts) {
+        box = list[i];
+        if (box == null) return null;
+        list = box.boxes;
+    }
+    return box;
+}
+
+const plain = (s) => String(s).replace(/^&lt;>/, '').replace(/&lt;[^>]*>/g, '');
+
+/** The arrays the treatment's programs declare, by table (see lang.js's arrayDeclarations). */
+function arrayDeclarations(t) {
+    const out = {};
+    const add = (code, table) => {
+        try {
+            lang.arrayDeclarations(program(code), table, out);
+        } catch (err) {
+            // A program that does not parse declares nothing.
+        }
+    };
+    const visitBox = (box) => {
+        for (const b of box.buttons) b.programs.forEach((pr) => add(pr.code, pr.table || 'subjects'));
+        box.programs.forEach((pr) => add(pr.code, pr.table || 'contracts'));
+        box.boxes.forEach(visitBox);
+    };
+    for (const stage of [t.background, ...t.stages]) {
+        stage.programs.forEach((pr) => add(pr.code, pr.table || 'subjects'));
+        [...stage.active, ...stage.waiting].forEach(visitBox);
+    }
+    return out;
+}
+
+/** The variables of each table: built in, set by the treatment's programs, or by inputs. */
+function variables(t) {
+    const out = {};
+    for (const [table, names] of Object.entries(BUILT_IN)) out[table] = new Set(names);
+    const add = (code, table) => {
+        let assigned;
+        try {
+            assigned = lang.assignedVariables(program(code), table);
+        } catch (err) {
+            return;
+        }
+        for (const [tb, names] of Object.entries(assigned)) {
+            out[tb] = out[tb] || new Set();
+            names.forEach((n) => out[tb].add(n));
+        }
+    };
+    const visitBox = (box) => {
+        const table = ['contractCreation', 'contractList', 'chat'].includes(box.type) ? (box.table || 'contracts') : 'subjects';
+        for (const item of box.items) {
+            if (item.kind === 'item' &amp;&amp; item.input &amp;&amp; /^\w+$/.test(item.variable || '')) {
+                out[table] = out[table] || new Set();
+                out[table].add(item.variable);
+            }
+        }
+        for (const b of box.buttons) b.programs.forEach((pr) => add(pr.code, pr.table || 'subjects'));
+        box.programs.forEach((pr) => add(pr.code, pr.table || 'contracts'));
+        const plotItems = (items) => {
+            for (const item of items || []) {
+                for (const inp of [...(item.kind === 'input' ? [item] : []), ...(item.inputs || [])]) {
+                    const t = inp.table || 'subjects';
+                    out[t] = out[t] || new Set();
+                    for (const k of ['xVar', 'yVar', 'x0Var', 'y0Var', 'x1Var', 'y1Var']) if (/^\w+$/.test(inp[k] || '')) out[t].add(inp[k]);
+                    (inp.programs || []).forEach((pr) => add(pr.code, pr.table || 'subjects'));
+                }
+                plotItems(item.items);
+            }
+        };
+        plotItems(box.plotItems);
+        if (box.type === 'chat' &amp;&amp; box.variable) {
+            out[box.table || 'contracts'] = out[box.table || 'contracts'] || new Set();
+            out[box.table || 'contracts'].add(box.variable);
+        }
+        box.boxes.forEach(visitBox);
+    };
+    for (const stage of [t.background, ...t.stages]) {
+        stage.programs.forEach((pr) => add(pr.code, pr.table || 'subjects'));
+        [...stage.active, ...stage.waiting].forEach(visitBox);
+    }
+    t.periods.forEach((pp) => add(pp.program || '', 'globals'));
+    t.params.forEach((cell) => add(cell.program || '', 'subjects'));
+    t.subjects.forEach((role) => add(role.program || '', 'subjects'));
+    return out;
+}
+
+module.exports = { Run, findBox, variables, arrayDeclarations, program, leavesStage };
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AdminAuth.html">AdminAuth</a></li><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="Data.html">Data</a></li><li><a href="Exit.html">Exit</a></li><li><a href="Group.html">Group</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="QueueRecorder.html">QueueRecorder</a></li><li><a href="Reader.html">Reader</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Run.html">Run</a></li><li><a href="Screens.html">Screens</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="Translator.html">Translator</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="global.html#start">start</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-4a-ztree.html">z-Tree treatments</a></li><li><a href="tutorial-4b-otree.html">oTree apps</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-other.html">Other</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ADMIN_LOGIN_REQUIRED">ADMIN_LOGIN_REQUIRED</a></li><li><a href="global.html#APP_HOOKS">APP_HOOKS</a></li><li><a href="global.html#STAGE_HOOKS">STAGE_HOOKS</a></li><li><a href="global.html#addToClass">addToClass</a></li><li><a href="global.html#allBoxes">allBoxes</a></li><li><a href="global.html#appCSV">appCSV</a></li><li><a href="global.html#appFile">appFile</a></li><li><a href="global.html#appInsertAt">appInsertAt</a></li><li><a href="global.html#appRoots">appRoots</a></li><li><a href="global.html#appTemplate">appTemplate</a></li><li><a href="global.html#appToIR">appToIR</a></li><li><a href="global.html#apply">apply</a></li><li><a href="global.html#applyIR">applyIR</a></li><li><a href="global.html#applySettings">applySettings</a></li><li><a href="global.html#arrayDeclarations">arrayDeclarations</a></li><li><a href="global.html#arrayIndex">arrayIndex</a></li><li><a href="global.html#assignedVariables">assignedVariables</a></li><li><a href="global.html#boolValue">boolValue</a></li><li><a href="global.html#botCases">botCases</a></li><li><a href="global.html#boxOptions">boxOptions</a></li><li><a href="global.html#chat">chat</a></li><li><a href="global.html#chatFor">chatFor</a></li><li><a href="global.html#check">check</a></li><li><a href="global.html#checkField">checkField</a></li><li><a href="global.html#checkForm">checkForm</a></li><li><a href="global.html#compileProgram">compileProgram</a></li><li><a href="global.html#compiled">compiled</a></li><li><a href="global.html#context">context</a></li><li><a href="global.html#contractList">contractList</a></li><li><a href="global.html#convertApp">convertApp</a></li><li><a href="global.html#convertTreatment">convertTreatment</a></li><li><a href="global.html#convertTreatmentFile">convertTreatmentFile</a></li><li><a href="global.html#copyDir">copyDir</a></li><li><a href="global.html#copyToPlayer">copyToPlayer</a></li><li><a href="global.html#creatingSessionBeforeArrival">creatingSessionBeforeArrival</a></li><li><a href="global.html#cut">cut</a></li><li><a href="global.html#decimals">decimals</a></li><li><a href="global.html#declared">declared</a></li><li><a href="global.html#dedent">dedent</a></li><li><a href="global.html#describeValue">describeValue</a></li><li><a href="global.html#dialectFor">dialectFor</a></li><li><a href="global.html#drawn">drawn</a></li><li><a href="global.html#encode">encode</a></li><li><a href="global.html#endSoon">endSoon</a></li><li><a href="global.html#errorPosition">errorPosition</a></li><li><a href="global.html#exportTables">exportTables</a></li><li><a href="global.html#exporter">exporter</a></li><li><a href="global.html#exportersFor">exportersFor</a></li><li><a href="global.html#expression">expression</a></li><li><a href="global.html#fail">fail</a></li><li><a href="global.html#file">file</a></li><li><a href="global.html#fillValues">fillValues</a></li><li><a href="global.html#findBox">findBox</a></li><li><a href="global.html#finite">finite</a></li><li><a href="global.html#formatText">formatText</a></li><li><a href="global.html#formatValue">formatValue</a></li><li><a href="global.html#fromDescription">fromDescription</a></li><li><a href="global.html#getBridge">getBridge</a></li><li><a href="global.html#grid">grid</a></li><li><a href="global.html#history">history</a></li><li><a href="global.html#inAppFolders">inAppFolders</a></li><li><a href="global.html#indent">indent</a></li><li><a href="global.html#indentBy">indentBy</a></li><li><a href="global.html#insertAfter">insertAfter</a></li><li><a href="global.html#isInteractive">isInteractive</a></li><li><a href="global.html#isProject">isProject</a></li><li><a href="global.html#isSessionsLastPage">isSessionsLastPage</a></li><li><a href="global.html#isText">isText</a></li><li><a href="global.html#isTextFile">isTextFile</a></li><li><a href="global.html#itemCell">itemCell</a></li><li><a href="global.html#itemsTable">itemsTable</a></li><li><a href="global.html#jsonErrorPosition">jsonErrorPosition</a></li><li><a href="global.html#lanAddress">lanAddress</a></li><li><a href="global.html#lastFirst">lastFirst</a></li><li><a href="global.html#layoutEnd">layoutEnd</a></li><li><a href="global.html#layoutParts">layoutParts</a></li><li><a href="global.html#leaveIfAsked">leaveIfAsked</a></li><li><a href="global.html#leavesStage">leavesStage</a></li><li><a href="global.html#legacyValue">legacyValue</a></li><li><a href="global.html#lines">lines</a></li><li><a href="global.html#loadPackagesFor">loadPackagesFor</a></li><li><a href="global.html#measure">measure</a></li><li><a href="global.html#memberAssignment">memberAssignment</a></li><li><a href="global.html#model">model</a></li><li><a href="global.html#mountProject">mountProject</a></li><li><a href="global.html#newTreatment">newTreatment</a></li><li><a href="global.html#normalizeCode">normalizeCode</a></li><li><a href="global.html#openUrl">openUrl</a></li><li><a href="global.html#owner">owner</a></li><li><a href="global.html#packageFor">packageFor</a></li><li><a href="global.html#pageTimesCSV">pageTimesCSV</a></li><li><a href="global.html#paramCell">paramCell</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseExpr">parseExpr</a></li><li><a href="global.html#parseLayout">parseLayout</a></li><li><a href="global.html#parseQueueId">parseQueueId</a></li><li><a href="global.html#place">place</a></li><li><a href="global.html#plot">plot</a></li><li><a href="global.html#plotInput">plotInput</a></li><li><a href="global.html#plotItemAt">plotItemAt</a></li><li><a href="global.html#prefixHtmlUrls">prefixHtmlUrls</a></li><li><a href="global.html#pressButton">pressButton</a></li><li><a href="global.html#program">program</a></li><li><a href="global.html#programItems">programItems</a></li><li><a href="global.html#putApp">putApp</a></li><li><a href="global.html#putSettings">putSettings</a></li><li><a href="global.html#py">py</a></li><li><a href="global.html#queueId">queueId</a></li><li><a href="global.html#queueScript">queueScript</a></li><li><a href="global.html#quote">quote</a></li><li><a href="global.html#quotedEnd">quotedEnd</a></li><li><a href="global.html#readGameHeader">readGameHeader</a></li><li><a href="global.html#readQuestionnaires">readQuestionnaires</a></li><li><a href="global.html#readScreen">readScreen</a></li><li><a href="global.html#readTextQuestionnaires">readTextQuestionnaires</a></li><li><a href="global.html#readTextTreatment">readTextTreatment</a></li><li><a href="global.html#readTreatment">readTreatment</a></li><li><a href="global.html#ready">ready</a></li><li><a href="global.html#refresh">refresh</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#reload">reload</a></li><li><a href="global.html#renderScreen">renderScreen</a></li><li><a href="global.html#reportMarkdown">reportMarkdown</a></li><li><a href="global.html#rooms">rooms</a></li><li><a href="global.html#router">router</a></li><li><a href="global.html#rtfToText">rtfToText</a></li><li><a href="global.html#run">run</a></li><li><a href="global.html#runAppCode">runAppCode</a></li><li><a href="global.html#runBots">runBots</a></li><li><a href="global.html#runOf">runOf</a></li><li><a href="global.html#runZtreeBots">runZtreeBots</a></li><li><a href="global.html#scan">scan</a></li><li><a href="global.html#screen">screen</a></li><li><a href="global.html#sessionConfigs">sessionConfigs</a></li><li><a href="global.html#settleBoxes">settleBoxes</a></li><li><a href="global.html#stageDeclaration">stageDeclaration</a></li><li><a href="global.html#stageMeaning">stageMeaning</a></li><li><a href="global.html#stageVariable">stageVariable</a></li><li><a href="global.html#statementRange">statementRange</a></li><li><a href="global.html#str">str</a></li><li><a href="global.html#subjectIndex">subjectIndex</a></li><li><a href="global.html#submitGeneric">submitGeneric</a></li><li><a href="global.html#substitutionAt">substitutionAt</a></li><li><a href="global.html#syntaxErrors">syntaxErrors</a></li><li><a href="global.html#tableRecords">tableRecords</a></li><li><a href="global.html#tablesChangedTimers">tablesChangedTimers</a></li><li><a href="global.html#template">template</a></li><li><a href="global.html#templateLiteral">templateLiteral</a></li><li><a href="global.html#templates">templates</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#textParts">textParts</a></li><li><a href="global.html#toTreatment">toTreatment</a></li><li><a href="global.html#tokenize">tokenize</a></li><li><a href="global.html#topInsert">topInsert</a></li><li><a href="global.html#treatmentFile">treatmentFile</a></li><li><a href="global.html#unindent">unindent</a></li><li><a href="global.html#urlFor">urlFor</a></li><li><a href="global.html#validate">validate</a></li><li><a href="global.html#value">value</a></li><li><a href="global.html#valueFor">valueFor</a></li><li><a href="global.html#valueKind">valueKind</a></li><li><a href="global.html#valueSource">valueSource</a></li><li><a href="global.html#variables">variables</a></li><li><a href="global.html#whenReady">whenReady</a></li><li><a href="global.html#wideCSV">wideCSV</a></li><li><a href="global.html#withBlocks">withBlocks</a></li><li><a href="global.html#withStatics">withStatics</a></li><li><a href="global.html#write">write</a></li><li><a href="global.html#zTreeRules">zTreeRules</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Oct 14 2026 09:40:18 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

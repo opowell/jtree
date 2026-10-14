@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: dialects/otree/bots.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: dialects/otree/bots.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const runtime = require('./runtime.js');
+
+/*
+ * oTree apps' bots (their tests.py, a PlayerBot whose play_round yields each page it fills in),
+ * run by jtree's server for a session's participants: no pages or browsers involved.
+ */
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * Plays session with its apps' bots until every participant has finished it. Rejects on the
+ * first problem: a bot expecting another page than its player's, a form refused (or accepted,
+ * for SubmissionMustFail), an app without bots, or an error in a bot (e.g. a failed expect).
+ * @param {Session} session A started session.
+ * @param {Object} [opts]
+ * @param {number} [opts.timeout=60000] ms to finish in.
+ * @param {number} [opts.caseIndex=0] Which of a PlayerBot's cases to play.
+ * @param {function(App): ?string} [opts.botsFor] The Python package whose bots play an app: by
+ * default the app's own, for an oTree app. (A jtree app converted from an oTree app is played by
+ * the oTree app's bots.)
+ * @param {function(Player): string} [opts.htmlFor] The page a player is on, as the bots see it
+ * (self.html): by default what the oTree app rendered.
+ * @param {false|'missing'|'always'|string[]} [opts.generic=false] Whether a generic bot plays (it
+ * fills in each page's form with valid values): for apps without bots, for all, or for apps without
+ * bots and the apps named (those whose own bots are broken).
+ */
+async function runBots(session, { timeout = 60000, caseIndex = 0, botsFor = (app) => (app.otree == null ? null : app.otree.pkg),
+    htmlFor = (player) => player.otreeHtml || '', generic = false } = {}) {
+    const bridge = runtime.getBridge();
+    const bots = new Map(); // participant id -> {round, handle, done}
+    // Participants whose bots have played every page, up to the session's last, which they stay on.
+    const finished = new Set();
+    const end = Date.now() + timeout;
+    for (;;) {
+        const participants = Object.values(session.participants);
+        if (participants.every((p) => p.isFinishedSession() || finished.has(p.id))) {
+            return;
+        }
+        if (Date.now() > end) {
+            throw new Error('bots did not finish in ' + timeout + ' ms');
+        }
+        for (const participant of participants) {
+            if (finished.has(participant.id)) continue;
+            const player = participant.player;
+            if (player == null || player.status !== 'playing') continue;
+            const app = player.app();
+            const stage = player.stage;
+            const pkg = botsFor(app);
+            if (pkg == null) {
+                throw new Error(participant.id + ' is in ' + app.shortId + ', which has no bots (not an oTree app)');
+            }
+            if (stage.playerStart == null || stage.formFields == null) continue; // a wait page, ending by itself
+            let bot = bots.get(participant.id);
+            const round = player.roomId();
+            // The generic bot: for apps without bots (generic: 'missing'), for all ('always'), or for
+            // those and the apps named.
+            if (generic === 'always' || (generic &amp;&amp; !bridge.has_bots(pkg))
+                || (Array.isArray(generic) &amp;&amp; generic.includes(app.shortId))) {
+                const at = round + '/' + stage.id;
+                if (bot != null &amp;&amp; bot.done === at) continue;
+                if (player.otreeError) {
+                    throw new Error(participant.id + ': page ' + stage.id + ' could not be shown: ' + player.otreeError);
+                }
+                submitGeneric(session, app, player, stage);
+                bots.set(participant.id, { round, handle: null, done: at });
+                continue;
+            }
+            if (bot == null || bot.round !== round) {
+                if (!bridge.has_bots(pkg)) {
+                    throw new Error(app.shortId + ' has no bots (a tests.py with a PlayerBot)');
+                }
+                bot = { round, handle: bridge.bot_start(pkg, player, caseIndex), done: null };
+                bots.set(participant.id, bot);
+            }
+            const at = round + '/' + stage.id;
+            if (bot.done === at) continue; // submitted; the server has yet to move them on
+            if (player.otreeError) {
+                throw new Error(participant.id + ': page ' + stage.id + ' could not be shown: ' + player.otreeError);
+            }
+            const html = String(htmlFor(player));
+            const next = bridge.bot_next(bot.handle, html);
+            const step = next == null ? null : JSON.parse(next);
+            const where = participant.id + ', round ' + player.group.period.id + ' of ' + app.shortId;
+            if (step == null) {
+                if (isSessionsLastPage(session, player)) {
+                    finished.add(participant.id);
+                    continue;
+                }
+                throw new Error(where + ': the bot has finished its round, but the player is on ' + stage.id);
+            }
+            if (step.page !== stage.id) {
+                throw new Error(where + ': the bot expects page ' + step.page + ', but the player is on ' + stage.id);
+            }
+            const values = {};
+            for (const [name, value] of Object.entries(step.data)) {
+                const full = stage.formFields.find((f) => f.endsWith('.' + name)) || 'player.' + name;
+                // As oTree's bots do (unless check_html=False): what they fill in is on the page.
+                if (step.check_html &amp;&amp; !step.timeout_happened &amp;&amp; !html.includes('name="' + full + '"') &amp;&amp; !html.includes('name="' + name + '"')) {
+                    throw new Error(where + ': the bot fills in ' + name + ', which page ' + stage.id + ' does not have');
+                }
+                // As a browser sends oTree's pages' values (True and False as Python writes them).
+                values[full] = value === true ? 'True' : value === false ? 'False' : String(value);
+            }
+            if (step.timeout_happened) {
+                player.timedOut = true;
+            }
+            const errors = app.submitStage(player, values);
+            session.emitParticipantUpdates();
+            if (step.must_fail) {
+                if (errors == null) {
+                    throw new Error(where + ': page ' + stage.id + ' accepted what the bot said it must refuse');
+                }
+                continue;
+            }
+            if (errors != null) {
+                throw new Error(where + ': page ' + stage.id + ' refused the bot\'s ' + JSON.stringify(step.data) + ': ' + JSON.stringify(errors));
+            }
+            bot.done = at;
+        }
+        await sleep(5);
+    }
+}
+
+/**
+ * The generic bot's submission of the page player is on: a valid value for each of its form's
+ * fields (their declarations, app.fields: a choice, a number from min to max, yes or no, a word);
+ * if the page refuses (its error_message, say), other values, up to 30 times.
+ */
+function submitGeneric(session, app, player, stage) {
+    const declared = { ...(app.fields || {}), ...(stage.fields || {}) };
+    const of = (v) => (typeof v === 'function' ? v(player) : v);
+    const pick = (list) => list[Math.floor(Math.random() * list.length)];
+    const valueFor = (field) => {
+        if (field == null) return TEXTS[textIndex % TEXTS.length];
+        const choices = of(field.choices);
+        if (Array.isArray(choices) &amp;&amp; choices.length) {
+            const c = pick(choices);
+            return Array.isArray(c) ? c[0] : c;
+        }
+        const lo = of(field.min);
+        const hi = of(field.max);
+        switch (field.type) {
+            case 'bool': return pick([true, false]);
+            case 'int': {
+                if ((lo == null || hi == null) &amp;&amp; attempt > 0) return unbounded(lo, hi);
+                const a = lo != null ? Math.ceil(lo) : 0;
+                const b = hi != null ? Math.floor(hi) : a + 10;
+                return a + Math.floor(Math.random() * (b - a + 1));
+            }
+            case 'number': {
+                if ((lo == null || hi == null) &amp;&amp; attempt > 0) return unbounded(lo, hi);
+                const a = lo != null ? lo : 0;
+                const b = hi != null ? hi : a + 10;
+                return Math.round((a + Math.random() * (b - a)) * 100) / 100;
+            }
+            default: return TEXTS[textIndex % TEXTS.length];
+        }
+    };
+    // Texts to try in turn, if a page refuses one (a Prolific ID's 24 letters and digits, ...).
+    const TEXTS = ['text', '5f2b9c3d4e5f60718293a4b5', 'bot@example.com', '42', 'yes'];
+    // Numbers to try in turn, for a field with no min or max that a page refuses (an age, a year, ...).
+    const NUMBERS = [25, 1, 50, 100, 1990, 5, 1000, 2000, 10000, 0];
+    const unbounded = (lo, hi) => {
+        const n = NUMBERS[(attempt - 1) % NUMBERS.length];
+        return Math.min(hi != null ? hi : n, Math.max(lo != null ? lo : n, n));
+    };
+    let textIndex = 0;
+    let attempt = 0;
+    let errors = null;
+    for (attempt = 0; attempt &lt; 30; attempt++) {
+        textIndex = attempt;
+        const values = {};
+        for (const name of stage.formFields) {
+            const v = valueFor(declared[name]);
+            values[name] = v === true ? 'True' : v === false ? 'False' : String(v);
+        }
+        errors = app.submitStage(player, values);
+        session.emitParticipantUpdates();
+        if (errors == null) return;
+    }
+    throw new Error(player.participant.id + ', round ' + player.group.period.id + ' of ' + app.shortId + ': page ' + stage.id +
+        ' refused the generic bot\'s values: ' + JSON.stringify(errors));
+}
+
+/** Whether player is on the last page of the session: its last app's last round and stage. */
+function isSessionsLastPage(session, player) {
+    const app = player.app();
+    return app === session.apps[session.apps.length - 1] &amp;&amp;
+        player.group.period.id === app.numPeriods &amp;&amp;
+        player.stage === app.stages[app.stages.length - 1];
+}
+
+/** How many cases the bots of package pkg have (their PlayerBot's cases; 1 if none). */
+function botCases(pkg) {
+    return runtime.getBridge().bot_case_count(pkg);
+}
+
+module.exports = { runBots, botCases };
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AdminAuth.html">AdminAuth</a></li><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="Data.html">Data</a></li><li><a href="Exit.html">Exit</a></li><li><a href="Group.html">Group</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="QueueRecorder.html">QueueRecorder</a></li><li><a href="Reader.html">Reader</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Run.html">Run</a></li><li><a href="Screens.html">Screens</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="Translator.html">Translator</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="global.html#start">start</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-4a-ztree.html">z-Tree treatments</a></li><li><a href="tutorial-4b-otree.html">oTree apps</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-other.html">Other</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ADMIN_LOGIN_REQUIRED">ADMIN_LOGIN_REQUIRED</a></li><li><a href="global.html#APP_HOOKS">APP_HOOKS</a></li><li><a href="global.html#STAGE_HOOKS">STAGE_HOOKS</a></li><li><a href="global.html#addToClass">addToClass</a></li><li><a href="global.html#allBoxes">allBoxes</a></li><li><a href="global.html#appCSV">appCSV</a></li><li><a href="global.html#appFile">appFile</a></li><li><a href="global.html#appInsertAt">appInsertAt</a></li><li><a href="global.html#appRoots">appRoots</a></li><li><a href="global.html#appTemplate">appTemplate</a></li><li><a href="global.html#appToIR">appToIR</a></li><li><a href="global.html#apply">apply</a></li><li><a href="global.html#applyIR">applyIR</a></li><li><a href="global.html#applySettings">applySettings</a></li><li><a href="global.html#arrayDeclarations">arrayDeclarations</a></li><li><a href="global.html#arrayIndex">arrayIndex</a></li><li><a href="global.html#assignedVariables">assignedVariables</a></li><li><a href="global.html#boolValue">boolValue</a></li><li><a href="global.html#botCases">botCases</a></li><li><a href="global.html#boxOptions">boxOptions</a></li><li><a href="global.html#chat">chat</a></li><li><a href="global.html#chatFor">chatFor</a></li><li><a href="global.html#check">check</a></li><li><a href="global.html#checkField">checkField</a></li><li><a href="global.html#checkForm">checkForm</a></li><li><a href="global.html#compileProgram">compileProgram</a></li><li><a href="global.html#compiled">compiled</a></li><li><a href="global.html#context">context</a></li><li><a href="global.html#contractList">contractList</a></li><li><a href="global.html#convertApp">convertApp</a></li><li><a href="global.html#convertTreatment">convertTreatment</a></li><li><a href="global.html#convertTreatmentFile">convertTreatmentFile</a></li><li><a href="global.html#copyDir">copyDir</a></li><li><a href="global.html#copyToPlayer">copyToPlayer</a></li><li><a href="global.html#creatingSessionBeforeArrival">creatingSessionBeforeArrival</a></li><li><a href="global.html#cut">cut</a></li><li><a href="global.html#decimals">decimals</a></li><li><a href="global.html#declared">declared</a></li><li><a href="global.html#dedent">dedent</a></li><li><a href="global.html#describeValue">describeValue</a></li><li><a href="global.html#dialectFor">dialectFor</a></li><li><a href="global.html#drawn">drawn</a></li><li><a href="global.html#encode">encode</a></li><li><a href="global.html#endSoon">endSoon</a></li><li><a href="global.html#errorPosition">errorPosition</a></li><li><a href="global.html#exportTables">exportTables</a></li><li><a href="global.html#exporter">exporter</a></li><li><a href="global.html#exportersFor">exportersFor</a></li><li><a href="global.html#expression">expression</a></li><li><a href="global.html#fail">fail</a></li><li><a href="global.html#file">file</a></li><li><a href="global.html#fillValues">fillValues</a></li><li><a href="global.html#findBox">findBox</a></li><li><a href="global.html#finite">finite</a></li><li><a href="global.html#formatText">formatText</a></li><li><a href="global.html#formatValue">formatValue</a></li><li><a href="global.html#fromDescription">fromDescription</a></li><li><a href="global.html#getBridge">getBridge</a></li><li><a href="global.html#grid">grid</a></li><li><a href="global.html#history">history</a></li><li><a href="global.html#inAppFolders">inAppFolders</a></li><li><a href="global.html#indent">indent</a></li><li><a href="global.html#indentBy">indentBy</a></li><li><a href="global.html#insertAfter">insertAfter</a></li><li><a href="global.html#isInteractive">isInteractive</a></li><li><a href="global.html#isProject">isProject</a></li><li><a href="global.html#isSessionsLastPage">isSessionsLastPage</a></li><li><a href="global.html#isText">isText</a></li><li><a href="global.html#isTextFile">isTextFile</a></li><li><a href="global.html#itemCell">itemCell</a></li><li><a href="global.html#itemsTable">itemsTable</a></li><li><a href="global.html#jsonErrorPosition">jsonErrorPosition</a></li><li><a href="global.html#lanAddress">lanAddress</a></li><li><a href="global.html#lastFirst">lastFirst</a></li><li><a href="global.html#layoutEnd">layoutEnd</a></li><li><a href="global.html#layoutParts">layoutParts</a></li><li><a href="global.html#leaveIfAsked">leaveIfAsked</a></li><li><a href="global.html#leavesStage">leavesStage</a></li><li><a href="global.html#legacyValue">legacyValue</a></li><li><a href="global.html#lines">lines</a></li><li><a href="global.html#loadPackagesFor">loadPackagesFor</a></li><li><a href="global.html#measure">measure</a></li><li><a href="global.html#memberAssignment">memberAssignment</a></li><li><a href="global.html#model">model</a></li><li><a href="global.html#mountProject">mountProject</a></li><li><a href="global.html#newTreatment">newTreatment</a></li><li><a href="global.html#normalizeCode">normalizeCode</a></li><li><a href="global.html#openUrl">openUrl</a></li><li><a href="global.html#owner">owner</a></li><li><a href="global.html#packageFor">packageFor</a></li><li><a href="global.html#pageTimesCSV">pageTimesCSV</a></li><li><a href="global.html#paramCell">paramCell</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseExpr">parseExpr</a></li><li><a href="global.html#parseLayout">parseLayout</a></li><li><a href="global.html#parseQueueId">parseQueueId</a></li><li><a href="global.html#place">place</a></li><li><a href="global.html#plot">plot</a></li><li><a href="global.html#plotInput">plotInput</a></li><li><a href="global.html#plotItemAt">plotItemAt</a></li><li><a href="global.html#prefixHtmlUrls">prefixHtmlUrls</a></li><li><a href="global.html#pressButton">pressButton</a></li><li><a href="global.html#program">program</a></li><li><a href="global.html#programItems">programItems</a></li><li><a href="global.html#putApp">putApp</a></li><li><a href="global.html#putSettings">putSettings</a></li><li><a href="global.html#py">py</a></li><li><a href="global.html#queueId">queueId</a></li><li><a href="global.html#queueScript">queueScript</a></li><li><a href="global.html#quote">quote</a></li><li><a href="global.html#quotedEnd">quotedEnd</a></li><li><a href="global.html#readGameHeader">readGameHeader</a></li><li><a href="global.html#readQuestionnaires">readQuestionnaires</a></li><li><a href="global.html#readScreen">readScreen</a></li><li><a href="global.html#readTextQuestionnaires">readTextQuestionnaires</a></li><li><a href="global.html#readTextTreatment">readTextTreatment</a></li><li><a href="global.html#readTreatment">readTreatment</a></li><li><a href="global.html#ready">ready</a></li><li><a href="global.html#refresh">refresh</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#reload">reload</a></li><li><a href="global.html#renderScreen">renderScreen</a></li><li><a href="global.html#reportMarkdown">reportMarkdown</a></li><li><a href="global.html#rooms">rooms</a></li><li><a href="global.html#router">router</a></li><li><a href="global.html#rtfToText">rtfToText</a></li><li><a href="global.html#run">run</a></li><li><a href="global.html#runAppCode">runAppCode</a></li><li><a href="global.html#runBots">runBots</a></li><li><a href="global.html#runOf">runOf</a></li><li><a href="global.html#runZtreeBots">runZtreeBots</a></li><li><a href="global.html#scan">scan</a></li><li><a href="global.html#screen">screen</a></li><li><a href="global.html#sessionConfigs">sessionConfigs</a></li><li><a href="global.html#settleBoxes">settleBoxes</a></li><li><a href="global.html#stageDeclaration">stageDeclaration</a></li><li><a href="global.html#stageMeaning">stageMeaning</a></li><li><a href="global.html#stageVariable">stageVariable</a></li><li><a href="global.html#statementRange">statementRange</a></li><li><a href="global.html#str">str</a></li><li><a href="global.html#subjectIndex">subjectIndex</a></li><li><a href="global.html#submitGeneric">submitGeneric</a></li><li><a href="global.html#substitutionAt">substitutionAt</a></li><li><a href="global.html#syntaxErrors">syntaxErrors</a></li><li><a href="global.html#tableRecords">tableRecords</a></li><li><a href="global.html#tablesChangedTimers">tablesChangedTimers</a></li><li><a href="global.html#template">template</a></li><li><a href="global.html#templateLiteral">templateLiteral</a></li><li><a href="global.html#templates">templates</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#textParts">textParts</a></li><li><a href="global.html#toTreatment">toTreatment</a></li><li><a href="global.html#tokenize">tokenize</a></li><li><a href="global.html#topInsert">topInsert</a></li><li><a href="global.html#treatmentFile">treatmentFile</a></li><li><a href="global.html#unindent">unindent</a></li><li><a href="global.html#urlFor">urlFor</a></li><li><a href="global.html#validate">validate</a></li><li><a href="global.html#value">value</a></li><li><a href="global.html#valueFor">valueFor</a></li><li><a href="global.html#valueKind">valueKind</a></li><li><a href="global.html#valueSource">valueSource</a></li><li><a href="global.html#variables">variables</a></li><li><a href="global.html#whenReady">whenReady</a></li><li><a href="global.html#wideCSV">wideCSV</a></li><li><a href="global.html#withBlocks">withBlocks</a></li><li><a href="global.html#withStatics">withStatics</a></li><li><a href="global.html#write">write</a></li><li><a href="global.html#zTreeRules">zTreeRules</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Oct 14 2026 09:40:18 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

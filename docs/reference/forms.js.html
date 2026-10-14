@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: forms.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: forms.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*
+ * Checking what a stage's form submits (see App#addClientDefault).
+ *
+ * Fields are declared in app.fields, by the name the form uses (oTree's model fields,
+ * z-Tree's input items):
+ *
+ *     app.fields = {
+ *         'player.contribution': { type: 'int', min: 0, max: (player) => player.endowment },
+ *         'player.color': { type: 'choice', choices: ['red', 'blue'] },
+ *         'player.comment': { type: 'string', blank: true },
+ *     };
+ *
+ * type is 'int', 'number', 'string', 'bool' or 'choice'. min, max, step (a number must be a
+ * multiple of it) and choices can be values or functions of the player. A field is required unless blank is true. stage.formFields
+ * lists the fields a stage's form must send (oTree's form_fields), and stage.validate(player,
+ * values) checks them together (oTree's error_message), returning a message, an object of
+ * messages by field, or nothing.
+ *
+ * A stage's own fields (stage.fields, declared the same way) take the place of the app's of the
+ * same name on its form.
+ *
+ * Values for fields not declared are converted as they always have been: 'true' and
+ * 'false' to booleans, and numbers to numbers.
+ */
+
+const MESSAGES = {
+    required: 'Please fill in this field.',
+    int: 'Please enter a whole number.',
+    number: 'Please enter a number.',
+    bool: 'Please choose yes or no.',
+    choice: 'Please choose one of the options.',
+    min: (min) => 'Please enter a value of at least ' + min + '.',
+    max: (max) => 'Please enter a value of at most ' + max + '.',
+    step: (step) => 'Please enter a multiple of ' + step + '.',
+};
+
+/** true or false for text that says yes or no ('true', 'True', '1', 'yes', 'on', ...); else undefined. */
+function boolValue(text) {
+    const t = text.toLowerCase();
+    if (['true', '1', 'yes', 'on'].includes(t)) return true;
+    if (['false', '0', 'no', 'off'].includes(t)) return false;
+    return undefined;
+}
+
+/** value, or what it gives for player if it is a function. */
+const valueFor = (value, player) => (typeof value === 'function' ? value(player) : value);
+
+/** A value submitted for a field nobody declared, converted as jtree always has. */
+function legacyValue(value) {
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    if (typeof value === 'string' &amp;&amp; value.trim() !== '' &amp;&amp; !isNaN(value)) return parseFloat(value);
+    return value;
+}
+
+/**
+ * Converts one submitted value of a declared field; returns {value} or {error}.
+ * @param {Object} field Its declaration.
+ * @param {*} raw What the form sent (a string, or undefined if nothing).
+ * @param {Player} player
+ */
+function checkField(field, raw, player) {
+    const empty = raw === undefined || raw === null || (typeof raw === 'string' &amp;&amp; raw.trim() === '');
+    if (empty) {
+        return field.blank ? { value: null } : { error: MESSAGES.required };
+    }
+    const text = String(raw).trim();
+    let value;
+    switch (field.type) {
+        case 'int':
+            if (!/^[-+]?\d+$/.test(text)) return { error: MESSAGES.int };
+            value = parseInt(text, 10);
+            break;
+        case 'number':
+            value = Number(text);
+            if (!Number.isFinite(value)) return { error: MESSAGES.number };
+            break;
+        case 'bool':
+            value = boolValue(text);
+            if (value === undefined) return { error: MESSAGES.bool };
+            break;
+        case 'choice': {
+            const choices = valueFor(field.choices, player) || [];
+            const values = choices.map((c) => (Array.isArray(c) ? c[0] : c));
+            // Yes/no choices: 'True' (as oTree's pages write it), 'true', '1', ...
+            const match = values.find((v) => String(v) === text || (typeof v === 'boolean' &amp;&amp; boolValue(text) === v));
+            if (match === undefined) return { error: MESSAGES.choice };
+            value = match;
+            break;
+        }
+        default:
+            value = typeof raw === 'string' ? raw : text;
+    }
+    if (field.type === 'int' || field.type === 'number') {
+        const min = valueFor(field.min, player);
+        const max = valueFor(field.max, player);
+        if (min != null &amp;&amp; value &lt; min) return { error: MESSAGES.min(min) };
+        if (max != null &amp;&amp; value > max) return { error: MESSAGES.max(max) };
+        const step = valueFor(field.step, player);
+        if (step > 0 &amp;&amp; Math.abs(value / step - Math.round(value / step)) > 1e-6) return { error: MESSAGES.step(step) };
+    }
+    return { value };
+}
+
+/**
+ * Checks and converts what a stage's form submitted.
+ * @param {Stage} stage
+ * @param {Player} player
+ * @param {Object} data The form's values by field name ('player.x', ...).
+ * @return {{values: Object, errors: Object|null}} The converted values by name, and if
+ * anything is wrong, the messages by field name ('' for the form as a whole).
+ */
+function checkForm(stage, player, data) {
+    const declared = { ...((stage.app &amp;&amp; stage.app.fields) || {}), ...(stage.fields || {}) };
+    const values = {};
+    const errors = {};
+    const names = new Set(Object.keys(data));
+    for (const name of stage.formFields || []) {
+        names.add(name);
+    }
+    for (const name of names) {
+        const field = declared[name];
+        if (field == null) {
+            values[name] = legacyValue(data[name]);
+            continue;
+        }
+        const result = checkField(field, data[name], player);
+        if (result.error !== undefined) {
+            errors[name] = result.error;
+        } else {
+            values[name] = result.value;
+        }
+    }
+    if (Object.keys(errors).length === 0 &amp;&amp; typeof stage.validate === 'function') {
+        const result = stage.validate(player, values);
+        if (typeof result === 'string' &amp;&amp; result !== '') {
+            errors[''] = result;
+        } else if (result != null &amp;&amp; typeof result === 'object') {
+            Object.assign(errors, result);
+        }
+    }
+    return { values, errors: Object.keys(errors).length > 0 ? errors : null };
+}
+
+module.exports = { checkForm, checkField, MESSAGES };
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AdminAuth.html">AdminAuth</a></li><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="Data.html">Data</a></li><li><a href="Exit.html">Exit</a></li><li><a href="Group.html">Group</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="QueueRecorder.html">QueueRecorder</a></li><li><a href="Reader.html">Reader</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Run.html">Run</a></li><li><a href="Screens.html">Screens</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="Translator.html">Translator</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="global.html#start">start</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-4a-ztree.html">z-Tree treatments</a></li><li><a href="tutorial-4b-otree.html">oTree apps</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-other.html">Other</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ADMIN_LOGIN_REQUIRED">ADMIN_LOGIN_REQUIRED</a></li><li><a href="global.html#APP_HOOKS">APP_HOOKS</a></li><li><a href="global.html#STAGE_HOOKS">STAGE_HOOKS</a></li><li><a href="global.html#addToClass">addToClass</a></li><li><a href="global.html#allBoxes">allBoxes</a></li><li><a href="global.html#appCSV">appCSV</a></li><li><a href="global.html#appFile">appFile</a></li><li><a href="global.html#appInsertAt">appInsertAt</a></li><li><a href="global.html#appRoots">appRoots</a></li><li><a href="global.html#appTemplate">appTemplate</a></li><li><a href="global.html#appToIR">appToIR</a></li><li><a href="global.html#apply">apply</a></li><li><a href="global.html#applyIR">applyIR</a></li><li><a href="global.html#applySettings">applySettings</a></li><li><a href="global.html#arrayDeclarations">arrayDeclarations</a></li><li><a href="global.html#arrayIndex">arrayIndex</a></li><li><a href="global.html#assignedVariables">assignedVariables</a></li><li><a href="global.html#boolValue">boolValue</a></li><li><a href="global.html#botCases">botCases</a></li><li><a href="global.html#boxOptions">boxOptions</a></li><li><a href="global.html#chat">chat</a></li><li><a href="global.html#chatFor">chatFor</a></li><li><a href="global.html#check">check</a></li><li><a href="global.html#checkField">checkField</a></li><li><a href="global.html#checkForm">checkForm</a></li><li><a href="global.html#compileProgram">compileProgram</a></li><li><a href="global.html#compiled">compiled</a></li><li><a href="global.html#context">context</a></li><li><a href="global.html#contractList">contractList</a></li><li><a href="global.html#convertApp">convertApp</a></li><li><a href="global.html#convertTreatment">convertTreatment</a></li><li><a href="global.html#convertTreatmentFile">convertTreatmentFile</a></li><li><a href="global.html#copyDir">copyDir</a></li><li><a href="global.html#copyToPlayer">copyToPlayer</a></li><li><a href="global.html#creatingSessionBeforeArrival">creatingSessionBeforeArrival</a></li><li><a href="global.html#cut">cut</a></li><li><a href="global.html#decimals">decimals</a></li><li><a href="global.html#declared">declared</a></li><li><a href="global.html#dedent">dedent</a></li><li><a href="global.html#describeValue">describeValue</a></li><li><a href="global.html#dialectFor">dialectFor</a></li><li><a href="global.html#drawn">drawn</a></li><li><a href="global.html#encode">encode</a></li><li><a href="global.html#endSoon">endSoon</a></li><li><a href="global.html#errorPosition">errorPosition</a></li><li><a href="global.html#exportTables">exportTables</a></li><li><a href="global.html#exporter">exporter</a></li><li><a href="global.html#exportersFor">exportersFor</a></li><li><a href="global.html#expression">expression</a></li><li><a href="global.html#fail">fail</a></li><li><a href="global.html#file">file</a></li><li><a href="global.html#fillValues">fillValues</a></li><li><a href="global.html#findBox">findBox</a></li><li><a href="global.html#finite">finite</a></li><li><a href="global.html#formatText">formatText</a></li><li><a href="global.html#formatValue">formatValue</a></li><li><a href="global.html#fromDescription">fromDescription</a></li><li><a href="global.html#getBridge">getBridge</a></li><li><a href="global.html#grid">grid</a></li><li><a href="global.html#history">history</a></li><li><a href="global.html#inAppFolders">inAppFolders</a></li><li><a href="global.html#indent">indent</a></li><li><a href="global.html#indentBy">indentBy</a></li><li><a href="global.html#insertAfter">insertAfter</a></li><li><a href="global.html#isInteractive">isInteractive</a></li><li><a href="global.html#isProject">isProject</a></li><li><a href="global.html#isSessionsLastPage">isSessionsLastPage</a></li><li><a href="global.html#isText">isText</a></li><li><a href="global.html#isTextFile">isTextFile</a></li><li><a href="global.html#itemCell">itemCell</a></li><li><a href="global.html#itemsTable">itemsTable</a></li><li><a href="global.html#jsonErrorPosition">jsonErrorPosition</a></li><li><a href="global.html#lanAddress">lanAddress</a></li><li><a href="global.html#lastFirst">lastFirst</a></li><li><a href="global.html#layoutEnd">layoutEnd</a></li><li><a href="global.html#layoutParts">layoutParts</a></li><li><a href="global.html#leaveIfAsked">leaveIfAsked</a></li><li><a href="global.html#leavesStage">leavesStage</a></li><li><a href="global.html#legacyValue">legacyValue</a></li><li><a href="global.html#lines">lines</a></li><li><a href="global.html#loadPackagesFor">loadPackagesFor</a></li><li><a href="global.html#measure">measure</a></li><li><a href="global.html#memberAssignment">memberAssignment</a></li><li><a href="global.html#model">model</a></li><li><a href="global.html#mountProject">mountProject</a></li><li><a href="global.html#newTreatment">newTreatment</a></li><li><a href="global.html#normalizeCode">normalizeCode</a></li><li><a href="global.html#openUrl">openUrl</a></li><li><a href="global.html#owner">owner</a></li><li><a href="global.html#packageFor">packageFor</a></li><li><a href="global.html#pageTimesCSV">pageTimesCSV</a></li><li><a href="global.html#paramCell">paramCell</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseExpr">parseExpr</a></li><li><a href="global.html#parseLayout">parseLayout</a></li><li><a href="global.html#parseQueueId">parseQueueId</a></li><li><a href="global.html#place">place</a></li><li><a href="global.html#plot">plot</a></li><li><a href="global.html#plotInput">plotInput</a></li><li><a href="global.html#plotItemAt">plotItemAt</a></li><li><a href="global.html#prefixHtmlUrls">prefixHtmlUrls</a></li><li><a href="global.html#pressButton">pressButton</a></li><li><a href="global.html#program">program</a></li><li><a href="global.html#programItems">programItems</a></li><li><a href="global.html#putApp">putApp</a></li><li><a href="global.html#putSettings">putSettings</a></li><li><a href="global.html#py">py</a></li><li><a href="global.html#queueId">queueId</a></li><li><a href="global.html#queueScript">queueScript</a></li><li><a href="global.html#quote">quote</a></li><li><a href="global.html#quotedEnd">quotedEnd</a></li><li><a href="global.html#readGameHeader">readGameHeader</a></li><li><a href="global.html#readQuestionnaires">readQuestionnaires</a></li><li><a href="global.html#readScreen">readScreen</a></li><li><a href="global.html#readTextQuestionnaires">readTextQuestionnaires</a></li><li><a href="global.html#readTextTreatment">readTextTreatment</a></li><li><a href="global.html#readTreatment">readTreatment</a></li><li><a href="global.html#ready">ready</a></li><li><a href="global.html#refresh">refresh</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#reload">reload</a></li><li><a href="global.html#renderScreen">renderScreen</a></li><li><a href="global.html#reportMarkdown">reportMarkdown</a></li><li><a href="global.html#rooms">rooms</a></li><li><a href="global.html#router">router</a></li><li><a href="global.html#rtfToText">rtfToText</a></li><li><a href="global.html#run">run</a></li><li><a href="global.html#runAppCode">runAppCode</a></li><li><a href="global.html#runBots">runBots</a></li><li><a href="global.html#runOf">runOf</a></li><li><a href="global.html#runZtreeBots">runZtreeBots</a></li><li><a href="global.html#scan">scan</a></li><li><a href="global.html#screen">screen</a></li><li><a href="global.html#sessionConfigs">sessionConfigs</a></li><li><a href="global.html#settleBoxes">settleBoxes</a></li><li><a href="global.html#stageDeclaration">stageDeclaration</a></li><li><a href="global.html#stageMeaning">stageMeaning</a></li><li><a href="global.html#stageVariable">stageVariable</a></li><li><a href="global.html#statementRange">statementRange</a></li><li><a href="global.html#str">str</a></li><li><a href="global.html#subjectIndex">subjectIndex</a></li><li><a href="global.html#submitGeneric">submitGeneric</a></li><li><a href="global.html#substitutionAt">substitutionAt</a></li><li><a href="global.html#syntaxErrors">syntaxErrors</a></li><li><a href="global.html#tableRecords">tableRecords</a></li><li><a href="global.html#tablesChangedTimers">tablesChangedTimers</a></li><li><a href="global.html#template">template</a></li><li><a href="global.html#templateLiteral">templateLiteral</a></li><li><a href="global.html#templates">templates</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#textParts">textParts</a></li><li><a href="global.html#toTreatment">toTreatment</a></li><li><a href="global.html#tokenize">tokenize</a></li><li><a href="global.html#topInsert">topInsert</a></li><li><a href="global.html#treatmentFile">treatmentFile</a></li><li><a href="global.html#unindent">unindent</a></li><li><a href="global.html#urlFor">urlFor</a></li><li><a href="global.html#validate">validate</a></li><li><a href="global.html#value">value</a></li><li><a href="global.html#valueFor">valueFor</a></li><li><a href="global.html#valueKind">valueKind</a></li><li><a href="global.html#valueSource">valueSource</a></li><li><a href="global.html#variables">variables</a></li><li><a href="global.html#whenReady">whenReady</a></li><li><a href="global.html#wideCSV">wideCSV</a></li><li><a href="global.html#withBlocks">withBlocks</a></li><li><a href="global.html#withStatics">withStatics</a></li><li><a href="global.html#write">write</a></li><li><a href="global.html#zTreeRules">zTreeRules</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Oct 14 2026 09:40:18 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -5,15 +5,16 @@ import Sessions from './views/Sessions.vue'
 import Session from './views/Session.vue'
 import Rooms from './views/Rooms.vue'
 import Apps from './views/Apps.vue'
+import Studio from './views/Studio.vue'
 
-// Views are in the address: #/sessions, #/session/<id>/<tab>, #/rooms, #/apps.
+// Views are in the address: #/sessions, #/session/<id>/<tab>, #/rooms, #/apps, #/studio[/project|app/<path>].
 const hash = ref(location.hash)
 const onHash = () => { hash.value = location.hash }
 onMounted(() => window.addEventListener('hashchange', onHash))
 onUnmounted(() => window.removeEventListener('hashchange', onHash))
 const route = computed(() => {
   const parts = hash.value.replace(/^#\/?/, '').split('/').map(decodeURIComponent)
-  return { view: parts[0] || 'sessions', id: parts[1] ?? '', tab: parts[2] ?? 'links' }
+  return { view: parts[0] || 'sessions', id: parts[1] ?? '', tab: parts[2] ?? 'links', path: parts[2] ?? '' }
 })
 </script>
 
@@ -25,6 +26,7 @@ const route = computed(() => {
         <a class="nav-link" :class="{ active: route.view.startsWith('session') }" href="#/sessions">Sessions</a>
         <a class="nav-link" :class="{ active: route.view === 'rooms' }" href="#/rooms">Rooms</a>
         <a class="nav-link" :class="{ active: route.view === 'apps' }" href="#/apps">Apps</a>
+        <a class="nav-link" :class="{ active: route.view === 'studio' }" href="#/studio">Studio</a>
       </div>
       <span class="ms-auto small" :class="state.connected ? 'text-success' : 'text-danger'">
         {{ state.connected ? 'connected' : 'not connected' }}
@@ -35,6 +37,7 @@ const route = computed(() => {
     <Session v-if="route.view === 'session'" :id="route.id" :tab="route.tab" />
     <Rooms v-else-if="route.view === 'rooms'" />
     <Apps v-else-if="route.view === 'apps'" />
+    <Studio v-else-if="route.view === 'studio'" :kind="route.id" :path="route.path" />
     <Sessions v-else />
   </main>
 </template>

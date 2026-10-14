@@ -28,25 +28,26 @@
 </header>
 
 <article>
-    <p>This tutorial will show you how to program the simple public goods game used in the previous section. From the Welcome screen, click &quot;Create App...&quot;. Type <code>my-public-goods</code> as the filename, then click &quot;Create&quot;.</p>
+    <p>This tutorial will show you how to program the simple public goods game used in the previous section. In the admin, choose File → New app…. Type <code>my-public-goods</code> as the file name, then press &quot;Create&quot;. jtree writes <code>client/apps/my-public-goods.jtt</code>, and opens it in the App editor.</p>
 <p>[Note: &quot;App&quot;, &quot;Game&quot; and &quot;Treatment&quot; are used interchangeably in jtree.]</p>
-<p>The App window will open. Click &quot;Code...&quot; to edit the code of your App.</p>
-<p>First, we will define the parameters and stages of the app. Each app file begins with a pre-defined App object called <code>app</code>, and fields are modified and/or added to this object using regular Javascript. Add the following code to your file now:</p>
+<p>An app is a Javascript file. The App editor shows it in parts: its <strong>Settings</strong>, its <strong>Functions</strong>, each of its <strong>stages</strong> (with its screens, settings and functions), <strong>Other code</strong>, and the whole <strong>Source</strong>. Changing a part changes only that statement in the file, and Source shows the whole file, where you can write anything; &quot;Apply&quot; (Ctrl+Enter) reads it into the other parts again. This tutorial gives the code, to type in Source; the other parts show what each piece is as you go. &quot;Save&quot; (Ctrl+S) writes the file, and &quot;Save and start a session&quot; also starts a session with the app. You can just as well edit the file in any text editor, then use File → Reload apps.</p>
+<p>First, we will define the parameters and stages of the app. Each app file begins with a pre-defined App object called <code>app</code>, and fields are modified and/or added to this object using regular Javascript. Replace what the new app has with the following code:</p>
 <pre class="prettyprint source lang-javascript"><code>app.numPeriods  = 10;
 app.groupSize   = 4;
 app.endowment   = 20;
-app.prodFactor  = 2;
+app.factor      = 2;
 </code></pre>
-<p>The code above sets the number of periods for this App to 10, and the number of players per group to 4. The last two lines create new fields specific to this app, the endowment that each player will begin with (20), and the production factor (2).</p>
+<p>The code above sets the number of periods for this App to 10, and the number of players per group to 4. The last two lines create new fields specific to this app, the endowment that each player will begin with (20), and the production factor (2). In the editor, these are the app's Settings.</p>
 <p>The next step is determining the stages of your app. Stages of an app are repeated a given number of times. The repeated public goods game has the following stages:</p>
 <ol>
 <li>Decision stage: players choose how much to contribute.</li>
 <li>Results stage: players are shown their profit for this period.</li>
 </ol>
 <p>Stages are created and added to the app using the <a href="App.html#newStage"><code>app.newStage(stageId)</code></a> function. Add the following code to your file:</p>
-<pre class="prettyprint source lang-javascript"><code>var decideStage  = app.newStage('decide');
-var resultsStage = app.newStage('results');
+<pre class="prettyprint source lang-javascript"><code>let decideStage  = app.newStage('decide');
+let resultsStage = app.newStage('results');
 </code></pre>
+<p>In the editor, each stage is listed under the app's parts, where stages can also be added, renamed, moved and deleted.</p>
 <p>The <code>content</code> field of a stage is shown to players when they are active in the stage. Content is mostly regular HTML, which consists of sets of tags. Tags are written in between greater than <code>&lt;</code> and less than <code>&gt;</code> characters, such as <code>&lt;p&gt;</code>. Tags can contain content, in which case they should also usually have an ending tag: <code>&lt;p&gt;This is a paragraph.&lt;/p&gt;</code>.</p>
 <p>For the 'Decide' screen, we want to show the following information to the player:</p>
 <ul>
@@ -74,8 +75,8 @@ var resultsStage = app.newStage('results');
     group.contributions = group.sum('contribution');
     group.production = group.contributions * app.factor;
     group.prodPerPlayer = group.production / group.players.length;
-    for (var i in group.players) { // i = 0, 1, 2, 3
-        var player = group.players[i];
+    for (let i in group.players) { // i = 0, 1, 2, 3
+        let player = group.players[i];
         player.points = app.endowment - player.contribution + group.prodPerPlayer;
     }
 }
@@ -85,30 +86,31 @@ var resultsStage = app.newStage('results');
 <pre class="prettyprint source lang-javascript"><code>resultsStage.activeScreen = `
 &lt;p>RESULTS&lt;/p>
 &lt;p>Your endowment was {{app.endowment}} E$. You contributed {{player.contribution}} E$.&lt;/p>
-&lt;p>In total, players in your group contributed {{group.contributions}} E$, thus the total amount produced was {{group.production.toFixed(2)}} E$.&lt;/p>
-&lt;p>Thus, your payoff in this period is {{player.points.toFixed(2)}} E$.&lt;/p>
+&lt;p>In total, players in your group contributed {{group.contributions}} E$, thus the total amount produced was {{group.production | round(2)}} E$.&lt;/p>
+&lt;p>Thus, your payoff in this period is {{player.points | round(2)}} E$.&lt;/p>
 `;
 </code></pre>
+<p><code>| round(2)</code> shows a number rounded to 2 decimal places.</p>
 <p>In summary, the content of the app file is the following:</p>
 <pre class="prettyprint source lang-javascript"><code>app.numPeriods  = 10;
 app.groupSize   = 4;
 app.endowment   = 20;
 app.factor      = 2;
 
-var decideStage = app.newStage('decide');
+let decideStage = app.newStage('decide');
 decideStage.activeScreen = `
     &lt;p>DECISION&lt;/p>
     &lt;p>Your endowment is {{app.endowment}} E$.&lt;/p>
     &lt;p>Your contribution (E$): &lt;input name='player.contribution' required type='number' min='0' :max='app.endowment' step='1'>&lt;/p>
 `;
 
-var resultsStage = app.newStage('results');
+let resultsStage = app.newStage('results');
 resultsStage.groupStart = function(group) {
     group.contributions = group.sum('contribution');
     group.production = group.contributions * app.factor;
     group.prodPerPlayer = group.production / group.players.length;
-    for (var i in group.players) { // i = 0, 1, 2, 3
-        var player = group.players[i];
+    for (let i in group.players) { // i = 0, 1, 2, 3
+        let player = group.players[i];
         player.points = app.endowment - player.contribution + group.prodPerPlayer;
     }
 }
@@ -119,7 +121,44 @@ resultsStage.activeScreen = `
     &lt;p>Thus, your payoff in this period is {{player.points | round(2)}} E$.&lt;/p>
 `;
 </code></pre>
-<p>And now the app is complete. To test it, simply follow the previous tutorial on <a href='tutorial-3-running-a-session.html'>running a session.</a></p>
+<p>And now the app is complete. Press &quot;Save and start a session&quot; to test it, then follow the previous tutorial on <a href='tutorial-3-running-a-session.html'>running a session.</a> If the app has a mistake, its panel says where (file, line and position).</p>
+<h4>An app as a folder</h4>
+<p>An app can also be a folder: a file <code>app.jtt</code> that sets up the app, and one <code>.jtt</code> file per stage beside it. The stage files are added after <code>app.jtt</code> has run, in the order of their names; a leading number orders them and is not part of the stage's id, so <code>1_decide.jtt</code> is the stage <code>decide</code>. In a stage's file, <code>stage</code> is that stage and <code>app</code> is the app. The public goods game above, as a folder (see <code>apps/1 sample games/public-good-v2</code>):</p>
+<pre class="prettyprint source lang-javascript"><code>// app.jtt
+app.numPeriods  = 10;
+app.groupSize   = 4;
+app.endowment   = 20;
+app.factor      = 2;
+</code></pre>
+<pre class="prettyprint source lang-javascript"><code>// 1_decide.jtt
+stage.activeScreen = `
+    &lt;p>DECISION&lt;/p>
+    &lt;p>Your contribution (E$): &lt;input name='player.contribution' required type='number' min='0' :max='app.endowment' step='1'>&lt;/p>
+`;
+</code></pre>
+<pre class="prettyprint source lang-javascript"><code>// 2_results.jtt
+stage.groupStart = function(group) {
+    group.contributions = group.sum('contribution');
+    // ...
+}
+stage.activeScreen = `&lt;p>RESULTS&lt;/p> ...`;
+</code></pre>
+<p><code>app.jtt</code> can still create stages itself, with <code>app.newStage(id)</code>, or add a stage file under another id with <a href="App.html#addStage"><code>app.addStage(id, file)</code></a>; files it adds are not added again. Other files in the folder (images, <code>client.js</code>, ...) are not stages, and the whole folder is copied to the session's output.</p>
+<h4>Checking what players enter</h4>
+<p>The page's <code>min</code>, <code>max</code> and <code>required</code> only guide the browser. To have the server check what a form sends, declare its fields in <code>app.fields</code>, by the name the form uses:</p>
+<pre class="prettyprint source lang-javascript"><code>app.fields = {
+    'player.contribution': { type: 'int', min: 0, max: function(player) { return app.endowment; } },
+    'player.color': { type: 'choice', choices: ['red', 'blue'] },
+    'player.comment': { type: 'string', blank: true },
+};
+decideStage.formFields = ['player.contribution', 'player.color'];
+decideStage.validate = function(player, values) {
+    if (values['player.color'] === 'red' && values['player.contribution'] > 10) {
+        return 'Red allows at most 10.';
+    }
+};
+</code></pre>
+<p><code>type</code> is <code>int</code>, <code>number</code>, <code>string</code>, <code>bool</code> or <code>choice</code>; <code>min</code>, <code>max</code> and <code>choices</code> can be values or functions of the player; a field must be filled in unless <code>blank</code> is <code>true</code>. <code>stage.formFields</code> lists the fields a stage's form must send, and <code>stage.validate(player, values)</code> checks them together, returning a message (or messages by field name). If anything is wrong, nothing is stored, the stage goes on, and the page shows the messages under the fields; templates can show them too, from <code>formErrors</code>, e.g. <code>{{ formErrors['player.contribution'] }}</code>. Values are stored converted to their type: <code>'07'</code> for an <code>int</code> field is <code>7</code>, and for a <code>string</code> field stays <code>'07'</code>.</p>
 </article>
 
 </section>
@@ -127,13 +166,13 @@ resultsStage.activeScreen = `
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AdminAuth.html">AdminAuth</a></li><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="Data.html">Data</a></li><li><a href="Exit.html">Exit</a></li><li><a href="Group.html">Group</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="QueueRecorder.html">QueueRecorder</a></li><li><a href="Reader.html">Reader</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Run.html">Run</a></li><li><a href="Screens.html">Screens</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="Translator.html">Translator</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="global.html#start">start</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-4a-ztree.html">z-Tree treatments</a></li><li><a href="tutorial-4b-otree.html">oTree apps</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-other.html">Other</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ADMIN_LOGIN_REQUIRED">ADMIN_LOGIN_REQUIRED</a></li><li><a href="global.html#APP_HOOKS">APP_HOOKS</a></li><li><a href="global.html#STAGE_HOOKS">STAGE_HOOKS</a></li><li><a href="global.html#addToClass">addToClass</a></li><li><a href="global.html#allBoxes">allBoxes</a></li><li><a href="global.html#appCSV">appCSV</a></li><li><a href="global.html#appFile">appFile</a></li><li><a href="global.html#appInsertAt">appInsertAt</a></li><li><a href="global.html#appRoots">appRoots</a></li><li><a href="global.html#appTemplate">appTemplate</a></li><li><a href="global.html#appToIR">appToIR</a></li><li><a href="global.html#apply">apply</a></li><li><a href="global.html#applyIR">applyIR</a></li><li><a href="global.html#applySettings">applySettings</a></li><li><a href="global.html#arrayDeclarations">arrayDeclarations</a></li><li><a href="global.html#arrayIndex">arrayIndex</a></li><li><a href="global.html#assignedVariables">assignedVariables</a></li><li><a href="global.html#boolValue">boolValue</a></li><li><a href="global.html#botCases">botCases</a></li><li><a href="global.html#boxOptions">boxOptions</a></li><li><a href="global.html#chat">chat</a></li><li><a href="global.html#chatFor">chatFor</a></li><li><a href="global.html#check">check</a></li><li><a href="global.html#checkField">checkField</a></li><li><a href="global.html#checkForm">checkForm</a></li><li><a href="global.html#compileProgram">compileProgram</a></li><li><a href="global.html#compiled">compiled</a></li><li><a href="global.html#context">context</a></li><li><a href="global.html#contractList">contractList</a></li><li><a href="global.html#convertApp">convertApp</a></li><li><a href="global.html#convertTreatment">convertTreatment</a></li><li><a href="global.html#convertTreatmentFile">convertTreatmentFile</a></li><li><a href="global.html#copyDir">copyDir</a></li><li><a href="global.html#copyToPlayer">copyToPlayer</a></li><li><a href="global.html#creatingSessionBeforeArrival">creatingSessionBeforeArrival</a></li><li><a href="global.html#cut">cut</a></li><li><a href="global.html#decimals">decimals</a></li><li><a href="global.html#declared">declared</a></li><li><a href="global.html#dedent">dedent</a></li><li><a href="global.html#describeValue">describeValue</a></li><li><a href="global.html#dialectFor">dialectFor</a></li><li><a href="global.html#drawn">drawn</a></li><li><a href="global.html#encode">encode</a></li><li><a href="global.html#endSoon">endSoon</a></li><li><a href="global.html#errorPosition">errorPosition</a></li><li><a href="global.html#exportTables">exportTables</a></li><li><a href="global.html#exporter">exporter</a></li><li><a href="global.html#exportersFor">exportersFor</a></li><li><a href="global.html#expression">expression</a></li><li><a href="global.html#fail">fail</a></li><li><a href="global.html#file">file</a></li><li><a href="global.html#fillValues">fillValues</a></li><li><a href="global.html#findBox">findBox</a></li><li><a href="global.html#finite">finite</a></li><li><a href="global.html#formatText">formatText</a></li><li><a href="global.html#formatValue">formatValue</a></li><li><a href="global.html#fromDescription">fromDescription</a></li><li><a href="global.html#getBridge">getBridge</a></li><li><a href="global.html#grid">grid</a></li><li><a href="global.html#history">history</a></li><li><a href="global.html#inAppFolders">inAppFolders</a></li><li><a href="global.html#indent">indent</a></li><li><a href="global.html#indentBy">indentBy</a></li><li><a href="global.html#insertAfter">insertAfter</a></li><li><a href="global.html#isInteractive">isInteractive</a></li><li><a href="global.html#isProject">isProject</a></li><li><a href="global.html#isSessionsLastPage">isSessionsLastPage</a></li><li><a href="global.html#isText">isText</a></li><li><a href="global.html#isTextFile">isTextFile</a></li><li><a href="global.html#itemCell">itemCell</a></li><li><a href="global.html#itemsTable">itemsTable</a></li><li><a href="global.html#jsonErrorPosition">jsonErrorPosition</a></li><li><a href="global.html#lanAddress">lanAddress</a></li><li><a href="global.html#lastFirst">lastFirst</a></li><li><a href="global.html#layoutEnd">layoutEnd</a></li><li><a href="global.html#layoutParts">layoutParts</a></li><li><a href="global.html#leaveIfAsked">leaveIfAsked</a></li><li><a href="global.html#leavesStage">leavesStage</a></li><li><a href="global.html#legacyValue">legacyValue</a></li><li><a href="global.html#lines">lines</a></li><li><a href="global.html#loadPackagesFor">loadPackagesFor</a></li><li><a href="global.html#measure">measure</a></li><li><a href="global.html#memberAssignment">memberAssignment</a></li><li><a href="global.html#model">model</a></li><li><a href="global.html#mountProject">mountProject</a></li><li><a href="global.html#newTreatment">newTreatment</a></li><li><a href="global.html#normalizeCode">normalizeCode</a></li><li><a href="global.html#openUrl">openUrl</a></li><li><a href="global.html#owner">owner</a></li><li><a href="global.html#packageFor">packageFor</a></li><li><a href="global.html#pageTimesCSV">pageTimesCSV</a></li><li><a href="global.html#paramCell">paramCell</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseExpr">parseExpr</a></li><li><a href="global.html#parseLayout">parseLayout</a></li><li><a href="global.html#parseQueueId">parseQueueId</a></li><li><a href="global.html#place">place</a></li><li><a href="global.html#plot">plot</a></li><li><a href="global.html#plotInput">plotInput</a></li><li><a href="global.html#plotItemAt">plotItemAt</a></li><li><a href="global.html#prefixHtmlUrls">prefixHtmlUrls</a></li><li><a href="global.html#pressButton">pressButton</a></li><li><a href="global.html#program">program</a></li><li><a href="global.html#programItems">programItems</a></li><li><a href="global.html#putApp">putApp</a></li><li><a href="global.html#putSettings">putSettings</a></li><li><a href="global.html#py">py</a></li><li><a href="global.html#queueId">queueId</a></li><li><a href="global.html#queueScript">queueScript</a></li><li><a href="global.html#quote">quote</a></li><li><a href="global.html#quotedEnd">quotedEnd</a></li><li><a href="global.html#readGameHeader">readGameHeader</a></li><li><a href="global.html#readQuestionnaires">readQuestionnaires</a></li><li><a href="global.html#readScreen">readScreen</a></li><li><a href="global.html#readTextQuestionnaires">readTextQuestionnaires</a></li><li><a href="global.html#readTextTreatment">readTextTreatment</a></li><li><a href="global.html#readTreatment">readTreatment</a></li><li><a href="global.html#ready">ready</a></li><li><a href="global.html#refresh">refresh</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#reload">reload</a></li><li><a href="global.html#renderScreen">renderScreen</a></li><li><a href="global.html#reportMarkdown">reportMarkdown</a></li><li><a href="global.html#rooms">rooms</a></li><li><a href="global.html#router">router</a></li><li><a href="global.html#rtfToText">rtfToText</a></li><li><a href="global.html#run">run</a></li><li><a href="global.html#runAppCode">runAppCode</a></li><li><a href="global.html#runBots">runBots</a></li><li><a href="global.html#runOf">runOf</a></li><li><a href="global.html#runZtreeBots">runZtreeBots</a></li><li><a href="global.html#scan">scan</a></li><li><a href="global.html#screen">screen</a></li><li><a href="global.html#sessionConfigs">sessionConfigs</a></li><li><a href="global.html#settleBoxes">settleBoxes</a></li><li><a href="global.html#stageDeclaration">stageDeclaration</a></li><li><a href="global.html#stageMeaning">stageMeaning</a></li><li><a href="global.html#stageVariable">stageVariable</a></li><li><a href="global.html#statementRange">statementRange</a></li><li><a href="global.html#str">str</a></li><li><a href="global.html#subjectIndex">subjectIndex</a></li><li><a href="global.html#submitGeneric">submitGeneric</a></li><li><a href="global.html#substitutionAt">substitutionAt</a></li><li><a href="global.html#syntaxErrors">syntaxErrors</a></li><li><a href="global.html#tableRecords">tableRecords</a></li><li><a href="global.html#tablesChangedTimers">tablesChangedTimers</a></li><li><a href="global.html#template">template</a></li><li><a href="global.html#templateLiteral">templateLiteral</a></li><li><a href="global.html#templates">templates</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#textParts">textParts</a></li><li><a href="global.html#toTreatment">toTreatment</a></li><li><a href="global.html#tokenize">tokenize</a></li><li><a href="global.html#topInsert">topInsert</a></li><li><a href="global.html#treatmentFile">treatmentFile</a></li><li><a href="global.html#unindent">unindent</a></li><li><a href="global.html#urlFor">urlFor</a></li><li><a href="global.html#validate">validate</a></li><li><a href="global.html#value">value</a></li><li><a href="global.html#valueFor">valueFor</a></li><li><a href="global.html#valueKind">valueKind</a></li><li><a href="global.html#valueSource">valueSource</a></li><li><a href="global.html#variables">variables</a></li><li><a href="global.html#whenReady">whenReady</a></li><li><a href="global.html#wideCSV">wideCSV</a></li><li><a href="global.html#withBlocks">withBlocks</a></li><li><a href="global.html#withStatics">withStatics</a></li><li><a href="global.html#write">write</a></li><li><a href="global.html#zTreeRules">zTreeRules</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Sat Feb 15 2020 16:24:16 GMT+0100 (Central European Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Oct 14 2026 09:40:18 GMT+0200 (Central European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

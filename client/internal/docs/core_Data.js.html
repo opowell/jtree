@@ -34,8 +34,10 @@ const App = require('../App.js');
 const Room = require('../Room.js');
 const Queue = require('../Queue.js');
 const User = require('../User.js');
-const StackTracey = require('stacktracey');
-
+const { loadDefaultApp } = require('./data/loadDefaultApp.js')
+const { getIdFromDirectory } = require('./data/getIdFromDirectory.js')
+const { dialectFor } = require('../dialects/index.js')
+const otreeProject = require('../dialects/otree/project.js')
 /** The data object. */
 class Data {
 
@@ -80,6 +82,10 @@ class Data {
         }
 
         this.rooms = this.loadRooms();
+        for (const room of this.pendingRooms || []) {
+            this.addRoom(room);
+        }
+        this.pendingRooms = [];
 
         this.users = this.loadUsers();
 
@@ -99,7 +105,39 @@ class Data {
      *
      */
     callStoreTimeInfoFunc() {
-        setTimeout(this.storeTimeInfo.bind(this), this.jt.settings.autoSaveFreq);
+        if (this.stopped) {
+            return;
+        }
+        this.storeTimeInfoTimer = setTimeout(this.storeTimeInfo.bind(this), this.jt.settings.autoSaveFreq);
+    }
+
+    /**
+     * Stops what keeps running in the background: saving the time info, and each session's
+     * timers and data file. Resolves once the files are written. CALLED FROM jt.stop (see jtree.js).
+     * @return {Promise}
+     */
+    stop() {
+        this.stopped = true;
+        clearTimeout(this.storeTimeInfoTimer);
+        // When jtree was last on, for stage timers of sessions loaded later (see Group.load).
+        try {
+            fs.writeJSONSync(path.join(this.jt.path, this.jt.settings.serverTimeInfoFilename), Date.now());
+        } catch (err) {
+            console.log('Error saving the time: ' + err);
+        }
+        for (const session of this.sessions) {
+            for (const timer of session.timers()) {
+                timer.clear();
+            }
+            for (const participant of Object.values(session.participants)) {
+                if (participant.appTimer != null) {
+                    participant.appTimer.clear();
+                }
+            }
+        }
+        return Promise.all(this.sessions
+            .filter((session) => session.fileStream != null)
+            .map((session) => new Promise((resolve) => session.fileStream.end(resolve))));
     }
 
     /*
@@ -169,13 +207,17 @@ class Data {
     app(id, options) {
         if (this.jt.settings.reloadApps) {
             var appPath = this.appsMetaData[id].appPath;
+            if (Queue.isQueueId(appPath)) {
+                return Queue.load(appPath, this.jt);
+            }
             return this.loadApp(id, null, appPath, options);
         } else {
             return this.apps[id];
         }
     }
     
-    loadApp(id, session, appPath, options) {
+  loadApp(id, session, appPath, options) {
+    console.log('load', appPath, options)
         var app = null;
         app = new App.new(session, this.jt, appPath);
         app.givenOptions = options;
@@ -187,112 +229,41 @@ class Data {
         }
 
         let filePath = appPath;
-        if (!fs.existsSync(appPath) &amp;&amp; session.queuePath != null) {
-            filePath = path.join(session.queuePath, appPath);
+        const dialect = dialectFor(filePath);
+        if (dialect == null) {
+            return null;
         }
 
         try {
-            app.appjs = fs.readFileSync(filePath) + '';
-            if (app.appjs.startsWith('//NOTSTANDALONEAPP')) {
+            if (dialect.name === 'jtree' &amp;&amp; Utils.readJS(filePath).startsWith('//NOTSTANDALONEAPP')) {
                 return null;
             }
-            eval(app.appjs); // jshint ignore:line
+            dialect.define(app);
             this.jt.log('loaded app ' + filePath);
         } catch (err) {
-            if (
-                !filePath.endsWith('.jtt')
-            ) {
+            // A .js file that is not an app, e.g. a page's script.
+            if (filePath.endsWith('.js')) {
                 return null;
             }
             if (app.isStandaloneApp) {
                 app.hasError = true;
-                let stack = new StackTracey (err);
-                this.jt.log('Error loading app: ' + filePath, true);
-                this.jt.log(err, true);
-                let lines = err.stack.split('\n');
-                let index = lines[1].indexOf('&lt;anonymous>:');
-                let position = lines[1].substring(index + '&lt;anonymous>:'.length);
-                let start = 0;
-                let indexColon = position.indexOf(':', start);
-                let line = position.substring(start, indexColon);
-                start = start + indexColon + 1;
-                let indexParen = position.indexOf(')', start);
-                let positionStr = position.substring(start, indexParen);
-                if (isNaN(line)) {
-                    line = 'unknown';
-                }
-                if (isNaN(positionStr)) {
-                    positionStr = 'unknown';
-                }
-                this.jt.log('Line ' + line + ', position ' + positionStr, true);
-                app.errorLine = line;
-                app.errorPosition = positionStr;
+                // Where: in this file, or in one of a folder app's stage files (see App#addStage).
+                const pos = err.jtreePosition || { file: filePath, line: 'unknown', column: 'unknown' };
+                app.errorFile = pos.file;
+                app.errorLine = pos.line;
+                app.errorPosition = pos.column;
+                this.jt.log('Error in app ' + pos.file + ', line ' + pos.line + ', position ' + pos.column + ': ' + err);
             }
         }
         return app;
     }
 
-    getAppsFromDir(dir) {
-        var out = [];
-        if (Utils.isDirectory(dir)) {
-            var appDirContents = fs.readdirSync(dir);
-            for (var i in appDirContents) {
-                var curPath = path.join(dir, appDirContents[i]);
-                var curPathIsFile = fs.lstatSync(curPath).isFile();
-                var curPathIsFolder = fs.lstatSync(curPath).isDirectory();
-                if (curPathIsFile) {
-                    console.log('check queue: ' + id);
-
-                    var id = appDirContents[i];
-
-                    let isApp = false;
-                    // Treatment / App
-                    if (id == 'app.js' || id == 'app.jtt') {
-                        isApp = true;
-                        // Take id from path name.
-                        if (dir.lastIndexOf('/') > -1) {
-                            id = dir.substring(dir.lastIndexOf('/') + 1);
-                        } else if (dir.lastIndexOf('\\') > -1) {
-                            id = dir.substring(dir.lastIndexOf('\\') + 1);
-                        }
-                    }
-                    if (id.endsWith('.js')) {
-                        isApp = true;
-                        id = id.substring(0, id.length - '.js'.length);
-                    } else if (id.endsWith('.jtt')) {
-                        isApp = true;
-                        id = id.substring(0, id.length - '.jtt'.length);
-                    }
-                    if (isApp) {
-                        let app = this.loadApp(id, null, curPath, {});
-                        if (app != null) {
-                            // this.apps[id] = app;
-                            // this.appsMetaData[id] = app.metaData();
-                            out.push(app);
-                        }
-                    }
-
-                    // Queue / Session Config
-                    if (id.endsWith('.jtq')) {
-                        id = id.substring(0, id.indexOf('.jtq'));
-                        var queue = Queue.loadJTQ(id, this.jt, curPath);
-                        console.log('loading queue ' + queue.id);
-                        out.push(queue);
-                    }
-                } else if (curPathIsFolder) {
-                    out = out.concat(this.getAppsFromDir(curPath));
-                }
-            }
-        }
-        return out;
-    }
-
-    // Search for *.js and *.jtt files. Load as apps.
-    // Search folders.
+    // Search for *.js and *.jtt files, and load them as apps, and *.jtq files, as queues.
+    // Search subfolders.
     loadAppDir(dir) {
         if (Utils.isDirectory(dir)) {
-            var appDirContents = fs.readdirSync(dir);
-
+          var appDirContents = fs.readdirSync(dir);
+          const loadedDefaultApp = loadDefaultApp(dir)
             // Load individual apps and queues.
             for (var i in appDirContents) {
                 var curPath = path.join(dir, appDirContents[i]);
@@ -301,20 +272,31 @@ class Data {
                 if (curPathIsFile) {
                     var id = appDirContents[i];
 
+                    // In a folder app, the other files are its stages and client files, not apps.
+                    if (loadedDefaultApp != null &amp;&amp; !['app.js', 'app.jtt'].includes(id) &amp;&amp; !id.endsWith('.jtq')) {
+                        continue;
+                    }
+
                     let isApp = false;
                     // Treatment / App
                     if (id == 'app.js' || id == 'app.jtt') {
-                        isApp = true;
-                        // Take id from path name.
-                        if (dir.lastIndexOf('/') > -1) {
-                            id = dir.substring(dir.lastIndexOf('/') + 1);
-                        } else if (dir.lastIndexOf('\\') > -1) {
-                            id = dir.substring(dir.lastIndexOf('\\') + 1);
-                        }
+                      isApp = true;
+                      id = getIdFromDirectory(dir)
                     }
-                    if (id.endsWith('.js')) {
+                    if (id === '__init__.py' || id === 'models.py') {
+                        // An oTree app (see dialects/otree), if it is one; models.py in its older format.
+                        isApp = dialectFor(curPath) != null;
+                        id = getIdFromDirectory(dir);
+                    } else if (id.endsWith('.app.json')) {
+                        isApp = true;
+                        id = id.substring(0, id.length - '.app.json'.length);
+                    } else if (id.endsWith('.js')) {
                         isApp = true;
                         id = id.substring(0, id.length - '.js'.length);
+                    } else if (/\.zt[tq]$/i.test(id) || (/\.txt$/i.test(id) &amp;&amp; require('../dialects/ztree/ztext.js').isTextFile(curPath))) {
+                        // A z-Tree treatment or questionnaire (see dialects/ztree), or z-Tree's text export of one.
+                        isApp = true;
+                        id = id.substring(0, id.length - '.ztt'.length);
                     } else if (id.endsWith('.jtt')) {
                         isApp = true;
                         id = id.substring(0, id.length - '.jtt'.length);
@@ -327,30 +309,75 @@ class Data {
                         }
                     }
 
-                    // Queue / Session Config
+                    // An oTree project: each of its session configs is a queue.
+                    if (id === 'settings.py' &amp;&amp; otreeProject.isProject(curPath)) {
+                        this.loadOtreeProject(curPath);
+                    }
+
+                    // Queue: an app made of other apps.
                     if (id.endsWith('.jtq')) {
-                        var queue = Queue.loadJTQ(curPath, this.jt, dir);
-                        queue.dummy = true;
-                        var session = new Session.new(this.jt, null);
-                        session.emitMessages = false;
-                        session.queuePath = path.dirname(queue.id);
-                        eval(queue.code);
-                        session.setNumParticipants(session.suggestedNumParticipants);
-                        let options = {};
-                        for (let i in session.apps) {
-                            queue.addApp(session.apps[i].id, options);
-                        }
-                        queue.options = session.options;
-                        queue.optionValues = session.optionValues;
-                        // queue.apps = session.apps;
-                        this.jt.log('loading file queue ' + curPath + ' with ' + queue.apps.length + ' apps');
-                        this.queues[curPath] = queue;
+                        var queue = Queue.load(curPath, this.jt);
+                        this.jt.log('loading queue ' + curPath + ' with ' + queue.apps.length + ' apps');
+                        this.apps[curPath] = queue;
+                        this.appsMetaData[curPath] = queue.metaData();
                     }
                 } else if (curPathIsFolder) {
                     this.loadAppDir(curPath);
                 }
             }
 
+        }
+    }
+
+    /** Adds the session configs of the oTree project of settingsPath to the catalogue, as queues. */
+    loadOtreeProject(settingsPath) {
+        let configs;
+        try {
+            configs = otreeProject.sessionConfigs(settingsPath);
+        } catch (err) {
+            if (err.name === 'PythonStarting') {
+                require('../dialects/otree/runtime.js').whenReady(() => this.reloadApps());
+            } else {
+                this.jt.log('Error reading oTree project ' + settingsPath + ': ' + err);
+            }
+            return;
+        }
+        for (const config of configs) {
+            const id = otreeProject.queueId(settingsPath, config.name);
+            const queue = Queue.load(id, this.jt);
+            this.apps[id] = queue;
+            this.appsMetaData[id] = queue.metaData();
+        }
+        // Its ROOMS, as rooms (not saved in the rooms folder).
+        try {
+            for (const r of otreeProject.rooms(settingsPath)) {
+                const room = new Room.new(r.id, this.jt);
+                room.displayName = r.displayName;
+                room.useSecureURLs = false;
+                room.allowNewPIds = r.labels == null;
+                room.labels = r.labels || [];
+                room.fromOtreeProject = settingsPath;
+                this.addRoom(room);
+            }
+        } catch (err) {
+            this.jt.log('Error reading the rooms of oTree project ' + settingsPath + ': ' + err);
+        }
+    }
+
+    /** Adds room to the rooms, in place of one with its id (rooms found loading apps wait for the rooms). */
+    addRoom(room) {
+        if (this.rooms == null) {
+            this.pendingRooms = (this.pendingRooms || []).concat([room]);
+            return;
+        }
+        const i = this.rooms.findIndex((r) => r.id === room.id);
+        if (i >= 0) {
+            // Keep who is waiting in it, and the session open in it.
+            room.participants = this.rooms[i].participants;
+            room.sessionId = this.rooms[i].sessionId;
+            this.rooms[i] = room;
+        } else {
+            this.rooms.push(room);
         }
     }
 
@@ -361,20 +388,6 @@ class Data {
         newRoom.labels = room.labels;
         newRoom.useSecureURLs = room.useSecureURLs;
         this.createRoomFromRoom(newRoom);
-    }
-
-    deleteQueue(id) {
-        try {
-            fs.removeSync(this.queuePath(id));
-            for (var i in this.queues) {
-                if (this.queues[i].id === id) {
-                    this.queues.splice(i, 1);
-                    break;
-                }
-            }
-        } catch (err) {
-
-        }
     }
 
     deleteApp(id) {
@@ -404,36 +417,17 @@ class Data {
         }
     }
 
-    getApp(appPath, options) {
-        var app = App.newSansId(this.jt, appPath);
-
-        // Set options before running code.
-        for (var i in options) {
-            app.setOptionValue(i, options[i]);
-        }
-
-        try {
-            app.appjs = fs.readFileSync(appPath) + '';
-            eval(app.appjs); // jshint ignore:line
-        } catch (err) {
-            this.jt.log('Error loading app: ' + appPath);
-            this.jt.log(err);
-            app = null;
-        }
-        return app;
-    }
-
     reloadApps() {
         this.apps = {};
         this.appsMetaData = {};
-        this.queues = [];
         this.loadApps();
     }
 
     loadApps() {
         for (var i in this.jt.settings.appFolders) {
             var folder = this.jt.settings.appFolders[i];
-            this.loadAppDir(path.join(this.jt.path, folder));
+            // Relative to jtree's folder, or absolute.
+            this.loadAppDir(path.resolve(this.jt.path, folder));
         }
     }
 
@@ -481,10 +475,6 @@ class Data {
         return path.join(this.usersPath(), id + '.json');
     }
 
-    queuePath(id) {
-        return path.join(this.jt.path, this.jt.settings.appFolders[0], id);
-    }
-
     roomsPath() {
         return path.join(this.jt.path, this.jt.settings.roomsPath);
     }
@@ -497,8 +487,14 @@ class Data {
         return Utils.findByIdWOJQ(this.rooms, id);
     }
 
+    /** The queues in the app catalogue. */
+    get queues() {
+        return Object.values(this.apps).filter((app) => app instanceof Queue.new);
+    }
+
     queue(id) {
-        return Utils.findByIdWOJQ(this.queues, id);
+        var app = this.apps[id];
+        return app instanceof Queue.new ? app : null;
     }
 
     loadRooms() {
@@ -541,43 +537,27 @@ class Data {
         return out;
     }
 
-    loadQueues() {
-        var out = [];
-        var fullPath = this.queuesPath();
-
-        if (Utils.isDirectory(fullPath)) {
-            var dirContents = fs.readdirSync(fullPath);
-            for (var i in dirContents) {
-                try {
-                    var id = dirContents[i];
-                    id = id.substring(0, id.indexOf('.json'));
-                    var queue = Queue.load(this.queuePath(id), id, this.jt);
-                    out.push(queue);
-                } catch (err) {
-                    console.log(err);
-                }
-            }
-        }
-
-        return out;
-    }
-
+    /**
+     * Creates an empty queue at apps/&lt;id>.jtq, and adds it to the app catalogue.
+     * @return {Queue|null} The queue, or null if the file already exists.
+     */
     createQueue(id) {
-        // If already exists, return null.
-        if (fs.existsSync(this.queuePath(id))) {
+        if (!id.endsWith('.jtq')) {
+            id += '.jtq';
+        }
+        var queuePath = path.join(path.resolve(this.jt.path, this.jt.settings.appFolders[0]), id);
+        if (fs.existsSync(queuePath)) {
             return null;
         }
+        fs.outputFileSync(queuePath, '// Each line adds an app to the session. Paths are relative to this file.\n');
+        return this.reloadQueue(queuePath);
+    }
 
-        var queue = new Queue.new(id, this.jt);
-
-        try {
-            fs.mkdirSync(this.queuesPath());
-        } catch (err) {}
-
-        queue.save();
-
-        this.queues.push(queue);
-
+    /** Reads the queue at queuePath again, and replaces it in the app catalogue. */
+    reloadQueue(queuePath) {
+        var queue = Queue.load(queuePath, this.jt);
+        this.apps[queuePath] = queue;
+        this.appsMetaData[queuePath] = queue.metaData();
         return queue;
     }
 
@@ -684,7 +664,7 @@ class Data {
     loadLastTimeOn() {
         var out = Date.now();
         try {
-            out = fs.readJSONSync(this.js.settings.serverTimeInfoFilename);
+            out = fs.readJSONSync(path.join(this.jt.path, this.jt.settings.serverTimeInfoFilename));
         } catch (err) {}
         this.jt.log("last time on: " + out);
         return out;
@@ -731,51 +711,8 @@ class Data {
         return session;
     }
 
-    getAdmin(id, pwd) {
-        if (id === null || id === 'null') {
-            return null;
-        }
-        var admin = this.jt.settings.admins[id];
-        if (admin !== null &amp;&amp; admin !== undefined) {
-            // If password required and does not match, then do not log in.
-            if (admin.pwd !== null &amp;&amp; admin.pwd !== pwd) {
-                admin = null;
-            }
-        }
-        return admin;
-    }
-
     session(id) {
         return Utils.findByIdWOJQ(this.sessions, id);
-    }
-
-    isValidAdmin(id, pwd) {
-        const jt = this.jt;
-        if (
-            // User login is not enabled, AND
-            !jt.settings.multipleUsers &amp;&amp;
-            (
-                // Default admin password is either not set, blank, or matches the supplied password.
-                jt.settings.defaultAdminPwd === '' ||
-                jt.settings.defaultAdminPwd === null ||
-                jt.settings.defaultAdminPwd === undefined ||
-                pwd === jt.settings.defaultAdminPwd
-            )
-        ) {
-            return 'defaultAdmin';
-        }
-
-        if (jt.settings.multipleUsers) {
-            for (var i in this.users) {
-                var user = this.users[i];
-                if (user.matches(id, pwd)) {
-                    return user;
-                }
-            }
-        }
-
-        return null;
-
     }
 
 }
@@ -792,13 +729,13 @@ exports.new = Data;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="Data.html">Data</a></li><li><a href="Group.html">Group</a></li><li><a href="jt.html">jt</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-admin-clients.html">admin-clients</a></li><li><a href="tutorial-other.html">Other</a></li><li><a href="tutorial-rooms.html">rooms</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AdminAuth.html">AdminAuth</a></li><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="Data.html">Data</a></li><li><a href="Exit.html">Exit</a></li><li><a href="Group.html">Group</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="QueueRecorder.html">QueueRecorder</a></li><li><a href="Reader.html">Reader</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Run.html">Run</a></li><li><a href="Screens.html">Screens</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="Translator.html">Translator</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="global.html#start">start</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-4a-ztree.html">z-Tree treatments</a></li><li><a href="tutorial-4b-otree.html">oTree apps</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-other.html">Other</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ADMIN_LOGIN_REQUIRED">ADMIN_LOGIN_REQUIRED</a></li><li><a href="global.html#APP_HOOKS">APP_HOOKS</a></li><li><a href="global.html#STAGE_HOOKS">STAGE_HOOKS</a></li><li><a href="global.html#addToClass">addToClass</a></li><li><a href="global.html#allBoxes">allBoxes</a></li><li><a href="global.html#appCSV">appCSV</a></li><li><a href="global.html#appFile">appFile</a></li><li><a href="global.html#appInsertAt">appInsertAt</a></li><li><a href="global.html#appRoots">appRoots</a></li><li><a href="global.html#appTemplate">appTemplate</a></li><li><a href="global.html#appToIR">appToIR</a></li><li><a href="global.html#apply">apply</a></li><li><a href="global.html#applyIR">applyIR</a></li><li><a href="global.html#applySettings">applySettings</a></li><li><a href="global.html#arrayDeclarations">arrayDeclarations</a></li><li><a href="global.html#arrayIndex">arrayIndex</a></li><li><a href="global.html#assignedVariables">assignedVariables</a></li><li><a href="global.html#boolValue">boolValue</a></li><li><a href="global.html#botCases">botCases</a></li><li><a href="global.html#boxOptions">boxOptions</a></li><li><a href="global.html#chat">chat</a></li><li><a href="global.html#chatFor">chatFor</a></li><li><a href="global.html#check">check</a></li><li><a href="global.html#checkField">checkField</a></li><li><a href="global.html#checkForm">checkForm</a></li><li><a href="global.html#compileProgram">compileProgram</a></li><li><a href="global.html#compiled">compiled</a></li><li><a href="global.html#context">context</a></li><li><a href="global.html#contractList">contractList</a></li><li><a href="global.html#convertApp">convertApp</a></li><li><a href="global.html#convertTreatment">convertTreatment</a></li><li><a href="global.html#convertTreatmentFile">convertTreatmentFile</a></li><li><a href="global.html#copyDir">copyDir</a></li><li><a href="global.html#copyToPlayer">copyToPlayer</a></li><li><a href="global.html#creatingSessionBeforeArrival">creatingSessionBeforeArrival</a></li><li><a href="global.html#cut">cut</a></li><li><a href="global.html#decimals">decimals</a></li><li><a href="global.html#declared">declared</a></li><li><a href="global.html#dedent">dedent</a></li><li><a href="global.html#describeValue">describeValue</a></li><li><a href="global.html#dialectFor">dialectFor</a></li><li><a href="global.html#drawn">drawn</a></li><li><a href="global.html#encode">encode</a></li><li><a href="global.html#endSoon">endSoon</a></li><li><a href="global.html#errorPosition">errorPosition</a></li><li><a href="global.html#exportTables">exportTables</a></li><li><a href="global.html#exporter">exporter</a></li><li><a href="global.html#exportersFor">exportersFor</a></li><li><a href="global.html#expression">expression</a></li><li><a href="global.html#fail">fail</a></li><li><a href="global.html#file">file</a></li><li><a href="global.html#fillValues">fillValues</a></li><li><a href="global.html#findBox">findBox</a></li><li><a href="global.html#finite">finite</a></li><li><a href="global.html#formatText">formatText</a></li><li><a href="global.html#formatValue">formatValue</a></li><li><a href="global.html#fromDescription">fromDescription</a></li><li><a href="global.html#getBridge">getBridge</a></li><li><a href="global.html#grid">grid</a></li><li><a href="global.html#history">history</a></li><li><a href="global.html#inAppFolders">inAppFolders</a></li><li><a href="global.html#indent">indent</a></li><li><a href="global.html#indentBy">indentBy</a></li><li><a href="global.html#insertAfter">insertAfter</a></li><li><a href="global.html#isInteractive">isInteractive</a></li><li><a href="global.html#isProject">isProject</a></li><li><a href="global.html#isSessionsLastPage">isSessionsLastPage</a></li><li><a href="global.html#isText">isText</a></li><li><a href="global.html#isTextFile">isTextFile</a></li><li><a href="global.html#itemCell">itemCell</a></li><li><a href="global.html#itemsTable">itemsTable</a></li><li><a href="global.html#jsonErrorPosition">jsonErrorPosition</a></li><li><a href="global.html#lanAddress">lanAddress</a></li><li><a href="global.html#lastFirst">lastFirst</a></li><li><a href="global.html#layoutEnd">layoutEnd</a></li><li><a href="global.html#layoutParts">layoutParts</a></li><li><a href="global.html#leaveIfAsked">leaveIfAsked</a></li><li><a href="global.html#leavesStage">leavesStage</a></li><li><a href="global.html#legacyValue">legacyValue</a></li><li><a href="global.html#lines">lines</a></li><li><a href="global.html#loadPackagesFor">loadPackagesFor</a></li><li><a href="global.html#measure">measure</a></li><li><a href="global.html#memberAssignment">memberAssignment</a></li><li><a href="global.html#model">model</a></li><li><a href="global.html#mountProject">mountProject</a></li><li><a href="global.html#newTreatment">newTreatment</a></li><li><a href="global.html#normalizeCode">normalizeCode</a></li><li><a href="global.html#openUrl">openUrl</a></li><li><a href="global.html#owner">owner</a></li><li><a href="global.html#packageFor">packageFor</a></li><li><a href="global.html#pageTimesCSV">pageTimesCSV</a></li><li><a href="global.html#paramCell">paramCell</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseExpr">parseExpr</a></li><li><a href="global.html#parseLayout">parseLayout</a></li><li><a href="global.html#parseQueueId">parseQueueId</a></li><li><a href="global.html#place">place</a></li><li><a href="global.html#plot">plot</a></li><li><a href="global.html#plotInput">plotInput</a></li><li><a href="global.html#plotItemAt">plotItemAt</a></li><li><a href="global.html#prefixHtmlUrls">prefixHtmlUrls</a></li><li><a href="global.html#pressButton">pressButton</a></li><li><a href="global.html#program">program</a></li><li><a href="global.html#programItems">programItems</a></li><li><a href="global.html#putApp">putApp</a></li><li><a href="global.html#putSettings">putSettings</a></li><li><a href="global.html#py">py</a></li><li><a href="global.html#queueId">queueId</a></li><li><a href="global.html#queueScript">queueScript</a></li><li><a href="global.html#quote">quote</a></li><li><a href="global.html#quotedEnd">quotedEnd</a></li><li><a href="global.html#readGameHeader">readGameHeader</a></li><li><a href="global.html#readQuestionnaires">readQuestionnaires</a></li><li><a href="global.html#readScreen">readScreen</a></li><li><a href="global.html#readTextQuestionnaires">readTextQuestionnaires</a></li><li><a href="global.html#readTextTreatment">readTextTreatment</a></li><li><a href="global.html#readTreatment">readTreatment</a></li><li><a href="global.html#ready">ready</a></li><li><a href="global.html#refresh">refresh</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#reload">reload</a></li><li><a href="global.html#renderScreen">renderScreen</a></li><li><a href="global.html#reportMarkdown">reportMarkdown</a></li><li><a href="global.html#rooms">rooms</a></li><li><a href="global.html#router">router</a></li><li><a href="global.html#rtfToText">rtfToText</a></li><li><a href="global.html#run">run</a></li><li><a href="global.html#runAppCode">runAppCode</a></li><li><a href="global.html#runBots">runBots</a></li><li><a href="global.html#runOf">runOf</a></li><li><a href="global.html#runZtreeBots">runZtreeBots</a></li><li><a href="global.html#scan">scan</a></li><li><a href="global.html#screen">screen</a></li><li><a href="global.html#sessionConfigs">sessionConfigs</a></li><li><a href="global.html#settleBoxes">settleBoxes</a></li><li><a href="global.html#stageDeclaration">stageDeclaration</a></li><li><a href="global.html#stageMeaning">stageMeaning</a></li><li><a href="global.html#stageVariable">stageVariable</a></li><li><a href="global.html#statementRange">statementRange</a></li><li><a href="global.html#str">str</a></li><li><a href="global.html#subjectIndex">subjectIndex</a></li><li><a href="global.html#submitGeneric">submitGeneric</a></li><li><a href="global.html#substitutionAt">substitutionAt</a></li><li><a href="global.html#syntaxErrors">syntaxErrors</a></li><li><a href="global.html#tableRecords">tableRecords</a></li><li><a href="global.html#tablesChangedTimers">tablesChangedTimers</a></li><li><a href="global.html#template">template</a></li><li><a href="global.html#templateLiteral">templateLiteral</a></li><li><a href="global.html#templates">templates</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#textParts">textParts</a></li><li><a href="global.html#toTreatment">toTreatment</a></li><li><a href="global.html#tokenize">tokenize</a></li><li><a href="global.html#topInsert">topInsert</a></li><li><a href="global.html#treatmentFile">treatmentFile</a></li><li><a href="global.html#unindent">unindent</a></li><li><a href="global.html#urlFor">urlFor</a></li><li><a href="global.html#validate">validate</a></li><li><a href="global.html#value">value</a></li><li><a href="global.html#valueFor">valueFor</a></li><li><a href="global.html#valueKind">valueKind</a></li><li><a href="global.html#valueSource">valueSource</a></li><li><a href="global.html#variables">variables</a></li><li><a href="global.html#whenReady">whenReady</a></li><li><a href="global.html#wideCSV">wideCSV</a></li><li><a href="global.html#withBlocks">withBlocks</a></li><li><a href="global.html#withStatics">withStatics</a></li><li><a href="global.html#write">write</a></li><li><a href="global.html#zTreeRules">zTreeRules</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Sat Feb 15 2020 16:24:11 GMT+0100 (Central European Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Oct 14 2026 09:40:18 GMT+0200 (Central European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

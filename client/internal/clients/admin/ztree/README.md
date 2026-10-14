@@ -28,20 +28,48 @@ chapters 2.5–2.6 (testing a treatment), 5 (conducting a session) and 8 (menu c
 
 ## z-Tree's own treatments
 
-A z-Tree treatment (`.ztt`) or questionnaire (`.ztq`) in the apps folder runs as it is (see
-`server/source/dialects/ztree`). Opened here (File → Open…), it shows as z-Tree shows it, read
-only: its stage tree (`treatment/ztt.ts`: tables, programs, screens, boxes, items, buttons with
-their checkers and programs), its dialogs, and Treatment → Parameter Table. Run → Tables show
-its own z-Tree tables (`globals`, `subjects`, `summary`, `contracts`, as the server's
-`ztreeTables` message sends them, again whenever they change).
+A z-Tree treatment (`.ztt`, or a `.txt` in z-Tree's text format) or questionnaire (`.ztq`) in the
+apps folder runs as it is (see `server/source/dialects/ztree`), and is edited here as z-Tree edits
+it. File → Open… shows its stage tree as z-Tree draws it: the Background with its tables, programs
+and screens, then the stages, each with its programs, Active screen and Waitingscreen, and their
+boxes, items, buttons, checkers and plot items. File → New Treatment starts z-Tree's new treatment.
+
+- **Treatment → New …** (Stage, Table, Table Loader and Dumper, Program, External Program, each kind
+  of Box, Button, Checker, Item, each Plot item) puts the element where the selection says, as z-Tree
+  does: into the selected element if it holds that kind, else after it or the element above it that
+  can have it beside it. Its dialog opens first, with the settings z-Tree 5 gives a new one.
+- **Double-click** (or Treatment → Info…) opens an element's dialog: General Parameters, Stage,
+  Program, Table, the boxes', Item, Button, Checker, the plot items'. They have z-Tree's fields, set
+  in z-Tree's words (`TRUE`, `ifnoinput`, `BOTTOMRIGHT`). Settings a dialog has no field for are under
+  **Other settings**, where they can be changed, taken out or added, so nothing is out of reach.
+  Changing the number of subjects or periods keeps the parameter table (roles, periods) in step.
+- **Edit**: Undo (Ctrl+Z) and Redo (Ctrl+Y), Cut, Copy, Paste, Delete, and Move Up / Move Down
+  (Alt+↑, Alt+↓).
+- **Treatment → Check** parses every program and expression with jtree's z-Tree language and lists
+  where any does not.
+- **File → Save** has the server write the treatment in z-Tree's text format
+  (`server/source/editors/ztree.js`), as z-Tree writes its exports: a treatment z-Tree exported is
+  written again byte for byte. z-Tree opens these files with File → Import…. jtree reads z-Tree's
+  binary `.ztt` files but does not write them: one opened here is saved as a `.txt` beside it, after
+  a notice saying so. File → Export Treatment… downloads the text.
+
+Treatment → Parameter Table shows the periods, subjects, groups and their programs of a treatment
+jtree has read. Run → Tables show its own z-Tree tables (`globals`, `subjects`, `summary`,
+`contracts`, as the server's `ztreeTables` message sends them, again whenever they change).
+
+## jtree apps as treatments
+
+File → New jtree App, or opening a `.jtt`, shows a jtree app as a treatment (`treatment/parse.ts`):
+its stage tree made from its source. Treatment → New Stage…, New Program…, and Edit →
+Cut/Copy/Paste change the source; the Stage and Program dialogs change a stage and its hooks.
+Edits stay in the window until File → Save writes the file on the server. (jtree's own app editor,
+in the main admin, edits them field by field.)
 
 ## Windows
 
-- **Treatment windows** (File → Open…, New Treatment): the stage tree, parsed
-  from the app's source. Double-click (or Treatment → Info…) opens an element's
-  dialog: General Parameters, Stage, Program, Screen, Item, Table. Treatment →
-  New Stage…, New Program…, and Edit → Cut/Copy/Paste change the source. Edits
-  stay in the window until File → Save writes the file on the server.
+- **Treatment windows** (File → Open…, New Treatment, New jtree App): the stage
+  tree, of a z-Tree treatment or a jtree app (above). Edits stay in the window
+  until File → Save writes the file on the server.
 - **Connection Monitor** (Run): z-Tree's seven columns. Tick `selected` to start
   the next treatment for only some clients. Click states, or the box over the
   state column, then Run → Leave Stage. Tick `stop after period` for a treatment.
@@ -55,16 +83,18 @@ its own z-Tree tables (`globals`, `subjects`, `summary`, `contracts`, as the ser
 
 Keys: F5 Start Treatment, F12 Stop Clock, Shift+F12 Restart Clock, Ctrl+O, Ctrl+S.
 
-What jtree has no counterpart for (questionnaires, parameter table, matching
-menu, GameSafe, the data tools, …) is shown greyed out, as z-Tree greys out what
-cannot be done.
+What jtree has no counterpart for (new questionnaires, the matching menu,
+GameSafe, the data tools, …) is shown greyed out, as z-Tree greys out what cannot
+be done.
 
 ## Server support
 
 Three messages were added to `server/source/core/Msgs.js` for this interface:
 `startTreatment` (start an app for some clients mid-session), `leaveStage`
 (per-subject leave stage) and `setStopAfterPeriod` (checked in
-`App.getNextPeriod`). Restart the jtree server after updating.
+`App.getNextPeriod`). z-Tree treatments are read, checked and written by the
+server's editor API (`/api/editor/ztree/…`, `server/source/editors/ztree.js`).
+Restart the jtree server after updating.
 
 ## Running and editing
 

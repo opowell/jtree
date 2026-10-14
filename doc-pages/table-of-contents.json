@@ -11,9 +11,23 @@
     "4-designing-an-app": {
         "title": "Designing an App"
     },
+    "4a-ztree": {
+        "title": "z-Tree treatments"
+    },
+    "4b-otree": {
+        "title": "oTree apps"
+    },
     "5-clients": {
         "title": "Writing the client",
-        "children": ["autoplay", "buttons", "element-attributes", "including-files", "styles", "reference", "running-in-a-lab"]
+        "children": [
+            "autoplay",
+            "buttons",
+            "element-attributes",
+            "including-files",
+            "styles",
+            "reference",
+            "running-in-a-lab"
+        ]
     },
     "autoplay": {
         "title": "Autoplay"
@@ -38,7 +52,14 @@
     },
     "6-server": {
         "title": "Writing the server",
-        "children": ["can-participate", "grouping", "session-flow", "settings", "queues"]
+        "children": [
+            "can-participate",
+            "grouping",
+            "session-flow",
+            "settings",
+            "queues",
+            "rooms"
+        ]
     },
     "can-participate": {
         "title": "Can participate"
@@ -60,12 +81,21 @@
     },
     "8-advanced": {
         "title": "Developers",
-        "children": ["session-flow-details"]
+        "children": [
+            "session-flow-details",
+            "admin-clients"
+        ]
     },
     "session-flow-details": {
         "title": "Session Flow Details"
     },
     "other": {
         "title": "Other"
+    },
+    "rooms": {
+        "title": "Rooms"
+    },
+    "admin-clients": {
+        "title": "Admin interfaces"
     }
 }
