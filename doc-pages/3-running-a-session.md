@@ -7,7 +7,7 @@ A group of players is given an endowment from which they may contribute a certai
 
 #### The admin
 
-The admin at `/admin/` is a menu bar over panels. Panels can be dragged into tabs, splits and floating windows; Window → Reset layout puts them back.
+The admin at `/admin/` is a menu bar over panels. Panels can be dragged into tabs, splits and floating windows; Window → Reset layout puts them back. The open panels and their arrangement are in the address (`?w=…`), so reloading the page keeps them and a link opens them as they were; a panel's ⋯ menu can pop it out to a browser window of its own.
 
 - **Browse**: every session, participant, app (queues included) and log entry, searchable. Opening a row opens it in its own panel.
 - **Session**: the open session.

@@ -1,16 +1,18 @@
 import { computed, reactive, watch } from 'vue'
 import {
   column,
+  createHistoryAdapter,
   group,
   hasPanel,
   headless,
   insertPanel,
+  panelIds,
   panelNode,
   removePanel,
   row,
   setActivePanel,
 } from 'header-content-layout'
-import type { ShellRow, ShellTheme, WindowNode, WindowPanelDef } from 'header-content-layout'
+import type { RouteAdapter, ShellRow, ShellTheme, WindowNode, WindowPanelDef } from 'header-content-layout'
 import { state } from './server/connection'
 import { server } from './server/commands'
 import { appLabel } from './schema'
@@ -18,8 +20,10 @@ import { appLabel } from './schema'
 /*
  * Which panels are open and how they are arranged. Panels are named by id:
  * a fixed set of tools, plus one per app opened (`app:<id>`; layouts saved
- * before queues were apps may hold `queue:<id>`), and one per app being edited (`edit:<path>`). The arrangement is appfr's layout tree, kept as data and
- * saved per browser.
+ * before queues were apps may hold `queue:<id>`), and one per app being edited (`edit:<path>`).
+ * The arrangement is appfr's layout tree, and what is open is what it names. It is held in
+ * the address bar (`?w=…`, see App.vue), so a reload or a link opens the same panels, and
+ * saved per browser for a visit that comes without one.
  */
 
 export const TOOLS: Record<string, string> = {
@@ -33,9 +37,21 @@ export const TOOLS: Record<string, string> = {
 
 const STORAGE_KEY = 'jtree-admin2-workspace'
 
+/**
+ * The address bar, shared by the layout and the Browse panel's query: two adapters over one
+ * address bar would each write from a search the other has since changed.
+ */
+export const addressBar: RouteAdapter = createHistoryAdapter()
+
+/**
+ * A window popped out of this one for a single panel (`?solo`). Its layout is that panel
+ * alone, which is not one to remember for the next visit.
+ */
+export const solo = new URLSearchParams(location.search).has('solo')
+
 // The two splits draw no bar of their own: the menu bar is the page's, and a
 // "Row" and a "Column" bar above the panels would say nothing.
-function defaultLayout(): WindowNode {
+export function defaultLayout(): WindowNode {
   return headless(row(
     [
       panelNode('browse'),
@@ -45,10 +61,7 @@ function defaultLayout(): WindowNode {
   ))
 }
 
-const DEFAULT_IDS = ['browse', 'session', 'settings', 'participants', 'clients', 'log']
-
 interface Saved {
-  ids: string[]
   layout: WindowNode | null
   theme: ShellTheme
   watched: string[]
@@ -66,18 +79,21 @@ function load(): Saved | null {
 const saved = load()
 
 export const workspace = reactive({
-  ids: saved?.ids ?? [...DEFAULT_IDS],
   layout: (saved?.layout ?? defaultLayout()) as WindowNode | null,
   theme: (saved?.theme ?? 'auto') as ShellTheme,
   /** Participants whose client page is shown in the views panel. */
   watched: saved?.watched ?? ([] as string[]),
 })
 
+/** The layout this browser had last, for a visit whose address names none. */
+export const savedLayout = saved?.layout ?? null
+
 watch(
-  () => [workspace.ids, workspace.layout, workspace.theme, workspace.watched],
+  () => [workspace.layout, workspace.theme, workspace.watched],
   () => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(workspace))
+      const keep = solo ? { ...workspace, layout: load()?.layout ?? null } : workspace
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(keep))
     } catch {
       // Without storage the workspace simply starts fresh next time.
     }
@@ -108,8 +124,13 @@ function subtitleFor(id: string): string | undefined {
  */
 const KEEP_ALIVE = new Set(['clients'])
 
+const isPanel = (id: string) => id in TOOLS || /^(app|queue|edit):./.test(id)
+
+/** The panels open, in the order the layout has them; a link may name ones that are not. */
+export const openIds = computed(() => (workspace.layout ? panelIds(workspace.layout).filter(isPanel) : []))
+
 export const panels = computed<WindowPanelDef[]>(() =>
-  workspace.ids.map((id) => ({
+  openIds.value.map((id) => ({
     id,
     title: titleFor(id),
     subtitle: subtitleFor(id),
@@ -134,14 +155,13 @@ const HOMES: Record<string, string[]> = {
 }
 
 export function showPanel(id: string) {
-  if (workspace.ids.includes(id) && workspace.layout && hasPanel(workspace.layout, id)) {
+  if (workspace.layout && hasPanel(workspace.layout, id)) {
     workspace.layout = setActivePanel(workspace.layout, id)
     return
   }
-  if (!workspace.ids.includes(id)) workspace.ids.push(id)
   const kind = id.startsWith('edit:') ? 'edit' : id.includes(':') ? 'detail' : id
   const home = (HOMES[kind] ?? []).find((candidate) => workspace.layout && hasPanel(workspace.layout, candidate))
-    ?? workspace.ids.find((candidate) => candidate !== id && workspace.layout && hasPanel(workspace.layout, candidate))
+    ?? openIds.value.find((candidate) => candidate !== id)
   workspace.layout = workspace.layout && home
     ? insertPanel(workspace.layout, id, home, 'center')
     : panelNode(id)
@@ -156,27 +176,24 @@ export function editApp(appPath: string) {
 export function renameEditor(id: string, appPath: string) {
   const to = `edit:${appPath}`
   if (id === to) return
-  if (workspace.ids.includes(to)) {
+  if (openIds.value.includes(to)) {
     closePanel(id)
     showPanel(to)
     return
   }
-  workspace.ids = workspace.ids.map((x) => (x === id ? to : x))
   workspace.layout = workspace.layout ? JSON.parse(JSON.stringify(workspace.layout).split(JSON.stringify(id)).join(JSON.stringify(to))) : null
 }
 
 export function closePanel(id: string) {
-  workspace.ids = workspace.ids.filter((candidate) => candidate !== id)
   workspace.layout = workspace.layout ? removePanel(workspace.layout, id) : null
 }
 
 export function togglePanel(id: string) {
-  if (workspace.ids.includes(id)) closePanel(id)
+  if (openIds.value.includes(id)) closePanel(id)
   else showPanel(id)
 }
 
 export function resetLayout() {
-  workspace.ids = [...DEFAULT_IDS]
   workspace.layout = defaultLayout()
 }
 

@@ -7,7 +7,7 @@
   },
   "devDependencies": {
     "acorn": "8.18.0",
-    "header-content-layout": "github:opowell/appfr#06c71e0a7e872ec6b0e527c3958b8de544660398",
+    "header-content-layout": "github:opowell/appfr#36b8c0d755c870f0e11ad05c276e84c845ae3eac",
     "socket.io-client": "^4.8.1",
     "typescript": "^5.7",
     "vue": "3.5.43",

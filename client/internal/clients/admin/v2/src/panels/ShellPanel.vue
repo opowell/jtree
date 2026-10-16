@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { createHistoryAdapter, createMemoryAdapter, DataShell } from 'header-content-layout'
+import { createMemoryAdapter, DataShell } from 'header-content-layout'
 import type { EntitySchema, RouteAdapter, ShellQueryDefaults, ViewKind } from 'header-content-layout'
 import { schema } from '../schema'
 import { source } from '../source'
-import { activate, workspace } from '../workspace'
+import { activate, addressBar, workspace } from '../workspace'
 import { server } from '../server/commands'
 
 const props = defineProps<{
@@ -38,7 +38,7 @@ const adapters = new Map<string, RouteAdapter>()
 function adapterFor(id: string, url: boolean | undefined): RouteAdapter {
   let adapter = adapters.get(id)
   if (!adapter) {
-    adapter = url ? createHistoryAdapter() : createMemoryAdapter()
+    adapter = url ? addressBar : createMemoryAdapter()
     adapters.set(id, adapter)
   }
   return adapter

@@ -24,7 +24,7 @@ const serverSettings = computed(() =>
         </select>
         <button type="button" class="btn" @click="resetLayout">Reset layout</button>
       </div>
-      <p class="hint">The layout, theme and open panels are saved in this browser.</p>
+      <p class="hint">The open panels and their layout are in the address, so a reload or a link keeps them, and are saved in this browser with the theme.</p>
     </section>
 
     <section class="pane__section">

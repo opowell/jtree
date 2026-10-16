@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { MenuBar, SHELL_THEMES, WindowFrame } from 'header-content-layout'
-import type { MenuItemDef, WindowNode } from 'header-content-layout'
+import { computed, toRef } from 'vue'
+import { MenuBar, SHELL_THEMES, useLayoutRoute, WindowFrame } from 'header-content-layout'
+import type { MenuItemDef, WindowNode, WindowPanelDef } from 'header-content-layout'
 import ShellPanel from './panels/ShellPanel.vue'
 import SessionPanel from './panels/SessionPanel.vue'
 import ClientsPanel from './panels/ClientsPanel.vue'
@@ -10,13 +10,35 @@ import EditorPanel from './panels/EditorPanel.vue'
 import SettingsPanel from './panels/SettingsPanel.vue'
 import { serverUrl, state } from './server/connection'
 import { downloadOutputUrl, server } from './server/commands'
-import { closePanel, editApp, openSession, panels, resetLayout, showPanel, togglePanel, TOOLS, workspace } from './workspace'
+import {
+  addressBar,
+  closePanel,
+  defaultLayout,
+  editApp,
+  openIds,
+  openSession,
+  panels,
+  resetLayout,
+  savedLayout,
+  showPanel,
+  solo,
+  togglePanel,
+  TOOLS,
+  workspace,
+} from './workspace'
 
 const session = computed(() => state.session)
+
+// The open panels and their arrangement are in the address bar (`?w=…`), so a reload, or a
+// link, opens them as they were. An address without one opens what this browser had last.
+const layoutRoute = useLayoutRoute(toRef(workspace, 'layout'), { adapter: addressBar, home: defaultLayout() })
+if (!new URLSearchParams(location.search).has('w') && savedLayout) workspace.layout = savedLayout
 
 function setLayout(next: WindowNode | null) {
   workspace.layout = next
 }
+
+const popOut = (panel: WindowPanelDef) => layoutRoute.popOutHref(panel.id)
 
 const menus = computed<MenuItemDef[]>(() => {
   const s = session.value
@@ -63,7 +85,7 @@ const menus = computed<MenuItemDef[]>(() => {
       items: [
         ...Object.entries(TOOLS).map(([id, label]) => ({
           label,
-          checked: workspace.ids.includes(id),
+          checked: openIds.value.includes(id),
           action: () => togglePanel(id),
         })),
         { separator: true },
@@ -104,8 +126,11 @@ const menus = computed<MenuItemDef[]>(() => {
       :theme="workspace.theme"
       movable
       closable
+      :pop-out="solo ? undefined : popOut"
+      :solo="solo"
       @update:layout="setLayout"
       @panel-close="closePanel"
+      @panel-pop-out="closePanel($event.panel)"
     >
       <template #panel="{ panel }">
         <ShellPanel v-if="panel.id === 'browse'" id="browse" url />

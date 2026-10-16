@@ -22,9 +22,13 @@ server's editor API (`/api/editor/jtree/…`, `server/source/editors/`).
 | Log | Messages sent and received in this browser. |
 | Settings | Theme, layout reset, and the server's settings (read-only). |
 
-Panels can be dragged into tabs, splits and floating windows. The layout, theme
-and open panels are saved in the browser; **Window → Reset layout** restores
-the default.
+Panels can be dragged into tabs, splits and floating windows. The open panels
+and their arrangement are in the address bar (`?w=…`, appfr's `useLayoutRoute`,
+sharing Browse's address-bar adapter in `workspace.ts`), so a reload keeps them
+and a link opens them as they were. They are also saved in the browser, with the
+theme, for an address without `w`; **Window → Reset layout** restores the
+default. A panel's ⋯ menu pops it out to a browser window holding it alone
+(`?solo`), and closes it here.
 
 ## Running and editing
 
@@ -41,9 +45,9 @@ localStorage, keyed by their source, so unchanged files are not compiled again.
 | `src/` | The interface |
 
 The libraries are in `client/internal/clients/shared/`, served at `/shared/`:
-Vue 3.5.43 (`vue-3.5.43/`), vue3-sfc-loader 0.9.5, appfr 0.43.0
-(`header-content-layout-0.43.0/`, the `dist/` of appfr commit
-`06c71e0a7e872ec6b0e527c3958b8de544660398`), circular-json 0.5.9, and the
+Vue 3.5.43 (`vue-3.5.43/`), vue3-sfc-loader 0.9.5, appfr 0.56.0
+(`header-content-layout-0.56.0/`, the `dist/` of appfr commit
+`36b8c0d755c870f0e11ad05c276e84c845ae3eac`), circular-json 0.5.9, and the
 socket.io client that the server provides. To update one, add the new version's
 files next to the old ones and change the paths in `index.html`.
 
