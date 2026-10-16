@@ -14,6 +14,32 @@ body {
   body { background: #111; }
 }
 
+/* A larger type scale than appfr's (13px body, 12px meta, 11.5px code), in
+   every theme. mono-size keeps one size for everything, the larger one. */
+.dc-shell.admin {
+  --dc-font-size: 15px;
+  --dc-text-hero: 26px;
+  --dc-text-title: 17px;
+  --dc-text-heading: 16px;
+  --dc-text-body: 15px;
+  --dc-text-input: 14.5px;
+  --dc-text-meta: 14px;
+  --dc-text-micro: 12.5px;
+  --dc-text-eyebrow: 11.5px;
+  --dc-text-code: 13.5px;
+}
+.dc-shell.admin[data-dc-theme='mono-size'] {
+  --dc-text-hero: var(--dc-font-size);
+  --dc-text-title: var(--dc-font-size);
+  --dc-text-heading: var(--dc-font-size);
+  --dc-text-body: var(--dc-font-size);
+  --dc-text-input: var(--dc-font-size);
+  --dc-text-meta: var(--dc-font-size);
+  --dc-text-micro: var(--dc-font-size);
+  --dc-text-eyebrow: var(--dc-font-size);
+  --dc-text-code: var(--dc-font-size);
+}
+
 /* jtree's own states, which appfr's pill leaves neutral. */
 .dc-pill[data-dc-status='playing'] { background: var(--dc-accent-bg); color: var(--dc-accent); }
 .dc-pill[data-dc-status='paused'],

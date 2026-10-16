@@ -3,6 +3,7 @@
 - Listen to incremental game changes via observer.
 
 #### Unreleased
+- The admin's text is larger: 15px body text (it was 13px), 14px for the App editor's tree, labels and buttons, 13.5px for code, in every theme.
 - The App editor's Structured mode: an app as a tree of its stages, their screens and the elements on them (paragraphs, inputs, buttons, ...), and their functions, as z-Tree and oTree Studio show theirs. Elements are added from a palette, changed in fields (an input's variable, type, limits, ...), moved, copied, pasted and deleted, each change made to that element alone in the source. Forms and Source are the editor's other modes; Undo and Redo work in all three. A stage renamed in the editor takes a new variable name too, if the editor named its variable.
 - App editors: jtree's own in the admin (File → New app…, or an app's Edit): an app's settings, stages, screens and functions, and its whole source. The z-Tree admin edits z-Tree treatments as z-Tree does (Treatment → New …, element dialogs, undo, Check) and saves them in z-Tree's text format. The oTree admin's Studio edits oTree projects and apps as oTree Studio does. Each changes only the part of the file it is about.
 - z-Tree treatments run in jtree: `.ztt` files from z-Tree 3 to 5, z-Tree's text export and questionnaires (`.ztq`), their programs in z-Tree's language, and z-Leaf's screens in participants' browsers, plot boxes, contract lists and table loaders and dumpers included. Checked against z-Tree 5.1.21.

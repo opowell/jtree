@@ -47,8 +47,8 @@ const emit = defineEmits<{ select: [id: string], toggle: [id: string] }>()
 .tr { display: flex; align-items: center; gap: 5px; padding: 1px 6px 1px 2px; border-radius: var(--dc-radius-sm); cursor: default; user-select: none; min-width: 0; font-size: var(--dc-text-meta); line-height: 1.6; }
 .tr:hover { background: var(--dc-bg-2); }
 .tr[aria-selected='true'] { background: var(--dc-accent-bg); color: var(--dc-accent); }
-.tr__toggle { flex: 0 0 14px; width: 14px; padding: 0; border: 0; background: none; color: var(--dc-fg-2); font-size: 10px; line-height: 1; cursor: pointer; }
-.tr__chip { flex: 0 0 auto; padding: 0 4px; border-radius: 3px; background: var(--dc-bg-2); color: var(--dc-fg-2); font-size: 11px; }
+.tr__toggle { flex: 0 0 14px; width: 14px; padding: 0; border: 0; background: none; color: var(--dc-fg-2); font-size: var(--dc-text-eyebrow); line-height: 1; cursor: pointer; }
+.tr__chip { flex: 0 0 auto; padding: 0 4px; border-radius: 3px; background: var(--dc-bg-2); color: var(--dc-fg-2); font-size: var(--dc-text-micro); }
 .tr[data-kind='stage'] .tr__label, .tr[data-kind='app'] .tr__label { font-weight: var(--dc-weight-semibold); }
 .tr[data-kind='stage'] .tr__chip { background: var(--dc-accent-bg); color: var(--dc-accent); }
 .tr__label { min-width: 0; flex: 0 1 auto; }
