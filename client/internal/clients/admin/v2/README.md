@@ -27,7 +27,9 @@ and their arrangement are in the address bar (`?w=…`, appfr's `useLayoutRoute`
 sharing Browse's address-bar adapter in `workspace.ts`), so a reload keeps them
 and a link opens them as they were. They are also saved in the browser, with the
 theme, for an address without `w`; **Window → Reset layout** restores the
-default. A panel's ⋯ menu pops it out to a browser window holding it alone
+default. The default's splits draw no bar (`headless`), and appfr keeps such a
+space when its last panel goes, so `workspace.ts` drops an empty one from the
+layout rather than leave a blank box where it was. A panel's ⋯ menu pops it out to a browser window holding it alone
 (`?solo`), and closes it here.
 
 ## Running and editing

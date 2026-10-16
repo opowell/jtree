@@ -6,6 +6,7 @@ import {
   hasPanel,
   headless,
   insertPanel,
+  normalizeSizes,
   panelIds,
   panelNode,
   removePanel,
@@ -84,6 +85,37 @@ export const workspace = reactive({
   /** Participants whose client page is shown in the views panel. */
   watched: saved?.watched ?? ([] as string[]),
 })
+
+/**
+ * A split drawn without a bar is here only to hold the panels in it, not a place of its own,
+ * so once the last of them has gone it goes too, its share going to those beside it. appfr
+ * keeps an empty headless space, which here would be a blank box nobody asked for. Returns
+ * the node itself when nothing in it was empty, so the watch below stops at once.
+ */
+function dropEmptySplits(node: WindowNode): WindowNode {
+  if (node.kind !== 'split') return node
+  const shares = normalizeSizes(node.children.length, node.sizes)
+  const children: WindowNode[] = []
+  const sizes: number[] = []
+  node.children.forEach((child, i) => {
+    const next = dropEmptySplits(child)
+    if (next.kind === 'split' && next.headless && next.children.length === 0) return
+    children.push(next)
+    sizes.push(shares[i])
+  })
+  const changed = children.length !== node.children.length || children.some((child, i) => child !== node.children[i])
+  return changed ? { ...node, children, sizes: normalizeSizes(children.length, sizes) } : node
+}
+
+// Layouts saved before this, in an address or this browser, may hold one already.
+watch(
+  () => workspace.layout,
+  (layout) => {
+    const next = layout && dropEmptySplits(layout)
+    if (next !== layout) workspace.layout = next
+  },
+  { immediate: true },
+)
 
 /** The layout this browser had last, for a visit whose address names none. */
 export const savedLayout = saved?.layout ?? null
