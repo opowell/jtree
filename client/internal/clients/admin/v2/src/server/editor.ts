@@ -74,6 +74,32 @@ export type Edit =
   | { op: 'setStageProp', stage: string, name: string, value: Value }
   | { op: 'removeStageProp', stage: string, name: string }
   | { op: 'editScreen', stage?: string, name: string, edit: ScreenEdit }
+  | { op: 'moveElement', from: ElementPlace & { path: number[] }, to: ElementPlace & { where?: 'before' | 'after' | 'inside' } }
+
+/** Where an element is, or goes: a screen (of a stage; with no stage, of the app), and a path in it (none: its end). */
+export interface ElementPlace { stage?: string, name: string, path?: number[] }
+
+/** An edit, named as Undo and the History list name it. */
+export function describeEdit(op: Edit): string {
+  switch (op.op) {
+    case 'setAppProp': case 'setStageProp': return `Set ${op.name}`
+    case 'removeAppProp': case 'removeStageProp': return `Remove ${op.name}`
+    case 'addStage': return `Add stage ${op.name}`
+    case 'renameStage': return `Rename stage ${op.name} to ${op.to}`
+    case 'deleteStage': return `Delete stage ${op.name}`
+    case 'moveStage': return `Move stage ${op.name}`
+    case 'moveElement': return 'Move element'
+    case 'editScreen': {
+      const e = op.edit
+      if (e.do === 'setAttr') return e.remove ? `Remove ${e.name}` : `Set ${e.name}`
+      if (e.do === 'setContent') return 'Change text'
+      if (e.do === 'replace') return 'Change HTML'
+      if (e.do === 'insert') return 'Add element'
+      if (e.do === 'remove') return 'Delete element'
+      return 'Move element'
+    }
+  }
+}
 
 /** Calls an editor action; rejects with the server's message if it refuses. */
 export async function editorCall<T>(dialect: string, action: string, body: unknown): Promise<T> {

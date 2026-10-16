@@ -181,6 +181,34 @@ test('screen edits change only the element they are about, and jtree runs the re
     assert.throws(() => editor.apply('let s = app.newStage(\'a\');\ns.activeScreen = `<p>${1}</p>`;\n', { op: 'editScreen', stage: 'a', name: 'activeScreen', edit: { do: 'remove', path: [0] } }), /made by code/);
 });
 
+test('elements dragged elsewhere: in their screen, into a box, to another stage\'s screen', () => {
+    const original = fs.readFileSync(sampleApp('1 sample games/public-good.jtt'), 'utf8');
+    const screenOf = (source, k) => editor.model(source).stages[k].props.find((p) => p.name === 'activeScreen').value;
+    const at = (stage, path, where) => ({ stage, name: 'activeScreen', path, where });
+    const move = (source, from, to) => editor.apply(source, { op: 'moveElement', from, to });
+    const decide = screenOf(original, 0);
+    const [title, endowment, contribution] = decide.trim().split('\n').map((l) => l.trim());
+
+    // Down past the others, in its own screen; and an input out of its paragraph.
+    assert.equal(screenOf(move(original, at('decide', [0]), at('decide', [2], 'after')), 0), `\n    ${endowment}\n    ${contribution}\n    ${title}\n`);
+    assert.equal(screenOf(move(original, at('decide', [0]), at('decide', [2], 'before')), 0), `\n    ${endowment}\n    ${title}\n    ${contribution}\n`);
+    assert.match(screenOf(move(original, at('decide', [2, 1]), at('decide', [0], 'before')), 0), /^\n {4}<input name='player\.contribution'[^\n]*>\n {4}<p>DECISION<\/p>\n[\s\S]*<p>Your contribution \(E\$\): <\/p>\n$/);
+    // Into a box, as its last child, then out to the end of the screen.
+    let source = editor.apply(original, { op: 'editScreen', stage: 'decide', name: 'activeScreen', edit: { do: 'insert', path: [2], where: 'after', html: '<div>\n    <hr>\n</div>' } });
+    source = move(source, at('decide', [0]), at('decide', [3], 'inside'));
+    assert.match(screenOf(source, 0), /<div>\n {8}<hr>\n {8}<p>DECISION<\/p>\n {4}<\/div>\n$/);
+    source = move(source, at('decide', [2, 1]), at('decide'));
+    assert.match(screenOf(source, 0), /<div>\n {8}<hr>\n {4}<\/div>\n {4}<p>DECISION<\/p>\n$/);
+    // To another stage's screen: put in there, taken out here, in one edit.
+    source = move(original, at('decide', [1]), at('results', [0], 'after'));
+    assert.equal(screenOf(source, 0), `\n    ${title}\n    ${contribution}\n`);
+    assert.match(screenOf(source, 1), /^\n {4}<p>RESULTS<\/p>\n {4}<p>Your endowment is \{\{app\.endowment\}\} E\$\.<\/p>\n {4}<p>Your endowment was/);
+    assert.deepEqual(stagesJtreeMakes(source), ['decide', 'results']);
+    // Not into itself.
+    assert.throws(() => move(original, at('decide', [2]), at('decide', [2, 0], 'after')), /cannot go inside itself/);
+    assert.equal(move(original, at('decide', [1]), at('decide', [1], 'before')), original);
+});
+
 test('screens are read as browsers read them: end tags left out, raw text, comments', () => {
     const html = require('../source/editors/html.js');
     const text = "<p>one<p>two</p></div>\n<select name='x'>\n    <option value=1>A\n    <option value=2>B\n</select>\n<script>if (a < b) s = '</p>';</script>\n<!-- note -->\n<textarea><b>not</b></textarea>{{ a < b }}";

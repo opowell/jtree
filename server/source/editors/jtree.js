@@ -269,6 +269,15 @@ function identifiers(node, out = []) {
     return out;
 }
 
+/** A screen of the stage (of the app, with no stage) that is HTML, or fails. */
+function screenProp(m, stage, name) {
+    const props = stage != null ? findStage(m, stage).props : m.app;
+    const prop = props.find((p) => p.name === name);
+    if (!prop) fail('there is no ' + name);
+    if (prop.kind !== 'text') fail(name + ' is made by code: change it as code');
+    return prop;
+}
+
 /** The stage's statements, end of the source first (to cut them without moving the others). */
 const lastFirst = (ranges) => ranges.slice().sort((a, b) => b.start - a.start);
 
@@ -280,6 +289,9 @@ const lastFirst = (ranges) => ranges.slice().sort((a, b) => b.start - a.start);
  * - {op: 'setStageProp', stage, name, value}, {op: 'removeStageProp', stage, name}
  * - {op: 'editScreen', stage?, name, edit}: a screen of the stage (of the app, with no stage),
  *   changed by edit, as html.js's edit takes it; the rest of the screen stays as it was.
+ * - {op: 'moveElement', from: {stage?, name, path}, to: {stage?, name, path?, where}}: an
+ *   element of one screen moved to another place, in that screen or another one (where and path
+ *   as html.js's moveTo takes them).
  * Values are as valueSource takes them.
  */
 function apply(source, op) {
@@ -370,11 +382,21 @@ function apply(source, op) {
             return prop ? replace(source, prop.range, '') : source;
         }
         case 'editScreen': {
-            const props = op.stage != null ? findStage(m, op.stage).props : m.app;
-            const prop = props.find((p) => p.name === op.name);
-            if (!prop) fail('there is no ' + op.name);
-            if (prop.kind !== 'text') fail(op.name + ' is made by code: change it as code');
+            const prop = screenProp(m, op.stage, op.name);
             return replace(source, prop.valueRange, templateLiteral(html.edit(prop.value, op.edit || {})));
+        }
+        case 'moveElement': {
+            const from = op.from || {};
+            const to = op.to || {};
+            const same = (from.stage ?? null) === (to.stage ?? null) && from.name === to.name;
+            if (same) return apply(source, { op: 'editScreen', stage: from.stage, name: from.name, edit: { do: 'moveTo', path: from.path, to: to.path, where: to.where } });
+            // From one screen to another: put in there, then taken out here.
+            const screen = screenProp(m, from.stage, from.name).value;
+            const code = html.written(screen, html.nodeAt(html.parse(screen), from.path || []).node);
+            screenProp(m, to.stage, to.name);
+            const insert = to.path && to.path.length ? { do: 'insert', path: to.path, where: to.where, html: code } : { do: 'insert', html: code };
+            source = apply(source, { op: 'editScreen', stage: to.stage, name: to.name, edit: insert });
+            return apply(source, { op: 'editScreen', stage: from.stage, name: from.name, edit: { do: 'remove', path: from.path } });
         }
         default:
             fail('unknown edit: ' + op.op);

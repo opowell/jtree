@@ -163,6 +163,22 @@ function attrSource(name, value, quote) {
 
 const splice = (html, range, text) => html.slice(0, range.start) + text + html.slice(range.end);
 
+/** A node as written, the indentation of its line taken off the lines after its first. */
+function written(html, node) {
+    const indent = lineIndent(html, node.range.start);
+    return html.slice(node.range.start, node.range.end).split('\n').map((l, k) => (k && l.startsWith(indent) ? l.slice(indent.length) : l)).join('\n');
+}
+
+/**
+ * Where path points once the node at from is taken out: one less at the level they share, if
+ * the node taken out was before it there.
+ */
+function pathAfterRemoving(path, from) {
+    const level = from.length - 1;
+    if (path.length <= level || from.slice(0, level).some((k, i) => k !== path[i]) || path[level] <= from[level]) return path;
+    return path.slice(0, level).concat(path[level] - 1, path.slice(level + 1));
+}
+
 /**
  * html with edit made. Edits (path: the node's indexes, as parse gives them):
  * - {do: 'insert', path?, where: 'before' | 'after' | 'inside', html}: next to the node, or as
@@ -171,6 +187,8 @@ const splice = (html, range, text) => html.slice(0, range.start) + text + html.s
  * - {do: 'replace', path, html}: the node, as written, becomes html.
  * - {do: 'setContent', path, html}: what is between an element's tags.
  * - {do: 'setAttr', path, name, value?, remove?}: value null for an attribute without one.
+ * - {do: 'moveTo', path, to?, where}: the node moved next to the node at to (before or after it),
+ *   or as the last of its children (inside); with no to, to the end of the screen.
  */
 function edit(html, e) {
     const nodes = parse(html);
@@ -222,6 +240,19 @@ function edit(html, e) {
             return html.slice(0, a.range.start) + html.slice(b.range.start, b.range.end) + html.slice(a.range.end, b.range.start) +
                 html.slice(a.range.start, a.range.end) + html.slice(b.range.end);
         }
+        case 'moveTo': {
+            const from = e.path || [];
+            const { node } = nodeAt(nodes, from);
+            const to = e.to || [];
+            if (to.length >= from.length && from.every((k, i) => k === to[i])) {
+                if (to.length === from.length && e.where !== 'inside') return html;
+                fail('an element cannot go inside itself');
+            }
+            const code = written(html, node);
+            const out = edit(html, { do: 'remove', path: from });
+            const at = pathAfterRemoving(to, from);
+            return edit(out, at.length ? { do: 'insert', path: at, where: e.where, html: code } : { do: 'insert', html: code });
+        }
         case 'replace': {
             const { node } = nodeAt(nodes, e.path);
             return splice(html, node.range, indentLines(String(e.html ?? ''), lineIndent(html, node.range.start)));
@@ -260,4 +291,4 @@ function describe(nodes) {
         : { type: n.type, text: n.text, range: n.range }));
 }
 
-module.exports = { parse, edit, describe };
+module.exports = { parse, edit, describe, written, nodeAt };

@@ -23,7 +23,7 @@ import ConfirmButton from '../components/ConfirmButton.vue'
 import ValueField from '../components/ValueField.vue'
 import { state } from '../server/connection'
 import { server } from '../server/commands'
-import { APP_SETTINGS, SETTING_HINTS, STAGE_SETTINGS, emptyValue, jtreeEditor } from '../server/editor'
+import { APP_SETTINGS, SETTING_HINTS, STAGE_SETTINGS, describeEdit, emptyValue, jtreeEditor } from '../server/editor'
 import type { AppModel, Edit, Prop, Value } from '../server/editor'
 import type { TreeView } from '../appTree'
 import { relativePath } from '../schema'
@@ -34,7 +34,7 @@ import { renameEditor, showPanel } from '../workspace'
  * functions) and the rest of its code, from its .jtt file, in one of three modes: Structured (the
  * app as a tree down to its screens' elements, AppTree), Forms (a page per part) and Source.
  * Every change is made in the source by the server, which leaves the rest as it was written, and
- * can be undone; File → Save writes it.
+ * is a step of the editor's history, to undo and redo; File → Save writes it.
  */
 const props = defineProps<{ panelId: string, appPath: string }>()
 
@@ -45,8 +45,27 @@ const path = ref(props.appPath === 'new' ? '' : props.appPath)
 const selected = ref('settings')
 const mode = ref<Mode>(storedMode())
 const treeView = reactive<TreeView>({ selected: 'app', collapsed: {} })
-const undone = ref<string[]>([])
-const redone = ref<string[]>([])
+
+/**
+ * A change, as the history keeps it: its name, the source before and after it, and what was
+ * chosen (in the tree and in Forms) before and after it, so undoing and redoing it choose that
+ * again.
+ */
+interface Step {
+  label: string
+  before: string
+  after: string
+  chosenBefore: Chosen
+  chosenAfter: Chosen | null
+}
+interface Chosen { tree: string, form: string }
+
+/** The changes made, oldest first; the first done of them are done, the rest undone (to redo). */
+const steps = ref<Step[]>([])
+const done = ref(0)
+const MAX_STEPS = 200
+const toUndo = computed(() => (done.value > 0 ? steps.value[done.value - 1] : null))
+const toRedo = computed(() => steps.value[done.value] ?? null)
 const problem = ref('')
 const busy = ref(false)
 const loading = ref(props.appPath !== 'new')
@@ -98,34 +117,63 @@ function setMode(m: Mode) {
   if (m !== 'source') try { localStorage.setItem(MODE_KEY, m) } catch { /* not remembered */ }
 }
 
-/** Source changed (by an edit, Source or Revert): what it was, to undo it. */
-function changed(to: string) {
+const chosen = (): Chosen => ({ tree: treeView.selected, form: selected.value })
+
+/** Source changed (by an edit, Source or Revert): a step of the history, after the ones done. */
+function changed(to: string, label: string, before: Chosen = chosen()) {
   if (to === source.value) return
-  undone.value.push(source.value)
-  if (undone.value.length > 200) undone.value.shift()
-  redone.value = []
+  steps.value.splice(done.value, Infinity, { label, before: source.value, after: to, chosenBefore: before, chosenAfter: null })
+  if (steps.value.length > MAX_STEPS) steps.value.splice(0, steps.value.length - MAX_STEPS)
+  done.value = steps.value.length
   source.value = to
 }
 
-async function undo(back = true) {
+/** Undoes or redoes changes until n of them are done: the source, and what was chosen, as they were then. */
+async function goTo(n: number) {
   await queue
-  const from = back ? undone.value : redone.value
-  const to = back ? redone.value : undone.value
-  const s = from.pop()
-  if (s == null) return
-  to.push(source.value)
-  source.value = sourceDraft.value = s
+  n = Math.max(0, Math.min(steps.value.length, n))
+  if (n === done.value) return
+  if (mode.value === 'source') sourceDraft.value = source.value
+  let pick: Chosen | null = null
+  while (done.value > n) {
+    const step = steps.value[done.value - 1]
+    // What was chosen after it is what is chosen now, if it was the last one done.
+    step.chosenAfter ??= chosen()
+    done.value--
+    pick = step.chosenBefore
+  }
+  while (done.value < n) {
+    const step = steps.value[done.value]
+    done.value++
+    pick = step.chosenAfter ?? step.chosenBefore
+  }
+  source.value = sourceDraft.value = done.value ? steps.value[done.value - 1].after : steps.value[0].before
   await applySourceNow()
+  if (pick) {
+    treeView.selected = pick.tree
+    selected.value = pick.form
+  }
+}
+const undo = () => goTo(done.value - 1)
+const redo = () => goTo(done.value + 1)
+
+function pickStep(event: Event) {
+  void goTo(Number((event.target as HTMLSelectElement).value))
 }
 
 // Edits run one after another, each on the source the one before left.
 let queue: Promise<void> = Promise.resolve()
-function edit(op: Edit) {
+function edit(op: Edit, label = describeEdit(op)) {
+  // What is chosen when the edit is asked for: chosen again when it is undone.
+  const before = chosen()
   queue = queue.then(async () => {
     busy.value = true
     try {
       const out = await jtreeEditor.apply(source.value, op)
-      changed(out.source)
+      // A step done before this one learns what was chosen after it.
+      const last = steps.value[done.value - 1]
+      if (last && !last.chosenAfter) last.chosenAfter = before
+      changed(out.source, label, before)
       model.value = out.model
       problem.value = ''
     } catch (err) {
@@ -142,7 +190,7 @@ async function applySource() {
   busy.value = true
   try {
     model.value = (await jtreeEditor.model(sourceDraft.value)).model
-    changed(sourceDraft.value)
+    changed(sourceDraft.value, 'Edit source')
     problem.value = ''
   } catch (err) {
     problem.value = (err as Error).message
@@ -167,7 +215,7 @@ async function save() {
 }
 
 function revert() {
-  changed(saved.value)
+  changed(saved.value, 'Revert to saved')
   sourceDraft.value = saved.value
   void applySourceNow()
 }
@@ -278,7 +326,7 @@ function keys(event: KeyboardEvent) {
   if (key !== 's') {
     if (active && /^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName)) return
     event.preventDefault()
-    void undo(key === 'z' && !event.shiftKey)
+    void (key === 'z' && !event.shiftKey ? undo() : redo())
     return
   }
   event.preventDefault()
@@ -312,8 +360,12 @@ onUnmounted(() => window.removeEventListener('keydown', keys))
         <h2 class="pane__title">{{ fileName }}</h2>
         <span class="muted dc-mono dc-truncate" style="flex: 1 1 0">{{ relativePath(path) }}</span>
         <span v-if="dirty" class="ed__dirty" title="Changed since it was saved">● not saved</span>
-        <button type="button" class="btn" :disabled="!undone.length || busy" title="Undo (Ctrl+Z)" @click="undo(true)">Undo</button>
-        <button type="button" class="btn" :disabled="!redone.length || busy" title="Redo (Ctrl+Shift+Z)" @click="undo(false)">Redo</button>
+        <button type="button" class="btn" :disabled="!toUndo || busy" :title="toUndo ? `Undo ${toUndo.label} (Ctrl+Z)` : 'Nothing to undo'" @click="undo">Undo</button>
+        <button type="button" class="btn" :disabled="!toRedo || busy" :title="toRedo ? `Redo ${toRedo.label} (Ctrl+Shift+Z)` : 'Nothing to redo'" @click="redo">Redo</button>
+        <select class="field ed__history" aria-label="History: go back or forward to a change" title="History" :value="done" :disabled="!steps.length || busy" @change="pickStep">
+          <option :value="0">Opened</option>
+          <option v-for="(st, i) in steps" :key="i" :value="i + 1">{{ i + 1 }}. {{ st.label }}{{ i + 1 > done ? ' (undone)' : '' }}</option>
+        </select>
         <button type="button" class="btn" :disabled="!dirty || busy" @click="revert">Revert</button>
         <button type="button" class="btn btn--primary" :disabled="!dirty || busy" title="Ctrl+S" @click="save">Save</button>
         <button type="button" class="btn" :disabled="busy || !state.connected || Boolean(model?.error)" @click="startSession">Save and start a session</button>
@@ -436,6 +488,7 @@ onUnmounted(() => window.removeEventListener('keydown', keys))
 <style scoped>
 .ed { gap: 10px; }
 .ed__dirty { color: var(--dc-warn); font-size: var(--dc-text-meta); }
+.ed__history { width: 9em; }
 .ed__modes { display: flex; gap: 2px; border-bottom: 1px solid var(--dc-line); }
 .ed__mode { padding: 4px 12px; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; background: none; color: var(--dc-fg-1); font: inherit; font-size: var(--dc-text-meta); cursor: pointer; }
 .ed__mode:hover { color: var(--dc-fg-0); }

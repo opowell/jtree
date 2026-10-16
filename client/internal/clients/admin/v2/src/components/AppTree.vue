@@ -3,6 +3,9 @@ import { ref } from 'vue'
 
 /** Elements cut or copied, as HTML, for any app editor to paste. */
 const clipboard = ref<string | null>(null)
+
+/** What is being dragged, in any app editor's tree: from which tree, the item, and an element's HTML. */
+const dragging = ref<{ tree: symbol, item: import('../appTree').TreeItem, html: string } | null>(null)
 </script>
 
 <script setup lang="ts">
@@ -11,20 +14,21 @@ import ConfirmButton from './ConfirmButton.vue'
 import ElementInspector from './ElementInspector.vue'
 import TreeRow from './TreeRow.vue'
 import ValueField from './ValueField.vue'
-import { SCREEN_NAMES, buildTree, functionId, indexTree, isScreen, nearest, nodeId, screenId, visibleItems } from '../appTree'
-import type { TreeItem, TreeView } from '../appTree'
-import { PALETTE, holdsElements, isBlock, outdented } from '../elements'
+import { SCREEN_NAMES, buildTree, functionId, indexTree, isScreen, nearest, nodeId, pathAfterRemoving, screenId, visibleItems } from '../appTree'
+import type { DropPlace, TreeItem, TreeView } from '../appTree'
+import { PALETTE, holdsElements, isBlock, kindOf, outdented } from '../elements'
 import { APP_SETTINGS, SETTING_HINTS, STAGE_SETTINGS, emptyValue } from '../server/editor'
-import type { AppModel, Edit, Prop, ScreenEdit, Value } from '../server/editor'
+import type { AppModel, Edit, ElementPlace, Prop, ScreenEdit, Value } from '../server/editor'
 
 /*
  * The app editor's structured mode: the app as a tree, as z-Tree shows a treatment (its stages,
  * their screens and the elements in them, and their functions), with what is chosen in it shown
  * beside it to change. Add puts in a stage, a screen, a function or an element next to what is
- * chosen; elements can be moved, copied, cut, pasted and deleted. Each change is one edit of the
- * source, made by the server (EditorPanel's edit).
+ * chosen; elements can be moved (with the keys, or dragged), copied, cut, pasted and deleted, and
+ * stages dragged into another order. Each change is one edit of the source, made by the server
+ * (EditorPanel's edit), and named for Undo.
  */
-const props = defineProps<{ model: AppModel, title: string, busy: boolean, edit: (op: Edit) => Promise<void>, view: TreeView }>()
+const props = defineProps<{ model: AppModel, title: string, busy: boolean, edit: (op: Edit, label?: string) => Promise<void>, view: TreeView }>()
 
 // What is chosen and what is folded are the panel's, so they stay while another mode is shown.
 const selected = toRef(props.view, 'selected')
@@ -89,9 +93,12 @@ async function renameStage(event: Event) {
 
 // --- Screens' elements ------------------------------------------------------------------------
 
-function screenEdit(item: TreeItem, e: ScreenEdit) {
-  return props.edit({ op: 'editScreen', stage: item.stage, name: item.prop!.name, edit: e })
+function screenEdit(item: TreeItem, e: ScreenEdit, label?: string) {
+  return props.edit({ op: 'editScreen', stage: item.stage, name: item.prop!.name, edit: e }, label)
 }
+
+/** What an item is, for the names of edits: "Paragraph", "Number", "stage results". */
+const what = (item: TreeItem) => (item.kind === 'node' ? kindOf(item.node!) : item.kind === 'stage' ? `stage ${item.stage}` : item.label)
 
 /**
  * Where Add and Paste put html: in the chosen box or screen, else after the chosen element; a
@@ -111,10 +118,10 @@ function target(html = ''): { item: TreeItem, where?: 'after' | 'inside', path?:
 }
 const canInsert = computed(() => target() != null)
 
-async function insert(html: string) {
+async function insert(html: string, label = 'Add element') {
   const t = target(html)
   if (!t) return
-  await screenEdit(t.item, t.path ? { do: 'insert', path: t.path, where: t.where, html } : { do: 'insert', html })
+  await screenEdit(t.item, t.path ? { do: 'insert', path: t.path, where: t.where, html } : { do: 'insert', html }, label)
   select(nodeId(t.item.prop!.name, t.item.stage, t.next))
 }
 
@@ -134,7 +141,7 @@ const canMove = (by: number) => {
   return k + by >= 0 && k + by < siblings.value.length
 }
 
-async function remove() {
+async function remove(label?: string) {
   const item = current.value
   if (!canDelete.value) return
   // What is chosen next: the one after it, else the one before, else what it was in.
@@ -143,12 +150,12 @@ async function remove() {
   const after = parent?.children[k + 1]
   const before = parent?.children[k - 1]
   if (item.kind === 'node') {
-    await screenEdit(item, { do: 'remove', path: item.path! })
+    await screenEdit(item, { do: 'remove', path: item.path! }, label ?? `Delete ${what(item)}`)
     select(after?.kind === 'node' ? item.id : before?.id ?? parent!.id)
     return
   }
   if (item.kind === 'stage') await props.edit({ op: 'deleteStage', name: item.stage! })
-  else await removeProp(item.prop!.name)
+  else await props.edit(item.stage == null ? { op: 'removeAppProp', name: item.prop!.name } : { op: 'removeStageProp', stage: item.stage, name: item.prop!.name }, `Delete ${item.label}`)
   select((after ?? before ?? parent)?.id ?? 'app')
 }
 
@@ -162,7 +169,7 @@ async function move(by: -1 | 1) {
     return
   }
   const path = item.path!
-  await screenEdit(item, { do: 'move', path, by })
+  await screenEdit(item, { do: 'move', path, by }, `Move ${what(item)}`)
   select(nodeId(item.prop!.name, item.stage, path.slice(0, -1).concat(path[path.length - 1] + by)))
 }
 
@@ -170,7 +177,7 @@ async function duplicate() {
   const item = current.value
   if (item.kind !== 'node') return
   const path = item.path!
-  await screenEdit(item, { do: 'insert', path, where: 'after', html: written(item) })
+  await screenEdit(item, { do: 'insert', path, where: 'after', html: written(item) }, `Duplicate ${what(item)}`)
   select(nodeId(item.prop!.name, item.stage, path.slice(0, -1).concat(path[path.length - 1] + 1)))
 }
 
@@ -180,10 +187,10 @@ function copy() {
 async function cut() {
   if (current.value.kind !== 'node') return
   copy()
-  await remove()
+  await remove(`Cut ${what(current.value)}`)
 }
 async function paste() {
-  if (clipboard.value) await insert(clipboard.value)
+  if (clipboard.value) await insert(clipboard.value, 'Paste')
 }
 
 /** A new stage after the chosen one (or last), named so it can be renamed. */
@@ -205,15 +212,15 @@ async function add(event: Event) {
   if (choice === 'stage') await addStage()
   else if (choice.startsWith('screen:')) {
     const name = choice.slice(7)
-    await setProp(name, emptyValue('text'), owner)
+    await props.edit(owner == null ? { op: 'setAppProp', name, value: emptyValue('text') } : { op: 'setStageProp', stage: owner, name, value: emptyValue('text') }, `Add ${SCREEN_NAMES[name] ?? name}`)
     select(screenId(name, owner))
   } else if (choice.startsWith('fn:')) {
     const name = choice.slice(3)
-    await setProp(name, emptyValue('function', hooks.value[name]), owner)
+    await props.edit(owner == null ? { op: 'setAppProp', name, value: emptyValue('function', hooks.value[name]) } : { op: 'setStageProp', stage: owner, name, value: emptyValue('function', hooks.value[name]) }, `Add ${name}()`)
     select(functionId(name, owner))
   } else if (choice.startsWith('el:')) {
     const [g, i] = choice.slice(3).split(':').map(Number)
-    await insert(PALETTE[g].items[i].html)
+    await insert(PALETTE[g].items[i].html, `Add ${PALETTE[g].items[i].label}`)
   }
 }
 const ownerName = computed(() => (current.value.stage == null ? 'the app' : `stage ${current.value.stage}`))
@@ -244,6 +251,135 @@ function keys(event: KeyboardEvent) {
   else if (mod && event.key === 'd') void duplicate()
   else done = false
   if (done) event.preventDefault()
+}
+
+// --- Dragging -----------------------------------------------------------------------------------
+
+/*
+ * Elements are dragged to before or after another element, into a box or a list (the middle of
+ * its row), to the end of a screen, or onto a stage (its active screen). Stages are dragged to
+ * before or after another stage. A drag within this tree moves; with Ctrl or Alt held, or from
+ * another app's editor, it copies. Each drop is one edit.
+ */
+const me = Symbol('tree')
+const drop = ref<DropPlace | null>(null)
+let opening: { id: string, timer: ReturnType<typeof setTimeout> } | null = null
+
+const rowOf = (event: DragEvent) => (event.target as HTMLElement | null)?.closest<HTMLElement>('.tr') ?? null
+const itemOf = (row: HTMLElement | null) => (row ? index.value.get(row.dataset.id ?? '')?.item ?? null : null)
+const copying = (event: DragEvent) => dragging.value?.tree !== me || event.ctrlKey || event.altKey
+
+function dragStart(event: DragEvent) {
+  const item = itemOf(rowOf(event))
+  if (!item || (item.kind !== 'node' && item.kind !== 'stage') || item.prop?.kind === 'code') {
+    event.preventDefault()
+    return
+  }
+  const html = item.kind === 'node' ? written(item) : ''
+  dragging.value = { tree: me, item, html }
+  select(item.id)
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = item.kind === 'node' ? 'copyMove' : 'move'
+    event.dataTransfer.setData('text/plain', html || item.label)
+  }
+}
+
+/** The screen an item stands for as a place to drop elements: its own, or a stage's active screen. */
+function screenFor(item: TreeItem): TreeItem | null {
+  const screen = item.kind === 'stage' ? item.children.find((c) => c.kind === 'screen' && c.prop?.name === 'activeScreen') : item
+  return screen?.kind === 'screen' && screen.prop?.kind === 'text' ? screen : null
+}
+
+/** Where a drop at this point of the row would put what is dragged, or null if it cannot go there. */
+function placeFor(event: DragEvent, item: TreeItem, row: HTMLElement): DropPlace | null {
+  const d = dragging.value
+  if (!d) return null
+  const box = row.getBoundingClientRect()
+  const y = (event.clientY - box.top) / box.height
+  if (d.item.kind === 'stage') {
+    if (d.tree !== me || item.kind !== 'stage' || item.id === d.item.id) return null
+    return { id: item.id, where: y < 0.5 ? 'before' : 'after' }
+  }
+  if (item.kind === 'screen' || item.kind === 'stage') return screenFor(item) ? { id: item.id, where: 'inside' } : null
+  if (item.kind !== 'node' || item.prop?.kind !== 'text') return null
+  // Not onto itself, nor into what is in it.
+  if (d.tree === me && !copying(event) && (item.id === d.item.id || item.id.startsWith(`${d.item.id}.`))) return null
+  if (holdsElements(item.node!) && y > 0.25 && y < 0.75) return { id: item.id, where: 'inside' }
+  return { id: item.id, where: y < 0.5 ? 'before' : 'after' }
+}
+
+function dragOver(event: DragEvent) {
+  const row = rowOf(event)
+  const item = itemOf(row)
+  const place = item && row ? placeFor(event, item, row) : null
+  drop.value = place
+  if (!place || !item) return
+  event.preventDefault()
+  if (event.dataTransfer) event.dataTransfer.dropEffect = dragging.value?.item.kind === 'node' && copying(event) ? 'copy' : 'move'
+  // A folded item held over opens.
+  if (item.children.length && collapsed[item.id] && opening?.id !== item.id) {
+    if (opening) clearTimeout(opening.timer)
+    opening = { id: item.id, timer: setTimeout(() => { collapsed[item.id] = false; opening = null }, 600) }
+  }
+}
+
+function dragLeave(event: DragEvent) {
+  if (!treeEl.value?.contains(event.relatedTarget as Node | null)) drop.value = null
+}
+
+function dragEnd() {
+  dragging.value = null
+  drop.value = null
+  if (opening) clearTimeout(opening.timer)
+  opening = null
+}
+
+async function dropped(event: DragEvent) {
+  const d = dragging.value
+  const row = rowOf(event)
+  const item = itemOf(row)
+  const place = d && item && row ? placeFor(event, item, row) : null
+  const copy = copying(event)
+  dragEnd()
+  if (!d || !item || !place) return
+  event.preventDefault()
+  if (d.item.kind === 'stage') return dropStage(d.item, item, place.where)
+  // Where the element goes: a screen's end, or next to (or in) an element.
+  const screen = item.kind === 'node' ? item : screenFor(item)!
+  const to: ElementPlace & { where?: DropPlace['where'] } = { stage: screen.stage, name: screen.prop!.name }
+  if (item.kind === 'node') Object.assign(to, { path: item.path, where: place.where })
+  if (copy) {
+    const at = to.path ? { do: 'insert' as const, path: to.path, where: to.where, html: d.html } : { do: 'insert' as const, html: d.html }
+    await screenEdit(screen, at, `Copy ${kindOf(d.item.node!)}`)
+    select(nodeId(to.name, to.stage, landing(to, null, screen)))
+    return
+  }
+  const from = { stage: d.item.stage, name: d.item.prop!.name, path: d.item.path! }
+  await props.edit({ op: 'moveElement', from, to }, `Move ${kindOf(d.item.node!)}`)
+  const sameScreen = (from.stage ?? null) === (to.stage ?? null) && from.name === to.name
+  select(nodeId(to.name, to.stage, landing(to, sameScreen ? from.path : null, screen)))
+}
+
+/** The path an element dropped at to has, once it is there (from: where it was taken out of the same screen). */
+function landing(to: ElementPlace & { where?: DropPlace['where'] }, from: number[] | null, screen: TreeItem): number[] {
+  const after = (p: number[]) => (from ? pathAfterRemoving(p, from) : p)
+  if (!to.path) return [screen.children.length - (from && from.length === 1 ? 1 : 0)]
+  const at = after(to.path)
+  if (to.where === 'before') return at
+  if (to.where === 'after') return [...at.slice(0, -1), at[at.length - 1] + 1]
+  const target = index.value.get(nodeId(to.name, to.stage, to.path))?.item
+  const inside = target?.node?.children?.length ?? 0
+  const fromHere = from && from.length === to.path.length + 1 && to.path.every((k, i) => k === from[i])
+  return [...at, inside - (fromHere ? 1 : 0)]
+}
+
+async function dropStage(dragged: TreeItem, onto: TreeItem, where: DropPlace['where']) {
+  const stages = props.model.stages
+  const from = stages.findIndex((s) => s.name === dragged.stage)
+  const t = stages.findIndex((s) => s.name === onto.stage)
+  const to = where === 'before' ? (t > from ? t - 1 : t) : (t > from ? t : t + 1)
+  if (to !== from) await props.edit({ op: 'moveStage', name: dragged.stage!, to })
+  select(dragged.id)
 }
 
 // --- A preview of the chosen screen, the chosen element outlined --------------------------------
@@ -284,12 +420,12 @@ const screenTitle = (p: Prop) => SCREEN_NAMES[p.name] ?? p.name
         <button type="button" class="btn btn--small" title="Move up (Alt+↑)" aria-label="Move up" :disabled="!canMove(-1) || busy" @click="move(-1)">↑</button>
         <button type="button" class="btn btn--small" title="Move down (Alt+↓)" aria-label="Move down" :disabled="!canMove(1) || busy" @click="move(1)">↓</button>
         <button type="button" class="btn btn--small" title="Duplicate (Ctrl+D)" :disabled="current.kind !== 'node' || busy" @click="duplicate">Duplicate</button>
-        <button type="button" class="btn btn--small btn--danger" title="Delete (Del)" :disabled="!canDelete || busy" @click="remove">Delete</button>
+        <button type="button" class="btn btn--small btn--danger" title="Delete (Del)" :disabled="!canDelete || busy" @click="remove()">Delete</button>
       </div>
-      <ul ref="treeEl" class="at__tree" role="tree" tabindex="0" aria-label="The app" @keydown="keys">
-        <TreeRow :item="root" :selected="selected" :collapsed="collapsed" :depth="0" @select="select" @toggle="toggle" />
+      <ul ref="treeEl" class="at__tree" role="tree" tabindex="0" aria-label="The app" @keydown="keys" @dragstart="dragStart" @dragover="dragOver" @dragleave="dragLeave" @drop="dropped" @dragend="dragEnd">
+        <TreeRow :item="root" :selected="selected" :collapsed="collapsed" :depth="0" :drop="drop" @select="select" @toggle="toggle" />
       </ul>
-      <p class="hint at__keys">↑↓ to go through it, Alt+↑↓ to move, Del to delete, Ctrl+C / X / V / D to copy, cut, paste, duplicate.</p>
+      <p class="hint at__keys">Drag to move (with Ctrl or Alt, to copy). ↑↓ to go through it, Alt+↑↓ to move, Del to delete, Ctrl+C / X / V / D to copy, cut, paste, duplicate.</p>
     </div>
 
     <section class="at__main" :aria-label="current.label">
@@ -304,7 +440,7 @@ const screenTitle = (p: Prop) => SCREEN_NAMES[p.name] ?? p.name
       <template v-else-if="current.kind === 'stage' && stage">
         <div class="toolbar">
           <h3 class="at__title" style="margin-right: auto">Stage {{ model.stages.indexOf(stage) + 1 }}</h3>
-          <ConfirmButton :key="stage.name" label="Delete stage" @confirm="remove" />
+          <ConfirmButton :key="stage.name" label="Delete stage" @confirm="remove()" />
         </div>
         <div class="option">
           <label for="at-stage-name">Name</label>
@@ -318,7 +454,7 @@ const screenTitle = (p: Prop) => SCREEN_NAMES[p.name] ?? p.name
       <template v-else-if="current.kind === 'screen' && current.prop">
         <div class="toolbar">
           <h3 class="at__title" style="margin-right: auto">{{ screenTitle(current.prop) }}</h3>
-          <button type="button" class="btn btn--small btn--danger" :disabled="busy" @click="remove">Delete screen</button>
+          <button type="button" class="btn btn--small btn--danger" :disabled="busy" @click="remove()">Delete screen</button>
         </div>
         <p class="hint">{{ current.prop.kind === 'text' ? `What players see ${current.prop.name === 'waitingScreen' ? 'while they wait' : 'while they play'} in ${ownerName}: its elements are under it in the tree. Add puts one in at the end.` : 'This screen is made by code, so it is changed as code.' }}</p>
         <details v-if="current.prop.kind === 'text'" class="at__html">
@@ -332,7 +468,7 @@ const screenTitle = (p: Prop) => SCREEN_NAMES[p.name] ?? p.name
       <template v-else-if="current.kind === 'function' && current.prop">
         <h3 class="at__title">{{ current.label }}</h3>
         <p class="hint">Code jtree runs {{ current.stage == null ? 'for the whole app' : `in stage ${current.stage}` }}.</p>
-        <ValueField :name="current.prop.name" :value="current.prop" removable @set="setProp(current.prop.name, $event)" @remove="remove" />
+        <ValueField :name="current.prop.name" :value="current.prop" removable @set="setProp(current.prop.name, $event)" @remove="remove()" />
       </template>
 
       <!-- An element -->

@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import type { TreeItem } from '../appTree'
+import type { DropPlace, TreeItem } from '../appTree'
 
 defineOptions({ name: 'TreeRow' })
 
-/* One row of the app editor's tree, and its children's rows under it unless it is collapsed. */
-const props = defineProps<{ item: TreeItem, selected: string, collapsed: Record<string, boolean>, depth: number }>()
+/*
+ * One row of the app editor's tree, and its children's rows under it unless it is collapsed.
+ * Elements and stages can be dragged (AppTree handles the dragging); drop marks where a drag
+ * over this row would put what is dragged.
+ */
+const props = defineProps<{ item: TreeItem, selected: string, collapsed: Record<string, boolean>, depth: number, drop: DropPlace | null }>()
 const emit = defineEmits<{ select: [id: string], toggle: [id: string] }>()
 </script>
 
@@ -18,6 +22,8 @@ const emit = defineEmits<{ select: [id: string], toggle: [id: string] }>()
       :aria-selected="selected === item.id"
       :aria-expanded="item.children.length ? !collapsed[item.id] : undefined"
       :aria-level="depth + 1"
+      :draggable="item.kind === 'node' || item.kind === 'stage'"
+      :data-drop="drop?.id === item.id ? drop.where : undefined"
       :style="{ paddingLeft: `${depth * 14 + 2}px` }"
       @mousedown="emit('select', item.id)"
       @dblclick="item.children.length && emit('toggle', item.id)"
@@ -36,6 +42,7 @@ const emit = defineEmits<{ select: [id: string], toggle: [id: string] }>()
         :selected="selected"
         :collapsed="collapsed"
         :depth="depth + 1"
+        :drop="drop"
         @select="emit('select', $event)"
         @toggle="emit('toggle', $event)"
       />
@@ -54,4 +61,11 @@ const emit = defineEmits<{ select: [id: string], toggle: [id: string] }>()
 .tr__label { min-width: 0; flex: 0 1 auto; }
 .tr__note { min-width: 0; flex: 1 1 0; color: var(--dc-fg-2); }
 .tr__group { list-style: none; margin: 0; padding: 0; }
+.tr[draggable='true'] { cursor: grab; }
+/* Where a drop would put what is dragged: a line above or below the row, or the row itself. */
+.tr[data-drop] { position: relative; }
+.tr[data-drop='before']::before, .tr[data-drop='after']::after { content: ''; position: absolute; left: var(--drop-indent, 0); right: 0; height: 2px; border-radius: 1px; background: var(--dc-accent); pointer-events: none; }
+.tr[data-drop='before']::before { top: -1px; }
+.tr[data-drop='after']::after { bottom: -1px; }
+.tr[data-drop='inside'] { outline: 2px solid var(--dc-accent); outline-offset: -2px; background: var(--dc-accent-bg); }
 </style>

@@ -24,6 +24,19 @@ export interface TreeItem {
   node?: ScreenNode
 }
 
+/** Where a drop on an item puts what is dragged: before or after it, or in it. */
+export interface DropPlace {
+  id: string
+  where: 'before' | 'after' | 'inside'
+}
+
+/** Where path points once the node at from is taken out (as the server's html.js reckons it). */
+export function pathAfterRemoving(path: number[], from: number[]): number[] {
+  const level = from.length - 1
+  if (path.length <= level || from.slice(0, level).some((k, i) => k !== path[i]) || path[level] <= from[level]) return path
+  return [...path.slice(0, level), path[level] - 1, ...path.slice(level + 1)]
+}
+
 /** What is chosen in the tree (an item's id), and which items are folded. */
 export interface TreeView {
   selected: string

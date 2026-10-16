@@ -158,6 +158,100 @@ test("jtree's editor, structured: a screen's elements added, changed and moved i
     await page.close();
 });
 
+test("jtree's editor, structured: elements and stages dragged, the history gone back and forth through, saved", { skip }, async () => {
+    const page = await browser.open(server.url + '/admin/');
+    await page.waitFor(() => document.querySelector('.admin__status[data-connected=true]'), { what: 'admin v2', timeout: 240000 });
+    await menu(page, 'File', '^New app');
+    await page.waitFor(() => document.querySelector('#new-name'), { what: 'the new app form' });
+    await fill(page, '#new-name', 'mine/drag');
+    await clickText(page, 'button', '^Create$');
+    await page.waitFor(() => document.querySelector('.ed__mode'), { what: 'the editor' });
+    await clickText(page, '.ed__mode', '^Structured$');
+    await page.waitFor(() => document.querySelector('.at__tree'), { what: 'the tree' });
+
+    const choose = (pattern) => page.eval((r) => {
+        const row = [...document.querySelectorAll('.tr')].find((el) => new RegExp(r).test(el.innerText.replace(/[▾▸]/g, '').trim()));
+        if (!row) throw new Error('no row ' + r);
+        row.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    }, pattern);
+    const add = (label) => page.eval((l) => {
+        const menu = document.querySelector('.at__add');
+        menu.value = [...menu.options].find((o) => o.text === l).value;
+        menu.dispatchEvent(new Event('change'));
+    }, label);
+    const rows = () => page.eval(() => [...document.querySelectorAll('.tr')].map((r) => r.innerText.replace(/[▾▸]/g, '').trim().replace(/\s+/g, ' ')));
+    const steps = () => page.eval(() => [...document.querySelector('.ed__history').options].map((o) => o.text));
+    /** Drags the row matching from over the row matching to, at y (0 top, 1 bottom); returns the place marked, after dropping it there. */
+    async function drag(from, to, y) {
+        await page.eval((f, t, at) => {
+            const all = [...document.querySelectorAll('.tr')];
+            const src = all.find((r) => new RegExp(f).test(r.innerText.replace(/[▾▸]/g, '').trim()));
+            const dst = all.find((r) => new RegExp(t).test(r.innerText.replace(/[▾▸]/g, '').trim()));
+            if (!src || !dst) throw new Error('no row ' + (src ? t : f));
+            const box = dst.getBoundingClientRect();
+            window.dragTest = { dst, dt: new DataTransfer(), x: box.left + 30, y: box.top + box.height * at };
+            src.dispatchEvent(new DragEvent('dragstart', { bubbles: true, cancelable: true, dataTransfer: window.dragTest.dt }));
+            dst.dispatchEvent(new DragEvent('dragover', { bubbles: true, cancelable: true, dataTransfer: window.dragTest.dt, clientX: window.dragTest.x, clientY: window.dragTest.y }));
+        }, from, to, y);
+        await sleep(100);
+        return page.eval(() => {
+            const { dst, dt, x, y } = window.dragTest;
+            const marked = dst.dataset.drop ?? null;
+            dst.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: dt, clientX: x, clientY: y }));
+            dst.dispatchEvent(new DragEvent('dragend', { bubbles: true, dataTransfer: dt }));
+            return marked;
+        });
+    }
+    const settled = (what, fn, ...args) => page.waitFor(fn, { what }, ...args);
+
+    // Rows are matched by their text, without their ▾ / ▸.
+    // decide's screen: "decide", Text, Heading; and a second stage.
+    await choose('^screen');
+    await add('Paragraph');
+    await settled('the paragraph', () => /Text/.test(document.querySelector('.at__tree').innerText));
+    await add('Heading');
+    await settled('the heading', () => /Heading/.test(document.querySelector('.at__tree').innerText));
+    await add('Stage');
+    await settled('the stage', () => document.querySelectorAll('.tr[data-kind=stage]').length === 2);
+
+    // The heading to the top of its screen, the paragraph onto the second stage, that stage before the first.
+    assert.equal(await drag('^h3', '^p\\s+decide', 0.1), 'before');
+    await settled('the heading moved', () => /screen Active screen h3 Heading heading p decide/.test([...document.querySelectorAll('.tr')].map((r) => r.innerText.replace(/[▾▸]/g, '').trim()).join(' ').replace(/\s+/g, ' ')));
+    assert.equal(await drag('^p\\s+Text', '^2\\s+stage$', 0.5), 'inside');
+    await settled('the paragraph moved', () => /2 stage screen Active screen p stage paragraph p Text paragraph$/.test([...document.querySelectorAll('.tr')].map((r) => r.innerText.replace(/[▾▸]/g, '').trim()).join(' ').replace(/\s+/g, ' ')));
+    assert.equal(await drag('^2\\s+stage$', '^1\\s+decide$', 0.2), 'before');
+    await settled('the stage moved', () => /^1\s+stage$/.test(document.querySelector('.tr[data-kind=stage]').innerText.replace(/[▾▸]/g, '').trim()));
+    assert.equal(await drag('^1\\s+stage$', '^p\\s+stage', 0.5), null, 'a stage goes only next to a stage');
+    const end = await rows();
+    assert.deepEqual((await steps()).slice(1), ['1. Add Paragraph', '2. Add Heading', '3. Add stage stage', '4. Move Heading', '5. Move Paragraph', '6. Move stage stage']);
+
+    // Back three steps (to before the moves), with Undo and the History list; then forward again.
+    await clickText(page, '.btn', '^Undo$');
+    await settled('undone', () => document.querySelector('.ed__history').value === '5');
+    assert.match(await page.eval(() => document.querySelector('.btn[title^="Redo"]').title), /^Redo Move stage stage/);
+    await page.eval(() => { const h = document.querySelector('.ed__history'); h.value = '3'; h.dispatchEvent(new Event('change')); });
+    await settled('back to step 3', () => document.querySelector('.ed__history').value === '3' && /h3 Heading heading$/.test([...document.querySelectorAll('.tr')].slice(0, 6).map((r) => r.innerText.replace(/[▾▸]/g, '').trim()).join(' ').replace(/\s+/g, ' ')));
+    assert.match((await steps())[6], /\(undone\)$/);
+    await page.eval(() => document.querySelector('.at__tree').focus());
+    await page.eval(() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, shiftKey: true, bubbles: true })));
+    await settled('redone with the keys', () => document.querySelector('.ed__history').value === '4');
+    await page.eval(() => { const h = document.querySelector('.ed__history'); h.value = '6'; h.dispatchEvent(new Event('change')); });
+    await settled('forward to the end', () => document.querySelector('.ed__history').value === '6');
+    assert.deepEqual(await rows(), end);
+    await sleep(300);
+    await clickText(page, '.btn', '^Save$');
+    await page.waitFor(() => !/not saved/.test(document.body.innerText), { what: 'saved' });
+
+    const file = path.join(apps, 'mine/drag.jtt');
+    const app = server.jt.data.loadApp(file, null, file, {});
+    assert.equal(app.hasError, false);
+    assert.deepEqual(app.stages.map((s) => s.id), ['stage', 'decide']);
+    assert.equal(app.stages[1].activeScreen, '\n    <h3>Heading</h3>\n    <p>decide</p>\n');
+    assert.equal(app.stages[0].activeScreen, '\n    <p>stage</p>\n    <p>Text</p>\n');
+    assert.deepEqual(page.errors, []);
+    await page.close();
+});
+
 test("z-Tree's editor: a binary treatment opened, a stage, box, item and button added, saved as text", { skip }, async () => {
     const page = await browser.open(server.url + '/admin/ztree/');
     await page.waitFor(() => /Ready/.test(document.body.innerText), { what: 'admin-ztree', timeout: 240000 });
