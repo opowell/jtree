@@ -6,12 +6,20 @@ html, body, #app {
   margin: 0;
 }
 
+/* The inherit and mono-size themes take their text colour, font and
+   background from the page, so the page sets all three for both schemes. */
+:root {
+  color-scheme: light dark;
+}
+
 body {
   background: #fff;
+  color: #1d1d1f;
+  font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
-  body { background: #111; }
+  body { background: #111; color: #ececec; }
 }
 
 /* A larger type scale than appfr's (13px body, 12px meta, 11.5px code), in
