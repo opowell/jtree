@@ -18,7 +18,7 @@ Where z-Tree and jtree differ, for example dividing by 0, a session's "Rules" de
 
 #### The z-Tree admin
 
-`/admin/ztree/` is an admin laid out after z-Tree: z-Tree's menu bar (File, Edit, Treatment, Run, Tools, View, ?) over a desktop of windows. It follows the z-Tree 5.1 manual.
+`/admin/ztree/` is an admin laid out after z-Tree: z-Tree's menu bar (File, Edit, Treatment, Run, Tools, View, ?) over a desktop of windows. It follows the z-Tree 5.1 manual. The open windows and where they are are in the address (`?w=…`), so reloading the page keeps them and a link opens them as they were.
 
 - **Run → Start Treatment** (F5) starts the open treatment for the selected clients, or all. **Stop Clock** (F12) and **Restart Clock** (Shift+F12) pause and resume the session's timers.
 - **Run → Connection Monitor**: z-Tree's columns. Tick `selected` to start the next treatment for only some clients; select states, then Run → Leave Stage; tick `stop after period`. Double-click a client to watch its screen.

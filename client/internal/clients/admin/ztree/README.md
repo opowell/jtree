@@ -10,6 +10,11 @@ over a grey desktop of child windows. It follows the
 [z-Tree 5.1 manual](https://www.ztree.uzh.ch/static/doc/manual.pdf), chiefly
 chapters 2.5–2.6 (testing a treatment), 5 (conducting a session) and 8 (menu commands).
 
+The desktop's windows and where they are are in the address bar (`?w=…`, appfr's
+`useLayoutRoute` over `windows.ts`'s `desktopLayout`), so a reload keeps them and a link
+opens them as they were; they are also saved in the browser for an address without `w`.
+Treatments named there are opened again once the server has listed its apps (`App.vue`).
+
 ## How jtree maps onto z-Tree
 
 | z-Tree | jtree |

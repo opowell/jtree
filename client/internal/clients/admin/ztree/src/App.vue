@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch, watchPostEffect } from 'vue'
-import { MenuBar, WindowFrame } from 'header-content-layout'
+import { MenuBar, useLayoutRoute, WindowFrame } from 'header-content-layout'
 import type { WindowNode } from 'header-content-layout'
 import ZIcon from './components/ZIcon.vue'
 import TreatmentWindow from './windows/TreatmentWindow.vue'
@@ -14,7 +14,21 @@ import { menus } from './menus'
 import * as act from './actions'
 import { docs, openDoc } from './treatment/docs'
 import { isZtreeFile, openZDoc } from './treatment/zdocs'
-import { closeWindow, frontTreatment, frontWindow, openWindow, panels, setLayout, windowIds, windowTitle, workspace } from './windows'
+import {
+  addressBar,
+  closeWindow,
+  desktopLayout,
+  emptyDesktop,
+  frontTreatment,
+  frontWindow,
+  openWindow,
+  panels,
+  savedLayout,
+  setLayout,
+  windowIds,
+  windowTitle,
+  workspace,
+} from './windows'
 
 /*
  * The main window: caption, menu bar, toolbar, the desktop the child windows
@@ -66,7 +80,12 @@ watchPostEffect(() => {
 
 /* ------------------------------------------------- windows across reloads */
 
-// The arrangement is kept per browser; the treatments in it are opened again
+// The windows and where they are are in the address bar (`?w=…`), so a reload, or a link,
+// opens them as they were; an address without one opens what this browser had last.
+useLayoutRoute(desktopLayout, { adapter: addressBar, home: emptyDesktop() })
+if (!new URLSearchParams(location.search).has('w') && savedLayout) setLayout(savedLayout)
+
+// The treatments in the arrangement are opened again
 // from the server once it has said what is on it. z-Tree opens on an empty
 // treatment, so one is made when none is open.
 let restored = false

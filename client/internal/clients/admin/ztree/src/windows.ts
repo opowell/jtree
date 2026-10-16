@@ -1,5 +1,6 @@
 import { computed, reactive, watch } from 'vue'
 import {
+  createHistoryAdapter,
   fixedView,
   frame,
   frameOf,
@@ -11,7 +12,7 @@ import {
   raiseFrame,
   removePanel,
 } from 'header-content-layout'
-import type { FloatRect, WindowFloat, WindowNode, WindowPanelDef } from 'header-content-layout'
+import type { FloatRect, RouteAdapter, WindowFloat, WindowNode, WindowPanelDef } from 'header-content-layout'
 import { safeStorage } from './server/connection'
 import { docs, isDirty } from './treatment/docs'
 
@@ -26,6 +27,9 @@ import { docs, isDirty } from './treatment/docs'
  *   treatment:<key>             a treatment's stage tree (key: app id or untitled:n)
  *   table:<name>:<treatment>    a table; treatment 0 for the session's own tables
  *   leaf:<participant id>       what one subject's z-Leaf shows
+ *
+ * The desktop is held in the address bar (`?w=…`, see App.vue), so a reload or a link opens
+ * the same windows where they were, and saved per browser for a visit that comes without one.
  */
 
 const STORAGE_KEY = 'jtree-ztree-workspace'
@@ -39,7 +43,7 @@ interface Saved {
   savedClientOrder: string[]
 }
 
-function emptyDesktop(): WindowFloat {
+export function emptyDesktop(): WindowFloat {
   return headless(fixedView({ kind: 'float', frames: [] } as WindowFloat))
 }
 
@@ -52,6 +56,12 @@ function load(): Partial<Saved> {
 }
 
 const saved = load()
+
+/** The desktop this browser had last, for a visit whose address names none. */
+export const savedLayout = saved.layout && isFloat(saved.layout) ? saved.layout : null
+
+/** The address bar, which holds the desktop. */
+export const addressBar: RouteAdapter = createHistoryAdapter()
 
 export const workspace = reactive({
   layout: (saved.layout && isFloat(saved.layout) ? saved.layout : emptyDesktop()) as WindowFloat,
@@ -138,6 +148,12 @@ export function closeWindow(id: string) {
 export function setLayout(next: WindowNode | null) {
   workspace.layout = (next && isFloat(next) ? next : emptyDesktop()) as WindowFloat
 }
+
+/** The desktop as a ref for appfr's useLayoutRoute: what an address names is made a desktop. */
+export const desktopLayout = computed<WindowNode | null>({
+  get: () => workspace.layout,
+  set: setLayout,
+})
 
 export function rememberRecent(appId: string) {
   workspace.recent = [appId, ...workspace.recent.filter((id) => id !== appId)].slice(0, 6)

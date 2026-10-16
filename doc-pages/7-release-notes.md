@@ -3,7 +3,7 @@
 - Listen to incremental game changes via observer.
 
 #### Unreleased
-- The admin's open panels and their arrangement are in its address (`?w=…`): reloading the page keeps them, and a link opens them as they were. A panel can be popped out to a browser window of its own (its ⋯ menu). The admin's menus and panels are appfr 0.56.0.
+- The admin's open panels and their arrangement are in its address (`?w=…`): reloading the page keeps them, and a link opens them as they were. A panel can be popped out to a browser window of its own (its ⋯ menu). The z-Tree admin's windows are in its address too. The admins' menus and panels are appfr 0.56.0.
 - The admin's text is larger: 15px body text (it was 13px), 14px for the App editor's tree, labels and buttons, 13.5px for code, in every theme.
 - The App editor's Structured mode: an app as a tree of its stages, their screens and the elements on them (paragraphs, inputs, buttons, ...), and their functions, as z-Tree and oTree Studio show theirs. Elements are added from a palette, changed in fields (an input's variable, type, limits, ...), moved, copied, pasted and deleted, each change made to that element alone in the source. Forms and Source are the editor's other modes; Undo and Redo work in all three. A stage renamed in the editor takes a new variable name too, if the editor named its variable.
 - App editors: jtree's own in the admin (File → New app…, or an app's Edit): an app's settings, stages, screens and functions, and its whole source. The z-Tree admin edits z-Tree treatments as z-Tree does (Treatment → New …, element dialogs, undo, Check) and saves them in z-Tree's text format. The oTree admin's Studio edits oTree projects and apps as oTree Studio does. Each changes only the part of the file it is about.
