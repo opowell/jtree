@@ -33,6 +33,6 @@ Participants open the address the Session panel shows, `http://<this computer's 
 10. Put your files in the `client/apps` folder, then use File → Reload apps in the admin (or start jtree again). jtree runs:
 
     - jtree apps: a `.jtt` file, or a folder with an `app.jtt` (see <a href='tutorial-4-designing-an-app.html'>Designing an App</a>);
-    - queues: a `.jtq` file that lists apps to play one after another (see <a href='tutorial-queues.html'>Queues</a>);
+    - queues: a `.jtq` file that lists apps to play one after another, an app whose stages are those apps (see <a href='tutorial-queues.html'>Queues</a>);
     - z-Tree treatments and questionnaires: `.ztt`, `.ztq`, or z-Tree's text export (see <a href='tutorial-4a-ztree.html'>z-Tree treatments</a>);
     - oTree apps and projects: a folder with oTree's `__init__.py` (or `models.py`), or a project with its `settings.py` (see <a href='tutorial-4b-otree.html'>oTree apps</a>).

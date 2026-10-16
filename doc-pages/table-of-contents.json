@@ -56,7 +56,7 @@
             "can-participate",
             "grouping",
             "session-flow",
-            "stages-within-stages",
+            "apps-and-stages",
             "settings",
             "queues",
             "rooms"
@@ -77,8 +77,8 @@
     "settings": {
         "title": "Settings"
     },
-    "stages-within-stages": {
-        "title": "Stages within stages"
+    "apps-and-stages": {
+        "title": "Apps and stages"
     },
     "7-release-notes": {
         "title": "Release Notes"

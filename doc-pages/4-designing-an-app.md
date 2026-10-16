@@ -1,6 +1,6 @@
 This tutorial will show you how to program the simple public goods game used in the previous section. In the admin, choose File → New app…. Type `my-public-goods` as the file name, then press "Create". jtree writes `client/apps/my-public-goods.jtt`, and opens it in the App editor.
 
-[Note: "App", "Game" and "Treatment" are used interchangeably in jtree.]
+[Note: "App", "Game" and "Treatment" are used interchangeably in jtree. An app is a list of stages, and a stage is an app: one with a screen, or one with stages of its own (see [apps and stages](tutorial-apps-and-stages.html)).]
 
 An app is a Javascript file. The App editor shows it in three modes:
 
@@ -173,7 +173,7 @@ stage.activeScreen = `<p>RESULTS</p> ...`;
 
 #### Stages within stages
 
-A stage can have stages of its own, played a number of times each time a group reaches it, for example rounds within each period, and an app can be a stage of another app (`app.addApp('quiz.jtt')`). See [stages within stages](tutorial-stages-within-stages.html).
+A stage is an app too: it can have stages of its own, played a number of times each time a group reaches it (for example rounds within each period), and another app's file can be a stage (`app.addApp('quiz.jtt')`). See [apps and stages](tutorial-apps-and-stages.html).
 
 #### Checking what players enter
 The page's `min`, `max` and `required` only guide the browser. To have the server check what a form sends, declare its fields in `app.fields`, by the name the form uses:

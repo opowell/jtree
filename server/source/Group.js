@@ -490,6 +490,15 @@ class Group {
         }
     }
 
+    /**
+     * Whether player has left this group's app, an app within a stage, before its end (see
+     * Participant#leaveRun): then the group does not wait for them.
+     */
+    hasLeft(player) {
+        const left = this.app().leftIds;
+        return left != null && left.includes(player.participant.id);
+    }
+
     canPlayersStart(stage) {
         
         if (this.stageStartedIndex >= stage.indexInApp()) {
@@ -510,7 +519,7 @@ class Group {
         // If any player is not ready, return false.
         for (let p in this.players) {
             let player = this.players[p];
-            if (!player.isReady(stage.indexInApp())) {
+            if (!player.isReady(stage.indexInApp()) && !this.hasLeft(player)) {
                 return false;
             }
         }
@@ -643,8 +652,7 @@ class Group {
 
         this.stageStartedIndex++;
         this.stageIndex = stage.indexInApp();
-        // A stage with stages has the time its stages have.
-        let groupDuration = stage.isContainer() ? 0 : stage.getGroupDuration(this);
+        let groupDuration = stage.getGroupDuration(this);
         if (groupDuration > 0) {
             this.startStageTimer(stage, groupDuration*1000);
         }
@@ -707,6 +715,24 @@ class Group {
     forceEndStage(stage) {
         console.log('Group.forceEndStage: ' + stage.id);
         this.clearStageTimer();
+        // A stage with stages: its players still in them leave them, and end it.
+        if (stage.isContainer()) {
+            const run = stage.runIn(this.period);
+            for (const player of this.players) {
+                if (player.stage === stage && player.status === 'playing') {
+                    player.timedOut = true;
+                    if (run != null && player.participant.frames.some((f) => f.run === run)) {
+                        player.participant.leaveRun(run);
+                    } else {
+                        player.endStage(true);
+                    }
+                }
+            }
+            if (run != null) {
+                run.pokeGroups();
+            }
+            return;
+        }
         for (const player of this.players) {
             if (player.stage === stage && ['ready', 'playing'].includes(player.status)) {
                 player.timedOut = true;

@@ -30,7 +30,10 @@
     
         <h2><span class="attribs"><span class="type-signature"></span></span>Stage<span class="signature">()</span><span class="type-signature"></span></h2>
         
-            <div class="class-description"><p>A stage of an <a href="App.html">App</a>.</p></div>
+            <div class="class-description"><p>A stage of an <a href="App.html">App</a>. A stage is an app: one shown on a screen (activeScreen), or one<br>
+with stages of its own (see newStage), or an app's file (see App#addApp), played as a step<br>
+of its app. It has an app's members (newStage, addApp, numPeriods, groupSize, the hooks,<br>
+...), and what it does not set is its app's.</p></div>
         
     
 </header>
@@ -93,7 +96,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line9">line 9</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line13">line 13</a>
     </li></ul></dd>
     
 
@@ -188,7 +191,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line162">line 162</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line168">line 168</a>
     </li></ul></dd>
     
 
@@ -260,7 +263,69 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line37">line 37</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line43">line 43</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="appPath"><span class="type-signature"></span>appPath<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    <p>The file of this stage's app.</p>
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line465">line 465</a>
     </li></ul></dd>
     
 
@@ -340,7 +405,7 @@ ends the stage for them, as for a group's timeout (see timeoutGrace). If &lt;= 0
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line57">line 57</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line63">line 63</a>
     </li></ul></dd>
     
 
@@ -418,7 +483,7 @@ if &lt;= 0, then no timeout for this stage.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line45">line 45</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line51">line 51</a>
     </li></ul></dd>
     
 
@@ -497,7 +562,7 @@ stage after timeout: no&quot;).</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line66">line 66</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line72">line 72</a>
     </li></ul></dd>
     
 
@@ -560,7 +625,7 @@ stage after timeout: no&quot;).</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line167">line 167</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line173">line 173</a>
     </li></ul></dd>
     
 
@@ -623,7 +688,7 @@ stage after timeout: no&quot;).</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line172">line 172</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line178">line 178</a>
     </li></ul></dd>
     
 
@@ -695,7 +760,69 @@ stage after timeout: no&quot;).</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line31">line 31</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line37">line 37</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="jt"><span class="type-signature"></span>jt<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    <p>The jtree of this stage's app.</p>
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line460">line 460</a>
     </li></ul></dd>
     
 
@@ -767,7 +894,7 @@ stage after timeout: no&quot;).</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line25">line 25</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line31">line 31</a>
     </li></ul></dd>
     
 
@@ -845,7 +972,7 @@ fields determined by player.outputFields.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line98">line 98</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line104">line 104</a>
     </li></ul></dd>
     
 
@@ -922,7 +1049,7 @@ fields determined by player.outputFields.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line147">line 147</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line153">line 153</a>
     </li></ul></dd>
     
 
@@ -994,7 +1121,7 @@ fields determined by player.outputFields.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line157">line 157</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line163">line 163</a>
     </li></ul></dd>
     
 
@@ -1072,7 +1199,79 @@ are played each time its group reaches it, if numPeriods is not set.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line186">line 186</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line192">line 192</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="session"><span class="type-signature"></span>session<span class="type-signature"> :<a href="Session.html">Session</a></span></h4>
+
+
+
+
+<div class="description">
+    <p>The session of this stage's app.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="Session.html">Session</a></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line455">line 455</a>
     </li></ul></dd>
     
 
@@ -1145,7 +1344,7 @@ are played each time its group reaches it, if numPeriods is not set.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line318">line 318</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line325">line 325</a>
     </li></ul></dd>
     
 
@@ -1228,7 +1427,7 @@ for the pages however long they take.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line123">line 123</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line129">line 129</a>
     </li></ul></dd>
     
 
@@ -1306,7 +1505,7 @@ possible values: 'player', 'group'</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line106">line 106</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line112">line 112</a>
     </li></ul></dd>
     
 
@@ -1379,7 +1578,7 @@ possible values: 'player', 'group'</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line129">line 129</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line135">line 135</a>
     </li></ul></dd>
     
 
@@ -1452,7 +1651,7 @@ possible values: 'player', 'group'</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line135">line 135</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line141">line 141</a>
     </li></ul></dd>
     
 
@@ -1525,7 +1724,7 @@ possible values: 'player', 'group'</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line178">line 178</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line184">line 184</a>
     </li></ul></dd>
     
 
@@ -1605,7 +1804,7 @@ the groups' groupStart.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line90">line 90</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line96">line 96</a>
     </li></ul></dd>
     
 
@@ -1682,7 +1881,7 @@ the groups' groupStart.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line113">line 113</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line119">line 119</a>
     </li></ul></dd>
     
 
@@ -1759,7 +1958,7 @@ the groups' groupStart.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line80">line 80</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line86">line 86</a>
     </li></ul></dd>
     
 
@@ -1836,7 +2035,7 @@ the groups' groupStart.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line73">line 73</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line79">line 79</a>
     </li></ul></dd>
     
 
@@ -1898,7 +2097,7 @@ the groups' groupStart.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line140">line 140</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line146">line 146</a>
     </li></ul></dd>
     
 
@@ -1926,7 +2125,7 @@ the groups' groupStart.</p>
     
 
     
-    <h4 class="name" id="addApp"><span class="type-signature"></span>addApp<span class="signature">(file, id<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="Stage.html">Stage</a>}</span></h4>
+    <h4 class="name" id="addApp"><span class="type-signature"></span>addApp<span class="signature">(file, options<span class="signature-attributes">opt</span>, id<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="Stage.html">Stage</a>}</span></h4>
     
 
     
@@ -2003,6 +2202,39 @@ the groups' groupStart.</p>
 
         <tr>
             
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The app's option values.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
                 <td class="name"><code>id</code></td>
             
 
@@ -2070,7 +2302,7 @@ the groups' groupStart.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line298">line 298</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line305">line 305</a>
     </li></ul></dd>
     
 
@@ -2230,7 +2462,7 @@ when every player has arrived, before each group's groupStart.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line400">line 400</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line407">line 407</a>
     </li></ul></dd>
     
 
@@ -2318,7 +2550,7 @@ when every player has arrived, before each group's groupStart.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line303">line 303</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line310">line 310</a>
     </li></ul></dd>
     
 
@@ -2455,7 +2687,7 @@ when every player has arrived, before each group's groupStart.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line414">line 414</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line421">line 421</a>
     </li></ul></dd>
     
 
@@ -2614,7 +2846,7 @@ when every player has arrived, before each group's groupStart.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line393">line 393</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line400">line 400</a>
     </li></ul></dd>
     
 
@@ -2725,7 +2957,7 @@ Overwrite in app.jtt</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line406">line 406</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line413">line 413</a>
     </li></ul></dd>
     
 
@@ -2813,7 +3045,7 @@ Overwrite in app.jtt</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line199">line 199</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line205">line 205</a>
     </li></ul></dd>
     
 
@@ -2923,7 +3155,7 @@ Overwrite in app.jtt</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line323">line 323</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line330">line 330</a>
     </li></ul></dd>
     
 
@@ -3078,7 +3310,7 @@ on this stage, are called as an app's are. See <a href="App.html#newBlock">App#n
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line288">line 288</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line294">line 294</a>
     </li></ul></dd>
     
 
@@ -3238,7 +3470,7 @@ Overwrite in app.jtt.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line436">line 436</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line443">line 443</a>
     </li></ul></dd>
     
 
@@ -3327,7 +3559,7 @@ Overwrite in app.jtt.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line442">line 442</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line449">line 449</a>
     </li></ul></dd>
     
 
@@ -3466,7 +3698,7 @@ added as a stage (see App#addApp), that app, loaded afresh.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line334">line 334</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line341">line 341</a>
     </li></ul></dd>
     
 
@@ -3572,7 +3804,7 @@ added as a stage (see App#addApp), that app, loaded afresh.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line353">line 353</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line360">line 360</a>
     </li></ul></dd>
     
 
@@ -3663,117 +3895,7 @@ added as a stage (see App#addApp), that app, loaded afresh.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line523">line 523</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>description</p>
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">type</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="session"><span class="type-signature"></span>session<span class="signature">()</span><span class="type-signature"> &rarr; {type}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>session - description</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line449">line 449</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line539">line 539</a>
     </li></ul></dd>
     
 
@@ -3887,7 +4009,7 @@ added as a stage (see App#addApp), that app, loaded afresh.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line490">line 490</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line506">line 506</a>
     </li></ul></dd>
     
 
@@ -3997,7 +4119,7 @@ added as a stage (see App#addApp), that app, loaded afresh.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line471">line 471</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line487">line 487</a>
     </li></ul></dd>
     
 
@@ -4071,7 +4193,7 @@ added as a stage (see App#addApp), that app, loaded afresh.</p>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Oct 16 2026 22:39:59 GMT+0200 (Central European Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sat Oct 17 2026 01:30:47 GMT+0200 (Central European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

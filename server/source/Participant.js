@@ -238,19 +238,43 @@ class Participant {
      * back to the player whose stage it is, who ends it.
      */
     exitRun() {
-        const frame = this.frames.pop();
-        const run = frame.run;
-        if (this.player != null && this.player.app() === run) {
-            this.player.period().participantEnd(this);
+        const frame = this.frames[this.frames.length - 1];
+        this.leaveRun(frame.run);
+    }
+
+    /**
+     * This participant leaves run, an app within a stage they are in (see enterRun), and the
+     * apps within its stages they are in: they go back to the player whose stage run is, who
+     * ends it. As when they have finished it (exitRun), or when the stage's time is up.
+     * @param {App} run
+     */
+    leaveRun(run) {
+        const index = this.frames.findIndex((f) => f.run === run);
+        if (index < 0) {
+            return;
         }
-        run.leftIds.push(this.id);
-        run.participantEndInternal(this);
-        this.periodIndex = frame.periodIndex;
+        const page = this.getApp().hostApp();
+        let frame = null;
+        while (this.frames.length > index) {
+            frame = this.frames.pop();
+            if (frame.timer != null) {
+                frame.timer.clear();
+            }
+            if (this.player != null && this.player.app() === frame.run) {
+                this.player.clearTimer();
+                this.player.period().participantEnd(this);
+            }
+            frame.run.leftIds.push(this.id);
+            frame.run.participantEndInternal(this);
+            this.player = frame.player;
+            this.periodIndex = frame.periodIndex;
+        }
         this.setPlayer(frame.player);
         // From the page of an app added as a stage (see App#addApp) to this app's.
-        if (run.hostApp() === run) {
+        const host = frame.player.app().hostApp();
+        if (host !== page) {
             for (const client of this.clients) {
-                frame.player.app().hostApp().addClientDefault(client);
+                host.addClientDefault(client);
             }
             this.emit('start-new-app');
         }

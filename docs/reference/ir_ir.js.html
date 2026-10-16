@@ -104,7 +104,8 @@ const Utils = require('../Utils.js');
  * @property {string} [groupMatchingType]
  * @property {boolean} [groupByArrival]
  * @property {string} [app]               The file of an app this stage is (see App#addApp),
- *                                        relative to this app's folder.
+ *                                        relative to this app's folder; a queue's too.
+ * @property {Object&lt;string, *>} [options] For app, its option values.
  *
  * @typedef {Object} ScreenIR
  * @property {string} [renderer]          How pages draw it; 'vue' (the default) is jtree's.
@@ -128,11 +129,11 @@ const FIELD_TYPES = ['int', 'number', 'string', 'bool', 'choice'];
 const APP_HOOKS = { appStart: 'appStart', periodStart: 'periodStart', periodEnd: 'periodEnd', appEnd: 'end',
     participantStart: 'participantStart', participantEnd: 'participantEnd' };
 const STAGE_KEYS = ['id', 'formFields', 'duration', 'playerDuration', 'endOnTimeout', 'waitToStart', 'waitToEnd', 'waitForAllGroups', 'waitOnTimerEnd', 'timeoutGrace',
-    'participate', 'programs', 'screen', 'values', 'stages', 'numPeriods', 'groupSize', 'numGroups', 'groupMatchingType', 'groupByArrival', 'app'];
+    'participate', 'programs', 'screen', 'values', 'stages', 'numPeriods', 'groupSize', 'numGroups', 'groupMatchingType', 'groupByArrival', 'app', 'options'];
 // A stage with stages: how many times they are played, and how their players are grouped.
 const BLOCK_KEYS = ['numPeriods', 'groupSize', 'numGroups', 'groupMatchingType', 'groupByArrival'];
 const STAGE_PROGRAMS = ['groupStart', 'playerStart', 'groupEnd', 'playerEnd', 'allGroupsStart', 'validate',
-    'periodStart', 'periodEnd', 'getGroupIdsForPeriod'];
+    'periodStart', 'periodEnd', 'participantStart', 'participantEnd', 'getGroupIdsForPeriod'];
 const SCREEN_KEYS = ['renderer', 'active', 'waiting', 'computed', 'methods'];
 const OPTION_TYPES = ['number', 'text', 'select'];
 
@@ -214,6 +215,7 @@ function validate(ir) {
             type(s.groupMatchingType, 'string', where + '.groupMatchingType');
             type(s.groupByArrival, 'boolean', where + '.groupByArrival');
             type(s.app, 'string', where + '.app');
+            if (s.options !== undefined &amp;&amp; (!isObject(s.options) || s.app === undefined)) problems.push(where + '.options: should be an object, with app');
             if (s.stages !== undefined) {
                 if (!Array.isArray(s.stages)) problems.push(where + '.stages: should be a list');
                 else if (s.app !== undefined) problems.push(where + ': is an app (app), which has stages of its own');
@@ -305,7 +307,7 @@ function applyIR(app, ir) {
 /** Adds the stages of a list of StageIR to parent, app or a stage (see Stage#newStage); their code runs with app. */
 function applyStages(app, list, parent) {
     for (const s of list) {
-        const stage = s.app !== undefined ? parent.addApp(s.app, s.id) : parent.newStage(s.id);
+        const stage = s.app !== undefined ? parent.addApp(s.app, s.options, s.id) : parent.newStage(s.id);
         for (const k of ['waitToStart', 'waitToEnd', 'waitForAllGroups', 'waitOnTimerEnd', 'timeoutGrace', 'endOnTimeout'].concat(BLOCK_KEYS)) {
             if (s[k] !== undefined) stage[k] = s[k];
         }
@@ -339,7 +341,7 @@ const APP_INTERNAL = ['fields', 'id', 'shortId', 'appDir', 'appFilename', 'appPa
     'activeScreen', 'waitingScreen', 'renderer', 'indexInSession', 'groups'];
 const STAGE_INTERNAL = ['id', 'name', 'app', 'sourceFile', 'activeScreen', 'waitingScreen', 'renderer',
     'duration', 'clientDuration', 'waitToStart', 'waitToEnd', 'waitForAllGroups', 'waitOnTimerEnd', 'timeoutGrace',
-    'endOnTimeout', 'getGroupDuration', 'getClientDuration', 'formFields', 'subApp', 'appFile'].concat(BLOCK_KEYS);
+    'endOnTimeout', 'getGroupDuration', 'getClientDuration', 'formFields', 'subApp', 'appFile', 'appOptions'].concat(BLOCK_KEYS);
 
 const js = (fn) => ({ lang: 'js', source: fn.toString() });
 const isJSON = (v) => {
@@ -408,19 +410,24 @@ function appToIR(app, fresh) {
     const freshStage = fresh.newStage('x');
     const stageToIR = (stage) => {
         const s = { id: stage.id };
-        if (stage.appFile != null) s.app = path.relative(path.dirname(app.appPath), stage.appFile).split(path.sep).join('/');
+        if (stage.appFile != null) {
+            s.app = path.relative(path.dirname(app.appPath), stage.appFile).split(path.sep).join('/');
+            if (stage.appOptions != null) s.options = stage.appOptions;
+        }
+        // What an app added as a stage gave it (see App#addApp) comes from its file again.
+        const fromApp = (k) => stage.appFile != null &amp;&amp; Object.prototype.hasOwnProperty.call(stage.subApp, k) &amp;&amp; stage[k] === stage.subApp[k];
         for (const k of BLOCK_KEYS) if (stage[k] !== undefined) s[k] = stage[k];
         for (const k of ['duration', 'waitToStart', 'waitToEnd', 'waitForAllGroups', 'waitOnTimerEnd', 'timeoutGrace', 'endOnTimeout']) {
-            if (stage[k] !== freshStage[k]) s[k] = stage[k];
+            if (stage[k] !== freshStage[k] &amp;&amp; !fromApp(k)) s[k] = stage[k];
         }
         if (stage.clientDuration !== freshStage.clientDuration) s.playerDuration = stage.clientDuration;
         if (Object.prototype.hasOwnProperty.call(stage, 'getGroupDuration')) s.duration = js(stage.getGroupDuration);
         if (Object.prototype.hasOwnProperty.call(stage, 'getClientDuration')) s.playerDuration = js(stage.getClientDuration);
-        if (Object.prototype.hasOwnProperty.call(stage, 'canPlayerParticipate')) s.participate = js(stage.canPlayerParticipate);
+        if (Object.prototype.hasOwnProperty.call(stage, 'canPlayerParticipate') &amp;&amp; !fromApp('canPlayerParticipate')) s.participate = js(stage.canPlayerParticipate);
         if (Array.isArray(stage.formFields)) s.formFields = stage.formFields.slice();
         const programs = {};
         for (const k of STAGE_PROGRAMS) {
-            if (Object.prototype.hasOwnProperty.call(stage, k)) programs[k] = js(stage[k]);
+            if (Object.prototype.hasOwnProperty.call(stage, k) &amp;&amp; !fromApp(k)) programs[k] = js(stage[k]);
         }
         if (Object.keys(programs).length > 0) s.programs = programs;
         const stageScreen = screenToIR(stage, freshStage);
@@ -464,7 +471,7 @@ module.exports = { validate, applyIR, appToIR, compileProgram };
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Oct 16 2026 22:39:59 GMT+0200 (Central European Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sat Oct 17 2026 01:30:46 GMT+0200 (Central European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

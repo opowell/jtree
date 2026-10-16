@@ -716,10 +716,6 @@ class Player {
 
     /** Starts this player's own timer for stage, if it has one (see Stage#clientDuration). */
     startTimer(stage) {
-        // A stage with stages has the time its stages have.
-        if (stage.isContainer()) {
-            return;
-        }
         let seconds = 0;
         try {
             seconds = stage.getClientDuration(this);
@@ -753,6 +749,17 @@ class Player {
         }
         this.timedOut = true;
         this.emitUpdate2();
+        // A stage with stages: the player leaves them, and ends it.
+        if (stage.isContainer()) {
+            const run = stage.runIn(this.period());
+            if (run != null && this.participant.frames.some((f) => f.run === run)) {
+                this.participant.leaveRun(run);
+                run.pokeGroups();
+            } else {
+                this.endStage(true);
+            }
+            return;
+        }
         if (!stage.endOnTimeout) {
             return;
         }

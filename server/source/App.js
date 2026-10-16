@@ -1,4 +1,3 @@
-const Stage     = require('./Stage.js');
 const Period    = require('./Period.js');
 const Utils     = require('./Utils.js');
 const fs        = require('fs-extra');
@@ -9,7 +8,18 @@ const { dialectFor } = require('./dialects/index.js');
 const { appToIR } = require('./ir/ir.js');
 const { checkForm } = require('./forms.js');
 
-/** Class that represents an app. */
+// Passed to App's constructor by Stage's.
+const AS_STAGE = Symbol('stage');
+
+// A stage's settings that an app added as a stage (see App#addApp) gives the stage, if its file sets them.
+const APP_STAGE_SETTINGS = ['waitToStart', 'waitToEnd', 'waitForAllGroups', 'canPlayerParticipate', 'groupStart',
+    'playerStart', 'playerEnd', 'groupEnd', 'allGroupsStart'];
+
+/**
+ * An app: a list of stages, played numPeriods times by its players, in groups. A stage is an
+ * app too (see Stage): one with a screen, one with stages of its own, or an app's file added
+ * with addApp. A queue is an app whose stages are other apps.
+ */
 class App {
 
     /**
@@ -18,7 +28,12 @@ class App {
      * @param  {Session} session description
      * @param  {String} id      description
      */
-    constructor(session, jt, appPath) {
+    constructor(session, jt, appPath, kind) {
+
+        // A stage (see Stage): its own defaults, and its app's for the rest.
+        if (kind === AS_STAGE) {
+            return;
+        }
 
         /**
          * The unique identifier of this App. In order of precedence, the value is given by:
@@ -381,7 +396,8 @@ class App {
             'jt',
             'parentStage',
             'parentPeriod',
-            'leftIds'
+            'leftIds',
+            'queueDir'
         ];
 
         //TODO:
@@ -634,13 +650,21 @@ class App {
      * Adds the app in file as a stage of this app: each time a group reaches the stage, its
      * players play that app, loaded afresh, with its own periods, groups and page, and then go
      * on to this app's next stage. Its players are those of the stage's period who play the
-     * stage (see Stage#canPlayerParticipate).
+     * stage (see Stage#canPlayerParticipate). What the app's file sets of a stage's settings
+     * (waitToStart, waitToEnd, waitForAllGroups, canPlayerParticipate, groupStart, playerStart,
+     * playerEnd, groupEnd, allGroupsStart) is the stage's, unless this app sets them after.
+     * A queue (.jtq) is an app whose stages are the apps it adds.
      * @param {string} file The app's file, or folder, relative to this app's folder.
-     * @param {string} [id] The id of the stage; by default, the app's.
+     * @param {Object} [options] The app's option values, as for Session#addApp.
+     * @param {string} [id] The id of the stage; by default, the app's. (Or addApp(file, id).)
      * @return {Stage} The new stage.
      */
-    addApp(file, id) {
-        var appFile = path.resolve(path.dirname(this.appPath), file);
+    addApp(file, options, id) {
+        if (typeof options === 'string') {
+            id = options;
+            options = undefined;
+        }
+        var appFile = path.resolve(this.queueDir || path.dirname(this.appPath), file);
         if (fs.existsSync(appFile) && fs.statSync(appFile).isDirectory()) {
             var main = ['app.jtt', 'app.js'].find((f) => fs.existsSync(path.join(appFile, f)));
             if (main == null) {
@@ -648,22 +672,68 @@ class App {
             }
             appFile = path.join(appFile, main);
         }
-        var template = this.loadAppFile(appFile);
-        var stage = this.newStage(id != null ? id : template.shortId);
+        var template = this.loadAppFile(appFile, options);
+        if (id == null) {
+            // The app's id; with a number after it, if that is taken (the same app again).
+            id = template.shortId;
+            for (let n = 2; this.stages.some((s) => s.id === id); n++) {
+                id = template.shortId + '_' + n;
+            }
+        }
+        var stage = this.newStage(id);
         stage.appFile = appFile;
+        if (options != null && Object.keys(options).length > 0) {
+            stage.appOptions = options;
+        }
         stage.subApp = template;
+        for (const k of APP_STAGE_SETTINGS) {
+            if (Object.prototype.hasOwnProperty.call(template, k)) {
+                stage[k] = template[k];
+            }
+        }
         return stage;
     }
 
-    /** A new App for the app in appFile (see addApp), in this app's session. */
-    loadAppFile(appFile) {
+    /**
+     * A new App for the app in appFile (see addApp), in this app's session, with options set
+     * before its code runs. For a queue, an app whose stages are the queue's apps.
+     */
+    loadAppFile(appFile, options) {
+        var Queue = require('./Queue.js');
+        var app = new App(this.session, this.jt, appFile);
+        app.givenOptions = options;
+        for (var name in options || {}) {
+            app.setOptionValue(name, options[name]);
+        }
+        if (Queue.isQueueId(appFile)) {
+            var queue = Queue.load(appFile, this.jt);
+            if (queue.hasError) {
+                throw new Error('Queue ' + appFile + ': ' + queue.errorMessage);
+            }
+            app.shortId = queue.shortId;
+            app.title = queue.displayName;
+            if (queue.description != null) {
+                app.description = queue.description;
+            }
+            app.queueDir = queue.dir();
+            // Its script adds its apps to the app, as it would to a session.
+            queue.run(app);
+            return app;
+        }
         var dialect = dialectFor(appFile);
         if (dialect == null) {
             throw new Error('not an app: ' + appFile);
         }
-        var app = new App(this.session, this.jt, appFile);
         dialect.define(app);
         return app;
+    }
+
+    /**
+     * For a queue's script run against this app (see loadAppFile): the number of participants
+     * it suggests.
+     */
+    setNumParticipants(num) {
+        this.suggestedNumParticipants = num;
     }
 
     /**
@@ -680,8 +750,10 @@ class App {
         block.periods = [];
         block.parentStage = stage;
         block.duration = null;
+        // What the stage sets itself (it has an app's defaults too, see Stage).
+        var own = (name) => Object.prototype.hasOwnProperty.call(stage, name);
         var regroups = () => ['groupSize', 'numGroups', 'groupMatchingType'].some((k) => stage[k] != null) ||
-            typeof stage.getGroupIdsForPeriod === 'function';
+            own('getGroupIdsForPeriod');
         // What the stage says, and is shown on pages as the app's.
         var fromStage = (name, get) => Object.defineProperty(block, name, {
             enumerable: true, configurable: true, get, set(v) { stage[name] = v; },
@@ -699,7 +771,7 @@ class App {
         // Its hooks are the stage's, not this app's.
         var method = (name, fn) => Object.defineProperty(block, name, { value: fn, writable: true, configurable: true });
         method('getGroupIdsForPeriod', function(period) {
-            if (typeof stage.getGroupIdsForPeriod === 'function') {
+            if (own('getGroupIdsForPeriod')) {
                 return stage.getGroupIdsForPeriod(period);
             }
             if (regroups()) {
@@ -707,15 +779,12 @@ class App {
             }
             return this.playingGroupIds();
         });
-        for (const hook of ['periodStart', 'periodEnd']) {
-            method(hook, function(period) {
-                if (typeof stage[hook] === 'function') {
-                    stage[hook](period);
+        for (const hook of ['appStart', 'end', 'periodStart', 'periodEnd', 'participantStart', 'participantEnd']) {
+            method(hook, function(...args) {
+                if (own(hook)) {
+                    stage[hook](...args);
                 }
             });
-        }
-        for (const hook of ['appStart', 'end', 'participantStart', 'participantEnd']) {
-            method(hook, function() {});
         }
         return block;
     }
@@ -768,6 +837,29 @@ class App {
             return this.parentPeriod.app.hostApp();
         }
         return this;
+    }
+
+    /**
+     * For an app within a stage that participants have left before its end (see
+     * Participant#leaveRun): its groups that were waiting for them go on.
+     */
+    pokeGroups() {
+        for (const period of this.periods) {
+            for (const group of period.groups) {
+                const stage = group.stage();
+                if (stage == null) {
+                    continue;
+                }
+                const index = stage.indexInApp();
+                if (group.stageStartedIndex >= index) {
+                    if (group.stageEndedIndex < index) {
+                        group.endStage(stage);
+                    }
+                } else if (group.players.some((p) => p.stageIndex === index && p.status === 'ready' && !group.hasLeft(p))) {
+                    group.startStage(stage);
+                }
+            }
+        }
     }
 
     /** The app of the session this app is in, through the stages it is within; or this app. */
@@ -1687,6 +1779,7 @@ class App {
         if (id == null) {
             id = 'stage' + (this.stages.length + 1);
         }
+        var Stage = require('./Stage.js');
         var stage = new Stage.new(id, this);
         this.stages.push(stage);
         return stage;
@@ -1804,12 +1897,23 @@ class App {
 
         let duration = this.getParticipantDuration(participant);
         if (duration != null) {
-            participant.appTimer = new Timer.new(
-                function() {
-                    participant.session.addMessageToStartOfQueue(participant, {}, 'endCurrentApp');
-                },
-                duration*1000
-            );
+            if (this.parentPeriod != null) {
+                // An app within a stage (see Participant#enterRun): they leave it when time is up.
+                var run = this;
+                participant.frames[participant.frames.length - 1].timer = new Timer.new(
+                    function() {
+                        participant.session.addMessageToStartOfQueue(participant, run, 'leaveRun');
+                    },
+                    duration*1000
+                );
+            } else {
+                participant.appTimer = new Timer.new(
+                    function() {
+                        participant.session.addMessageToStartOfQueue(participant, {}, 'endCurrentApp');
+                    },
+                    duration*1000
+                );
+            }
         }
         this.participantStart(participant);
         this.participantMoveToNextPeriod(participant);
@@ -1975,7 +2079,7 @@ class App {
      */
     roomId() {
         if (this.parentPeriod != null) {
-            return this.parentPeriod.roomId() + '_stage_' + this.parentStage.id;
+            return this.parentPeriod.roomId() + '_stage_' + this.parentStage.indexInApp();
         }
         return this.session.roomId() + '_app_' + this.indexInSession() + '-' + this.id;
     }
@@ -2190,5 +2294,6 @@ class App {
 
 var exports = module.exports = {};
 exports.new = App;
+exports.AS_STAGE = AS_STAGE;
 exports.load = App.load;
 exports.newSansId = App.newSansId;

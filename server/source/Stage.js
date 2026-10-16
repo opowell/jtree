@@ -2,11 +2,15 @@
 
 const Timer = require('./Timer.js');
 const Utils     = require('./Utils.js');
+const App       = require('./App.js');
 
 /**
- * A stage of an {@link App}.
+ * A stage of an {@link App}. A stage is an app: one shown on a screen (activeScreen), or one
+ * with stages of its own (see newStage), or an app's file (see App#addApp), played as a step
+ * of its app. It has an app's members (newStage, addApp, numPeriods, groupSize, the hooks,
+ * ...), and what it does not set is its app's.
  */
-class Stage {
+class Stage extends App.new {
 
     /*
      * constructor - description
@@ -17,6 +21,8 @@ class Stage {
      */
     // constructor(name: string, app: App) {
     constructor(name, app) {
+        // Not an app's defaults: what a stage does not set is its app's.
+        super(null, null, null, App.AS_STAGE);
 
         /**
          * for display only, should be unique.
@@ -249,7 +255,7 @@ class Stage {
         if (this.waitForAllGroups && !group.period.allGroupsStarted.includes(this.indexInApp())) {
             for (const g of group.period.groups) {
                 for (const player of g.players) {
-                    if (player.stageIndex !== this.indexInApp() || player.status !== 'ready') {
+                    if ((player.stageIndex !== this.indexInApp() || player.status !== 'ready') && !g.hasLeft(player)) {
                         return false;
                     }
                 }
@@ -260,7 +266,7 @@ class Stage {
             // If any player is 1) not "ready" or 2) not in this stage, then return false.
             for (var p in group.players) {
                 var player = group.players[p];
-                if (player.stageIndex !== this.indexInApp() || player.status !== 'ready') {
+                if ((player.stageIndex !== this.indexInApp() || player.status !== 'ready') && !group.hasLeft(player)) {
                     return false;
                 }
             }
@@ -292,11 +298,12 @@ class Stage {
     /**
      * Adds the app in file as a stage within this stage (see newStage, App#addApp).
      * @param {string} file The app's file, or folder, relative to this stage's app's folder.
+     * @param {Object} [options] The app's option values.
      * @param {string} [id] The id of the stage; by default, the app's.
      * @return {Stage} The new stage.
      */
-    addApp(file, id) {
-        return this.blockApp().addApp(file, id);
+    addApp(file, options, id) {
+        return this.blockApp().addApp(file, options, id);
     }
 
     /** The app this stage's stages are in (see App#newBlock), made the first time it is asked for. */
@@ -337,7 +344,7 @@ class Stage {
         }
         const index = this.indexInApp();
         if (period.runs[index] == null) {
-            const run = this.appFile != null ? this.app.loadAppFile(this.appFile) : Object.create(this.subApp);
+            const run = this.appFile != null ? this.app.loadAppFile(this.appFile, this.appOptions) : Object.create(this.subApp);
             run.parentStage = this;
             run.parentPeriod = period;
             run.periods = [];
@@ -442,12 +449,21 @@ class Stage {
     playerStart(player) {}
 
     /**
-     * session - description
-     *
-     * @return {type}  description
+     * The session of this stage's app.
+     * @type {Session}
      */
-    session() {
+    get session() {
         return this.app.session;
+    }
+
+    /** The jtree of this stage's app. */
+    get jt() {
+        return this.app.jt;
+    }
+
+    /** The file of this stage's app. */
+    get appPath() {
+        return this.app.appPath;
     }
 
     outputFields() {
@@ -522,10 +538,10 @@ class Stage {
      */
     save() {
         try {
-            this.session().jt.log('Stage.save: ' + this.id);
+            this.session.jt.log('Stage.save: ' + this.id);
             var toSave = this.shell();
     //        Utils.writeJSON(this.getOutputDir() + this.indexInApp() + '_' + this.id + '.json', toSave);
-            this.session().saveDataFS(toSave, 'STAGE');
+            this.session.saveDataFS(toSave, 'STAGE');
         } catch (err) {
             console.log('Error saving stage ' + this.id + ': ' + err);
         }

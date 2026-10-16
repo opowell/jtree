@@ -251,3 +251,102 @@ test('an IR with the same stage id inside a stage and out is refused', () => {
     const problems = validate({ ir: 1, stages: [{ id: 'a', stages: [{ id: 'b' }] }, { id: 'b' }] });
     assert.deepEqual(problems, ['app.stages[1].id: "b" is used by an earlier stage']);
 });
+
+test('a stage is an app: it has an app\'s members, and its session is its app\'s', () => {
+    const App = require('../source/App.js').new;
+    const loaded = server.jt.data.loadApp('x', {}, server.writeApp('is-app.jtt', `app.newStage('s');`), {});
+    const stage = loaded.stages[0];
+    assert.ok(stage instanceof App);
+    assert.equal(typeof stage.newStage, 'function');
+    assert.equal(typeof stage.addApp, 'function');
+    assert.equal(stage.session, loaded.session);
+    // Nothing of an app's in its data.
+    assert.deepEqual(Object.keys(stage.shell()).filter(k => ['numPeriods', 'html', 'periods', 'session'].includes(k)), []);
+});
+
+test('a queue is an app whose stages are its apps, with their options; added as a stage, it is played as one', async () => {
+    server.writeApp('queued/part.jtt', `
+        app.addNumberOption('bonus', 1, 0, 10, 1, 'Bonus');
+        const s = app.newStage('work');
+        s.playerEnd = function(player) { player.points = app.bonus; };
+    `);
+    server.writeApp('queued/two.jtq', `
+        session.addApp('part.jtt', {bonus: 5});
+        session.addApp('part.jtt', {bonus: 7});
+    `);
+    const session = server.createSession(server.writeApp('queued/main.jtt', `
+        app.newStage('intro');
+        app.addApp('two.jtq', 'parts');
+        app.newStage('outro');
+    `), { numParticipants: 2 });
+    const app = session.apps[0];
+    assert.deepEqual(app.stages.map(s => s.id), ['intro', 'parts', 'outro']);
+    assert.deepEqual(app.stages[1].stages.map(s => [s.id, s.appOptions]), [['part', { bonus: 5 }], ['part_2', { bonus: 7 }]]);
+    const bots = await server.connectAll(session);
+    session.start();
+    await Promise.all(bots.map(b => b.play('intro', {})));
+    await Promise.all(bots.map(b => b.play('work', {})));
+    await Promise.all(bots.map(b => b.waitFor(() => b.player.app().bonus === 7, { what: 'the second part' })));
+    await Promise.all(bots.map(b => b.play('work', {})));
+    await Promise.all(bots.map(b => b.play('outro', {})));
+    await Promise.all(bots.map(b => b.waitForEnd()));
+    for (const bot of bots) assert.equal(bot.participant.points(), 12);
+});
+
+test('what an app\'s file sets of a stage\'s settings is its stage\'s, when it is added as a stage', async () => {
+    server.writeApp('settings/quiz.jtt', `
+        app.waitToEnd = false;
+        app.stageWaitToEnd = false;
+        app.groupStart = function(group) { group.quizStarted = (group.quizStarted || 0) + 1; };
+        app.newStage('q');
+    `);
+    const session = server.createSession(server.writeApp('settings/main.jtt', `
+        app.groupSize = 2;
+        app.addApp('quiz.jtt');
+        const later = app.addApp('quiz.jtt', 'quiz2');
+        later.waitToEnd = true;
+        app.newStage('end');
+    `), { numParticipants: 2 });
+    const [quiz, quiz2] = session.apps[0].stages;
+    assert.equal(quiz.waitToEnd, false);
+    assert.equal(quiz2.waitToEnd, true);
+    const bots = await server.connectAll(session);
+    session.start();
+    // Without waiting for the other, P1 goes on from the quiz, to wait at the next.
+    await bots[0].play('q', {});
+    await bots[0].waitFor(() => bots[0].player.stage.id === 'quiz2', { what: 'to be past the quiz' });
+    await bots[1].play('q', {});
+    const inQuiz2 = (b) => b.participant.frames.length > 0 && b.participant.frames[0].player.stage.id === 'quiz2' && b.stageId === 'q';
+    await Promise.all(bots.map(b => b.waitFor(() => inQuiz2(b), { what: 'to play quiz2' })));
+    await Promise.all(bots.map(b => b.play('q', {})));
+    await Promise.all(bots.map(b => b.play('end', {})));
+    await Promise.all(bots.map(b => b.waitForEnd()));
+    assert.equal(session.apps[0].periods[0].groups[0].quizStarted, 2);
+});
+
+test('a stage with stages and a duration: when the group\'s time is up, its players leave its stages', async () => {
+    const session = server.createSession(server.writeApp('timed-block.jtt', `
+        app.log = [];
+        const rounds = app.newStage('rounds');
+        rounds.numPeriods = 3;
+        rounds.duration = 1;
+        rounds.participantStart = function(participant) { app.log.push('in ' + participant.id); };
+        rounds.participantEnd = function(participant) { app.log.push('out ' + participant.id); };
+        rounds.newStage('decide');
+        app.newStage('after');
+    `), { numParticipants: 2 });
+    const bots = await server.connectAll(session);
+    session.start();
+    await Promise.all(bots.map(b => b.play('decide', {}, { period: 1 })));
+    // Nobody plays round 2: the time is up.
+    await Promise.all(bots.map(b => b.waitForStage('after', { timeout: 4000 })));
+    const app = session.apps[0];
+    for (const bot of bots) {
+        assert.equal(bot.participant.frames.length, 0);
+        assert.equal(bot.players(app)[0].timedOut, false);
+        assert.equal(bot.players(app)[0].timedOut_rounds, true);
+    }
+    assert.deepEqual(app.log.slice().sort(), ['in P1', 'in P2', 'out P1', 'out P2']);
+    await Promise.all(bots.map(b => b.play('after', {})));
+    await Promise.all(bots.map(b => b.waitForEnd()));
+});

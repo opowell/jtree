@@ -96,8 +96,11 @@ When the participant has played the last stage of the last period of the app wit
 - The app's `participantEnd(participant)` is called; it ends once everyone of its period who plays the stage has left it.
 - The participant's player is the one they kept again; that player ends the stage (see player attempts to end a stage).
 
+When the stage's time is up (its `duration` for the group, or `clientDuration` for the player), the participant leaves it the same way, from wherever they are in its stages ([`Participant.leaveRun(run)`]{@link Participant#leaveRun}); groups of its stages that were waiting for them go on without them.
+
 DUE TO:
 - player ends a stage.
+- the stage's time is up.
 
 ### Group wraps up a stage
 - For each player in the group, the player attempts to end this stage.
