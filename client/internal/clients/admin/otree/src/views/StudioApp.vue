@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
+import CodeEditor from '../components/CodeEditor.vue'
 import { FIELD_ARGS, FIELD_TYPES, KNOWN_FUNCTIONS, PAGE_METHODS, WAIT_PAGE_METHODS, choicesCode, choicesLines, pyList, pyQuote, pyString, studio } from '../studio'
 import type { AppEdit, AppModel, Field, Fn, PageInfo, Template } from '../studio'
 
@@ -271,8 +272,8 @@ function methodDraft(p: PageInfo, m: Fn): string {
   const k = methodKey(p, m)
   return methodDrafts[k] ?? m.body
 }
-function onMethodInput(p: PageInfo, m: Fn, e: Event) {
-  methodDrafts[methodKey(p, m)] = (e.target as HTMLTextAreaElement).value
+function onMethodInput(p: PageInfo, m: Fn, text: string) {
+  methodDrafts[methodKey(p, m)] = text
 }
 async function saveMethod(p: PageInfo, m: Fn) {
   const k = methodKey(p, m)
@@ -296,22 +297,13 @@ function tpl(p: PageInfo): { title: string, content: string } | { text: string }
 const tplTitle = (p: PageInfo) => { const t = tpl(p); return t && 'title' in t ? t.title : '' }
 const tplContent = (p: PageInfo) => { const t = tpl(p); return t && 'content' in t ? t.content : '' }
 const tplText = (p: PageInfo) => { const t = tpl(p); return t && 'text' in t ? t.text : null }
-function setTpl(p: PageInfo, part: 'title' | 'content' | 'text', e: Event) {
-  const v = (e.target as HTMLTextAreaElement).value
+function setTpl(p: PageInfo, part: 'title' | 'content' | 'text', e: Event | string) {
+  const v = typeof e === 'string' ? e : (e.target as HTMLInputElement).value
   if (part === 'text') changedTemplates[p.name] = { text: v }
   else changedTemplates[p.name] = { title: part === 'title' ? v : tplTitle(p), content: part === 'content' ? v : tplContent(p) }
 }
 function createTemplate(p: PageInfo) {
   changedTemplates[p.name] = { title: p.name, content: '{{ formfields }}\n{{ next_button }}' }
-}
-
-function tab(e: KeyboardEvent) {
-  if (e.key !== 'Tab' || e.shiftKey) return
-  e.preventDefault()
-  const area = e.target as HTMLTextAreaElement
-  const { selectionStart: s, selectionEnd: t } = area
-  area.setRangeText('    ', s, t, 'end')
-  area.dispatchEvent(new Event('input'))
 }
 
 // Ctrl+S saves, wherever the focus is (the page is the studio's).
@@ -463,14 +455,14 @@ onUnmounted(() => window.removeEventListener('keydown', keys))
               <pre v-if="fnForm?.original !== f.name" class="small mb-0 mt-2 text-body-secondary studio__pre">{{ f.body }}</pre>
               <form v-else class="mt-2" @submit.prevent="saveFunction">
                 <div class="input-group input-group-sm mb-2 font-monospace"><span class="input-group-text">def</span><input v-model="fnForm.name" class="form-control" aria-label="Name"><span class="input-group-text">(</span><input v-model="fnForm.params" class="form-control" aria-label="Parameters"><span class="input-group-text">):</span></div>
-                <textarea v-model="fnForm.body" class="form-control form-control-sm font-monospace" rows="8" spellcheck="false" aria-label="Body" @keydown="tab" />
+                <CodeEditor v-model="fnForm.body" language="python" label="Body" :min-lines="8" />
                 <div class="mt-2 d-flex gap-2"><button class="btn btn-sm btn-primary">OK</button><button type="button" class="btn btn-sm btn-outline-secondary" @click="fnForm = null">Cancel</button></div>
               </form>
             </div>
           </div>
           <form v-if="fnForm && fnForm.original == null" class="card card-body mb-2" @submit.prevent="saveFunction">
             <div class="input-group input-group-sm mb-2 font-monospace"><span class="input-group-text">def</span><input v-model="fnForm.name" class="form-control" aria-label="Name" required><span class="input-group-text">(</span><input v-model="fnForm.params" class="form-control" aria-label="Parameters"><span class="input-group-text">):</span></div>
-            <textarea v-model="fnForm.body" class="form-control form-control-sm font-monospace" rows="8" spellcheck="false" aria-label="Body" @keydown="tab" />
+            <CodeEditor v-model="fnForm.body" language="python" label="Body" :min-lines="8" />
             <div class="mt-2 d-flex gap-2"><button class="btn btn-sm btn-primary">OK</button><button type="button" class="btn btn-sm btn-outline-secondary" @click="fnForm = null">Cancel</button></div>
           </form>
           <div v-if="!fnForm" class="d-flex gap-2 flex-wrap">
@@ -502,13 +494,13 @@ onUnmounted(() => window.removeEventListener('keydown', keys))
                 </template>
                 <template v-else-if="tplText(page) != null">
                   <p class="small text-body-secondary">This template has no title and content blocks; it is edited as it is.</p>
-                  <textarea class="form-control form-control-sm font-monospace" rows="12" spellcheck="false" :value="tplText(page) ?? ''" aria-label="Template" @input="setTpl(page, 'text', $event)" />
+                  <CodeEditor :model-value="tplText(page) ?? ''" language="html" label="Template" :min-lines="12" @update:model-value="(v) => setTpl(page, 'text', v)" />
                 </template>
                 <template v-else>
                   <label class="form-label small" :for="`tt-${page.name}`">Title</label>
                   <input :id="`tt-${page.name}`" class="form-control form-control-sm mb-2" :value="tplTitle(page)" @input="setTpl(page, 'title', $event)">
                   <label class="form-label small" :for="`tc-${page.name}`">Content <span class="text-body-secondary">(HTML, with <code v-pre>{{ formfields }}</code>, <code v-pre>{{ next_button }}</code>, <code v-pre>{{ player.payoff }}</code>)</span></label>
-                  <textarea :id="`tc-${page.name}`" class="form-control form-control-sm font-monospace" rows="10" spellcheck="false" :value="tplContent(page)" @input="setTpl(page, 'content', $event)" @keydown="tab" />
+                  <CodeEditor :id="`tc-${page.name}`" :model-value="tplContent(page)" language="html" label="Content" :min-lines="10" @update:model-value="(v) => setTpl(page, 'content', v)" />
                 </template>
               </div>
             </div>
@@ -581,7 +573,7 @@ onUnmounted(() => window.removeEventListener('keydown', keys))
                   <code class="flex-grow-1">{{ m.decorators.includes('staticmethod') ? '@staticmethod ' : '' }}def {{ m.name }}({{ m.params.join(', ') }}):</code>
                   <button class="btn btn-sm btn-outline-danger" :aria-label="`Remove ${m.name}`" @click="edit({ op: 'removePageMethod', page: page.name, name: m.name })">✕</button>
                 </div>
-                <textarea class="form-control form-control-sm font-monospace" :rows="Math.min(16, methodDraft(page, m).split('\n').length + 1)" spellcheck="false" :value="methodDraft(page, m)" :aria-label="m.name" @input="onMethodInput(page, m, $event)" @blur="saveMethod(page, m)" @keydown="tab" />
+                <CodeEditor :model-value="methodDraft(page, m)" language="python" :label="m.name" :min-lines="Math.min(16, methodDraft(page, m).split('\n').length + 1)" @update:model-value="(v) => onMethodInput(page, m, v)" @blur="saveMethod(page, m)" @commit="saveMethod(page, m)" />
               </div>
               <div class="d-flex gap-2 flex-wrap">
                 <button v-for="n in missingMethods(page)" :key="n" class="btn btn-sm btn-outline-secondary font-monospace" @click="addMethod(page, n)">+ {{ n }}</button>
@@ -597,7 +589,7 @@ onUnmounted(() => window.removeEventListener('keydown', keys))
             <button class="btn btn-sm btn-outline-primary" :disabled="codeDraft === source" @click="applyCode">Apply</button>
           </div>
           <p class="small text-body-secondary">The app's code. Apply reads it again into the other parts.</p>
-          <textarea v-model="codeDraft" class="form-control font-monospace small" rows="30" spellcheck="false" aria-label="__init__.py" @keydown="tab" />
+          <CodeEditor v-model="codeDraft" language="python" label="__init__.py" :min-lines="30" :max-lines="60" @commit="applyCode" />
         </template>
       </section>
     </div>

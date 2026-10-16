@@ -121,8 +121,14 @@ SECRET_KEY = 'x'
             await page.waitFor(() => document.querySelector('.ed__mode'), { what: 'the editor' });
             const src = fs.readFileSync(path.join(apps, '1 sample games/public-good.jtt'), 'utf8').replace(/^app\.description = .*\n\n/, "app.description = 'A public goods game.';\n\n");
             await clickText(page, '.ed__mode', '^Source$');
-            await page.waitFor(() => document.querySelector('.ed__source'), { what: 'source' });
-            await fill(page, '.ed__source', src);
+            await page.waitFor(() => Boolean(document.querySelector('.ed__main .cm-editor')), { what: 'source' });
+            // Source is CodeMirror: its text is set through its view.
+            await page.eval(async (text) => {
+                const { EditorView } = await import('/shared/codemirror-6.43.14/codemirror.js');
+                const view = EditorView.findFromDOM(document.querySelector('.ed__main .cm-editor'));
+                view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: text } });
+                return true;
+            }, src);
             await clickText(page, '.btn', '^Apply$');
             await sleep(800);
             await clickText(page, '.btn', '^Save$');
@@ -131,6 +137,16 @@ SECRET_KEY = 'x'
             await clickText(page, '.ed__mode', '^Forms$');
             await page.waitFor(() => document.querySelector('.ed__nav'), { what: 'the forms' });
             await clickText(page, '.ed__link', 'decide');
+            // Code fields colour their text once it is parsed, which headless Chrome can put off.
+            await page.eval(async () => {
+                const { EditorView, ensureSyntaxTree } = await import('/shared/codemirror-6.43.14/codemirror.js');
+                for (const el of document.querySelectorAll('.cm-editor')) {
+                    const view = EditorView.findFromDOM(el);
+                    if (ensureSyntaxTree(view.state, view.state.doc.length, 10000)) view.dispatch({});
+                }
+                return true;
+            });
+            await sleep(300);
             await shot(page, 'editor-forms', { x: 0, y: 0, width: 508, height: 813 });
             // Structured: the tree, the decide stage's number input chosen in it.
             await clickText(page, '.ed__mode', '^Structured$');

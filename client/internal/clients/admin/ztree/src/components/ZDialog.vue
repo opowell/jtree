@@ -50,6 +50,8 @@ function drag(event: PointerEvent) {
 
 function keydown(event: KeyboardEvent) {
   event.stopPropagation()
+  // A code field (CodeMirror) has used the key already: Enter for a new line, Escape to close its search.
+  if (event.defaultPrevented) return
   if (event.key === 'Escape') {
     event.preventDefault()
     emit('cancel')

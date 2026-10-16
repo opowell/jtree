@@ -19,6 +19,7 @@ function storedMode(): Mode {
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import AppTree from '../components/AppTree.vue'
+import CodeEditor from '../components/CodeEditor.vue'
 import ConfirmButton from '../components/ConfirmButton.vue'
 import ValueField from '../components/ValueField.vue'
 import { state } from '../server/connection'
@@ -302,13 +303,6 @@ async function deleteStage(name: string) {
   selected.value = 'settings'
 }
 
-function sourceKey(event: KeyboardEvent) {
-  if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
-    event.preventDefault()
-    void applySource()
-  }
-}
-
 /*
  * Ctrl+S saves this app, and Ctrl+Z / Ctrl+Shift+Z (Ctrl+Y) undo and redo its changes (outside
  * text fields, which undo their own typing): when the focus is in this panel, or when it was the
@@ -324,7 +318,7 @@ function keys(event: KeyboardEvent) {
   const here = pane.value?.contains(active) || ((!active || active === document.body) && lastUsed === props.panelId)
   if (!here || !path.value) return
   if (key !== 's') {
-    if (active && /^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName)) return
+    if (active && (/^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName) || (active as HTMLElement).isContentEditable)) return
     event.preventDefault()
     void (key === 'z' && !event.shiftKey ? undo() : redo())
     return
@@ -376,13 +370,13 @@ onUnmounted(() => window.removeEventListener('keydown', keys))
       <p v-if="problem" class="ed__problem" role="alert">{{ problem }}</p>
       <p v-if="loading" class="hint">Opening…</p>
 
-      <div v-if="model && mode === 'source'" class="ed__main">
+      <div v-if="model && mode === 'source'" class="ed__main ed__main--source">
         <div class="toolbar">
           <p class="hint" style="margin: 0 auto 0 0">The whole file. Apply (Ctrl+Enter) reads it again into the other modes.</p>
           <button type="button" class="btn" :disabled="sourceDraft === source || busy" title="Ctrl+Enter" @click="applySource">Apply</button>
         </div>
         <p v-if="model.error" class="ed__problem">The source does not parse (line {{ model.error.line }}): {{ model.error.message }}.</p>
-        <textarea v-model="sourceDraft" class="field dc-mono ed__source" spellcheck="false" aria-label="Source" @keydown="sourceKey" />
+        <CodeEditor v-model="sourceDraft" fill label="Source" @commit="applySource" />
       </div>
 
       <p v-else-if="model && model.error" class="ed__problem">The source does not parse (line {{ model.error.line }}): {{ model.error.message }}. Fix it in Source.</p>
@@ -506,9 +500,9 @@ onUnmounted(() => window.removeEventListener('keydown', keys))
 .ed__add { display: flex; gap: 4px; margin-top: 4px; }
 .ed__add .field { flex: 1 1 auto; width: 0; }
 .ed__main { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.ed__main--source { flex: 1 1 auto; min-height: 0; }
 .ed__title { margin: 0; font-size: var(--dc-text-title); font-weight: var(--dc-weight-semibold); }
 .ed__adder { align-self: flex-start; }
-.ed__source { width: 100%; box-sizing: border-box; min-height: 420px; flex: 1 1 auto; font-size: var(--dc-text-code); line-height: 1.45; tab-size: 4; resize: vertical; }
 @media (max-width: 640px) {
   .ed__body { grid-template-columns: 1fr; }
   .ed__nav { border-right: 0; border-bottom: 1px solid var(--dc-line); padding: 0 0 10px; }

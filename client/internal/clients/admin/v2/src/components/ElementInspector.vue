@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import CodeEditor from './CodeEditor.vue'
 import { COMMON_FIELDS, attr, fieldsOf, hasTextContent, kindOf, outdented } from '../elements'
 import type { Field } from '../elements'
 import type { ScreenEdit, ScreenNode } from '../server/editor'
@@ -83,7 +84,6 @@ function key(event: KeyboardEvent, commit: () => void) {
   }
 }
 const textKey = (event: KeyboardEvent) => key(event, commitText)
-const htmlKey = (event: KeyboardEvent) => key(event, commitHtml)
 
 const rows = (s: string, min: number) => Math.min(16, Math.max(min, s.split('\n').length + 1))
 const choicesFor = (f: Field) => {
@@ -103,7 +103,8 @@ const fieldId = (f: Field) => `el-${f.attr}`
     <!-- Its text: an element's content (when it is only text), a text's, a comment's. -->
     <div v-if="!isElement || hasTextContent(node) || node.tag === 'script' || node.tag === 'style'" class="option">
       <label for="el-text">{{ node.tag === 'script' ? 'Code' : node.tag === 'style' ? 'CSS' : node.type === 'comment' ? 'Comment' : 'Text' }}</label>
-      <textarea id="el-text" v-model="text" class="field el__area" :class="{ 'dc-mono': node.tag === 'script' || node.tag === 'style' }" :rows="rows(text, 2)" spellcheck="false" @blur="commitText" @keydown="textKey" />
+      <CodeEditor v-if="node.tag === 'script' || node.tag === 'style'" v-model="text" :language="node.tag === 'script' ? 'javascript' : 'css'" :label="node.tag === 'script' ? 'Code' : 'CSS'" :min-lines="rows(text, 2)" @blur="commitText" @commit="commitText" />
+      <textarea v-else id="el-text" v-model="text" class="field el__area" :rows="rows(text, 2)" spellcheck="false" @blur="commitText" @keydown="textKey" />
       <p v-if="isElement && node.tag !== 'script' && node.tag !== 'style'" class="hint">HTML; <code v-pre>{{player.x}}</code> shows a value.</p>
     </div>
 
@@ -134,7 +135,7 @@ const fieldId = (f: Field) => `el-${f.attr}`
 
     <details class="el__html">
       <summary class="dc-eyebrow">HTML</summary>
-      <textarea v-model="html" class="field dc-mono el__area" :rows="rows(html, 3)" spellcheck="false" aria-label="The element's HTML" @keydown="htmlKey" />
+      <CodeEditor v-model="html" language="html" label="The element's HTML" :min-lines="rows(html, 3)" :max-lines="16" :line-numbers="false" @commit="commitHtml" />
       <div class="toolbar"><button type="button" class="btn btn--small" :disabled="html === written || busy" title="Ctrl+Enter" @click="commitHtml">Apply</button></div>
     </details>
   </div>

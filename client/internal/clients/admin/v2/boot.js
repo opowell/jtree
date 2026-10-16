@@ -5,6 +5,7 @@
 import * as Vue from 'vue'
 import * as Layout from 'header-content-layout'
 import { loadModule } from 'vue3-sfc-loader'
+import * as CodeMirror from 'codemirror'
 
 const CACHE_PREFIX = 'jtree-admin2-compiled:'
 
@@ -40,6 +41,7 @@ const options = {
   // Libraries come from the import map (index.html) and the page's scripts, not from src/.
   moduleCache: {
     'vue': Vue,
+    'codemirror': CodeMirror,
     'header-content-layout': Layout,
     'socket.io-client': { io: window.io },
     'circular-json': window.CircularJSON,

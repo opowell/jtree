@@ -3,6 +3,7 @@
 // localStorage, keyed by their source.
 import * as Vue from 'vue'
 import { loadModule } from 'vue3-sfc-loader'
+import * as CodeMirror from 'codemirror'
 
 const CACHE_PREFIX = 'jtree-admin-otree-compiled:'
 
@@ -31,7 +32,7 @@ const compiledCache = {
 }
 
 const options = {
-  moduleCache: { 'vue': Vue, 'socket.io-client': { io: window.io } },
+  moduleCache: { 'vue': Vue, 'codemirror': CodeMirror, 'socket.io-client': { io: window.io } },
   // Imports in src/ leave out the extension of TypeScript modules.
   async getFile(url) {
     const type = /\.[a-z]+$/i.test(url) ? undefined : '.ts'

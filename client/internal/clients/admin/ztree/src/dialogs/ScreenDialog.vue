@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import CodeEditor from '../components/CodeEditor.vue'
 import ZDialog from '../components/ZDialog.vue'
 import { setSource } from '../treatment/docs'
 import type { TreatmentDoc } from '../treatment/docs'
@@ -48,7 +49,7 @@ function ok() {
       <label>Name</label>
       <input class="zt-field" :value="node.label" readonly>
       <label for="screen-html" class="zt-form__top">HTML</label>
-      <textarea v-if="!expression" id="screen-html" v-model="html" class="zt-field" rows="20" spellcheck="false" :readonly="!editable" :placeholder="node.kind === 'waiting' ? 'Empty: the background\'s waiting screen is shown.' : ''" />
+      <CodeEditor v-if="!expression" id="screen-html" v-model="html" language="html" label="HTML" :read-only="!editable" :placeholder="node.kind === 'waiting' ? 'Empty: the background\'s waiting screen is shown.' : ''" :min-lines="20" :max-lines="36" />
       <p v-else class="zt-hint">This screen is built by code: <code>{{ expression }}</code>. Change it in the treatment's file.</p>
     </div>
     <p class="zt-hint">

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import CodeEditor from './CodeEditor.vue'
 import type { Value } from '../server/editor'
 
 /*
@@ -28,6 +29,7 @@ function dedent(text: string): string {
   return lines.map((l) => l.slice(cut)).join('\n')
 }
 
+const code = computed(() => props.value.kind !== 'string')
 const multiline = computed(() => ['text', 'function', 'code'].includes(props.value.kind) || (props.value.kind === 'string' && (draft.value.length > 60 || props.name === 'description')))
 const rows = computed(() => Math.min(24, Math.max(props.value.kind === 'string' ? 2 : 4, draft.value.split('\n').length + 1)))
 const signature = computed(() => `function(${(props.value.params ?? []).join(', ')}) {`)
@@ -55,17 +57,11 @@ function toggle(event: Event) {
   emit('set', { kind: 'boolean', value: (event.target as HTMLInputElement).checked })
 }
 
-/** Tab indents in code; Ctrl+Enter sets. */
+/** Ctrl+Enter sets. */
 function key(event: KeyboardEvent) {
-  const area = event.target as HTMLTextAreaElement
   if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
     event.preventDefault()
     commit()
-  } else if (event.key === 'Tab' && !event.shiftKey && props.value.kind !== 'string') {
-    event.preventDefault()
-    const { selectionStart: s, selectionEnd: e } = area
-    draft.value = draft.value.slice(0, s) + '    ' + draft.value.slice(e)
-    requestAnimationFrame(() => area.setSelectionRange(s + 4, s + 4))
   }
 }
 
@@ -88,7 +84,8 @@ const previewDoc = computed(() => `<!doctype html><meta charset="utf-8"><style>b
     <input v-else-if="!multiline" :id="`vf-${name}`" v-model="draft" class="field" type="text" @change="commit">
     <template v-else>
       <div v-if="value.kind === 'function'" class="vf__sig dc-mono">{{ signature }}</div>
-      <textarea :id="`vf-${name}`" v-model="draft" class="field vf__area" :class="{ 'dc-mono': value.kind !== 'string' }" :rows="rows" spellcheck="false" @blur="commit" @keydown="key" />
+      <CodeEditor v-if="code" v-model="draft" :language="value.kind === 'text' ? 'html' : 'javascript'" :label="name" :min-lines="rows - 1" @blur="commit" @commit="commit" />
+      <textarea v-else :id="`vf-${name}`" v-model="draft" class="field vf__area" :rows="rows" spellcheck="false" @blur="commit" @keydown="key" />
       <div v-if="value.kind === 'function'" class="vf__sig dc-mono">}</div>
       <iframe v-if="preview && value.kind === 'text'" class="vf__preview" sandbox="" :srcdoc="previewDoc" title="Screen preview" />
     </template>
@@ -101,7 +98,7 @@ const previewDoc = computed(() => `<!doctype html><meta charset="utf-8"><style>b
 .vf__name { font-weight: var(--dc-weight-semibold); }
 .vf__kind { font-size: var(--dc-text-meta); }
 .vf__head .btn:first-of-type { margin-left: auto; }
-.vf__area { width: 100%; box-sizing: border-box; resize: vertical; font-size: var(--dc-text-code); line-height: 1.45; tab-size: 4; }
+.vf__area { width: 100%; box-sizing: border-box; resize: vertical; line-height: 1.45; }
 .vf__sig { font-size: var(--dc-text-code); color: var(--dc-fg-2); }
 .vf__preview { width: 100%; min-height: 140px; border: 1px solid var(--dc-line); border-radius: var(--dc-radius-sm); background: #fff; }
 </style>

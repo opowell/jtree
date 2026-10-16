@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import CodeEditor from '../components/CodeEditor.vue'
 import ZDialog from '../components/ZDialog.vue'
 import { messageBox } from '../dialogs'
 import { findNode, setSource } from '../treatment/docs'
@@ -104,7 +105,7 @@ async function ok() {
       <label>Condition</label>
       <input class="zt-field" disabled>
       <label for="prog-code" class="zt-form__top">Program</label>
-      <textarea id="prog-code" v-model="code" class="zt-field" rows="16" spellcheck="false" :readonly="readOnly" />
+      <CodeEditor id="prog-code" v-model="code" label="Program" :read-only="readOnly" :min-lines="16" :max-lines="30" />
     </div>
     <p v-if="hook" class="zt-hint">
       jtree: <code>{{ stage?.varName ?? node?.stageVar }}.{{ hook }} = function({{ parameter }}) { … }</code>

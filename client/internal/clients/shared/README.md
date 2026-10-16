@@ -12,6 +12,7 @@ version is added next to the old one.
 | `vue-3.5.43/` | Vue 3.5.43 (ES module builds) | Used by the admin interfaces (admin/v2, admin/ztree) |
 | `vue3-sfc-loader-0.9.5/` | vue3-sfc-loader 0.9.5 | Compiles the admin interfaces' `.vue` and `.ts` files in the browser |
 | `header-content-layout-0.56.0/` | appfr 0.56.0 | Menu bar, windows and data shell of the admin interfaces (admin/v2, admin/ztree) |
+| `codemirror-6.43.14/` | CodeMirror 6 (@codemirror/view 6.43.14; the other packages' versions are in the file's first line) | The admins' code fields, one ES module with `codeEditor()`; built by `build-tools/codemirror/` |
 | `acorn-8.18.0/` | acorn 8.18.0 | JavaScript parser; admin/ztree reads apps' source with it |
 | `circular-json-0.5.9.min.js` | circular-json 0.5.9 | Reads the circular data the server sends admins |
 | `jquery-1.11.1.js` | jQuery 1.11.1 | Old; kept for apps that load it themselves |

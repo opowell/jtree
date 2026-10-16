@@ -2,7 +2,8 @@
 
 Served at `/admin/otree/` under jtree's route: an admin for people who know oTree, built like
 [admin2](../v2/README.md) (Vue single-file components compiled in the browser by `boot.js`; no
-build step) with Bootstrap 5.
+build step) with Bootstrap 5. The Studio's code fields (functions, methods, templates, `__init__.py`,
+`settings.py`) are CodeMirror 6 (`/shared/codemirror-6.43.14/`), in `src/components/CodeEditor.vue`.
 
 | View | What it is |
 | --- | --- |

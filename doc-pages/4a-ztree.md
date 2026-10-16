@@ -34,7 +34,7 @@ What jtree has no counterpart for (the matching menu, GameSafe, the data tools, 
 File → Open… shows a treatment's stage tree as z-Tree draws it: the Background with its tables, programs and screens, then the stages, each with its programs, Active screen and Waitingscreen, and their boxes, items, buttons, checkers and plot items. File → New Treatment starts a new one.
 
 - **Treatment → New …** adds a stage, table, table loader or dumper, program, box, button, checker, item or plot item where the selection says, as z-Tree does, after its dialog.
-- **Double-click** an element (or Treatment → Info…) to open its dialog, with z-Tree's fields, in z-Tree's words. Settings a dialog has no field for are under **Other settings**.
+- **Double-click** an element (or Treatment → Info…) to open its dialog, with z-Tree's fields, in z-Tree's words. Settings a dialog has no field for are under **Other settings**. A program's code and a screen's HTML are edited in a code editor, with colours, line numbers, Tab to indent and search (Ctrl+F); Enter there starts a new line, and the dialog's OK is a click (or Enter outside the code).
 - **Edit**: Undo (Ctrl+Z), Redo (Ctrl+Y), Cut, Copy, Paste, Delete, Move Up and Move Down (Alt+↑, Alt+↓).
 - **Treatment → Check** parses every program and expression, and lists any that do not.
 - **File → Save** writes the treatment in z-Tree's text format, which z-Tree opens with File → Import…. jtree reads `.ztt` files but does not write them: one opened here is saved as a `.txt` beside it. File → Export Treatment… downloads the text.

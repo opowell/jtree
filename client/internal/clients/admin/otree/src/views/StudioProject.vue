@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
+import CodeEditor from '../components/CodeEditor.vue'
 import { pyList, pyQuote, pyString, studio } from '../studio'
 import type { ProjectInfo, SessionConfig, SettingsModel } from '../studio'
 
@@ -157,8 +158,9 @@ const SETTINGS: Array<{ name: string, label: string, kind: 'text' | 'code' | 'bo
   { name: 'SESSION_CONFIG_DEFAULTS', label: 'Session config defaults', kind: 'code' },
 ]
 const setting = (name: string) => model.value?.settings.find((s) => s.name === name)?.code
-function onSetting(name: string, kind: string, e: Event) {
-  const input = e.target as HTMLInputElement
+function onSetting(name: string, kind: string, e: Event | string) {
+  const input = typeof e === 'string' ? { value: e, checked: false } : e.target as HTMLInputElement
+  if (typeof e === 'string' && e === (setting(name) ?? '')) return
   const code = kind === 'bool' ? (input.checked ? 'True' : 'False') : kind === 'text' ? pyQuote(input.value) : input.value.trim()
   void edit(code === '' ? { op: 'removeSetting', name } : { op: 'setSetting', name, code })
 }
@@ -218,7 +220,7 @@ async function createApp() {
             </div>
             <template v-else>
               <label class="form-label small mb-0" :for="`set-${s.name}`">{{ s.label }} <span class="font-monospace text-body-secondary">{{ s.name }}</span></label>
-              <textarea v-if="s.kind === 'code' && (setting(s.name) ?? '').includes('\n')" :id="`set-${s.name}`" class="form-control form-control-sm font-monospace" :rows="(setting(s.name) ?? '').split('\n').length" :value="setting(s.name) ?? ''" @change="onSetting(s.name, s.kind, $event)" />
+              <CodeEditor v-if="s.kind === 'code' && (setting(s.name) ?? '').includes('\n')" :id="`set-${s.name}`" :model-value="setting(s.name) ?? ''" language="python" :label="s.name" :min-lines="(setting(s.name) ?? '').split('\n').length" @blur="(v) => onSetting(s.name, s.kind, v)" @commit="(v) => onSetting(s.name, s.kind, v)" />
               <input v-else :id="`set-${s.name}`" class="form-control form-control-sm" :class="{ 'font-monospace': s.kind === 'code' }" :value="s.kind === 'text' ? pyString(setting(s.name)) ?? setting(s.name) ?? '' : setting(s.name) ?? ''" @change="onSetting(s.name, s.kind, $event)">
             </template>
           </div>
@@ -283,7 +285,7 @@ async function createApp() {
 
       <button class="btn btn-sm btn-link px-0" @click="showCode = !showCode">{{ showCode ? 'Hide' : 'Show' }} settings.py</button>
       <div v-if="showCode" class="mt-2">
-        <textarea v-model="codeDraft" class="form-control font-monospace small" rows="20" spellcheck="false" aria-label="settings.py" />
+        <CodeEditor v-model="codeDraft" language="python" label="settings.py" :min-lines="20" :max-lines="50" @commit="applyCode" />
         <button class="btn btn-sm btn-outline-primary mt-2" :disabled="codeDraft === source" @click="applyCode">Apply</button>
       </div>
     </div>

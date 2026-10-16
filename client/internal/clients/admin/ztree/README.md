@@ -113,7 +113,8 @@ localStorage, keyed by their source.
 The libraries are in `client/internal/clients/shared/`, served at `/shared/`:
 Vue 3.5.43, vue3-sfc-loader 0.9.5, appfr 0.56.0
 (`header-content-layout-0.56.0/`, shared with admin2), acorn 8.18.0 (parses the
-apps' source), circular-json 0.5.9, and the socket.io client that the server
+apps' source), CodeMirror 6 (`codemirror-6.43.14/`, the program and screen
+dialogs' code fields, in `src/components/CodeEditor.vue`), circular-json 0.5.9, and the socket.io client that the server
 provides. To update one, add the new version's files next to the old ones and
 change the paths in `index.html`.
 

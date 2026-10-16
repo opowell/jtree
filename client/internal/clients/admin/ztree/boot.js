@@ -6,6 +6,7 @@ import * as Vue from 'vue'
 import * as Layout from 'header-content-layout'
 import * as acorn from 'acorn'
 import { loadModule } from 'vue3-sfc-loader'
+import * as CodeMirror from 'codemirror'
 
 const CACHE_PREFIX = 'jtree-admin-ztree-compiled:'
 
@@ -41,6 +42,7 @@ const options = {
   // Libraries come from the import map (index.html) and the page's scripts, not from src/.
   moduleCache: {
     'vue': Vue,
+    'codemirror': CodeMirror,
     'header-content-layout': Layout,
     'acorn': acorn,
     'socket.io-client': { io: window.io },

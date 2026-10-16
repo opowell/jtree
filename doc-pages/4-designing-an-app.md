@@ -8,6 +8,8 @@ An app is a Javascript file. The App editor shows it in three modes:
 - **Forms**: a page for each part: the app's **Settings** and **Functions**, each **stage** (its screens, settings and functions), and **Other code**.
 - **Source**: the whole file, where you can write anything; "Apply" (Ctrl+Enter) reads it into the other modes again.
 
+In all three modes, code fields are a code editor (CodeMirror): syntax colours, line numbers, Tab to indent, matching brackets, Ctrl+F to search, Ctrl+Space to complete, and Ctrl+Z / Ctrl+Shift+Z undo and redo the typing in the field. A function, a screen or code is set when you leave its field, or on Ctrl+Enter.
+
 Each change changes only the statement, or the element of a screen, it is about, so the rest of the file stays as you wrote it. Each change is a step of the editor's history, named for what it did ("Move Paragraph", "Set numPeriods"): "Undo" and "Redo" (Ctrl+Z, Ctrl+Shift+Z) go back and forth through it one step at a time, and choose again what was chosen then; the History list beside them goes to any step at once. Steps undone stay in the list until a new change replaces them. This tutorial gives the code, to type in Source; the other modes show what each piece is as you go. "Save" (Ctrl+S) writes the file, and "Save and start a session" also starts a session with the app. You can just as well edit the file in any text editor, then use File → Reload apps.
 
 <img src="images/editor.png" alt="The App editor in Structured mode: the app's tree, with the decide stage's number input chosen and its fields beside it" style="max-width: 100%; border: 1px solid #ddd">

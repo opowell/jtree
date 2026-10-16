@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
+import CodeEditor from '../components/CodeEditor.vue'
 import ZDialog from '../components/ZDialog.vue'
 import { messageBox } from '../dialogs'
 import { BOXES, PLOTS, clone, code, get, isTrue, remove, set, setCode } from '../treatment/znodes'
@@ -188,14 +189,6 @@ async function ok() {
   emit('close', clone(n))
 }
 
-function codeKey(event: KeyboardEvent) {
-  if (event.key !== 'Tab' || event.shiftKey) return
-  event.preventDefault()
-  const area = event.target as HTMLTextAreaElement
-  const { selectionStart: s, selectionEnd: e } = area
-  program.value = program.value.slice(0, s) + '\t' + program.value.slice(e)
-  requestAnimationFrame(() => area.setSelectionRange(s + 1, s + 1))
-}
 </script>
 
 <template>
@@ -244,7 +237,7 @@ function codeKey(event: KeyboardEvent) {
         </fieldset>
         <template v-else-if="f.type === 'code'">
           <label for="zn-code" class="zt-form__top">{{ f.label }}</label>
-          <textarea id="zn-code" v-model="program" class="zt-field zt-mono" rows="14" spellcheck="false" @keydown="codeKey" />
+          <CodeEditor id="zn-code" v-model="program" label="Program" :indent="'\t'" :min-lines="14" :max-lines="30" />
         </template>
       </template>
     </div>

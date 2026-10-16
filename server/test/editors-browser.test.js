@@ -50,6 +50,19 @@ const fill = (page, selector, value) => page.eval((s, v) => {
     el.dispatchEvent(new Event('change'));
 }, selector, value);
 
+/**
+ * Sets a code field's text as typing does, then leaves it: the field is CodeMirror (the admins'
+ * CodeEditor), so its text is replaced through its view. selector: the field or something in it.
+ */
+const setCode = (page, selector, text) => page.eval(async (s, t) => {
+    const { EditorView } = await import('/shared/codemirror-6.43.14/codemirror.js');
+    const view = EditorView.findFromDOM(document.querySelector(s).closest('.cm-editor') ?? document.querySelector(s).querySelector('.cm-editor'));
+    view.focus();
+    view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: t } });
+    view.contentDOM.blur();
+    return true;
+}, selector, text);
+
 /** Opens a menu of the menu bar, then one of its items. */
 async function menu(page, top, item) {
     await clickText(page, 'button, [role=menuitem]', '^' + top + '$');
@@ -76,13 +89,8 @@ test("jtree's editor: a new app, a stage and a function, saved", { skip }, async
     await clickText(page, '.ed__add button', '^Add$');
     await page.waitFor(() => /respond/.test(document.querySelector('.ed__stages').innerText), { what: 'the new stage' });
     await clickText(page, '.btn', 'groupStart');
-    await page.waitFor(() => document.querySelector('.vf[data-kind=function] textarea'), { what: 'the function field' });
-    await page.eval(() => {
-        const t = document.querySelector('.vf[data-kind=function] textarea');
-        t.value = 'group.done = true;';
-        t.dispatchEvent(new Event('input'));
-        t.dispatchEvent(new Event('blur'));
-    });
+    await page.waitFor(() => Boolean(document.querySelector('.vf[data-kind=function] .cm-content')), { what: 'the function field' });
+    await setCode(page, '.vf[data-kind=function] .cm-editor', 'group.done = true;');
     await page.waitFor(() => /not saved/.test(document.body.innerText), { what: 'the change' });
     await sleep(300);
     await clickText(page, '.btn', '^Save$');
@@ -322,7 +330,7 @@ test("oTree Studio's editor: a field added, asked for on a page, the template ch
     await page.waitFor(() => document.querySelector('#ff-Contribute-age'), { what: "the page's form fields" });
     await page.eval(() => document.querySelector('#ff-Contribute-age').click());
     await page.waitFor(() => document.querySelector('#ff-Contribute-age').checked, { what: 'the form field ticked' });
-    await fill(page, '#tc-Contribute', '<p>Tell us.</p>\n{{ formfields }}\n{{ next_button }}');
+    await setCode(page, '#tc-Contribute', '<p>Tell us.</p>\n{{ formfields }}\n{{ next_button }}');
     await sleep(300);
     await clickText(page, 'button', '^Save$');
     await page.waitFor(() => /Saved/.test(document.body.innerText), { what: 'saved' });
