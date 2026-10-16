@@ -406,7 +406,10 @@ class App {
             'messages',
             'folder',
             'options',
-            'jt'
+            'jt',
+            'parentStage',
+            'parentPeriod',
+            'leftIds'
         ];
 
         //TODO:
@@ -518,13 +521,21 @@ class App {
 
         // Register for automatic stage messages.
         var app = this;
-        for (var s in this.stages) {
-            var stageName = this.stages[s].name;
+        var pageStages = this.pageStages();
+        for (var s in pageStages) {
+            var stageName = pageStages[s].name;
 
-            // Listen to message from clients.
-            client.on(stageName, function(data) { // stage messages are sent by default when submit button is clicked.
-                app.session.pushMessage(client, data.data, data.data.fnName);
-            });
+            // Listen to message from clients, once for each stage name (a client can start
+            // more than one app, see Participant#exitRun); the functions below are this app's.
+            if (client.stageListeners == null) {
+                client.stageListeners = [];
+            }
+            if (!client.stageListeners.includes(stageName)) {
+                client.stageListeners.push(stageName);
+                client.on(stageName, function(data) { // stage messages are sent by default when submit button is clicked.
+                    app.session.pushMessage(client, data.data, data.data.fnName);
+                });
+            }
 
             // Queue message.
             client[stageName] = function(data) {
@@ -600,7 +611,7 @@ class App {
             group: player.group,
             participant: player.participant,
             period: player.group.period,
-            app: player.app(),
+            app: player.app().hostApp(),
         };
         for (var property in checked.values) {
             var dot = property.indexOf('.');
@@ -645,6 +656,213 @@ class App {
         stage.sourceFile = fn;
         runAppCode(Utils.readJS(fn), fn, { app: this, stage });
         return stage;
+    }
+
+    /**
+     * Adds the app in file as a stage of this app: each time a group reaches the stage, its
+     * players play that app, loaded afresh, with its own periods, groups and page, and then go
+     * on to this app's next stage. Its players are those of the stage's period who play the
+     * stage (see Stage#canPlayerParticipate).
+     * @param {string} file The app's file, or folder, relative to this app's folder.
+     * @param {string} [id] The id of the stage; by default, the app's.
+     * @return {Stage} The new stage.
+     */
+    addApp(file, id) {
+        var appFile = path.resolve(path.dirname(this.appPath), file);
+        if (fs.existsSync(appFile) &amp;&amp; fs.statSync(appFile).isDirectory()) {
+            var main = ['app.jtt', 'app.js'].find((f) => fs.existsSync(path.join(appFile, f)));
+            if (main == null) {
+                throw new Error('addApp: no app.jtt in ' + appFile);
+            }
+            appFile = path.join(appFile, main);
+        }
+        var template = this.loadAppFile(appFile);
+        var stage = this.newStage(id != null ? id : template.shortId);
+        stage.appFile = appFile;
+        stage.subApp = template;
+        return stage;
+    }
+
+    /** A new App for the app in appFile (see addApp), in this app's session. */
+    loadAppFile(appFile) {
+        var dialect = dialectFor(appFile);
+        if (dialect == null) {
+            throw new Error('not an app: ' + appFile);
+        }
+        var app = new App(this.session, this.jt, appFile);
+        dialect.define(app);
+        return app;
+    }
+
+    /**
+     * The app that stage, a stage of this app given stages of its own (see Stage#newStage),
+     * runs them as. It is this app with stage's stages, and periods and groups of stage's
+     * (see Stage#runFor, which makes one for each period that reaches stage), so their code
+     * and pages are this app's.
+     * @param {Stage} stage
+     * @return {App}
+     */
+    newBlock(stage) {
+        var block = Object.create(this);
+        block.stages = [];
+        block.periods = [];
+        block.parentStage = stage;
+        block.duration = null;
+        var regroups = () => ['groupSize', 'numGroups', 'groupMatchingType'].some((k) => stage[k] != null) ||
+            typeof stage.getGroupIdsForPeriod === 'function';
+        // What the stage says, and is shown on pages as the app's.
+        var fromStage = (name, get) => Object.defineProperty(block, name, {
+            enumerable: true, configurable: true, get, set(v) { stage[name] = v; },
+        });
+        fromStage('numPeriods', () => stage.numPeriods != null ? stage.numPeriods : stage.repetitions);
+        fromStage('groupSize', () => stage.groupSize);
+        fromStage('numGroups', function() {
+            if (regroups()) {
+                return stage.numGroups;
+            }
+            return this.parentPeriod == null ? undefined : this.playingGroupIds().length;
+        });
+        fromStage('groupMatchingType', () => stage.groupMatchingType != null ? stage.groupMatchingType : 'STRANGER');
+        fromStage('groupByArrival', () => stage.groupByArrival === true);
+        // Its hooks are the stage's, not this app's.
+        var method = (name, fn) => Object.defineProperty(block, name, { value: fn, writable: true, configurable: true });
+        method('getGroupIdsForPeriod', function(period) {
+            if (typeof stage.getGroupIdsForPeriod === 'function') {
+                return stage.getGroupIdsForPeriod(period);
+            }
+            if (regroups()) {
+                return App.prototype.getGroupIdsForPeriod.call(this, period);
+            }
+            return this.playingGroupIds();
+        });
+        for (const hook of ['periodStart', 'periodEnd']) {
+            method(hook, function(period) {
+                if (typeof stage[hook] === 'function') {
+                    stage[hook](period);
+                }
+            });
+        }
+        for (const hook of ['appStart', 'end', 'participantStart', 'participantEnd']) {
+            method(hook, function() {});
+        }
+        return block;
+    }
+
+    /**
+     * For an app within a stage (see Stage#runFor): the participant ids of the groups of the
+     * period it is in, without those who do not play the stage (see
+     * Stage#canPlayerParticipate), and without groups left empty.
+     * @return {string[][]}
+     */
+    playingGroupIds() {
+        var stage = this.parentStage;
+        return this.parentPeriod.groups.map((group) => group.players.filter((player) => {
+            try {
+                return Boolean(stage.canPlayerParticipate(player));
+            } catch (err) {
+                console.log(err.stack);
+                return true;
+            }
+        }).map((player) => player.participant.id)).filter((ids) => ids.length > 0);
+    }
+
+    /**
+     * The participants this app groups in period, by id: the session's; for an app within a
+     * stage (see Stage#runFor), those of the stage's period who play it.
+     * @param {Period} period
+     * @return {Object&lt;string, Participant>}
+     */
+    periodParticipants(period) {
+        if (this.parentPeriod == null) {
+            return this.session.participants;
+        }
+        var playing = this.playingGroupIds().flat();
+        var out = {};
+        for (const id of Object.keys(this.session.participants)) {
+            if (playing.includes(id)) {
+                out[id] = this.session.participants[id];
+            }
+        }
+        return out;
+    }
+
+    /**
+     * The app whose page and fields this app's players have: for an app within a stage given
+     * stages of its own (see App#newBlock), the app it is in; otherwise this app.
+     * @return {App}
+     */
+    hostApp() {
+        if (this.parentStage != null &amp;&amp; this.parentStage.appFile == null &amp;&amp; this.parentPeriod != null) {
+            return this.parentPeriod.app.hostApp();
+        }
+        return this;
+    }
+
+    /** The app of the session this app is in, through the stages it is within; or this app. */
+    rootApp() {
+        return this.parentPeriod == null ? this : this.parentPeriod.app.rootApp();
+    }
+
+    /**
+     * Where this app is in its session: [index in the session's apps (from 1)], and for an app
+     * within a stage (see Stage#runFor), then the period's id and the stage's index, for each
+     * stage it is within. See Session#appAt.
+     * @return {number[]}
+     */
+    address() {
+        if (this.parentPeriod == null) {
+            return [this.indexInSession()];
+        }
+        return this.parentPeriod.app.address().concat([this.parentPeriod.id, this.parentStage.indexInApp()]);
+    }
+
+    /**
+     * The stages of this app's page: its stages, each followed by the stages within it, if it
+     * has stages of its own (see Stage#newStage). An app added as a stage has a page of its own.
+     * @return {Stage[]}
+     */
+    pageStages() {
+        var out = [];
+        for (const stage of this.stages) {
+            out.push(stage);
+            if (stage.isContainer() &amp;&amp; stage.appFile == null) {
+                out.push(...stage.subApp.pageStages());
+            }
+        }
+        return out;
+    }
+
+    /**
+     * The apps runs of this app's stages are (see Stage#runFor), and theirs, in the order of
+     * this app's periods and stages.
+     * @return {App[]}
+     */
+    runs() {
+        var out = [];
+        for (const period of this.periods) {
+            if (period == null || period.runs == null) {
+                continue;
+            }
+            for (const index of Object.keys(period.runs).sort((a, b) => a - b)) {
+                const run = period.runs[index];
+                out.push(run, ...run.runs());
+            }
+        }
+        return out;
+    }
+
+    /** The files of the apps added as stages of this app (see addApp), and of those within them. */
+    appFiles() {
+        var out = [];
+        for (const stage of this.stages) {
+            if (stage.appFile != null) {
+                out.push(stage.appFile);
+            }
+            if (stage.isContainer()) {
+                out.push(...stage.subApp.appFiles());
+            }
+        }
+        return out;
     }
 
     /** This app as an app description (see ir/ir.js). */
@@ -723,7 +941,7 @@ class App {
      * Get group ids for their current period
      */
     getGroupIdsForPeriod(period) {
-        var participants = this.session.participants;
+        var participants = this.periodParticipants(period);
         var numGroups = period.numGroups();
         var pIds = [];
         for (var p in participants) {
@@ -828,8 +1046,9 @@ class App {
         // Load stage contents, if any.
         var stagesHTML = '';
         var waitingScreensHTML = '';
-        for (var i=0; i&lt;app.stages.length; i++) {
-            var stage = app.stages[i];
+        var pageStages = app.pageStages();
+        for (var i=0; i&lt;pageStages.length; i++) {
+            var stage = pageStages[i];
             var stageHTML = '';
             var contentStart = app.parseStageTag(stage, app.stageContentStart);
             var contentEnd = app.parseStageTag(stage, app.stageContentEnd);
@@ -1045,10 +1264,22 @@ class App {
 
         this.finished = true;
 
+        // An app within a stage is written with the app of the session it is in.
+        if (this.parentPeriod != null) {
+            return;
+        }
+        // Those that have not ended yet, e.g. if a participant has not left one.
+        for (const run of this.runs()) {
+            if (!run.finished) {
+                run.finished = true;
+                run.runHook('end');
+            }
+        }
+
         let fd = fs.openSync(this.session.csvFN(), 'a');
 
         try {
-            fs.appendFileSync(fd, this.saveOutput());
+            fs.appendFileSync(fd, this.outputWithRuns());
         } catch(err) {
             console.log('error writing app: ' + this.id);
             debugger;
@@ -1059,6 +1290,11 @@ class App {
     }
 
     end() {}
+
+    /** This app's data (see saveOutput), then that of the apps within its stages (see runs). */
+    outputWithRuns() {
+        return [this].concat(this.runs()).map((app) => app.saveOutput()).join('');
+    }
 
     saveOutput() {
 
@@ -1176,7 +1412,11 @@ class App {
 
         // WRITE OUTPUT
         let fullText = '';
-        fullText += 'APP ' + this.indexInSession() + '_' + this.id + '\n';
+        if (this.parentPeriod != null) {
+            fullText += 'APP ' + this.getIdInSession() + '\n';
+        } else {
+            fullText += 'APP ' + this.indexInSession() + '_' + this.id + '\n';
+        }
         fullText += appsText.join('\n') + '\n';
         if (periodHeaders.length > 0) {
             fullText += 'PERIODS\n';
@@ -1218,8 +1458,11 @@ class App {
             fullText += playerText.join('\n') + '\n';
         }
 
-        fullText += 'PARTICIPANTS\n';
-        fullText += participantText.join('\n') + '\n';
+        // Participants are with the app of the session.
+        if (this.parentPeriod == null) {
+            fullText += 'PARTICIPANTS\n';
+            fullText += participantText.join('\n') + '\n';
+        }
 
         return fullText;
 
@@ -1256,13 +1499,20 @@ class App {
     }
 
     getIdInSession() {
+        if (this.parentPeriod != null) {
+            return this.parentPeriod.app.getIdInSession() + '/' + this.parentPeriod.id + '/' + this.parentStage.id;
+        }
         return this.indexInSession() + '_' + this.shortId;
     }
 
     /**
      * @return {number} The index of this app in its session's list of apps (first position = 1).
+     * For an app within a stage (see Stage#newStage, App#addApp), that of the app it is in.
      */
     indexInSession() {
+        if (this.parentStage != null) {
+            return this.parentStage.app.indexInSession();
+        }
         if (this.session === null) {
             return -1;
         }
@@ -1565,13 +1815,20 @@ class App {
      */
     participantBegin(participant) {
 
-        for (var c in participant.clients) {
-            var client = participant.clients[c];
-            this.addClientDefault(client);
+        // The stages of an app within a stage given stages of its own (see Stage#newStage)
+        // are on the page of the app it is in.
+        var newPage = this.hostApp() === this;
+        if (newPage) {
+            for (var c in participant.clients) {
+                var client = participant.clients[c];
+                this.addClientDefault(client);
+            }
         }
 
         participant.periodIndex = -1;
-        participant.emit('participantSetAppIndex', {appIndex: this.indexInSession()});
+        if (this.parentPeriod == null) {
+            participant.emit('participantSetAppIndex', {appIndex: this.indexInSession()});
+        }
 
         let duration = this.getParticipantDuration(participant);
         if (duration != null) {
@@ -1585,7 +1842,9 @@ class App {
         this.participantStart(participant);
         this.participantMoveToNextPeriod(participant);
 
-        participant.emit('start-new-app'); /** refresh clients.*/
+        if (newPage) {
+            participant.emit('start-new-app'); /** refresh clients.*/
+        }
     }
 
     /**
@@ -1743,6 +2002,9 @@ class App {
      * @return {string}  {@link Session#roomId} + '_app_' + this.id
      */
     roomId() {
+        if (this.parentPeriod != null) {
+            return this.parentPeriod.roomId() + '_stage_' + this.parentStage.id;
+        }
         return this.session.roomId() + '_app_' + this.indexInSession() + '-' + this.id;
     }
 
@@ -1869,7 +2131,7 @@ class App {
         }
 
         var proceed = true;
-        var participants = this.session.participants;
+        var participants = this.periodParticipants();
         for (var p in participants) {
             var participant = participants[p];
             if (!participant.isFinishedApp(this)) {
@@ -1968,13 +2230,13 @@ exports.newSansId = App.newSansId;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AdminAuth.html">AdminAuth</a></li><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="Data.html">Data</a></li><li><a href="Exit.html">Exit</a></li><li><a href="Group.html">Group</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="QueueRecorder.html">QueueRecorder</a></li><li><a href="Reader.html">Reader</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Run.html">Run</a></li><li><a href="Screens.html">Screens</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="Translator.html">Translator</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="global.html#start">start</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-4a-ztree.html">z-Tree treatments</a></li><li><a href="tutorial-4b-otree.html">oTree apps</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-other.html">Other</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ADMIN_LOGIN_REQUIRED">ADMIN_LOGIN_REQUIRED</a></li><li><a href="global.html#APP_HOOKS">APP_HOOKS</a></li><li><a href="global.html#CLOSES">CLOSES</a></li><li><a href="global.html#STAGE_HOOKS">STAGE_HOOKS</a></li><li><a href="global.html#addToClass">addToClass</a></li><li><a href="global.html#allBoxes">allBoxes</a></li><li><a href="global.html#appCSV">appCSV</a></li><li><a href="global.html#appFile">appFile</a></li><li><a href="global.html#appInsertAt">appInsertAt</a></li><li><a href="global.html#appRoots">appRoots</a></li><li><a href="global.html#appTemplate">appTemplate</a></li><li><a href="global.html#appToIR">appToIR</a></li><li><a href="global.html#apply">apply</a></li><li><a href="global.html#applyIR">applyIR</a></li><li><a href="global.html#applySettings">applySettings</a></li><li><a href="global.html#arrayDeclarations">arrayDeclarations</a></li><li><a href="global.html#arrayIndex">arrayIndex</a></li><li><a href="global.html#assignedVariables">assignedVariables</a></li><li><a href="global.html#attrSource">attrSource</a></li><li><a href="global.html#boolValue">boolValue</a></li><li><a href="global.html#botCases">botCases</a></li><li><a href="global.html#boxOptions">boxOptions</a></li><li><a href="global.html#chat">chat</a></li><li><a href="global.html#chatFor">chatFor</a></li><li><a href="global.html#check">check</a></li><li><a href="global.html#checkField">checkField</a></li><li><a href="global.html#checkForm">checkForm</a></li><li><a href="global.html#compileProgram">compileProgram</a></li><li><a href="global.html#compiled">compiled</a></li><li><a href="global.html#context">context</a></li><li><a href="global.html#contractList">contractList</a></li><li><a href="global.html#convertApp">convertApp</a></li><li><a href="global.html#convertTreatment">convertTreatment</a></li><li><a href="global.html#convertTreatmentFile">convertTreatmentFile</a></li><li><a href="global.html#copyDir">copyDir</a></li><li><a href="global.html#copyToPlayer">copyToPlayer</a></li><li><a href="global.html#creatingSessionBeforeArrival">creatingSessionBeforeArrival</a></li><li><a href="global.html#cut">cut</a></li><li><a href="global.html#decimals">decimals</a></li><li><a href="global.html#declared">declared</a></li><li><a href="global.html#dedent">dedent</a></li><li><a href="global.html#describe">describe</a></li><li><a href="global.html#describeValue">describeValue</a></li><li><a href="global.html#dialectFor">dialectFor</a></li><li><a href="global.html#drawn">drawn</a></li><li><a href="global.html#edit">edit</a></li><li><a href="global.html#encode">encode</a></li><li><a href="global.html#endSoon">endSoon</a></li><li><a href="global.html#errorPosition">errorPosition</a></li><li><a href="global.html#exportTables">exportTables</a></li><li><a href="global.html#exporter">exporter</a></li><li><a href="global.html#exportersFor">exportersFor</a></li><li><a href="global.html#expression">expression</a></li><li><a href="global.html#fail">fail</a></li><li><a href="global.html#file">file</a></li><li><a href="global.html#fillValues">fillValues</a></li><li><a href="global.html#findBox">findBox</a></li><li><a href="global.html#finite">finite</a></li><li><a href="global.html#formatText">formatText</a></li><li><a href="global.html#formatValue">formatValue</a></li><li><a href="global.html#fromDescription">fromDescription</a></li><li><a href="global.html#getBridge">getBridge</a></li><li><a href="global.html#grid">grid</a></li><li><a href="global.html#history">history</a></li><li><a href="global.html#identifiers">identifiers</a></li><li><a href="global.html#inAppFolders">inAppFolders</a></li><li><a href="global.html#indent">indent</a></li><li><a href="global.html#indentBy">indentBy</a></li><li><a href="global.html#indentLines">indentLines</a></li><li><a href="global.html#insertAfter">insertAfter</a></li><li><a href="global.html#isInteractive">isInteractive</a></li><li><a href="global.html#isProject">isProject</a></li><li><a href="global.html#isSessionsLastPage">isSessionsLastPage</a></li><li><a href="global.html#isText">isText</a></li><li><a href="global.html#isTextFile">isTextFile</a></li><li><a href="global.html#itemCell">itemCell</a></li><li><a href="global.html#itemsTable">itemsTable</a></li><li><a href="global.html#jsonErrorPosition">jsonErrorPosition</a></li><li><a href="global.html#lanAddress">lanAddress</a></li><li><a href="global.html#lastFirst">lastFirst</a></li><li><a href="global.html#layoutEnd">layoutEnd</a></li><li><a href="global.html#layoutParts">layoutParts</a></li><li><a href="global.html#leaveIfAsked">leaveIfAsked</a></li><li><a href="global.html#leavesStage">leavesStage</a></li><li><a href="global.html#legacyValue">legacyValue</a></li><li><a href="global.html#lineIndent">lineIndent</a></li><li><a href="global.html#lines">lines</a></li><li><a href="global.html#loadPackagesFor">loadPackagesFor</a></li><li><a href="global.html#measure">measure</a></li><li><a href="global.html#memberAssignment">memberAssignment</a></li><li><a href="global.html#model">model</a></li><li><a href="global.html#mountProject">mountProject</a></li><li><a href="global.html#newTreatment">newTreatment</a></li><li><a href="global.html#nodeAt">nodeAt</a></li><li><a href="global.html#normalizeCode">normalizeCode</a></li><li><a href="global.html#openUrl">openUrl</a></li><li><a href="global.html#ownLine">ownLine</a></li><li><a href="global.html#owner">owner</a></li><li><a href="global.html#packageFor">packageFor</a></li><li><a href="global.html#pageTimesCSV">pageTimesCSV</a></li><li><a href="global.html#paramCell">paramCell</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseExpr">parseExpr</a></li><li><a href="global.html#parseLayout">parseLayout</a></li><li><a href="global.html#parseQueueId">parseQueueId</a></li><li><a href="global.html#pathAfterRemoving">pathAfterRemoving</a></li><li><a href="global.html#place">place</a></li><li><a href="global.html#plot">plot</a></li><li><a href="global.html#plotInput">plotInput</a></li><li><a href="global.html#plotItemAt">plotItemAt</a></li><li><a href="global.html#prefixHtmlUrls">prefixHtmlUrls</a></li><li><a href="global.html#pressButton">pressButton</a></li><li><a href="global.html#program">program</a></li><li><a href="global.html#programItems">programItems</a></li><li><a href="global.html#putApp">putApp</a></li><li><a href="global.html#putSettings">putSettings</a></li><li><a href="global.html#py">py</a></li><li><a href="global.html#queueId">queueId</a></li><li><a href="global.html#queueScript">queueScript</a></li><li><a href="global.html#quote">quote</a></li><li><a href="global.html#quotedEnd">quotedEnd</a></li><li><a href="global.html#readGameHeader">readGameHeader</a></li><li><a href="global.html#readQuestionnaires">readQuestionnaires</a></li><li><a href="global.html#readScreen">readScreen</a></li><li><a href="global.html#readTextQuestionnaires">readTextQuestionnaires</a></li><li><a href="global.html#readTextTreatment">readTextTreatment</a></li><li><a href="global.html#readTreatment">readTreatment</a></li><li><a href="global.html#ready">ready</a></li><li><a href="global.html#refresh">refresh</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#reload">reload</a></li><li><a href="global.html#renderScreen">renderScreen</a></li><li><a href="global.html#reportMarkdown">reportMarkdown</a></li><li><a href="global.html#rooms">rooms</a></li><li><a href="global.html#router">router</a></li><li><a href="global.html#rtfToText">rtfToText</a></li><li><a href="global.html#run">run</a></li><li><a href="global.html#runAppCode">runAppCode</a></li><li><a href="global.html#runBots">runBots</a></li><li><a href="global.html#runOf">runOf</a></li><li><a href="global.html#runZtreeBots">runZtreeBots</a></li><li><a href="global.html#scan">scan</a></li><li><a href="global.html#screen">screen</a></li><li><a href="global.html#screenProp">screenProp</a></li><li><a href="global.html#sessionConfigs">sessionConfigs</a></li><li><a href="global.html#settleBoxes">settleBoxes</a></li><li><a href="global.html#stageDeclaration">stageDeclaration</a></li><li><a href="global.html#stageMeaning">stageMeaning</a></li><li><a href="global.html#stageVariable">stageVariable</a></li><li><a href="global.html#statementRange">statementRange</a></li><li><a href="global.html#str">str</a></li><li><a href="global.html#subjectIndex">subjectIndex</a></li><li><a href="global.html#submitGeneric">submitGeneric</a></li><li><a href="global.html#substitutionAt">substitutionAt</a></li><li><a href="global.html#syntaxErrors">syntaxErrors</a></li><li><a href="global.html#tableRecords">tableRecords</a></li><li><a href="global.html#tablesChangedTimers">tablesChangedTimers</a></li><li><a href="global.html#template">template</a></li><li><a href="global.html#templateLiteral">templateLiteral</a></li><li><a href="global.html#templates">templates</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#textParts">textParts</a></li><li><a href="global.html#toTreatment">toTreatment</a></li><li><a href="global.html#tokenize">tokenize</a></li><li><a href="global.html#topInsert">topInsert</a></li><li><a href="global.html#treatmentFile">treatmentFile</a></li><li><a href="global.html#unindent">unindent</a></li><li><a href="global.html#urlFor">urlFor</a></li><li><a href="global.html#validate">validate</a></li><li><a href="global.html#value">value</a></li><li><a href="global.html#valueFor">valueFor</a></li><li><a href="global.html#valueKind">valueKind</a></li><li><a href="global.html#valueSource">valueSource</a></li><li><a href="global.html#variables">variables</a></li><li><a href="global.html#whenReady">whenReady</a></li><li><a href="global.html#wideCSV">wideCSV</a></li><li><a href="global.html#withBlocks">withBlocks</a></li><li><a href="global.html#withStatics">withStatics</a></li><li><a href="global.html#write">write</a></li><li><a href="global.html#written">written</a></li><li><a href="global.html#zTreeRules">zTreeRules</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AdminAuth.html">AdminAuth</a></li><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="Data.html">Data</a></li><li><a href="Exit.html">Exit</a></li><li><a href="Group.html">Group</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="QueueRecorder.html">QueueRecorder</a></li><li><a href="Reader.html">Reader</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Run.html">Run</a></li><li><a href="Screens.html">Screens</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="Translator.html">Translator</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="global.html#start">start</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-4a-ztree.html">z-Tree treatments</a></li><li><a href="tutorial-4b-otree.html">oTree apps</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-other.html">Other</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ADMIN_LOGIN_REQUIRED">ADMIN_LOGIN_REQUIRED</a></li><li><a href="global.html#APP_HOOKS">APP_HOOKS</a></li><li><a href="global.html#CLOSES">CLOSES</a></li><li><a href="global.html#STAGE_HOOKS">STAGE_HOOKS</a></li><li><a href="global.html#addToClass">addToClass</a></li><li><a href="global.html#allBoxes">allBoxes</a></li><li><a href="global.html#appCSV">appCSV</a></li><li><a href="global.html#appFile">appFile</a></li><li><a href="global.html#appInsertAt">appInsertAt</a></li><li><a href="global.html#appRoots">appRoots</a></li><li><a href="global.html#appTemplate">appTemplate</a></li><li><a href="global.html#appToIR">appToIR</a></li><li><a href="global.html#apply">apply</a></li><li><a href="global.html#applyIR">applyIR</a></li><li><a href="global.html#applySettings">applySettings</a></li><li><a href="global.html#applyStages">applyStages</a></li><li><a href="global.html#arrayDeclarations">arrayDeclarations</a></li><li><a href="global.html#arrayIndex">arrayIndex</a></li><li><a href="global.html#assignedVariables">assignedVariables</a></li><li><a href="global.html#attrSource">attrSource</a></li><li><a href="global.html#boolValue">boolValue</a></li><li><a href="global.html#botCases">botCases</a></li><li><a href="global.html#boxOptions">boxOptions</a></li><li><a href="global.html#chat">chat</a></li><li><a href="global.html#chatFor">chatFor</a></li><li><a href="global.html#check">check</a></li><li><a href="global.html#checkField">checkField</a></li><li><a href="global.html#checkForm">checkForm</a></li><li><a href="global.html#compileProgram">compileProgram</a></li><li><a href="global.html#compiled">compiled</a></li><li><a href="global.html#context">context</a></li><li><a href="global.html#contractList">contractList</a></li><li><a href="global.html#convertApp">convertApp</a></li><li><a href="global.html#convertTreatment">convertTreatment</a></li><li><a href="global.html#convertTreatmentFile">convertTreatmentFile</a></li><li><a href="global.html#copyDir">copyDir</a></li><li><a href="global.html#copyToPlayer">copyToPlayer</a></li><li><a href="global.html#creatingSessionBeforeArrival">creatingSessionBeforeArrival</a></li><li><a href="global.html#cut">cut</a></li><li><a href="global.html#decimals">decimals</a></li><li><a href="global.html#declared">declared</a></li><li><a href="global.html#dedent">dedent</a></li><li><a href="global.html#describe">describe</a></li><li><a href="global.html#describeValue">describeValue</a></li><li><a href="global.html#dialectFor">dialectFor</a></li><li><a href="global.html#drawn">drawn</a></li><li><a href="global.html#edit">edit</a></li><li><a href="global.html#encode">encode</a></li><li><a href="global.html#endSoon">endSoon</a></li><li><a href="global.html#errorPosition">errorPosition</a></li><li><a href="global.html#exportTables">exportTables</a></li><li><a href="global.html#exporter">exporter</a></li><li><a href="global.html#exportersFor">exportersFor</a></li><li><a href="global.html#expression">expression</a></li><li><a href="global.html#fail">fail</a></li><li><a href="global.html#file">file</a></li><li><a href="global.html#fillValues">fillValues</a></li><li><a href="global.html#findBox">findBox</a></li><li><a href="global.html#finite">finite</a></li><li><a href="global.html#formatText">formatText</a></li><li><a href="global.html#formatValue">formatValue</a></li><li><a href="global.html#fromDescription">fromDescription</a></li><li><a href="global.html#getBridge">getBridge</a></li><li><a href="global.html#grid">grid</a></li><li><a href="global.html#history">history</a></li><li><a href="global.html#identifiers">identifiers</a></li><li><a href="global.html#inAppFolders">inAppFolders</a></li><li><a href="global.html#indent">indent</a></li><li><a href="global.html#indentBy">indentBy</a></li><li><a href="global.html#indentLines">indentLines</a></li><li><a href="global.html#insertAfter">insertAfter</a></li><li><a href="global.html#isInteractive">isInteractive</a></li><li><a href="global.html#isProject">isProject</a></li><li><a href="global.html#isSessionsLastPage">isSessionsLastPage</a></li><li><a href="global.html#isText">isText</a></li><li><a href="global.html#isTextFile">isTextFile</a></li><li><a href="global.html#itemCell">itemCell</a></li><li><a href="global.html#itemsTable">itemsTable</a></li><li><a href="global.html#jsonErrorPosition">jsonErrorPosition</a></li><li><a href="global.html#lanAddress">lanAddress</a></li><li><a href="global.html#lastFirst">lastFirst</a></li><li><a href="global.html#layoutEnd">layoutEnd</a></li><li><a href="global.html#layoutParts">layoutParts</a></li><li><a href="global.html#leaveIfAsked">leaveIfAsked</a></li><li><a href="global.html#leavesStage">leavesStage</a></li><li><a href="global.html#legacyValue">legacyValue</a></li><li><a href="global.html#lineIndent">lineIndent</a></li><li><a href="global.html#lines">lines</a></li><li><a href="global.html#loadPackagesFor">loadPackagesFor</a></li><li><a href="global.html#measure">measure</a></li><li><a href="global.html#memberAssignment">memberAssignment</a></li><li><a href="global.html#model">model</a></li><li><a href="global.html#mountProject">mountProject</a></li><li><a href="global.html#newTreatment">newTreatment</a></li><li><a href="global.html#nodeAt">nodeAt</a></li><li><a href="global.html#normalizeCode">normalizeCode</a></li><li><a href="global.html#openUrl">openUrl</a></li><li><a href="global.html#ownLine">ownLine</a></li><li><a href="global.html#owner">owner</a></li><li><a href="global.html#packageFor">packageFor</a></li><li><a href="global.html#pageTimesCSV">pageTimesCSV</a></li><li><a href="global.html#paramCell">paramCell</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseExpr">parseExpr</a></li><li><a href="global.html#parseLayout">parseLayout</a></li><li><a href="global.html#parseQueueId">parseQueueId</a></li><li><a href="global.html#pathAfterRemoving">pathAfterRemoving</a></li><li><a href="global.html#place">place</a></li><li><a href="global.html#plot">plot</a></li><li><a href="global.html#plotInput">plotInput</a></li><li><a href="global.html#plotItemAt">plotItemAt</a></li><li><a href="global.html#prefixHtmlUrls">prefixHtmlUrls</a></li><li><a href="global.html#pressButton">pressButton</a></li><li><a href="global.html#program">program</a></li><li><a href="global.html#programItems">programItems</a></li><li><a href="global.html#putApp">putApp</a></li><li><a href="global.html#putSettings">putSettings</a></li><li><a href="global.html#py">py</a></li><li><a href="global.html#queueId">queueId</a></li><li><a href="global.html#queueScript">queueScript</a></li><li><a href="global.html#quote">quote</a></li><li><a href="global.html#quotedEnd">quotedEnd</a></li><li><a href="global.html#readGameHeader">readGameHeader</a></li><li><a href="global.html#readQuestionnaires">readQuestionnaires</a></li><li><a href="global.html#readScreen">readScreen</a></li><li><a href="global.html#readTextQuestionnaires">readTextQuestionnaires</a></li><li><a href="global.html#readTextTreatment">readTextTreatment</a></li><li><a href="global.html#readTreatment">readTreatment</a></li><li><a href="global.html#ready">ready</a></li><li><a href="global.html#refresh">refresh</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#reload">reload</a></li><li><a href="global.html#renderScreen">renderScreen</a></li><li><a href="global.html#reportMarkdown">reportMarkdown</a></li><li><a href="global.html#rooms">rooms</a></li><li><a href="global.html#router">router</a></li><li><a href="global.html#rtfToText">rtfToText</a></li><li><a href="global.html#run">run</a></li><li><a href="global.html#runAppCode">runAppCode</a></li><li><a href="global.html#runBots">runBots</a></li><li><a href="global.html#runOf">runOf</a></li><li><a href="global.html#runZtreeBots">runZtreeBots</a></li><li><a href="global.html#scan">scan</a></li><li><a href="global.html#screen">screen</a></li><li><a href="global.html#screenProp">screenProp</a></li><li><a href="global.html#sessionConfigs">sessionConfigs</a></li><li><a href="global.html#settleBoxes">settleBoxes</a></li><li><a href="global.html#stageDeclaration">stageDeclaration</a></li><li><a href="global.html#stageMeaning">stageMeaning</a></li><li><a href="global.html#stageVariable">stageVariable</a></li><li><a href="global.html#statementRange">statementRange</a></li><li><a href="global.html#str">str</a></li><li><a href="global.html#subjectIndex">subjectIndex</a></li><li><a href="global.html#submitGeneric">submitGeneric</a></li><li><a href="global.html#substitutionAt">substitutionAt</a></li><li><a href="global.html#syntaxErrors">syntaxErrors</a></li><li><a href="global.html#tableRecords">tableRecords</a></li><li><a href="global.html#tablesChangedTimers">tablesChangedTimers</a></li><li><a href="global.html#template">template</a></li><li><a href="global.html#templateLiteral">templateLiteral</a></li><li><a href="global.html#templates">templates</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#textParts">textParts</a></li><li><a href="global.html#toTreatment">toTreatment</a></li><li><a href="global.html#tokenize">tokenize</a></li><li><a href="global.html#topInsert">topInsert</a></li><li><a href="global.html#treatmentFile">treatmentFile</a></li><li><a href="global.html#unindent">unindent</a></li><li><a href="global.html#urlFor">urlFor</a></li><li><a href="global.html#validate">validate</a></li><li><a href="global.html#value">value</a></li><li><a href="global.html#valueFor">valueFor</a></li><li><a href="global.html#valueKind">valueKind</a></li><li><a href="global.html#valueSource">valueSource</a></li><li><a href="global.html#variables">variables</a></li><li><a href="global.html#whenReady">whenReady</a></li><li><a href="global.html#wideCSV">wideCSV</a></li><li><a href="global.html#withBlocks">withBlocks</a></li><li><a href="global.html#withStatics">withStatics</a></li><li><a href="global.html#write">write</a></li><li><a href="global.html#written">written</a></li><li><a href="global.html#zTreeRules">zTreeRules</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Oct 16 2026 20:55:36 GMT+0200 (Central European Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Oct 16 2026 22:10:55 GMT+0200 (Central European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

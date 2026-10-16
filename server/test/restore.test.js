@@ -233,3 +233,96 @@ test('session files written by jtree 0.9.0 and earlier, with ; after the type, a
     assert.deepEqual(Session.parseDataLine('{"type":"APP";"id":"a","n":1}'), { type: 'APP', id: 'a', n: 1 });
     assert.deepEqual(Session.parseDataLine('{"type":"APP","id":"a"}'), { type: 'APP', id: 'a' });
 });
+
+test('a session stopped in a stage with stages continues there', async () => {
+    const data = makeDataDir();
+    try {
+        let id;
+        const first = await startServer({ data });
+        const appPath = first.writeApp('rounds-restore.jtt', `
+            app.groupSize = 2;
+            app.newStage('intro');
+            const rounds = app.newStage('rounds');
+            rounds.numPeriods = 3;
+            const decide = rounds.newStage('decide');
+            decide.playerEnd = function(player) { player.points = player.x; };
+            app.newStage('outro');
+        `);
+        try {
+            const session = first.createSession(appPath, { numParticipants: 2 });
+            id = session.id;
+            const bots = await first.connectAll(session);
+            session.start();
+            await Promise.all(bots.map(b => b.play('intro', {})));
+            await Promise.all(bots.map(b => b.play('decide', { 'player.x': 1 }, { period: 1 })));
+            await Promise.all(bots.map(b => b.waitForStage('decide', { period: 2 })));
+        } finally {
+            await first.close();
+        }
+        const { server, session } = await restore(data, id);
+        try {
+            const bots = [await server.connect(session, 'P1'), await server.connect(session, 'P2')];
+            for (const bot of bots) {
+                assert.equal(bot.participant.frames.length, 1);
+                assert.equal(bot.player.stage.id, 'decide');
+                assert.equal(bot.player.group.period.id, 2);
+            }
+            for (const round of [2, 3]) await Promise.all(bots.map(b => b.play('decide', { 'player.x': round }, { period: round })));
+            await Promise.all(bots.map(b => b.play('outro', {})));
+            await Promise.all(bots.map(b => b.waitForEnd()));
+            for (const bot of bots) assert.equal(bot.participant.points(), 6);
+        } finally {
+            await server.close();
+        }
+    } finally {
+        data.remove();
+    }
+});
+
+test('a session stopped in an app added as a stage continues there, from the session\'s copy of the app', async () => {
+    const data = makeDataDir();
+    try {
+        let id;
+        const first = await startServer({ data });
+        first.writeApp('nested-restore/quiz.jtt', `
+            app.numPeriods = 2;
+            const q = app.newStage('q');
+            q.playerEnd = function(player) { player.points = 1; };
+        `);
+        const appPath = first.writeApp('nested-restore/main.jtt', `
+            app.newStage('a');
+            app.addApp('quiz.jtt');
+            app.newStage('b');
+        `);
+        try {
+            const session = first.createSession(appPath, { numParticipants: 2 });
+            id = session.id;
+            const bots = await first.connectAll(session);
+            session.start();
+            await Promise.all(bots.map(b => b.play('a', {})));
+            await Promise.all(bots.map(b => b.play('q', {}, { period: 1 })));
+            await Promise.all(bots.map(b => b.waitForStage('q', { period: 2 })));
+        } finally {
+            await first.close();
+        }
+        // Loaded from the session's copy, not the original.
+        fs.rmSync(path.join(data.path, 'test-apps', 'nested-restore'), { recursive: true });
+        const { server, session } = await restore(data, id);
+        try {
+            const bots = [await server.connect(session, 'P1'), await server.connect(session, 'P2')];
+            for (const bot of bots) {
+                assert.equal(bot.participant.frames.length, 1);
+                assert.equal(bot.player.app().shortId, 'quiz');
+                assert.equal(bot.player.group.period.id, 2);
+            }
+            await Promise.all(bots.map(b => b.play('q', {}, { period: 2 })));
+            await Promise.all(bots.map(b => b.play('b', {})));
+            await Promise.all(bots.map(b => b.waitForEnd()));
+            for (const bot of bots) assert.equal(bot.participant.points(), 2);
+        } finally {
+            await server.close();
+        }
+    } finally {
+        data.remove();
+    }
+});

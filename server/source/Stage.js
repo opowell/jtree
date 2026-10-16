@@ -154,7 +154,7 @@ class Stage {
          * 'outputHideAuto' fields are not included in output.
          * @type {String[]}
          */
-        this.outputHideAuto = ['app', 'outputHide', 'outputHideAuto', 'html', 'htmlFile', 'useIdAsHTMLFileName'];
+        this.outputHideAuto = ['app', 'outputHide', 'outputHideAuto', 'html', 'htmlFile', 'useIdAsHTMLFileName', 'subApp'];
 
         /**
          * @default null
@@ -178,14 +178,8 @@ class Stage {
         this.useIdAsHTMLFileName = true;
 
         /**
-         * Child stages. If length > 0, then ...
-         * @type Array
-         * @default []
-         */
-        this.stages = [];
-
-        /**
-         * The number of times to repeat child stages.
+         * For a stage with stages of its own (see newStage), the number of times its stages
+         * are played each time its group reaches it, if numPeriods is not set.
          * @type number
          * @default 1
          */
@@ -280,10 +274,84 @@ class Stage {
         return this.clientDuration;
     };
 
+    /**
+     * Adds a stage within this stage. A stage with stages is an app within its app: each time
+     * a group reaches it, its players play its stages, numPeriods times (repetitions, if
+     * that is not set), in periods of their own, and then go on to the next stage of this
+     * stage's app. By default they keep their groups; with groupSize, numGroups,
+     * groupMatchingType or getGroupIdsForPeriod(period) set on this stage, they are
+     * regrouped, as an app's players are. periodStart(period) and periodEnd(period), if set
+     * on this stage, are called as an app's are. See {@link App#newBlock}.
+     * @param {string} [id]
+     * @return {Stage} The new stage.
+     */
     newStage(id) {
-        var stage = new Stage.new(id, this.app);
-        this.stages.push(stage);
-        return stage;
+        return this.blockApp().newStage(id);
+    }
+
+    /**
+     * Adds the app in file as a stage within this stage (see newStage, App#addApp).
+     * @param {string} file The app's file, or folder, relative to this stage's app's folder.
+     * @param {string} [id] The id of the stage; by default, the app's.
+     * @return {Stage} The new stage.
+     */
+    addApp(file, id) {
+        return this.blockApp().addApp(file, id);
+    }
+
+    /** The app this stage's stages are in (see App#newBlock), made the first time it is asked for. */
+    blockApp() {
+        if (this.appFile != null) {
+            throw new Error('Stage ' + this.id + ' is the app ' + this.appFile + ', which has stages of its own.');
+        }
+        if (this.subApp == null) {
+            this.subApp = this.app.newBlock(this);
+        }
+        return this.subApp;
+    }
+
+    /**
+     * The stages within this stage: its own (see newStage), or, for an app added as a stage
+     * (see App#addApp), that app's.
+     * @type {Stage[]}
+     */
+    get stages() {
+        return this.subApp == null ? [] : this.subApp.stages;
+    }
+
+    /** Whether this stage has stages of its own, or is an app (see newStage, App#addApp). */
+    isContainer() {
+        return this.subApp != null;
+    }
+
+    /**
+     * The app this stage's stages run as in period (a period of this stage's app), for the
+     * time period's groups reach this stage: made the first time it is asked for. For an app
+     * added as a stage (see App#addApp), that app, loaded afresh.
+     * @param {Period} period
+     * @return {App}
+     */
+    runFor(period) {
+        if (period.runs == null) {
+            period.runs = {};
+        }
+        const index = this.indexInApp();
+        if (period.runs[index] == null) {
+            const run = this.appFile != null ? this.app.loadAppFile(this.appFile) : Object.create(this.subApp);
+            run.parentStage = this;
+            run.parentPeriod = period;
+            run.periods = [];
+            run.started = false;
+            run.finished = false;
+            run.leftIds = [];
+            period.runs[index] = run;
+        }
+        return period.runs[index];
+    }
+
+    /** The app this stage's stages run as in period, if its groups have reached it; else null. */
+    runIn(period) {
+        return period.runs == null ? null : (period.runs[this.indexInApp()] || null);
     }
 
     canGroupEnd(group, forcePlayersToEnd) {

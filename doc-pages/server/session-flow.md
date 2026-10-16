@@ -65,6 +65,9 @@ As soon as a player ends the stage, they move to the next stage in the session (
 
 Groups belong to Periods. This means that whenever a stage has `waitToStart` as false, groups can "start" that stage before finishing one or more of the group's previous stages.
 
+#### Stages with stages
+A stage can have stages of its own, or be an app (see [stages within stages](tutorial-stages-within-stages.html)). When a player starts it, after `playerStart`, their participant plays its stages, in periods and groups of its own, as in an app; when they have played them, the player ends the stage, as if they had submitted it: `playerEnd`, then (once the group has ended it) `groupEnd`.
+
 #### Timeouts
 A stage with a [`duration`]{@link Stage#duration} (in seconds) times out when that time is up. Players who have not ended the stage by then have `player.timedOut` set to `true` while the stage ends, so `playerEnd` and `groupEnd` can tell them apart; it is `false` again from the next stage.
 

@@ -52,7 +52,7 @@ class Group {
          * 'outputHideAuto' fields are not included in output.
          * @type {String[]}
          */
-        this.outputHideAuto = ['stage', 'status', 'outputHide', 'outputHideAuto', 'players', 'stageTimer', 'stageGraceTimer', 'period', 'tables', 'type', 'stageIndex', 'stageEndedIndex'];
+        this.outputHideAuto = ['stage', 'status', 'outputHide', 'outputHideAuto', 'players', 'stageTimer', 'stageGraceTimer', 'period', 'tables', 'type', 'stageIndex', 'stageEndedIndex', 'appAddress'];
 
         /**
          * @type array
@@ -89,7 +89,7 @@ class Group {
      * @return {Group}         The group.
      */
     static load(json, session, data) {
-        var app = session.apps[json.appIndex-1];
+        var app = json.appAddress != null ? session.appAt(json.appAddress) : session.apps[json.appIndex-1];
         var period = app.periods[json.periodId-1];
         var id = json.id;
         var newGroup = new Group(id, period);
@@ -463,6 +463,9 @@ class Group {
         }
         out.periodId = this.period.id;
         out.appIndex = this.app().indexInSession();
+        if (this.app().parentPeriod != null) {
+            out.appAddress = this.app().address();
+        }
         return out;
     }
 
@@ -640,7 +643,8 @@ class Group {
 
         this.stageStartedIndex++;
         this.stageIndex = stage.indexInApp();
-        let groupDuration = stage.getGroupDuration(this);
+        // A stage with stages has the time its stages have.
+        let groupDuration = stage.isContainer() ? 0 : stage.getGroupDuration(this);
         if (groupDuration > 0) {
             this.startStageTimer(stage, groupDuration*1000);
         }

@@ -1326,7 +1326,7 @@ participation_fee). Default from settings.json's session.showUpFee.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line301">line 301</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line374">line 374</a>
     </li></ul></dd>
     
 
@@ -1496,7 +1496,7 @@ participation_fee). Default from settings.json's session.showUpFee.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line393">line 393</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line467">line 467</a>
     </li></ul></dd>
     
 
@@ -1633,7 +1633,7 @@ participation_fee). Default from settings.json's session.showUpFee.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line721">line 721</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line794">line 794</a>
     </li></ul></dd>
     
 
@@ -1723,7 +1723,7 @@ Called from <a href="Session.html#addApp">Session#addApp</a>.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line354">line 354</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line428">line 428</a>
     </li></ul></dd>
     
 
@@ -1811,7 +1811,7 @@ Called from <a href="Session.html#addApp">Session#addApp</a>.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line988">line 988</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1061">line 1061</a>
     </li></ul></dd>
     
 
@@ -1836,6 +1836,250 @@ Called from <a href="Session.html#addApp">Session#addApp</a>.</p>
 
 
 
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="allApps"><span class="type-signature"></span>allApps<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>The session's apps, each followed by the apps within its stages (see App#runs).</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line298">line 298</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="appAt"><span class="type-signature"></span>appAt<span class="signature">(address)</span><span class="type-signature"> &rarr; {<a href="App.html">App</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>The app at address (see App#address): one of the session's apps, or an app within one<br>
+of their stages, made if it is not there yet (as when a session is loaded).</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>address</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line312">line 312</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="App.html">App</a></span>
+
+
+    </dd>
+</dl>
+
+    
 
 
 
@@ -1943,7 +2187,7 @@ Called from <a href="Session.html#addApp">Session#addApp</a>.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line614">line 614</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line687">line 687</a>
     </li></ul></dd>
     
 
@@ -2090,7 +2334,7 @@ Called from <a href="Session.html#addApp">Session#addApp</a>.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1144">line 1144</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1217">line 1217</a>
     </li></ul></dd>
     
 
@@ -2137,6 +2381,145 @@ Called from <a href="Session.html#addApp">Session#addApp</a>.</p>
 </dl>
 
     
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="copyAppFiles"><span class="type-signature"></span>copyAppFiles<span class="signature">(app)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Copies the files of the apps added as stages of app (see App#addApp) to the session's<br>
+copy of app, where they are in relation to app's file, so that the copy loads them<br>
+(see App.load). Those outside the session's folder are not copied.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>app</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="App.html">App</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line345">line 345</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2249,7 +2632,7 @@ Called from <a href="Session.html#addApp">Session#addApp</a>.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line913">line 913</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line986">line 986</a>
     </li></ul></dd>
     
 
@@ -2409,7 +2792,7 @@ Called from <a href="Session.html#addApp">Session#addApp</a>.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line980">line 980</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1053">line 1053</a>
     </li></ul></dd>
     
 
@@ -2497,7 +2880,7 @@ Called from <a href="Session.html#addApp">Session#addApp</a>.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line857">line 857</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line930">line 930</a>
     </li></ul></dd>
     
 
@@ -2634,7 +3017,7 @@ Called from <a href="Session.html#addApp">Session#addApp</a>.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1392">line 1392</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1471">line 1471</a>
     </li></ul></dd>
     
 
@@ -2723,7 +3106,7 @@ Called from <a href="Session.html#addApp">Session#addApp</a>.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line528">line 528</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line602">line 602</a>
     </li></ul></dd>
     
 
@@ -2811,7 +3194,7 @@ Called from <a href="Session.html#addApp">Session#addApp</a>.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1337">line 1337</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1416">line 1416</a>
     </li></ul></dd>
     
 
@@ -2899,7 +3282,7 @@ Called from <a href="Session.html#addApp">Session#addApp</a>.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1126">line 1126</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1199">line 1199</a>
     </li></ul></dd>
     
 
@@ -3058,7 +3441,7 @@ Called from <a href="Session.html#addApp">Session#addApp</a>.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1165">line 1165</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1238">line 1238</a>
     </li></ul></dd>
     
 
@@ -3217,7 +3600,7 @@ Called from <a href="Session.html#addApp">Session#addApp</a>.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1182">line 1182</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1255">line 1255</a>
     </li></ul></dd>
     
 
@@ -3376,7 +3759,7 @@ Called from <a href="Session.html#addApp">Session#addApp</a>.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1247">line 1247</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1326">line 1326</a>
     </li></ul></dd>
     
 
@@ -3487,7 +3870,7 @@ with it already, or the first without one, which gets it; null if none is left.<
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1323">line 1323</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1402">line 1402</a>
     </li></ul></dd>
     
 
@@ -3628,7 +4011,7 @@ with it already, or the first without one, which gets it; null if none is left.<
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1223">line 1223</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1296">line 1296</a>
     </li></ul></dd>
     
 
@@ -3738,7 +4121,7 @@ with it already, or the first without one, which gets it; null if none is left.<
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1355">line 1355</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1434">line 1434</a>
     </li></ul></dd>
     
 
@@ -3829,7 +4212,7 @@ generic z-Tree bot. Starts the session if it is not. Tells admins how it goes<br
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line823">line 823</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line896">line 896</a>
     </li></ul></dd>
     
 
@@ -3966,7 +4349,7 @@ generic z-Tree bot. Starts the session if it is not. Tells admins how it goes<br
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1209">line 1209</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1282">line 1282</a>
     </li></ul></dd>
     
 
@@ -4171,7 +4554,7 @@ generic z-Tree bot. Starts the session if it is not. Tells admins how it goes<br
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line448">line 448</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line522">line 522</a>
     </li></ul></dd>
     
 
@@ -4308,7 +4691,7 @@ generic z-Tree bot. Starts the session if it is not. Tells admins how it goes<br
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line885">line 885</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line958">line 958</a>
     </li></ul></dd>
     
 
@@ -4396,7 +4779,7 @@ generic z-Tree bot. Starts the session if it is not. Tells admins how it goes<br
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1031">line 1031</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1104">line 1104</a>
     </li></ul></dd>
     
 
@@ -4578,7 +4961,7 @@ generic z-Tree bot. Starts the session if it is not. Tells admins how it goes<br
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line699">line 699</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line772">line 772</a>
     </li></ul></dd>
     
 
@@ -4666,7 +5049,7 @@ generic z-Tree bot. Starts the session if it is not. Tells admins how it goes<br
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line862">line 862</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line935">line 935</a>
     </li></ul></dd>
     
 
@@ -4803,7 +5186,7 @@ generic z-Tree bot. Starts the session if it is not. Tells admins how it goes<br
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line802">line 802</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line875">line 875</a>
     </li></ul></dd>
     
 
@@ -4891,7 +5274,7 @@ generic z-Tree bot. Starts the session if it is not. Tells admins how it goes<br
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1096">line 1096</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1169">line 1169</a>
     </li></ul></dd>
     
 
@@ -5005,7 +5388,7 @@ generic z-Tree bot. Starts the session if it is not. Tells admins how it goes<br
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1067">line 1067</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1140">line 1140</a>
     </li></ul></dd>
     
 
@@ -5119,7 +5502,7 @@ generic z-Tree bot. Starts the session if it is not. Tells admins how it goes<br
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1258">line 1258</a>
+        <a href="Session.js.html">Session.js</a>, <a href="Session.js.html#line1337">line 1337</a>
     </li></ul></dd>
     
 
@@ -5277,13 +5660,13 @@ which is not JSON; read those too.</p>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AdminAuth.html">AdminAuth</a></li><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="Data.html">Data</a></li><li><a href="Exit.html">Exit</a></li><li><a href="Group.html">Group</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="QueueRecorder.html">QueueRecorder</a></li><li><a href="Reader.html">Reader</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Run.html">Run</a></li><li><a href="Screens.html">Screens</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="Translator.html">Translator</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="global.html#start">start</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-4a-ztree.html">z-Tree treatments</a></li><li><a href="tutorial-4b-otree.html">oTree apps</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-other.html">Other</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ADMIN_LOGIN_REQUIRED">ADMIN_LOGIN_REQUIRED</a></li><li><a href="global.html#APP_HOOKS">APP_HOOKS</a></li><li><a href="global.html#CLOSES">CLOSES</a></li><li><a href="global.html#STAGE_HOOKS">STAGE_HOOKS</a></li><li><a href="global.html#addToClass">addToClass</a></li><li><a href="global.html#allBoxes">allBoxes</a></li><li><a href="global.html#appCSV">appCSV</a></li><li><a href="global.html#appFile">appFile</a></li><li><a href="global.html#appInsertAt">appInsertAt</a></li><li><a href="global.html#appRoots">appRoots</a></li><li><a href="global.html#appTemplate">appTemplate</a></li><li><a href="global.html#appToIR">appToIR</a></li><li><a href="global.html#apply">apply</a></li><li><a href="global.html#applyIR">applyIR</a></li><li><a href="global.html#applySettings">applySettings</a></li><li><a href="global.html#arrayDeclarations">arrayDeclarations</a></li><li><a href="global.html#arrayIndex">arrayIndex</a></li><li><a href="global.html#assignedVariables">assignedVariables</a></li><li><a href="global.html#attrSource">attrSource</a></li><li><a href="global.html#boolValue">boolValue</a></li><li><a href="global.html#botCases">botCases</a></li><li><a href="global.html#boxOptions">boxOptions</a></li><li><a href="global.html#chat">chat</a></li><li><a href="global.html#chatFor">chatFor</a></li><li><a href="global.html#check">check</a></li><li><a href="global.html#checkField">checkField</a></li><li><a href="global.html#checkForm">checkForm</a></li><li><a href="global.html#compileProgram">compileProgram</a></li><li><a href="global.html#compiled">compiled</a></li><li><a href="global.html#context">context</a></li><li><a href="global.html#contractList">contractList</a></li><li><a href="global.html#convertApp">convertApp</a></li><li><a href="global.html#convertTreatment">convertTreatment</a></li><li><a href="global.html#convertTreatmentFile">convertTreatmentFile</a></li><li><a href="global.html#copyDir">copyDir</a></li><li><a href="global.html#copyToPlayer">copyToPlayer</a></li><li><a href="global.html#creatingSessionBeforeArrival">creatingSessionBeforeArrival</a></li><li><a href="global.html#cut">cut</a></li><li><a href="global.html#decimals">decimals</a></li><li><a href="global.html#declared">declared</a></li><li><a href="global.html#dedent">dedent</a></li><li><a href="global.html#describe">describe</a></li><li><a href="global.html#describeValue">describeValue</a></li><li><a href="global.html#dialectFor">dialectFor</a></li><li><a href="global.html#drawn">drawn</a></li><li><a href="global.html#edit">edit</a></li><li><a href="global.html#encode">encode</a></li><li><a href="global.html#endSoon">endSoon</a></li><li><a href="global.html#errorPosition">errorPosition</a></li><li><a href="global.html#exportTables">exportTables</a></li><li><a href="global.html#exporter">exporter</a></li><li><a href="global.html#exportersFor">exportersFor</a></li><li><a href="global.html#expression">expression</a></li><li><a href="global.html#fail">fail</a></li><li><a href="global.html#file">file</a></li><li><a href="global.html#fillValues">fillValues</a></li><li><a href="global.html#findBox">findBox</a></li><li><a href="global.html#finite">finite</a></li><li><a href="global.html#formatText">formatText</a></li><li><a href="global.html#formatValue">formatValue</a></li><li><a href="global.html#fromDescription">fromDescription</a></li><li><a href="global.html#getBridge">getBridge</a></li><li><a href="global.html#grid">grid</a></li><li><a href="global.html#history">history</a></li><li><a href="global.html#identifiers">identifiers</a></li><li><a href="global.html#inAppFolders">inAppFolders</a></li><li><a href="global.html#indent">indent</a></li><li><a href="global.html#indentBy">indentBy</a></li><li><a href="global.html#indentLines">indentLines</a></li><li><a href="global.html#insertAfter">insertAfter</a></li><li><a href="global.html#isInteractive">isInteractive</a></li><li><a href="global.html#isProject">isProject</a></li><li><a href="global.html#isSessionsLastPage">isSessionsLastPage</a></li><li><a href="global.html#isText">isText</a></li><li><a href="global.html#isTextFile">isTextFile</a></li><li><a href="global.html#itemCell">itemCell</a></li><li><a href="global.html#itemsTable">itemsTable</a></li><li><a href="global.html#jsonErrorPosition">jsonErrorPosition</a></li><li><a href="global.html#lanAddress">lanAddress</a></li><li><a href="global.html#lastFirst">lastFirst</a></li><li><a href="global.html#layoutEnd">layoutEnd</a></li><li><a href="global.html#layoutParts">layoutParts</a></li><li><a href="global.html#leaveIfAsked">leaveIfAsked</a></li><li><a href="global.html#leavesStage">leavesStage</a></li><li><a href="global.html#legacyValue">legacyValue</a></li><li><a href="global.html#lineIndent">lineIndent</a></li><li><a href="global.html#lines">lines</a></li><li><a href="global.html#loadPackagesFor">loadPackagesFor</a></li><li><a href="global.html#measure">measure</a></li><li><a href="global.html#memberAssignment">memberAssignment</a></li><li><a href="global.html#model">model</a></li><li><a href="global.html#mountProject">mountProject</a></li><li><a href="global.html#newTreatment">newTreatment</a></li><li><a href="global.html#nodeAt">nodeAt</a></li><li><a href="global.html#normalizeCode">normalizeCode</a></li><li><a href="global.html#openUrl">openUrl</a></li><li><a href="global.html#ownLine">ownLine</a></li><li><a href="global.html#owner">owner</a></li><li><a href="global.html#packageFor">packageFor</a></li><li><a href="global.html#pageTimesCSV">pageTimesCSV</a></li><li><a href="global.html#paramCell">paramCell</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseExpr">parseExpr</a></li><li><a href="global.html#parseLayout">parseLayout</a></li><li><a href="global.html#parseQueueId">parseQueueId</a></li><li><a href="global.html#pathAfterRemoving">pathAfterRemoving</a></li><li><a href="global.html#place">place</a></li><li><a href="global.html#plot">plot</a></li><li><a href="global.html#plotInput">plotInput</a></li><li><a href="global.html#plotItemAt">plotItemAt</a></li><li><a href="global.html#prefixHtmlUrls">prefixHtmlUrls</a></li><li><a href="global.html#pressButton">pressButton</a></li><li><a href="global.html#program">program</a></li><li><a href="global.html#programItems">programItems</a></li><li><a href="global.html#putApp">putApp</a></li><li><a href="global.html#putSettings">putSettings</a></li><li><a href="global.html#py">py</a></li><li><a href="global.html#queueId">queueId</a></li><li><a href="global.html#queueScript">queueScript</a></li><li><a href="global.html#quote">quote</a></li><li><a href="global.html#quotedEnd">quotedEnd</a></li><li><a href="global.html#readGameHeader">readGameHeader</a></li><li><a href="global.html#readQuestionnaires">readQuestionnaires</a></li><li><a href="global.html#readScreen">readScreen</a></li><li><a href="global.html#readTextQuestionnaires">readTextQuestionnaires</a></li><li><a href="global.html#readTextTreatment">readTextTreatment</a></li><li><a href="global.html#readTreatment">readTreatment</a></li><li><a href="global.html#ready">ready</a></li><li><a href="global.html#refresh">refresh</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#reload">reload</a></li><li><a href="global.html#renderScreen">renderScreen</a></li><li><a href="global.html#reportMarkdown">reportMarkdown</a></li><li><a href="global.html#rooms">rooms</a></li><li><a href="global.html#router">router</a></li><li><a href="global.html#rtfToText">rtfToText</a></li><li><a href="global.html#run">run</a></li><li><a href="global.html#runAppCode">runAppCode</a></li><li><a href="global.html#runBots">runBots</a></li><li><a href="global.html#runOf">runOf</a></li><li><a href="global.html#runZtreeBots">runZtreeBots</a></li><li><a href="global.html#scan">scan</a></li><li><a href="global.html#screen">screen</a></li><li><a href="global.html#screenProp">screenProp</a></li><li><a href="global.html#sessionConfigs">sessionConfigs</a></li><li><a href="global.html#settleBoxes">settleBoxes</a></li><li><a href="global.html#stageDeclaration">stageDeclaration</a></li><li><a href="global.html#stageMeaning">stageMeaning</a></li><li><a href="global.html#stageVariable">stageVariable</a></li><li><a href="global.html#statementRange">statementRange</a></li><li><a href="global.html#str">str</a></li><li><a href="global.html#subjectIndex">subjectIndex</a></li><li><a href="global.html#submitGeneric">submitGeneric</a></li><li><a href="global.html#substitutionAt">substitutionAt</a></li><li><a href="global.html#syntaxErrors">syntaxErrors</a></li><li><a href="global.html#tableRecords">tableRecords</a></li><li><a href="global.html#tablesChangedTimers">tablesChangedTimers</a></li><li><a href="global.html#template">template</a></li><li><a href="global.html#templateLiteral">templateLiteral</a></li><li><a href="global.html#templates">templates</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#textParts">textParts</a></li><li><a href="global.html#toTreatment">toTreatment</a></li><li><a href="global.html#tokenize">tokenize</a></li><li><a href="global.html#topInsert">topInsert</a></li><li><a href="global.html#treatmentFile">treatmentFile</a></li><li><a href="global.html#unindent">unindent</a></li><li><a href="global.html#urlFor">urlFor</a></li><li><a href="global.html#validate">validate</a></li><li><a href="global.html#value">value</a></li><li><a href="global.html#valueFor">valueFor</a></li><li><a href="global.html#valueKind">valueKind</a></li><li><a href="global.html#valueSource">valueSource</a></li><li><a href="global.html#variables">variables</a></li><li><a href="global.html#whenReady">whenReady</a></li><li><a href="global.html#wideCSV">wideCSV</a></li><li><a href="global.html#withBlocks">withBlocks</a></li><li><a href="global.html#withStatics">withStatics</a></li><li><a href="global.html#write">write</a></li><li><a href="global.html#written">written</a></li><li><a href="global.html#zTreeRules">zTreeRules</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AdminAuth.html">AdminAuth</a></li><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="Data.html">Data</a></li><li><a href="Exit.html">Exit</a></li><li><a href="Group.html">Group</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="QueueRecorder.html">QueueRecorder</a></li><li><a href="Reader.html">Reader</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Run.html">Run</a></li><li><a href="Screens.html">Screens</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="Translator.html">Translator</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="global.html#start">start</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-4a-ztree.html">z-Tree treatments</a></li><li><a href="tutorial-4b-otree.html">oTree apps</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-other.html">Other</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ADMIN_LOGIN_REQUIRED">ADMIN_LOGIN_REQUIRED</a></li><li><a href="global.html#APP_HOOKS">APP_HOOKS</a></li><li><a href="global.html#CLOSES">CLOSES</a></li><li><a href="global.html#STAGE_HOOKS">STAGE_HOOKS</a></li><li><a href="global.html#addToClass">addToClass</a></li><li><a href="global.html#allBoxes">allBoxes</a></li><li><a href="global.html#appCSV">appCSV</a></li><li><a href="global.html#appFile">appFile</a></li><li><a href="global.html#appInsertAt">appInsertAt</a></li><li><a href="global.html#appRoots">appRoots</a></li><li><a href="global.html#appTemplate">appTemplate</a></li><li><a href="global.html#appToIR">appToIR</a></li><li><a href="global.html#apply">apply</a></li><li><a href="global.html#applyIR">applyIR</a></li><li><a href="global.html#applySettings">applySettings</a></li><li><a href="global.html#applyStages">applyStages</a></li><li><a href="global.html#arrayDeclarations">arrayDeclarations</a></li><li><a href="global.html#arrayIndex">arrayIndex</a></li><li><a href="global.html#assignedVariables">assignedVariables</a></li><li><a href="global.html#attrSource">attrSource</a></li><li><a href="global.html#boolValue">boolValue</a></li><li><a href="global.html#botCases">botCases</a></li><li><a href="global.html#boxOptions">boxOptions</a></li><li><a href="global.html#chat">chat</a></li><li><a href="global.html#chatFor">chatFor</a></li><li><a href="global.html#check">check</a></li><li><a href="global.html#checkField">checkField</a></li><li><a href="global.html#checkForm">checkForm</a></li><li><a href="global.html#compileProgram">compileProgram</a></li><li><a href="global.html#compiled">compiled</a></li><li><a href="global.html#context">context</a></li><li><a href="global.html#contractList">contractList</a></li><li><a href="global.html#convertApp">convertApp</a></li><li><a href="global.html#convertTreatment">convertTreatment</a></li><li><a href="global.html#convertTreatmentFile">convertTreatmentFile</a></li><li><a href="global.html#copyDir">copyDir</a></li><li><a href="global.html#copyToPlayer">copyToPlayer</a></li><li><a href="global.html#creatingSessionBeforeArrival">creatingSessionBeforeArrival</a></li><li><a href="global.html#cut">cut</a></li><li><a href="global.html#decimals">decimals</a></li><li><a href="global.html#declared">declared</a></li><li><a href="global.html#dedent">dedent</a></li><li><a href="global.html#describe">describe</a></li><li><a href="global.html#describeValue">describeValue</a></li><li><a href="global.html#dialectFor">dialectFor</a></li><li><a href="global.html#drawn">drawn</a></li><li><a href="global.html#edit">edit</a></li><li><a href="global.html#encode">encode</a></li><li><a href="global.html#endSoon">endSoon</a></li><li><a href="global.html#errorPosition">errorPosition</a></li><li><a href="global.html#exportTables">exportTables</a></li><li><a href="global.html#exporter">exporter</a></li><li><a href="global.html#exportersFor">exportersFor</a></li><li><a href="global.html#expression">expression</a></li><li><a href="global.html#fail">fail</a></li><li><a href="global.html#file">file</a></li><li><a href="global.html#fillValues">fillValues</a></li><li><a href="global.html#findBox">findBox</a></li><li><a href="global.html#finite">finite</a></li><li><a href="global.html#formatText">formatText</a></li><li><a href="global.html#formatValue">formatValue</a></li><li><a href="global.html#fromDescription">fromDescription</a></li><li><a href="global.html#getBridge">getBridge</a></li><li><a href="global.html#grid">grid</a></li><li><a href="global.html#history">history</a></li><li><a href="global.html#identifiers">identifiers</a></li><li><a href="global.html#inAppFolders">inAppFolders</a></li><li><a href="global.html#indent">indent</a></li><li><a href="global.html#indentBy">indentBy</a></li><li><a href="global.html#indentLines">indentLines</a></li><li><a href="global.html#insertAfter">insertAfter</a></li><li><a href="global.html#isInteractive">isInteractive</a></li><li><a href="global.html#isProject">isProject</a></li><li><a href="global.html#isSessionsLastPage">isSessionsLastPage</a></li><li><a href="global.html#isText">isText</a></li><li><a href="global.html#isTextFile">isTextFile</a></li><li><a href="global.html#itemCell">itemCell</a></li><li><a href="global.html#itemsTable">itemsTable</a></li><li><a href="global.html#jsonErrorPosition">jsonErrorPosition</a></li><li><a href="global.html#lanAddress">lanAddress</a></li><li><a href="global.html#lastFirst">lastFirst</a></li><li><a href="global.html#layoutEnd">layoutEnd</a></li><li><a href="global.html#layoutParts">layoutParts</a></li><li><a href="global.html#leaveIfAsked">leaveIfAsked</a></li><li><a href="global.html#leavesStage">leavesStage</a></li><li><a href="global.html#legacyValue">legacyValue</a></li><li><a href="global.html#lineIndent">lineIndent</a></li><li><a href="global.html#lines">lines</a></li><li><a href="global.html#loadPackagesFor">loadPackagesFor</a></li><li><a href="global.html#measure">measure</a></li><li><a href="global.html#memberAssignment">memberAssignment</a></li><li><a href="global.html#model">model</a></li><li><a href="global.html#mountProject">mountProject</a></li><li><a href="global.html#newTreatment">newTreatment</a></li><li><a href="global.html#nodeAt">nodeAt</a></li><li><a href="global.html#normalizeCode">normalizeCode</a></li><li><a href="global.html#openUrl">openUrl</a></li><li><a href="global.html#ownLine">ownLine</a></li><li><a href="global.html#owner">owner</a></li><li><a href="global.html#packageFor">packageFor</a></li><li><a href="global.html#pageTimesCSV">pageTimesCSV</a></li><li><a href="global.html#paramCell">paramCell</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseExpr">parseExpr</a></li><li><a href="global.html#parseLayout">parseLayout</a></li><li><a href="global.html#parseQueueId">parseQueueId</a></li><li><a href="global.html#pathAfterRemoving">pathAfterRemoving</a></li><li><a href="global.html#place">place</a></li><li><a href="global.html#plot">plot</a></li><li><a href="global.html#plotInput">plotInput</a></li><li><a href="global.html#plotItemAt">plotItemAt</a></li><li><a href="global.html#prefixHtmlUrls">prefixHtmlUrls</a></li><li><a href="global.html#pressButton">pressButton</a></li><li><a href="global.html#program">program</a></li><li><a href="global.html#programItems">programItems</a></li><li><a href="global.html#putApp">putApp</a></li><li><a href="global.html#putSettings">putSettings</a></li><li><a href="global.html#py">py</a></li><li><a href="global.html#queueId">queueId</a></li><li><a href="global.html#queueScript">queueScript</a></li><li><a href="global.html#quote">quote</a></li><li><a href="global.html#quotedEnd">quotedEnd</a></li><li><a href="global.html#readGameHeader">readGameHeader</a></li><li><a href="global.html#readQuestionnaires">readQuestionnaires</a></li><li><a href="global.html#readScreen">readScreen</a></li><li><a href="global.html#readTextQuestionnaires">readTextQuestionnaires</a></li><li><a href="global.html#readTextTreatment">readTextTreatment</a></li><li><a href="global.html#readTreatment">readTreatment</a></li><li><a href="global.html#ready">ready</a></li><li><a href="global.html#refresh">refresh</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#reload">reload</a></li><li><a href="global.html#renderScreen">renderScreen</a></li><li><a href="global.html#reportMarkdown">reportMarkdown</a></li><li><a href="global.html#rooms">rooms</a></li><li><a href="global.html#router">router</a></li><li><a href="global.html#rtfToText">rtfToText</a></li><li><a href="global.html#run">run</a></li><li><a href="global.html#runAppCode">runAppCode</a></li><li><a href="global.html#runBots">runBots</a></li><li><a href="global.html#runOf">runOf</a></li><li><a href="global.html#runZtreeBots">runZtreeBots</a></li><li><a href="global.html#scan">scan</a></li><li><a href="global.html#screen">screen</a></li><li><a href="global.html#screenProp">screenProp</a></li><li><a href="global.html#sessionConfigs">sessionConfigs</a></li><li><a href="global.html#settleBoxes">settleBoxes</a></li><li><a href="global.html#stageDeclaration">stageDeclaration</a></li><li><a href="global.html#stageMeaning">stageMeaning</a></li><li><a href="global.html#stageVariable">stageVariable</a></li><li><a href="global.html#statementRange">statementRange</a></li><li><a href="global.html#str">str</a></li><li><a href="global.html#subjectIndex">subjectIndex</a></li><li><a href="global.html#submitGeneric">submitGeneric</a></li><li><a href="global.html#substitutionAt">substitutionAt</a></li><li><a href="global.html#syntaxErrors">syntaxErrors</a></li><li><a href="global.html#tableRecords">tableRecords</a></li><li><a href="global.html#tablesChangedTimers">tablesChangedTimers</a></li><li><a href="global.html#template">template</a></li><li><a href="global.html#templateLiteral">templateLiteral</a></li><li><a href="global.html#templates">templates</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#textParts">textParts</a></li><li><a href="global.html#toTreatment">toTreatment</a></li><li><a href="global.html#tokenize">tokenize</a></li><li><a href="global.html#topInsert">topInsert</a></li><li><a href="global.html#treatmentFile">treatmentFile</a></li><li><a href="global.html#unindent">unindent</a></li><li><a href="global.html#urlFor">urlFor</a></li><li><a href="global.html#validate">validate</a></li><li><a href="global.html#value">value</a></li><li><a href="global.html#valueFor">valueFor</a></li><li><a href="global.html#valueKind">valueKind</a></li><li><a href="global.html#valueSource">valueSource</a></li><li><a href="global.html#variables">variables</a></li><li><a href="global.html#whenReady">whenReady</a></li><li><a href="global.html#wideCSV">wideCSV</a></li><li><a href="global.html#withBlocks">withBlocks</a></li><li><a href="global.html#withStatics">withStatics</a></li><li><a href="global.html#write">write</a></li><li><a href="global.html#written">written</a></li><li><a href="global.html#zTreeRules">zTreeRules</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Oct 16 2026 20:55:36 GMT+0200 (Central European Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Oct 16 2026 22:10:55 GMT+0200 (Central European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -83,6 +83,7 @@ class Player {
          */
         this.outputHideAuto = [
             'appIndex',
+            'appAddress',
             'group',
             'groupId',
             'outputHide',
@@ -384,6 +385,9 @@ class Player {
         out.groupId = this.group.id;
         out.periodId = this.period().id;
         out.appIndex = this.app().indexInSession();
+        if (this.app().parentPeriod != null) {
+            out.appAddress = this.app().address();
+        }
         out.roomId = this.roomId();
         return out;
     }
@@ -492,11 +496,12 @@ class Player {
      * @return {type}  description
      */
     isFinished() {
-        var actualPlyr = this.participant.player;
+        var actualPlyr = this.participant.currentPlayerIn(this.app());
 
-        // No active player.
+        // No active player. In an app within a stage (see Stage#runFor) that the participant
+        // is not in: finished if they have left it.
         if (actualPlyr === null) {
-            return false;
+            return this.app().parentPeriod != null && this.app().leftIds.includes(this.participant.id);
         }
 
         // Already past this app.
@@ -545,7 +550,7 @@ class Player {
      * stage, which isFinished goes by, may be past theirs.)
      */
     isFinishedStage(stage) {
-        if (this.participant.player !== this) {
+        if (this.participant.currentPlayerIn(this.app()) !== this) {
             return this.isFinished();
         }
         if (this.stageIndex !== stage.indexInApp()) {
@@ -560,7 +565,7 @@ class Player {
      * @return {type}  description
      */
     isReady(stageIndex) {
-        var actualPlyr = this.participant.player;
+        var actualPlyr = this.participant.currentPlayerIn(this.app());
 
         // No active player.
         if (actualPlyr == null || this.roomId() !== actualPlyr.roomId()) {
@@ -654,7 +659,7 @@ class Player {
      */
     static load(json, session) {
         var playerId = json.id;
-        var app = session.apps[json.appIndex-1];
+        var app = json.appAddress != null ? session.appAt(json.appAddress) : session.apps[json.appIndex-1];
         var period = app.periods[json.periodId-1];
         var group = period.groups[json.groupId-1];
         var participant = session.participants[playerId];
@@ -677,7 +682,7 @@ class Player {
 
     startStage(stage) {
         this.group.startStage(this.stage);
-        if (!this.participant.canStartStage(stage)) {
+        if (!this.participant.canStartStage(stage, this)) {
             return;
         }
         if (this.stageIndex !== stage.indexInApp()) {
@@ -697,6 +702,10 @@ class Player {
                     }
                     this.startTimer(stage);
                     this.save();
+                    // A stage with stages: the participant plays them (see Participant#enterRun).
+                    if (stage.isContainer()) {
+                        this.participant.enterRun(stage, this);
+                    }
                 }
             } else {
                 this.finishStage(true);
@@ -707,6 +716,10 @@ class Player {
 
     /** Starts this player's own timer for stage, if it has one (see Stage#clientDuration). */
     startTimer(stage) {
+        // A stage with stages has the time its stages have.
+        if (stage.isContainer()) {
+            return;
+        }
         let seconds = 0;
         try {
             seconds = stage.getClientDuration(this);
@@ -792,6 +805,8 @@ class Player {
         } catch (err) {
             console.log(err.stack);
         }
+        // What playerEnd set, saved before the player moves on (to a new period, perhaps).
+        this.save();
         this.emitUpdate2();
         this.finishStage(endGroup, move);
     }

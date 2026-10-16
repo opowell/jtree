@@ -171,6 +171,10 @@ stage.activeScreen = `<p>RESULTS</p> ...`;
 
 `app.jtt` can still create stages itself, with `app.newStage(id)`, or add a stage file under another id with [`app.addStage(id, file)`]{@link App#addStage}; files it adds are not added again. Other files in the folder (images, `client.js`, ...) are not stages, and the whole folder is copied to the session's output.
 
+#### Stages within stages
+
+A stage can have stages of its own, played a number of times each time a group reaches it, for example rounds within each period, and an app can be a stage of another app (`app.addApp('quiz.jtt')`). See [stages within stages](tutorial-stages-within-stages.html).
+
 #### Checking what players enter
 The page's `min`, `max` and `required` only guide the browser. To have the server check what a form sends, declare its fields in `app.fields`, by the name the form uses:
 

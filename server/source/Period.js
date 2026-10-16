@@ -42,7 +42,7 @@ class Period {
         this.outputHide = ['stage', 'status', 'this', 'curAppId', 'periodTemp',
         'periodPerm', 'periodPermAuto', 'outputHide', 'app', 'groups', 'type',
         'stageTimerStart','stageTimerDuration','stageTimerTimeLeft','stageTimerStageIndex','stageTimerCallback','stageTimerRunning','periodId','appIndex', 'gIds',
-        'hookStarted', 'hookEnded', 'allGroupsStarted'];
+        'hookStarted', 'hookEnded', 'allGroupsStarted', 'runs', 'appAddress'];
     }
 
     roomId() {
@@ -81,7 +81,7 @@ class Period {
     numGroups() {
         var ng = null;
         if (this.app.groupSize !== undefined) {
-            ng = Math.floor((Object.keys(this.session().participants).length - 1) / this.app.groupSize) + 1;
+            ng = Math.floor((Object.keys(this.app.periodParticipants(this)).length - 1) / this.app.groupSize) + 1;
         } else if (this.app.numGroups != null) {
             ng = this.app.numGroups;
         } else {
@@ -241,7 +241,7 @@ class Period {
     // numGroups: number of groups into which players are split
     createGroups() {
         const app = this.app;
-        const participants = app.session.participants;
+        const participants = app.periodParticipants(this);
         const gIds = app.getGroupIdsForPeriod(this);
 
         // Create groups
@@ -412,6 +412,9 @@ class Period {
             out[field] = this[field];
         }
         out.appIndex = this.app.indexInSession();
+        if (this.app.parentPeriod != null) {
+            out.appAddress = this.app.address();
+        }
         return out;
     }
 
@@ -441,11 +444,18 @@ class Period {
      */
     static load(json, session) {
         var id = json.id;
-        var app = session.apps[json.appIndex-1];
+        var app = json.appAddress != null ? session.appAt(json.appAddress) : session.apps[json.appIndex-1];
         var newPeriod = new Period(id, app);
-        if (app.periods.length > id-1) {
+        if (app.periods[id-1] != null) {
             var curPeriod = app.periods[id-1];
             newPeriod.groups = curPeriod.groups;
+            // The apps within its stages (see Stage#runFor), read before this record.
+            if (curPeriod.runs != null) {
+                newPeriod.runs = curPeriod.runs;
+                for (const run of Object.values(newPeriod.runs)) {
+                    run.parentPeriod = newPeriod;
+                }
+            }
         }
         Utils.copySavedFields(newPeriod, json);
         app.periods[id-1] = newPeriod;

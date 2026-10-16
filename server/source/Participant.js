@@ -63,7 +63,8 @@ class Participant {
             'indexInSession',
             'finishedApps',
             'skipToAppIndex',
-            'updateScheduled'
+            'updateScheduled',
+            'frames'
         ];
     }
 
@@ -139,22 +140,33 @@ class Participant {
         this.finishedApps = [];
 
         /**
+         * The apps within stages (see Stage#runFor) this participant is in, outermost first:
+         * each with the player whose stage it is, and the participant's periodIndex there.
+         * @type {Array.<{run: App, player: Player, periodIndex: number}>}
+         */
+        this.frames = [];
+
+        /**
          * @type boolean
          * @default false
          */
         this.autoplay = false;
     }
 
-    canStartStage(stage) {
-        if (this.player === null) {
+    /**
+     * Whether this participant can start stage, as player (by default, their current player).
+     */
+    canStartStage(stage, player) {
+        const current = player == null ? this.player : this.currentPlayerIn(player.app());
+        if (current == null) {
             return false;
         }
 
         // Ready in this stage.
         // TODO: Check whether correct period and app.
         if (
-            this.player.stageIndex === stage.indexInApp() &&
-            this.player.status === 'ready'
+            current.stageIndex === stage.indexInApp() &&
+            current.status === 'ready'
         ) {
             return true;
         }
@@ -169,11 +181,108 @@ class Participant {
         }
     }
 
+    /** The app this participant is in: within a stage (see Stage#runFor), the innermost. */
     getApp() {
+        if (this.frames.length > 0) {
+            return this.frames[this.frames.length - 1].run;
+        }
         if (this.appIndex < 1) {
             return null;
         }
         return this.session.getApp(this);
+    }
+
+    /** This participant's player in the app of the session they are in, or null. */
+    topPlayer() {
+        return this.frames.length > 0 ? this.frames[0].player : this.player;
+    }
+
+    /**
+     * This participant's player in app now: their current player, or, while they are in an
+     * app within its stage (see Stage#runFor), the player whose stage that is. For an app of
+     * the session they are not in, their player in the app of the session they are in (as
+     * before apps had stages with stages); for an app within a stage, null.
+     * @param {App} app
+     * @return {Player|null}
+     */
+    currentPlayerIn(app) {
+        for (const frame of this.frames) {
+            if (frame.player.app() === app) {
+                return frame.player;
+            }
+        }
+        if (this.player != null && this.player.app() === app) {
+            return this.player;
+        }
+        return app.parentPeriod == null ? this.topPlayer() : null;
+    }
+
+    /**
+     * This participant, as player, starts playing the stages of stage, a stage with stages
+     * (see Stage#newStage, App#addApp): in the app they run as for player's period
+     * (Stage#runFor), from its first period. When they finish it, they go back to player
+     * (see exitRun).
+     * @param {Stage} stage
+     * @param {Player} player
+     */
+    enterRun(stage, player) {
+        const run = stage.runFor(player.period());
+        this.frames.push({ run, player, periodIndex: this.periodIndex });
+        this.save();
+        run.start();
+        run.participantBegin(this);
+    }
+
+    /**
+     * This participant has finished the app within a stage they are in (see enterRun): they go
+     * back to the player whose stage it is, who ends it.
+     */
+    exitRun() {
+        const frame = this.frames.pop();
+        const run = frame.run;
+        if (this.player != null && this.player.app() === run) {
+            this.player.period().participantEnd(this);
+        }
+        run.leftIds.push(this.id);
+        run.participantEndInternal(this);
+        this.periodIndex = frame.periodIndex;
+        this.setPlayer(frame.player);
+        // From the page of an app added as a stage (see App#addApp) to this app's.
+        if (run.hostApp() === run) {
+            for (const client of this.clients) {
+                frame.player.app().hostApp().addClientDefault(client);
+            }
+            this.emit('start-new-app');
+        }
+        frame.player.endStage(true);
+    }
+
+    /**
+     * After a session is loaded (see Session.load), with player the participant's player in
+     * the app of the session they are in: the apps within stages they are in (see enterRun).
+     */
+    restoreRuns() {
+        this.frames = [];
+        let player = this.player;
+        while (player != null && player.stage != null && player.stage.isContainer() && player.status === 'playing') {
+            const run = player.stage.runIn(player.period());
+            if (run == null || run.leftIds.includes(this.id)) {
+                break;
+            }
+            let inner = null;
+            for (const period of run.periods) {
+                const p = period == null ? null : period.playerByParticipantId(this.id);
+                if (p != null) {
+                    inner = p;
+                }
+            }
+            if (inner == null) {
+                break;
+            }
+            this.frames.push({ run, player, periodIndex: player.period().id - 1 });
+            player = inner;
+        }
+        this.player = player;
     }
 
     /**
@@ -183,6 +292,11 @@ class Participant {
      * @param {number} index
      */
     skipToApp(index) {
+        // Out of the apps within stages they are in, too.
+        if (this.frames.length > 0) {
+            this.player = this.frames[0].player;
+            this.frames = [];
+        }
         const app = this.getApp();
         if (app !== null) {
             this.finishedApps.push(app.getIdInSession());
@@ -199,6 +313,12 @@ class Participant {
     }
 
     endCurrentApp() {
+
+        // An app within a stage: back to the app it is in.
+        if (this.frames.length > 0) {
+            this.exitRun();
+            return;
+        }
 
         const app = this.getApp();
         if (app !== null) {
@@ -290,6 +410,11 @@ class Participant {
      */
     isFinishedApp(app) {
 
+        // An app within a stage (see Stage#runFor): finished once they have left it.
+        if (app.parentPeriod != null) {
+            return app.leftIds.includes(this.id);
+        }
+
         // Already finished this app.
         if (this.finishedApps.includes(app.getIdInSession())) {
             return true;
@@ -301,13 +426,15 @@ class Participant {
         }
 
         // In this app.
-        if (this.getApp().getIdInSession() === app.getIdInSession()) {
+        if (this.session.getApp(this).getIdInSession() === app.getIdInSession()) {
             // Not yet in the last period.
-            if (this.periodIndex < app.numPeriods - 1) {
+            const periodIndex = this.frames.length > 0 ? this.frames[0].periodIndex : this.periodIndex;
+            if (periodIndex < app.numPeriods - 1) {
                 return false;
             }
             // In the last period, but still not 'finished'.
-            if (this.player !== null && this.player.status !== 'finished') {
+            const player = this.topPlayer();
+            if (player !== null && player.status !== 'finished') {
                 return false;
             }
             // Finished all periods.
@@ -349,7 +476,7 @@ class Participant {
             this.player.addClient(client);
             this.player.group.addClient(client);
             this.player.group.period.addClient(client);
-            this.player.group.period.app.addClientDefault(client);
+            this.player.group.period.app.hostApp().addClientDefault(client);
         }
     }
 
@@ -378,7 +505,7 @@ class Participant {
         let out = 0;
         for (var p in this.players) {
             let player = this.players[p];
-            if (app != null && player.app().id !== app.id) {
+            if (app != null && player.app().rootApp().id !== app.id) {
                 continue;
             }
             var points = player.points;

@@ -79,6 +79,26 @@ DUE TO:
 - participant ending a stage
 - group starting a stage
 
+### Participant enters a stage with stages
+FUNCTION: [`Participant.enterRun(stage, player)`]{@link Participant#enterRun}
+
+When a player starts a stage with stages of its own (or an app added as a stage), after `Stage.playerStart(player)`:
+- The app the stage's stages run as in the player's period is made, if this is the first player of the period to start it ([`Stage.runFor(period)`]{@link Stage#runFor}).
+- The participant keeps the player, in [`participant.frames`]{@link Participant#frames}, and starts that app, as they start an app of the session: its first period, their player and group in it, its first stage.
+
+DUE TO:
+- player starts a stage.
+
+### Participant leaves a stage with stages
+FUNCTION: [`Participant.exitRun()`]{@link Participant#exitRun}
+
+When the participant has played the last stage of the last period of the app within a stage (where they would end the app):
+- The app's `participantEnd(participant)` is called; it ends once everyone of its period who plays the stage has left it.
+- The participant's player is the one they kept again; that player ends the stage (see player attempts to end a stage).
+
+DUE TO:
+- player ends a stage.
+
 ### Group wraps up a stage
 - For each player in the group, the player attempts to end this stage.
 
@@ -108,7 +128,7 @@ If stage is not null,
 
 If player's next stage is not null, player starts their next stage.
 - Otherwise, if participant's next period is not null, participant starts their next period.
-- Otherwise, participant ends current app.
+- Otherwise, participant ends current app (or, in a stage with stages, leaves it).
 
 DUE TO:
 - Player attempts to end a stage.

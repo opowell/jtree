@@ -246,29 +246,79 @@ class Session {
             }
         }
 
-        // Link participants and players.
+        // Link participants and players: each participant's player is their last in the
+        // session's apps, and then in the apps within its stage, if it has stages (see
+        // Participant#restoreRuns).
         for (var a in session.apps) {
             var app = session.apps[a];
-            for (var prd in app.periods) {
-                var period = app.periods[prd];
-                for (var gr in period.groups) {
-                    var group = period.groups[gr];
-                    group.restoreStageTimer(data.lastTimeOn);
-                    for (var pl in group.players) {
-                        var player = group.players[pl];
-                        var participant = session.participants[player.participantId];
-                        player.participant = participant;
-                        participant.player = player;
-                        participant.players.push(player);
-                        if (player.stageIndex > -1) {
-                            player.stage = player.app().stages[player.stageIndex];
+            for (const linked of [app].concat(app.runs())) {
+                for (var prd in linked.periods) {
+                    var period = linked.periods[prd];
+                    for (var gr in period.groups) {
+                        var group = period.groups[gr];
+                        group.restoreStageTimer(data.lastTimeOn);
+                        for (var pl in group.players) {
+                            var player = group.players[pl];
+                            var participant = session.participants[player.participantId];
+                            player.participant = participant;
+                            if (linked === app) {
+                                participant.player = player;
+                            }
+                            participant.players.push(player);
+                            if (player.stageIndex > -1) {
+                                player.stage = player.app().stages[player.stageIndex];
+                            }
                         }
                     }
                 }
             }
         }
+        // Who has left the apps within stages: those past the stage.
+        for (const run of session.allApps()) {
+            if (run.parentPeriod == null) {
+                continue;
+            }
+            const index = run.parentStage.indexInApp();
+            for (const group of run.parentPeriod.groups) {
+                for (const player of group.players) {
+                    if (player.stageIndex > index || (player.stageIndex === index && ['done', 'finished'].includes(player.status))) {
+                        run.leftIds.push(player.participantId);
+                    }
+                }
+            }
+        }
+        for (const participant of Object.values(session.participants)) {
+            participant.restoreRuns();
+        }
 
         return session;
+    }
+
+    /** The session's apps, each followed by the apps within its stages (see App#runs). */
+    allApps() {
+        var out = [];
+        for (const app of this.apps) {
+            out.push(app, ...app.runs());
+        }
+        return out;
+    }
+
+    /**
+     * The app at address (see App#address): one of the session's apps, or an app within one
+     * of their stages, made if it is not there yet (as when a session is loaded).
+     * @param {number[]} address
+     * @return {App}
+     */
+    appAt(address) {
+        var app = this.apps[address[0] - 1];
+        for (let i = 1; i < address.length; i += 2) {
+            const periodId = address[i];
+            if (app.periods[periodId - 1] == null) {
+                app.periods[periodId - 1] = new Period.new(periodId, app);
+            }
+            app = app.stages[address[i + 1]].runFor(app.periods[periodId - 1]);
+        }
+        return app;
     }
 
     canUserManage(userId) {
@@ -282,6 +332,29 @@ class Session {
                 return true;
             } else {
                 return this.users.includes(userId);
+            }
+        }
+    }
+
+    /**
+     * Copies the files of the apps added as stages of app (see App#addApp) to the session's
+     * copy of app, where they are in relation to app's file, so that the copy loads them
+     * (see App.load). Those outside the session's folder are not copied.
+     * @param {App} app
+     */
+    copyAppFiles(app) {
+        for (const file of app.appFiles()) {
+            const folderApp = ['app.jtt', 'app.js'].includes(path.basename(file));
+            const source = folderApp ? path.dirname(file) : file;
+            const dest = path.resolve(app.getOutputFN(), path.relative(app.appDir, source));
+            if (!dest.startsWith(this.getOutputDir() + path.sep)) {
+                console.log('Not copying ' + source + ' to the session: it is outside the app\'s folder.');
+                continue;
+            }
+            if (folderApp) {
+                Utils.copyFiles(source, dest);
+            } else {
+                Utils.copyFile(path.basename(source), path.dirname(source), path.dirname(dest));
             }
         }
     }
@@ -322,6 +395,7 @@ class Session {
                 } else {
                     Utils.copyFiles(path.parse(app.appPath).dir, app.getOutputFN());
                 }
+                this.copyAppFiles(app);
                 if (this.apps.length == 1 &&
                     app.suggestedNumParticipants != null &&
                     this.suggestedNumParticipants == null) {
@@ -543,7 +617,7 @@ class Session {
         }
         // Save the change, and the time left on groups' stage timers (see Group.load).
         this.saveDataFS(this.shell(), 'SESSION');
-        for (const app of this.apps) {
+        for (const app of this.allApps()) {
             for (const period of app.periods) {
                 for (const group of period.groups) {
                     if (group.stageTimer !== undefined) {
@@ -582,8 +656,7 @@ class Session {
 
     timers() {
         var out = [];
-        for (var a in this.apps) {
-            var app = this.apps[a];
+        for (const app of this.allApps()) {
             for (var p in app.periods) {
                 var period = app.periods[p];
                 for (var g in period.groups) {
@@ -709,7 +782,7 @@ class Session {
         }
         // participant in an app.
         else {
-            const app = participant.getApp();
+            const app = participant.getApp().hostApp();
             app.sendParticipantPage(req, res, participant);
         }
     }
@@ -775,7 +848,7 @@ class Session {
             fullText += 'SESSION\n';
             fullText += text.join('\n') + '\n';
             for (var i=0; i<this.apps.length; i++) {
-                fullText += this.apps[i].saveOutput();
+                fullText += this.apps[i].outputWithRuns();
             }
             fs.appendFileSync(fd, fullText);
         } catch(err) {
@@ -1221,6 +1294,12 @@ class Session {
     * @return {type}             description
     */
     participantMoveToNextApp(participant) {
+        // An app within a stage (see Stage#runFor): back to the app it is in.
+        if (participant.frames.length > 0) {
+            participant.exitRun();
+            this.emitParticipantUpdates();
+            return;
+        }
         const app = participant.getApp();
         if (app != null) {
             participant.finishedApps.push(app.getIdInSession());

@@ -1018,7 +1018,8 @@ fields determined by player.outputFields.</p>
 
 
 <div class="description">
-    <p>The number of times to repeat child stages.</p>
+    <p>For a stage with stages of its own (see newStage), the number of times its stages<br>
+are played each time its group reaches it, if numPeriods is not set.</p>
 </div>
 
 
@@ -1071,7 +1072,7 @@ fields determined by player.outputFields.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line192">line 192</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line186">line 186</a>
     </li></ul></dd>
     
 
@@ -1089,13 +1090,14 @@ fields determined by player.outputFields.</p>
 
         
             
-<h4 class="name" id="stages"><span class="type-signature"></span>stages<span class="type-signature"> :Array</span></h4>
+<h4 class="name" id="stages"><span class="type-signature"></span>stages<span class="type-signature"> :Array.&lt;<a href="Stage.html">Stage</a>></span></h4>
 
 
 
 
 <div class="description">
-    <p>Child stages. If length &gt; 0, then ...</p>
+    <p>The stages within this stage: its own (see newStage), or, for an app added as a stage<br>
+(see App#addApp), that app's.</p>
 </div>
 
 
@@ -1104,7 +1106,7 @@ fields determined by player.outputFields.</p>
     <ul>
         <li>
             
-<span class="param-type">Array</span>
+<span class="param-type">Array.&lt;<a href="Stage.html">Stage</a>></span>
 
 
         </li>
@@ -1139,16 +1141,11 @@ fields determined by player.outputFields.</p>
     
 
     
-    <dt class="tag-default">Default Value:</dt>
-    <dd class="tag-default"><ul class="dummy">
-            <li>[]</li>
-        </ul></dd>
-    
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line185">line 185</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line318">line 318</a>
     </li></ul></dd>
     
 
@@ -1929,6 +1926,208 @@ the groups' groupStart.</p>
     
 
     
+    <h4 class="name" id="addApp"><span class="type-signature"></span>addApp<span class="signature">(file, id<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="Stage.html">Stage</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Adds the app in file as a stage within this stage (see newStage, App#addApp).</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>file</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The app's file, or folder, relative to this stage's app's folder.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>id</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The id of the stage; by default, the app's.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line298">line 298</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>The new stage.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="Stage.html">Stage</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
     <h4 class="name" id="allGroupsStart"><span class="type-signature"></span>allGroupsStart<span class="signature">(period)</span><span class="type-signature"></span></h4>
     
 
@@ -2031,7 +2230,95 @@ when every player has arrived, before each group's groupStart.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line332">line 332</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line400">line 400</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="blockApp"><span class="type-signature"></span>blockApp<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>The app this stage's stages are in (see App#newBlock), made the first time it is asked for.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line303">line 303</a>
     </li></ul></dd>
     
 
@@ -2168,7 +2455,7 @@ when every player has arrived, before each group's groupStart.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line346">line 346</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line414">line 414</a>
     </li></ul></dd>
     
 
@@ -2327,7 +2614,7 @@ when every player has arrived, before each group's groupStart.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line325">line 325</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line393">line 393</a>
     </li></ul></dd>
     
 
@@ -2438,7 +2725,7 @@ Overwrite in app.jtt</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line338">line 338</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line406">line 406</a>
     </li></ul></dd>
     
 
@@ -2526,7 +2813,7 @@ Overwrite in app.jtt</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line205">line 205</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line199">line 199</a>
     </li></ul></dd>
     
 
@@ -2567,6 +2854,271 @@ Overwrite in app.jtt</p>
     <dd>
         
 <span class="param-type">type</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="isContainer"><span class="type-signature"></span>isContainer<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Whether this stage has stages of its own, or is an app (see newStage, App#addApp).</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line323">line 323</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="newStage"><span class="type-signature"></span>newStage<span class="signature">(id<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="Stage.html">Stage</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Adds a stage within this stage. A stage with stages is an app within its app: each time<br>
+a group reaches it, its players play its stages, numPeriods times (repetitions, if<br>
+that is not set), in periods of their own, and then go on to the next stage of this<br>
+stage's app. By default they keep their groups; with groupSize, numGroups,<br>
+groupMatchingType or getGroupIdsForPeriod(period) set on this stage, they are<br>
+regrouped, as an app's players are. periodStart(period) and periodEnd(period), if set<br>
+on this stage, are called as an app's are. See <a href="App.html#newBlock">App#newBlock</a>.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>id</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line288">line 288</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>The new stage.</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="Stage.html">Stage</a></span>
 
 
     </dd>
@@ -2686,7 +3238,7 @@ Overwrite in app.jtt.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line368">line 368</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line436">line 436</a>
     </li></ul></dd>
     
 
@@ -2775,7 +3327,252 @@ Overwrite in app.jtt.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line374">line 374</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line442">line 442</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="runFor"><span class="type-signature"></span>runFor<span class="signature">(period)</span><span class="type-signature"> &rarr; {<a href="App.html">App</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>The app this stage's stages run as in period (a period of this stage's app), for the<br>
+time period's groups reach this stage: made the first time it is asked for. For an app<br>
+added as a stage (see App#addApp), that app, loaded afresh.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>period</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Period.html">Period</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line334">line 334</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="App.html">App</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="runIn"><span class="type-signature"></span>runIn<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>The app this stage's stages run as in period, if its groups have reached it; else null.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line353">line 353</a>
     </li></ul></dd>
     
 
@@ -2866,7 +3663,7 @@ Overwrite in app.jtt.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line455">line 455</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line523">line 523</a>
     </li></ul></dd>
     
 
@@ -2976,7 +3773,7 @@ Overwrite in app.jtt.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line381">line 381</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line449">line 449</a>
     </li></ul></dd>
     
 
@@ -3090,7 +3887,7 @@ Overwrite in app.jtt.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line422">line 422</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line490">line 490</a>
     </li></ul></dd>
     
 
@@ -3200,7 +3997,7 @@ Overwrite in app.jtt.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line403">line 403</a>
+        <a href="Stage.js.html">Stage.js</a>, <a href="Stage.js.html#line471">line 471</a>
     </li></ul></dd>
     
 
@@ -3268,13 +4065,13 @@ Overwrite in app.jtt.</p>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AdminAuth.html">AdminAuth</a></li><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="Data.html">Data</a></li><li><a href="Exit.html">Exit</a></li><li><a href="Group.html">Group</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="QueueRecorder.html">QueueRecorder</a></li><li><a href="Reader.html">Reader</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Run.html">Run</a></li><li><a href="Screens.html">Screens</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="Translator.html">Translator</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="global.html#start">start</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-4a-ztree.html">z-Tree treatments</a></li><li><a href="tutorial-4b-otree.html">oTree apps</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-other.html">Other</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ADMIN_LOGIN_REQUIRED">ADMIN_LOGIN_REQUIRED</a></li><li><a href="global.html#APP_HOOKS">APP_HOOKS</a></li><li><a href="global.html#CLOSES">CLOSES</a></li><li><a href="global.html#STAGE_HOOKS">STAGE_HOOKS</a></li><li><a href="global.html#addToClass">addToClass</a></li><li><a href="global.html#allBoxes">allBoxes</a></li><li><a href="global.html#appCSV">appCSV</a></li><li><a href="global.html#appFile">appFile</a></li><li><a href="global.html#appInsertAt">appInsertAt</a></li><li><a href="global.html#appRoots">appRoots</a></li><li><a href="global.html#appTemplate">appTemplate</a></li><li><a href="global.html#appToIR">appToIR</a></li><li><a href="global.html#apply">apply</a></li><li><a href="global.html#applyIR">applyIR</a></li><li><a href="global.html#applySettings">applySettings</a></li><li><a href="global.html#arrayDeclarations">arrayDeclarations</a></li><li><a href="global.html#arrayIndex">arrayIndex</a></li><li><a href="global.html#assignedVariables">assignedVariables</a></li><li><a href="global.html#attrSource">attrSource</a></li><li><a href="global.html#boolValue">boolValue</a></li><li><a href="global.html#botCases">botCases</a></li><li><a href="global.html#boxOptions">boxOptions</a></li><li><a href="global.html#chat">chat</a></li><li><a href="global.html#chatFor">chatFor</a></li><li><a href="global.html#check">check</a></li><li><a href="global.html#checkField">checkField</a></li><li><a href="global.html#checkForm">checkForm</a></li><li><a href="global.html#compileProgram">compileProgram</a></li><li><a href="global.html#compiled">compiled</a></li><li><a href="global.html#context">context</a></li><li><a href="global.html#contractList">contractList</a></li><li><a href="global.html#convertApp">convertApp</a></li><li><a href="global.html#convertTreatment">convertTreatment</a></li><li><a href="global.html#convertTreatmentFile">convertTreatmentFile</a></li><li><a href="global.html#copyDir">copyDir</a></li><li><a href="global.html#copyToPlayer">copyToPlayer</a></li><li><a href="global.html#creatingSessionBeforeArrival">creatingSessionBeforeArrival</a></li><li><a href="global.html#cut">cut</a></li><li><a href="global.html#decimals">decimals</a></li><li><a href="global.html#declared">declared</a></li><li><a href="global.html#dedent">dedent</a></li><li><a href="global.html#describe">describe</a></li><li><a href="global.html#describeValue">describeValue</a></li><li><a href="global.html#dialectFor">dialectFor</a></li><li><a href="global.html#drawn">drawn</a></li><li><a href="global.html#edit">edit</a></li><li><a href="global.html#encode">encode</a></li><li><a href="global.html#endSoon">endSoon</a></li><li><a href="global.html#errorPosition">errorPosition</a></li><li><a href="global.html#exportTables">exportTables</a></li><li><a href="global.html#exporter">exporter</a></li><li><a href="global.html#exportersFor">exportersFor</a></li><li><a href="global.html#expression">expression</a></li><li><a href="global.html#fail">fail</a></li><li><a href="global.html#file">file</a></li><li><a href="global.html#fillValues">fillValues</a></li><li><a href="global.html#findBox">findBox</a></li><li><a href="global.html#finite">finite</a></li><li><a href="global.html#formatText">formatText</a></li><li><a href="global.html#formatValue">formatValue</a></li><li><a href="global.html#fromDescription">fromDescription</a></li><li><a href="global.html#getBridge">getBridge</a></li><li><a href="global.html#grid">grid</a></li><li><a href="global.html#history">history</a></li><li><a href="global.html#identifiers">identifiers</a></li><li><a href="global.html#inAppFolders">inAppFolders</a></li><li><a href="global.html#indent">indent</a></li><li><a href="global.html#indentBy">indentBy</a></li><li><a href="global.html#indentLines">indentLines</a></li><li><a href="global.html#insertAfter">insertAfter</a></li><li><a href="global.html#isInteractive">isInteractive</a></li><li><a href="global.html#isProject">isProject</a></li><li><a href="global.html#isSessionsLastPage">isSessionsLastPage</a></li><li><a href="global.html#isText">isText</a></li><li><a href="global.html#isTextFile">isTextFile</a></li><li><a href="global.html#itemCell">itemCell</a></li><li><a href="global.html#itemsTable">itemsTable</a></li><li><a href="global.html#jsonErrorPosition">jsonErrorPosition</a></li><li><a href="global.html#lanAddress">lanAddress</a></li><li><a href="global.html#lastFirst">lastFirst</a></li><li><a href="global.html#layoutEnd">layoutEnd</a></li><li><a href="global.html#layoutParts">layoutParts</a></li><li><a href="global.html#leaveIfAsked">leaveIfAsked</a></li><li><a href="global.html#leavesStage">leavesStage</a></li><li><a href="global.html#legacyValue">legacyValue</a></li><li><a href="global.html#lineIndent">lineIndent</a></li><li><a href="global.html#lines">lines</a></li><li><a href="global.html#loadPackagesFor">loadPackagesFor</a></li><li><a href="global.html#measure">measure</a></li><li><a href="global.html#memberAssignment">memberAssignment</a></li><li><a href="global.html#model">model</a></li><li><a href="global.html#mountProject">mountProject</a></li><li><a href="global.html#newTreatment">newTreatment</a></li><li><a href="global.html#nodeAt">nodeAt</a></li><li><a href="global.html#normalizeCode">normalizeCode</a></li><li><a href="global.html#openUrl">openUrl</a></li><li><a href="global.html#ownLine">ownLine</a></li><li><a href="global.html#owner">owner</a></li><li><a href="global.html#packageFor">packageFor</a></li><li><a href="global.html#pageTimesCSV">pageTimesCSV</a></li><li><a href="global.html#paramCell">paramCell</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseExpr">parseExpr</a></li><li><a href="global.html#parseLayout">parseLayout</a></li><li><a href="global.html#parseQueueId">parseQueueId</a></li><li><a href="global.html#pathAfterRemoving">pathAfterRemoving</a></li><li><a href="global.html#place">place</a></li><li><a href="global.html#plot">plot</a></li><li><a href="global.html#plotInput">plotInput</a></li><li><a href="global.html#plotItemAt">plotItemAt</a></li><li><a href="global.html#prefixHtmlUrls">prefixHtmlUrls</a></li><li><a href="global.html#pressButton">pressButton</a></li><li><a href="global.html#program">program</a></li><li><a href="global.html#programItems">programItems</a></li><li><a href="global.html#putApp">putApp</a></li><li><a href="global.html#putSettings">putSettings</a></li><li><a href="global.html#py">py</a></li><li><a href="global.html#queueId">queueId</a></li><li><a href="global.html#queueScript">queueScript</a></li><li><a href="global.html#quote">quote</a></li><li><a href="global.html#quotedEnd">quotedEnd</a></li><li><a href="global.html#readGameHeader">readGameHeader</a></li><li><a href="global.html#readQuestionnaires">readQuestionnaires</a></li><li><a href="global.html#readScreen">readScreen</a></li><li><a href="global.html#readTextQuestionnaires">readTextQuestionnaires</a></li><li><a href="global.html#readTextTreatment">readTextTreatment</a></li><li><a href="global.html#readTreatment">readTreatment</a></li><li><a href="global.html#ready">ready</a></li><li><a href="global.html#refresh">refresh</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#reload">reload</a></li><li><a href="global.html#renderScreen">renderScreen</a></li><li><a href="global.html#reportMarkdown">reportMarkdown</a></li><li><a href="global.html#rooms">rooms</a></li><li><a href="global.html#router">router</a></li><li><a href="global.html#rtfToText">rtfToText</a></li><li><a href="global.html#run">run</a></li><li><a href="global.html#runAppCode">runAppCode</a></li><li><a href="global.html#runBots">runBots</a></li><li><a href="global.html#runOf">runOf</a></li><li><a href="global.html#runZtreeBots">runZtreeBots</a></li><li><a href="global.html#scan">scan</a></li><li><a href="global.html#screen">screen</a></li><li><a href="global.html#screenProp">screenProp</a></li><li><a href="global.html#sessionConfigs">sessionConfigs</a></li><li><a href="global.html#settleBoxes">settleBoxes</a></li><li><a href="global.html#stageDeclaration">stageDeclaration</a></li><li><a href="global.html#stageMeaning">stageMeaning</a></li><li><a href="global.html#stageVariable">stageVariable</a></li><li><a href="global.html#statementRange">statementRange</a></li><li><a href="global.html#str">str</a></li><li><a href="global.html#subjectIndex">subjectIndex</a></li><li><a href="global.html#submitGeneric">submitGeneric</a></li><li><a href="global.html#substitutionAt">substitutionAt</a></li><li><a href="global.html#syntaxErrors">syntaxErrors</a></li><li><a href="global.html#tableRecords">tableRecords</a></li><li><a href="global.html#tablesChangedTimers">tablesChangedTimers</a></li><li><a href="global.html#template">template</a></li><li><a href="global.html#templateLiteral">templateLiteral</a></li><li><a href="global.html#templates">templates</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#textParts">textParts</a></li><li><a href="global.html#toTreatment">toTreatment</a></li><li><a href="global.html#tokenize">tokenize</a></li><li><a href="global.html#topInsert">topInsert</a></li><li><a href="global.html#treatmentFile">treatmentFile</a></li><li><a href="global.html#unindent">unindent</a></li><li><a href="global.html#urlFor">urlFor</a></li><li><a href="global.html#validate">validate</a></li><li><a href="global.html#value">value</a></li><li><a href="global.html#valueFor">valueFor</a></li><li><a href="global.html#valueKind">valueKind</a></li><li><a href="global.html#valueSource">valueSource</a></li><li><a href="global.html#variables">variables</a></li><li><a href="global.html#whenReady">whenReady</a></li><li><a href="global.html#wideCSV">wideCSV</a></li><li><a href="global.html#withBlocks">withBlocks</a></li><li><a href="global.html#withStatics">withStatics</a></li><li><a href="global.html#write">write</a></li><li><a href="global.html#written">written</a></li><li><a href="global.html#zTreeRules">zTreeRules</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AdminAuth.html">AdminAuth</a></li><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="Data.html">Data</a></li><li><a href="Exit.html">Exit</a></li><li><a href="Group.html">Group</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="QueueRecorder.html">QueueRecorder</a></li><li><a href="Reader.html">Reader</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Run.html">Run</a></li><li><a href="Screens.html">Screens</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="Translator.html">Translator</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="global.html#start">start</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-4a-ztree.html">z-Tree treatments</a></li><li><a href="tutorial-4b-otree.html">oTree apps</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-other.html">Other</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ADMIN_LOGIN_REQUIRED">ADMIN_LOGIN_REQUIRED</a></li><li><a href="global.html#APP_HOOKS">APP_HOOKS</a></li><li><a href="global.html#CLOSES">CLOSES</a></li><li><a href="global.html#STAGE_HOOKS">STAGE_HOOKS</a></li><li><a href="global.html#addToClass">addToClass</a></li><li><a href="global.html#allBoxes">allBoxes</a></li><li><a href="global.html#appCSV">appCSV</a></li><li><a href="global.html#appFile">appFile</a></li><li><a href="global.html#appInsertAt">appInsertAt</a></li><li><a href="global.html#appRoots">appRoots</a></li><li><a href="global.html#appTemplate">appTemplate</a></li><li><a href="global.html#appToIR">appToIR</a></li><li><a href="global.html#apply">apply</a></li><li><a href="global.html#applyIR">applyIR</a></li><li><a href="global.html#applySettings">applySettings</a></li><li><a href="global.html#applyStages">applyStages</a></li><li><a href="global.html#arrayDeclarations">arrayDeclarations</a></li><li><a href="global.html#arrayIndex">arrayIndex</a></li><li><a href="global.html#assignedVariables">assignedVariables</a></li><li><a href="global.html#attrSource">attrSource</a></li><li><a href="global.html#boolValue">boolValue</a></li><li><a href="global.html#botCases">botCases</a></li><li><a href="global.html#boxOptions">boxOptions</a></li><li><a href="global.html#chat">chat</a></li><li><a href="global.html#chatFor">chatFor</a></li><li><a href="global.html#check">check</a></li><li><a href="global.html#checkField">checkField</a></li><li><a href="global.html#checkForm">checkForm</a></li><li><a href="global.html#compileProgram">compileProgram</a></li><li><a href="global.html#compiled">compiled</a></li><li><a href="global.html#context">context</a></li><li><a href="global.html#contractList">contractList</a></li><li><a href="global.html#convertApp">convertApp</a></li><li><a href="global.html#convertTreatment">convertTreatment</a></li><li><a href="global.html#convertTreatmentFile">convertTreatmentFile</a></li><li><a href="global.html#copyDir">copyDir</a></li><li><a href="global.html#copyToPlayer">copyToPlayer</a></li><li><a href="global.html#creatingSessionBeforeArrival">creatingSessionBeforeArrival</a></li><li><a href="global.html#cut">cut</a></li><li><a href="global.html#decimals">decimals</a></li><li><a href="global.html#declared">declared</a></li><li><a href="global.html#dedent">dedent</a></li><li><a href="global.html#describe">describe</a></li><li><a href="global.html#describeValue">describeValue</a></li><li><a href="global.html#dialectFor">dialectFor</a></li><li><a href="global.html#drawn">drawn</a></li><li><a href="global.html#edit">edit</a></li><li><a href="global.html#encode">encode</a></li><li><a href="global.html#endSoon">endSoon</a></li><li><a href="global.html#errorPosition">errorPosition</a></li><li><a href="global.html#exportTables">exportTables</a></li><li><a href="global.html#exporter">exporter</a></li><li><a href="global.html#exportersFor">exportersFor</a></li><li><a href="global.html#expression">expression</a></li><li><a href="global.html#fail">fail</a></li><li><a href="global.html#file">file</a></li><li><a href="global.html#fillValues">fillValues</a></li><li><a href="global.html#findBox">findBox</a></li><li><a href="global.html#finite">finite</a></li><li><a href="global.html#formatText">formatText</a></li><li><a href="global.html#formatValue">formatValue</a></li><li><a href="global.html#fromDescription">fromDescription</a></li><li><a href="global.html#getBridge">getBridge</a></li><li><a href="global.html#grid">grid</a></li><li><a href="global.html#history">history</a></li><li><a href="global.html#identifiers">identifiers</a></li><li><a href="global.html#inAppFolders">inAppFolders</a></li><li><a href="global.html#indent">indent</a></li><li><a href="global.html#indentBy">indentBy</a></li><li><a href="global.html#indentLines">indentLines</a></li><li><a href="global.html#insertAfter">insertAfter</a></li><li><a href="global.html#isInteractive">isInteractive</a></li><li><a href="global.html#isProject">isProject</a></li><li><a href="global.html#isSessionsLastPage">isSessionsLastPage</a></li><li><a href="global.html#isText">isText</a></li><li><a href="global.html#isTextFile">isTextFile</a></li><li><a href="global.html#itemCell">itemCell</a></li><li><a href="global.html#itemsTable">itemsTable</a></li><li><a href="global.html#jsonErrorPosition">jsonErrorPosition</a></li><li><a href="global.html#lanAddress">lanAddress</a></li><li><a href="global.html#lastFirst">lastFirst</a></li><li><a href="global.html#layoutEnd">layoutEnd</a></li><li><a href="global.html#layoutParts">layoutParts</a></li><li><a href="global.html#leaveIfAsked">leaveIfAsked</a></li><li><a href="global.html#leavesStage">leavesStage</a></li><li><a href="global.html#legacyValue">legacyValue</a></li><li><a href="global.html#lineIndent">lineIndent</a></li><li><a href="global.html#lines">lines</a></li><li><a href="global.html#loadPackagesFor">loadPackagesFor</a></li><li><a href="global.html#measure">measure</a></li><li><a href="global.html#memberAssignment">memberAssignment</a></li><li><a href="global.html#model">model</a></li><li><a href="global.html#mountProject">mountProject</a></li><li><a href="global.html#newTreatment">newTreatment</a></li><li><a href="global.html#nodeAt">nodeAt</a></li><li><a href="global.html#normalizeCode">normalizeCode</a></li><li><a href="global.html#openUrl">openUrl</a></li><li><a href="global.html#ownLine">ownLine</a></li><li><a href="global.html#owner">owner</a></li><li><a href="global.html#packageFor">packageFor</a></li><li><a href="global.html#pageTimesCSV">pageTimesCSV</a></li><li><a href="global.html#paramCell">paramCell</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseExpr">parseExpr</a></li><li><a href="global.html#parseLayout">parseLayout</a></li><li><a href="global.html#parseQueueId">parseQueueId</a></li><li><a href="global.html#pathAfterRemoving">pathAfterRemoving</a></li><li><a href="global.html#place">place</a></li><li><a href="global.html#plot">plot</a></li><li><a href="global.html#plotInput">plotInput</a></li><li><a href="global.html#plotItemAt">plotItemAt</a></li><li><a href="global.html#prefixHtmlUrls">prefixHtmlUrls</a></li><li><a href="global.html#pressButton">pressButton</a></li><li><a href="global.html#program">program</a></li><li><a href="global.html#programItems">programItems</a></li><li><a href="global.html#putApp">putApp</a></li><li><a href="global.html#putSettings">putSettings</a></li><li><a href="global.html#py">py</a></li><li><a href="global.html#queueId">queueId</a></li><li><a href="global.html#queueScript">queueScript</a></li><li><a href="global.html#quote">quote</a></li><li><a href="global.html#quotedEnd">quotedEnd</a></li><li><a href="global.html#readGameHeader">readGameHeader</a></li><li><a href="global.html#readQuestionnaires">readQuestionnaires</a></li><li><a href="global.html#readScreen">readScreen</a></li><li><a href="global.html#readTextQuestionnaires">readTextQuestionnaires</a></li><li><a href="global.html#readTextTreatment">readTextTreatment</a></li><li><a href="global.html#readTreatment">readTreatment</a></li><li><a href="global.html#ready">ready</a></li><li><a href="global.html#refresh">refresh</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#reload">reload</a></li><li><a href="global.html#renderScreen">renderScreen</a></li><li><a href="global.html#reportMarkdown">reportMarkdown</a></li><li><a href="global.html#rooms">rooms</a></li><li><a href="global.html#router">router</a></li><li><a href="global.html#rtfToText">rtfToText</a></li><li><a href="global.html#run">run</a></li><li><a href="global.html#runAppCode">runAppCode</a></li><li><a href="global.html#runBots">runBots</a></li><li><a href="global.html#runOf">runOf</a></li><li><a href="global.html#runZtreeBots">runZtreeBots</a></li><li><a href="global.html#scan">scan</a></li><li><a href="global.html#screen">screen</a></li><li><a href="global.html#screenProp">screenProp</a></li><li><a href="global.html#sessionConfigs">sessionConfigs</a></li><li><a href="global.html#settleBoxes">settleBoxes</a></li><li><a href="global.html#stageDeclaration">stageDeclaration</a></li><li><a href="global.html#stageMeaning">stageMeaning</a></li><li><a href="global.html#stageVariable">stageVariable</a></li><li><a href="global.html#statementRange">statementRange</a></li><li><a href="global.html#str">str</a></li><li><a href="global.html#subjectIndex">subjectIndex</a></li><li><a href="global.html#submitGeneric">submitGeneric</a></li><li><a href="global.html#substitutionAt">substitutionAt</a></li><li><a href="global.html#syntaxErrors">syntaxErrors</a></li><li><a href="global.html#tableRecords">tableRecords</a></li><li><a href="global.html#tablesChangedTimers">tablesChangedTimers</a></li><li><a href="global.html#template">template</a></li><li><a href="global.html#templateLiteral">templateLiteral</a></li><li><a href="global.html#templates">templates</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#textParts">textParts</a></li><li><a href="global.html#toTreatment">toTreatment</a></li><li><a href="global.html#tokenize">tokenize</a></li><li><a href="global.html#topInsert">topInsert</a></li><li><a href="global.html#treatmentFile">treatmentFile</a></li><li><a href="global.html#unindent">unindent</a></li><li><a href="global.html#urlFor">urlFor</a></li><li><a href="global.html#validate">validate</a></li><li><a href="global.html#value">value</a></li><li><a href="global.html#valueFor">valueFor</a></li><li><a href="global.html#valueKind">valueKind</a></li><li><a href="global.html#valueSource">valueSource</a></li><li><a href="global.html#variables">variables</a></li><li><a href="global.html#whenReady">whenReady</a></li><li><a href="global.html#wideCSV">wideCSV</a></li><li><a href="global.html#withBlocks">withBlocks</a></li><li><a href="global.html#withStatics">withStatics</a></li><li><a href="global.html#write">write</a></li><li><a href="global.html#written">written</a></li><li><a href="global.html#zTreeRules">zTreeRules</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Oct 16 2026 20:55:36 GMT+0200 (Central European Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Oct 16 2026 22:10:55 GMT+0200 (Central European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

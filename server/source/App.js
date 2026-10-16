@@ -378,7 +378,10 @@ class App {
             'messages',
             'folder',
             'options',
-            'jt'
+            'jt',
+            'parentStage',
+            'parentPeriod',
+            'leftIds'
         ];
 
         //TODO:
@@ -490,13 +493,21 @@ class App {
 
         // Register for automatic stage messages.
         var app = this;
-        for (var s in this.stages) {
-            var stageName = this.stages[s].name;
+        var pageStages = this.pageStages();
+        for (var s in pageStages) {
+            var stageName = pageStages[s].name;
 
-            // Listen to message from clients.
-            client.on(stageName, function(data) { // stage messages are sent by default when submit button is clicked.
-                app.session.pushMessage(client, data.data, data.data.fnName);
-            });
+            // Listen to message from clients, once for each stage name (a client can start
+            // more than one app, see Participant#exitRun); the functions below are this app's.
+            if (client.stageListeners == null) {
+                client.stageListeners = [];
+            }
+            if (!client.stageListeners.includes(stageName)) {
+                client.stageListeners.push(stageName);
+                client.on(stageName, function(data) { // stage messages are sent by default when submit button is clicked.
+                    app.session.pushMessage(client, data.data, data.data.fnName);
+                });
+            }
 
             // Queue message.
             client[stageName] = function(data) {
@@ -572,7 +583,7 @@ class App {
             group: player.group,
             participant: player.participant,
             period: player.group.period,
-            app: player.app(),
+            app: player.app().hostApp(),
         };
         for (var property in checked.values) {
             var dot = property.indexOf('.');
@@ -617,6 +628,213 @@ class App {
         stage.sourceFile = fn;
         runAppCode(Utils.readJS(fn), fn, { app: this, stage });
         return stage;
+    }
+
+    /**
+     * Adds the app in file as a stage of this app: each time a group reaches the stage, its
+     * players play that app, loaded afresh, with its own periods, groups and page, and then go
+     * on to this app's next stage. Its players are those of the stage's period who play the
+     * stage (see Stage#canPlayerParticipate).
+     * @param {string} file The app's file, or folder, relative to this app's folder.
+     * @param {string} [id] The id of the stage; by default, the app's.
+     * @return {Stage} The new stage.
+     */
+    addApp(file, id) {
+        var appFile = path.resolve(path.dirname(this.appPath), file);
+        if (fs.existsSync(appFile) && fs.statSync(appFile).isDirectory()) {
+            var main = ['app.jtt', 'app.js'].find((f) => fs.existsSync(path.join(appFile, f)));
+            if (main == null) {
+                throw new Error('addApp: no app.jtt in ' + appFile);
+            }
+            appFile = path.join(appFile, main);
+        }
+        var template = this.loadAppFile(appFile);
+        var stage = this.newStage(id != null ? id : template.shortId);
+        stage.appFile = appFile;
+        stage.subApp = template;
+        return stage;
+    }
+
+    /** A new App for the app in appFile (see addApp), in this app's session. */
+    loadAppFile(appFile) {
+        var dialect = dialectFor(appFile);
+        if (dialect == null) {
+            throw new Error('not an app: ' + appFile);
+        }
+        var app = new App(this.session, this.jt, appFile);
+        dialect.define(app);
+        return app;
+    }
+
+    /**
+     * The app that stage, a stage of this app given stages of its own (see Stage#newStage),
+     * runs them as. It is this app with stage's stages, and periods and groups of stage's
+     * (see Stage#runFor, which makes one for each period that reaches stage), so their code
+     * and pages are this app's.
+     * @param {Stage} stage
+     * @return {App}
+     */
+    newBlock(stage) {
+        var block = Object.create(this);
+        block.stages = [];
+        block.periods = [];
+        block.parentStage = stage;
+        block.duration = null;
+        var regroups = () => ['groupSize', 'numGroups', 'groupMatchingType'].some((k) => stage[k] != null) ||
+            typeof stage.getGroupIdsForPeriod === 'function';
+        // What the stage says, and is shown on pages as the app's.
+        var fromStage = (name, get) => Object.defineProperty(block, name, {
+            enumerable: true, configurable: true, get, set(v) { stage[name] = v; },
+        });
+        fromStage('numPeriods', () => stage.numPeriods != null ? stage.numPeriods : stage.repetitions);
+        fromStage('groupSize', () => stage.groupSize);
+        fromStage('numGroups', function() {
+            if (regroups()) {
+                return stage.numGroups;
+            }
+            return this.parentPeriod == null ? undefined : this.playingGroupIds().length;
+        });
+        fromStage('groupMatchingType', () => stage.groupMatchingType != null ? stage.groupMatchingType : 'STRANGER');
+        fromStage('groupByArrival', () => stage.groupByArrival === true);
+        // Its hooks are the stage's, not this app's.
+        var method = (name, fn) => Object.defineProperty(block, name, { value: fn, writable: true, configurable: true });
+        method('getGroupIdsForPeriod', function(period) {
+            if (typeof stage.getGroupIdsForPeriod === 'function') {
+                return stage.getGroupIdsForPeriod(period);
+            }
+            if (regroups()) {
+                return App.prototype.getGroupIdsForPeriod.call(this, period);
+            }
+            return this.playingGroupIds();
+        });
+        for (const hook of ['periodStart', 'periodEnd']) {
+            method(hook, function(period) {
+                if (typeof stage[hook] === 'function') {
+                    stage[hook](period);
+                }
+            });
+        }
+        for (const hook of ['appStart', 'end', 'participantStart', 'participantEnd']) {
+            method(hook, function() {});
+        }
+        return block;
+    }
+
+    /**
+     * For an app within a stage (see Stage#runFor): the participant ids of the groups of the
+     * period it is in, without those who do not play the stage (see
+     * Stage#canPlayerParticipate), and without groups left empty.
+     * @return {string[][]}
+     */
+    playingGroupIds() {
+        var stage = this.parentStage;
+        return this.parentPeriod.groups.map((group) => group.players.filter((player) => {
+            try {
+                return Boolean(stage.canPlayerParticipate(player));
+            } catch (err) {
+                console.log(err.stack);
+                return true;
+            }
+        }).map((player) => player.participant.id)).filter((ids) => ids.length > 0);
+    }
+
+    /**
+     * The participants this app groups in period, by id: the session's; for an app within a
+     * stage (see Stage#runFor), those of the stage's period who play it.
+     * @param {Period} period
+     * @return {Object<string, Participant>}
+     */
+    periodParticipants(period) {
+        if (this.parentPeriod == null) {
+            return this.session.participants;
+        }
+        var playing = this.playingGroupIds().flat();
+        var out = {};
+        for (const id of Object.keys(this.session.participants)) {
+            if (playing.includes(id)) {
+                out[id] = this.session.participants[id];
+            }
+        }
+        return out;
+    }
+
+    /**
+     * The app whose page and fields this app's players have: for an app within a stage given
+     * stages of its own (see App#newBlock), the app it is in; otherwise this app.
+     * @return {App}
+     */
+    hostApp() {
+        if (this.parentStage != null && this.parentStage.appFile == null && this.parentPeriod != null) {
+            return this.parentPeriod.app.hostApp();
+        }
+        return this;
+    }
+
+    /** The app of the session this app is in, through the stages it is within; or this app. */
+    rootApp() {
+        return this.parentPeriod == null ? this : this.parentPeriod.app.rootApp();
+    }
+
+    /**
+     * Where this app is in its session: [index in the session's apps (from 1)], and for an app
+     * within a stage (see Stage#runFor), then the period's id and the stage's index, for each
+     * stage it is within. See Session#appAt.
+     * @return {number[]}
+     */
+    address() {
+        if (this.parentPeriod == null) {
+            return [this.indexInSession()];
+        }
+        return this.parentPeriod.app.address().concat([this.parentPeriod.id, this.parentStage.indexInApp()]);
+    }
+
+    /**
+     * The stages of this app's page: its stages, each followed by the stages within it, if it
+     * has stages of its own (see Stage#newStage). An app added as a stage has a page of its own.
+     * @return {Stage[]}
+     */
+    pageStages() {
+        var out = [];
+        for (const stage of this.stages) {
+            out.push(stage);
+            if (stage.isContainer() && stage.appFile == null) {
+                out.push(...stage.subApp.pageStages());
+            }
+        }
+        return out;
+    }
+
+    /**
+     * The apps runs of this app's stages are (see Stage#runFor), and theirs, in the order of
+     * this app's periods and stages.
+     * @return {App[]}
+     */
+    runs() {
+        var out = [];
+        for (const period of this.periods) {
+            if (period == null || period.runs == null) {
+                continue;
+            }
+            for (const index of Object.keys(period.runs).sort((a, b) => a - b)) {
+                const run = period.runs[index];
+                out.push(run, ...run.runs());
+            }
+        }
+        return out;
+    }
+
+    /** The files of the apps added as stages of this app (see addApp), and of those within them. */
+    appFiles() {
+        var out = [];
+        for (const stage of this.stages) {
+            if (stage.appFile != null) {
+                out.push(stage.appFile);
+            }
+            if (stage.isContainer()) {
+                out.push(...stage.subApp.appFiles());
+            }
+        }
+        return out;
     }
 
     /** This app as an app description (see ir/ir.js). */
@@ -695,7 +913,7 @@ class App {
      * Get group ids for their current period
      */
     getGroupIdsForPeriod(period) {
-        var participants = this.session.participants;
+        var participants = this.periodParticipants(period);
         var numGroups = period.numGroups();
         var pIds = [];
         for (var p in participants) {
@@ -800,8 +1018,9 @@ class App {
         // Load stage contents, if any.
         var stagesHTML = '';
         var waitingScreensHTML = '';
-        for (var i=0; i<app.stages.length; i++) {
-            var stage = app.stages[i];
+        var pageStages = app.pageStages();
+        for (var i=0; i<pageStages.length; i++) {
+            var stage = pageStages[i];
             var stageHTML = '';
             var contentStart = app.parseStageTag(stage, app.stageContentStart);
             var contentEnd = app.parseStageTag(stage, app.stageContentEnd);
@@ -1017,10 +1236,22 @@ class App {
 
         this.finished = true;
 
+        // An app within a stage is written with the app of the session it is in.
+        if (this.parentPeriod != null) {
+            return;
+        }
+        // Those that have not ended yet, e.g. if a participant has not left one.
+        for (const run of this.runs()) {
+            if (!run.finished) {
+                run.finished = true;
+                run.runHook('end');
+            }
+        }
+
         let fd = fs.openSync(this.session.csvFN(), 'a');
 
         try {
-            fs.appendFileSync(fd, this.saveOutput());
+            fs.appendFileSync(fd, this.outputWithRuns());
         } catch(err) {
             console.log('error writing app: ' + this.id);
             debugger;
@@ -1031,6 +1262,11 @@ class App {
     }
 
     end() {}
+
+    /** This app's data (see saveOutput), then that of the apps within its stages (see runs). */
+    outputWithRuns() {
+        return [this].concat(this.runs()).map((app) => app.saveOutput()).join('');
+    }
 
     saveOutput() {
 
@@ -1148,7 +1384,11 @@ class App {
 
         // WRITE OUTPUT
         let fullText = '';
-        fullText += 'APP ' + this.indexInSession() + '_' + this.id + '\n';
+        if (this.parentPeriod != null) {
+            fullText += 'APP ' + this.getIdInSession() + '\n';
+        } else {
+            fullText += 'APP ' + this.indexInSession() + '_' + this.id + '\n';
+        }
         fullText += appsText.join('\n') + '\n';
         if (periodHeaders.length > 0) {
             fullText += 'PERIODS\n';
@@ -1190,8 +1430,11 @@ class App {
             fullText += playerText.join('\n') + '\n';
         }
 
-        fullText += 'PARTICIPANTS\n';
-        fullText += participantText.join('\n') + '\n';
+        // Participants are with the app of the session.
+        if (this.parentPeriod == null) {
+            fullText += 'PARTICIPANTS\n';
+            fullText += participantText.join('\n') + '\n';
+        }
 
         return fullText;
 
@@ -1228,13 +1471,20 @@ class App {
     }
 
     getIdInSession() {
+        if (this.parentPeriod != null) {
+            return this.parentPeriod.app.getIdInSession() + '/' + this.parentPeriod.id + '/' + this.parentStage.id;
+        }
         return this.indexInSession() + '_' + this.shortId;
     }
 
     /**
      * @return {number} The index of this app in its session's list of apps (first position = 1).
+     * For an app within a stage (see Stage#newStage, App#addApp), that of the app it is in.
      */
     indexInSession() {
+        if (this.parentStage != null) {
+            return this.parentStage.app.indexInSession();
+        }
         if (this.session === null) {
             return -1;
         }
@@ -1537,13 +1787,20 @@ class App {
      */
     participantBegin(participant) {
 
-        for (var c in participant.clients) {
-            var client = participant.clients[c];
-            this.addClientDefault(client);
+        // The stages of an app within a stage given stages of its own (see Stage#newStage)
+        // are on the page of the app it is in.
+        var newPage = this.hostApp() === this;
+        if (newPage) {
+            for (var c in participant.clients) {
+                var client = participant.clients[c];
+                this.addClientDefault(client);
+            }
         }
 
         participant.periodIndex = -1;
-        participant.emit('participantSetAppIndex', {appIndex: this.indexInSession()});
+        if (this.parentPeriod == null) {
+            participant.emit('participantSetAppIndex', {appIndex: this.indexInSession()});
+        }
 
         let duration = this.getParticipantDuration(participant);
         if (duration != null) {
@@ -1557,7 +1814,9 @@ class App {
         this.participantStart(participant);
         this.participantMoveToNextPeriod(participant);
 
-        participant.emit('start-new-app'); /** refresh clients.*/
+        if (newPage) {
+            participant.emit('start-new-app'); /** refresh clients.*/
+        }
     }
 
     /**
@@ -1715,6 +1974,9 @@ class App {
      * @return {string}  {@link Session#roomId} + '_app_' + this.id
      */
     roomId() {
+        if (this.parentPeriod != null) {
+            return this.parentPeriod.roomId() + '_stage_' + this.parentStage.id;
+        }
         return this.session.roomId() + '_app_' + this.indexInSession() + '-' + this.id;
     }
 
@@ -1841,7 +2103,7 @@ class App {
         }
 
         var proceed = true;
-        var participants = this.session.participants;
+        var participants = this.periodParticipants();
         for (var p in participants) {
             var participant = participants[p];
             if (!participant.isFinishedApp(this)) {
