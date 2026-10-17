@@ -335,7 +335,8 @@ test("oTree Studio's editor: a field added, asked for on a page, the template ch
     await clickText(page, 'button', '^Save$');
     await page.waitFor(() => /Saved/.test(document.body.innerText), { what: 'saved' });
     const source = fs.readFileSync(path.join(dir, '__init__.py'), 'utf8');
-    assert.match(source, /\n {4}age = models\.IntegerField\(label='How old are you\?', min=18\)\n/);
+    // (With the line ends the file had: \r\n where git checks files out so, on Windows.)
+    assert.match(source, /\r?\n {4}age = models\.IntegerField\(label='How old are you\?', min=18\)\r?\n/);
     assert.match(source, /form_fields = \['contribution', 'age'\]/);
     const html = fs.readFileSync(path.join(dir, 'Contribute.html'), 'utf8');
     assert.match(html, /<p>Tell us\.<\/p>/);
