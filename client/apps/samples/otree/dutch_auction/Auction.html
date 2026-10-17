@@ -14,12 +14,15 @@
 
     <script>
         let started = Date.now() - js_vars.elapsed * 1000;
+        let ticker = setInterval(showPrice, 200);
         function showPrice() {
+            let price = document.getElementById('price');
+            // The page has gone on: the auction is over.
+            if (price == null) return clearInterval(ticker);
             let ticks = Math.floor((Date.now() - started) / 1000 / js_vars.tick);
-            document.getElementById('price').innerText = Math.max(0, js_vars.start - js_vars.step * ticks);
+            price.innerText = Math.max(0, js_vars.start - js_vars.step * ticks);
         }
         showPrice();
-        setInterval(showPrice, 200);
         function liveRecv(data) {
             if (data === 'sold') document.getElementById('form').submit();
         }
