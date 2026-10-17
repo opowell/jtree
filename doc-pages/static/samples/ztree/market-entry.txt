@@ -1,0 +1,343 @@
+treatment "market-entry.ztt"{
+	background{
+		table globals{
+		}
+		table subjects{
+		}
+		table summary{
+		}
+		table contracts{
+		}
+		table clients{
+		}
+		table treatments{
+		}
+		table sessionglobals{
+		}
+		table participations{
+		}
+		numsubjects = 4;
+		numgroups = 1;
+		numpracticeperiods = 0;
+		numactualperiods = 5;
+		exchangerate = 1;
+		startendowment = 0;
+		showupfee = 0;
+		noAutoscope = FALSE;
+		firstBoxesOnTop = FALSE;
+		showupfeeawaytext = "You are making losses. Do you want to invest the showupfee in order to continue?";
+		showupfeeawayyestext = "Yes";
+		showupfeeawaynotext = "No";
+		moneyawaytext = "You are  making losses. Do you want to continue?";
+		moneyawayyestext = "Yes";
+		moneyawaynotext = "No";
+		bancruptwaittext = "Please wait until the experimenter unlocks your PC.";
+		program{
+			table = globals;
+			do{
+				OutsideOption = 10;
+				Capacity = 2;
+				PerPlace = 20;
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			headerbox "Header"{
+				hasframe = TRUE;
+				height = 10%;
+				top = 0p;
+				cuttop = TRUE;
+				showPeriods = TRUE;
+				showNumPeriods = TRUE;
+				periodtext = "Period";
+				periodoftext = "of";
+				practiceperiodprefix = "Trial ";
+				showtime = TRUE;
+				timestr = "Remaining time [sec]:";
+				pleasedecidetext = "Please reach a decision.";
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Text"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Please wait until the experiment continues.";
+				}
+			}
+		}
+	}
+	stage "Decision"{
+		startwaitforall = TRUE;
+		startConditionStr = "";
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = ifnoinput;
+		timeout = 60;
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Decision"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Staying out pays 10 points. If you enter, you get 10 + 20 x (2 - the number of players in your group who enter).";
+				}
+				item{
+				}
+				item{
+					label = "You";
+					variable = Enter;
+					format = "!radio: 0=\"Stay out\"; 1=\"Enter\";";
+					input = TRUE;
+					showdefault = FALSE;
+					emptyallowed = FALSE;
+					min = 0;
+					max = 1;
+				}
+				button "OK"{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Results"{
+		startwaitforall = TRUE;
+		startConditionStr = "";
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = ifnoinput;
+		timeout = 30;
+		program{
+			table = subjects;
+			do{
+				NumEnter = sum(same(Group), Enter);
+						Profit = OutsideOption + if(Enter == 1, PerPlace * (Capacity - NumEnter), 0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Results"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "You chose to";
+					variable = Enter;
+					format = "!text: 1=\"enter\"; 0=\"stay out\";";
+					input = FALSE;
+				}
+				item{
+					label = "Players in your group who entered";
+					variable = NumEnter;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "Your payoff";
+					variable = Profit;
+					format = "1";
+					input = FALSE;
+				}
+				button "Continue"{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	roles{
+		role "S 1"{
+		}
+		role "S 2"{
+		}
+		role "S 3"{
+		}
+		role "S 4"{
+		}
+	}
+	period "1"{
+		prompt = "";
+		subject 1{
+			name = "";
+			group = 1;
+			do{
+				Player = 1;
+			}
+		}
+		subject 2{
+			name = "";
+			group = 1;
+			do{
+				Player = 2;
+			}
+		}
+		subject 3{
+			name = "";
+			group = 1;
+			do{
+				Player = 3;
+			}
+		}
+		subject 4{
+			name = "";
+			group = 1;
+			do{
+				Player = 4;
+			}
+		}
+	}
+	period "2"{
+		prompt = "";
+		subject 1{
+			name = "";
+			group = 1;
+			do{
+				Player = 1;
+			}
+		}
+		subject 2{
+			name = "";
+			group = 1;
+			do{
+				Player = 2;
+			}
+		}
+		subject 3{
+			name = "";
+			group = 1;
+			do{
+				Player = 3;
+			}
+		}
+		subject 4{
+			name = "";
+			group = 1;
+			do{
+				Player = 4;
+			}
+		}
+	}
+	period "3"{
+		prompt = "";
+		subject 1{
+			name = "";
+			group = 1;
+			do{
+				Player = 1;
+			}
+		}
+		subject 2{
+			name = "";
+			group = 1;
+			do{
+				Player = 2;
+			}
+		}
+		subject 3{
+			name = "";
+			group = 1;
+			do{
+				Player = 3;
+			}
+		}
+		subject 4{
+			name = "";
+			group = 1;
+			do{
+				Player = 4;
+			}
+		}
+	}
+	period "4"{
+		prompt = "";
+		subject 1{
+			name = "";
+			group = 1;
+			do{
+				Player = 1;
+			}
+		}
+		subject 2{
+			name = "";
+			group = 1;
+			do{
+				Player = 2;
+			}
+		}
+		subject 3{
+			name = "";
+			group = 1;
+			do{
+				Player = 3;
+			}
+		}
+		subject 4{
+			name = "";
+			group = 1;
+			do{
+				Player = 4;
+			}
+		}
+	}
+	period "5"{
+		prompt = "";
+		subject 1{
+			name = "";
+			group = 1;
+			do{
+				Player = 1;
+			}
+		}
+		subject 2{
+			name = "";
+			group = 1;
+			do{
+				Player = 2;
+			}
+		}
+		subject 3{
+			name = "";
+			group = 1;
+			do{
+				Player = 3;
+			}
+		}
+		subject 4{
+			name = "";
+			group = 1;
+			do{
+				Player = 4;
+			}
+		}
+	}
+}

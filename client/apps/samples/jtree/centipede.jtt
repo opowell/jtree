@@ -1,0 +1,57 @@
+app.description = 'Centipede game (McKelvey and Palfrey, 1992): the two players in each pair take turns, player 1 first. The mover can take 80% of the pot, which ends the game (the other gets 20%), or pass, which doubles it. After 6 passes, the pot is shared equally.';
+
+app.groupSize   = 2;
+app.groupMatchingType = 'PARTNER_1122';
+app.initialPot  = 10;
+app.potMultiplier = 2;
+app.takerShare  = 0.8;
+app.numMoves    = 6;
+
+// One stage per move: player 1 moves on moves 1, 3 and 5, player 2 on moves 2, 4 and 6.
+for (let move = 1; move <= app.numMoves; move++) {
+    let moverId = move % 2 === 1 ? 1 : 2;
+    let moveStage = app.newStage('move' + move);
+    if (move === 1) {
+        moveStage.groupStart = function(group) {
+            group.pot = app.initialPot;
+            group.takenAt = 0;
+        }
+    }
+    moveStage.canPlayerParticipate = function(player) {
+        return player.idInGroup === moverId && player.group.takenAt === 0;
+    }
+    moveStage.activeScreen = `
+        <p>MOVE ${move} OF ${app.numMoves}</p>
+        <p>You are player {{player.idInGroup}}. The pot is {{group.pot}} points.</p>
+        <p>If you take, you get {{group.pot * app.takerShare}} points and the other player {{group.pot * (1 - app.takerShare) | round(2)}}, and the game ends.
+        If you pass, the pot doubles to {{group.pot * app.potMultiplier}}${move < app.numMoves ? ' and the other player moves' : ', and you each get half of it'}.</p>
+        <button name='player.take' value='true'>Take</button>
+        <button name='player.take' value='false'>Pass</button>
+    `;
+    moveStage.playerEnd = function(player) {
+        if (player.take) {
+            player.group.takenAt = move;
+        } else {
+            player.group.pot = player.group.pot * app.potMultiplier;
+        }
+    }
+}
+
+let resultsStage = app.newStage('results');
+resultsStage.groupStart = function(group) {
+    for (let player of group.players) {
+        if (group.takenAt === 0) {
+            player.points = group.pot / 2;
+        } else {
+            let tookIt = player.idInGroup === (group.takenAt % 2 === 1 ? 1 : 2);
+            let taken = group.pot * app.takerShare;
+            player.points = tookIt ? taken : group.pot - taken;
+        }
+    }
+}
+resultsStage.activeScreen = `
+    <p>RESULTS</p>
+    <p v-if='group.takenAt > 0'>Player {{group.takenAt % 2 === 1 ? 1 : 2}} took the pot of {{group.pot}} points at move {{group.takenAt}}.</p>
+    <p v-else>Nobody took the pot, which grew to {{group.pot}} points and is shared equally.</p>
+    <p>Your payoff: {{player.points | round(2)}} points.</p>
+`;

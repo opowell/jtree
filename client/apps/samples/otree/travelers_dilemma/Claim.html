@@ -1,0 +1,15 @@
+{{ block title }}Claim{{ endblock }}
+{{ block content }}
+
+    <p>
+        You and the other player each lost an identical antique. Each of you claims its value, from
+        {{ C.MIN_CLAIM }} to {{ C.MAX_CLAIM }}. You both get the lower of the two claims; if the claims
+        differ, whoever claimed less gets {{ C.ADJUSTMENT }} more, and whoever claimed more gets
+        {{ C.ADJUSTMENT }} less.
+    </p>
+
+    {{ formfields }}
+
+    {{ next_button }}
+
+{{ endblock }}

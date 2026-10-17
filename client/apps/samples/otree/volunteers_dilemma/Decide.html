@@ -1,0 +1,13 @@
+{{ block title }}Decision{{ endblock }}
+{{ block content }}
+
+    <p>
+        If at least one player in your group volunteers, everyone in the group gets {{ C.BENEFIT }}.
+        Volunteering costs the volunteer {{ C.COST }}.
+    </p>
+
+    {{ formfields }}
+
+    {{ next_button }}
+
+{{ endblock }}

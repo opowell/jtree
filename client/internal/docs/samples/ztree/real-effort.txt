@@ -1,0 +1,228 @@
+treatment "real-effort.ztt"{
+	background{
+		table globals{
+		}
+		table subjects{
+		}
+		table summary{
+		}
+		table contracts{
+		}
+		table clients{
+		}
+		table treatments{
+		}
+		table sessionglobals{
+		}
+		table participations{
+		}
+		numsubjects = 1;
+		numgroups = 1;
+		numpracticeperiods = 0;
+		numactualperiods = 1;
+		exchangerate = 1;
+		startendowment = 0;
+		showupfee = 0;
+		noAutoscope = FALSE;
+		firstBoxesOnTop = FALSE;
+		showupfeeawaytext = "You are making losses. Do you want to invest the showupfee in order to continue?";
+		showupfeeawayyestext = "Yes";
+		showupfeeawaynotext = "No";
+		moneyawaytext = "You are  making losses. Do you want to continue?";
+		moneyawayyestext = "Yes";
+		moneyawaynotext = "No";
+		bancruptwaittext = "Please wait until the experimenter unlocks your PC.";
+		program{
+			table = globals;
+			do{
+				WorkTime = 60;
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			headerbox "Header"{
+				hasframe = TRUE;
+				height = 10%;
+				top = 0p;
+				cuttop = TRUE;
+				showPeriods = TRUE;
+				showNumPeriods = TRUE;
+				periodtext = "Period";
+				periodoftext = "of";
+				practiceperiodprefix = "Trial ";
+				showtime = TRUE;
+				timestr = "Remaining time [sec]:";
+				pleasedecidetext = "Please reach a decision.";
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Text"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Please wait until the experiment continues.";
+				}
+			}
+		}
+	}
+	stage "Work"{
+		startwaitforall = TRUE;
+		startConditionStr = "";
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = WorkTime;
+		program{
+			table = subjects;
+			do{
+				Solved = 0;
+				Attempted = 0;
+				A = 10 + rounddown(random() * 90, 1);
+				B = 10 + rounddown(random() * 90, 1);
+				C = 10 + rounddown(random() * 90, 1);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Work"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Add up as many sums as you can before the time runs out. Each correct sum earns a point.";
+				}
+				item{
+				}
+				item{
+					label = "<><A|1> + <B|1> + <C|1> =";
+				}
+				item{
+					label = "Your answer";
+					variable = Answer;
+					format = "1";
+					input = TRUE;
+					showdefault = FALSE;
+					emptyallowed = FALSE;
+					min = 0;
+					max = 1000;
+				}
+				item{
+				}
+				item{
+					label = "Correct so far";
+					variable = Solved;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "Sums done";
+					variable = Attempted;
+					format = "1";
+					input = FALSE;
+				}
+				button "Submit"{
+					clearinputafterok = TRUE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = TRUE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+					program{
+						table = subjects;
+						do{
+							Attempted = Attempted + 1;
+									if (Answer == A + B + C) {
+										Solved = Solved + 1;
+									}
+									A = 10 + rounddown(random() * 90, 1);
+									B = 10 + rounddown(random() * 90, 1);
+									C = 10 + rounddown(random() * 90, 1);
+						}
+					}
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Results"{
+		startwaitforall = TRUE;
+		startConditionStr = "";
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = ifnoinput;
+		timeout = 30;
+		program{
+			table = subjects;
+			do{
+				Profit = Solved;
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Results"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Sums you added up correctly";
+					variable = Solved;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "Sums done";
+					variable = Attempted;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "Your payoff";
+					variable = Profit;
+					format = "1";
+					input = FALSE;
+				}
+				button "Continue"{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	roles{
+		role "S 1"{
+		}
+	}
+	period "1"{
+		prompt = "";
+		subject 1{
+			name = "";
+			group = 1;
+			do{
+				Player = 1;
+			}
+		}
+	}
+}

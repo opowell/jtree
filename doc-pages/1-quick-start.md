@@ -12,7 +12,7 @@
 
 #### Start a new session
 
-5. In the Browse panel, open an app (for example `public-good`, in `1 sample games`), or a queue.
+5. In the Browse panel, open an app (for example `public-goods`, in `samples/jtree`), or a queue. The <a href='tutorial-4c-samples.html'>samples library</a> has 23 experiments, each as a jtree app, an oTree app and a z-Tree treatment.
 
 6. In the app's panel, press "New session with this app". The Session panel opens.
 

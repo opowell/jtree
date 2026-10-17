@@ -1,0 +1,260 @@
+treatment "common-value-auction.ztt"{
+	background{
+		table globals{
+		}
+		table subjects{
+		}
+		table summary{
+		}
+		table contracts{
+		}
+		table clients{
+		}
+		table treatments{
+		}
+		table sessionglobals{
+		}
+		table participations{
+		}
+		numsubjects = 3;
+		numgroups = 1;
+		numpracticeperiods = 0;
+		numactualperiods = 1;
+		exchangerate = 1;
+		startendowment = 0;
+		showupfee = 0;
+		noAutoscope = FALSE;
+		firstBoxesOnTop = FALSE;
+		showupfeeawaytext = "You are making losses. Do you want to invest the showupfee in order to continue?";
+		showupfeeawayyestext = "Yes";
+		showupfeeawaynotext = "No";
+		moneyawaytext = "You are  making losses. Do you want to continue?";
+		moneyawayyestext = "Yes";
+		moneyawaynotext = "No";
+		bancruptwaittext = "Please wait until the experimenter unlocks your PC.";
+		program{
+			table = subjects;
+			do{
+				MaxValue = 100;
+				Noise = 10;
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			headerbox "Header"{
+				hasframe = TRUE;
+				height = 10%;
+				top = 0p;
+				cuttop = TRUE;
+				showPeriods = TRUE;
+				showNumPeriods = TRUE;
+				periodtext = "Period";
+				periodoftext = "of";
+				practiceperiodprefix = "Trial ";
+				showtime = TRUE;
+				timestr = "Remaining time [sec]:";
+				pleasedecidetext = "Please reach a decision.";
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Text"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Please wait until the experiment continues.";
+				}
+			}
+		}
+	}
+	stage "Bid"{
+		startwaitforall = TRUE;
+		startConditionStr = "";
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = ifnoinput;
+		timeout = 60;
+		program{
+			table = subjects;
+			do{
+				Draw = rounddown(random() * (MaxValue + 1), 1);
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				// The value is player 1's draw, the same for the group.
+							Value = find(same(Group) & Player == 1, Draw);
+							Estimate = min(MaxValue, max(0, Value + rounddown(random() * (2 * Noise + 1), 1) - Noise));
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Bid"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "The item is worth the same to every bidder in your group: a number from 0 to 100.";
+				}
+				item{
+					label = "Your estimate of it (the true value is at most 10 away)";
+					variable = Estimate;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "The highest bid wins the item, and pays the bid. The winner earns the item's value minus";
+				}
+				item{
+					label = "their bid, which can be negative.";
+				}
+				item{
+				}
+				item{
+					label = "Your bid";
+					variable = Bid;
+					format = "1";
+					input = TRUE;
+					showdefault = FALSE;
+					emptyallowed = FALSE;
+					min = 0;
+					max = MaxValue;
+				}
+				button "OK"{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Results"{
+		startwaitforall = TRUE;
+		startConditionStr = "";
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = ifnoinput;
+		timeout = 30;
+		program{
+			table = subjects;
+			do{
+				HighestBid = maximum(same(Group), Bid);
+							Tie = random();
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				Won = if(Bid == HighestBid & Tie == minimum(same(Group) & Bid == :HighestBid, Tie), 1, 0);
+							Profit = if(Won == 1, Value - Bid, 0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Results"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "The item was worth";
+					variable = Value;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "Your estimate";
+					variable = Estimate;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "Your bid";
+					variable = Bid;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "The highest bid";
+					variable = HighestBid;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "You";
+					variable = Won;
+					format = "!text: 1=\"won the item\"; 0=\"did not win the item\";";
+					input = FALSE;
+				}
+				item{
+					label = "Your payoff";
+					variable = Profit;
+					format = "1";
+					input = FALSE;
+				}
+				button "Continue"{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	roles{
+		role "S 1"{
+		}
+		role "S 2"{
+		}
+		role "S 3"{
+		}
+	}
+	period "1"{
+		prompt = "";
+		subject 1{
+			name = "";
+			group = 1;
+			do{
+				Player = 1;
+			}
+		}
+		subject 2{
+			name = "";
+			group = 1;
+			do{
+				Player = 2;
+			}
+		}
+		subject 3{
+			name = "";
+			group = 1;
+			do{
+				Player = 3;
+			}
+		}
+	}
+}

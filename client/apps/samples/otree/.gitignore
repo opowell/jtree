@@ -1,0 +1,3 @@
+# What oTree writes when run here (otree devserver, otree test).
+db.sqlite3
+__pycache__/

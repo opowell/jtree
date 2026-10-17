@@ -1,0 +1,14 @@
+{{ block title }}Contribution{{ endblock }}
+{{ block content }}
+
+    <p>
+        You are in a group of {{ C.PLAYERS_PER_GROUP }} players, and have {{ C.ENDOWMENT }}.
+        What the group contributes to the project is multiplied by {{ C.MULTIPLIER }} and shared
+        equally among its {{ C.PLAYERS_PER_GROUP }} players.
+    </p>
+
+    {{ formfields }}
+
+    {{ next_button }}
+
+{{ endblock }}

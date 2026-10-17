@@ -1,0 +1,108 @@
+app.description = 'Double auction with induced values (Smith, 1962): 4 buyers and 4 sellers trade units of a good for 2 minutes. Buyers post bids and sellers asks, each better than the best standing one, or accept the best one standing. Each trader trades up to 4 units, and earns the value (buyers) or price (sellers) of each unit minus its price (buyers) or cost (sellers). 2 periods.';
+
+app.numPeriods  = 2;
+app.groupSize   = 8;
+app.groupMatchingType = 'PARTNER_1122';
+app.tradingTime = 120;
+// Players 1 to 4 buy, 5 to 8 sell. Unit k is worth values[k] to a buyer, and costs a seller costs[k].
+app.values      = [400, 300, 200, 200];
+app.costs       = [20, 120, 220, 220];
+app.maxPrice    = 1000;
+app.stageWrapPlayingScreenInFormTag = 'no';
+
+app.isBuyer = function(player) {
+    return player.idInGroup <= app.groupSize / 2;
+}
+
+app.vueComputed = {
+    bids: function() {
+        return this.group.offers.filter(o => o.open && o.type === 'bid').sort((a, b) => b.price - a.price);
+    },
+    asks: function() {
+        return this.group.offers.filter(o => o.open && o.type === 'ask').sort((a, b) => a.price - b.price);
+    },
+    trades: function() {
+        return this.group.offers.filter(o => o.tradePrice != null);
+    },
+}
+
+let tradingStage = app.newStage('trading');
+tradingStage.duration = app.tradingTime;
+tradingStage.waitOnTimerEnd = false;
+tradingStage.groupStart = function(group) {
+    group.addTable('offers');
+}
+tradingStage.playerStart = function(player) {
+    player.buyer = app.isBuyer(player);
+    player.unitsTraded = 0;
+    player.points = 0;
+}
+tradingStage.activeScreen = `
+    <p>TRADING</p>
+    <p>You are a <b>{{player.buyer ? 'buyer' : 'seller'}}</b>. Units traded: {{player.unitsTraded}} of {{app.values.length}}. Profit so far: {{player.points}}.</p>
+    <p v-if='player.unitsTraded < app.values.length'>Your next unit {{player.buyer ? 'is worth' : 'costs'}} {{(player.buyer ? app.values : app.costs)[player.unitsTraded]}}.</p>
+    <p>
+        <input id='price' type='number' min='0' :max='app.maxPrice' step='1' style='width: 6em'>
+        <button type='button' onclick='jt.sendMessage("offer", document.getElementById("price").value - 0)'>{{player.buyer ? 'Bid' : 'Ask'}}</button>
+        <button type='button' v-if='player.buyer' :disabled='asks.length === 0' onclick='jt.sendMessage("accept")'>Buy at the best ask</button>
+        <button type='button' v-else :disabled='bids.length === 0' onclick='jt.sendMessage("accept")'>Sell at the best bid</button>
+    </p>
+    <table><tr>
+        <td style='vertical-align: top; padding-right: 2em'>Bids<div v-for='o in bids' :key='o.id'>{{o.price}}</div></td>
+        <td style='vertical-align: top; padding-right: 2em'>Asks<div v-for='o in asks' :key='o.id'>{{o.price}}</div></td>
+        <td style='vertical-align: top'>Trades<div v-for='o in trades' :key='o.id'>{{o.tradePrice}}</div></td>
+    </tr></table>
+`;
+
+/** The best open offer of a type: the highest bid, or the lowest ask. */
+app.bestOffer = function(group, type) {
+    let open = group.offers.rows.filter(o => o.open && o.type === type);
+    open.sort((a, b) => type === 'bid' ? b.price - a.price : a.price - b.price);
+    return open[0];
+}
+
+// A bid (buyer) or ask (seller): it must be better than the best standing one.
+app.messages.offer = function(price) {
+    let player = this.participant.player;
+    let group = player.group;
+    let type = player.buyer ? 'bid' : 'ask';
+    if (player.stage.id !== 'trading' || player.unitsTraded >= app.values.length) return;
+    if (!(price >= 0 && price <= app.maxPrice && Number.isInteger(price))) return;
+    let best = app.bestOffer(group, type);
+    if (best != null && (type === 'bid' ? price <= best.price : price >= best.price)) return;
+    group.offers.new({ type, price, maker: player.idInGroup, open: true });
+}
+
+// Takes the best offer of the other side.
+app.messages.accept = function() {
+    let player = this.participant.player;
+    let group = player.group;
+    if (player.stage.id !== 'trading' || player.unitsTraded >= app.values.length) return;
+    let offer = app.bestOffer(group, player.buyer ? 'ask' : 'bid');
+    if (offer == null) return;
+    let maker = group.playerWithId(offer.maker);
+    if (maker.unitsTraded >= app.values.length) return;
+    let buyer = player.buyer ? player : maker;
+    let seller = player.buyer ? maker : player;
+    buyer.points += app.values[buyer.unitsTraded] - offer.price;
+    seller.points += offer.price - app.costs[seller.unitsTraded];
+    buyer.unitsTraded++;
+    seller.unitsTraded++;
+    offer.tradePrice = offer.price;
+    // The offer, and the traders' other offers, close.
+    for (let o of group.offers.rows) {
+        if (o.open && (o === offer || o.maker === buyer.idInGroup || o.maker === seller.idInGroup)) {
+            o.open = false;
+            group.emit('offersUpdate', o);
+        }
+    }
+    group.offers.save();
+    buyer.saveAndUpdate();
+    seller.saveAndUpdate();
+}
+
+let resultsStage = app.newStage('results');
+resultsStage.activeScreen = `
+    <p>RESULTS</p>
+    <p>You traded {{player.unitsTraded}} unit(s), for a profit of {{player.points}} points.</p>
+`;

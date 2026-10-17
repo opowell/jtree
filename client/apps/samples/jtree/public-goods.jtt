@@ -1,0 +1,31 @@
+app.description = 'Public goods game: each of 4 players in a group has 20 points and decides how many to contribute to a group project. Contributions are doubled and shared equally among the group. 10 periods, in the same groups.';
+
+app.numPeriods  = 10;
+app.groupSize   = 4;
+app.groupMatchingType = 'PARTNER_1122';
+app.endowment   = 20;
+app.factor      = 2;
+
+let decideStage = app.newStage('decide');
+decideStage.activeScreen = `
+    <p>DECISION</p>
+    <p>Your endowment is {{app.endowment}} points.</p>
+    <p>Your contribution: <input name='player.contribution' required type='number' min='0' :max='app.endowment' step='1'></p>
+`;
+
+let resultsStage = app.newStage('results');
+resultsStage.groupStart = function(group) {
+    group.contributions = group.sum('contribution');
+    group.production = group.contributions * app.factor;
+    group.prodPerPlayer = group.production / group.players.length;
+    for (let i in group.players) { // i = 0, 1, 2, 3
+        let player = group.players[i];
+        player.points = app.endowment - player.contribution + group.prodPerPlayer;
+    }
+}
+resultsStage.activeScreen = `
+    <p>RESULTS</p>
+    <p>Your endowment was {{app.endowment}} points. You contributed {{player.contribution}} points.</p>
+    <p>In total, players in your group contributed {{group.contributions}} points, thus the total amount produced was {{group.production | round(2)}} points.</p>
+    <p>Thus, your payoff in this period is {{player.points | round(2)}} points.</p>
+`;

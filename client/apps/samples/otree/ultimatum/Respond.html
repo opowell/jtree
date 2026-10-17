@@ -1,0 +1,13 @@
+{{ block title }}Response{{ endblock }}
+{{ block content }}
+
+    <p>
+        You are player 2. Player 1 offers you {{ group.offer }} of the {{ C.PIE_SIZE }},
+        and would keep {{ kept }}.
+    </p>
+
+    {{ formfields }}
+
+    {{ next_button }}
+
+{{ endblock }}

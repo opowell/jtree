@@ -19,13 +19,13 @@ after(async () => { await server.close(); });
 // Nor values the app file computes from options when it runs: those are described as they
 // came out with the options' defaults.
 const CANNOT = {
-    'centipede.jtt': 'its first stage calls getAnonymousPartnerIds, a function of the app file',
-    'real-effort-sums.jtt': "its work stage's duration is computed from the workTime option",
+    'centipede.jtt': 'its stages are made in a loop, and their functions use its variables (move, moverId)',
+    'real-effort.jtt': "its work stage's duration is computed from the workTime option",
 };
 
 /** The description of the game in file, as a .app.json in the test's data folder. */
 function describe(file) {
-    const loaded = server.jt.data.loadApp('x', {}, app('1 sample games/' + file), {});
+    const loaded = server.jt.data.loadApp('x', {}, app('samples/jtree/' + file), {});
     assert.ok(loaded && !loaded.hasError, 'could not load ' + file);
     const ir = loaded.toIR();
     assert.deepEqual(validate(ir), []);

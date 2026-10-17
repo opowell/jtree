@@ -1,0 +1,13 @@
+{{ block title }}Results{{ endblock }}
+{{ block content }}
+
+    <p>
+        You chose to <b>{{ if player.enter }}enter{{ else }}stay out{{ endif }}</b>.
+        {{ group.num_enter }} player(s) in your group entered.
+    </p>
+
+    <p>Your payoff: {{ player.payoff }}.</p>
+
+    {{ next_button }}
+
+{{ endblock }}

@@ -1,0 +1,40 @@
+{{ block title }}Trading{{ endblock }}
+{{ block content }}
+
+    <p>
+        You are a <b>{{ if buyer }}buyer{{ else }}seller{{ endif }}</b>.
+        Units traded: <span id="units"></span> of {{ num_units }}. Profit so far: <span id="profit"></span>.
+    </p>
+    <p id="next"></p>
+
+    <p>
+        <input id="price" type="number" min="0" max="{{ C.MAX_PRICE }}" step="1" style="width: 6em">
+        <button type="button" class="btn btn-primary" onclick="liveSend({type: 'offer', price: parseInt(document.getElementById('price').value)})">
+            {{ if buyer }}Bid{{ else }}Ask{{ endif }}</button>
+        <button type="button" class="btn btn-primary" onclick="liveSend({type: 'accept'})">
+            {{ if buyer }}Buy at the best ask{{ else }}Sell at the best bid{{ endif }}</button>
+    </p>
+
+    <table class="table" style="width: auto">
+        <tr><th>Bids</th><th>Asks</th><th>Trades</th></tr>
+        <tr>
+            <td id="bids" style="vertical-align: top"></td>
+            <td id="asks" style="vertical-align: top"></td>
+            <td id="trades" style="vertical-align: top"></td>
+        </tr>
+    </table>
+
+    <script>
+        function liveRecv(state) {
+            document.getElementById('units').innerText = state.units_traded;
+            document.getElementById('profit').innerText = state.profit;
+            document.getElementById('next').innerText = state.next_unit === null ? '' :
+                'Your next unit ' + (js_vars.buyer ? 'is worth ' : 'costs ') + state.next_unit + '.';
+            for (let list of ['bids', 'asks', 'trades']) {
+                document.getElementById(list).innerHTML = state[list].map(p => '<div>' + p + '</div>').join('');
+            }
+        }
+        liveRecv(js_vars.state);
+    </script>
+
+{{ endblock }}

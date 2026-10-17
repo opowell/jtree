@@ -1,0 +1,13 @@
+{{ block title }}Results{{ endblock }}
+{{ block content }}
+
+    <p>
+        Your price was {{ player.price }}; the lowest price was {{ group.winning_price }}.
+        You <b>{{ if player.won }}made{{ else }}did not make{{ endif }}</b> the sale.
+    </p>
+
+    <p>Your payoff: {{ player.payoff }}.</p>
+
+    {{ next_button }}
+
+{{ endblock }}

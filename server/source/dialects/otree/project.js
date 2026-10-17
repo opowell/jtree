@@ -81,4 +81,9 @@ function queueScript(settingsPath, name) {
     return { script: lines.join('\n') + '\n', config };
 }
 
-module.exports = { isProject, sessionConfigs, rooms, queueId, parseQueueId, queueScript };
+/** Has Python read the settings of the project of settingsPath, for its apps (USE_POINTS, ...). */
+function useSettings(settingsPath) {
+    runtime.getBridge().use_project_settings(putSettings(settingsPath));
+}
+
+module.exports = { isProject, sessionConfigs, rooms, useSettings, queueId, parseQueueId, queueScript };

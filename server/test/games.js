@@ -1,4 +1,4 @@
-// The games in client/apps/1 sample games, as scripts for bots: each starts from a started
+// jtree's versions of the samples library's games (client/apps/samples/jtree), as scripts for bots: each starts from a started
 // session of the game with its bots connected, plays it and checks the results. Run on the
 // games' own files (sample-games.test.js) and on descriptions of them (ir-roundtrip.test.js).
 
@@ -7,7 +7,7 @@ const assert = require('node:assert/strict');
 module.exports = [
     {
         name: 'public good: payoffs follow contributions, in every period',
-        file: 'public-good.jtt',
+        file: 'public-goods.jtt',
         participants: 4,
         async play({ bots, app }) {
             const contributions = [0, 5, 10, 20];
@@ -30,7 +30,7 @@ module.exports = [
     },
     {
         name: 'dictator game: only player 1 decides, player 2 gets the rest',
-        file: 'dictator-game.jtt',
+        file: 'dictator.jtt',
         participants: 4,
         async play({ bots, app }) {
             for (let period = 1; period <= app.numPeriods; period++) {
@@ -52,16 +52,16 @@ module.exports = [
     {
         name: 'beauty contest: the guess closest to 2/3 of the average wins',
         file: 'beauty-contest.jtt',
-        participants: 4,
+        participants: 3,
         async play({ bots, app }) {
-            const guesses = [20, 40, 60, 100]; // average 55, target 36.67: 40 wins.
+            const guesses = [20, 40, 60]; // average 40, target 26.67: 20 wins.
             for (let period = 1; period <= app.numPeriods; period++) {
-                await Promise.all(bots.map((b, i) => b.play('decide', { 'player.guess': guesses[i] }, { period })));
+                await Promise.all(bots.map((b, i) => b.play('guess', { 'player.guess': guesses[i] }, { period })));
                 await Promise.all(bots.map(b => b.play('results', {}, { period })));
             }
             await Promise.all(bots.map(b => b.waitForEnd()));
             for (const [i, b] of bots.entries()) {
-                for (const pl of b.players()) assert.equal(pl.points, i === 1 ? app.prize : 0);
+                for (const pl of b.players()) assert.equal(pl.points, i === 0 ? app.prize : 0);
             }
         },
     },
@@ -70,17 +70,17 @@ module.exports = [
         file: 'market-entry.jtt',
         participants: 4,
         async play({ bots, app }) {
-            const enters = [true, true, false, false];
+            const enters = [true, false, false, false];
             for (let period = 1; period <= app.numPeriods; period++) {
                 await Promise.all(bots.map((b, i) => b.play('decide', { 'player.enter': enters[i] }, { period })));
                 await Promise.all(bots.map(b => b.play('results', {}, { period })));
             }
             await Promise.all(bots.map(b => b.waitForEnd()));
-            // 1 + 2*(capacity 4 - 2 entrants) = 5 for entrants; outside option 1.
+            // 10 + 20 * (capacity 2 - 1 entrant) = 30 for the entrant; outside option 10.
             for (const [i, b] of bots.entries()) {
                 for (const pl of b.players()) {
                     assert.equal(pl.enter, enters[i]);
-                    assert.equal(pl.points, enters[i] ? 5 : 1);
+                    assert.equal(pl.points, enters[i] ? 30 : 10);
                 }
             }
         },
@@ -95,13 +95,13 @@ module.exports = [
             await Promise.all(bots.map((b, i) => b.play('decide', { 'player.enter': i === 0 }, { period: 1 })));
             await Promise.all(bots.map(b => b.waitForStage('results', { period: 1 })));
             const [p0, p1] = bots.map(b => b.players()[0]);
-            assert.equal(p0.points, 1 + 2 * (10 - 1));
+            assert.equal(p0.points, 3 + 20 * (10 - 1));
             assert.equal(p1.points, 3);
         },
     },
     {
         name: 'public good with punishment: punishment costs the punisher 1 and the target 2',
-        file: 'public-good-w-punish.jtt',
+        file: 'public-goods-punishment.jtt',
         participants: 4,
         async play({ bots }) {
             await Promise.all(bots.map(b => b.play('decide', { 'player.contribution': 10 }, { period: 1 })));
@@ -123,40 +123,43 @@ module.exports = [
         },
     },
     {
-        name: 'centipede: taking at the first move ends the game for that pair',
+        name: 'centipede: a pass doubles the pot, and the taker gets 80% of it',
         file: 'centipede.jtt',
         participants: 2,
         async play({ bots }) {
-            // Everyone is player A of one pair (pA_*) and player B of another (pB_*).
-            await Promise.all(bots.map(b => b.play('pA_0', { 'player.choice1': 'TAKE' }, { period: 1 })));
-            await Promise.all(bots.map(b => b.waitForStage('results', { period: 1 })));
-            for (const b of bots) {
-                const pl = b.players()[0];
-                assert.equal(pl.passes1, 0);
-                // 0.8 of the pie of 5 as taker, 0.2 of 5 as the other.
-                assert.equal(pl.points, 0.8 * 5 + 0.2 * 5);
-            }
+            const [p1, p2] = bots;
+            await p1.play('move1', { 'player.take': false });
+            await p2.play('move2', { 'player.take': false });
+            await p1.play('move3', { 'player.take': true });
+            await Promise.all(bots.map(b => b.waitForStage('results')));
+            // Player 1 took the pot of 40 at move 3: 32, and 8 for player 2.
+            assert.equal(p1.player.group.takenAt, 3);
+            assert.equal(p1.player.points, 32);
+            assert.equal(p2.player.points, 8);
         },
     },
     {
         name: 'real effort: correct sums score a point each, and the stage ends on time',
-        file: 'real-effort-sums.jtt',
+        file: 'real-effort.jtt',
         participants: 1,
-        options: { workTime: 1, numTasks: 3 },
-        async play({ bots, app }) {
+        options: { workTime: 1 },
+        async play({ bots }) {
             const [bot] = bots;
             await bot.waitForStage('work');
-            const sums = app.tasks.map(t => t.reduce((a, b) => a + b, 0));
-            // Two right, one wrong, not submitted: the stage's 1-second timer submits them.
-            bot.fill({ 'player.A0': sums[0], 'player.A1': sums[1], 'player.A2': sums[2] + 1 });
+            // Two right, one wrong; the stage's 1-second timer ends it.
+            for (const right of [true, true, false]) {
+                const attempted = bot.player.attempted;
+                const sum = bot.player.numbers.reduce((a, b) => a + b, 0);
+                bot.send('answer', right ? sum : sum + 1);
+                await bot.waitFor(() => bot.player.attempted === attempted + 1);
+            }
             await bot.waitForStage('results', { timeout: 4000 });
             assert.equal(bot.player.points, 2);
-            assert.equal(bot.participant.score, 2);
         },
     },
     {
-        name: 'double auction: a trade moves a share and its price between players',
-        file: 'double-auction.jtt',
+        name: 'asset market: a trade moves a share and its price between players',
+        file: 'asset-market.jtt',
         participants: 2,
         options: { tradingTime: 60 },
         async play({ bots, app }) {

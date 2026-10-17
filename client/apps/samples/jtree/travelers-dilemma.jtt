@@ -1,0 +1,30 @@
+app.description = "Traveler's dilemma (Basu, 1994): the two players in each pair claim between 2 and 100 points at the same time. Both get the lower claim; whoever claimed less also gets 2 points more, and whoever claimed more gets 2 points less.";
+
+app.groupSize   = 2;
+app.groupMatchingType = 'PARTNER_1122';
+app.minClaim    = 2;
+app.maxClaim    = 100;
+app.adjustment  = 2;
+
+let claimStage = app.newStage('claim');
+claimStage.activeScreen = `
+    <p>CLAIM</p>
+    <p>You and the other player each lost an identical antique. Each of you claims its value, from {{app.minClaim}} to {{app.maxClaim}} points. You both get the lower of the two claims; if the claims differ, whoever claimed less gets {{app.adjustment}} points more, and whoever claimed more gets {{app.adjustment}} points less.</p>
+    <p>Your claim: <input name='player.claim' required type='number' :min='app.minClaim' :max='app.maxClaim' step='1'></p>
+`;
+
+let resultsStage = app.newStage('results');
+resultsStage.groupStart = function(group) {
+    group.lowerClaim = Math.min(...group.players.map(p => p.claim));
+    for (let player of group.players) {
+        let other = player.otherPlayersInGroup()[0];
+        player.otherClaim = other.claim;
+        player.adjustment = player.claim < other.claim ? app.adjustment : player.claim > other.claim ? -app.adjustment : 0;
+        player.points = group.lowerClaim + player.adjustment;
+    }
+}
+resultsStage.activeScreen = `
+    <p>RESULTS</p>
+    <p>You claimed {{player.claim}} points, and the other player claimed {{player.otherClaim}}.</p>
+    <p>Your payoff: {{group.lowerClaim}} + ({{player.adjustment}}) = {{player.points}} points.</p>
+`;

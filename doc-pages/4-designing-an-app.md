@@ -56,8 +56,8 @@ We will use the following tags: `<p>` (paragraph) to display text, `<input>` to 
 
 ```html
 <p>DECISION</p>
-<p>Your endowment is {{app.endowment}} E$.</p>
-<p>Your contribution (E$): <input name='player.contribution' required type='number' min='0' :max='app.endowment' step='1'></p>
+<p>Your endowment is {{app.endowment}} points.</p>
+<p>Your contribution: <input name='player.contribution' required type='number' min='0' :max='app.endowment' step='1'></p>
 ```
 
 jtree uses the Vue framework to bind screen elements to player data. For example, regular text that is encapsulated by double curly braces, `{{` and `}}`, is evaluated, rather than interpreted literally. For example, in the decision screen, `{{app.endowment}}` would be replaced with "20". The same applies to tag properties (such as the `max` property in the above example) that are preceded with a `:` character. Available data objects are `player`, `group` (the current player's group), `period` (the group's period), `app`, `session` and `stage`.
@@ -98,9 +98,9 @@ Now add the screen content:
 ```javascript
 resultsStage.activeScreen = `
 <p>RESULTS</p>
-<p>Your endowment was {{app.endowment}} E$. You contributed {{player.contribution}} E$.</p>
-<p>In total, players in your group contributed {{group.contributions}} E$, thus the total amount produced was {{group.production | round(2)}} E$.</p>
-<p>Thus, your payoff in this period is {{player.points | round(2)}} E$.</p>
+<p>Your endowment was {{app.endowment}} points. You contributed {{player.contribution}} points.</p>
+<p>In total, players in your group contributed {{group.contributions}} points, thus the total amount produced was {{group.production | round(2)}} points.</p>
+<p>Thus, your payoff in this period is {{player.points | round(2)}} points.</p>
 `;
 ```
 
@@ -117,8 +117,8 @@ app.factor      = 2;
 let decideStage = app.newStage('decide');
 decideStage.activeScreen = `
     <p>DECISION</p>
-    <p>Your endowment is {{app.endowment}} E$.</p>
-    <p>Your contribution (E$): <input name='player.contribution' required type='number' min='0' :max='app.endowment' step='1'></p>
+    <p>Your endowment is {{app.endowment}} points.</p>
+    <p>Your contribution: <input name='player.contribution' required type='number' min='0' :max='app.endowment' step='1'></p>
 `;
 
 let resultsStage = app.newStage('results');
@@ -133,16 +133,16 @@ resultsStage.groupStart = function(group) {
 }
 resultsStage.activeScreen = `
     <p>RESULTS</p>
-    <p>Your endowment was {{app.endowment}} E$. You contributed {{player.contribution}} E$.</p>
-    <p>In total, players in your group contributed {{group.contributions}} E$, thus the total amount produced was {{group.production | round(2)}} E$.</p>
-    <p>Thus, your payoff in this period is {{player.points | round(2)}} E$.</p>
+    <p>Your endowment was {{app.endowment}} points. You contributed {{player.contribution}} points.</p>
+    <p>In total, players in your group contributed {{group.contributions}} points, thus the total amount produced was {{group.production | round(2)}} points.</p>
+    <p>Thus, your payoff in this period is {{player.points | round(2)}} points.</p>
 `;
 ```
 
 And now the app is complete. Press "Save and start a session" to test it, then follow the previous tutorial on <a href='tutorial-3-running-a-session.html'>running a session.</a> If the app has a mistake, its panel says where (file, line and position).
 
 #### An app as a folder
-An app can also be a folder: a file `app.jtt` that sets up the app, and one `.jtt` file per stage beside it. The stage files are added after `app.jtt` has run, in the order of their names; a leading number orders them and is not part of the stage's id, so `1_decide.jtt` is the stage `decide`. In a stage's file, `stage` is that stage and `app` is the app. The public goods game above, as a folder (see `apps/1 sample games/public-good-v2`):
+An app can also be a folder: a file `app.jtt` that sets up the app, and one `.jtt` file per stage beside it. The stage files are added after `app.jtt` has run, in the order of their names; a leading number orders them and is not part of the stage's id, so `1_decide.jtt` is the stage `decide`. In a stage's file, `stage` is that stage and `app` is the app. The public goods game above, as a folder (see `apps/2 features/public-good-v2`):
 
 ```javascript
 // app.jtt
@@ -156,7 +156,7 @@ app.factor      = 2;
 // 1_decide.jtt
 stage.activeScreen = `
     <p>DECISION</p>
-    <p>Your contribution (E$): <input name='player.contribution' required type='number' min='0' :max='app.endowment' step='1'></p>
+    <p>Your contribution: <input name='player.contribution' required type='number' min='0' :max='app.endowment' step='1'></p>
 `;
 ```
 

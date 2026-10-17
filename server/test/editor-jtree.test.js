@@ -34,11 +34,11 @@ function stagesJtreeMakes(source, name = 'check.jtt') {
     return app.stages.map((s) => s.id);
 }
 
-const SAMPLES = ['1 sample games', '2 features'].flatMap((dir) =>
+const SAMPLES = ['samples/jtree', '2 features'].flatMap((dir) =>
     fs.readdirSync(sampleApp(dir)).filter((f) => f.endsWith('.jtt') && !/^error-/.test(f)).map((f) => dir + '/' + f));
 
 test('the editor finds the stages jtree makes, in every sample app', () => {
-    assert.equal(editor.model(fs.readFileSync(sampleApp('1 sample games/centipede.jtt'), 'utf8')).otherStages, true);
+    assert.equal(editor.model(fs.readFileSync(sampleApp('samples/jtree/centipede.jtt'), 'utf8')).otherStages, true);
     for (const rel of SAMPLES) {
         const source = fs.readFileSync(sampleApp(rel), 'utf8');
         const m = editor.model(source);
@@ -50,7 +50,7 @@ test('the editor finds the stages jtree makes, in every sample app', () => {
 });
 
 test("a sample app's settings, screens and functions, as the editor shows them", () => {
-    const m = editor.model(fs.readFileSync(sampleApp('1 sample games/public-good.jtt'), 'utf8'));
+    const m = editor.model(fs.readFileSync(sampleApp('samples/jtree/public-goods.jtt'), 'utf8'));
     const prop = (list, name) => list.find((p) => p.name === name);
     assert.deepEqual([prop(m.app, 'numPeriods').kind, prop(m.app, 'numPeriods').value], ['number', 10]);
     assert.equal(prop(m.app, 'description').kind, 'string');
@@ -64,7 +64,7 @@ test("a sample app's settings, screens and functions, as the editor shows them",
 });
 
 test('edits change only what they are about, and jtree runs the result', () => {
-    const original = fs.readFileSync(sampleApp('1 sample games/public-good.jtt'), 'utf8');
+    const original = fs.readFileSync(sampleApp('samples/jtree/public-goods.jtt'), 'utf8');
     let source = editor.apply(original, { op: 'setAppProp', name: 'numPeriods', value: { kind: 'number', value: 3 } });
     assert.equal(source, original.replace('app.numPeriods  = 10;', 'app.numPeriods  = 3;'));
 
@@ -130,7 +130,7 @@ test("every sample app's screens are read into their elements, each where it is 
             within(p.nodes, 0, p.value.length, rel + ' ' + p.name);
         }
     }
-    const decide = editor.model(fs.readFileSync(sampleApp('1 sample games/public-good.jtt'), 'utf8')).stages[0];
+    const decide = editor.model(fs.readFileSync(sampleApp('samples/jtree/public-goods.jtt'), 'utf8')).stages[0];
     const screen = decide.props.find((p) => p.name === 'activeScreen');
     assert.deepEqual(shape(screen.nodes), [['p', ['text']], ['p', ['text']], ['p', ['text', 'input']]]);
     const input = screen.nodes[2].children[1];
@@ -139,7 +139,7 @@ test("every sample app's screens are read into their elements, each where it is 
 });
 
 test('screen edits change only the element they are about, and jtree runs the result', () => {
-    const original = fs.readFileSync(sampleApp('1 sample games/public-good.jtt'), 'utf8');
+    const original = fs.readFileSync(sampleApp('samples/jtree/public-goods.jtt'), 'utf8');
     const screenEdit = (source, edit, stage = 'decide') => editor.apply(source, { op: 'editScreen', stage, name: 'activeScreen', edit });
     const decideScreen = (source) => editor.model(source).stages[0].props.find((p) => p.name === 'activeScreen').value;
 
@@ -152,13 +152,13 @@ test('screen edits change only the element they are about, and jtree runs the re
 
     source = screenEdit(original, { do: 'setContent', path: [0], html: 'DECIDE' });
     assert.equal(source, original.replace('<p>DECISION</p>', '<p>DECIDE</p>'));
-    source = screenEdit(original, { do: 'replace', path: [1, 0], html: 'You have {{app.endowment}} E$.' });
-    assert.equal(source, original.replace('Your endowment is {{app.endowment}} E$.', 'You have {{app.endowment}} E$.'));
+    source = screenEdit(original, { do: 'replace', path: [1, 0], html: 'You have {{app.endowment}} points.' });
+    assert.equal(source, original.replace('Your endowment is {{app.endowment}} points.', 'You have {{app.endowment}} points.'));
 
     // Put in after an element, and as the last of a box's children: on lines of their own, indented as it is.
     source = screenEdit(original, { do: 'insert', path: [0], where: 'after', html: '<div>\n    <b>Round {{period.id}}</b>\n</div>' });
-    assert.equal(decideScreen(source), '\n    <p>DECISION</p>\n    <div>\n        <b>Round {{period.id}}</b>\n    </div>\n    <p>Your endowment is {{app.endowment}} E$.</p>\n' +
-        "    <p>Your contribution (E$): <input name='player.contribution' required type='number' min='0' :max='app.endowment' step='1'></p>\n");
+    assert.equal(decideScreen(source), '\n    <p>DECISION</p>\n    <div>\n        <b>Round {{period.id}}</b>\n    </div>\n    <p>Your endowment is {{app.endowment}} points.</p>\n' +
+        "    <p>Your contribution: <input name='player.contribution' required type='number' min='0' :max='app.endowment' step='1'></p>\n");
     source = screenEdit(source, { do: 'insert', path: [1], where: 'inside', html: '<br>' });
     assert.match(decideScreen(source), /<b>Round \{\{period\.id\}\}<\/b>\n {8}<br>\n {4}<\/div>/);
     source = screenEdit(source, { do: 'insert', html: '<button>OK</button>' });
@@ -167,11 +167,11 @@ test('screen edits change only the element they are about, and jtree runs the re
 
     // Moved down past its sibling, then taken out with its line: as it was.
     source = screenEdit(original, { do: 'move', path: [0], by: 1 });
-    assert.equal(source, original.replace('<p>DECISION</p>\n    <p>Your endowment is {{app.endowment}} E$.</p>', '<p>Your endowment is {{app.endowment}} E$.</p>\n    <p>DECISION</p>'));
+    assert.equal(source, original.replace('<p>DECISION</p>\n    <p>Your endowment is {{app.endowment}} points.</p>', '<p>Your endowment is {{app.endowment}} points.</p>\n    <p>DECISION</p>'));
     source = screenEdit(source, { do: 'move', path: [1], by: -1 });
     assert.equal(source, original);
     source = screenEdit(original, { do: 'remove', path: [1] });
-    assert.equal(source, original.replace('    <p>Your endowment is {{app.endowment}} E$.</p>\n', ''));
+    assert.equal(source, original.replace('    <p>Your endowment is {{app.endowment}} points.</p>\n', ''));
     assert.throws(() => screenEdit(original, { do: 'move', path: [0], by: -1 }), /already the first/);
     assert.throws(() => screenEdit(original, { do: 'remove', path: [7] }), /no element at \[7\]/);
 
@@ -182,7 +182,7 @@ test('screen edits change only the element they are about, and jtree runs the re
 });
 
 test('elements dragged elsewhere: in their screen, into a box, to another stage\'s screen', () => {
-    const original = fs.readFileSync(sampleApp('1 sample games/public-good.jtt'), 'utf8');
+    const original = fs.readFileSync(sampleApp('samples/jtree/public-goods.jtt'), 'utf8');
     const screenOf = (source, k) => editor.model(source).stages[k].props.find((p) => p.name === 'activeScreen').value;
     const at = (stage, path, where) => ({ stage, name: 'activeScreen', path, where });
     const move = (source, from, to) => editor.apply(source, { op: 'moveElement', from, to });
@@ -192,7 +192,7 @@ test('elements dragged elsewhere: in their screen, into a box, to another stage\
     // Down past the others, in its own screen; and an input out of its paragraph.
     assert.equal(screenOf(move(original, at('decide', [0]), at('decide', [2], 'after')), 0), `\n    ${endowment}\n    ${contribution}\n    ${title}\n`);
     assert.equal(screenOf(move(original, at('decide', [0]), at('decide', [2], 'before')), 0), `\n    ${endowment}\n    ${title}\n    ${contribution}\n`);
-    assert.match(screenOf(move(original, at('decide', [2, 1]), at('decide', [0], 'before')), 0), /^\n {4}<input name='player\.contribution'[^\n]*>\n {4}<p>DECISION<\/p>\n[\s\S]*<p>Your contribution \(E\$\): <\/p>\n$/);
+    assert.match(screenOf(move(original, at('decide', [2, 1]), at('decide', [0], 'before')), 0), /^\n {4}<input name='player\.contribution'[^\n]*>\n {4}<p>DECISION<\/p>\n[\s\S]*<p>Your contribution: <\/p>\n$/);
     // Into a box, as its last child, then out to the end of the screen.
     let source = editor.apply(original, { op: 'editScreen', stage: 'decide', name: 'activeScreen', edit: { do: 'insert', path: [2], where: 'after', html: '<div>\n    <hr>\n</div>' } });
     source = move(source, at('decide', [0]), at('decide', [3], 'inside'));
@@ -202,7 +202,7 @@ test('elements dragged elsewhere: in their screen, into a box, to another stage\
     // To another stage's screen: put in there, taken out here, in one edit.
     source = move(original, at('decide', [1]), at('results', [0], 'after'));
     assert.equal(screenOf(source, 0), `\n    ${title}\n    ${contribution}\n`);
-    assert.match(screenOf(source, 1), /^\n {4}<p>RESULTS<\/p>\n {4}<p>Your endowment is \{\{app\.endowment\}\} E\$\.<\/p>\n {4}<p>Your endowment was/);
+    assert.match(screenOf(source, 1), /^\n {4}<p>RESULTS<\/p>\n {4}<p>Your endowment is \{\{app\.endowment\}\} points\.<\/p>\n {4}<p>Your endowment was/);
     assert.deepEqual(stagesJtreeMakes(source), ['decide', 'results']);
     // Not into itself.
     assert.throws(() => move(original, at('decide', [2]), at('decide', [2, 0], 'after')), /cannot go inside itself/);

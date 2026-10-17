@@ -1,0 +1,216 @@
+treatment "bertrand.ztt"{
+	background{
+		table globals{
+		}
+		table subjects{
+		}
+		table summary{
+		}
+		table contracts{
+		}
+		table clients{
+		}
+		table treatments{
+		}
+		table sessionglobals{
+		}
+		table participations{
+		}
+		numsubjects = 2;
+		numgroups = 1;
+		numpracticeperiods = 0;
+		numactualperiods = 1;
+		exchangerate = 1;
+		startendowment = 0;
+		showupfee = 0;
+		noAutoscope = FALSE;
+		firstBoxesOnTop = FALSE;
+		showupfeeawaytext = "You are making losses. Do you want to invest the showupfee in order to continue?";
+		showupfeeawayyestext = "Yes";
+		showupfeeawaynotext = "No";
+		moneyawaytext = "You are  making losses. Do you want to continue?";
+		moneyawayyestext = "Yes";
+		moneyawaynotext = "No";
+		bancruptwaittext = "Please wait until the experimenter unlocks your PC.";
+		program{
+			table = subjects;
+			do{
+				MaxPrice = 100;
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			headerbox "Header"{
+				hasframe = TRUE;
+				height = 10%;
+				top = 0p;
+				cuttop = TRUE;
+				showPeriods = TRUE;
+				showNumPeriods = TRUE;
+				periodtext = "Period";
+				periodoftext = "of";
+				practiceperiodprefix = "Trial ";
+				showtime = TRUE;
+				timestr = "Remaining time [sec]:";
+				pleasedecidetext = "Please reach a decision.";
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Text"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Please wait until the experiment continues.";
+				}
+			}
+		}
+	}
+	stage "Price"{
+		startwaitforall = TRUE;
+		startConditionStr = "";
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = ifnoinput;
+		timeout = 60;
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Price"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "You and the other firm each set a price from 0 to 100. The firm with the lower price sells";
+				}
+				item{
+					label = "and earns its price; the other earns nothing. If your prices are the same, the seller is chosen at random.";
+				}
+				item{
+				}
+				item{
+					label = "Your price";
+					variable = Price;
+					format = "1";
+					input = TRUE;
+					showdefault = FALSE;
+					emptyallowed = FALSE;
+					min = 0;
+					max = MaxPrice;
+				}
+				button "OK"{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Results"{
+		startwaitforall = TRUE;
+		startConditionStr = "";
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = ifnoinput;
+		timeout = 30;
+		program{
+			table = subjects;
+			do{
+				WinningPrice = minimum(same(Group), Price);
+							// A random number, to break a tie.
+							Draw = random();
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				Won = if(Price == WinningPrice & Draw == minimum(same(Group) & Price == :WinningPrice, Draw), 1, 0);
+							Profit = if(Won == 1, Price, 0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Results"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Your price";
+					variable = Price;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "The lowest price";
+					variable = WinningPrice;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "You";
+					variable = Won;
+					format = "!text: 1=\"made the sale\"; 0=\"did not make the sale\";";
+					input = FALSE;
+				}
+				item{
+					label = "Your payoff";
+					variable = Profit;
+					format = "1";
+					input = FALSE;
+				}
+				button "Continue"{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	roles{
+		role "S 1"{
+		}
+		role "S 2"{
+		}
+	}
+	period "1"{
+		prompt = "";
+		subject 1{
+			name = "";
+			group = 1;
+			do{
+				Player = 1;
+			}
+		}
+		subject 2{
+			name = "";
+			group = 1;
+			do{
+				Player = 2;
+			}
+		}
+	}
+}

@@ -30,6 +30,8 @@ async function runBots(session, { timeout = 60000, caseIndex = 0, botsFor = (app
     const bots = new Map(); // participant id -> {round, handle, done}
     // Participants whose bots have played every page, up to the session's last, which they stay on.
     const finished = new Set();
+    // The groups' live pages whose bots' call_live_method has run (once per group and page, as in oTree).
+    const liveCalled = new Set();
     const end = Date.now() + timeout;
     for (;;) {
         const participants = Object.values(session.participants);
@@ -91,6 +93,10 @@ async function runBots(session, { timeout = 60000, caseIndex = 0, botsFor = (app
             if (step.page !== stage.id) {
                 throw new Error(where + ': the bot expects page ' + step.page + ', but the player is on ' + stage.id);
             }
+            if (stage.otreeLive && !liveCalled.has(player.group.roomId() + '/' + stage.id)) {
+                liveCalled.add(player.group.roomId() + '/' + stage.id);
+                callLive(bridge, pkg, player, caseIndex);
+            }
             const values = {};
             for (const [name, value] of Object.entries(step.data)) {
                 const full = stage.formFields.find((f) => f.endsWith('.' + name)) || 'player.' + name;
@@ -119,6 +125,21 @@ async function runBots(session, { timeout = 60000, caseIndex = 0, botsFor = (app
         }
         await sleep(5);
     }
+}
+
+/**
+ * The bots' call_live_method (tests.py) for player's group on the live page player is on: what
+ * the live_method calls send goes to the group's pages, as a page's liveSend would.
+ */
+function callLive(bridge, pkg, player, caseIndex) {
+    const sends = bridge.bot_call_live(pkg, player.stage.id, player, caseIndex);
+    const io = player.session().io();
+    for (const [id, value] of sends || []) {
+        for (const p of player.group.players) {
+            if (io != null && (id === 0 || p.idInGroup === id)) io.to(p.participant.roomId()).emit('liveRecv', value);
+        }
+    }
+    player.session().emitParticipantUpdates();
 }
 
 /**

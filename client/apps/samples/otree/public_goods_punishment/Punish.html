@@ -1,0 +1,22 @@
+{{ block title }}Punishment{{ endblock }}
+{{ block content }}
+
+    <p>
+        You are player {{ player.id_in_group }}. You contributed {{ player.contribution }}; the
+        others contributed:
+    </p>
+    <ul>
+        {{ for p in others }}
+            <li>Player {{ p.id_in_group }}: {{ p.contribution }}</li>
+        {{ endfor }}
+    </ul>
+    <p>
+        You can pay up to {{ C.MAX_PUNISHMENT }} points to punish each of them. Each point you pay
+        takes {{ C.PUNISHMENT_EFFECT }} points from the player you punish.
+    </p>
+
+    {{ formfields }}
+
+    {{ next_button }}
+
+{{ endblock }}

@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: editors/ztree.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: editors/ztree.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const fs = require('fs-extra');
+const path = require('path');
+const { readTreatment, decode } = require('../dialects/ztree/ztt.js');
+const ztext = require('../dialects/ztree/ztext.js');
+const lang = require('../dialects/ztree/lang.js');
+const { fail } = require('./util.js');
+
+/*
+ * z-Tree treatments as the z-Tree admin's editor works on them: z-Tree's text format (File →
+ * Export → Treatment… in z-Tree; File → Import… reads it back), as a tree of nodes in the order
+ * the file has them:
+ *
+ *     {kind: 'stage', name: 'Market', quoted: true, items: [
+ *         {key: 'startwaitforall', value: {raw: 'FALSE'}},
+ *         {key: 'timeout', value: {raw: '60'}},
+ *         {node: {kind: 'program', name: null, items: [{key: 'table', value: {raw: 'subjects'}}, {code: 'x = 1;\n'}]}},
+ *         ...]}
+ *
+ * Values are {string} (a quoted text) or {raw} (an expression, a name, TRUE, 10%); a do block is
+ * {code}, its lines without the export's indentation; a list of texts (a scale's) is {text}.
+ * Written again, a treatment z-Tree exported is the same, byte for byte. jtree runs treatments in
+ * this format as they are (see dialects/ztree/ztext.js), and that reader checks every one written.
+ *
+ * z-Tree's binary files (.ztt) are read by dialects/ztree/ztt.js into what jtree runs; fromDescription
+ * makes a text treatment of that, which the editor saves beside the binary file (a .txt).
+ */
+
+// --- Windows-1252, as z-Tree writes its files -----------------------------------------------------
+
+const CP1252 = '€\u0081‚ƒ„…†‡ˆ‰Š‹Œ\u008dŽ\u008f\u0090‘’“”•–—˜™š›œ\u009džŸ';
+
+/** text in Windows-1252 (characters it does not have as ?). */
+function encode(text) {
+    const out = Buffer.alloc(text.length);
+    let n = 0;
+    for (const ch of text) {
+        const c = ch.codePointAt(0);
+        const at = CP1252.indexOf(ch);
+        out[n++] = at >= 0 ? 0x80 + at : c &lt; 0x100 ? c : 0x3f;
+    }
+    return out.subarray(0, n);
+}
+
+// --- Reading -------------------------------------------------------------------------------------
+
+/** The text (a treatment's or questionnaires' export) as its root node. */
+function parse(text) {
+    let i = 0;
+    const n = text.length;
+    const fail_ = (message) => fail(message + ' (line ' + text.slice(0, i).split('\n').length + ')');
+    const space = () => {
+        for (;;) {
+            while (i &lt; n &amp;&amp; /\s/.test(text[i])) i++;
+            if (text.startsWith('//', i)) { while (i &lt; n &amp;&amp; text[i] !== '\n') i++; continue; }
+            if (text.startsWith('/*', i)) { const e = text.indexOf('*/', i + 2); i = e &lt; 0 ? n : e + 2; continue; }
+            return;
+        }
+    };
+    const string = () => {
+        let out = '';
+        i++;
+        while (i &lt; n &amp;&amp; text[i] !== '"') {
+            if (text[i] === '\r' &amp;&amp; text[i + 1] === '\n') { i++; continue; }
+            if (text[i] === '\n') {
+                // The export indents a text's next line to the depth of its entry.
+                out += '\n';
+                i++;
+                while (text[i] === '\t') i++;
+                continue;
+            }
+            if (text[i] === '\\' &amp;&amp; i + 1 &lt; n) {
+                const c = text[i + 1];
+                out += { n: '\n', r: '\r', t: '\t' }[c] || c;
+                i += 2;
+            } else out += text[i++];
+        }
+        if (i >= n) fail_('a text does not end');
+        i++;
+        return out;
+    };
+    const word = () => {
+        const m = /^[A-Za-z_]\w*/.exec(text.slice(i, i + 200));
+        if (m == null) fail_('expected a name');
+        i += m[0].length;
+        return m[0];
+    };
+    const value = () => {
+        const eq = i - 1;
+        space();
+        if (text[i] === '"') {
+            let s = string();
+            space();
+            while (text[i] === '"') { s += string(); space(); }
+            if (text[i] !== ';') fail_('expected ; after a text');
+            i++;
+            return { string: s };
+        }
+        const start = i;
+        let depth = 0;
+        while (i &lt; n) {
+            const c = text[i];
+            if (c === '"') { string(); continue; }
+            if (c === '(' || c === '[') depth++;
+            else if (c === ')' || c === ']') depth--;
+            else if (c === ';' &amp;&amp; depth &lt;= 0) break;
+            i++;
+        }
+        if (i >= n) fail_('expected ;');
+        const all = text.slice(start, i);
+        const raw = all.trim();
+        i++;
+        // Spacing other than z-Tree's usual (key = value;) is kept, to write the value as it was.
+        const out = { raw };
+        const pre = text.slice(eq + 1, start) + all.slice(0, all.length - all.trimStart().length);
+        const post = all.slice(all.trimEnd().length);
+        if (pre !== ' ') out.pre = pre;
+        if (post !== '') out.post = post;
+        return out;
+    };
+    const code = (depth) => {
+        const start = ++i;
+        let level = 1;
+        while (i &lt; n) {
+            const c = text[i];
+            if (c === '"') { string(); continue; }
+            if (text.startsWith('//', i)) { while (i &lt; n &amp;&amp; text[i] !== '\n') i++; continue; }
+            if (text.startsWith('/*', i)) { const e = text.indexOf('*/', i + 2); i = e &lt; 0 ? n : e + 2; continue; }
+            if (c === '{') level++;
+            else if (c === '}' &amp;&amp; --level === 0) break;
+            i++;
+        }
+        if (i >= n) fail_('a do block does not end');
+        const body = text.slice(start, i);
+        i++;
+        return unindent(body, depth + 1);
+    };
+    const block = (kind, name, quoted, depth) => {
+        const node = { kind, name, quoted, items: [] };
+        for (;;) {
+            space();
+            if (i >= n) fail_('the block ' + kind + ' does not end');
+            if (text[i] === '}') { i++; return node; }
+            if (text[i] === '"') {
+                node.items.push({ text: string() });
+                space();
+                if (text[i] === ';') i++;
+                continue;
+            }
+            const key = word();
+            space();
+            if (text[i] === '=') {
+                i++;
+                node.items.push({ key, value: value() });
+                continue;
+            }
+            let childName = null;
+            let childQuoted = false;
+            if (text[i] === '"') { childName = string(); childQuoted = true; } else if (/[\w-]/.test(text[i])) {
+                const m = /^[\w.-]+/.exec(text.slice(i));
+                childName = m[0];
+                i += m[0].length;
+            }
+            space();
+            if (text[i] !== '{') fail_('expected { or = after ' + key);
+            if (key === 'do') {
+                node.items.push({ code: code(depth + 1) });
+                continue;
+            }
+            i++;
+            node.items.push({ node: block(key, childName, childQuoted, depth + 1) });
+        }
+    };
+    if (text.charCodeAt(0) === 0xfeff) i++;
+    space();
+    const kind = word();
+    space();
+    let name = null;
+    let quoted = false;
+    if (text[i] === '"') { name = string(); quoted = true; }
+    space();
+    if (text[i] !== '{') fail_('expected {');
+    i++;
+    const root = block(kind, name, quoted, 0);
+    root.bom = text.charCodeAt(0) === 0xfeff;
+    if (/\n/.test(text) &amp;&amp; !/\r\n/.test(text)) root.eol = '\n';
+    root.trailing = text.slice(i);
+    return root;
+}
+
+/** A do block's body as code: the lines without the depth's tabs the export puts before each. */
+function unindent(body, depth) {
+    const lines = body.replace(/\r\n/g, '\n').split('\n');
+    // The export puts the code on the lines after do{, and the closing brace on a line of its own.
+    if (lines.length >= 2 &amp;&amp; lines[0].trim() === '' &amp;&amp; /^\t*$/.test(lines[lines.length - 1])) {
+        const tabs = '\t'.repeat(depth);
+        const inner = lines.slice(1, -1);
+        return inner.length ? inner.map((l) => (l.startsWith(tabs) ? l.slice(tabs.length) : l.replace(/^\t+/, ''))).join('\n') + '\n' : '';
+    }
+    return body.replace(/\r\n/g, '\n').replace(/^\n/, '');
+}
+
+// --- Writing -------------------------------------------------------------------------------------
+
+/**
+ * A text as z-Tree writes it: \\ and \" escaped; a line break (\n) as a line break, the next line
+ * indented to depth; \r\n (which z-Tree writes escaped, as in a radio item's format) escaped.
+ */
+const quote = (s, depth, eol) => '"' + String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\r\n/g, '\\r\\n').replace(/\r/g, '\\r')
+    .replace(/\n/g, (eol || '\r\n') + '\t'.repeat(depth)) + '"';
+
+/** The node as z-Tree's text format (\r\n line ends, a tab a level, as z-Tree writes it). */
+function write(root) {
+    const out = [];
+    // Line ends as the file had them (\r\n, z-Tree's, if it is new).
+    const eol = root.eol || '\r\n';
+    const quote_ = (text, depth) => quote(text, depth, eol);
+    const node = (b, depth) => {
+        const tabs = '\t'.repeat(depth);
+        const name = b.name == null || b.name === '' &amp;&amp; !b.quoted ? '' : ' ' + (b.quoted ? quote_(b.name, depth) : b.name);
+        // A list of texts (a scale's) follows the brace on its line, as z-Tree writes it.
+        const texts = b.items.length &amp;&amp; b.items.every((item) => item.text != null);
+        out.push(tabs + b.kind + name + '{' + (texts ? b.items.map((item) => quote_(item.text, depth + 1) + ';').join('') : ''));
+        for (const item of texts ? [] : b.items) {
+            const t = '\t'.repeat(depth + 1);
+            if (item.node) node(item.node, depth + 1);
+            else if (item.code != null) {
+                const code = String(item.code).replace(/\r\n/g, '\n');
+                const lines = code === '' ? [] : code.replace(/\n$/, '').split('\n');
+                out.push(t + 'do{');
+                for (const l of lines) out.push('\t'.repeat(depth + 2) + l);
+                out.push(t + '}');
+            } else if (item.text != null) out.push(t + quote_(item.text, depth + 1) + ';');
+            else if (item.key) out.push(t + item.key + ' =' + (item.value.string != null ? ' ' : '') + (item.value.string != null ? quote_(item.value.string, depth + 1) : (item.value.pre != null ? item.value.pre : ' ') + item.value.raw + (item.value.post || '')) + ';');
+        }
+        out.push(tabs + '}');
+    };
+    node(root, 0);
+    return (root.bom ? '﻿' : '') + out.join(eol) + (root.trailing != null ? root.trailing : eol);
+}
+
+// --- Binary treatments as text -------------------------------------------------------------------
+
+const entry = (key, v) => ({ key, value: typeof v === 'string' &amp;&amp; !/^(TRUE|FALSE)$/.test(v) ? { string: v } : { raw: String(v) } });
+const raw = (key, v) => ({ key, value: { raw: String(v) } });
+const flag = (key, v) => raw(key, v ? 'TRUE' : 'FALSE');
+const child = (kind, name, items, quoted = true) => ({ node: { kind, name, quoted: name != null &amp;&amp; quoted, items } });
+
+const BOX_KINDS = {
+    standard: 'standardbox', header: 'headerbox', help: 'helpbox', container: 'containerbox', contractCreation: 'makecontractbox',
+    contractList: 'selectcontractbox', history: 'historybox', grid: 'gridbox', chat: 'chatterbox', calculator: 'calulatorbox', plot: 'plotbox',
+};
+const PLOT_KINDS = { point: 'plotpoint', line: 'plotline', rect: 'plotrect', pie: 'plotpie', text: 'plottext', axis: 'plotaxis', graph: 'plotgraph', input: 'plotinput' };
+
+/** What z-Tree's binary format has that this does not write, as notes for whoever saves it. */
+function programItems(p) {
+    const items = [raw('table', p.table || 'globals')];
+    if (p.owner) items.push(raw('ownervariable', p.owner));
+    if (p.condition) items.push(raw('condition', p.condition));
+    items.push({ code: p.code || '' });
+    return child('program', null, items);
+}
+
+function plotItem(it, notes) {
+    const kind = PLOT_KINDS[it.kind];
+    if (!kind) { notes.add('a plot item of an unknown kind'); return null; }
+    const items = [];
+    const s = (key, v) => { if (v != null &amp;&amp; v !== '') items.push(raw(key, v)); };
+    if (it.condition) items.push(raw('displaycondition', it.condition));
+    switch (it.kind) {
+        case 'point': s('x', it.x); s('y', it.y); s('size', it.size); s('numedges', it.corners); s('startat', it.rotation); items.push(flag('isstar', it.spokes)); s('linecolor', it.lineColor); s('linewidth', it.lineWidth); s('fillcolor', it.fillColor); break;
+        case 'line': s('x1', it.x1); s('y1', it.y1); s('x2', it.x2); s('y2', it.y2); s('arrowsize1', it.arrowStart); s('arrowsize2', it.arrowEnd); s('arrowwidth', it.arrowWidth); s('linecolor', it.lineColor); s('linewidth', it.lineWidth); items.push(flag('arrowclosed', it.arrowFilled)); break;
+        case 'rect': s('left', it.xLeft); s('right', it.xRight); s('x', it.xCenter); s('width', it.width); s('bottom', it.yBottom); s('top', it.yTop); s('y', it.yCenter); s('height', it.height); s('linecolor', it.lineColor); s('linewidth', it.lineWidth); s('fillcolor', it.fillColor); break;
+        case 'pie': s('x', it.x); s('y', it.y); s('xradius', it.rx); s('yradius', it.ry); s('anglestart', it.angleStart); s('anglesize', it.angleEnd); s('linecolor', it.lineColor); s('linewidth', it.lineWidth); s('fillcolor', it.fillColor); break;
+        case 'text': items.push(entry('text', it.text || '')); s('x', it.x); s('y', it.y); s('horizontalalignment', ['LEFT', 'CENTER', 'RIGHT'][it.hAlign] || 'CENTER'); s('verticalalignment', { 0: 'TOP', 2: 'CENTER', 3: 'BOTTOM' }[it.vAlign] || 'CENTER'); s('textcolor', it.color); s('fontsize', it.fontSize); break;
+        case 'axis': s('axis', it.horizontal ? 'X' : 'Y'); s('position', it.position); s('from', it.from); s('to', it.to); s('tickdistance', it.tickStep); s('datalabeldistance', it.labelStep); if (it.labelLayout) items.push(entry('datalabelformat', it.labelLayout)); if (it.caption) items.push(entry('caption', it.caption)); s('linecolor', it.lineColor); s('linewidth', it.lineWidth); break;
+        case 'graph': s('table', it.table); if (it.graphCondition) items.push(raw('condition', it.graphCondition)); s('connectioncolor', it.lineColor); s('connectionwidth', it.lineWidth); for (const g of it.items || []) { const c = plotItem(g, notes); if (c) items.push(c); } break;
+        case 'input': s('action', ['NEW', 'SELECT', 'DRAG'][it.action] || 'NEW'); s('table', it.table); s('xvariable', it.xVar); s('yvariable', it.yVar); s('dragsnapx0', it.x0Var); s('dragsnapy0', it.y0Var); s('dragsnapx', it.x1Var); s('dragsnapy', it.y1Var); items.push(flag('leavestage', it.leaveStage)); for (const p of it.programs || []) items.push(programItems(p)); break;
+        default:
+    }
+    for (const input of it.kind === 'input' ? [] : it.inputs || []) { const c = plotItem(input, notes); if (c) items.push(c); }
+    return child(kind, it.name || '', items);
+}
+
+function boxItems(box, notes) {
+    const kind = BOX_KINDS[box.type];
+    if (!kind) { notes.add('a ' + box.type + ' box (written as a standard box)'); }
+    const items = [flag('hasframe', box.frame !== false)];
+    for (const k of ['width', 'height', 'left', 'right', 'top', 'bottom']) if (box[k]) items.push(raw(k, box[k]));
+    const o = box.options || [];
+    if (o[1]) items.push(flag('cutleft', true));
+    if (o[3]) items.push(flag('cutright', true));
+    if (o[5]) items.push(flag('cuttop', true));
+    if (o[7]) items.push(flag('cutbottom', true));
+    if (box.condition) items.push(raw('displaycondition', box.condition));
+    switch (box.type) {
+        case 'header':
+            if (box.texts) {
+                items.push(entry('periodtext', box.texts.period || 'Period'), entry('periodoftext', box.texts.of || 'of'),
+                    entry('practiceperiodprefix', box.texts.trial || ''), entry('timestr', box.texts.time || ''), entry('pleasedecidetext', box.texts.timeout || ''));
+            }
+            break;
+        case 'help': items.push(entry('label', box.title || ''), entry('help', box.text || '')); break;
+        case 'contractList':
+            items.push(raw('table', box.table || 'contracts'));
+            if (box.tableCondition) items.push(raw('condition', box.tableCondition));
+            if (box.sorting) items.push(entry('sortfields', box.sorting));
+            if (box.owner) items.push(raw('ownervariable', box.owner));
+            break;
+        case 'contractCreation': items.push(raw('table', box.table || 'contracts')); break;
+        case 'chat':
+            items.push(raw('table', box.table || 'contracts'));
+            if (box.variable) items.push(raw('inputvariable', box.variable));
+            if (box.condition2) items.push(raw('condition', box.condition2));
+            if (box.outputs &amp;&amp; box.outputs[0]) items.push(entry('outputtext', box.outputs[0]));
+            break;
+        case 'plot':
+            if (box.range) for (const [k, key] of [['xLeft', 'xleft'], ['xRight', 'xright'], ['yBottom', 'ybottom'], ['yTop', 'ytop']]) if (box.range[k] !== '' &amp;&amp; box.range[k] != null) items.push(raw(key, box.range[k]));
+            items.push(flag('maintainaspectratio', box.keepAspect));
+            for (const it of box.plotItems || []) { const c = plotItem(it, notes); if (c) items.push(c); }
+            break;
+        default:
+    }
+    for (const it of box.items || []) {
+        const fields = [entry('label', it.label || '')];
+        if (it.variable) fields.push(raw('variable', it.variable));
+        if (it.layout) fields.push(entry('format', it.layout));
+        fields.push(flag('input', it.input));
+        if (it.input) { if (it.min !== '' &amp;&amp; it.min != null) fields.push(raw('min', it.min)); if (it.max !== '' &amp;&amp; it.max != null) fields.push(raw('max', it.max)); }
+        items.push(child('item', null, fields));
+    }
+    for (const p of box.programs || []) items.push(programItems(p));
+    for (const b of box.buttons || []) {
+        const fields = [];
+        if (b.leaveStage === true) fields.push(flag('terminatestage', true), flag('donotterminatestage', false));
+        else if (b.leaveStage === false) fields.push(flag('terminatestage', false), flag('donotterminatestage', true));
+        for (const c of b.checkers || []) fields.push(child('checker', null, [raw('condition', c.condition || 'TRUE'), entry('message', c.message || '')]));
+        for (const p of b.programs || []) fields.push(programItems(p));
+        items.push(child('button', b.name || 'OK', fields));
+    }
+    for (const b of box.boxes || []) items.push(boxItems(b, notes));
+    return child(kind || 'standardbox', box.name || '', items);
+}
+
+function screenItems(boxes, which, usesbg, notes) {
+    return child('screen', which, [flag('usesbg', usesbg), ...boxes.map((b) => boxItems(b, notes))], false);
+}
+
+/** A treatment as jtree read it (dialects/ztree/ztt.js) as a text treatment's root node; notes: what it leaves out. */
+function fromDescription(t, name) {
+    const notes = new Set();
+    const bg = t.background;
+    const tables = (t.tables &amp;&amp; t.tables.length ? t.tables : ['globals', 'subjects', 'summary', 'contracts', 'session', 'logfile'].map((n) => ({ name: n })))
+        .map((tb) => child('table', tb.name, [...(tb.lifetime ? [raw('lifetime', tb.lifetime)] : []), ...(tb.execute ? [raw('execute', tb.execute)] : [])], false));
+    const background = [
+        ...tables,
+        raw('numsubjects', t.numSubjects != null ? t.numSubjects : (t.subjects || []).length),
+        raw('numgroups', t.numGroups != null ? t.numGroups : 1),
+        raw('numpracticeperiods', t.practicePeriods || 0),
+        raw('numactualperiods', Math.max(1, (t.periods || []).length - (t.practicePeriods || 0))),
+        ...bg.programs.map(programItems),
+        screenItems(bg.active, 'action', true, notes),
+        screenItems(bg.waiting, 'wait', true, notes),
+    ];
+    const stages = t.stages.map((s) => child('stage', s.name || '', [
+        flag('startwaitforall', s.startIfPossible !== true),
+        ...(s.startCondition ? [entry('startConditionStr', s.startCondition)] : []),
+        raw('timeouttype', s.timeoutType || (s.timeoutAlways ? 'always' : 'ifnoinput')),
+        raw('timeout', String(s.timeout || '').trim() || '-1'),
+        ...s.programs.map(programItems),
+        screenItems(s.active, 'action', s.showHeader !== false, notes),
+        screenItems(s.waiting, 'wait', true, notes),
+    ]));
+    const roles = child('roles', null, (t.subjects || []).map((s, i) => child('role', s.name || 'S ' + (i + 1), s.program ? [{ code: s.program }] : [])));
+    const numSubjects = Math.max(1, (t.subjects || []).length);
+    const periods = (t.periods || []).map((p, pi) => child('period', p.name || String(pi + 1), [
+        ...(p.program ? [{ code: p.program }] : []),
+        ...(t.params || []).slice(pi * numSubjects, (pi + 1) * numSubjects).map((c, si) => child('subject', String(si + 1), [entry('name', c.label || ''), raw('group', c.group != null ? c.group : 1), ...(c.program ? [{ code: c.program }] : [])], false)),
+    ]));
+    const root = { kind: 'treatment', name, quoted: true, items: [child('background', null, background), ...stages, roles, ...periods] };
+    return { root, notes: [...notes] };
+}
+
+// --- A new treatment -----------------------------------------------------------------------------
+
+/** z-Tree's new treatment: the background with its tables, header box and waiting screen; no stages. */
+function newTreatment(name) {
+    const screen = (which, boxes) => ['\t\tscreen ' + which + '{', '\t\t\tusesbg = TRUE;', '\t\t\twithalertscreen = FALSE;', '\t\t\tnoalertscreen = FALSE;', ...boxes, '\t\t}'];
+    const t = parse([
+        'treatment ' + quote(name, 0) + '{',
+        '\tbackground{',
+        ...['globals', 'subjects', 'summary', 'contracts', 'session', 'logfile'].flatMap((n) => ['\t\ttable ' + n + '{', '\t\t}']),
+        '\t\tnumsubjects = 2;', '\t\tnumgroups = 1;', '\t\tnumpracticeperiods = 0;', '\t\tnumactualperiods = 1;',
+        '\t\texchangerate = 1;', '\t\tstartendowment = 0;', '\t\tshowupfee = 0;',
+        '\t\tnoAutoscope = FALSE;', '\t\tfirstBoxesOnTop = FALSE;',
+        '\t\tshowupfeeawaytext = "Sie haben einen Verlust gemacht. Wollen Sie diesen Verlust mit dem Fixbetrag decken?";',
+        '\t\tshowupfeeawayyestext = "Ja";', '\t\tshowupfeeawaynotext = "Nein";',
+        '\t\tmoneyawaytext = "Sie haben einen Verlust gemacht. Wollen Sie weiterfahren?";',
+        '\t\tmoneyawayyestext = "Ja";', '\t\tmoneyawaynotext = "Nein";',
+        '\t\tbancruptwaittext = "Bitte warten Sie, bis Ihr Computer wieder freigegeben wird.";',
+        '\t\tprogram{', '\t\t\ttable = globals;', '\t\t\tdo{', '\t\t\t\t', '\t\t\t}', '\t\t}',
+        ...screen('action', [
+            '\t\t\theaderbox "Header"{', '\t\t\t\thasframe = TRUE;', '\t\t\t\theight = 10%;', '\t\t\t\ttop = 0p;', '\t\t\t\tcuttop = TRUE;',
+            '\t\t\t\tshowPeriods = TRUE;', '\t\t\t\tshowNumPeriods = TRUE;', '\t\t\t\tperiodtext = "Period";', '\t\t\t\tperiodoftext = "of";',
+            '\t\t\t\tpracticeperiodprefix = "Trial ";', '\t\t\t\tshowtime = TRUE;', '\t\t\t\ttimestr = "Remaining time [sec]:";',
+            '\t\t\t\tpleasedecidetext = "Please reach a decision.";', '\t\t\t}',
+        ]),
+        ...screen('wait', [
+            '\t\t\tstandardbox "Text"{', '\t\t\t\thasframe = TRUE;', '\t\t\t\tbuttonposition = BOTTOMRIGHT;', '\t\t\t\tbuttonsequence = HORIZONTAL;',
+            '\t\t\t\titem{', '\t\t\t\t\tlabel = "Please wait until the experiment continues.";', '\t\t\t\t}', '\t\t\t}',
+        ]),
+        '\t}',
+        '\troles{', '\t\trole "S 1"{', '\t\t}', '\t\trole "S 2"{', '\t\t}', '\t}',
+        '\tperiod "1"{', '\t\tprompt = "";', '\t\tsubject 1{', '\t\t\tname = "";', '\t\t\tgroup = 1;', '\t\t}', '\t\tsubject 2{', '\t\t\tname = "";', '\t\t\tgroup = 1;', '\t\t}', '\t}',
+        '}',
+    ].join('\r\n') + '\r\n');
+    return t;
+}
+
+/**
+ * What Treatment → Check finds in a treatment (as jtree reads it): each program and expression
+ * that does not parse, as {where, message}.
+ */
+function syntaxErrors(t) {
+    const out = [];
+    const add = (code, kind, where) => {
+        if (code == null || String(code).trim() === '') return;
+        try {
+            if (kind === 'program') lang.parse(code); else lang.parseExpr(code);
+        } catch (err) {
+            out.push({ where, message: err.message });
+        }
+    };
+    const prog = (p, where) => { add(p.code, 'program', where + ', program on ' + (p.table || 'globals')); add(p.condition, 'expression', where + ", a program's condition"); };
+    const box = (b, where) => {
+        const w = where + ', box ' + (b.name || b.type);
+        add(b.condition, 'expression', w + ', display condition');
+        for (const it of b.items || []) {
+            if (it.kind !== 'item') continue;
+            if (it.variable) add(it.variable, 'expression', w + ', item ' + it.variable);
+            if (it.input) { add(it.min, 'expression', w + ', item ' + it.variable + ', minimum'); add(it.max, 'expression', w + ', item ' + it.variable + ', maximum'); }
+        }
+        for (const bt of b.buttons || []) {
+            bt.programs.forEach((p) => prog(p, w + ', button ' + bt.name));
+            bt.checkers.forEach((c) => add(c.condition, 'expression', w + ', button ' + bt.name + ', checker'));
+        }
+        (b.programs || []).forEach((p) => prog(p, w));
+        if (b.tableCondition) add(b.tableCondition, 'expression', w + ', condition');
+        (b.boxes || []).forEach((c) => box(c, w));
+    };
+    for (const s of [t.background, ...t.stages]) {
+        const where = s === t.background ? 'Background' : 'stage ' + JSON.stringify(s.name);
+        s.programs.forEach((p) => prog(p, where));
+        if (s.timeout) add(s.timeout, 'expression', where + ', timeout');
+        [...s.active, ...s.waiting].forEach((b) => box(b, where));
+    }
+    (t.params || []).forEach((p, i) => add(p.program, 'program', 'parameter table, row ' + (i + 1)));
+    return out;
+}
+
+// --- What the editor asks -------------------------------------------------------------------------
+
+/** Whether the file is z-Tree's text format (else its binary one). */
+function isTextFile(file) {
+    const head = fs.readFileSync(file).subarray(0, 64);
+    return ztext.isText(head);
+}
+
+/** Checks root is a treatment jtree runs; throws, saying what is wrong, if not. */
+function check(root) {
+    const text = write(root);
+    try {
+        if (root.kind === 'questionnaires') ztext.readTextQuestionnaires(text);
+        else ztext.readTextTreatment(text);
+    } catch (err) {
+        fail('jtree cannot read the treatment: ' + err.message);
+    }
+    return text;
+}
+
+/** A treatment file's place: one the z-Tree dialect reads. */
+function treatmentFile(ctx, p) {
+    const file = ctx.resolve(p);
+    if (!/\.(ztt|ztq|txt)$/i.test(file)) fail('not a z-Tree treatment (.ztt, .txt): ' + p);
+    return file;
+}
+
+const actions = {
+    /**
+     * {appPath} → {appPath, savePath, format, root, notes}: the treatment as a tree. A binary file
+     * is saved as text beside it (savePath, a .txt), which z-Tree imports (File → Import…).
+     */
+    async open({ appPath }) {
+        const file = treatmentFile(this.ctx, appPath);
+        if (!fs.existsSync(file)) fail('there is no file ' + appPath);
+        if (isTextFile(file)) {
+            const root = parse(decode(fs.readFileSync(file)));
+            return { appPath: file, savePath: file, format: 'text', root, notes: [] };
+        }
+        if (/\.ztq$/i.test(file)) fail('z-Tree questionnaire files (.ztq) in the binary format cannot be edited here; export them from z-Tree as text.');
+        const { root, notes } = fromDescription(readTreatment(fs.readFileSync(file)), path.basename(file));
+        const savePath = file.replace(/\.ztt$/i, '.txt');
+        return { appPath: file, savePath, format: 'binary', root, notes, savePathExists: fs.existsSync(savePath) };
+    },
+    /** {root} → {text}: the treatment's text, if jtree can read it. */
+    async text({ root }) {
+        return { text: check(root) };
+    },
+    /** {root} → {errors: [{where, message}], stages}: Treatment → Check. */
+    async check({ root }) {
+        const text = check(root);
+        if (root.kind === 'questionnaires') return { errors: [], stages: 0 };
+        const t = ztext.readTextTreatment(text);
+        return { errors: syntaxErrors(t), stages: t.stages.length };
+    },
+    /** {name} → {root}: z-Tree's new treatment, not written (Save As names it). */
+    async blank({ name }) {
+        return { root: newTreatment(String(name || 'untitled.ztt')) };
+    },
+    /** {text} → {root}: a treatment's text as a tree. */
+    async parse({ text }) {
+        return { root: parse(String(text)) };
+    },
+    /** {appPath, root} → {appPath}: writes the treatment in z-Tree's text format. */
+    async save({ appPath, root }) {
+        const file = treatmentFile(this.ctx, appPath);
+        if (fs.existsSync(file) &amp;&amp; !isTextFile(file)) fail('will not write over z-Tree\'s binary file ' + path.basename(file) + '; save it as a .txt');
+        const text = check(root);
+        this.ctx.write(file, encode(text), null);
+        this.ctx.reload();
+        return { appPath: file };
+    },
+    /** {appPath} → {appPath, root}: a new, empty treatment, written. */
+    async create({ appPath }) {
+        let file = this.ctx.resolve(appPath);
+        if (!/\.(ztt|txt)$/i.test(file)) file += '.txt';
+        if (fs.existsSync(file)) fail('there is already a file ' + path.basename(file));
+        const root = newTreatment(path.basename(file).replace(/\.txt$/i, '.ztt'));
+        this.ctx.write(file, encode(write(root)), null);
+        this.ctx.reload();
+        return { appPath: file, savePath: file, format: 'text', root, notes: [] };
+    },
+};
+
+// Each action gets the editor context as `this.ctx` (see actions below).
+const bound = Object.fromEntries(Object.entries(actions).map(([k, fn]) => [k, (body, ctx) => fn.call({ ctx }, body)]));
+
+module.exports = { parse, write, encode, fromDescription, newTreatment, check, syntaxErrors, actions: bound };
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AdminAuth.html">AdminAuth</a></li><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="Data.html">Data</a></li><li><a href="Exit.html">Exit</a></li><li><a href="Group.html">Group</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="QueueRecorder.html">QueueRecorder</a></li><li><a href="Reader.html">Reader</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Run.html">Run</a></li><li><a href="Screens.html">Screens</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="Translator.html">Translator</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="global.html#start">start</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-4a-ztree.html">z-Tree treatments</a></li><li><a href="tutorial-4b-otree.html">oTree apps</a></li><li><a href="tutorial-4c-samples.html">Samples library</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-other.html">Other</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ADMIN_LOGIN_REQUIRED">ADMIN_LOGIN_REQUIRED</a></li><li><a href="global.html#APP_HOOKS">APP_HOOKS</a></li><li><a href="global.html#CLOSES">CLOSES</a></li><li><a href="global.html#STAGE_HOOKS">STAGE_HOOKS</a></li><li><a href="global.html#addToClass">addToClass</a></li><li><a href="global.html#allBoxes">allBoxes</a></li><li><a href="global.html#appCSV">appCSV</a></li><li><a href="global.html#appFile">appFile</a></li><li><a href="global.html#appInsertAt">appInsertAt</a></li><li><a href="global.html#appRoots">appRoots</a></li><li><a href="global.html#appTemplate">appTemplate</a></li><li><a href="global.html#appToIR">appToIR</a></li><li><a href="global.html#apply">apply</a></li><li><a href="global.html#applyIR">applyIR</a></li><li><a href="global.html#applySettings">applySettings</a></li><li><a href="global.html#applyStages">applyStages</a></li><li><a href="global.html#arrayDeclarations">arrayDeclarations</a></li><li><a href="global.html#arrayIndex">arrayIndex</a></li><li><a href="global.html#assignedVariables">assignedVariables</a></li><li><a href="global.html#attrSource">attrSource</a></li><li><a href="global.html#boolValue">boolValue</a></li><li><a href="global.html#botCases">botCases</a></li><li><a href="global.html#boxOptions">boxOptions</a></li><li><a href="global.html#callLive">callLive</a></li><li><a href="global.html#chat">chat</a></li><li><a href="global.html#chatFor">chatFor</a></li><li><a href="global.html#check">check</a></li><li><a href="global.html#checkField">checkField</a></li><li><a href="global.html#checkForm">checkForm</a></li><li><a href="global.html#compileProgram">compileProgram</a></li><li><a href="global.html#compiled">compiled</a></li><li><a href="global.html#context">context</a></li><li><a href="global.html#contractList">contractList</a></li><li><a href="global.html#convertApp">convertApp</a></li><li><a href="global.html#convertTreatment">convertTreatment</a></li><li><a href="global.html#convertTreatmentFile">convertTreatmentFile</a></li><li><a href="global.html#copyDir">copyDir</a></li><li><a href="global.html#copyToPlayer">copyToPlayer</a></li><li><a href="global.html#creatingSessionBeforeArrival">creatingSessionBeforeArrival</a></li><li><a href="global.html#cut">cut</a></li><li><a href="global.html#decimals">decimals</a></li><li><a href="global.html#declared">declared</a></li><li><a href="global.html#dedent">dedent</a></li><li><a href="global.html#describe">describe</a></li><li><a href="global.html#describeValue">describeValue</a></li><li><a href="global.html#dialectFor">dialectFor</a></li><li><a href="global.html#drawn">drawn</a></li><li><a href="global.html#edit">edit</a></li><li><a href="global.html#encode">encode</a></li><li><a href="global.html#endSoon">endSoon</a></li><li><a href="global.html#errorPosition">errorPosition</a></li><li><a href="global.html#exportTables">exportTables</a></li><li><a href="global.html#exporter">exporter</a></li><li><a href="global.html#exportersFor">exportersFor</a></li><li><a href="global.html#expression">expression</a></li><li><a href="global.html#fail">fail</a></li><li><a href="global.html#file">file</a></li><li><a href="global.html#fillValues">fillValues</a></li><li><a href="global.html#findBox">findBox</a></li><li><a href="global.html#finite">finite</a></li><li><a href="global.html#formatText">formatText</a></li><li><a href="global.html#formatValue">formatValue</a></li><li><a href="global.html#fromDescription">fromDescription</a></li><li><a href="global.html#getBridge">getBridge</a></li><li><a href="global.html#grid">grid</a></li><li><a href="global.html#history">history</a></li><li><a href="global.html#identifiers">identifiers</a></li><li><a href="global.html#inAppFolders">inAppFolders</a></li><li><a href="global.html#indent">indent</a></li><li><a href="global.html#indentBy">indentBy</a></li><li><a href="global.html#indentLines">indentLines</a></li><li><a href="global.html#insertAfter">insertAfter</a></li><li><a href="global.html#isInteractive">isInteractive</a></li><li><a href="global.html#isProject">isProject</a></li><li><a href="global.html#isSessionsLastPage">isSessionsLastPage</a></li><li><a href="global.html#isText">isText</a></li><li><a href="global.html#isTextFile">isTextFile</a></li><li><a href="global.html#itemCell">itemCell</a></li><li><a href="global.html#itemsTable">itemsTable</a></li><li><a href="global.html#jsonErrorPosition">jsonErrorPosition</a></li><li><a href="global.html#lanAddress">lanAddress</a></li><li><a href="global.html#lastFirst">lastFirst</a></li><li><a href="global.html#layoutEnd">layoutEnd</a></li><li><a href="global.html#layoutParts">layoutParts</a></li><li><a href="global.html#leaveIfAsked">leaveIfAsked</a></li><li><a href="global.html#leavesStage">leavesStage</a></li><li><a href="global.html#legacyValue">legacyValue</a></li><li><a href="global.html#lineIndent">lineIndent</a></li><li><a href="global.html#lines">lines</a></li><li><a href="global.html#loadPackagesFor">loadPackagesFor</a></li><li><a href="global.html#measure">measure</a></li><li><a href="global.html#memberAssignment">memberAssignment</a></li><li><a href="global.html#model">model</a></li><li><a href="global.html#mountProject">mountProject</a></li><li><a href="global.html#newTreatment">newTreatment</a></li><li><a href="global.html#nodeAt">nodeAt</a></li><li><a href="global.html#normalizeCode">normalizeCode</a></li><li><a href="global.html#openUrl">openUrl</a></li><li><a href="global.html#ownLine">ownLine</a></li><li><a href="global.html#owner">owner</a></li><li><a href="global.html#packageFor">packageFor</a></li><li><a href="global.html#pageTimesCSV">pageTimesCSV</a></li><li><a href="global.html#paramCell">paramCell</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseExpr">parseExpr</a></li><li><a href="global.html#parseLayout">parseLayout</a></li><li><a href="global.html#parseQueueId">parseQueueId</a></li><li><a href="global.html#pathAfterRemoving">pathAfterRemoving</a></li><li><a href="global.html#place">place</a></li><li><a href="global.html#plot">plot</a></li><li><a href="global.html#plotInput">plotInput</a></li><li><a href="global.html#plotItemAt">plotItemAt</a></li><li><a href="global.html#prefixHtmlUrls">prefixHtmlUrls</a></li><li><a href="global.html#pressButton">pressButton</a></li><li><a href="global.html#program">program</a></li><li><a href="global.html#programItems">programItems</a></li><li><a href="global.html#putApp">putApp</a></li><li><a href="global.html#putSettings">putSettings</a></li><li><a href="global.html#py">py</a></li><li><a href="global.html#queueId">queueId</a></li><li><a href="global.html#queueScript">queueScript</a></li><li><a href="global.html#quote">quote</a></li><li><a href="global.html#quotedEnd">quotedEnd</a></li><li><a href="global.html#readGameHeader">readGameHeader</a></li><li><a href="global.html#readQuestionnaires">readQuestionnaires</a></li><li><a href="global.html#readScreen">readScreen</a></li><li><a href="global.html#readTextQuestionnaires">readTextQuestionnaires</a></li><li><a href="global.html#readTextTreatment">readTextTreatment</a></li><li><a href="global.html#readTreatment">readTreatment</a></li><li><a href="global.html#ready">ready</a></li><li><a href="global.html#refresh">refresh</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#reload">reload</a></li><li><a href="global.html#renderScreen">renderScreen</a></li><li><a href="global.html#reportMarkdown">reportMarkdown</a></li><li><a href="global.html#rooms">rooms</a></li><li><a href="global.html#router">router</a></li><li><a href="global.html#rtfToText">rtfToText</a></li><li><a href="global.html#run">run</a></li><li><a href="global.html#runAppCode">runAppCode</a></li><li><a href="global.html#runBots">runBots</a></li><li><a href="global.html#runOf">runOf</a></li><li><a href="global.html#runZtreeBots">runZtreeBots</a></li><li><a href="global.html#scan">scan</a></li><li><a href="global.html#screen">screen</a></li><li><a href="global.html#screenProp">screenProp</a></li><li><a href="global.html#sessionConfigs">sessionConfigs</a></li><li><a href="global.html#settleBoxes">settleBoxes</a></li><li><a href="global.html#stageDeclaration">stageDeclaration</a></li><li><a href="global.html#stageMeaning">stageMeaning</a></li><li><a href="global.html#stageVariable">stageVariable</a></li><li><a href="global.html#statementRange">statementRange</a></li><li><a href="global.html#str">str</a></li><li><a href="global.html#subjectIndex">subjectIndex</a></li><li><a href="global.html#submitGeneric">submitGeneric</a></li><li><a href="global.html#substitutionAt">substitutionAt</a></li><li><a href="global.html#syntaxErrors">syntaxErrors</a></li><li><a href="global.html#tableRecords">tableRecords</a></li><li><a href="global.html#tablesChangedTimers">tablesChangedTimers</a></li><li><a href="global.html#template">template</a></li><li><a href="global.html#templateLiteral">templateLiteral</a></li><li><a href="global.html#templates">templates</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#textParts">textParts</a></li><li><a href="global.html#toTreatment">toTreatment</a></li><li><a href="global.html#tokenize">tokenize</a></li><li><a href="global.html#topInsert">topInsert</a></li><li><a href="global.html#treatmentFile">treatmentFile</a></li><li><a href="global.html#unindent">unindent</a></li><li><a href="global.html#urlFor">urlFor</a></li><li><a href="global.html#useSettings">useSettings</a></li><li><a href="global.html#validate">validate</a></li><li><a href="global.html#value">value</a></li><li><a href="global.html#valueFor">valueFor</a></li><li><a href="global.html#valueKind">valueKind</a></li><li><a href="global.html#valueSource">valueSource</a></li><li><a href="global.html#variables">variables</a></li><li><a href="global.html#whenReady">whenReady</a></li><li><a href="global.html#wideCSV">wideCSV</a></li><li><a href="global.html#withBlocks">withBlocks</a></li><li><a href="global.html#withStatics">withStatics</a></li><li><a href="global.html#write">write</a></li><li><a href="global.html#written">written</a></li><li><a href="global.html#zTreeRules">zTreeRules</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sat Oct 17 2026 09:07:11 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+app.description = 'Bertrand competition (Kruse et al., 1994): the two firms in each pair set a price from 0 to 100 for the same good. The cheaper firm makes the sale and earns its price; the other earns nothing. A tie is decided at random.';
+
+app.groupSize   = 2;
+app.groupMatchingType = 'PARTNER_1122';
+app.maxPrice    = 100;
+
+let decideStage = app.newStage('decide');
+decideStage.activeScreen = `
+    <p>PRICE</p>
+    <p>You and the other firm each set a price from 0 to {{app.maxPrice}}. The firm with the lower price sells and earns its price; the other earns nothing. If your prices are the same, the seller is chosen at random.</p>
+    <p>Your price: <input name='player.price' required type='number' min='0' :max='app.maxPrice' step='1'></p>
+`;
+
+let resultsStage = app.newStage('results');
+resultsStage.groupStart = function(group) {
+    group.winningPrice = Math.min(...group.players.map(p => p.price));
+    let lowest = group.players.filter(p => p.price === group.winningPrice);
+    let winner = Utils.randomEl(lowest);
+    for (let player of group.players) {
+        player.won = player === winner;
+        player.points = player.won ? player.price : 0;
+    }
+}
+resultsStage.activeScreen = `
+    <p>RESULTS</p>
+    <p>Your price was {{player.price}}; the lowest price was {{group.winningPrice}}. You <b>{{player.won ? 'made' : 'did not make'}}</b> the sale.</p>
+    <p>Your payoff: {{player.points}} points.</p>
+`;

@@ -1,0 +1,35 @@
+app.description = 'Battle of the sexes: the two players in each pair want to choose the same option, but player 1 prefers A and player 2 prefers B. They choose at the same time.';
+
+app.groupSize   = 2;
+app.groupMatchingType = 'PARTNER_1122';
+// payoffs[id in group][my choice][the other's choice], choices 1 (A) and 2 (B).
+app.payoffs = {
+    1: { 1: { 1: 300, 2: 100 }, 2: { 1: 0, 2: 200 } },
+    2: { 1: { 1: 200, 2: 0 }, 2: { 1: 100, 2: 300 } },
+};
+
+let decideStage = app.newStage('decide');
+decideStage.activeScreen = `
+    <p>DECISION</p>
+    <p>You are player {{player.idInGroup}}. You and the other player each choose A or B. Your payoffs:</p>
+    <table class='table table-bordered' style='width: auto'>
+        <tr><th></th><th>The other chooses A</th><th>The other chooses B</th></tr>
+        <tr><th>You choose A</th><td>{{app.payoffs[player.idInGroup][1][1]}}</td><td>{{app.payoffs[player.idInGroup][1][2]}}</td></tr>
+        <tr><th>You choose B</th><td>{{app.payoffs[player.idInGroup][2][1]}}</td><td>{{app.payoffs[player.idInGroup][2][2]}}</td></tr>
+    </table>
+    <button name='player.choice' value='1'>A</button>
+    <button name='player.choice' value='2'>B</button>
+`;
+
+let resultsStage = app.newStage('results');
+resultsStage.groupStart = function(group) {
+    for (let player of group.players) {
+        player.otherChoice = player.otherPlayersInGroup()[0].choice;
+        player.points = app.payoffs[player.idInGroup][player.choice][player.otherChoice];
+    }
+}
+resultsStage.activeScreen = `
+    <p>RESULTS</p>
+    <p>You chose <b>{{player.choice === 1 ? 'A' : 'B'}}</b>, and the other player chose <b>{{player.otherChoice === 1 ? 'A' : 'B'}}</b>.</p>
+    <p>Your payoff: {{player.points}} points.</p>
+`;

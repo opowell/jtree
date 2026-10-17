@@ -1,0 +1,661 @@
+treatment "centipede.ztt"{
+	background{
+		table globals{
+		}
+		table subjects{
+		}
+		table summary{
+		}
+		table contracts{
+		}
+		table clients{
+		}
+		table treatments{
+		}
+		table sessionglobals{
+		}
+		table participations{
+		}
+		numsubjects = 2;
+		numgroups = 1;
+		numpracticeperiods = 0;
+		numactualperiods = 1;
+		exchangerate = 1;
+		startendowment = 0;
+		showupfee = 0;
+		noAutoscope = FALSE;
+		firstBoxesOnTop = FALSE;
+		showupfeeawaytext = "You are making losses. Do you want to invest the showupfee in order to continue?";
+		showupfeeawayyestext = "Yes";
+		showupfeeawaynotext = "No";
+		moneyawaytext = "You are  making losses. Do you want to continue?";
+		moneyawayyestext = "Yes";
+		moneyawaynotext = "No";
+		bancruptwaittext = "Please wait until the experimenter unlocks your PC.";
+		program{
+			table = subjects;
+			do{
+				Pot = 10;
+					PotMultiplier = 2;
+					TakerShare = 0.8;
+					// The move at which the pot was taken; 0 if it was not.
+					TakenAt = 0;
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			headerbox "Header"{
+				hasframe = TRUE;
+				height = 10%;
+				top = 0p;
+				cuttop = TRUE;
+				showPeriods = TRUE;
+				showNumPeriods = TRUE;
+				periodtext = "Period";
+				periodoftext = "of";
+				practiceperiodprefix = "Trial ";
+				showtime = TRUE;
+				timestr = "Remaining time [sec]:";
+				pleasedecidetext = "Please reach a decision.";
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Text"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Please wait until the experiment continues.";
+				}
+			}
+		}
+	}
+	stage "Move 1"{
+		startwaitforall = TRUE;
+		startConditionStr = "";
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = ifnoinput;
+		timeout = 60;
+		program{
+			table = subjects;
+			do{
+				Participate = if(Player == 1 & TakenAt == 0, 1, 0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Move"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Move 1 of 6.";
+				}
+				item{
+					label = "You are player";
+					variable = Player;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "The pot";
+					variable = Pot;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "If you take, you get 80% of the pot and the other player 20%, and the game ends.";
+				}
+				item{
+					label = "If you pass, the pot doubles and the other player moves.";
+				}
+				item{
+				}
+				item{
+					label = "You";
+					variable = Take;
+					format = "!radio: 0=\"Pass\"; 1=\"Take\";";
+					input = TRUE;
+					showdefault = FALSE;
+					emptyallowed = FALSE;
+					min = 0;
+					max = 1;
+				}
+				button "OK"{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+					program{
+						table = subjects;
+						do{
+							subjects.do {
+									if (Group == :Group) {
+										if (:Take == 1) {
+											TakenAt = 1;
+										} else {
+											Pot = Pot * PotMultiplier;
+										}
+									}
+								}
+						}
+					}
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Move 2"{
+		startwaitforall = TRUE;
+		startConditionStr = "";
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = ifnoinput;
+		timeout = 60;
+		program{
+			table = subjects;
+			do{
+				Participate = if(Player == 2 & TakenAt == 0, 1, 0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Move"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Move 2 of 6.";
+				}
+				item{
+					label = "You are player";
+					variable = Player;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "The pot";
+					variable = Pot;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "If you take, you get 80% of the pot and the other player 20%, and the game ends.";
+				}
+				item{
+					label = "If you pass, the pot doubles and the other player moves.";
+				}
+				item{
+				}
+				item{
+					label = "You";
+					variable = Take;
+					format = "!radio: 0=\"Pass\"; 1=\"Take\";";
+					input = TRUE;
+					showdefault = FALSE;
+					emptyallowed = FALSE;
+					min = 0;
+					max = 1;
+				}
+				button "OK"{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+					program{
+						table = subjects;
+						do{
+							subjects.do {
+									if (Group == :Group) {
+										if (:Take == 1) {
+											TakenAt = 2;
+										} else {
+											Pot = Pot * PotMultiplier;
+										}
+									}
+								}
+						}
+					}
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Move 3"{
+		startwaitforall = TRUE;
+		startConditionStr = "";
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = ifnoinput;
+		timeout = 60;
+		program{
+			table = subjects;
+			do{
+				Participate = if(Player == 1 & TakenAt == 0, 1, 0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Move"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Move 3 of 6.";
+				}
+				item{
+					label = "You are player";
+					variable = Player;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "The pot";
+					variable = Pot;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "If you take, you get 80% of the pot and the other player 20%, and the game ends.";
+				}
+				item{
+					label = "If you pass, the pot doubles and the other player moves.";
+				}
+				item{
+				}
+				item{
+					label = "You";
+					variable = Take;
+					format = "!radio: 0=\"Pass\"; 1=\"Take\";";
+					input = TRUE;
+					showdefault = FALSE;
+					emptyallowed = FALSE;
+					min = 0;
+					max = 1;
+				}
+				button "OK"{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+					program{
+						table = subjects;
+						do{
+							subjects.do {
+									if (Group == :Group) {
+										if (:Take == 1) {
+											TakenAt = 3;
+										} else {
+											Pot = Pot * PotMultiplier;
+										}
+									}
+								}
+						}
+					}
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Move 4"{
+		startwaitforall = TRUE;
+		startConditionStr = "";
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = ifnoinput;
+		timeout = 60;
+		program{
+			table = subjects;
+			do{
+				Participate = if(Player == 2 & TakenAt == 0, 1, 0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Move"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Move 4 of 6.";
+				}
+				item{
+					label = "You are player";
+					variable = Player;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "The pot";
+					variable = Pot;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "If you take, you get 80% of the pot and the other player 20%, and the game ends.";
+				}
+				item{
+					label = "If you pass, the pot doubles and the other player moves.";
+				}
+				item{
+				}
+				item{
+					label = "You";
+					variable = Take;
+					format = "!radio: 0=\"Pass\"; 1=\"Take\";";
+					input = TRUE;
+					showdefault = FALSE;
+					emptyallowed = FALSE;
+					min = 0;
+					max = 1;
+				}
+				button "OK"{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+					program{
+						table = subjects;
+						do{
+							subjects.do {
+									if (Group == :Group) {
+										if (:Take == 1) {
+											TakenAt = 4;
+										} else {
+											Pot = Pot * PotMultiplier;
+										}
+									}
+								}
+						}
+					}
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Move 5"{
+		startwaitforall = TRUE;
+		startConditionStr = "";
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = ifnoinput;
+		timeout = 60;
+		program{
+			table = subjects;
+			do{
+				Participate = if(Player == 1 & TakenAt == 0, 1, 0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Move"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Move 5 of 6.";
+				}
+				item{
+					label = "You are player";
+					variable = Player;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "The pot";
+					variable = Pot;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "If you take, you get 80% of the pot and the other player 20%, and the game ends.";
+				}
+				item{
+					label = "If you pass, the pot doubles and the other player moves.";
+				}
+				item{
+				}
+				item{
+					label = "You";
+					variable = Take;
+					format = "!radio: 0=\"Pass\"; 1=\"Take\";";
+					input = TRUE;
+					showdefault = FALSE;
+					emptyallowed = FALSE;
+					min = 0;
+					max = 1;
+				}
+				button "OK"{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+					program{
+						table = subjects;
+						do{
+							subjects.do {
+									if (Group == :Group) {
+										if (:Take == 1) {
+											TakenAt = 5;
+										} else {
+											Pot = Pot * PotMultiplier;
+										}
+									}
+								}
+						}
+					}
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Move 6"{
+		startwaitforall = TRUE;
+		startConditionStr = "";
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = ifnoinput;
+		timeout = 60;
+		program{
+			table = subjects;
+			do{
+				Participate = if(Player == 2 & TakenAt == 0, 1, 0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Move"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Move 6 of 6.";
+				}
+				item{
+					label = "You are player";
+					variable = Player;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "The pot";
+					variable = Pot;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "If you take, you get 80% of the pot and the other player 20%, and the game ends.";
+				}
+				item{
+					label = "If you pass, the pot doubles, and you each get half of it.";
+				}
+				item{
+				}
+				item{
+					label = "You";
+					variable = Take;
+					format = "!radio: 0=\"Pass\"; 1=\"Take\";";
+					input = TRUE;
+					showdefault = FALSE;
+					emptyallowed = FALSE;
+					min = 0;
+					max = 1;
+				}
+				button "OK"{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+					program{
+						table = subjects;
+						do{
+							subjects.do {
+									if (Group == :Group) {
+										if (:Take == 1) {
+											TakenAt = 6;
+										} else {
+											Pot = Pot * PotMultiplier;
+										}
+									}
+								}
+						}
+					}
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Results"{
+		startwaitforall = TRUE;
+		startConditionStr = "";
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = ifnoinput;
+		timeout = 30;
+		program{
+			table = subjects;
+			do{
+				Taker = if(mod(TakenAt, 2) == 1, 1, 2);
+					Profit = if(TakenAt == 0, Pot / 2, if(Player == Taker, Pot * TakerShare, Pot - Pot * TakerShare));
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Results"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "The pot was taken at move (0: never)";
+					variable = TakenAt;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "The pot";
+					variable = Pot;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "Your payoff";
+					variable = Profit;
+					format = "0.01";
+					input = FALSE;
+				}
+				button "Continue"{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	roles{
+		role "S 1"{
+		}
+		role "S 2"{
+		}
+	}
+	period "1"{
+		prompt = "";
+		subject 1{
+			name = "";
+			group = 1;
+			do{
+				Player = 1;
+			}
+		}
+		subject 2{
+			name = "";
+			group = 1;
+			do{
+				Player = 2;
+			}
+		}
+	}
+}

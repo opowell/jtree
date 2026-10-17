@@ -1,0 +1,5 @@
+stage.activeScreen = `
+    <p>DECISION</p>
+    <p>Your endowment is {{app.endowment}} points.</p>
+    <p>Your contribution: <input name='player.contribution' required type='number' min='0' :max='app.endowment' step='1'></p>
+`;

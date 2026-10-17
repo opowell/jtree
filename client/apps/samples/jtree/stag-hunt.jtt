@@ -1,0 +1,32 @@
+app.description = 'Stag hunt: the two players in each pair choose, at the same time, to hunt stag or hare. A stag needs both hunters (100 points each); hare is safe (60 points) whatever the other does; hunting stag alone gets nothing.';
+
+app.groupSize   = 2;
+app.groupMatchingType = 'PARTNER_1122';
+app.stagPayoff  = 100;
+app.harePayoff  = 60;
+
+let decideStage = app.newStage('decide');
+decideStage.activeScreen = `
+    <p>DECISION</p>
+    <p>You and the other player each hunt stag or hare. If you both hunt stag, you each get {{app.stagPayoff}} points. Hunting hare gets you {{app.harePayoff}} points, whatever the other does. Hunting stag alone gets you nothing.</p>
+    <button name='player.stag' value='true'>Stag</button>
+    <button name='player.stag' value='false'>Hare</button>
+`;
+
+let resultsStage = app.newStage('results');
+resultsStage.groupStart = function(group) {
+    for (let player of group.players) {
+        let other = player.otherPlayersInGroup()[0];
+        player.otherStag = other.stag;
+        if (player.stag) {
+            player.points = other.stag ? app.stagPayoff : 0;
+        } else {
+            player.points = app.harePayoff;
+        }
+    }
+}
+resultsStage.activeScreen = `
+    <p>RESULTS</p>
+    <p>You hunted <b>{{player.stag ? 'stag' : 'hare'}}</b>, and the other player hunted <b>{{player.otherStag ? 'stag' : 'hare'}}</b>.</p>
+    <p>Your payoff: {{player.points}} points.</p>
+`;

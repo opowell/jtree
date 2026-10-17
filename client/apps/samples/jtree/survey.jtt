@@ -1,0 +1,32 @@
+app.description = 'A survey: age and gender, then the three questions of the cognitive reflection test (Frederick, 2005).';
+
+let demographicsStage = app.newStage('demographics');
+demographicsStage.activeScreen = `
+    <p>ABOUT YOU</p>
+    <p>What is your age? <input name='player.age' required type='number' min='13' max='125' step='1'></p>
+    <p>What is your gender?
+        <label><input name='player.gender' type='radio' value='Male' required> Male</label>
+        <label><input name='player.gender' type='radio' value='Female'> Female</label>
+        <label><input name='player.gender' type='radio' value='Other'> Other</label>
+    </p>
+`;
+
+let crtStage = app.newStage('crt');
+crtStage.activeScreen = `
+    <p>THREE QUESTIONS</p>
+    <p>A bat and a ball cost 22 dollars in total. The bat costs 20 dollars more than the ball. How many dollars does the ball cost?
+        <input name='player.crtBat' required type='number' step='1'></p>
+    <p>If it takes 5 machines 5 minutes to make 5 widgets, how many minutes would it take 100 machines to make 100 widgets?
+        <input name='player.crtWidget' required type='number' step='1'></p>
+    <p>In a lake, there is a patch of lily pads. Every day, the patch doubles in size. If it takes 48 days for the patch to cover the entire lake, how many days would it take for the patch to cover half of the lake?
+        <input name='player.crtLake' required type='number' step='1'></p>
+`;
+
+let resultsStage = app.newStage('results');
+resultsStage.playerStart = function(player) {
+    player.crtScore = (player.crtBat === 1) + (player.crtWidget === 5) + (player.crtLake === 47);
+}
+resultsStage.activeScreen = `
+    <p>THANK YOU</p>
+    <p>You answered {{player.crtScore}} of the 3 questions correctly. (The answers: 1, 5 and 47.)</p>
+`;

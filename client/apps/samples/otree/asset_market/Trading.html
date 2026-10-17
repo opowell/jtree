@@ -1,0 +1,41 @@
+{{ block title }}Trading{{ endblock }}
+{{ block content }}
+
+    <p>Cash (available): <span id="cash"></span>. Shares (available): <span id="shares"></span>.</p>
+
+    <p>
+        Price: <input id="price" type="number" min="1" step="1" style="width: 6em">
+        <button type="button" class="btn btn-primary" onclick="offer('buy')">Offer to buy</button>
+        <button type="button" class="btn btn-primary" onclick="offer('sell')">Offer to sell</button>
+    </p>
+
+    <table class="table" style="width: auto">
+        <tr><th>Offers to buy</th><th>Offers to sell</th><th>Trades</th></tr>
+        <tr>
+            <td id="buy_offers" style="vertical-align: top"></td>
+            <td id="sell_offers" style="vertical-align: top"></td>
+            <td id="trades" style="vertical-align: top"></td>
+        </tr>
+    </table>
+    <p class="text-muted">Your own offers are in blue: press one to cancel it. Press someone else's to take it.</p>
+
+    <script>
+        function offer(type) {
+            liveSend({type: type, price: parseInt(document.getElementById('price').value)});
+        }
+        function row(o) {
+            let action = o.mine ? 'cancel' : 'accept';
+            return '<div><button type="button" class="btn btn-sm ' + (o.mine ? 'btn-outline-primary' : 'btn-outline-secondary') +
+                '" onclick="liveSend({type: \'' + action + '\', id: ' + o.id + '})">' + o.price + '</button></div>';
+        }
+        function liveRecv(state) {
+            document.getElementById('cash').innerText = state.cash + ' (' + state.cash_available + ')';
+            document.getElementById('shares').innerText = state.shares + ' (' + state.shares_available + ')';
+            document.getElementById('buy_offers').innerHTML = state.buy_offers.map(row).join('');
+            document.getElementById('sell_offers').innerHTML = state.sell_offers.map(row).join('');
+            document.getElementById('trades').innerHTML = state.trades.map(p => '<div>' + p + '</div>').join('');
+        }
+        liveRecv(js_vars);
+    </script>
+
+{{ endblock }}

@@ -1,0 +1,29 @@
+app.description = 'Market entry: each of 4 players in a group decides whether to enter a market with room for 2. Staying out pays 10 points; an entrant gets 10 + 20 × (2 − the number of entrants), which is less than staying out when the market is crowded. 5 periods.';
+
+app.numPeriods  = 5;
+app.groupSize   = 4;
+app.groupMatchingType = 'PARTNER_1122';
+app.addNumberOption('outsideOption', 10, null, null, 1);
+app.addPositiveIntegerOption('capacity', 2);
+app.perPlace    = 20;
+
+let decideStage = app.newStage('decide');
+decideStage.activeScreen = `
+    <p>DECISION</p>
+    <p>Staying out pays {{app.outsideOption}} points. If you enter, you get {{app.outsideOption}} + {{app.perPlace}} × ({{app.capacity}} − the number of players in your group who enter).</p>
+    <button name='player.enter' value='true'>Enter</button>
+    <button name='player.enter' value='false'>Stay out</button>
+`;
+
+let resultsStage = app.newStage('results');
+resultsStage.groupStart = function(group) {
+    group.numEnter = group.players.filter(p => p.enter).length;
+    for (let player of group.players) {
+        player.points = app.outsideOption + (player.enter ? app.perPlace * (app.capacity - group.numEnter) : 0);
+    }
+}
+resultsStage.activeScreen = `
+    <p>RESULTS</p>
+    <p>You chose to <b>{{player.enter ? 'enter' : 'stay out'}}</b>. {{group.numEnter}} player(s) in your group entered.</p>
+    <p>Your payoff: {{player.points}} points.</p>
+`;

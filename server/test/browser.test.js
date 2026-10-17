@@ -87,6 +87,24 @@ test("oTree's chat, between a group's participants' pages", { skip }, async () =
     await p2.close();
 });
 
+test("an oTree live page ending itself: the samples' Dutch auction, bought on one page, over on all", { skip }, async () => {
+    // Its page's script has top-level lets, and submits the page (form#form) when liveRecv hears
+    // that the item is sold: the page's scripts run once, and the form is oTree's.
+    const session = server.createSession(path.join(__dirname, '../../client/apps/samples/otree/dutch_auction/__init__.py'), { numParticipants: 3 });
+    session.start();
+    const pages = await openParticipants(session);
+    for (const page of pages) await page.waitFor(() => /The item is worth/.test(document.body.innerText), { what: 'the auction' });
+    await pages[0].click('button', 'Buy');
+    for (const page of pages) {
+        await page.waitFor(() => /bought the item|Another bidder bought/.test(document.body.innerText), { what: 'the results', timeout: 10000 });
+    }
+    assert.match(await visibleText(pages[0]), /You bought the item, worth \d+ to you, for 100\./);
+    for (const page of pages) {
+        assert.deepEqual(page.errors, []);
+        await page.close();
+    }
+});
+
 test('the oTree admin: a session from a config, opened in a room a participant waits in; converting an app', { skip }, async () => {
     const admin = await browser.open(server.url + '/admin/otree/#/sessions');
     await admin.waitFor(() => [...document.querySelectorAll('#config option')].some((o) => /public_goods/.test(o.value)),

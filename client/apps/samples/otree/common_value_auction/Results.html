@@ -1,0 +1,15 @@
+{{ block title }}Results{{ endblock }}
+{{ block content }}
+
+    <p>
+        The item was worth {{ group.value }}. Your estimate was {{ player.estimate }} and you bid
+        {{ player.bid }}; the highest bid was {{ group.highest_bid }}.
+    </p>
+
+    <p>You <b>{{ if player.won }}won{{ else }}did not win{{ endif }}</b> the item.</p>
+
+    <p>Your payoff: {{ player.payoff }}.</p>
+
+    {{ next_button }}
+
+{{ endblock }}

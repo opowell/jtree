@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: editors/jtree.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: editors/jtree.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const path = require('path');
+const fs = require('fs-extra');
+const { pathToFileURL } = require('url');
+const { fail } = require('./util.js');
+const html = require('./html.js');
+
+/*
+ * jtree apps (.jtt) as jtree's app editor shows them: the app's settings (`app.x = value;`),
+ * its stages (`let s = app.newStage('name');` and the `s.x = value;` statements about it),
+ * and the rest of its code. Every part remembers the stretch of source it came from, and edits
+ * change only that stretch, so what the editor does not touch stays as it was written.
+ *
+ * The source is read with acorn, the copy the admin interfaces use (client/internal/clients/shared).
+ */
+
+const ACORN = path.join(__dirname, '../../../client/internal/clients/shared/acorn-8.18.0/acorn.mjs');
+let acorn = null;
+
+/** Loads acorn, once (it is an ES module). */
+async function ready() {
+    if (acorn == null) acorn = await import(pathToFileURL(ACORN).href);
+    return acorn;
+}
+
+const PARSE_OPTIONS = { ecmaVersion: 'latest', sourceType: 'script', allowReturnOutsideFunction: true, allowAwaitOutsideFunction: true, allowHashBang: true };
+
+/** Stage functions jtree calls, with what they are given, in the order the editor lists them. */
+const STAGE_HOOKS = {
+    canGroupParticipate: ['group'], canPlayerParticipate: ['player'], groupStart: ['group'], playerStart: ['player'],
+    playerEnd: ['player'], groupEnd: ['group'], canGroupStart: ['group'], canGroupEnd: ['group'], getClientDuration: ['player'],
+};
+
+/** App functions jtree calls. */
+const APP_HOOKS = {
+    sessionStart: ['session'], groupStart: ['group'], playerStart: ['player'], groupEnd: ['group'], playerEnd: ['player'],
+    periodStart: ['period'], periodEnd: ['period'], appEnd: ['session'], getNumPeriods: [],
+};
+
+/** What a value is, for the editor to show it in a field of the right kind. */
+function valueKind(node) {
+    if (node.type === 'Literal') {
+        if (typeof node.value === 'number') return 'number';
+        if (typeof node.value === 'boolean') return 'boolean';
+        if (typeof node.value === 'string') return 'string';
+        if (node.value === null) return 'null';
+    }
+    if (node.type === 'UnaryExpression' &amp;&amp; node.operator === '-' &amp;&amp; node.argument.type === 'Literal' &amp;&amp; typeof node.argument.value === 'number') return 'number';
+    if (node.type === 'TemplateLiteral' &amp;&amp; node.expressions.length === 0) return 'text';
+    if (node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression') return 'function';
+    return 'code';
+}
+
+/** Lines with the indentation they share taken out. */
+function dedent(text) {
+    const lines = text.replace(/\r\n/g, '\n').split('\n');
+    while (lines.length &amp;&amp; lines[0].trim() === '') lines.shift();
+    while (lines.length &amp;&amp; lines[lines.length - 1].trim() === '') lines.pop();
+    const indents = lines.filter((l) => l.trim() !== '').map((l) => /^[ \t]*/.exec(l)[0].length);
+    const cut = indents.length ? Math.min(...indents) : 0;
+    return lines.map((l) => l.slice(cut)).join('\n');
+}
+
+/** A property's value as the editor shows it: its source, and for some kinds what it holds. */
+function describeValue(source, node) {
+    const out = { kind: valueKind(node), code: source.slice(node.start, node.end) };
+    if (out.kind === 'number') out.value = Number(out.code);
+    else if (out.kind === 'boolean' || out.kind === 'string') out.value = node.value;
+    else if (out.kind === 'text') {
+        out.value = node.quasis[0].value.cooked;
+        // A screen's elements, for the structured mode (ranges are in value).
+        out.nodes = html.describe(html.parse(out.value));
+    }
+    else if (out.kind === 'function') {
+        out.params = node.params.map((p) => source.slice(p.start, p.end));
+        out.async = Boolean(node.async);
+        out.arrow = node.type === 'ArrowFunctionExpression';
+        out.body = node.body.type === 'BlockStatement' ? dedent(source.slice(node.body.start + 1, node.body.end - 1)) : 'return ' + source.slice(node.body.start, node.body.end) + ';';
+    }
+    return out;
+}
+
+/** `let x = app.newStage('name')`, or the call alone: {name, varName, nameNode, call}. */
+function stageDeclaration(statement) {
+    let call = null;
+    let varName = '';
+    if (statement.type === 'VariableDeclaration' &amp;&amp; statement.declarations.length === 1) {
+        const d = statement.declarations[0];
+        if (d.id.type !== 'Identifier') return null;
+        varName = d.id.name;
+        call = d.init;
+    } else if (statement.type === 'ExpressionStatement') {
+        call = statement.expression;
+    }
+    if (!call || call.type !== 'CallExpression') return null;
+    const callee = call.callee;
+    if (callee.type !== 'MemberExpression' || callee.object.type !== 'Identifier' || callee.object.name !== 'app') return null;
+    if (propertyName(callee) !== 'newStage') return null;
+    const arg = call.arguments[0];
+    if (!arg || arg.type !== 'Literal' || typeof arg.value !== 'string') return null;
+    return { name: arg.value, varName, nameNode: arg };
+}
+
+/** `object.property = value;`: {object, property, value}. */
+function memberAssignment(statement) {
+    if (statement.type !== 'ExpressionStatement') return null;
+    const e = statement.expression;
+    if (e.type !== 'AssignmentExpression' || e.operator !== '=') return null;
+    const left = e.left;
+    if (left.type !== 'MemberExpression' || left.object.type !== 'Identifier') return null;
+    const property = propertyName(left);
+    if (property == null) return null;
+    return { object: left.object.name, property, value: e.right };
+}
+
+function propertyName(member) {
+    if (!member.computed &amp;&amp; member.property.type === 'Identifier') return member.property.name;
+    if (member.computed &amp;&amp; member.property.type === 'Literal') return String(member.property.value);
+    return null;
+}
+
+/** A statement's stretch, with the comments just above it and the rest of its last line. */
+function statementRange(source, node) {
+    let start = node.start;
+    // Comment lines right above it go with it.
+    for (;;) {
+        const lineStart = source.lastIndexOf('\n', start - 1) + 1;
+        if (source.slice(lineStart, start).trim() !== '') break;
+        const prevEnd = lineStart - 1;
+        if (prevEnd &lt; 0) { start = lineStart; break; }
+        const prevStart = source.lastIndexOf('\n', prevEnd - 1) + 1;
+        const prev = source.slice(prevStart, prevEnd).trim();
+        if (/^\/\//.test(prev)) { start = prevStart; continue; }
+        start = lineStart;
+        break;
+    }
+    let end = node.end;
+    const rest = /^[ \t]*(\/\/[^\n]*)?\r?\n?/.exec(source.slice(end));
+    end += rest[0].length;
+    return { start, end };
+}
+
+/**
+ * The app in source, as the editor shows it:
+ * - app: its settings and functions, [{name, kind, code, value?, ..., range, valueRange}]
+ * - stages: [{name, varName, nameRange, declRange, props: [...], ranges: [...]}]
+ * - other: the statements that are neither, [{code, range}]; otherStages: whether they make stages
+ * - error: {message, line, column} if the source does not parse (and nothing else then).
+ */
+function model(source) {
+    if (acorn == null) throw new Error('call ready() first');
+    const out = { error: null, app: [], stages: [], other: [], stageHooks: STAGE_HOOKS, appHooks: APP_HOOKS };
+    let program;
+    try {
+        program = acorn.parse(source, PARSE_OPTIONS);
+    } catch (err) {
+        out.error = { message: err.message, line: err.loc ? err.loc.line : 0, column: err.loc ? err.loc.column : 0 };
+        return out;
+    }
+    const byVar = new Map();
+    for (const statement of program.body) {
+        const range = statementRange(source, statement);
+        const declared = stageDeclaration(statement);
+        if (declared) {
+            const stage = {
+                name: declared.name, varName: declared.varName,
+                nameRange: { start: declared.nameNode.start, end: declared.nameNode.end },
+                declRange: { start: statement.start, end: statement.end },
+                props: [], ranges: [range],
+            };
+            out.stages.push(stage);
+            if (declared.varName) byVar.set(declared.varName, stage);
+            continue;
+        }
+        const assignment = memberAssignment(statement);
+        if (assignment &amp;&amp; assignment.object === 'app') {
+            out.app.push({ name: assignment.property, ...describeValue(source, assignment.value), range, valueRange: { start: assignment.value.start, end: assignment.value.end } });
+            continue;
+        }
+        if (assignment &amp;&amp; byVar.has(assignment.object)) {
+            const stage = byVar.get(assignment.object);
+            stage.props.push({ name: assignment.property, ...describeValue(source, assignment.value), range, valueRange: { start: assignment.value.start, end: assignment.value.end } });
+            stage.ranges.push(range);
+            continue;
+        }
+        out.other.push({ code: source.slice(statement.start, statement.end), range });
+    }
+    // Stages that other code makes (in a loop, a function): jtree has them, the editor cannot list them.
+    out.otherStages = out.other.some((o) => /\bnewStage\s*\(/.test(o.code));
+    return out;
+}
+
+// --- Edits: each takes the source and returns it changed ----------------------------------------
+
+function replace(source, range, text) {
+    return source.slice(0, range.start) + text + source.slice(range.end);
+}
+
+/** Text as a template literal's source. */
+function templateLiteral(text) {
+    return '`' + String(text).replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${') + '`';
+}
+
+/** Code indented by one step (4 spaces), each line. */
+function indent(code, by = '    ') {
+    return String(code).replace(/\r\n/g, '\n').split('\n').map((l) => (l.trim() === '' ? '' : by + l)).join('\n');
+}
+
+/**
+ * A value's source from what the editor sends: {kind, value} for number, boolean, string, text
+ * (a template literal, for screens), {kind: 'function', params, body}, or {kind: 'code', code}.
+ */
+function valueSource(v) {
+    switch (v.kind) {
+        case 'number': {
+            const n = Number(v.value);
+            if (!Number.isFinite(n)) fail('not a number: ' + v.value);
+            return String(n);
+        }
+        case 'boolean': return v.value ? 'true' : 'false';
+        case 'string': return "'" + String(v.value).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\r/g, '\\r').replace(/\n/g, '\\n') + "'";
+        case 'text': return templateLiteral('\n' + dedent(v.value) + '\n');
+        case 'function': {
+            const body = String(v.body || '').replace(/\s+$/, '');
+            return 'function(' + (v.params || []).join(', ') + ') {\n' + (body ? indent(body) + '\n' : '') + '}';
+        }
+        case 'code': return String(v.code);
+        default: fail('unknown kind of value: ' + v.kind);
+    }
+}
+
+/** Where a new statement about the app goes: after the last app setting, or at the top. */
+function appInsertAt(m) {
+    if (m.app.length) return m.app[m.app.length - 1].range.end;
+    const firstStage = m.stages[0];
+    return firstStage ? firstStage.ranges[0].start : 0;
+}
+
+/** A variable name for a stage, from its name, not one of taken. */
+function stageVariable(name, taken) {
+    let base = String(name).replace(/[^\w$]+(.)?/g, (_, c) => (c ? c.toUpperCase() : '')).replace(/^\d/, '_$&amp;') || 'stage';
+    base = base[0].toLowerCase() + base.slice(1) + 'Stage';
+    let candidate = base;
+    for (let i = 2; taken.has(candidate); i++) candidate = base + i;
+    return candidate;
+}
+
+function newStageSource(name, varName) {
+    return 'let ' + varName + ' = app.newStage(' + valueSource({ kind: 'string', value: name }) + ');\n' +
+        varName + '.activeScreen = `\n    &lt;p>' + String(name).replace(/[&lt;&amp;]/g, (c) => (c === '&lt;' ? '&amp;lt;' : '&amp;amp;')) + '&lt;/p>\n`;\n';
+}
+
+function findStage(m, name) {
+    const stage = m.stages.find((s) => s.name === name);
+    if (stage == null) fail('no stage ' + JSON.stringify(name));
+    return stage;
+}
+
+/** Every identifier in node that names a variable (not `x` in `a.x` or `{x: 1}`). */
+function identifiers(node, out = []) {
+    if (!node || typeof node.type !== 'string') return out;
+    if (node.type === 'Identifier') out.push(node);
+    for (const key of Object.keys(node)) {
+        if (key === 'property' &amp;&amp; node.type === 'MemberExpression' &amp;&amp; !node.computed) continue;
+        if (key === 'key' &amp;&amp; /^(Property|MethodDefinition|PropertyDefinition)$/.test(node.type) &amp;&amp; !node.computed &amp;&amp; !node.shorthand) continue;
+        const v = node[key];
+        if (Array.isArray(v)) v.forEach((c) => identifiers(c, out));
+        else if (v &amp;&amp; typeof v === 'object') identifiers(v, out);
+    }
+    return out;
+}
+
+/** A screen of the stage (of the app, with no stage) that is HTML, or fails. */
+function screenProp(m, stage, name) {
+    const props = stage != null ? findStage(m, stage).props : m.app;
+    const prop = props.find((p) => p.name === name);
+    if (!prop) fail('there is no ' + name);
+    if (prop.kind !== 'text') fail(name + ' is made by code: change it as code');
+    return prop;
+}
+
+/** The stage's statements, end of the source first (to cut them without moving the others). */
+const lastFirst = (ranges) => ranges.slice().sort((a, b) => b.start - a.start);
+
+/**
+ * The source with op done. Ops:
+ * - {op: 'setAppProp', name, value}, {op: 'removeAppProp', name}
+ * - {op: 'addStage', name, after?}, {op: 'renameStage', name, to}, {op: 'deleteStage', name}
+ * - {op: 'moveStage', name, to} (to: the stage's new index)
+ * - {op: 'setStageProp', stage, name, value}, {op: 'removeStageProp', stage, name}
+ * - {op: 'editScreen', stage?, name, edit}: a screen of the stage (of the app, with no stage),
+ *   changed by edit, as html.js's edit takes it; the rest of the screen stays as it was.
+ * - {op: 'moveElement', from: {stage?, name, path}, to: {stage?, name, path?, where}}: an
+ *   element of one screen moved to another place, in that screen or another one (where and path
+ *   as html.js's moveTo takes them).
+ * Values are as valueSource takes them.
+ */
+function apply(source, op) {
+    let m = model(source);
+    if (m.error) fail('the app does not parse: ' + m.error.message);
+    switch (op.op) {
+        case 'setAppProp': {
+            const prop = m.app.find((p) => p.name === op.name);
+            const text = valueSource(op.value);
+            if (prop) return replace(source, prop.valueRange, text);
+            const at = appInsertAt(m);
+            const before = at > 0 &amp;&amp; source[at - 1] !== '\n' ? '\n' : '';
+            return source.slice(0, at) + before + 'app.' + op.name + ' = ' + text + ';\n' + (m.app.length || !m.stages.length ? '' : '\n') + source.slice(at);
+        }
+        case 'removeAppProp': {
+            const prop = m.app.find((p) => p.name === op.name);
+            return prop ? replace(source, prop.range, '') : source;
+        }
+        case 'addStage': {
+            const name = String(op.name || '').trim();
+            if (!name) fail('a stage needs a name');
+            if (m.stages.some((s) => s.name === name)) fail('there is already a stage ' + JSON.stringify(name));
+            const taken = new Set(m.stages.map((s) => s.varName));
+            const code = newStageSource(name, stageVariable(name, taken));
+            const after = op.after != null ? findStage(m, op.after) : m.stages[m.stages.length - 1];
+            let at = after ? Math.max(...after.ranges.map((r) => r.end)) : source.length;
+            if (!after &amp;&amp; m.other.length) at = Math.max(at, ...m.other.map((o) => o.range.end));
+            const lead = at === 0 ? '' : source[at - 1] === '\n' ? '\n' : '\n\n';
+            return source.slice(0, at) + lead + code + (at &lt; source.length &amp;&amp; after ? '\n' : '') + source.slice(at);
+        }
+        case 'renameStage': {
+            const stage = findStage(m, op.name);
+            const to = String(op.to || '').trim();
+            if (!to) fail('a stage needs a name');
+            if (to !== op.name &amp;&amp; m.stages.some((s) => s.name === to)) fail('there is already a stage ' + JSON.stringify(to));
+            source = replace(source, stage.nameRange, valueSource({ kind: 'string', value: to }));
+            // A variable the editor named after the stage is named after its new name.
+            const others = new Set(m.stages.filter((s) => s !== stage).map((s) => s.varName));
+            if (stage.varName &amp;&amp; stage.varName === stageVariable(op.name, others)) {
+                const program = acorn.parse(source, PARSE_OPTIONS);
+                const names = identifiers(program);
+                const varName = stageVariable(to, new Set([...others, ...names.map((n) => n.name)]));
+                for (const n of names.filter((x) => x.name === stage.varName).sort((a, b) => b.start - a.start)) source = replace(source, n, varName);
+            }
+            return source;
+        }
+        case 'deleteStage': {
+            const stage = findStage(m, op.name);
+            for (const r of lastFirst(stage.ranges)) source = replace(source, r, '');
+            return source.replace(/\n{3,}/g, '\n\n');
+        }
+        case 'moveStage': {
+            const stage = findStage(m, op.name);
+            const from = m.stages.indexOf(stage);
+            const to = Math.max(0, Math.min(m.stages.length - 1, Number(op.to)));
+            if (to === from) return source;
+            const ordered = stage.ranges.slice().sort((a, b) => a.start - b.start);
+            const text = ordered.map((r) => source.slice(r.start, r.end)).join('').replace(/\s*$/, '\n');
+            // Where it goes, measured before it is cut: before the stage now at its new place, or after it.
+            const target = m.stages.filter((s) => s !== stage)[to > from ? to - 1 : to];
+            const at = to > from ? Math.max(...target.ranges.map((r) => r.end)) : Math.min(...target.ranges.map((r) => r.start));
+            const cut = (s) => { for (const r of lastFirst(ordered)) s = replace(s, r, ''); return s; };
+            const removedBefore = ordered.filter((r) => r.end &lt;= at).reduce((n, r) => n + r.end - r.start, 0);
+            source = cut(source);
+            const pos = at - removedBefore;
+            const insert = to > from ? (source[pos - 1] === '\n' ? '\n' : '\n\n') + text : text + '\n';
+            return (source.slice(0, pos) + insert + source.slice(pos)).replace(/\n{3,}/g, '\n\n');
+        }
+        case 'setStageProp': {
+            let stage = findStage(m, op.stage);
+            const text = valueSource(op.value);
+            const prop = stage.props.find((p) => p.name === op.name);
+            if (prop) return replace(source, prop.valueRange, text);
+            if (!stage.varName) {
+                // `app.newStage('x');` alone: give it a variable to set things on.
+                const varName = stageVariable(stage.name, new Set(m.stages.map((s) => s.varName)));
+                source = replace(source, stage.declRange, 'let ' + varName + ' = ' + source.slice(stage.declRange.start, stage.declRange.end));
+                m = model(source);
+                stage = findStage(m, op.stage);
+            }
+            const at = Math.max(...stage.ranges.map((r) => r.end));
+            const lead = source[at - 1] === '\n' ? '' : '\n';
+            return source.slice(0, at) + lead + stage.varName + '.' + op.name + ' = ' + text + ';\n' + source.slice(at);
+        }
+        case 'removeStageProp': {
+            const stage = findStage(m, op.stage);
+            const prop = stage.props.find((p) => p.name === op.name);
+            return prop ? replace(source, prop.range, '') : source;
+        }
+        case 'editScreen': {
+            const prop = screenProp(m, op.stage, op.name);
+            return replace(source, prop.valueRange, templateLiteral(html.edit(prop.value, op.edit || {})));
+        }
+        case 'moveElement': {
+            const from = op.from || {};
+            const to = op.to || {};
+            const same = (from.stage ?? null) === (to.stage ?? null) &amp;&amp; from.name === to.name;
+            if (same) return apply(source, { op: 'editScreen', stage: from.stage, name: from.name, edit: { do: 'moveTo', path: from.path, to: to.path, where: to.where } });
+            // From one screen to another: put in there, then taken out here.
+            const screen = screenProp(m, from.stage, from.name).value;
+            const code = html.written(screen, html.nodeAt(html.parse(screen), from.path || []).node);
+            screenProp(m, to.stage, to.name);
+            const insert = to.path &amp;&amp; to.path.length ? { do: 'insert', path: to.path, where: to.where, html: code } : { do: 'insert', html: code };
+            source = apply(source, { op: 'editScreen', stage: to.stage, name: to.name, edit: insert });
+            return apply(source, { op: 'editScreen', stage: from.stage, name: from.name, edit: { do: 'remove', path: from.path } });
+        }
+        default:
+            fail('unknown edit: ' + op.op);
+    }
+}
+
+/** A new app's source. */
+function template(description) {
+    return "app.description = " + valueSource({ kind: 'string', value: description || 'A new app.' }) + ";\n" +
+        "app.numPeriods = 1;\n" +
+        "app.groupSize = 1;\n\n" +
+        newStageSource('decide', 'decideStage');
+}
+
+/** A jtree app's file: one the jtree dialect reads (.jtt, .js). */
+function appFile(ctx, appPath) {
+    const file = ctx.resolve(appPath);
+    if (!/\.(jtt|js)$/i.test(file)) fail('not a jtree app (.jtt): ' + appPath);
+    return file;
+}
+
+const actions = {
+    /** {appPath} → {appPath, source, model} */
+    async open({ appPath }, ctx) {
+        await ready();
+        const file = appFile(ctx, appPath);
+        if (!fs.existsSync(file)) fail('there is no file ' + appPath);
+        const source = fs.readFileSync(file, 'utf8');
+        return { appPath: file, source, model: model(source) };
+    },
+    /** {source} → {model} */
+    async model({ source }) {
+        await ready();
+        return { model: model(String(source)) };
+    },
+    /** {source, op} or {source, ops: [...]} → {source, model}: the source with the edits made. */
+    async apply({ source, op, ops }) {
+        await ready();
+        let out = String(source);
+        for (const o of ops || [op]) out = apply(out, o);
+        return { source: out, model: model(out) };
+    },
+    /** {appPath, source} → {appPath}: writes the app. */
+    async save({ appPath, source }, ctx) {
+        const file = appFile(ctx, appPath);
+        ctx.write(file, String(source));
+        ctx.reload();
+        return { appPath: file };
+    },
+    /** {appPath, description?} → {appPath, source, model}: a new app, written. */
+    async create({ appPath, description }, ctx) {
+        await ready();
+        let file = ctx.resolve(appPath);
+        if (!/\.(jtt|js)$/i.test(file)) file += '.jtt';
+        if (fs.existsSync(file)) fail('there is already a file ' + path.basename(file));
+        const source = template(description);
+        ctx.write(file, source);
+        ctx.reload();
+        return { appPath: file, source, model: model(source) };
+    },
+};
+
+module.exports = { ready, model, apply, template, valueSource, actions, STAGE_HOOKS, APP_HOOKS };
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AdminAuth.html">AdminAuth</a></li><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="Data.html">Data</a></li><li><a href="Exit.html">Exit</a></li><li><a href="Group.html">Group</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="QueueRecorder.html">QueueRecorder</a></li><li><a href="Reader.html">Reader</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Run.html">Run</a></li><li><a href="Screens.html">Screens</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="Translator.html">Translator</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="global.html#start">start</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-4a-ztree.html">z-Tree treatments</a></li><li><a href="tutorial-4b-otree.html">oTree apps</a></li><li><a href="tutorial-4c-samples.html">Samples library</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-other.html">Other</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ADMIN_LOGIN_REQUIRED">ADMIN_LOGIN_REQUIRED</a></li><li><a href="global.html#APP_HOOKS">APP_HOOKS</a></li><li><a href="global.html#CLOSES">CLOSES</a></li><li><a href="global.html#STAGE_HOOKS">STAGE_HOOKS</a></li><li><a href="global.html#addToClass">addToClass</a></li><li><a href="global.html#allBoxes">allBoxes</a></li><li><a href="global.html#appCSV">appCSV</a></li><li><a href="global.html#appFile">appFile</a></li><li><a href="global.html#appInsertAt">appInsertAt</a></li><li><a href="global.html#appRoots">appRoots</a></li><li><a href="global.html#appTemplate">appTemplate</a></li><li><a href="global.html#appToIR">appToIR</a></li><li><a href="global.html#apply">apply</a></li><li><a href="global.html#applyIR">applyIR</a></li><li><a href="global.html#applySettings">applySettings</a></li><li><a href="global.html#applyStages">applyStages</a></li><li><a href="global.html#arrayDeclarations">arrayDeclarations</a></li><li><a href="global.html#arrayIndex">arrayIndex</a></li><li><a href="global.html#assignedVariables">assignedVariables</a></li><li><a href="global.html#attrSource">attrSource</a></li><li><a href="global.html#boolValue">boolValue</a></li><li><a href="global.html#botCases">botCases</a></li><li><a href="global.html#boxOptions">boxOptions</a></li><li><a href="global.html#callLive">callLive</a></li><li><a href="global.html#chat">chat</a></li><li><a href="global.html#chatFor">chatFor</a></li><li><a href="global.html#check">check</a></li><li><a href="global.html#checkField">checkField</a></li><li><a href="global.html#checkForm">checkForm</a></li><li><a href="global.html#compileProgram">compileProgram</a></li><li><a href="global.html#compiled">compiled</a></li><li><a href="global.html#context">context</a></li><li><a href="global.html#contractList">contractList</a></li><li><a href="global.html#convertApp">convertApp</a></li><li><a href="global.html#convertTreatment">convertTreatment</a></li><li><a href="global.html#convertTreatmentFile">convertTreatmentFile</a></li><li><a href="global.html#copyDir">copyDir</a></li><li><a href="global.html#copyToPlayer">copyToPlayer</a></li><li><a href="global.html#creatingSessionBeforeArrival">creatingSessionBeforeArrival</a></li><li><a href="global.html#cut">cut</a></li><li><a href="global.html#decimals">decimals</a></li><li><a href="global.html#declared">declared</a></li><li><a href="global.html#dedent">dedent</a></li><li><a href="global.html#describe">describe</a></li><li><a href="global.html#describeValue">describeValue</a></li><li><a href="global.html#dialectFor">dialectFor</a></li><li><a href="global.html#drawn">drawn</a></li><li><a href="global.html#edit">edit</a></li><li><a href="global.html#encode">encode</a></li><li><a href="global.html#endSoon">endSoon</a></li><li><a href="global.html#errorPosition">errorPosition</a></li><li><a href="global.html#exportTables">exportTables</a></li><li><a href="global.html#exporter">exporter</a></li><li><a href="global.html#exportersFor">exportersFor</a></li><li><a href="global.html#expression">expression</a></li><li><a href="global.html#fail">fail</a></li><li><a href="global.html#file">file</a></li><li><a href="global.html#fillValues">fillValues</a></li><li><a href="global.html#findBox">findBox</a></li><li><a href="global.html#finite">finite</a></li><li><a href="global.html#formatText">formatText</a></li><li><a href="global.html#formatValue">formatValue</a></li><li><a href="global.html#fromDescription">fromDescription</a></li><li><a href="global.html#getBridge">getBridge</a></li><li><a href="global.html#grid">grid</a></li><li><a href="global.html#history">history</a></li><li><a href="global.html#identifiers">identifiers</a></li><li><a href="global.html#inAppFolders">inAppFolders</a></li><li><a href="global.html#indent">indent</a></li><li><a href="global.html#indentBy">indentBy</a></li><li><a href="global.html#indentLines">indentLines</a></li><li><a href="global.html#insertAfter">insertAfter</a></li><li><a href="global.html#isInteractive">isInteractive</a></li><li><a href="global.html#isProject">isProject</a></li><li><a href="global.html#isSessionsLastPage">isSessionsLastPage</a></li><li><a href="global.html#isText">isText</a></li><li><a href="global.html#isTextFile">isTextFile</a></li><li><a href="global.html#itemCell">itemCell</a></li><li><a href="global.html#itemsTable">itemsTable</a></li><li><a href="global.html#jsonErrorPosition">jsonErrorPosition</a></li><li><a href="global.html#lanAddress">lanAddress</a></li><li><a href="global.html#lastFirst">lastFirst</a></li><li><a href="global.html#layoutEnd">layoutEnd</a></li><li><a href="global.html#layoutParts">layoutParts</a></li><li><a href="global.html#leaveIfAsked">leaveIfAsked</a></li><li><a href="global.html#leavesStage">leavesStage</a></li><li><a href="global.html#legacyValue">legacyValue</a></li><li><a href="global.html#lineIndent">lineIndent</a></li><li><a href="global.html#lines">lines</a></li><li><a href="global.html#loadPackagesFor">loadPackagesFor</a></li><li><a href="global.html#measure">measure</a></li><li><a href="global.html#memberAssignment">memberAssignment</a></li><li><a href="global.html#model">model</a></li><li><a href="global.html#mountProject">mountProject</a></li><li><a href="global.html#newTreatment">newTreatment</a></li><li><a href="global.html#nodeAt">nodeAt</a></li><li><a href="global.html#normalizeCode">normalizeCode</a></li><li><a href="global.html#openUrl">openUrl</a></li><li><a href="global.html#ownLine">ownLine</a></li><li><a href="global.html#owner">owner</a></li><li><a href="global.html#packageFor">packageFor</a></li><li><a href="global.html#pageTimesCSV">pageTimesCSV</a></li><li><a href="global.html#paramCell">paramCell</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseExpr">parseExpr</a></li><li><a href="global.html#parseLayout">parseLayout</a></li><li><a href="global.html#parseQueueId">parseQueueId</a></li><li><a href="global.html#pathAfterRemoving">pathAfterRemoving</a></li><li><a href="global.html#place">place</a></li><li><a href="global.html#plot">plot</a></li><li><a href="global.html#plotInput">plotInput</a></li><li><a href="global.html#plotItemAt">plotItemAt</a></li><li><a href="global.html#prefixHtmlUrls">prefixHtmlUrls</a></li><li><a href="global.html#pressButton">pressButton</a></li><li><a href="global.html#program">program</a></li><li><a href="global.html#programItems">programItems</a></li><li><a href="global.html#putApp">putApp</a></li><li><a href="global.html#putSettings">putSettings</a></li><li><a href="global.html#py">py</a></li><li><a href="global.html#queueId">queueId</a></li><li><a href="global.html#queueScript">queueScript</a></li><li><a href="global.html#quote">quote</a></li><li><a href="global.html#quotedEnd">quotedEnd</a></li><li><a href="global.html#readGameHeader">readGameHeader</a></li><li><a href="global.html#readQuestionnaires">readQuestionnaires</a></li><li><a href="global.html#readScreen">readScreen</a></li><li><a href="global.html#readTextQuestionnaires">readTextQuestionnaires</a></li><li><a href="global.html#readTextTreatment">readTextTreatment</a></li><li><a href="global.html#readTreatment">readTreatment</a></li><li><a href="global.html#ready">ready</a></li><li><a href="global.html#refresh">refresh</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#reload">reload</a></li><li><a href="global.html#renderScreen">renderScreen</a></li><li><a href="global.html#reportMarkdown">reportMarkdown</a></li><li><a href="global.html#rooms">rooms</a></li><li><a href="global.html#router">router</a></li><li><a href="global.html#rtfToText">rtfToText</a></li><li><a href="global.html#run">run</a></li><li><a href="global.html#runAppCode">runAppCode</a></li><li><a href="global.html#runBots">runBots</a></li><li><a href="global.html#runOf">runOf</a></li><li><a href="global.html#runZtreeBots">runZtreeBots</a></li><li><a href="global.html#scan">scan</a></li><li><a href="global.html#screen">screen</a></li><li><a href="global.html#screenProp">screenProp</a></li><li><a href="global.html#sessionConfigs">sessionConfigs</a></li><li><a href="global.html#settleBoxes">settleBoxes</a></li><li><a href="global.html#stageDeclaration">stageDeclaration</a></li><li><a href="global.html#stageMeaning">stageMeaning</a></li><li><a href="global.html#stageVariable">stageVariable</a></li><li><a href="global.html#statementRange">statementRange</a></li><li><a href="global.html#str">str</a></li><li><a href="global.html#subjectIndex">subjectIndex</a></li><li><a href="global.html#submitGeneric">submitGeneric</a></li><li><a href="global.html#substitutionAt">substitutionAt</a></li><li><a href="global.html#syntaxErrors">syntaxErrors</a></li><li><a href="global.html#tableRecords">tableRecords</a></li><li><a href="global.html#tablesChangedTimers">tablesChangedTimers</a></li><li><a href="global.html#template">template</a></li><li><a href="global.html#templateLiteral">templateLiteral</a></li><li><a href="global.html#templates">templates</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#textParts">textParts</a></li><li><a href="global.html#toTreatment">toTreatment</a></li><li><a href="global.html#tokenize">tokenize</a></li><li><a href="global.html#topInsert">topInsert</a></li><li><a href="global.html#treatmentFile">treatmentFile</a></li><li><a href="global.html#unindent">unindent</a></li><li><a href="global.html#urlFor">urlFor</a></li><li><a href="global.html#useSettings">useSettings</a></li><li><a href="global.html#validate">validate</a></li><li><a href="global.html#value">value</a></li><li><a href="global.html#valueFor">valueFor</a></li><li><a href="global.html#valueKind">valueKind</a></li><li><a href="global.html#valueSource">valueSource</a></li><li><a href="global.html#variables">variables</a></li><li><a href="global.html#whenReady">whenReady</a></li><li><a href="global.html#wideCSV">wideCSV</a></li><li><a href="global.html#withBlocks">withBlocks</a></li><li><a href="global.html#withStatics">withStatics</a></li><li><a href="global.html#write">write</a></li><li><a href="global.html#written">written</a></li><li><a href="global.html#zTreeRules">zTreeRules</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sat Oct 17 2026 09:07:11 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+app.description = 'Real-effort task: add up sums of three two-digit numbers, one after another, for 60 seconds. Each correct sum earns a point.';
+
+app.addNumberOption('workTime', 60, 1, null, 1);
+app.numbersPerSum = 3;
+app.minNumber   = 10;
+app.maxNumber   = 99;
+app.stageWrapPlayingScreenInFormTag = 'no';
+
+/** Gives the player a new sum to do. */
+app.newSum = function(player) {
+    player.numbers = [];
+    for (let i = 0; i < app.numbersPerSum; i++) {
+        player.numbers.push(Utils.randomInt(app.minNumber, app.maxNumber + 1));
+    }
+}
+
+let workStage = app.newStage('work');
+workStage.duration = app.workTime;
+workStage.playerStart = function(player) {
+    player.attempted = 0;
+    player.solved = 0;
+    app.newSum(player);
+}
+workStage.activeScreen = `
+    <p>WORK</p>
+    <p>Add up as many sums as you can before the time runs out. Each correct sum earns a point.</p>
+    <p style='font-size: 150%'>{{player.numbers.join(' + ')}} = <input id='answer' type='number' step='1' style='width: 5em' autofocus
+        onkeydown='if (event.key === "Enter") document.getElementById("submit").click()'></p>
+    <button type='button' id='submit' onclick='jt.sendMessage("answer", document.getElementById("answer").value - 0); document.getElementById("answer").value = ""'>Submit</button>
+    <p>Correct so far: {{player.solved}} of {{player.attempted}}.</p>
+`;
+
+app.messages.answer = function(answer) {
+    let player = this.participant.player;
+    if (player.stage.id !== 'work') return;
+    player.attempted++;
+    if (answer === player.numbers.reduce((a, b) => a + b, 0)) {
+        player.solved++;
+    }
+    app.newSum(player);
+    player.saveAndUpdate();
+}
+
+let resultsStage = app.newStage('results');
+resultsStage.playerStart = function(player) {
+    player.points = player.solved;
+}
+resultsStage.activeScreen = `
+    <p>RESULTS</p>
+    <p>You added up {{player.solved}} of {{player.attempted}} sums correctly.</p>
+    <p>Your payoff: {{player.points}} points.</p>
+`;

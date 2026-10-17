@@ -1,0 +1,40 @@
+app.description = "Prisoner's dilemma: the two players in each pair choose, at the same time, to cooperate or to defect. Each does better by defecting, whatever the other does, but both do better if both cooperate.";
+
+app.groupSize   = 2;
+app.groupMatchingType = 'PARTNER_1122';
+// My payoff, by my choice and the other's.
+app.bothCooperate   = 200;
+app.bothDefect      = 100;
+app.defectAlone     = 300;
+app.cooperateAlone  = 0;
+
+let decideStage = app.newStage('decide');
+decideStage.activeScreen = `
+    <p>DECISION</p>
+    <p>You and the other player each choose to cooperate or to defect. Your payoffs (yours, the other's):</p>
+    <table class='table table-bordered' style='width: auto'>
+        <tr><th></th><th>The other cooperates</th><th>The other defects</th></tr>
+        <tr><th>You cooperate</th><td>{{app.bothCooperate}}, {{app.bothCooperate}}</td><td>{{app.cooperateAlone}}, {{app.defectAlone}}</td></tr>
+        <tr><th>You defect</th><td>{{app.defectAlone}}, {{app.cooperateAlone}}</td><td>{{app.bothDefect}}, {{app.bothDefect}}</td></tr>
+    </table>
+    <button name='player.cooperate' value='true'>Cooperate</button>
+    <button name='player.cooperate' value='false'>Defect</button>
+`;
+
+let resultsStage = app.newStage('results');
+resultsStage.groupStart = function(group) {
+    for (let player of group.players) {
+        let other = player.otherPlayersInGroup()[0];
+        player.otherCooperated = other.cooperate;
+        if (player.cooperate) {
+            player.points = other.cooperate ? app.bothCooperate : app.cooperateAlone;
+        } else {
+            player.points = other.cooperate ? app.defectAlone : app.bothDefect;
+        }
+    }
+}
+resultsStage.activeScreen = `
+    <p>RESULTS</p>
+    <p>You chose to <b>{{player.cooperate ? 'cooperate' : 'defect'}}</b>, and the other player chose to <b>{{player.otherCooperated ? 'cooperate' : 'defect'}}</b>.</p>
+    <p>Your payoff: {{player.points}} points.</p>
+`;

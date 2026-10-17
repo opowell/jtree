@@ -1,0 +1,13 @@
+{{ block title }}Guess{{ endblock }}
+{{ block content }}
+
+    <p>
+        Guess a number from 0 to {{ C.MAX_GUESS }}. The guess in your group closest to 2/3 of the
+        average guess wins {{ C.PRIZE }} (shared if there is a tie).
+    </p>
+
+    {{ formfields }}
+
+    {{ next_button }}
+
+{{ endblock }}

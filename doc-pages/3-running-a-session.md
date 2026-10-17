@@ -1,4 +1,4 @@
-This tutorial shows how to start and run a session. A session consists of a series of apps. We will use the public goods game described in Box 1, which comes with jtree (`public-good`, in `1 sample games`). The next tutorial shows how to build it.
+This tutorial shows how to start and run a session. A session consists of a series of apps. We will use the public goods game described in Box 1, which comes with jtree (`public-goods`, in `samples/jtree`; see the <a href='tutorial-4c-samples.html'>samples library</a>). The next tutorial shows how to build it.
 
 *Box 1* - Description of the simple public goods game.
 #########
@@ -19,7 +19,7 @@ The admin at `/admin/` is a menu bar over panels. Panels can be dragged into tab
 
 #### Start a session
 
-1. In Browse, open the `public-good` app.
+1. In Browse, open the `public-goods` app.
 2. In its panel, press "New session with this app". jtree makes a new session with this app, and shows it in the Session panel.
 3. Under Participants, set the number of participants (4, one group) and press "Set".
 4. Press "Start".

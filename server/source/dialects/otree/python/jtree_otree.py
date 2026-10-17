@@ -456,6 +456,12 @@ def _settings(settings_dir):
     return settings
 
 
+def use_project_settings(settings_dir):
+    """Reads the settings of the oTree project whose settings.py was put in settings_dir, for its
+    apps (settings.USE_POINTS, POINTS_DECIMAL_PLACES, ...)."""
+    _settings(settings_dir)
+
+
 def project_rooms(settings_dir):
     """The project's ROOMS, as JSON: [{name, display_name, participant_label_file}]."""
     return json.dumps(_json_value(list(getattr(_settings(settings_dir), 'ROOMS', []) or [])))
@@ -487,22 +493,28 @@ def project_export(settings_dir):
 
 # --- Live pages ---------------------------------------------------------------------------
 
-def live(pkg, page_name, js_player, js_data):
-    """The page's live_method(player, data): what to send to whom, as [[id_in_group, data]]
-    (0 for the whole group), or None."""
-    info = _apps[pkg]
+def _live_result(info, page_name, player, data):
+    """What the page's live_method(player, data) returns: a dict of id_in_group (0 for the whole
+    group) to data, or None."""
     fn = info.pages[page_name].live_method
-    player = info.Player(js_player)
-    data = js_data.to_py() if hasattr(js_data, 'to_py') else js_data
     if isinstance(fn, str):
         # A function of the module, or (older format) the player's method.
         result = getattr(player, fn)(data) if info.old else getattr(info.mod, fn)(player, data)
     else:
         result = fn(player, data)
+    if result is not None and not isinstance(result, dict):
+        raise TypeError('live_method should return a dict, of id_in_group (0 for everyone) to data')
+    return result
+
+
+def live(pkg, page_name, js_player, js_data):
+    """The page's live_method(player, data): what to send to whom, as [[id_in_group, data]]
+    (0 for the whole group), or None."""
+    info = _apps[pkg]
+    data = js_data.to_py() if hasattr(js_data, 'to_py') else js_data
+    result = _live_result(info, page_name, info.Player(js_player), data)
     if result is None:
         return None
-    if not isinstance(result, dict):
-        raise TypeError('live_method should return a dict, of id_in_group (0 for everyone) to data')
     return _js([[int(k), v] for k, v in result.items()])
 
 
@@ -556,6 +568,32 @@ def bot_start(pkg, js_player, case_index):
     handle = _next_bot[0]
     _bots[handle] = steps if steps is not None else iter(())
     return handle
+
+
+def bot_call_live(pkg, page_name, js_player, case_index):
+    """The bots' call_live_method(method, case, round_number, page_class, group) of the app's
+    tests.py, if it has one, for the player's group on a live page (as oTree calls it, once per
+    group and page): method(id_in_group, data) calls the page's live_method as that player, and
+    returns what it returns. What the calls send to pages, as [[id_in_group, data]], in order."""
+    info = _apps[pkg]
+    tests = importlib.import_module(pkg + '.tests')
+    fn = getattr(tests, 'call_live_method', None)
+    if fn is None:
+        return _js([])
+    group = info.Player(js_player).group
+    players = {p.id_in_group: p for p in group.get_players()}
+    sends = []
+
+    def method(id_in_group, data):
+        result = _live_result(info, page_name, players[id_in_group], data)
+        if result is not None:
+            sends.extend([int(k), v] for k, v in result.items())
+        return result
+
+    cases = getattr(tests.PlayerBot, 'cases', None)
+    fn(method=method, case=cases[case_index % len(cases)] if cases else None,
+       round_number=players[min(players)].round_number, page_class=info.pages[page_name], group=group)
+    return _js(sends)
 
 
 def bot_next(handle, html=None):

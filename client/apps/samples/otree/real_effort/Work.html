@@ -1,0 +1,40 @@
+{{ block title }}Work{{ endblock }}
+{{ block content }}
+
+    <p>Add up as many sums as you can before the time runs out. Each correct sum earns a point.</p>
+
+    <p style="font-size: 150%">
+        <span id="numbers"></span> =
+        <input id="answer" type="number" step="1" style="width: 5em" autofocus>
+    </p>
+    <button type="button" class="btn btn-primary" id="submit">Submit</button>
+
+    <p>Correct so far: <span id="solved"></span> of <span id="attempted"></span>.</p>
+
+    <script>
+        let answer = document.getElementById('answer');
+        function show(state) {
+            document.getElementById('numbers').innerText = state.numbers;
+            document.getElementById('solved').innerText = state.solved;
+            document.getElementById('attempted').innerText = state.attempted;
+        }
+        function send() {
+            liveSend({answer: parseInt(answer.value)});
+            answer.value = '';
+            answer.focus();
+        }
+        document.getElementById('submit').onclick = send;
+        // Enter submits the answer, not the page.
+        answer.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                send();
+            }
+        });
+        function liveRecv(state) {
+            show(state);
+        }
+        show(js_vars);
+    </script>
+
+{{ endblock }}

@@ -1,0 +1,13 @@
+{{ block title }}Decision{{ endblock }}
+{{ block content }}
+
+    <p>
+        Staying out pays {{ outside_option }} points. If you enter, you get {{ outside_option }} +
+        {{ C.PER_PLACE }} × ({{ capacity }} − the number of players in your group who enter).
+    </p>
+
+    {{ formfields }}
+
+    {{ next_button }}
+
+{{ endblock }}

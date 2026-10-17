@@ -1,0 +1,16 @@
+{{ block title }}Decision{{ endblock }}
+{{ block content }}
+
+    <p>
+        {{ if matcher }}
+            You are the <b>matcher</b>: you win {{ C.STAKES }} if your choices match.
+        {{ else }}
+            You are the <b>mismatcher</b>: you win {{ C.STAKES }} if your choices differ.
+        {{ endif }}
+    </p>
+
+    {{ formfields }}
+
+    {{ next_button }}
+
+{{ endblock }}

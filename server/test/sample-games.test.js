@@ -1,4 +1,5 @@
-// The games in client/apps/1 sample games, played by bots from start to end (games.js).
+// jtree's versions of the samples library's games (client/apps/samples/jtree), played by bots from
+// start to end (games.js). samples.test.js plays each in its three versions.
 
 const { test, before, after } = require('node:test');
 const assert = require('node:assert/strict');
@@ -12,7 +13,7 @@ after(async () => { await server.close(); });
 
 for (const game of games) {
     test(game.name, async () => {
-        const session = server.createSession(app('1 sample games/' + game.file), { numParticipants: game.participants, options: game.options });
+        const session = server.createSession(app('samples/jtree/' + game.file), { numParticipants: game.participants, options: game.options });
         const bots = await server.connectAll(session);
         session.start();
         await game.play({ session, bots, app: session.apps[0] });
@@ -20,7 +21,7 @@ for (const game of games) {
 }
 
 test('public good, as a folder with one file per stage', async () => {
-    const session = server.createSession(app('1 sample games/public-good-v2/app.jtt'), { numParticipants: 4 });
+    const session = server.createSession(app('2 features/public-good-v2/app.jtt'), { numParticipants: 4 });
     const bots = await server.connectAll(session);
     session.start();
     const pgApp = session.apps[0];

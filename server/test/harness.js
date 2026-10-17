@@ -15,7 +15,7 @@ const REPO = path.resolve(__dirname, '../..');
 const CLIENT = path.join(REPO, 'client');
 const jtree = require(path.join(REPO, 'server/source/jtree.js'));
 
-/** Absolute path of an app in client/apps, e.g. app('1 sample games/public-good.jtt'). */
+/** Absolute path of an app in client/apps, e.g. app('samples/jtree/public-goods.jtt'). */
 function app(rel) {
     return path.join(CLIENT, 'apps', rel);
 }

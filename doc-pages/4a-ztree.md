@@ -1,5 +1,7 @@
 jtree runs z-Tree treatments as they are, with participants in their browsers instead of z-Leaf. It can also edit them as z-Tree does, and convert them to jtree apps.
 
+The <a href='tutorial-4c-samples.html'>samples library</a> has 23 z-Tree treatments, each also written as a jtree app and an oTree app.
+
 #### Running a treatment
 
 Put the treatment in `client/apps`, then use File → Reload apps in the admin. jtree reads:

@@ -1,0 +1,43 @@
+app.description = 'Ultimatum game: in each pair, player 1 offers player 2 a share of 100 points. If player 2 accepts, the points are split as offered; if not, both get nothing.';
+
+app.groupSize   = 2;
+app.groupMatchingType = 'PARTNER_1122';
+app.pieSize     = 100;
+
+let offerStage = app.newStage('offer');
+offerStage.canPlayerParticipate = function(player) {
+    return player.idInGroup === 1;
+}
+offerStage.activeScreen = `
+    <p>OFFER</p>
+    <p>You are player 1. There are {{app.pieSize}} points to split. Offer player 2 a share: if they accept, they get it and you keep the rest; if they reject it, you both get nothing.</p>
+    <p>Your offer to player 2: <input name='player.offer' required type='number' min='0' :max='app.pieSize' step='1'></p>
+`;
+
+let respondStage = app.newStage('respond');
+respondStage.canPlayerParticipate = function(player) {
+    return player.idInGroup === 2;
+}
+respondStage.groupStart = function(group) {
+    group.offer = group.playerWithId(1).offer;
+}
+respondStage.activeScreen = `
+    <p>RESPONSE</p>
+    <p>You are player 2. Player 1 offers you {{group.offer}} of the {{app.pieSize}} points, and would keep {{app.pieSize - group.offer}}.</p>
+    <button name='player.accept' value='true'>Accept</button>
+    <button name='player.accept' value='false'>Reject</button>
+`;
+
+let resultsStage = app.newStage('results');
+resultsStage.groupStart = function(group) {
+    let p1 = group.playerWithId(1);
+    let p2 = group.playerWithId(2);
+    group.accepted = p2.accept;
+    p1.points = group.accepted ? app.pieSize - group.offer : 0;
+    p2.points = group.accepted ? group.offer : 0;
+}
+resultsStage.activeScreen = `
+    <p>RESULTS</p>
+    <p>You are player {{player.idInGroup}}. Player 1 offered {{group.offer}} points to player 2, who <b>{{group.accepted ? 'accepted' : 'rejected'}}</b> the offer.</p>
+    <p>Your payoff: {{player.points}} points.</p>
+`;

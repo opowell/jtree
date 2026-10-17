@@ -1,0 +1,63 @@
+app.description = 'Dutch auction: each of the 3 bidders in a group values an item at a number from 0 to 100, known only to them. The price starts at 100 and falls by 5 every 2 seconds; the first bidder to accept buys at that price. 3 periods.';
+
+app.numPeriods  = 3;
+app.groupSize   = 3;
+app.groupMatchingType = 'PARTNER_1122';
+app.maxValue    = 100;
+app.startPrice  = 100;
+app.priceStep   = 5;
+app.tickSeconds = 2;
+app.stageWrapPlayingScreenInFormTag = 'no';
+
+let auctionStage = app.newStage('auction');
+// Long enough for the price to fall to 0.
+auctionStage.duration = app.startPrice / app.priceStep * app.tickSeconds + 5;
+auctionStage.groupStart = function(group) {
+    group.price = app.startPrice;
+    group.buyer = 0;
+    for (let player of group.players) {
+        player.value = Utils.randomInt(0, app.maxValue + 1);
+    }
+    // The price falls every tickSeconds, until someone buys or it is 0.
+    let fall = function() {
+        if (group.buyer !== 0 || group.price <= 0) return;
+        group.price = Math.max(0, group.price - app.priceStep);
+        group.players.forEach(p => p.saveAndUpdate());
+        setTimeout(fall, app.tickSeconds * 1000);
+    }
+    setTimeout(fall, app.tickSeconds * 1000);
+}
+auctionStage.activeScreen = `
+    <p>AUCTION</p>
+    <p>The item is worth <b>{{player.value}}</b> points to you.</p>
+    <p>Price: <b style='font-size: 150%'>{{group.price}}</b></p>
+    <p>The price falls by {{app.priceStep}} every {{app.tickSeconds}} seconds. The first bidder to press Buy gets the item at the price then.</p>
+    <button type='button' onclick='jt.sendMessage("buy")'>Buy</button>
+`;
+
+app.messages.buy = function() {
+    let player = this.participant.player;
+    let group = player.group;
+    if (player.stage.id !== 'auction' || group.buyer !== 0) return;
+    group.buyer = player.idInGroup;
+    group.salePrice = group.price;
+    // The auction is over for everyone in the group.
+    for (let p of group.players) {
+        if (p.status === 'playing') p.endStage();
+    }
+}
+
+let resultsStage = app.newStage('results');
+resultsStage.groupStart = function(group) {
+    for (let player of group.players) {
+        player.won = player.idInGroup === group.buyer;
+        player.points = player.won ? player.value - group.salePrice : 0;
+    }
+}
+resultsStage.activeScreen = `
+    <p>RESULTS</p>
+    <p v-if='group.buyer === 0'>Nobody bought the item.</p>
+    <p v-else-if='player.won'>You bought the item, worth {{player.value}} to you, for {{group.salePrice}}.</p>
+    <p v-else>Another bidder bought the item for {{group.salePrice}}.</p>
+    <p>Your payoff: {{player.points}} points.</p>
+`;

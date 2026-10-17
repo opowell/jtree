@@ -1,0 +1,793 @@
+treatment "asset-market.ztt"{
+	background{
+		table globals{
+		}
+		table subjects{
+		}
+		table summary{
+		}
+		table contracts{
+		}
+		table clients{
+		}
+		table treatments{
+		}
+		table sessionglobals{
+		}
+		table participations{
+		}
+		numsubjects = 4;
+		numgroups = 1;
+		numpracticeperiods = 0;
+		numactualperiods = 10;
+		exchangerate = 1;
+		startendowment = 0;
+		showupfee = 0;
+		noAutoscope = FALSE;
+		firstBoxesOnTop = FALSE;
+		showupfeeawaytext = "You are making losses. Do you want to invest the showupfee in order to continue?";
+		showupfeeawayyestext = "Yes";
+		showupfeeawaynotext = "No";
+		moneyawaytext = "You are  making losses. Do you want to continue?";
+		moneyawayyestext = "Yes";
+		moneyawaynotext = "No";
+		bancruptwaittext = "Please wait until the experimenter unlocks your PC.";
+		program{
+			table = globals;
+			do{
+				TradingTime = 60;
+						// The shares' expected dividends: 24 a period, for every period.
+						EndowmentCash = 24 * 10 * 3;
+						EndowmentShares = 3;
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				Cash = if(Period == 1, EndowmentCash, OLDsubjects.find(Subject == :Subject, Cash));
+						Shares = if(Period == 1, EndowmentShares, OLDsubjects.find(Subject == :Subject, Shares));
+						// What is not promised to open offers: cash to offers to buy, shares to offers to sell.
+						CashAvailable = Cash;
+						SharesAvailable = Shares;
+			}
+		}
+		program{
+			table = contracts;
+			do{
+				// Side: 1 an offer to buy a share, 2 to sell one.
+						Side = 0;
+						Open = 0;
+						Maker = 0;
+						Taker = 0;
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			headerbox "Header"{
+				hasframe = TRUE;
+				height = 10%;
+				top = 0p;
+				cuttop = TRUE;
+				showPeriods = TRUE;
+				showNumPeriods = TRUE;
+				periodtext = "Period";
+				periodoftext = "of";
+				practiceperiodprefix = "Trial ";
+				showtime = TRUE;
+				timestr = "Remaining time [sec]:";
+				pleasedecidetext = "Please reach a decision.";
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Text"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Please wait until the experiment continues.";
+				}
+			}
+		}
+	}
+	stage "Trading"{
+		startwaitforall = TRUE;
+		startConditionStr = "";
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = always;
+		timeout = TradingTime;
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "You"{
+				hasframe = TRUE;
+				height = 20%;
+				top = 0;
+				cuttop = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "Cash";
+					variable = Cash;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "Cash available";
+					variable = CashAvailable;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "Shares";
+					variable = Shares;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "Shares available";
+					variable = SharesAvailable;
+					format = "1";
+					input = FALSE;
+				}
+			}
+			makecontractbox "Make an offer"{
+				hasframe = TRUE;
+				width = 33%;
+				left = 0;
+				cutleft = TRUE;
+				table = contracts;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				emptyallowed = FALSE;
+				allemptyallowed = FALSE;
+				numrecords = 1;
+				tablelayout = VERTICAL;
+				item{
+					label = "Price";
+					variable = Price;
+					format = "1";
+					input = TRUE;
+					showdefault = FALSE;
+					emptyallowed = FALSE;
+					min = 1;
+					max = 10000;
+				}
+				button "Offer to buy"{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+					checker{
+						condition = Price <= :CashAvailable;
+						message = "You do not have the cash.";
+						yesButtonStr = "";
+						noButtonStr = "OK";
+					}
+					program{
+						table = contracts;
+						do{
+							Maker = :Subject;
+												Side = 1;
+												Open = 1;
+												subjects.do {
+													if (Subject == :Maker) {
+														CashAvailable = CashAvailable - :Price;
+													}
+												}
+						}
+					}
+				}
+				button "Offer to sell"{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+					checker{
+						condition = :SharesAvailable >= 1;
+						message = "You have no share to sell.";
+						yesButtonStr = "";
+						noButtonStr = "OK";
+					}
+					program{
+						table = contracts;
+						do{
+							Maker = :Subject;
+												Side = 2;
+												Open = 1;
+												subjects.do {
+													if (Subject == :Maker) {
+														SharesAvailable = SharesAvailable - 1;
+													}
+												}
+						}
+					}
+				}
+			}
+			selectcontractbox "Offers to buy"{
+				hasframe = TRUE;
+				width = 33%;
+				table = contracts;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				emptyallowed = FALSE;
+				allemptyallowed = FALSE;
+				condition = Side == 1 & Open == 1;
+				sortfields = "-Price";
+				tablelayout = LIST;
+				scrollatstart = FALSE;
+				scrollatEnd = FALSE;
+				selectbest = FALSE;
+				item{
+					label = "Price";
+					variable = Price;
+					format = "1";
+					input = FALSE;
+				}
+				button "Sell"{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+					checker{
+						condition = Maker != :Subject;
+						message = "This is your own offer.";
+						yesButtonStr = "";
+						noButtonStr = "OK";
+					}
+					checker{
+						condition = :SharesAvailable >= 1;
+						message = "You have no share to sell.";
+						yesButtonStr = "";
+						noButtonStr = "OK";
+					}
+					program{
+						table = contracts;
+						do{
+							Open = 0;
+										Taker = :Subject;
+										subjects.do {
+											if (Subject == :Taker) {
+												Shares = Shares - 1;
+												SharesAvailable = SharesAvailable - 1;
+												Cash = Cash + :Price;
+												CashAvailable = CashAvailable + :Price;
+											}
+											if (Subject == :Maker) {
+												Shares = Shares + 1;
+												SharesAvailable = SharesAvailable + 1;
+												Cash = Cash - :Price;
+											}
+										}
+						}
+					}
+				}
+				button "Cancel"{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+					checker{
+						condition = Maker == :Subject;
+						message = "You can only cancel your own offers.";
+						yesButtonStr = "";
+						noButtonStr = "OK";
+					}
+					program{
+						table = contracts;
+						do{
+							Open = 0;
+										subjects.do {
+											if (Subject == :Maker) {
+												CashAvailable = CashAvailable + :Price;
+											}
+										}
+						}
+					}
+				}
+			}
+			selectcontractbox "Offers to sell"{
+				hasframe = TRUE;
+				width = 33%;
+				table = contracts;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				emptyallowed = FALSE;
+				allemptyallowed = FALSE;
+				condition = Side == 2 & Open == 1;
+				sortfields = "Price";
+				tablelayout = LIST;
+				scrollatstart = FALSE;
+				scrollatEnd = FALSE;
+				selectbest = FALSE;
+				item{
+					label = "Price";
+					variable = Price;
+					format = "1";
+					input = FALSE;
+				}
+				button "Buy"{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+					checker{
+						condition = Maker != :Subject;
+						message = "This is your own offer.";
+						yesButtonStr = "";
+						noButtonStr = "OK";
+					}
+					checker{
+						condition = :CashAvailable >= Price;
+						message = "You do not have the cash.";
+						yesButtonStr = "";
+						noButtonStr = "OK";
+					}
+					program{
+						table = contracts;
+						do{
+							Open = 0;
+										Taker = :Subject;
+										subjects.do {
+											if (Subject == :Taker) {
+												Shares = Shares + 1;
+												SharesAvailable = SharesAvailable + 1;
+												Cash = Cash - :Price;
+												CashAvailable = CashAvailable - :Price;
+											}
+											if (Subject == :Maker) {
+												Shares = Shares - 1;
+												CashAvailable = CashAvailable + :Price;
+												Cash = Cash + :Price;
+											}
+										}
+						}
+					}
+				}
+				button "Cancel"{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+					checker{
+						condition = Maker == :Subject;
+						message = "You can only cancel your own offers.";
+						yesButtonStr = "";
+						noButtonStr = "OK";
+					}
+					program{
+						table = contracts;
+						do{
+							Open = 0;
+										subjects.do {
+											if (Subject == :Maker) {
+												SharesAvailable = SharesAvailable + 1;
+											}
+										}
+						}
+					}
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	stage "Results"{
+		startwaitforall = TRUE;
+		startConditionStr = "";
+		singleentry = FALSE;
+		singleentrycontinuation = FALSE;
+		timeouttype = ifnoinput;
+		timeout = 30;
+		program{
+			table = globals;
+			do{
+				Draw = rounddown(random() * 4, 1);
+							Dividend = if(Draw == 0, 0, if(Draw == 1, 8, if(Draw == 2, 28, 60)));
+			}
+		}
+		program{
+			table = subjects;
+			do{
+				Dividends = Shares * Dividend;
+							Cash = Cash + Dividends;
+							// Only the cash at the end counts.
+							Profit = if(Period == NumPeriods, Cash, 0);
+			}
+		}
+		screen action{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+			standardbox "Results"{
+				hasframe = TRUE;
+				buttonposition = BOTTOMRIGHT;
+				buttonsequence = HORIZONTAL;
+				item{
+					label = "The dividend a share";
+					variable = Dividend;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "Your dividends";
+					variable = Dividends;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "Cash";
+					variable = Cash;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "Shares";
+					variable = Shares;
+					format = "1";
+					input = FALSE;
+				}
+				item{
+					label = "Your payoff (your cash, after the last period)";
+					variable = Profit;
+					format = "1";
+					input = FALSE;
+				}
+				button "Continue"{
+					clearinputafterok = FALSE;
+					norecordmadeorselected = FALSE;
+					terminatestage = FALSE;
+					donotterminatestage = FALSE;
+					specialbuttoncolor = FALSE;
+					buttoncolor = 0;
+				}
+			}
+		}
+		screen wait{
+			usesbg = TRUE;
+			withalertscreen = FALSE;
+			noalertscreen = FALSE;
+		}
+	}
+	roles{
+		role "S 1"{
+		}
+		role "S 2"{
+		}
+		role "S 3"{
+		}
+		role "S 4"{
+		}
+	}
+	period "1"{
+		prompt = "";
+		subject 1{
+			name = "";
+			group = 1;
+			do{
+				Player = 1;
+			}
+		}
+		subject 2{
+			name = "";
+			group = 1;
+			do{
+				Player = 2;
+			}
+		}
+		subject 3{
+			name = "";
+			group = 1;
+			do{
+				Player = 3;
+			}
+		}
+		subject 4{
+			name = "";
+			group = 1;
+			do{
+				Player = 4;
+			}
+		}
+	}
+	period "2"{
+		prompt = "";
+		subject 1{
+			name = "";
+			group = 1;
+			do{
+				Player = 1;
+			}
+		}
+		subject 2{
+			name = "";
+			group = 1;
+			do{
+				Player = 2;
+			}
+		}
+		subject 3{
+			name = "";
+			group = 1;
+			do{
+				Player = 3;
+			}
+		}
+		subject 4{
+			name = "";
+			group = 1;
+			do{
+				Player = 4;
+			}
+		}
+	}
+	period "3"{
+		prompt = "";
+		subject 1{
+			name = "";
+			group = 1;
+			do{
+				Player = 1;
+			}
+		}
+		subject 2{
+			name = "";
+			group = 1;
+			do{
+				Player = 2;
+			}
+		}
+		subject 3{
+			name = "";
+			group = 1;
+			do{
+				Player = 3;
+			}
+		}
+		subject 4{
+			name = "";
+			group = 1;
+			do{
+				Player = 4;
+			}
+		}
+	}
+	period "4"{
+		prompt = "";
+		subject 1{
+			name = "";
+			group = 1;
+			do{
+				Player = 1;
+			}
+		}
+		subject 2{
+			name = "";
+			group = 1;
+			do{
+				Player = 2;
+			}
+		}
+		subject 3{
+			name = "";
+			group = 1;
+			do{
+				Player = 3;
+			}
+		}
+		subject 4{
+			name = "";
+			group = 1;
+			do{
+				Player = 4;
+			}
+		}
+	}
+	period "5"{
+		prompt = "";
+		subject 1{
+			name = "";
+			group = 1;
+			do{
+				Player = 1;
+			}
+		}
+		subject 2{
+			name = "";
+			group = 1;
+			do{
+				Player = 2;
+			}
+		}
+		subject 3{
+			name = "";
+			group = 1;
+			do{
+				Player = 3;
+			}
+		}
+		subject 4{
+			name = "";
+			group = 1;
+			do{
+				Player = 4;
+			}
+		}
+	}
+	period "6"{
+		prompt = "";
+		subject 1{
+			name = "";
+			group = 1;
+			do{
+				Player = 1;
+			}
+		}
+		subject 2{
+			name = "";
+			group = 1;
+			do{
+				Player = 2;
+			}
+		}
+		subject 3{
+			name = "";
+			group = 1;
+			do{
+				Player = 3;
+			}
+		}
+		subject 4{
+			name = "";
+			group = 1;
+			do{
+				Player = 4;
+			}
+		}
+	}
+	period "7"{
+		prompt = "";
+		subject 1{
+			name = "";
+			group = 1;
+			do{
+				Player = 1;
+			}
+		}
+		subject 2{
+			name = "";
+			group = 1;
+			do{
+				Player = 2;
+			}
+		}
+		subject 3{
+			name = "";
+			group = 1;
+			do{
+				Player = 3;
+			}
+		}
+		subject 4{
+			name = "";
+			group = 1;
+			do{
+				Player = 4;
+			}
+		}
+	}
+	period "8"{
+		prompt = "";
+		subject 1{
+			name = "";
+			group = 1;
+			do{
+				Player = 1;
+			}
+		}
+		subject 2{
+			name = "";
+			group = 1;
+			do{
+				Player = 2;
+			}
+		}
+		subject 3{
+			name = "";
+			group = 1;
+			do{
+				Player = 3;
+			}
+		}
+		subject 4{
+			name = "";
+			group = 1;
+			do{
+				Player = 4;
+			}
+		}
+	}
+	period "9"{
+		prompt = "";
+		subject 1{
+			name = "";
+			group = 1;
+			do{
+				Player = 1;
+			}
+		}
+		subject 2{
+			name = "";
+			group = 1;
+			do{
+				Player = 2;
+			}
+		}
+		subject 3{
+			name = "";
+			group = 1;
+			do{
+				Player = 3;
+			}
+		}
+		subject 4{
+			name = "";
+			group = 1;
+			do{
+				Player = 4;
+			}
+		}
+	}
+	period "10"{
+		prompt = "";
+		subject 1{
+			name = "";
+			group = 1;
+			do{
+				Player = 1;
+			}
+		}
+		subject 2{
+			name = "";
+			group = 1;
+			do{
+				Player = 2;
+			}
+		}
+		subject 3{
+			name = "";
+			group = 1;
+			do{
+				Player = 3;
+			}
+		}
+		subject 4{
+			name = "";
+			group = 1;
+			do{
+				Player = 4;
+			}
+		}
+	}
+}

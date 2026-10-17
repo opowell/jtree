@@ -1,0 +1,27 @@
+app.description = "Volunteer's dilemma (Diekmann, 1985): each of 3 players in a group decides whether to volunteer. If at least one does, everyone gets 100 points; each volunteer pays 40 points.";
+
+app.groupSize   = 3;
+app.groupMatchingType = 'PARTNER_1122';
+app.benefit     = 100;
+app.cost        = 40;
+
+let decideStage = app.newStage('decide');
+decideStage.activeScreen = `
+    <p>DECISION</p>
+    <p>If at least one player in your group volunteers, everyone in the group gets {{app.benefit}} points. Volunteering costs the volunteer {{app.cost}} points.</p>
+    <button name='player.volunteer' value='true'>Volunteer</button>
+    <button name='player.volunteer' value='false'>Do not volunteer</button>
+`;
+
+let resultsStage = app.newStage('results');
+resultsStage.groupStart = function(group) {
+    group.numVolunteers = group.players.filter(p => p.volunteer).length;
+    for (let player of group.players) {
+        player.points = (group.numVolunteers > 0 ? app.benefit : 0) - (player.volunteer ? app.cost : 0);
+    }
+}
+resultsStage.activeScreen = `
+    <p>RESULTS</p>
+    <p>You chose <b>{{player.volunteer ? 'to volunteer' : 'not to volunteer'}}</b>. {{group.numVolunteers}} player(s) in your group volunteered.</p>
+    <p>Your payoff: {{player.points}} points.</p>
+`;

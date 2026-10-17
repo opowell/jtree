@@ -1,0 +1,29 @@
+app.description = 'Dictator game: in each pair, player 1 decides how to split 100 points between themselves and player 2, who has no say.';
+
+app.groupSize   = 2;
+app.groupMatchingType = 'PARTNER_1122';
+app.endowment   = 100;
+
+let decideStage = app.newStage('decide');
+decideStage.canPlayerParticipate = function(player) {
+    return player.idInGroup === 1;
+}
+decideStage.activeScreen = `
+    <p>DECISION</p>
+    <p>You are player 1. You have {{app.endowment}} points to split between yourself and player 2. Player 2 gets what you do not keep.</p>
+    <p>Points you keep: <input name='player.keep' required type='number' min='0' :max='app.endowment' step='1'></p>
+`;
+
+let resultsStage = app.newStage('results');
+resultsStage.groupStart = function(group) {
+    let p1 = group.playerWithId(1);
+    let p2 = group.playerWithId(2);
+    group.kept = p1.keep;
+    p1.points = p1.keep;
+    p2.points = app.endowment - p1.keep;
+}
+resultsStage.activeScreen = `
+    <p>RESULTS</p>
+    <p>You are player {{player.idInGroup}}. Player 1 kept {{group.kept}} of the {{app.endowment}} points, and gave {{app.endowment - group.kept}} to player 2.</p>
+    <p>Your payoff: {{player.points}} points.</p>
+`;

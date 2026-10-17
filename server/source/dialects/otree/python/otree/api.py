@@ -43,6 +43,17 @@ class Currency(float):
     def __neg__(self): return Currency(-float(self))
     def __abs__(self): return Currency(abs(float(self)))
 
+    def __eq__(self, other):
+        # As oTree's: a number is rounded as an amount first (cu(38) == 37.5 with whole points).
+        if isinstance(other, (int, float)):
+            return float(self) == float(Currency(other))
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    __hash__ = float.__hash__
+
     def to_real_world_currency(self, session):
         return round(float(self) * session.real_world_currency_per_point, 2)
 
@@ -738,6 +749,10 @@ class ExtraModel:
                 setattr(row, name, to_js_value(value))
             else:
                 raise TypeError(f'{cls.__name__} has no field {name!r}')
+        # A field not given starts at its initial value, as in oTree.
+        for name, field in cls._fields.items():
+            if name not in kw and field.opts.get('initial') is not None:
+                setattr(row, name, to_js_value(field.opts['initial']))
         rows.push(row)
         return cls(row, session_js)
 

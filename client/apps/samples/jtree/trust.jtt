@@ -1,0 +1,44 @@
+app.description = 'Trust game (Berg, Dickhaut and McCabe, 1995): in each pair, player 1 has 100 points and sends some to player 2. What is sent is tripled; player 2 then decides how much of it to send back.';
+
+app.groupSize   = 2;
+app.groupMatchingType = 'PARTNER_1122';
+app.endowment   = 100;
+app.multiplier  = 3;
+
+let sendStage = app.newStage('send');
+sendStage.canPlayerParticipate = function(player) {
+    return player.idInGroup === 1;
+}
+sendStage.activeScreen = `
+    <p>SEND</p>
+    <p>You are player 1. You have {{app.endowment}} points. What you send to player 2 is multiplied by {{app.multiplier}}, and player 2 then decides how much of it to send back to you.</p>
+    <p>Points you send: <input name='player.sent' required type='number' min='0' :max='app.endowment' step='1'></p>
+`;
+
+let returnStage = app.newStage('return');
+returnStage.canPlayerParticipate = function(player) {
+    return player.idInGroup === 2;
+}
+returnStage.groupStart = function(group) {
+    group.sent = group.playerWithId(1).sent;
+    group.tripled = group.sent * app.multiplier;
+}
+returnStage.activeScreen = `
+    <p>SEND BACK</p>
+    <p>You are player 2. Player 1 sent you {{group.sent}} points, which became {{group.tripled}} points.</p>
+    <p>Points you send back: <input name='player.returned' required type='number' min='0' :max='group.tripled' step='1'></p>
+`;
+
+let resultsStage = app.newStage('results');
+resultsStage.groupStart = function(group) {
+    let p1 = group.playerWithId(1);
+    let p2 = group.playerWithId(2);
+    group.returned = p2.returned;
+    p1.points = app.endowment - group.sent + group.returned;
+    p2.points = group.tripled - group.returned;
+}
+resultsStage.activeScreen = `
+    <p>RESULTS</p>
+    <p>You are player {{player.idInGroup}}. Player 1 sent {{group.sent}} points, which became {{group.tripled}}. Player 2 sent back {{group.returned}} points.</p>
+    <p>Your payoff: {{player.points}} points.</p>
+`;

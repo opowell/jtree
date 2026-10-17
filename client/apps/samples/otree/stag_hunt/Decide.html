@@ -1,0 +1,14 @@
+{{ block title }}Decision{{ endblock }}
+{{ block content }}
+
+    <p>
+        You and the other player each hunt stag or hare. If you both hunt stag, you each get
+        {{ C.STAG_PAYOFF }}. Hunting hare gets you {{ C.HARE_PAYOFF }}, whatever the other does.
+        Hunting stag alone gets you nothing.
+    </p>
+
+    {{ formfields }}
+
+    {{ next_button }}
+
+{{ endblock }}

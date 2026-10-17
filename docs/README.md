@@ -17,6 +17,7 @@ The admin page opens in your browser, at http://localhost:3000/admin/. On macOS,
 - apps in Javascript, with an app editor in the admin: an app as a tree of its stages, their screens and the elements on them, as z-Tree and oTree Studio show theirs, or as forms, or as source.
 - runs z-Tree treatments and oTree apps as they are, edits them as z-Tree and oTree Studio do, and converts them to jtree apps.
 - three admin interfaces: jtree's own, one laid out after z-Tree, and one after oTree's.
+- a samples library: 23 economics experiments (public goods, trust, auctions, markets, ...), each written for jtree, oTree and z-Tree alike.
 - autoplay and bots for testing.
 - rooms: permanent links for participants.
 - queues: sequences of apps, with their options, for re-use.
@@ -32,6 +33,10 @@ The admin page opens in your browser, at http://localhost:3000/admin/. On macOS,
 #### <a href='https://opowell.github.io/jtree/reference/tutorial-4a-ztree.html'>z-Tree treatments</a>
 
 #### <a href='https://opowell.github.io/jtree/reference/tutorial-4b-otree.html'>oTree apps</a>
+
+#### <a href='https://opowell.github.io/jtree/reference/tutorial-4c-samples.html'>Samples library</a>
+
+23 economics experiments, each as a jtree app, an oTree app and a z-Tree treatment, with the same design.
 
 #### <a href='https://opowell.github.io/jtree/reference/tutorial-7-release-notes.html'>Release notes</a>
 

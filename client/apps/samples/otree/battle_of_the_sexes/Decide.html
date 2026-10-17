@@ -1,0 +1,16 @@
+{{ block title }}Decision{{ endblock }}
+{{ block content }}
+
+    <p>You are player {{ player.id_in_group }}. You and the other player each choose A or B. Your payoffs:</p>
+
+    <table class="table table-bordered text-center" style="width: auto">
+        <tr><th></th><th>The other chooses A</th><th>The other chooses B</th></tr>
+        <tr><th>You choose A</th><td>{{ aa }}</td><td>{{ ab }}</td></tr>
+        <tr><th>You choose B</th><td>{{ ba }}</td><td>{{ bb }}</td></tr>
+    </table>
+
+    {{ formfields }}
+
+    {{ next_button }}
+
+{{ endblock }}

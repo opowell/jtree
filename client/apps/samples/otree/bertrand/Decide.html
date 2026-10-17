@@ -1,0 +1,14 @@
+{{ block title }}Price{{ endblock }}
+{{ block content }}
+
+    <p>
+        You and the other firm each set a price from 0 to {{ C.MAXIMUM_PRICE }}. The firm with the
+        lower price sells and earns its price; the other earns nothing. If your prices are the same,
+        the seller is chosen at random.
+    </p>
+
+    {{ formfields }}
+
+    {{ next_button }}
+
+{{ endblock }}

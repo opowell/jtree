@@ -1,0 +1,9 @@
+{{ block title }}Results{{ endblock }}
+{{ block content }}
+
+    <p>The dividend this round was {{ group.dividend }} a share.</p>
+    <p>Dividends: {{ player.dividends }}. Cash: {{ player.cash }}. Shares: {{ player.shares }}.</p>
+
+    {{ next_button }}
+
+{{ endblock }}

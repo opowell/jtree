@@ -17,6 +17,9 @@
     "4b-otree": {
         "title": "oTree apps"
     },
+    "4c-samples": {
+        "title": "Samples library"
+    },
     "5-clients": {
         "title": "Writing the client",
         "children": [

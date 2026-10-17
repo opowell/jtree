@@ -1,0 +1,25 @@
+app.description = 'Bargaining (Nash demand game): the two players in each pair ask for a share of 100 points at the same time. If their requests add up to 100 or less, each gets what they asked for; otherwise both get nothing.';
+
+app.groupSize   = 2;
+app.groupMatchingType = 'PARTNER_1122';
+app.amount      = 100;
+
+let requestStage = app.newStage('request');
+requestStage.activeScreen = `
+    <p>REQUEST</p>
+    <p>You and the other player each ask for a share of {{app.amount}} points. If your requests add up to {{app.amount}} or less, you each get what you asked for. If they add up to more, you both get nothing.</p>
+    <p>Points you ask for: <input name='player.request' required type='number' min='0' :max='app.amount' step='1'></p>
+`;
+
+let resultsStage = app.newStage('results');
+resultsStage.groupStart = function(group) {
+    group.totalRequests = group.sum('request');
+    for (let player of group.players) {
+        player.points = group.totalRequests <= app.amount ? player.request : 0;
+    }
+}
+resultsStage.activeScreen = `
+    <p>RESULTS</p>
+    <p>You asked for {{player.request}} points; together you asked for {{group.totalRequests}}.</p>
+    <p>Your payoff: {{player.points}} points.</p>
+`;

@@ -10,9 +10,9 @@ after(async () => { await server.close(); });
 
 /** A started real-effort session (a 1-second work stage) with n bots, recording player.timedOut at the end of work. */
 async function realEffort(n, options = {}) {
-    const session = server.createSession(app('1 sample games/real-effort-sums.jtt'), {
+    const session = server.createSession(app('samples/jtree/real-effort.jtt'), {
         numParticipants: n,
-        options: { workTime: 1, numTasks: 2, ...options },
+        options: { workTime: 1, ...options },
     });
     const bots = await server.connectAll(session);
     session.start();

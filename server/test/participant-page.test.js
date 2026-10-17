@@ -9,7 +9,7 @@ before(async () => { server = await startServer(); });
 after(async () => { await server.close(); });
 
 test("a folder app's participant page has the screens of its stage files", async () => {
-    const session = server.createSession(app('1 sample games/public-good-v2/app.jtt'), { numParticipants: 1 });
+    const session = server.createSession(app('2 features/public-good-v2/app.jtt'), { numParticipants: 1 });
     await server.connectAll(session);
     session.start();
     const res = await fetch(server.url + '/session/' + session.id + '/P1');

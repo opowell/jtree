@@ -6,10 +6,14 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { startServer } = require('./harness.js');
 const { runAppCode } = require('../source/dialects/jtree/runAppCode.js');
+const python = require('../source/dialects/otree/runtime.js');
 
 let server;
 before(async () => {
     server = await startServer({ withApps: true });
+    // The oTree apps (the samples library's) load once Python has started.
+    await python.ready();
+    server.jt.data.reloadApps();
 });
 after(async () => { await server.close(); });
 

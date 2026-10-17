@@ -29,8 +29,8 @@ async function restore(data, id) {
 }
 
 for (const [name, appPath] of [
-    ['an app', app('1 sample games/public-good.jtt')],
-    ['a folder app', app('1 sample games/public-good-v2/app.jtt')],
+    ['an app', app('samples/jtree/public-goods.jtt')],
+    ['a folder app', app('2 features/public-good-v2/app.jtt')],
 ]) {
     test('a saved session comes back with ' + name + ', its stages, players and their data', async () => {
         const data = makeDataDir();
@@ -69,7 +69,7 @@ for (const [name, appPath] of [
 test('a loaded session continues where it stopped, to its end', async () => {
     const data = makeDataDir();
     try {
-        const id = await playAndStop(data, app('1 sample games/public-good.jtt'));
+        const id = await playAndStop(data, app('samples/jtree/public-goods.jtt'));
         const { server, session } = await restore(data, id);
         try {
             // Created with 4 (the default), then cut to 2: the 2 removed stay removed.
@@ -99,7 +99,7 @@ test('a loaded session continues where it stopped, to its end', async () => {
 test('a loaded session that had started is not started again', async () => {
     const data = makeDataDir();
     try {
-        const id = await playAndStop(data, app('1 sample games/public-good.jtt'));
+        const id = await playAndStop(data, app('samples/jtree/public-goods.jtt'));
         const { server, session } = await restore(data, id);
         try {
             assert.equal(session.started, true);
@@ -120,8 +120,8 @@ test('a loaded session that had started is not started again', async () => {
 async function stopDuringWork(data, { pause = false } = {}) {
     const server = await startServer({ data });
     try {
-        const session = server.createSession(app('1 sample games/real-effort-sums.jtt'), {
-            numParticipants: 1, options: { workTime: 3, numTasks: 1 },
+        const session = server.createSession(app('samples/jtree/real-effort.jtt'), {
+            numParticipants: 1, options: { workTime: 3 },
         });
         const [bot] = await server.connectAll(session);
         session.start();
@@ -182,7 +182,7 @@ test("a loaded session has its groups' tables, and trading goes on", async () =>
         let id;
         const first = await startServer({ data });
         try {
-            const session = first.createSession(app('1 sample games/double-auction.jtt'), { numParticipants: 2 });
+            const session = first.createSession(app('samples/jtree/asset-market.jtt'), { numParticipants: 2 });
             const bots = await first.connectAll(session);
             session.start();
             await Promise.all(bots.map(b => b.waitForStage('trading', { period: 1 })));
@@ -217,7 +217,7 @@ test("a loaded session has its groups' tables, and trading goes on", async () =>
 test('a session is saved as one JSON object per line, its type first', async () => {
     const data = makeDataDir();
     try {
-        const id = await playAndStop(data, app('1 sample games/public-good.jtt'));
+        const id = await playAndStop(data, app('samples/jtree/public-goods.jtt'));
         const lines = fs.readFileSync(path.join(data.path, 'sessions', id, id + '.gsf'), 'utf8').split('\n').filter(Boolean);
         assert.ok(lines.length > 10);
         for (const line of lines) {

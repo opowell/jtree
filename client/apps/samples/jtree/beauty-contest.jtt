@@ -1,0 +1,34 @@
+app.description = 'Beauty contest (guess 2/3 of the average): each of 3 players in a group guesses a number from 0 to 100. The guess closest to 2/3 of the average guess wins 100 points, shared if there is a tie. 3 periods.';
+
+app.numPeriods  = 3;
+app.groupSize   = 3;
+app.groupMatchingType = 'PARTNER_1122';
+app.multiplier  = 2/3;
+app.maxGuess    = 100;
+app.prize       = 100;
+
+let guessStage = app.newStage('guess');
+guessStage.activeScreen = `
+    <p>GUESS</p>
+    <p>Guess a number from 0 to {{app.maxGuess}}. The guess in your group closest to 2/3 of the average guess wins {{app.prize}} points (shared if there is a tie).</p>
+    <p>Your guess: <input name='player.guess' required type='number' min='0' :max='app.maxGuess' step='1'></p>
+`;
+
+let resultsStage = app.newStage('results');
+resultsStage.groupStart = function(group) {
+    group.target = Math.round(group.sum('guess') / group.players.length * app.multiplier * 100) / 100;
+    group.bestDistance = Math.min(...group.players.map(p => Math.abs(p.guess - group.target)));
+    let winners = group.players.filter(p => Math.abs(p.guess - group.target) === group.bestDistance);
+    group.numWinners = winners.length;
+    for (let player of group.players) {
+        player.won = winners.includes(player);
+        player.points = player.won ? app.prize / group.numWinners : 0;
+    }
+    group.guesses = group.players.map(p => p.guess).sort((a, b) => a - b);
+}
+resultsStage.activeScreen = `
+    <p>RESULTS</p>
+    <p>The guesses in your group were {{group.guesses.join(', ')}}. 2/3 of their average is {{group.target}}.</p>
+    <p>Your guess was {{player.guess}}: you <b>{{player.won ? 'won' : 'did not win'}}</b>.</p>
+    <p>Your payoff: {{player.points | round(2)}} points.</p>
+`;

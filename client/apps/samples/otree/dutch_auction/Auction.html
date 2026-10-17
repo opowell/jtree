@@ -1,0 +1,28 @@
+{{ block title }}Auction{{ endblock }}
+{{ block content }}
+
+    <p>The item is worth <b>{{ player.value }}</b> to you.</p>
+
+    <p>Price: <b id="price" style="font-size: 150%">{{ C.START_PRICE }}</b></p>
+
+    <p>
+        The price falls by {{ C.PRICE_STEP }} every {{ C.TICK_SECONDS }} seconds. The first bidder
+        to press Buy gets the item at the price then.
+    </p>
+
+    <button type="button" class="btn btn-primary" onclick="liveSend('buy')">Buy</button>
+
+    <script>
+        let started = Date.now() - js_vars.elapsed * 1000;
+        function showPrice() {
+            let ticks = Math.floor((Date.now() - started) / 1000 / js_vars.tick);
+            document.getElementById('price').innerText = Math.max(0, js_vars.start - js_vars.step * ticks);
+        }
+        showPrice();
+        setInterval(showPrice, 200);
+        function liveRecv(data) {
+            if (data === 'sold') document.getElementById('form').submit();
+        }
+    </script>
+
+{{ endblock }}

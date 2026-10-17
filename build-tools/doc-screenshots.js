@@ -1,11 +1,13 @@
 // The screenshots in jtree's documentation (doc-pages/static/images), taken in headless Chrome
-// (server/test/browser.js) from a jtree started with the sample games, z-Tree's pg.ztt and oTree's
-// sample apps (the test fixtures; z-Tree's examples are downloaded by the z-Tree tests).
+// (server/test/browser.js) from a jtree started with the samples library (client/apps/samples),
+// z-Tree's pg.ztt and oTree's sample apps (the test fixtures; z-Tree's examples are downloaded by
+// the z-Tree tests).
 //
 //     node build-tools/doc-screenshots.js [<names>...]
 //
 // takes them all, or only those named (admin, participant, editor (and editor-forms), ztree-admin, ztree-participant,
-// otree-sessions, otree-session, otree-participant, otree-studio). Then rebuild the docs.
+// otree-sessions, otree-session, otree-participant, otree-studio, samples-jtree, samples-otree,
+// samples-ztree). Then rebuild the docs.
 const fs = require('node:fs');
 const path = require('node:path');
 const REPO = path.join(__dirname, '..');
@@ -54,7 +56,7 @@ async function shot(page, name, clip) {
     DATA = data.path;
     const apps = path.join(data.path, 'apps');
     fs.mkdirSync(apps);
-    fs.cpSync(path.join(REPO, 'client/apps/1 sample games'), path.join(apps, '1 sample games'), { recursive: true });
+    fs.cpSync(path.join(REPO, 'client/apps/samples'), path.join(apps, 'samples'), { recursive: true });
     fs.mkdirSync(path.join(apps, 'ztree'));
     fs.copyFileSync(path.join(T, 'fixtures/ztree-examples/pg.ztt'), path.join(apps, 'ztree/pg.ztt'));
     for (const name of ['public_goods_simple', 'prisoner', 'trust_simple', '_templates', '_static', 'settings.py']) {
@@ -86,7 +88,7 @@ SECRET_KEY = 'x'
     try {
         // jtree's admin, a running public goods session.
         if (want('admin') || want('participant')) {
-            const s = server.createSession(path.join(apps, '1 sample games/public-good.jtt'), { numParticipants: 4 });
+            const s = server.createSession(path.join(apps, 'samples/jtree/public-goods.jtt'), { numParticipants: 4 });
             s.start();
             const parts = [];
             for (const id of Object.keys(s.participants)) parts.push(await browser.open(url + '/session/' + s.id + '/' + id));
@@ -119,7 +121,7 @@ SECRET_KEY = 'x'
             await fill(page, '#new-desc', 'A public goods game.');
             await clickText(page, 'button', '^Create$');
             await page.waitFor(() => document.querySelector('.ed__mode'), { what: 'the editor' });
-            const src = fs.readFileSync(path.join(apps, '1 sample games/public-good.jtt'), 'utf8').replace(/^app\.description = .*\n\n/, "app.description = 'A public goods game.';\n\n");
+            const src = fs.readFileSync(path.join(apps, 'samples/jtree/public-goods.jtt'), 'utf8').replace(/^app\.description = .*\n\n/, "app.description = 'A public goods game.';\n\n");
             await clickText(page, '.ed__mode', '^Source$');
             await page.waitFor(() => Boolean(document.querySelector('.ed__main .cm-editor')), { what: 'source' });
             // Source is CodeMirror: its text is set through its view.
@@ -239,6 +241,22 @@ SECRET_KEY = 'x'
                 await shot(page, 'otree-studio');
                 await page.close();
             }
+        }
+
+        // The samples library: the trust game's first screen, in its jtree, oTree and z-Tree versions.
+        for (const [engine, file, ready, clip] of [
+            ['jtree', 'samples/jtree/trust.jtt', 'SEND', { x: 190, y: 226, width: 820, height: 362 }],
+            ['otree', 'samples/otree/trust/__init__.py', 'Points you send', { x: 0, y: 0, width: 1200, height: 320 }],
+            ['ztree', 'samples/ztree/trust.ztt', 'Points you send'],
+        ]) {
+            if (!want('samples-' + engine)) continue;
+            const s = server.createSession(path.join(apps, file), { numParticipants: 2 });
+            s.start();
+            const parts = [];
+            for (const id of Object.keys(s.participants)) parts.push(await browser.open(url + '/session/' + s.id + '/' + id));
+            await parts[0].waitFor((r) => document.body.innerText.includes(r), { what: engine + "'s trust game", timeout: 60000 }, ready);
+            await shot(parts[0], 'samples-' + engine, clip);
+            for (const p of parts) await p.close();
         }
     } catch (err) {
         console.error(err);

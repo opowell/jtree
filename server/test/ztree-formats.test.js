@@ -14,48 +14,13 @@ const { readTextTreatment, readTextQuestionnaires } = require('../source/dialect
 const { readQuestionnaires } = require('../source/dialects/ztree/ztq.js');
 const lang = require('../source/dialects/ztree/lang.js');
 const examples = require('./ztree-examples.js');
+const { differences } = examples;
 
 const PROBE = path.join(__dirname, 'fixtures/ztree5-probe');
 
 let server;
 before(async () => { server = await startServer(); });
 after(async () => { await server.close(); });
-
-/**
- * Where two readings of a treatment differ, as "path: a | b" (at most 20). What the formats
- * write differently and mean the same is not a difference: whitespace, '' and missing, [] and
- * missing, an item's min and max if it is not an input (the binary files keep old ones), the
- * raw option bytes (their meanings are compared), and fields one reader has for itself.
- */
-function differences(a, b) {
-    const ONLY_ONE = new Set(['version', 'tables', 'cls', 'warnings', 'texts', 'timeoutType', 'startCondition', 'loaders', 'dumpers',
-        'numSubjects', 'numGroups', 'practicePeriods', 'first', 'count', 'options', 'plotCount', 'childCount', 'label', 'button']);
-    const norm = (v, key, parent) => {
-        if ((key === 'min' || key === 'max') && parent && parent.kind === 'item' && !parent.input) return undefined;
-        if (key === 'layout' && parent && parent.kind === 'item' && !parent.variable) return undefined;
-        if (typeof v === 'string') v = key === 'code' ? v.split('\n').map((l) => l.trimEnd()).join('\n').trim() : v.trim();
-        if (Array.isArray(v) && v.length === 0) return undefined;
-        if (v === '') return undefined;
-        return v;
-    };
-    const out = [];
-    const diff = (x, y, at, key, px, py) => {
-        if (out.length >= 20) return;
-        x = norm(x, key, px);
-        y = norm(y, key, py);
-        if (x === y) return;
-        if (typeof x !== typeof y || x == null || y == null || typeof x !== 'object') {
-            out.push(at + ': ' + JSON.stringify(x) + ' | ' + JSON.stringify(y));
-            return;
-        }
-        if (Array.isArray(x) && x.length !== y.length) out.push(at + ': length ' + x.length + ' | ' + y.length);
-        for (const k of new Set([...Object.keys(x), ...Object.keys(y)])) {
-            if (!ONLY_ONE.has(k)) diff(x[k], y[k], at + '.' + k, k, x, y);
-        }
-    };
-    diff(a, b, 'treatment');
-    return out;
-}
 
 /** All of a treatment's programs, conditions and expressions, as [code, 'program' or 'expression', where]. */
 function allCode(t) {

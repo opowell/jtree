@@ -1,0 +1,15 @@
+{{ block title }}Move {{ move }} of {{ C.NUM_MOVES }}{{ endblock }}
+{{ block content }}
+
+    <p>You are player {{ player.id_in_group }}. The pot is {{ group.pot }}.</p>
+
+    <p>
+        If you take, you get {{ take }} and the other player {{ leave }}, and the game ends.
+        If you pass, the pot doubles to {{ doubled }}{{ if last }}, and you each get half of it{{ else }} and the other player moves{{ endif }}.
+    </p>
+
+    {{ formfields }}
+
+    {{ next_button }}
+
+{{ endblock }}

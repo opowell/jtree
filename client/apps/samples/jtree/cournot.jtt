@@ -1,0 +1,28 @@
+app.description = 'Cournot competition: the two firms in each pair decide how many units to produce, from 0 to 30. The price per unit is 60 minus the units both produce, and each firm earns the price times its units.';
+
+app.groupSize   = 2;
+app.groupMatchingType = 'PARTNER_1122';
+app.totalCapacity = 60;
+app.maxUnits    = 30;
+
+let decideStage = app.newStage('decide');
+decideStage.activeScreen = `
+    <p>PRODUCTION</p>
+    <p>You and the other firm each produce from 0 to {{app.maxUnits}} units. The price per unit is {{app.totalCapacity}} minus the total units produced, and you earn the price times your units.</p>
+    <p>Units you produce: <input name='player.units' required type='number' min='0' :max='app.maxUnits' step='1'></p>
+`;
+
+let resultsStage = app.newStage('results');
+resultsStage.groupStart = function(group) {
+    group.totalUnits = group.sum('units');
+    group.unitPrice = app.totalCapacity - group.totalUnits;
+    for (let player of group.players) {
+        player.otherUnits = player.otherPlayersInGroup()[0].units;
+        player.points = group.unitPrice * player.units;
+    }
+}
+resultsStage.activeScreen = `
+    <p>RESULTS</p>
+    <p>You produced {{player.units}} units and the other firm {{player.otherUnits}}, so the price was {{group.unitPrice}} per unit.</p>
+    <p>Your payoff: {{player.points}} points.</p>
+`;

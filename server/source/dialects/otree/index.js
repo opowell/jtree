@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const fs = require('fs-extra');
 const path = require('path');
 const runtime = require('./runtime.js');
+const project = require('./project.js');
 const staticFiles = require('./static.js');
 const otreeExport = require('./export.js');
 const Group = require('../../Group.js');
@@ -239,6 +240,9 @@ module.exports = {
         }
         const dir = path.dirname(app.appPath);
         const pkg = packageFor(app.appPath);
+        // An app of a project runs with the project's settings (USE_POINTS, POINTS_DECIMAL_PLACES, ...).
+        const settingsPath = path.join(path.dirname(dir), 'settings.py');
+        if (project.isProject(settingsPath)) project.useSettings(settingsPath);
         runtime.putApp(pkg, dir);
         staticFiles.register(pkg, dir);
         let info;

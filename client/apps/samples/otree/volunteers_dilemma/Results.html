@@ -1,0 +1,13 @@
+{{ block title }}Results{{ endblock }}
+{{ block content }}
+
+    <p>
+        You chose {{ if player.volunteer }}<b>to volunteer</b>{{ else }}<b>not to volunteer</b>{{ endif }}.
+        {{ group.num_volunteers }} player(s) in your group volunteered.
+    </p>
+
+    <p>Your payoff: {{ player.payoff }}.</p>
+
+    {{ next_button }}
+
+{{ endblock }}

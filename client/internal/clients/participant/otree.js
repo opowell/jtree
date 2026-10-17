@@ -2,12 +2,19 @@
 // player.otreeHtml. This runs the scripts in it (HTML put in the page does not run them), with
 // js_vars set first, and gives them liveSend(data) and liveRecv(data) for live pages.
 (function() {
+    // Each of an app's pages includes this script: it runs once.
+    if (window.jtreeOtreePages) {
+        return;
+    }
+    window.jtreeOtreePages = true;
+
     // The page's live_method gets data; what it returns for this player comes to liveRecv.
     window.liveSend = function(data) {
         jt.sendMessage('liveSend', data);
     };
 
     var shown = null;
+    var shownKey = null;
     var countdown = null;
 
     // oTree's page timer: counts down from data-seconds, from when the page is shown.
@@ -44,8 +51,26 @@
         shown = first;
         startTimer(page);
         startChats(page);
+        // The page's form is oTree's #form: a script's form.submit() (a live page ending itself, as
+        // oTree's docs have it) submits it as its Next button would.
+        var form = page.closest('form');
+        if (form != null) {
+            if (!form.id) {
+                form.id = 'form';
+            }
+            form.submit = function() {
+                jt.submitForm(form);
+            };
+        }
         window.js_vars = jt.data.player.otreeJsVars || {};
         window.liveRecv = undefined;
+        // The same page drawn again (its elements made anew, when the player's status changes, say):
+        // its scripts run again, for the new elements, each in a block of its own, so that their
+        // top-level let and const do not clash with the first run's (their functions are still
+        // global, liveRecv included). The first run is as in oTree.
+        var key = jt.data.player.stage && jt.data.player.stage.id + '\n' + jt.data.player.otreeHtml;
+        var again = key === shownKey;
+        shownKey = key;
         var scripts = page.querySelectorAll('script');
         for (var i = 0; i < scripts.length; i++) {
             var old = scripts[i];
@@ -53,7 +78,7 @@
             for (var a = 0; a < old.attributes.length; a++) {
                 script.setAttribute(old.attributes[a].name, old.attributes[a].value);
             }
-            script.text = old.text;
+            script.text = again && !old.src && old.type !== 'module' ? '{\n' + old.text + '\n}' : old.text;
             old.parentNode.replaceChild(script, old);
         }
     }

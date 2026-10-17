@@ -1,0 +1,36 @@
+app.description = 'Matching pennies: in each pair, both players choose heads or tails at the same time. The matcher wins 100 points if the choices match, the mismatcher if they differ. 4 periods; the players swap roles after period 2.';
+
+app.numPeriods  = 4;
+app.groupSize   = 2;
+app.groupMatchingType = 'PARTNER_1122';
+app.stakes      = 100;
+
+/** Whether the player is the matcher this period: player 1 in the first half, player 2 after. */
+app.isMatcher = function(player) {
+    return (player.idInGroup === 1) === (player.group.period.id <= app.numPeriods / 2);
+}
+
+let decideStage = app.newStage('decide');
+decideStage.playerStart = function(player) {
+    player.matcher = app.isMatcher(player);
+}
+decideStage.activeScreen = `
+    <p>DECISION</p>
+    <p>You are the <b>{{player.matcher ? 'matcher' : 'mismatcher'}}</b>: you win {{app.stakes}} points if your choices {{player.matcher ? 'match' : 'differ'}}.</p>
+    <button name='player.side' value='Heads'>Heads</button>
+    <button name='player.side' value='Tails'>Tails</button>
+`;
+
+let resultsStage = app.newStage('results');
+resultsStage.groupStart = function(group) {
+    for (let player of group.players) {
+        player.otherSide = player.otherPlayersInGroup()[0].side;
+        player.won = (player.side === player.otherSide) === player.matcher;
+        player.points = player.won ? app.stakes : 0;
+    }
+}
+resultsStage.activeScreen = `
+    <p>RESULTS</p>
+    <p>You chose {{player.side}}, and the other player chose {{player.otherSide}}. As the {{player.matcher ? 'matcher' : 'mismatcher'}}, you <b>{{player.won ? 'won' : 'lost'}}</b>.</p>
+    <p>Your payoff: {{player.points}} points.</p>
+`;

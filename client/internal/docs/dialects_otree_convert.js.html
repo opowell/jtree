@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: dialects/otree/convert.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: dialects/otree/convert.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const fs = require('fs-extra');
+const path = require('path');
+const runtime = require('./runtime.js');
+const staticFiles = require('./static.js');
+
+/*
+ * Converting an oTree app to a jtree app (plans/ztree-otree-dialects.md, section 4.7): a folder with
+ * - app.jtt: the app's settings, constants, fields and functions, translated from Python, and its
+ *   pages as stages;
+ * - pages/&lt;Page>.html: each page's screen, translated from its template to Vue;
+ * - otree.cjs: what the translated code uses for oTree's and Python's functions (convert-runtime.js);
+ * - CONVERSION.md: what was converted, and what needs work by hand (TODOs in the code).
+ * The translation is Python's (python/otree_convert.py), from the app's syntax tree.
+ *
+ * From the command line:
+ *     node server/source/dialects/otree/convert.js &lt;oTree app folder> [&lt;output folder>]
+ */
+
+const RUNTIME = path.join(__dirname, 'convert-runtime.js');
+const STATIC_MARK = '@@jtree-static@@'; // around a static file's path, in what Python gives
+const MAX_STATIC = 1024 * 1024;
+const TYPES = {
+    '.css': 'text/css', '.js': 'text/javascript', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
+    '.gif': 'image/gif', '.svg': 'image/svg+xml', '.webp': 'image/webp', '.mp3': 'audio/mpeg', '.mp4': 'video/mp4',
+    '.pdf': 'application/pdf', '.woff2': 'font/woff2',
+};
+
+/** The file an oTree app's folder is loaded from: its __init__.py (or older models.py). */
+function appFile(dir) {
+    for (const name of ['__init__.py', 'models.py']) {
+        if (fs.existsSync(path.join(dir, name))) return path.join(dir, name);
+    }
+    throw new Error(dir + ' is not an oTree app (it has no __init__.py)');
+}
+
+/**
+ * Converts the oTree app in appDir to a jtree app in outDir.
+ * @return {Promise&lt;{name, level, report, files}>} level: 'Converts' or 'Converts with TODOs';
+ * report: [{part, status ('converted' or 'todo'), note, line}]; files: the paths written.
+ */
+async function convertApp(appDir, outDir) {
+    await runtime.start();
+    appDir = path.resolve(appDir);
+    const { packageFor } = require('./index.js');
+    const pkg = packageFor(appFile(appDir));
+    runtime.putApp(pkg, appDir);
+    const bridge = runtime.getBridge();
+    bridge.load(pkg, path.basename(appDir));
+    let result;
+    try {
+        result = JSON.parse(runtime.py.pyimport('otree_convert').convert(pkg));
+    } catch (err) {
+        // Python's error, without its traceback.
+        const lines = String(err.message || err).trim().split('\n');
+        throw new Error(lines[lines.length - 1].replace(/^\w+Error: /, ''));
+    }
+    staticFiles.register(pkg, appDir);
+    const report = result.report;
+    const files = [];
+    for (const [rel, text] of Object.entries(result.files)) {
+        const page = rel.replace(/^pages\/|\.html$/g, '');
+        fs.outputFileSync(path.join(outDir, rel), withStatics(text, pkg, page, report));
+        files.push(rel);
+    }
+    fs.copyFileSync(RUNTIME, path.join(outDir, 'otree.cjs'));
+    files.push('otree.cjs');
+    const level = report.some((i) => i.status === 'todo') ? 'Converts with TODOs' : 'Converts';
+    fs.outputFileSync(path.join(outDir, 'CONVERSION.md'), reportMarkdown(result.name, level, report));
+    files.push('CONVERSION.md');
+    return { name: result.name, level, report, files };
+}
+
+/** text with its static files ({{ static 'x' }}) as data: URLs, which work wherever the app is. */
+function withStatics(text, pkg, page, report) {
+    const re = new RegExp(STATIC_MARK + '(.*?)' + STATIC_MARK, 'g');
+    return text.replace(re, (all, rel) => {
+        const file = staticFiles.file(pkg, rel);
+        const where = 'Page ' + page;
+        if (file == null || fs.statSync(file).size > MAX_STATIC || TYPES[path.extname(file).toLowerCase()] == null) {
+            const why = file == null ? 'not found' : fs.statSync(file).size > MAX_STATIC ? 'too large to put in the page' : 'of a type not put in pages';
+            report.push({ part: where, status: 'todo', note: 'static file ' + rel + ': ' + why + '; give its URL', line: null });
+            return rel;
+        }
+        if (!report.some((i) => i.part === where &amp;&amp; i.note.includes(rel))) {
+            report.push({ part: where, status: 'converted', note: 'static file ' + rel + ', put in the page as a data: URL', line: null });
+        }
+        return 'data:' + TYPES[path.extname(file).toLowerCase()] + ';base64,' + fs.readFileSync(file).toString('base64');
+    });
+}
+
+/** CONVERSION.md: what was converted, and what needs work by hand. */
+function reportMarkdown(name, level, report) {
+    const lines = ['# ' + name + ': converted from oTree', '',
+        '**' + level + '.** jtree converted the oTree app ' + name + ' to this jtree app:', '',
+        '- `app.jtt`: its settings, constants, fields and functions (translated from Python), and its',
+        '  pages, as stages;',
+        '- `pages/`: each page\'s screen, translated from its template to Vue;',
+        '- `otree.cjs`: what the translated code uses in place of oTree\'s and Python\'s functions.', ''];
+    const todos = report.filter((i) => i.status === 'todo');
+    if (todos.length > 0) {
+        lines.push('## Needs work by hand', '', 'Each is a `TODO` in the code (which throws if it runs) or in a screen.', '');
+        for (const item of todos) lines.push('- **' + item.part + '**: ' + item.note);
+        lines.push('');
+    }
+    lines.push('## Converted', '');
+    for (const item of report.filter((i) => i.status === 'converted')) {
+        lines.push('- ' + item.part + (item.note ? ': ' + item.note : ''));
+    }
+    lines.push('', '## Differences from oTree', '',
+        '- Amounts are numbers: currency is not rounded, nor shown as points.',
+        '- A page\'s data (`player.page`) is worked out when the player starts the page, as oTree renders it then.',
+        '- Pages\' scripts run when the participant\'s page loads, not when the page shows.', '');
+    return lines.join('\n');
+}
+
+module.exports = { convertApp };
+
+if (require.main === module) {
+    const [appDir, outArg] = process.argv.slice(2);
+    if (appDir == null) {
+        console.log('Usage: node convert.js &lt;oTree app folder> [&lt;output folder>]');
+        process.exit(1);
+    }
+    const outDir = outArg || path.resolve(appDir) + '-jtree';
+    convertApp(appDir, outDir).then((result) => {
+        console.log(result.name + ': ' + result.level + ', in ' + outDir);
+        for (const item of result.report.filter((i) => i.status === 'todo')) {
+            console.log('  TODO ' + item.part + ': ' + item.note);
+        }
+        process.exit(0);
+    }, (err) => {
+        console.log(String(err.message || err));
+        process.exit(1);
+    });
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AdminAuth.html">AdminAuth</a></li><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="Data.html">Data</a></li><li><a href="Exit.html">Exit</a></li><li><a href="Group.html">Group</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="QueueRecorder.html">QueueRecorder</a></li><li><a href="Reader.html">Reader</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Run.html">Run</a></li><li><a href="Screens.html">Screens</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="Translator.html">Translator</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="global.html#start">start</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-4a-ztree.html">z-Tree treatments</a></li><li><a href="tutorial-4b-otree.html">oTree apps</a></li><li><a href="tutorial-4c-samples.html">Samples library</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-other.html">Other</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ADMIN_LOGIN_REQUIRED">ADMIN_LOGIN_REQUIRED</a></li><li><a href="global.html#APP_HOOKS">APP_HOOKS</a></li><li><a href="global.html#CLOSES">CLOSES</a></li><li><a href="global.html#STAGE_HOOKS">STAGE_HOOKS</a></li><li><a href="global.html#addToClass">addToClass</a></li><li><a href="global.html#allBoxes">allBoxes</a></li><li><a href="global.html#appCSV">appCSV</a></li><li><a href="global.html#appFile">appFile</a></li><li><a href="global.html#appInsertAt">appInsertAt</a></li><li><a href="global.html#appRoots">appRoots</a></li><li><a href="global.html#appTemplate">appTemplate</a></li><li><a href="global.html#appToIR">appToIR</a></li><li><a href="global.html#apply">apply</a></li><li><a href="global.html#applyIR">applyIR</a></li><li><a href="global.html#applySettings">applySettings</a></li><li><a href="global.html#applyStages">applyStages</a></li><li><a href="global.html#arrayDeclarations">arrayDeclarations</a></li><li><a href="global.html#arrayIndex">arrayIndex</a></li><li><a href="global.html#assignedVariables">assignedVariables</a></li><li><a href="global.html#attrSource">attrSource</a></li><li><a href="global.html#boolValue">boolValue</a></li><li><a href="global.html#botCases">botCases</a></li><li><a href="global.html#boxOptions">boxOptions</a></li><li><a href="global.html#callLive">callLive</a></li><li><a href="global.html#chat">chat</a></li><li><a href="global.html#chatFor">chatFor</a></li><li><a href="global.html#check">check</a></li><li><a href="global.html#checkField">checkField</a></li><li><a href="global.html#checkForm">checkForm</a></li><li><a href="global.html#compileProgram">compileProgram</a></li><li><a href="global.html#compiled">compiled</a></li><li><a href="global.html#context">context</a></li><li><a href="global.html#contractList">contractList</a></li><li><a href="global.html#convertApp">convertApp</a></li><li><a href="global.html#convertTreatment">convertTreatment</a></li><li><a href="global.html#convertTreatmentFile">convertTreatmentFile</a></li><li><a href="global.html#copyDir">copyDir</a></li><li><a href="global.html#copyToPlayer">copyToPlayer</a></li><li><a href="global.html#creatingSessionBeforeArrival">creatingSessionBeforeArrival</a></li><li><a href="global.html#cut">cut</a></li><li><a href="global.html#decimals">decimals</a></li><li><a href="global.html#declared">declared</a></li><li><a href="global.html#dedent">dedent</a></li><li><a href="global.html#describe">describe</a></li><li><a href="global.html#describeValue">describeValue</a></li><li><a href="global.html#dialectFor">dialectFor</a></li><li><a href="global.html#drawn">drawn</a></li><li><a href="global.html#edit">edit</a></li><li><a href="global.html#encode">encode</a></li><li><a href="global.html#endSoon">endSoon</a></li><li><a href="global.html#errorPosition">errorPosition</a></li><li><a href="global.html#exportTables">exportTables</a></li><li><a href="global.html#exporter">exporter</a></li><li><a href="global.html#exportersFor">exportersFor</a></li><li><a href="global.html#expression">expression</a></li><li><a href="global.html#fail">fail</a></li><li><a href="global.html#file">file</a></li><li><a href="global.html#fillValues">fillValues</a></li><li><a href="global.html#findBox">findBox</a></li><li><a href="global.html#finite">finite</a></li><li><a href="global.html#formatText">formatText</a></li><li><a href="global.html#formatValue">formatValue</a></li><li><a href="global.html#fromDescription">fromDescription</a></li><li><a href="global.html#getBridge">getBridge</a></li><li><a href="global.html#grid">grid</a></li><li><a href="global.html#history">history</a></li><li><a href="global.html#identifiers">identifiers</a></li><li><a href="global.html#inAppFolders">inAppFolders</a></li><li><a href="global.html#indent">indent</a></li><li><a href="global.html#indentBy">indentBy</a></li><li><a href="global.html#indentLines">indentLines</a></li><li><a href="global.html#insertAfter">insertAfter</a></li><li><a href="global.html#isInteractive">isInteractive</a></li><li><a href="global.html#isProject">isProject</a></li><li><a href="global.html#isSessionsLastPage">isSessionsLastPage</a></li><li><a href="global.html#isText">isText</a></li><li><a href="global.html#isTextFile">isTextFile</a></li><li><a href="global.html#itemCell">itemCell</a></li><li><a href="global.html#itemsTable">itemsTable</a></li><li><a href="global.html#jsonErrorPosition">jsonErrorPosition</a></li><li><a href="global.html#lanAddress">lanAddress</a></li><li><a href="global.html#lastFirst">lastFirst</a></li><li><a href="global.html#layoutEnd">layoutEnd</a></li><li><a href="global.html#layoutParts">layoutParts</a></li><li><a href="global.html#leaveIfAsked">leaveIfAsked</a></li><li><a href="global.html#leavesStage">leavesStage</a></li><li><a href="global.html#legacyValue">legacyValue</a></li><li><a href="global.html#lineIndent">lineIndent</a></li><li><a href="global.html#lines">lines</a></li><li><a href="global.html#loadPackagesFor">loadPackagesFor</a></li><li><a href="global.html#measure">measure</a></li><li><a href="global.html#memberAssignment">memberAssignment</a></li><li><a href="global.html#model">model</a></li><li><a href="global.html#mountProject">mountProject</a></li><li><a href="global.html#newTreatment">newTreatment</a></li><li><a href="global.html#nodeAt">nodeAt</a></li><li><a href="global.html#normalizeCode">normalizeCode</a></li><li><a href="global.html#openUrl">openUrl</a></li><li><a href="global.html#ownLine">ownLine</a></li><li><a href="global.html#owner">owner</a></li><li><a href="global.html#packageFor">packageFor</a></li><li><a href="global.html#pageTimesCSV">pageTimesCSV</a></li><li><a href="global.html#paramCell">paramCell</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseExpr">parseExpr</a></li><li><a href="global.html#parseLayout">parseLayout</a></li><li><a href="global.html#parseQueueId">parseQueueId</a></li><li><a href="global.html#pathAfterRemoving">pathAfterRemoving</a></li><li><a href="global.html#place">place</a></li><li><a href="global.html#plot">plot</a></li><li><a href="global.html#plotInput">plotInput</a></li><li><a href="global.html#plotItemAt">plotItemAt</a></li><li><a href="global.html#prefixHtmlUrls">prefixHtmlUrls</a></li><li><a href="global.html#pressButton">pressButton</a></li><li><a href="global.html#program">program</a></li><li><a href="global.html#programItems">programItems</a></li><li><a href="global.html#putApp">putApp</a></li><li><a href="global.html#putSettings">putSettings</a></li><li><a href="global.html#py">py</a></li><li><a href="global.html#queueId">queueId</a></li><li><a href="global.html#queueScript">queueScript</a></li><li><a href="global.html#quote">quote</a></li><li><a href="global.html#quotedEnd">quotedEnd</a></li><li><a href="global.html#readGameHeader">readGameHeader</a></li><li><a href="global.html#readQuestionnaires">readQuestionnaires</a></li><li><a href="global.html#readScreen">readScreen</a></li><li><a href="global.html#readTextQuestionnaires">readTextQuestionnaires</a></li><li><a href="global.html#readTextTreatment">readTextTreatment</a></li><li><a href="global.html#readTreatment">readTreatment</a></li><li><a href="global.html#ready">ready</a></li><li><a href="global.html#refresh">refresh</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#reload">reload</a></li><li><a href="global.html#renderScreen">renderScreen</a></li><li><a href="global.html#reportMarkdown">reportMarkdown</a></li><li><a href="global.html#rooms">rooms</a></li><li><a href="global.html#router">router</a></li><li><a href="global.html#rtfToText">rtfToText</a></li><li><a href="global.html#run">run</a></li><li><a href="global.html#runAppCode">runAppCode</a></li><li><a href="global.html#runBots">runBots</a></li><li><a href="global.html#runOf">runOf</a></li><li><a href="global.html#runZtreeBots">runZtreeBots</a></li><li><a href="global.html#scan">scan</a></li><li><a href="global.html#screen">screen</a></li><li><a href="global.html#screenProp">screenProp</a></li><li><a href="global.html#sessionConfigs">sessionConfigs</a></li><li><a href="global.html#settleBoxes">settleBoxes</a></li><li><a href="global.html#stageDeclaration">stageDeclaration</a></li><li><a href="global.html#stageMeaning">stageMeaning</a></li><li><a href="global.html#stageVariable">stageVariable</a></li><li><a href="global.html#statementRange">statementRange</a></li><li><a href="global.html#str">str</a></li><li><a href="global.html#subjectIndex">subjectIndex</a></li><li><a href="global.html#submitGeneric">submitGeneric</a></li><li><a href="global.html#substitutionAt">substitutionAt</a></li><li><a href="global.html#syntaxErrors">syntaxErrors</a></li><li><a href="global.html#tableRecords">tableRecords</a></li><li><a href="global.html#tablesChangedTimers">tablesChangedTimers</a></li><li><a href="global.html#template">template</a></li><li><a href="global.html#templateLiteral">templateLiteral</a></li><li><a href="global.html#templates">templates</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#textParts">textParts</a></li><li><a href="global.html#toTreatment">toTreatment</a></li><li><a href="global.html#tokenize">tokenize</a></li><li><a href="global.html#topInsert">topInsert</a></li><li><a href="global.html#treatmentFile">treatmentFile</a></li><li><a href="global.html#unindent">unindent</a></li><li><a href="global.html#urlFor">urlFor</a></li><li><a href="global.html#useSettings">useSettings</a></li><li><a href="global.html#validate">validate</a></li><li><a href="global.html#value">value</a></li><li><a href="global.html#valueFor">valueFor</a></li><li><a href="global.html#valueKind">valueKind</a></li><li><a href="global.html#valueSource">valueSource</a></li><li><a href="global.html#variables">variables</a></li><li><a href="global.html#whenReady">whenReady</a></li><li><a href="global.html#wideCSV">wideCSV</a></li><li><a href="global.html#withBlocks">withBlocks</a></li><li><a href="global.html#withStatics">withStatics</a></li><li><a href="global.html#write">write</a></li><li><a href="global.html#written">written</a></li><li><a href="global.html#zTreeRules">zTreeRules</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sat Oct 17 2026 09:07:11 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

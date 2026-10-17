@@ -1,0 +1,16 @@
+{{ block title }}Decision{{ endblock }}
+{{ block content }}
+
+    <p>You and the other player each choose to cooperate or to defect. Your payoffs (yours, the other's):</p>
+
+    <table class="table table-bordered text-center" style="width: auto">
+        <tr><th></th><th>The other cooperates</th><th>The other defects</th></tr>
+        <tr><th>You cooperate</th><td>{{ C.BOTH_COOPERATE }}, {{ C.BOTH_COOPERATE }}</td><td>{{ C.COOPERATE_ALONE }}, {{ C.DEFECT_ALONE }}</td></tr>
+        <tr><th>You defect</th><td>{{ C.DEFECT_ALONE }}, {{ C.COOPERATE_ALONE }}</td><td>{{ C.BOTH_DEFECT }}, {{ C.BOTH_DEFECT }}</td></tr>
+    </table>
+
+    {{ formfields }}
+
+    {{ next_button }}
+
+{{ endblock }}

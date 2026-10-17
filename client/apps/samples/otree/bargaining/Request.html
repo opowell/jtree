@@ -1,0 +1,14 @@
+{{ block title }}Request{{ endblock }}
+{{ block content }}
+
+    <p>
+        You and the other player each ask for a share of {{ C.AMOUNT_SHARED }}. If your requests add
+        up to {{ C.AMOUNT_SHARED }} or less, you each get what you asked for. If they add up to more,
+        you both get nothing.
+    </p>
+
+    {{ formfields }}
+
+    {{ next_button }}
+
+{{ endblock }}

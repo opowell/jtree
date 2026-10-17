@@ -1,0 +1,37 @@
+app.description = 'Common value auction: an item is worth the same to the 3 bidders in each group, a number from 0 to 100 that none of them knows. Each gets an estimate of it, at most 10 away, and bids. The highest bidder wins the item and pays their bid, which can be more than it is worth (the winner\'s curse).';
+
+app.groupSize   = 3;
+app.groupMatchingType = 'PARTNER_1122';
+app.maxValue    = 100;
+app.noise       = 10;
+
+let bidStage = app.newStage('bid');
+bidStage.groupStart = function(group) {
+    group.value = Utils.randomInt(0, app.maxValue + 1);
+    for (let player of group.players) {
+        let estimate = group.value + Utils.randomInt(-app.noise, app.noise + 1);
+        player.estimate = Math.min(app.maxValue, Math.max(0, estimate));
+    }
+}
+bidStage.activeScreen = `
+    <p>BID</p>
+    <p>The item is worth the same to every bidder in your group: a number from 0 to {{app.maxValue}}. Your estimate of it is <b>{{player.estimate}}</b>; the true value is at most {{app.noise}} away from it.</p>
+    <p>The highest bid wins the item, and pays the bid. The winner earns the item's value minus their bid, which can be negative.</p>
+    <p>Your bid: <input name='player.bid' required type='number' min='0' :max='app.maxValue' step='1'></p>
+`;
+
+let resultsStage = app.newStage('results');
+resultsStage.groupStart = function(group) {
+    group.highestBid = Math.max(...group.players.map(p => p.bid));
+    let winner = Utils.randomEl(group.players.filter(p => p.bid === group.highestBid));
+    for (let player of group.players) {
+        player.won = player === winner;
+        player.points = player.won ? group.value - player.bid : 0;
+    }
+}
+resultsStage.activeScreen = `
+    <p>RESULTS</p>
+    <p>The item was worth {{group.value}}. Your estimate was {{player.estimate}} and you bid {{player.bid}}; the highest bid was {{group.highestBid}}.</p>
+    <p>You <b>{{player.won ? 'won' : 'did not win'}}</b> the item.</p>
+    <p>Your payoff: {{player.points}} points.</p>
+`;

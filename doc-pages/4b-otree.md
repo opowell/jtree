@@ -1,5 +1,7 @@
 jtree runs oTree apps and projects as they are: their Python, their templates and their bots. Nothing needs installing: the Python runs inside jtree. jtree can also edit them as oTree Studio does, and convert them to jtree apps.
 
+The <a href='tutorial-4c-samples.html'>samples library</a> has an oTree project of 23 apps, each also written as a jtree app and a z-Tree treatment.
+
 #### Running oTree apps
 
 Put an oTree project (a folder with its `settings.py`) or an oTree app in `client/apps`, then use File → Reload apps in the admin. jtree runs apps in oTree's current format (`__init__.py`) and in its older one (`models.py`, `pages.py` and Django templates).
@@ -13,7 +15,7 @@ Python starts when the first oTree app is loaded, which takes a moment; until th
 
 <img src="images/otree-participant.png" alt="oTree's public goods sample in a participant's browser" style="max-width: 100%; border: 1px solid #ddd">
 
-To test a session alone, "Play with bots" plays it to its end with the apps' bots (`tests.py`), or, for an app without bots, a generic bot that fills in what each page asks.
+To test a session alone, "Play with bots" plays it to its end with the apps' bots (`tests.py`, with their `call_live_method` for live pages), or, for an app without bots, a generic bot that fills in what each page asks.
 
 A session's data downloads as jtree's CSV and as oTree's: "all apps, wide", each app's CSV, page times, and the apps' `custom_export`s. jtree has been checked against oTree 5.11.5, 3.4.0 and 2.5.8: oTree's sample games and published experiments record the same data in both. Templates are strict, as oTree's are: a name a template cannot find is an error.
 

@@ -1,0 +1,18 @@
+{{ block title }}Bid{{ endblock }}
+{{ block content }}
+
+    <p>
+        The item is worth the same to every bidder in your group: a number from 0 to {{ C.MAX_VALUE }}.
+        Your estimate of it is <b>{{ player.estimate }}</b>; the true value is at most {{ C.NOISE }}
+        away from it.
+    </p>
+    <p>
+        The highest bid wins the item, and pays the bid. The winner earns the item's value minus
+        their bid, which can be negative.
+    </p>
+
+    {{ formfields }}
+
+    {{ next_button }}
+
+{{ endblock }}
