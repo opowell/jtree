@@ -26,7 +26,10 @@ const FILES = {
 // loop's counter (buys[i], i up to 36, of 6). By z-Tree's rules that is buys[6]; by jtree's, an error.
 const SLIP = /^in a program on subjects \(\/\/sort all buys and sells in ascending order\): array index \d+ out of range$/;
 
-/** Downloads the files not here yet; resolves to whether all are here. */
+// How long a download may take.
+const DOWNLOAD_MS = 30000;
+
+/** Downloads the files not here yet (none after one fails); resolves to whether all are here. */
 async function ensureFiles() {
     fs.mkdirSync(DIR, { recursive: true });
     let all = true;
@@ -34,13 +37,15 @@ async function ensureFiles() {
         const file = path.join(DIR, name);
         if (fs.existsSync(file)) continue;
         try {
-            const res = await fetch('https://osf.io/download/' + id + '/');
+            // A site that does not answer is given up on (the tests that need the files skip).
+            const res = await fetch('https://osf.io/download/' + id + '/', { signal: AbortSignal.timeout(DOWNLOAD_MS) });
             if (!res.ok) throw new Error(String(res.status));
             const buf = Buffer.from(await res.arrayBuffer());
             if (/^\s*</.test(buf.subarray(0, 64).toString('latin1'))) throw new Error('not a z-Tree file');
             fs.writeFileSync(file, buf);
         } catch (err) {
             all = false;
+            break;
         }
     }
     return all;

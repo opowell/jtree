@@ -244,7 +244,9 @@ test("jtree's editor, structured: elements and stages dragged, the history gone 
     await page.eval(() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, shiftKey: true, bubbles: true })));
     await settled('redone with the keys', () => document.querySelector('.ed__history').value === '4');
     await page.eval(() => { const h = document.querySelector('.ed__history'); h.value = '6'; h.dispatchEvent(new Event('change')); });
-    await settled('forward to the end', () => document.querySelector('.ed__history').value === '6');
+    // (The list's value is the test's own at once: what to wait for is the tree as it was at the end.)
+    await settled('forward to the end', (want) => JSON.stringify([...document.querySelectorAll('.tr')]
+        .map((r) => r.innerText.replace(/[▾▸]/g, '').trim().replace(/\s+/g, ' '))) === want, JSON.stringify(end));
     assert.deepEqual(await rows(), end);
     await sleep(300);
     await clickText(page, '.btn', '^Save$');

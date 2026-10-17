@@ -14,18 +14,23 @@ const GRAPHICS = ['plotitems', 'smiley', 'boxplotdemo', 'colortriangle', 'movepo
 /** The path of example name's file (a .ztt, unless name has its extension). */
 const file = (name) => path.join(DIR, /\.\w+$/.test(name) ? name : name + '.ztt');
 
-/** Downloads the examples not here yet; resolves to whether all are here. */
+// How long a download may take: a site that does not answer is given up on (the tests that need
+// its files skip).
+const DOWNLOAD_MS = 30000;
+
+/** Downloads the examples not here yet (none after one fails); resolves to whether all are here. */
 async function ensureExamples() {
     let all = true;
     for (const name of [...NAMES, ...OTHERS, ...GRAPHICS]) {
         if (fs.existsSync(file(name))) continue;
         try {
             const graphics = GRAPHICS.includes(name);
-            const res = await fetch('https://www.ztree.uzh.ch/static/examples/' + (graphics ? 'graphics/' : '') + path.basename(file(name)));
+            const res = await fetch('https://www.ztree.uzh.ch/static/examples/' + (graphics ? 'graphics/' : '') + path.basename(file(name)), { signal: AbortSignal.timeout(DOWNLOAD_MS) });
             if (!res.ok) throw new Error(String(res.status));
             fs.writeFileSync(file(name), Buffer.from(await res.arrayBuffer()));
         } catch (err) {
             all = false;
+            break;
         }
     }
     return all;
@@ -43,7 +48,7 @@ async function ensureGims() {
         const base = 'https://raw.githubusercontent.com/stpalan/GIMS/' + GIMS_COMMIT + '/';
         fs.mkdirSync(path.dirname(GIMS), { recursive: true });
         for (const [from, to] of [['GIMS_Source.txt', GIMS], ['LICENSE', path.join(DIR, 'gims', 'LICENSE')]]) {
-            const res = await fetch(base + from);
+            const res = await fetch(base + from, { signal: AbortSignal.timeout(DOWNLOAD_MS) });
             if (!res.ok) throw new Error(String(res.status));
             fs.writeFileSync(to, Buffer.from(await res.arrayBuffer()));
         }
