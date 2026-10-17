@@ -38,6 +38,10 @@ Whether to load the saved sessions when jtree starts. They carry on where they s
 
 Whether, in new sessions, a participant can log in with an id the session does not have yet. Each session's Options can change it.
 
+#### `askBeforeLeaving`: true
+
+Whether participants' pages ask before they are closed, reloaded or left, so that a participant does not leave an experiment by mistake. Pages shown in the admin never ask.
+
 #### `participantIds`: `['P1', 'P2', ..., 'P99']`
 
 The ids given to a session's participants, in order.

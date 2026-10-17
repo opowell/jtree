@@ -15,6 +15,7 @@ jt.data.CLOCK_FREQUENCY = 100; // in ms
 jt.serverIP = '{{{SERVER_IP}}}';
 jt.serverPort = '{{{SERVER_PORT}}}';
 jt.basePath = '{{{BASE_PATH}}}'; // where jtree is served, e.g. '/jtree'; '' at the root
+jt.askBeforeLeaving = '{{{ASK_BEFORE_LEAVING}}}' !== 'false'; // the askBeforeLeaving setting
 jt.server = {};
 
 jt.serverURL = function() {

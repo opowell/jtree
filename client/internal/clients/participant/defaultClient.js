@@ -187,8 +187,8 @@ jt.submitFormData = function(values) {
 jt.vueMounted = false;
 jt.vueMethods = {};
 
-// Disable navigation away from the page, unless password is entered.
-// Do not disable if page is in iFrame (i.e. being viewed from the admin page).
+// Ask before navigating away from the page (the askBeforeLeaving setting).
+// Do not ask if page is in iFrame (i.e. being viewed from the admin page).
 jt.inIframe = function() {
     try {
         return window.self !== window.top;
@@ -201,7 +201,7 @@ jt.inIframe = function() {
 jt.forcedUnload = false;
 
 window.onbeforeunload = function(ev) {
-    if (!jt.inIframe() && !jt.forcedUnload) {
+    if (jt.askBeforeLeaving !== false && !jt.inIframe() && !jt.forcedUnload) {
         return 'Want to unload?';
     }
 };

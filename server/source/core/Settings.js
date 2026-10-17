@@ -12,6 +12,7 @@ class Settings {
          // Admin access, see AdminAuth: without a password, only from the computer running jtree.
          this.admins                 = {}; // extra admin logins, {id: {pwd: '...'}}
          this.allowClientsToCreateParticipants = true; // default for new sessions
+         this.askBeforeLeaving       = true; // participants' pages ask before they are closed or reloaded
          this.autoSaveFreq           = 5000; // how often to save the time (internal/serverState.json), in ms; after a crash, restored stage timers are off by up to this much.
          this.logToConsole           = false;
          this.openAdminOnStart       = true; // whether or not the admin page should be opened when the server starts.
@@ -130,8 +131,18 @@ class Settings {
          return this.participantIds[num];
      }
 
+     /** Writes valsToSave into settings.json, keeping the settings already in it. */
      save() {
-         Utils.writeJSON(path.join(this.jt.path, 'settings.json'), this.valsToSave);
+         let file = path.join(this.jt.path, 'settings.json');
+         let json = {};
+         try {
+             if (fs.existsSync(file)) {
+                 json = fs.readJSONSync(file);
+             }
+         } catch (err) {
+             console.log('Error reading settings JSON file: ' + err);
+         }
+         Utils.writeJSON(file, Object.assign(json, this.valsToSave));
      }
 
      setDefaultAdminPwd(curPwd, newPwd) {

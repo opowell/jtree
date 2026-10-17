@@ -454,7 +454,8 @@ class StaticServer {
             var text = fs.readFileSync(fn, 'utf8')
                 .replaceAll('{{{SERVER_IP}}}', this.ip)
                 .replaceAll('{{{SERVER_PORT}}}', String(this.port))
-                .replaceAll('{{{BASE_PATH}}}', this.jt.basePath);
+                .replaceAll('{{{BASE_PATH}}}', this.jt.basePath)
+                .replaceAll('{{{ASK_BEFORE_LEAVING}}}', String(this.jt.settings.askBeforeLeaving !== false));
             fs.writeFileSync(newFN, text);
         } catch (err) {
             console.error(err);

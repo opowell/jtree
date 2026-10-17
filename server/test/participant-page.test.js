@@ -2,6 +2,8 @@
 
 const { test, before, after } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('fs');
+const path = require('path');
 const { startServer, app } = require('./harness.js');
 
 let server;
@@ -32,4 +34,19 @@ test('shared.js is served from where jtree made it (clientJSFile), with jt in it
     const res = await fetch(server.url + '/shared/shared.js');
     assert.equal(res.status, 200);
     assert.match(await res.text(), /\bjt\b/);
+});
+
+test('participant pages ask before leaving, unless askBeforeLeaving is false', async () => {
+    assert.match(await (await fetch(server.url + '/shared/shared.js')).text(), /jt\.askBeforeLeaving = 'true'/);
+    const quiet = await startServer({ settings: { askBeforeLeaving: false } });
+    try {
+        assert.match(await (await fetch(quiet.url + '/shared/shared.js')).text(), /jt\.askBeforeLeaving = 'false'/);
+        // Saving a setting from the admin keeps the others in settings.json.
+        quiet.jt.settings.setMultipleUsers(true);
+        const json = JSON.parse(fs.readFileSync(path.join(quiet.jt.path, 'settings.json'), 'utf8'));
+        assert.equal(json.askBeforeLeaving, false);
+        assert.equal(json.multipleUsers, true);
+    } finally {
+        await quiet.close();
+    }
 });
