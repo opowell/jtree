@@ -11,6 +11,8 @@ const python = require('../source/dialects/otree/runtime.js');
 const studio = require('../source/editors/otree.js');
 
 const FIXTURES = path.join(__dirname, 'fixtures');
+/** A file's text with \n line ends (as the edits' expectations write them), whatever git checked out. */
+const readLF = (file) => fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
 
 let server;
 before(async () => {
@@ -69,7 +71,7 @@ test("every oTree app in the fixtures is read into its parts: constants, models,
 });
 
 test('edits leave the rest of an app as it was written', async () => {
-    const original = fs.readFileSync(path.join(FIXTURES, 'otree/public_goods/__init__.py'), 'utf8');
+    const original = readLF(path.join(FIXTURES, 'otree/public_goods/__init__.py'));
     let source = await studio.apply(original, { op: 'setConstant', name: 'MULTIPLIER', code: '2' });
     assert.equal(source, original.replace('MULTIPLIER = 1.8', 'MULTIPLIER = 2'));
     source = await studio.apply(source, { op: 'setField', model: 'Player', name: 'age', field: { type: 'IntegerField', args: [{ name: 'label', code: '"Your age"' }, { name: 'min', code: '18' }] } });
@@ -96,7 +98,7 @@ test('edits leave the rest of an app as it was written', async () => {
 });
 
 test("a project's session configs and settings, edited", async () => {
-    const original = fs.readFileSync(path.join(FIXTURES, 'otree/settings.py'), 'utf8');
+    const original = readLF(path.join(FIXTURES, 'otree/settings.py'));
     const before = await studio.settingsModel(original);
     assert.equal(before.error, null);
     const n = before.configs.items.length;

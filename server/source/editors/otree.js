@@ -1,7 +1,7 @@
 const fs = require('fs-extra');
 const path = require('path');
 const runtime = require('../dialects/otree/runtime.js');
-const { fail } = require('./util.js');
+const { fail, keepingLineEnds } = require('./util.js');
 
 /*
  * oTree projects as jtree's oTree Studio editor (admin/otree, #/studio) shows them, after oTree
@@ -111,7 +111,11 @@ const findModel = (m, name) => m.models[name] || fail('no class ' + name + ' in 
  * - {op: 'setPageAttr', page, name, code}, {op: 'removePageAttr', page, name}
  * - {op: 'setPageMethod', page, name, params, body}, {op: 'removePageMethod', page, name}
  */
-async function apply(source, op) {
+function apply(source, op) {
+    return keepingLineEnds(source, (s) => applyToLF(s, op));
+}
+
+async function applyToLF(source, op) {
     const m = await appModel(source);
     if (m.error) fail('the app does not parse (line ' + m.error.line + '): ' + m.error.message);
     switch (op.op) {
@@ -249,7 +253,11 @@ function configSource(entries, style, indent) {
  * - {op: 'setConfig', index, entries: [{key, code}]}, {op: 'addConfig', entries}, {op: 'removeConfig', index}
  * - {op: 'setSetting', name, code}, {op: 'removeSetting', name}
  */
-async function applySettings(source, op) {
+function applySettings(source, op) {
+    return keepingLineEnds(source, (s) => applySettingsToLF(s, op));
+}
+
+async function applySettingsToLF(source, op) {
     const m = await settingsModel(source);
     if (m.error) fail('settings.py does not parse (line ' + m.error.line + '): ' + m.error.message);
     for (const e of op.entries || []) if (!isName(e.key)) fail('not a name: ' + e.key);

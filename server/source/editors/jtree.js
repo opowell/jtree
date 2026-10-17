@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs-extra');
 const { pathToFileURL } = require('url');
-const { fail } = require('./util.js');
+const { fail, keepingLineEnds } = require('./util.js');
 const html = require('./html.js');
 
 /*
@@ -295,6 +295,10 @@ const lastFirst = (ranges) => ranges.slice().sort((a, b) => b.start - a.start);
  * Values are as valueSource takes them.
  */
 function apply(source, op) {
+    return keepingLineEnds(source, (s) => applyToLF(s, op));
+}
+
+function applyToLF(source, op) {
     let m = model(source);
     if (m.error) fail('the app does not parse: ' + m.error.message);
     switch (op.op) {

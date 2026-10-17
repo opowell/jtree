@@ -10,22 +10,35 @@ const { startServer } = require('./harness.js');
 const editor = require('../source/editors/ztree.js');
 const { readTreatment, decode } = require('../source/dialects/ztree/ztt.js');
 const { readTextTreatment } = require('../source/dialects/ztree/ztext.js');
+const examples = require('./ztree-examples.js');
+const { differences } = examples;
 
 const FIXTURES = path.join(__dirname, 'fixtures');
 const EXPORTS = path.join(FIXTURES, 'ztree-examples/ztree5/export');
-const TEXTS = [
-    ...fs.readdirSync(EXPORTS).map((f) => path.join(EXPORTS, f)),
-    path.join(FIXTURES, 'ztree-examples/gims/GIMS.txt'),
-    // (load.txt is a table to load, not a treatment.)
-    ...fs.readdirSync(path.join(FIXTURES, 'ztree5-probe')).filter((f) => f.endsWith('.txt') && f !== 'load.txt').map((f) => path.join(FIXTURES, 'ztree5-probe', f)),
-];
-const BINARIES = [
-    ...fs.readdirSync(path.join(FIXTURES, 'ztree-examples')).filter((f) => f.endsWith('.ztt')).map((f) => path.join(FIXTURES, 'ztree-examples', f)),
-    ...fs.readdirSync(path.join(FIXTURES, 'ztree-published/duffy-puzzello')).filter((f) => f.endsWith('.ztt')).map((f) => path.join(FIXTURES, 'ztree-published/duffy-puzzello', f)),
-];
+
+/** The files in dir that keep(name) keeps; none if there is no dir. */
+const filesIn = (dir, keep = () => true) => (fs.existsSync(dir) ? fs.readdirSync(dir).filter(keep).map((f) => path.join(dir, f)) : []);
+
+// Treatments in z-Tree's text format, and in its binary one. z-Tree's examples and GIMS are
+// downloaded here first if they can be (as the z-Tree tests do); z-Tree 5's exports of the
+// examples are made locally (tools/ztree-wine), and the published treatments are downloaded by
+// ztree-published.test.js: those not here are left out. The probes are in the repository.
+let TEXTS, BINARIES, GIMS;
 
 let server;
 before(async () => {
+    await examples.ensureExamples();
+    GIMS = await examples.ensureGims();
+    TEXTS = [
+        ...filesIn(EXPORTS),
+        ...(GIMS ? [GIMS] : []),
+        // (load.txt is a table to load, not a treatment.)
+        ...filesIn(path.join(FIXTURES, 'ztree5-probe'), (f) => f.endsWith('.txt') && f !== 'load.txt'),
+    ];
+    BINARIES = [
+        ...filesIn(path.join(FIXTURES, 'ztree-examples'), (f) => f.endsWith('.ztt')),
+        ...filesIn(path.join(FIXTURES, 'ztree-published/duffy-puzzello'), (f) => f.endsWith('.ztt')),
+    ];
     server = await startServer({ settings: { appFolders: ['apps'] } });
     fs.mkdirSync(path.join(server.dataDir, 'apps'), { recursive: true });
 });
@@ -38,42 +51,8 @@ async function post(action, body) {
     return [res.status, await res.json()];
 }
 
-/**
- * Where two readings of a treatment differ (as ztree-formats.test.js compares its formats): what
- * they write differently and mean the same is not a difference.
- */
-function differences(a, b) {
-    const ONLY_ONE = new Set(['version', 'tables', 'cls', 'warnings', 'texts', 'timeoutType', 'startCondition', 'loaders', 'dumpers',
-        'numSubjects', 'numGroups', 'practicePeriods', 'first', 'count', 'options', 'plotCount', 'childCount', 'label', 'button']);
-    const norm = (v, key, parent) => {
-        if ((key === 'min' || key === 'max') && parent && parent.kind === 'item' && !parent.input) return undefined;
-        if (key === 'layout' && parent && parent.kind === 'item' && !parent.variable) return undefined;
-        if (typeof v === 'string') v = key === 'code' ? v.split('\n').map((l) => l.trimEnd()).join('\n').trim() : v.trim();
-        if (Array.isArray(v) && v.length === 0) return undefined;
-        if (v === '') return undefined;
-        return v;
-    };
-    const out = [];
-    const diff = (x, y, at, key, px, py) => {
-        if (out.length >= 20) return;
-        x = norm(x, key, px);
-        y = norm(y, key, py);
-        if (x === y) return;
-        if (typeof x !== typeof y || x == null || y == null || typeof x !== 'object') {
-            out.push(at + ': ' + JSON.stringify(x) + ' | ' + JSON.stringify(y));
-            return;
-        }
-        if (Array.isArray(x) && x.length !== y.length) out.push(at + ': length ' + x.length + ' | ' + y.length);
-        for (const k of new Set([...Object.keys(x), ...Object.keys(y)])) {
-            if (!ONLY_ONE.has(k)) diff(x[k], y[k], at + '.' + k, k, x, y);
-        }
-    };
-    diff(a, b, 'treatment');
-    return out;
-}
-
 test("z-Tree's text exports are written again byte for byte: z-Tree's examples, GIMS, the probes", () => {
-    assert.ok(TEXTS.length >= 20);
+    assert.ok(TEXTS.length >= 5);
     for (const file of TEXTS) {
         const bytes = fs.readFileSync(file);
         const written = editor.encode(editor.write(editor.parse(decode(bytes))));
@@ -169,6 +148,8 @@ test('Treatment → Check finds programs and expressions that do not parse, and 
     program.items[1].code = 'x = 1;\n';
     assert.deepEqual((await post('check', { root }))[1], { errors: [], stages: 0 });
     // GIMS, a large treatment, has none.
-    const gims = editor.parse(decode(fs.readFileSync(path.join(FIXTURES, 'ztree-examples/gims/GIMS.txt'))));
-    assert.deepEqual(editor.syntaxErrors(readTextTreatment(editor.write(gims))), []);
+    if (GIMS != null) {
+        const gims = editor.parse(decode(fs.readFileSync(GIMS)));
+        assert.deepEqual(editor.syntaxErrors(readTextTreatment(editor.write(gims))), []);
+    }
 });

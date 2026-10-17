@@ -34,6 +34,9 @@ function stagesJtreeMakes(source, name = 'check.jtt') {
     return app.stages.map((s) => s.id);
 }
 
+/** A file's text with \n line ends (as the edits' expectations write them), whatever git checked out. */
+const readLF = (file) => fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
+
 const SAMPLES = ['samples/jtree', '2 features'].flatMap((dir) =>
     fs.readdirSync(sampleApp(dir)).filter((f) => f.endsWith('.jtt') && !/^error-/.test(f)).map((f) => dir + '/' + f));
 
@@ -64,7 +67,7 @@ test("a sample app's settings, screens and functions, as the editor shows them",
 });
 
 test('edits change only what they are about, and jtree runs the result', () => {
-    const original = fs.readFileSync(sampleApp('samples/jtree/public-goods.jtt'), 'utf8');
+    const original = readLF(sampleApp('samples/jtree/public-goods.jtt'));
     let source = editor.apply(original, { op: 'setAppProp', name: 'numPeriods', value: { kind: 'number', value: 3 } });
     assert.equal(source, original.replace('app.numPeriods  = 10;', 'app.numPeriods  = 3;'));
 
@@ -139,7 +142,7 @@ test("every sample app's screens are read into their elements, each where it is 
 });
 
 test('screen edits change only the element they are about, and jtree runs the result', () => {
-    const original = fs.readFileSync(sampleApp('samples/jtree/public-goods.jtt'), 'utf8');
+    const original = readLF(sampleApp('samples/jtree/public-goods.jtt'));
     const screenEdit = (source, edit, stage = 'decide') => editor.apply(source, { op: 'editScreen', stage, name: 'activeScreen', edit });
     const decideScreen = (source) => editor.model(source).stages[0].props.find((p) => p.name === 'activeScreen').value;
 
@@ -181,8 +184,16 @@ test('screen edits change only the element they are about, and jtree runs the re
     assert.throws(() => editor.apply('let s = app.newStage(\'a\');\ns.activeScreen = `<p>${1}</p>`;\n', { op: 'editScreen', stage: 'a', name: 'activeScreen', edit: { do: 'remove', path: [0] } }), /made by code/);
 });
 
+test('a file with Windows line ends keeps them: what an edit puts in has \\r\\n too', () => {
+    const crlf = readLF(sampleApp('samples/jtree/public-goods.jtt')).replace(/\n/g, '\r\n');
+    let source = editor.apply(crlf, { op: 'editScreen', stage: 'decide', name: 'activeScreen', edit: { do: 'insert', path: [0], where: 'after', html: '<div>\n    <b>Round {{period.id}}</b>\n</div>' } });
+    source = editor.apply(source, { op: 'setAppProp', name: 'numPeriods', value: { kind: 'number', value: 3 } });
+    assert.match(source, /<div>\r\n {8}<b>Round/);
+    assert.equal(source.replace(/\r\n/g, '').includes('\n'), false, 'a bare \\n');
+});
+
 test('elements dragged elsewhere: in their screen, into a box, to another stage\'s screen', () => {
-    const original = fs.readFileSync(sampleApp('samples/jtree/public-goods.jtt'), 'utf8');
+    const original = readLF(sampleApp('samples/jtree/public-goods.jtt'));
     const screenOf = (source, k) => editor.model(source).stages[k].props.find((p) => p.name === 'activeScreen').value;
     const at = (stage, path, where) => ({ stage, name: 'activeScreen', path, where });
     const move = (source, from, to) => editor.apply(source, { op: 'moveElement', from, to });
