@@ -18,7 +18,7 @@ The admin page opens in your browser, at http://localhost:3000/admin/. On macOS,
 - runs z-Tree treatments and oTree apps as they are, edits them as z-Tree and oTree Studio do, and converts them to jtree apps.
 - three admin interfaces: jtree's own, one laid out after z-Tree, and one after oTree's.
 - a samples library: 23 economics experiments (public goods, trust, auctions, markets, ...), each written for jtree, oTree and z-Tree alike.
-- GIMS asset markets: the Graz-Innsbruck Market System's generic asset market, with presets for 74 published designs (Smith, Suchanek and Williams 1988 and the studies after it).
+- GIMS asset markets: the Graz-Innsbruck Market System's generic asset market, with presets for 81 published designs (Smith, Suchanek and Williams 1988 and the studies after it).
 - autoplay and bots for testing.
 - rooms: permanent links for participants.
 - queues: sequences of apps, with their options, for re-use.

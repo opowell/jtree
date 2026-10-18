@@ -26,6 +26,7 @@ const DEFAULTS = {
     payment: 'all',              // 'all' rounds, or one 'random' round [RandomPeriodPayoff]
     exchangeRate: null,          // money per point; null for the session's [ExchangeRate]
     minPayoff: 0,                // the fewest points paid in all [MinPayoffECU]
+    maxPayoff: null,             // the most points paid in all
     bonus: 0,                    // points added to each round's earnings
     loan: false,                 // whether the initial cash is a loan, paid back from a round's earnings
     cashName: 'points',          // what cash is called on the screens
@@ -113,7 +114,8 @@ const DEFAULTS = {
     earlyEndingVote: false,      // traders can vote to end a period early; it ends when all have [EarlyEndingVote]
     indicativePriceInterval: 0,  // seconds between indicative prices in the call auction; 0 for none [IndicativePriceInterval]
     showCallOrders: false,       // after a call auction, all its orders, without who made them
-    showHistory: false,          // a table of the earlier periods of the round: prices, values, dividends, news
+    showHistory: false,          // a table of the earlier periods of the round: prices, values (shown even without
+                                 // showFundamentalValue), dividends, news
     announcements: [],           // messages on the trading screen: [{ periods: [3, 7], text }]; text is a string, { draw: [texts] }
                                  // (one drawn for the session), or { above, below } (by last period's mean price against the value)
     accountStatus: null,         // after each period, cash and units at the period's best bid, and the market's
@@ -262,6 +264,46 @@ function oechsslerSchmidtSchnedler(title, notes, settings) {
         })),
         endowments: [{ cash: 10000, assets: 10 }], bonus: -5000,
         exchangeRate: 1 / 1000, showFundamentalValue: true, cashName: 'Taler',
+    }, settings);
+}
+
+// Breaban and Noussair (2015): a constant value that then rises (taxes) or falls (subsidies).
+function breabanNoussair(title, notes, tax, buyback) {
+    return {
+        title: 'Breaban and Noussair (2015): ' + title,
+        reference: 'Breaban, A. and Noussair, C. N. (2015). Trader characteristics and fundamental value trajectories in an asset market experiment. Journal of Behavioral and Experimental Finance 8, 1–17.',
+        notes: '8 traders (7 to 9), each with 10 units and 3600 ECU; two markets of 15 periods of 2 minutes, each starting afresh; after each period, a dividend of +10 or −10 ECU (a coin flip). ' + notes + ' Before the market, the cognitive reflection test (1 euro a right answer) and Holt and Laury\'s lotteries (in euros: 2.00 or 1.60, and 3.85 or 0.10); 500 ECU to the euro. Their loss aversion task (on paper) and three questions on the value are not included. A unit at a time is assumed here.',
+        traders: 8, rounds: 2, periods: 15, tradingTime: 120, multiUnit: false,
+        assets: [{ name: 'Asset', dividends: [10, -10], tax, buyback }],
+        endowments: [{ cash: 3600, assets: 10 }],
+        crt: 'before', crtPay: 500, holtLaury: 'before', holtLauryPayoffs: { aHigh: 1000, aLow: 800, bHigh: 1925, bLow: 50 },
+        exchangeRate: 1 / 500, showFundamentalValue: true, cashName: 'ECU',
+    };
+}
+
+// Cason and Samek (2015): trade prices as text or as a chart.
+function casonSamek(title, notes, settings) {
+    return Object.assign({
+        title: 'Cason and Samek (2015): ' + title,
+        reference: 'Cason, T. N. and Samek, A. (2015). Learning through passive participation in asset market bubbles. Journal of the Economic Science Association, doi:10.1007/s40881-015-0013-3.',
+        notes: '10 traders; three markets of 12 periods of 2 minutes, all paid; at the start of each market, half the traders, drawn anew, get 3 shares and 1080, half 5 shares and 504; dividends of 0, 8, 28 or 60 after each period, so that a share is worth 288 at first and nothing after the last period. 150 experimental dollars to the US dollar. ' + notes + ' In their Pre- treatments the first market is watched, not traded: each trader sees the trades of a trader of an earlier session and is paid as they were; that is not included here. A unit at a time is assumed here.',
+        traders: 10, rounds: 3, periods: 12, tradingTime: 120, multiUnit: false,
+        assets: [{ name: 'Shares', dividends: SSW_DIVIDENDS }],
+        endowments: [{ cash: 1080, assets: 3 }, { cash: 504, assets: 5 }], reassignTypes: true,
+        exchangeRate: 1 / 150, showFundamentalValue: true, cashName: 'experimental dollars',
+    }, settings);
+}
+
+// Huber, Kirchler and Stöckl (2015): Stöckl, Huber and Kirchler's falling value, with the value shown or not while trading.
+function huberKirchlerStockl(title, notes, settings) {
+    return Object.assign({
+        title: 'Huber, Kirchler and Stöckl (2015): ' + title,
+        reference: 'Huber, J., Kirchler, M. and Stöckl, T. (2015). The influence of investment experience on market prices: laboratory evidence. Experimental Economics, doi:10.1007/s10683-015-9445-0.',
+        notes: '10 traders, each with 40 units and 3600 Taler; two practice periods, then 15 periods of 150 seconds; a dividend of 0, 3 or 6 Taler after each, so that the value falls from 45 by 3 a period; orders of any size, market orders first; a history screen of 15 seconds after each period, with the prices and values so far. 400 Taler to the euro. ' + notes + ' Their treatments with an investment game before the market (positive or negative experience, T3 to T6) and their robustness checks (T7, T8) are not included.',
+        traders: 10, practicePeriods: 2, periods: 15, tradingTime: 150, resultsTime: 15,
+        assets: [{ name: 'Asset', dividends: [0, 3, 6] }],
+        endowments: [{ cash: 3600, assets: 40 }],
+        showHistory: true, exchangeRate: 1 / 400, cashName: 'Taler',
     }, settings);
 }
 
@@ -678,6 +720,22 @@ const PRESETS = {
         endowments: [{ cash: 400, assets: 3 }], crt: 'after',
         exchangeRate: 0.01, showFundamentalValue: true, cashName: 'cents',
     },
+    'breaban-noussair-2015-bull': breabanNoussair('BullMarket', 'BullMarket: a tax of 10 ECU a unit after periods 8 to 15, and 200 a unit after the last period, so that the value is 120 in periods 1 to 7 and then rises by 10 a period to 200.', [0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 10, 10, 10, 10, 10], 200),
+    'breaban-noussair-2015-bear': breabanNoussair('BearMarket', 'BearMarket: a subsidy of 10 ECU a unit after periods 8 to 15, and 40 a unit after the last period, so that the value is 120 in periods 1 to 7 and then falls by 10 a period to 40.', [0, 0, 0, 0, 0, 0, 0, -10, -10, -10, -10, -10, -10, -10, -10], 40),
+    'cueva-rustichini-2015': {
+        title: 'Cueva and Rustichini (2015): constant value, loan and forecasts',
+        reference: 'Cueva, C. and Rustichini, A. (2015). Is financial instability male-driven? Gender and cognitive skills in experimental asset markets. Journal of Economic Behavior & Organization 119, 330–344. The same market: Cueva, C., Roberts, R. E., Spencer, T., Rani, N., Tempest, M., Tobler, P. N., Herbert, J. and Rustichini, A. (2015). Cortisol and testosterone increase financial risk taking and may destabilize markets. Scientific Reports 5, 11206.',
+        notes: 'Noussair, Robin and Ruffieux\'s loan design: 10 traders (female-only, male-only or mixed groups in the paper), each with 10 units and 10,000 francs, a loan paid back at the end; a practice period, then 15 periods of 2 minutes; after each, a dividend of −24, −16, 4 or 36 francs, kept apart until the end, and 360 a unit after the last period, so that the value is 360 throughout. Before each period, a forecast of its average price, paid 10 pence (36 francs) when accurate: within 10% is assumed here. 360 francs to the pound; payments are kept between 10 and 30 pounds. Their lottery task (15 choices) before the market, and the cognitive tasks after it, are not included. Cueva et al. (Scientific Reports, 2015) report hormone measures from sessions of this market.',
+        traders: 10, practicePeriods: 1, periods: 15, tradingTime: 120,
+        assets: [{ name: 'Asset', dividends: [-24, -16, 4, 36], buyback: 360 }],
+        endowments: [{ cash: 10000, assets: 10 }], loan: true, dividendAccount: 'separate',
+        forecasts: { horizon: 1, rewards: [[0.10, 36]], target: 'mean' },
+        minPayoff: 3600, maxPayoff: 10800, exchangeRate: 1 / 360, showFundamentalValue: true, cashName: 'francs',
+    },
+    'cason-samek-2015-text': casonSamek('text display', 'Text: trade prices are listed as text.', { showChart: false }),
+    'cason-samek-2015-visualized': casonSamek('visualized display', 'Visualized: trade prices are also charted against time (here, the period\'s; in the paper, the whole market\'s).', { showChart: true }),
+    'huber-kirchler-stockl-2015-t1': huberKirchlerStockl('value on the history screen (T1)', 'T1: the value is explained in the instructions and shown on the history screen after each period, not while trading.', { showFundamentalValue: false }),
+    'huber-kirchler-stockl-2015-t2fv': huberKirchlerStockl('value on the trading screen (T2 FV)', 'T2 FV: the value of the period is also shown on the trading screen.', { showFundamentalValue: true }),
 };
 
 /** The settings of a preset, over the defaults, and then overrides (an object, or JSON). */

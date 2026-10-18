@@ -763,9 +763,9 @@ const HISTORY = `
 <div class="box" v-if="app.config.showHistory && pastRows.length > 0" style="margin-top: 10px">
     <h3>Earlier periods</h3>
     <div class="scroll"><table>
-        <tr><th>Period</th><th v-for="(a, i) in app.config.assets" :key="i">{{a.name}}: last price</th><th v-if="app.config.showFundamentalValue">Value</th><th>Dividend</th><th v-if="newsSoFar.length > 0">News</th></tr>
+        <tr><th>Period</th><th v-for="(a, i) in app.config.assets" :key="i">{{a.name}}: last price</th><th>Value</th><th v-if="paysAny">Dividend</th><th v-if="newsSoFar.length > 0">News</th></tr>
         <tr v-for="r in pastRows" :key="r.t"><td>{{r.t}}</td><td v-for="(a, i) in app.config.assets" :key="i">{{fmt(r.last[i])}}</td>
-            <td v-if="app.config.showFundamentalValue">{{fmt(r.value[sel])}}</td><td>{{fmt(r.dividend[sel])}}</td><td v-if="newsSoFar.length > 0">{{r.news || ''}}</td></tr>
+            <td>{{fmt(r.value[sel])}}</td><td v-if="paysAny">{{fmt(r.dividend[sel])}}</td><td v-if="newsSoFar.length > 0">{{r.news || ''}}</td></tr>
     </table></div>
 </div>`;
 
@@ -1413,7 +1413,8 @@ results.activeScreen = STYLE + `
     <table style="max-width: 420px; margin-top: 10px">
         <tr v-if="player.bond"><td>Bonds back, and interest at {{fmt(group.bondRate * 100)}}%</td><td>{{fmt(player.bond)}} + {{fmt(player.bondInterest)}}</td></tr>
         <tr v-if="paysAny"><td>Dividends you received</td><td>{{fmt(player.dividends)}}</td></tr>
-        <tr v-if="player.tax"><td>Holding taxes you paid</td><td>{{fmt(player.tax)}}</td></tr>
+        <tr v-if="player.tax > 0"><td>Holding taxes you paid</td><td>{{fmt(player.tax)}}</td></tr>
+        <tr v-if="player.tax < 0"><td>Subsidies you received</td><td>{{fmt(-player.tax)}}</td></tr>
         <tr v-if="app.config.interest"><td>Interest on your cash</td><td>{{fmt(player.interestEarned)}}</td></tr>
         <tr v-if="player.inflow"><td>Cash you received</td><td>{{fmt(player.inflow)}}</td></tr>
         <tr v-if="player.lotteryTicket === 'yes'"><td>Lottery ticket ({{group.lotteryWin ? 'won' : 'did not win'}})</td><td>{{fmt(player.lotteryResult)}}</td></tr>
@@ -1510,6 +1511,8 @@ payment.groupStart = function(group) {
         player.marketEarnings = round2(group.paidRounds != null ? group.paidRounds.reduce((s, r) => s + payoffs[r - 1], 0) : payoffs.reduce((s, x) => s + x, 0));
         const before = player.inPreviousPeriods().reduce((s, p) => s + (p.points || 0), 0) + (player.points || 0);
         player.topUp = Math.max(0, round2(C.minPayoff - (before + player.marketEarnings)));
+        // With maxPayoff, earnings above it are cut (a negative top-up).
+        if (C.maxPayoff != null) player.topUp = Math.min(player.topUp, round2(C.maxPayoff - (before + player.marketEarnings)));
         player.points = round2((player.points || 0) + player.marketEarnings + player.topUp);
         player.totalPoints = round2(before + player.marketEarnings + player.topUp);
         player.save();
@@ -1523,7 +1526,8 @@ payment.activeScreen = STYLE + `
         <tr v-for="(x, i) in player.roundPayoffs" :key="i"><td>Market {{i + 1}}<span v-if="group.paidRounds && group.paidRounds.includes(i + 1)"> (drawn for payment)</span></td><td>{{fmt(x)}}</td></tr>
         <tr v-if="player.crtEarnings"><td>The three questions</td><td>{{fmt(player.crtEarnings)}}</td></tr>
         <tr v-if="player.hlEarnings"><td>The lottery choices</td><td>{{fmt(player.hlEarnings)}}</td></tr>
-        <tr v-if="player.topUp"><td>Up to the minimum payment</td><td>{{fmt(player.topUp)}}</td></tr>
+        <tr v-if="player.topUp > 0"><td>Up to the minimum payment</td><td>{{fmt(player.topUp)}}</td></tr>
+        <tr v-if="player.topUp < 0"><td>Down to the maximum payment</td><td>{{fmt(player.topUp)}}</td></tr>
         <tr><td><b>In all</b></td><td><b>{{fmt(player.totalPoints)}}</b> {{app.config.cashName}}</td></tr>
         <tr v-if="moneyRate() != null"><td>In money</td><td><b>{{(player.totalPoints * moneyRate()).toFixed(2)}}</b> {{participant.session && participant.session.currency || ''}}</td></tr>
     </table>

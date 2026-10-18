@@ -733,3 +733,21 @@ test('dividends drawn at the end for the units held each period, a truncated ass
     assert.deepEqual(last[0].group.endDividends, [[20, 20, 20, 20], [20, 20, 20, 0]]);
     assert.deepEqual(last.map((p) => p.dividends), [5 * 20 + 2 * 3 * 20, 11 * 20 + 2 * 3 * 20]);
 });
+
+test('subsidies (negative taxes) and a maximum payment', async () => {
+    const session = gimsSession('breaban-noussair-2015-bear', {
+        traders: 2, rounds: 1, periods: 2, tradingTime: 30, resultsTime: 0, crt: null, holtLaury: null, maxPayoff: 4000,
+        assets: [{ name: 'Asset', dividends: [10, -10], dividendSequence: [10, -10], tax: [0, -10], buyback: 40 }],
+    }, 2);
+    const bots = await server.connectAll(session);
+    session.start();
+    await Promise.all(bots.map((b) => b.waitForStage('trading', { period: 1 })));
+    // The value: 10 (subsidy) + 40 (buyback) in period 1.
+    assert.equal(bots[0].player.group.value[0], 50);
+    await playStages(bots, ['trading', 'results'], 1);
+    await playStages(bots, ['trading', 'results', 'payment'], 2);
+    await Promise.all(bots.map((b) => b.waitForEnd()));
+    const last = bots[0].players().pop();
+    // 3600 + 10 × 10, then 10 × (−10) and a subsidy of 10 × 10, then 40 a unit: 4100, cut to 4000.
+    assert.deepEqual([last.tax, last.roundPayoffs[0], last.topUp, last.totalPoints], [-100, 4100, -100, 4000]);
+});
