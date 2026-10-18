@@ -651,6 +651,33 @@ const PRESETS = {
         ],
         endowments: [{ cash: 40, assets: 2 }], loan: true, exchangeRate: 1, showFundamentalValue: true, cashName: 'dollars',
     },
+    'hussam-porter-smith-2008-baseline': {
+        title: 'Hussam, Porter and Smith (2008): baseline',
+        reference: 'Hussam, R. N., Porter, D. and Smith, V. L. (2008). Thar she blows: can bubbles be rekindled with experienced subjects? American Economic Review 98(3), 924–937.',
+        notes: 'The baseline environment: 15 periods of a uniform-price sealed-bid-offer call market; dividends of 0, 8, 28 or 60 cents; three portfolio types, $10.80 and 3 shares, $7.20 and 4, $3.60 and 5 ($21.60 each at the value), spread evenly, with any remainder given the middle one. 14 traders (70 subjects in five cohorts). The same cohort played it two or three times, as sessions on different days: run it again for experience. One buy and one sell order each per period, and 60 seconds to submit them, are assumed here; the paper does not give them.',
+        traders: 14, periods: 15, mechanism: 'call', callMaxOrders: 1, marketOrders: false, callTime: 60,
+        assets: [{ name: 'Shares', dividends: SSW_DIVIDENDS }],
+        endowments: [{ cash: 1080, assets: 3 }, { cash: 720, assets: 4 }, { cash: 360, assets: 5 }], fillerType: 2,
+        exchangeRate: 0.01, showFundamentalValue: true, cashName: 'cents',
+    },
+    'hussam-porter-smith-2008-rekindle': {
+        title: 'Hussam, Porter and Smith (2008): rekindle',
+        reference: 'Hussam, R. N., Porter, D. and Smith, V. L. (2008). Thar she blows: can bubbles be rekindled with experienced subjects? American Economic Review 98(3), 924–937.',
+        notes: 'The rekindle environment, played by twice-experienced traders in new groups (11 traders: 33 subjects in three sessions; 15 in the new replications): as the baseline, with more cash, fewer shares and riskier dividends: $18.90 and 1 share, $15.30 and 2, $11.70 and 3, and dividends of 0, 1, 8, 28 or 98 cents (27 on average), so that the value falls from 405. One buy and one sell order each per period, and 60 seconds to submit them, are assumed here.',
+        traders: 11, periods: 15, mechanism: 'call', callMaxOrders: 1, marketOrders: false, callTime: 60,
+        assets: [{ name: 'Shares', dividends: [0, 1, 8, 28, 98] }],
+        endowments: [{ cash: 1890, assets: 1 }, { cash: 1530, assets: 2 }, { cash: 1170, assets: 3 }], fillerType: 2,
+        exchangeRate: 0.01, showFundamentalValue: true, cashName: 'cents',
+    },
+    'shestakova-powell-gladyrev-2019': {
+        title: 'Shestakova, Powell and Gladyrev (2019): experience and success',
+        reference: 'Shestakova, N., Powell, O. and Gladyrev, D. (2019). Bubbles, experience and success. Journal of Behavioral and Experimental Finance 22, 206–213 (working paper: Gladyrev, Powell and Shestakova, 2015).',
+        notes: 'Dufwenberg, Lindqvist and Moore\'s market with equal endowments: 6 traders, each with 3 units and 400 cents; 10 periods of 2 minutes, with a dividend of 0 or 20 cents (equally likely) after each; a continuous double auction whose book is emptied after each period; no borrowing or short selling. Six traders play three such markets to gain experience (here); then they are ranked by their luck-adjusted earnings, and each pair (top, middle, bottom) trades a fourth market with four new traders, in sessions of their own. The CRT comes afterwards (unpaid); their control questions and the training against a computer trader are not included. Every market is paid. A unit at a time is assumed here.',
+        traders: 6, rounds: 3, periods: 10, tradingTime: 120, multiUnit: false,
+        assets: [{ name: 'Asset', dividends: [0, 20] }],
+        endowments: [{ cash: 400, assets: 3 }], crt: 'after',
+        exchangeRate: 0.01, showFundamentalValue: true, cashName: 'cents',
+    },
 };
 
 /** The settings of a preset, over the defaults, and then overrides (an object, or JSON). */
