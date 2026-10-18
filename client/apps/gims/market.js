@@ -33,12 +33,17 @@ const RULES = {
     takeFee: 0,                  // TakeFee: per unit, paid by the trader who accepts an order
     shortCash: 0,                // ShortingCapacityCash: how far below zero cash may go
     shortAssets: 0,              // ShortingCapacityAssets: how many units a trader may be short
+    shortReserve: 0,             // cash a trader must keep for each unit they are short (Haruvy and Noussair 2006)
     holdingCap: null,            // the most units a trader may hold (Lugovskyy et al. 2014); null for no cap
     purchaseLimit: null,         // the most units a trader may buy in a period; null for no limit
+    maxPrice: null,              // the highest price an order may have; null for any
+    singleBest: false,           // only the best bid and the best ask stand: a better one replaces it (a book of depth one)
+    maxOpenOrdersTotal: 0,       // open orders per trader and asset, bids and asks together; 0 for any number
     callMaxOrders: 0,            // NumTypedOffersCallAuction: bids (and asks) per trader in a call; 0 for any number
     marketOrders: true,          // AllowMarketOrders: market orders in the call auction
     marketOrderPriority: true,   // MarketOrderPriority: market orders before limit orders at the auction price
     rationing: 'time',           // who trades at the auction price when not all can: 'time' (GIMS) or 'random'
+    callPrice: 'gims',           // the call auction's price: 'gims' (its five rules) or 'midpoint' of the prices that trade the most
 };
 
 const EPS = 1e-9;
@@ -87,20 +92,44 @@ function bestPrice(book, asset, type) {
     return o == null ? null : o.price;
 }
 
-/** How many units trader can buy at price (plus fee per unit), by cash, cap and purchase limit. */
+/**
+ * Whether trader, after a trade that changes their units of asset by dUnits and their cash by
+ * dCash, still has the cash reserve for their short position (rules.shortReserve a unit short).
+ */
+function reserveKept(trader, rules, asset, dUnits, dCash) {
+    if (!(rules.shortReserve > 0)) return true;
+    const short = Math.max(0, -(trader.assets[asset] + dUnits));
+    return trader.cash + dCash + rules.shortCash + EPS >= rules.shortReserve * short;
+}
+
+/** How many units trader can buy at price (plus fee per unit), by cash, cap, purchase limit and reserve. */
 function unitsBuyable(trader, rules, asset, price, fee) {
     let units = Infinity;
     const cost = price + fee;
     if (cost > 0) units = Math.floor((trader.cash + rules.shortCash) / cost + EPS);
     if (rules.holdingCap != null) units = Math.min(units, rules.holdingCap - trader.assets[asset]);
     if (rules.purchaseLimit != null) units = Math.min(units, rules.purchaseLimit - (trader.bought[asset] || 0));
+    // A trader who is short and buys back fewer units than they are short keeps a reserve for the rest.
+    if (units >= 1 && units < Infinity && !reserveKept(trader, rules, asset, units, -cost * units)) {
+        const r = rules.shortReserve;
+        const short = -trader.assets[asset];
+        units = cost > r ? Math.floor((trader.cash + rules.shortCash - r * short) / (cost - r) + EPS) : 0;
+    }
     return Math.max(0, units);
 }
 
-/** How many units trader can sell, by holdings and shorting capacity (and cash for a fee). */
-function unitsSellable(trader, rules, asset, fee) {
+/**
+ * How many units trader can sell, by holdings and shorting capacity (and cash for a fee), and,
+ * at price, by the cash reserve their short position needs.
+ */
+function unitsSellable(trader, rules, asset, fee, price) {
     let units = trader.assets[asset] + rules.shortAssets;
     if (fee > 0) units = Math.min(units, Math.floor((trader.cash + rules.shortCash) / fee + EPS));
+    const net = (price == null ? 0 : price) - fee;
+    if (rules.shortReserve > net) {
+        const r = rules.shortReserve;
+        units = Math.min(units, Math.floor((trader.cash + rules.shortCash + r * trader.assets[asset]) / (r - net) + EPS));
+    }
     return Math.max(0, units);
 }
 
@@ -114,14 +143,18 @@ function whyNotBuy(trader, rules, asset, price, volume, fee) {
     if (rules.purchaseLimit != null && (trader.bought[asset] || 0) + volume > rules.purchaseLimit) {
         return 'You may buy at most ' + rules.purchaseLimit + ' units in a period.';
     }
+    if (!reserveKept(trader, rules, asset, volume, -(price + fee) * volume)) return RESERVE_ERROR;
     return null;
 }
 
-/** Why trader cannot sell volume units (paying fee per unit), or null if they can. */
-function whyNotSell(trader, rules, asset, volume, fee) {
+const RESERVE_ERROR = 'You would not have the cash you must keep for the units you are short.';
+
+/** Why trader cannot sell volume units at price (paying fee per unit), or null if they can. */
+function whyNotSell(trader, rules, asset, volume, fee, price) {
     if (trader.role === 'buyer') return 'You are a buyer: you can only buy.';
     if (volume > trader.assets[asset] + rules.shortAssets) return 'You do not have enough units for this.';
     if (fee * volume > trader.cash + rules.shortCash + EPS) return 'You do not have enough cash for the fee.';
+    if (!reserveKept(trader, rules, asset, -volume, ((price == null ? 0 : price) - fee) * volume)) return RESERVE_ERROR;
     return null;
 }
 
@@ -131,6 +164,7 @@ function readOrder(rules, price, volume, { market = false } = {}) {
         price = Number(price);
         if (!(price > 0) || !isFinite(price)) return { error: 'Enter a price above 0.' };
         if (!isTickMultiple(price, rules.tickSize)) return { error: 'Prices are in steps of ' + rules.tickSize + '.' };
+        if (rules.maxPrice != null && price > rules.maxPrice) return { error: 'Prices are at most ' + rules.maxPrice + '.' };
         price = roundToTick(price, rules.tickSize);
     } else {
         price = null;
@@ -157,7 +191,7 @@ function submitOrder(book, traderId, { asset, type, price, volume }) {
     ({ price, volume } = read);
     const why = type === 'buy'
         ? whyNotBuy(trader, rules, asset, price, volume, rules.makeFee)
-        : whyNotSell(trader, rules, asset, volume, rules.makeFee);
+        : whyNotSell(trader, rules, asset, volume, rules.makeFee, price);
     if (why) return { error: why };
     const bestBid = bestPrice(book, asset, 'buy');
     const bestAsk = bestPrice(book, asset, 'sell');
@@ -168,6 +202,9 @@ function submitOrder(book, traderId, { asset, type, price, volume }) {
         if (rules.offerImprovement && bestBid != null && price < bestBid) {
             return { error: 'A new buy order must be at least the highest buy order (' + bestBid + ').' };
         }
+        if (rules.singleBest && bestBid != null && price <= bestBid) {
+            return { error: 'A new buy order must be above the standing one (' + bestBid + ').' };
+        }
     } else {
         if (bestBid != null && price <= bestBid) {
             return { error: 'A new sell order must be above the highest buy order (' + bestBid + '). To sell at that price, use Sell.' };
@@ -175,9 +212,22 @@ function submitOrder(book, traderId, { asset, type, price, volume }) {
         if (rules.offerImprovement && bestAsk != null && price > bestAsk) {
             return { error: 'A new sell order must be at most the lowest sell order (' + bestAsk + ').' };
         }
+        if (rules.singleBest && bestAsk != null && price >= bestAsk) {
+            return { error: 'A new sell order must be below the standing one (' + bestAsk + ').' };
+        }
     }
     if (rules.maxOpenOrders > 0 && openOrders(book, asset, type).filter((o) => o.maker === traderId).length >= rules.maxOpenOrders) {
         return { error: 'You may have at most ' + rules.maxOpenOrders + ' open ' + (type === 'buy' ? 'buy' : 'sell') + ' order(s). Cancel one first.' };
+    }
+    if (rules.maxOpenOrdersTotal > 0 && openOrders(book, asset).filter((o) => o.maker === traderId).length >= rules.maxOpenOrdersTotal) {
+        return { error: 'You may have at most ' + rules.maxOpenOrdersTotal + ' open order(s) in this asset. Cancel one first.' };
+    }
+    // With a book of depth one, the new order replaces the standing one.
+    if (rules.singleBest) {
+        for (const o of openOrders(book, asset, type)) {
+            o.status = 'cancelled';
+            o.statusTime = book.now();
+        }
     }
     const order = book.addOrder({
         asset, type, price, volume, transacted: 0, invalidated: 0, status: 'open',
@@ -216,9 +266,9 @@ function acceptOrder(book, traderId, { asset, side, volume, orderId }) {
     const price = order.price;
     let why;
     if (side === 'buy') {
-        why = whyNotBuy(taker, rules, asset, price, volume, rules.takeFee) || (whyNotSell(maker, rules, asset, volume, rules.makeFee) && 'The seller cannot deliver.');
+        why = whyNotBuy(taker, rules, asset, price, volume, rules.takeFee) || (whyNotSell(maker, rules, asset, volume, rules.makeFee, price) && 'The seller cannot deliver.');
     } else {
-        why = whyNotSell(taker, rules, asset, volume, rules.takeFee) || (whyNotBuy(maker, rules, asset, price, volume, rules.makeFee) && 'The buyer cannot pay.');
+        why = whyNotSell(taker, rules, asset, volume, rules.takeFee, price) || (whyNotBuy(maker, rules, asset, price, volume, rules.makeFee) && 'The buyer cannot pay.');
     }
     if (why) return { error: why };
     const bestBid = bestPrice(book, asset, 'buy');
@@ -267,7 +317,7 @@ function invalidateInfeasible(book) {
         const trader = book.trader(order.maker);
         const units = order.type === 'buy'
             ? unitsBuyable(trader, rules, order.asset, order.price, rules.makeFee)
-            : unitsSellable(trader, rules, order.asset, rules.makeFee);
+            : unitsSellable(trader, rules, order.asset, rules.makeFee, order.price);
         const left = remaining(order);
         if (units >= left) continue;
         invalidate(book, order, rules.partialInvalidation && units > 0 ? left - units : left);
@@ -330,7 +380,7 @@ function checkCallOrders(trader, rules, asset, orders) {
  * Returns { price (null if nothing can trade), volume, rule (GIMS's PriceDeterminationRule,
  * 0 to 5), schedule: [{ price, buy, sell, feasible, surplus }] }.
  */
-function auctionPrice(orders, tickSize) {
+function auctionPrice(orders, tickSize, rule = 'gims') {
     const limits = orders.filter((o) => o.price != null);
     const marketBuy = orders.filter((o) => o.price == null && o.type === 'buy').reduce((s, o) => s + o.volume, 0);
     const marketSell = orders.filter((o) => o.price == null && o.type === 'sell').reduce((s, o) => s + o.volume, 0);
@@ -343,6 +393,11 @@ function auctionPrice(orders, tickSize) {
     const volume = Math.max(0, ...schedule.map((r) => r.feasible));
     if (volume === 0) return { price: null, volume: 0, rule: 0, schedule };
     const maxing = schedule.filter((r) => r.feasible === volume);
+    if (rule === 'midpoint') {
+        // The middle of the prices at which the most units trade (Lahav 2011), down to the tick.
+        const mid = (maxing[0].price + maxing[maxing.length - 1].price) / 2;
+        return { price: roundToTick(mid - 1e-7, tickSize), volume, rule: 6, schedule };
+    }
     if (maxing.length === 1) return { price: maxing[0].price, volume, rule: 1, schedule };
     const least = Math.min(...maxing.map((r) => Math.abs(r.surplus)));
     const balanced = maxing.filter((r) => Math.abs(r.surplus) === least);
@@ -394,7 +449,7 @@ function settlementOrder(orders, type, price, rules, rng) {
  */
 function runCallAuction(book, asset, orders, { rng = Math.random } = {}) {
     const rules = book.rules(asset);
-    const auction = auctionPrice(orders, rules.tickSize);
+    const auction = auctionPrice(orders, rules.tickSize, rules.callPrice);
     const fills = new Map(orders.map((o) => [o, 0]));
     const trades = [];
     if (auction.price != null) {
@@ -420,7 +475,9 @@ function runCallAuction(book, asset, orders, { rng = Math.random } = {}) {
             assets: t.assets.map((a, i) => (i === asset ? a + so : a)),
             bought: t.bought.map((b, i) => (i === asset ? (b || 0) + so : b)),
         }, rules, asset, price, 0));
-        const total = fill(sells, bought, (t, so) => t.assets[asset] + rules.shortAssets - so);
+        const total = fill(sells, bought, (t, so) => unitsSellable({
+            cash: t.cash + price * so, assets: t.assets.map((a, i) => (i === asset ? a - so : a)),
+        }, rules, asset, 0, price));
         // If fewer units are sold than bought, the last buys in priority are cut.
         let extra = bought - total;
         for (let i = buys.length - 1; i >= 0 && extra > 0; i--) {
@@ -484,8 +541,21 @@ function fundamentalValue({ meanDividend, buyback = 0, interest = 0, periodsLeft
     return meanDividend / r + (buyback - meanDividend / r) * Math.pow(1 + r, -periodsLeft);
 }
 
+/**
+ * The value now of a unit that pays flows[0] after this period, flows[1] after the next, and
+ * so on, and final after the last, discounted at the interest rate on cash: the fundamental
+ * value when flows are the expected dividends less any holding taxes.
+ */
+function presentValue(flows, final = 0, interest = 0) {
+    let v = final;
+    for (let i = flows.length - 1; i >= 0; i--) v = (flows[i] + v) / (1 + interest);
+    return v;
+}
+
 /** The mean of a dividend process: values equally likely, or { values, probabilities }. */
 function meanDividend(dividends) {
+    if (typeof dividends === 'number') return dividends;
+    if (dividends && dividends.uniform) return (dividends.uniform[0] + dividends.uniform[1]) / 2;
     const { values, probabilities } = dividendProcess(dividends);
     return values.reduce((s, v, i) => s + v * probabilities[i], 0);
 }
@@ -498,8 +568,13 @@ function dividendProcess(dividends) {
     return { values, probabilities };
 }
 
-/** A dividend drawn from a process. */
+/** A value drawn from a process: values equally likely, { values, probabilities }, or { uniform: [low, high] } (whole numbers). */
 function drawDividend(dividends, rng = Math.random) {
+    if (typeof dividends === 'number') return dividends;
+    if (dividends && dividends.uniform) {
+        const [low, high] = dividends.uniform;
+        return low + Math.floor(rng() * (high - low + 1));
+    }
     const { values, probabilities } = dividendProcess(dividends);
     let u = rng();
     for (let i = 0; i < values.length; i++) {
@@ -530,5 +605,5 @@ module.exports = {
     RULES, roundToTick, remaining, bestOrder, unitsBuyable, unitsSellable, readOrder,
     submitOrder, cancelOrder, acceptOrder, invalidateInfeasible, expireOrders,
     checkCallOrders, auctionPrice, runCallAuction,
-    fundamentalValue, meanDividend, dividendProcess, drawDividend, priceStats,
+    fundamentalValue, presentValue, meanDividend, dividendProcess, drawDividend, priceStats,
 };

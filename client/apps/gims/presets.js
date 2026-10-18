@@ -32,7 +32,7 @@ const DEFAULTS = {
 
     // The market
     mechanism: 'cda',            // 'cda' (continuous double auction), 'call' (call auction) or 'call+cda' [CallAuction, ContinuousDoubleAuction]
-    tradingTime: 180,            // seconds of continuous double auction [TimeContinuousDoubleAuction]
+    tradingTime: 180,            // seconds of continuous double auction, or an array: seconds by round [TimeContinuousDoubleAuction]
     callTime: 0,                 // seconds to submit call auction orders; 0 for no limit [TimeCallAuction]
     resultsTime: 30,             // seconds the results of a period are shown; 0 until all have read them [TimeContinuousDoubleAuctionResults]
     assets: [                    // the assets traded, each in its own market [NumMarkets]
@@ -41,11 +41,22 @@ const DEFAULTS = {
             description: '',     // shown under the name, e.g. what the asset is
             dividends: [0, 8, 28, 60],   // equally likely values, or { values, probabilities } [dividends]
             dividendSequence: null,      // dividends drawn in advance, by period, in place of draws [PresetDividends]
-            buyback: 0,                  // what a unit is worth after a round's last period [BBV]
+            buyback: 0,                  // what a unit is worth after a round's last period [BBV]; or drawn for each round, unknown
+                                         // to the traders until then: { values, probabilities } or { uniform: [low, high] }
             signals: null,               // signals, by period: [[set 1's values, set 2's, ...], ...]; trader k sees set k (in turn) [signals]
+            tax: 0,                      // a holding tax a unit pays after each period: a number, or an array by period
+            walk: null,                  // a value that follows a random path, in place of dividends: { start, steps: [...] } (each
+                                         // equally likely) or { start, sd } (normal steps); a step after each period, shown then; a
+                                         // unit pays the value after the last step
+            maxPayouts: null,            // dividends stop after this many that are not zero in a round (a truncated asset)
             // Any market rule below can also be set for an asset alone.
         },
     ],
+    supplements: null,           // { amounts: [80, 40], insider: 0.5 }: each round, the amounts are added to the final values of
+                                 // as many different assets drawn at random; with probability insider, one trader is told one
+    stateSignals: null,          // signals of a drawn final value (buyback with two values): { asset, accuracy, when: 'start'
+                                 // (each trader's own, private), or 'end' (public news after each period but the last),
+                                 // exact: the number right fixed by endowment type (with 'start'), labels: [high's, low's] }
     endowments: [                // endowment types, assigned in equal numbers [endowments]
         { cash: 225, assets: 3 },        // assets: units of each asset (a number for all, or an array)
         { cash: 585, assets: 2 },        // role: 'trader' (default), 'buyer' (buys only) or 'seller' (sells only)
@@ -53,9 +64,19 @@ const DEFAULTS = {
     ],
     fillerType: 2,               // the type (from 1) of traders left over when the types do not divide them [EndowmentFillerType]
     assignment: 'random',        // types assigned to traders at 'random' (GIMS) or in 'order' of their place in the market
+    reassignTypes: false,        // endowment types drawn again at the start of each round
     dividendAccount: 'cash',     // dividends paid into 'cash', or a 'separate' account not used for trading
+    dividendTiming: 'period',    // dividends paid after each 'period', or all drawn and paid at the 'end' of a round
     interest: 0,                 // interest per period on cash held after trading (negative: a charge)
     cashInflow: 0,               // cash given to each trader after each period: a number, or an array by period
+    carryCash: false,            // cash carries over from one round to the next (units are given anew); a round's
+                                 // earnings are then what it added to the cash it began with
+    payoff: 'wealth',            // a round's earnings: its final 'wealth' (cash, account and units at their final value),
+                                 // or the 'profit' over what the endowment would have paid had it been kept
+    paymentBlocks: null,         // with payment 'random', one round paid from each block of rounds: e.g. [10, 10]
+    bonds: null,                 // one-period bonds before each period: { rate (a number, or an array by period), payAtEnd
+                                 // (interest paid at the end, not into cash), policy: { levels: [rates], periods: [when it may
+                                 // rise], threshold, exogenous } }
 
     // Market rules (see market.js)
     multiUnit: true,             // [MultiUnitTrading]
@@ -68,6 +89,8 @@ const DEFAULTS = {
     takeFee: 0,                  // [TakeFee]
     shortCash: 0,                // [ShortingCapacityCash]
     shortAssets: 0,              // [ShortingCapacityAssets]
+    shortReserve: 0,             // cash a trader must keep for each unit they are short, as a multiple of a unit's value
+    shortReserveBelow: null,     // that multiple when the last price is below the value (Haruvy and Noussair's FLX)
     holdingCap: null,            // the most units a trader may hold
     holdingCapUntil: null,       // the last period of a round the cap holds in; null for all
     purchaseLimit: null,         // the most units a trader may buy in a period
@@ -75,6 +98,11 @@ const DEFAULTS = {
     marketOrders: true,          // [AllowMarketOrders]
     marketOrderPriority: true,   // [MarketOrderPriority]
     rationing: 'time',           // 'time' (GIMS) or 'random'
+    callPrice: 'gims',           // the call auction's price: 'gims' (its five rules) or the 'midpoint' of the prices that trade the most
+    maxPrice: null,              // the highest price an order may have
+    singleBest: false,           // only the best bid and the best ask stand, and a better one replaces it (a book of depth one)
+    maxOpenOrdersTotal: 0,       // open orders per trader and asset, bids and asks together; 0 for any number
+    byRound: [],                 // market rules for blocks of rounds: [{ from, to, shortAssets: ... }, ...]
 
     // The trading screen
     orderBookDepth: -1,          // orders shown on each side, besides one's own; -1 for all [OrderBookDepth]
@@ -84,6 +112,18 @@ const DEFAULTS = {
     showFundamentalValue: false, // a table of the asset's value by period, and its value now
     earlyEndingVote: false,      // traders can vote to end a period early; it ends when all have [EarlyEndingVote]
     indicativePriceInterval: 0,  // seconds between indicative prices in the call auction; 0 for none [IndicativePriceInterval]
+    showCallOrders: false,       // after a call auction, all its orders, without who made them
+    showHistory: false,          // a table of the earlier periods of the round: prices, values, dividends, news
+    announcements: [],           // messages on the trading screen: [{ periods: [3, 7], text }]; text is a string, { draw: [texts] }
+                                 // (one drawn for the session), or { above, below } (by last period's mean price against the value)
+    accountStatus: null,         // after each period, cash and units at the period's best bid, and the market's
+                                 // { reference: 'highest' } or 'lowest' such total
+    rating: null,                // after each period, a rating: { question, labels: [...] }
+    lottery: null,               // after each period, a lottery ticket: { price, prize, chance }, one draw for all
+    chatTime: 0,                 // seconds of chat before trading, from period chatFrom of each round
+    chatFrom: 2,
+    firm: null,                  // a computerized firm that buys ('buy') or sells ('sell') units from period on: { period, side,
+                                 // share (of the units given out) or units, interval (seconds), threshold }
 
     // Price forecasts: null, or { horizon: periods ahead (1 for this period's, or 'all' for every
     // period left), rewards: [[relative error at most, points], ...], target: 'mean' (trade
@@ -92,7 +132,8 @@ const DEFAULTS = {
     forecasts: null,
 
     // Before and after the market [ControlQuestions, CRTBefore, CRTAfter, HLBefore, HLAfter]
-    controlQuestions: [],        // [{ question, options: [...], answer: index of the right option }]
+    controlQuestions: [],        // [{ question, options: [...], answer: index of the right option }], or { question, answer: a number }
+    controlQuestionsIntro: '',   // text shown above them
     crt: null,                   // the cognitive reflection test (Frederick 2005): 'before', 'after' or null
     crtPay: 0,                   // points per right answer
     holtLaury: null,             // the Holt and Laury (2002) lottery choices: 'before', 'after' or null
@@ -103,6 +144,171 @@ const DEFAULTS = {
 const SSW_DIVIDENDS = [0, 8, 28, 60];
 // The forecast rewards of Haruvy, Lahav and Noussair (2007), as later studies describe them.
 const HLN_REWARDS = [[0.10, 50], [0.25, 20], [0.50, 10]];
+// The endowments of Smith, Suchanek and Williams's design 4, and those doubled (Haruvy, Noussair and Powell 2014).
+const SSW_ENDOWMENTS = [{ cash: 225, assets: 3 }, { cash: 585, assets: 2 }, { cash: 945, assets: 1 }];
+const SSW_DOUBLED = [{ cash: 450, assets: 6 }, { cash: 1170, assets: 4 }, { cash: 1890, assets: 2 }];
+
+// Haruvy and Noussair (2006): SSW's market with a short-selling rule.
+function haruvyNoussair(title, notes, rules) {
+    return Object.assign({
+        title: 'Haruvy and Noussair (2006): ' + title,
+        reference: 'Haruvy, E. and Noussair, C. N. (2006). The effect of short selling on bubbles and crashes in experimental spot asset markets. Journal of Finance 61(3), 1119–1157.',
+        notes: '9 traders with the endowments of Smith, Suchanek and Williams (225, 585 or 945 tokens and 3, 2 or 1 units); a practice, then 15 periods of 4 minutes; dividends of 0, 8, 28 or 60 tokens; a cent a token. Traders who are short pay the dividends of the units they are short. ' + notes,
+        traders: 9, practicePeriods: 1, periods: 15, tradingTime: 240, multiUnit: false,
+        assets: [{ name: 'Asset', dividends: SSW_DIVIDENDS }],
+        endowments: SSW_ENDOWMENTS, exchangeRate: 0.01, showFundamentalValue: true, cashName: 'tokens',
+    }, rules);
+}
+
+// Noussair and Powell (2010): values that rise and then fall (peak), or fall and then rise (valley).
+function noussairPowell(title, notes, settings) {
+    return Object.assign({
+        title: 'Noussair and Powell (2010): ' + title,
+        reference: 'Noussair, C. N. and Powell, O. (2010). Peaks and valleys: price discovery in experimental asset markets with non-monotonic fundamentals. Journal of Economic Studies 37(2), 152–180.',
+        notes: '9 traders with 1, 2 or 3 units, three of each; a practice period (10 minutes in the paper), then four markets of 15 periods of 2 minutes; dividends of 0, 8, 28 or 60 francs into cash, and a holding tax of 48 francs a unit after the tax periods, so that the value rises by 24 a period while there are taxes and falls by 24 when there are none. Each type starts with 1305 francs at the value; every market is paid, 200 francs to the euro. ' + notes,
+        traders: 9, practicePeriods: 1, rounds: 4, periods: 15, tradingTime: 120, multiUnit: false,
+        exchangeRate: 1 / 200, showFundamentalValue: true, cashName: 'francs',
+    }, settings);
+}
+
+// Corgnet, Kujal and Porter (2010): public messages in periods 3, 7 and 12.
+const TOO_HIGH = 'The price is too high.';
+const TOO_LOW = 'The price is too low.';
+function corgnetKujalPorter(title, notes, message) {
+    const announcements = [{ periods: [10], text: 'There are only five periods remaining.' }];
+    if (message != null) announcements.unshift({ periods: [3, 7, 12], text: message });
+    return {
+        title: 'Corgnet, Kujal and Porter (2010): ' + title,
+        reference: 'Corgnet, B., Kujal, P. and Porter, D. (2010). The effect of reliability, content and timing of public announcements on asset trading behavior. Journal of Economic Behavior & Organization 76(2), 254–266.',
+        notes: '9 traders, five with 2 units and 550 cents, four with 4 units and 180 cents; two markets of 15 periods, 180 seconds each in the first and 160 in the second; dividends of 0, 8, 28 or 60 cents. In period 10 of each market, a message says that five periods remain. ' + notes + ' A unit at a time is assumed here.',
+        traders: 9, rounds: 2, periods: 15, tradingTime: [180, 160], multiUnit: false,
+        assets: [{ name: 'Asset', dividends: SSW_DIVIDENDS }],
+        endowments: [{ cash: 550, assets: 2 }, { cash: 180, assets: 4 }], fillerType: 1,
+        announcements, exchangeRate: 0.01, showFundamentalValue: true, cashName: 'cents',
+    };
+}
+
+// Schoenberg and Haruvy (2012): relative performance after each period.
+function schoenbergHaruvy(title, reference, notes) {
+    return {
+        title: 'Schoenberg and Haruvy (2012): ' + title,
+        reference: 'Schoenberg, E. J. and Haruvy, E. (2012). Relative performance information in asset markets: an experimental approach. Journal of Economic Psychology 33(6), 1143–1155.',
+        notes: '10 traders (8 to 10) with the endowments of Smith, Suchanek and Williams; two practice periods, then 15 periods of 180 seconds; dividends of 0, 8, 28 or 60 cents. After each period, a lottery ticket (6 cents for a 5% chance of 120, one draw for all), then an account status: cash and units at the period\'s best bid, and ' + notes + ' Then a rating of how one feels about one\'s account, on a 7-point scale. A cent a unit of currency.',
+        traders: 10, practicePeriods: 2, periods: 15, tradingTime: 180, multiUnit: false,
+        assets: [{ name: 'Shares', dividends: SSW_DIVIDENDS }],
+        endowments: SSW_ENDOWMENTS,
+        lottery: { price: 6, prize: 120, chance: 0.05 },
+        accountStatus: { reference },
+        rating: { question: 'How do you feel about your current account total?', labels: ['Very negatively', 'Negatively', 'Somewhat negatively', 'Neutral', 'Somewhat positively', 'Positively', 'Very positively'] },
+        resultsTime: 0, exchangeRate: 0.01, showFundamentalValue: true, cashName: 'cents',
+    };
+}
+
+// Haruvy, Noussair and Powell (2014): a computerized firm buys back or issues half the shares from period 6.
+function haruvyNoussairPowell(title, notes, firm) {
+    return {
+        title: 'Haruvy, Noussair and Powell (2014): ' + title,
+        reference: 'Haruvy, E., Noussair, C. N. and Powell, O. (2014). The impact of asset repurchases and issues in an experimental market. Review of Finance 18(2), 681–713.',
+        notes: '9 traders with twice the endowments of Smith, Suchanek and Williams (6, 4 or 2 units and 450, 1170 or 1890 francs); a practice, then 15 periods of 240 seconds; dividends of 0, 8, 28 or 60 francs; 170 francs to the euro (150 to the dollar in Dallas). ' + notes + ' A unit at a time is assumed here.',
+        traders: 9, practicePeriods: 1, periods: 15, tradingTime: 240, multiUnit: false,
+        assets: [{ name: 'Shares', dividends: SSW_DIVIDENDS }],
+        endowments: SSW_DOUBLED, firm, exchangeRate: 1 / 170, showFundamentalValue: true, cashName: 'francs',
+    };
+}
+
+// Fellner and Theissen (2014): one-period markets, short selling allowed in one block of ten and not the other.
+function fellnerTheissen(order, precision) {
+    const allowedFirst = order === 'AP';
+    const free = { shortAssets: 1e9 };
+    const none = { shortAssets: 0 };
+    return {
+        title: 'Fellner and Theissen (2014): ' + order + (precision ? precision * 100 : 0) + (precision ? ', signals right with probability ' + precision : ', no signals') + (allowedFirst ? ', short selling first' : ', short selling second'),
+        reference: 'Fellner, G. and Theissen, E. (2014). Short sale constraints, divergence of opinion and asset prices: evidence from the laboratory. Journal of Economic Behavior & Organization 101, 113–127.',
+        notes: '10 traders; 20 one-period markets of 150 seconds, each with an asset worth 200 or 100 (equally likely), shown after trading. Each market, half the traders, drawn anew, have 4 units and 150 ECU, half 1 unit and 600. Credit is unlimited, at no interest. ' +
+            (precision ? 'Each trader gets a private signal of the value, right with probability ' + precision + ', with the number of right signals fixed at ' + precision + ' of each endowment group. ' : 'No signals (the benchmark). ') +
+            'Short selling, without limit, is allowed in markets ' + (allowedFirst ? '1 to 10' : '11 to 20') + ' and not in the others. A market\'s earnings are its profit: wealth at the value, less the endowment at the value. One market of each block is paid, 20 ECU to the euro. A unit at a time. (Their three training periods are not included.)',
+        traders: 10, rounds: 20, periods: 1, tradingTime: 150, multiUnit: false,
+        assets: [{ name: 'Asset', description: 'Worth 200 or 100, equally likely, drawn for each market and shown after trading.', dividends: [0], buyback: { values: [200, 100] } }],
+        endowments: [{ cash: 150, assets: 4 }, { cash: 600, assets: 1 }], reassignTypes: true,
+        shortCash: 1e9, byRound: [Object.assign({ from: 1, to: 10 }, allowedFirst ? free : none), Object.assign({ from: 11, to: 20 }, allowedFirst ? none : free)],
+        stateSignals: precision ? { accuracy: precision, when: 'start', exact: true, labels: ['high', 'low'] } : null,
+        payoff: 'profit', payment: 'random', paymentBlocks: [10, 10], resultsTime: 15,
+        exchangeRate: 1 / 20, cashName: 'ECU',
+    };
+}
+
+// Stöckl, Huber and Kirchler (2014): five ways for the value to change.
+function stocklHuberKirchler(title, notes, asset) {
+    return {
+        title: 'Stöckl, Huber and Kirchler (2014): ' + title,
+        reference: 'Stöckl, T., Huber, J. and Kirchler, M. (2014). Multi-period experimental asset markets with distinct fundamental value regimes. Experimental Economics (2014), doi:10.1007/s10683-014-9404-1.',
+        notes: '10 traders, each with 40 units and 3600 Taler (a value of 5400 at the start value of 45); two practice periods, then 15 periods of 150 seconds; orders of any size, market orders first; a history screen of 15 seconds after each period with the prices and values so far. 400 Taler to the euro. ' + notes,
+        traders: 10, practicePeriods: 2, periods: 15, tradingTime: 150, resultsTime: 15,
+        assets: [Object.assign({ name: 'Asset' }, asset)],
+        endowments: [{ cash: 3600, assets: 40 }],
+        showHistory: true, exchangeRate: 1 / 400, showFundamentalValue: true, cashName: 'Taler',
+    };
+}
+
+// Oechssler, Schmidt and Schnedler (2011): five assets with final dividends only.
+function oechsslerSchmidtSchnedler(title, notes, settings) {
+    return Object.assign({
+        title: 'Oechssler, Schmidt and Schnedler (2011): ' + title,
+        reference: 'Oechssler, J., Schmidt, C. and Schnedler, W. (2011). On the ingredients for bubble formation: informed traders and communication. Journal of Economic Dynamics and Control 35(11), 1831–1851.',
+        notes: '10 traders trade 5 assets at once, each starting with 10 units of each and 10,000 Taler, 5000 of it a loan paid back after each round; a practice round of 3 days (periods), then three rounds of 10 days of 120 seconds. Only the best bid and ask are shown. An asset pays one dividend, after the last day: a base value from 50 to 90 (whole numbers, equally likely), and each round one asset, drawn at random, gets a supplement of 80 and another one of 40. ' + notes + ' 1000 Taler to the euro. A unit at a time is assumed here; their price and dividend forecasts on days 4, 6 and 8 (unpaid) are not included.',
+        traders: 10, practicePeriods: 3, rounds: 3, periods: 10, tradingTime: 120, multiUnit: false, orderBookDepth: 1,
+        assets: ['Blue', 'Green', 'Red', 'Yellow', 'Purple'].map((name) => ({
+            name, description: 'Pays one dividend, after the last day: a base value from 50 to 90, and any supplement.', dividends: [0], buyback: { uniform: [50, 90] },
+        })),
+        endowments: [{ cash: 10000, assets: 10 }], bonus: -5000,
+        exchangeRate: 1 / 1000, showFundamentalValue: true, cashName: 'Taler',
+    }, settings);
+}
+
+// Cheung, Hedegaard and Palan (2014): training in the value, and whether it is public knowledge.
+const CHP_QUESTIONS = [];
+for (let t = 15; t >= 1; t--) CHP_QUESTIONS.push({ question: 'Suppose that you buy one share in period ' + t + ' and that you keep it until the end of the market (until period 15). What is the average total dividend that you will receive from this share?', answer: 24 * (16 - t) });
+for (let t = 15; t >= 1; t--) CHP_QUESTIONS.push({ question: 'Suppose that you sell one share in period ' + t + ' and that you do not buy it back. What is the average total dividend that you give up on this share?', answer: 24 * (16 - t) });
+function cheungHedegaardPalan(title, notes, settings) {
+    return Object.assign({
+        title: 'Cheung, Hedegaard and Palan (2014): ' + title,
+        reference: 'Cheung, S. L., Hedegaard, M. and Palan, S. (2014). To see is to believe: common expectations in experimental asset markets. European Economic Review 66, 84–96.',
+        notes: '10 traders: three with 2 units and 1890 ECU, four with 4 units and 1170, three with 6 units and 450 (2610 each at the value); a practice period, then 15 periods of 4 minutes; dividends of 0, 8, 28 or 60 ECU; the CRT afterwards (unpaid). 11 ECU to the Danish krone. ' + notes + ' A unit at a time is assumed here.',
+        traders: 10, practicePeriods: 1, periods: 15, tradingTime: 240, multiUnit: false,
+        assets: [{ name: 'Shares', dividends: SSW_DIVIDENDS }],
+        endowments: [{ cash: 1890, assets: 2 }, { cash: 1170, assets: 4 }, { cash: 450, assets: 6 }], fillerType: 2,
+        crt: 'after', exchangeRate: 1 / 11, showFundamentalValue: true, cashName: 'ECU',
+    }, settings);
+}
+
+// Ackert, Charupat, Church and Deaves (2006): a standard asset and a lottery asset.
+const ACCD_ASSETS = [
+    { name: 'Stock A', description: 'Pays 0.50 or 0.90 a period (48% each), or 1.20 (4%).', dividends: { values: [0.5, 0.9, 1.2], probabilities: [0.48, 0.48, 0.04] } },
+    { name: 'Stock B', description: 'Pays 0 a period (96%), or 18 (4%).', dividends: { values: [0, 18], probabilities: [0.96, 0.04] } },
+];
+function ackertCharupatChurchDeaves(title, notes, settings) {
+    return Object.assign({
+        title: 'Ackert, Charupat, Church and Deaves (2006): ' + title,
+        reference: 'Ackert, L. F., Charupat, N., Church, B. K. and Deaves, R. (2006). Margin, short selling, and lotteries in experimental asset markets. Southern Economic Journal 73(2), 419–436.',
+        notes: '9 traders (7 to 9), each with 2 units of two assets with the same expected dividend, 0.72 dollars a period: a standard asset and a lottery asset; 12 periods of 5 minutes; a unit at a time; only the best bid and ask stand (a book of depth one). In Canadian dollars. ' + notes + ' Their closing-price forecasts (a $20 prize for the best) are not included.',
+        traders: 9, periods: 12, tradingTime: 300, multiUnit: false, tickSize: 0.01, orderBookDepth: 1, singleBest: true,
+        assets: ACCD_ASSETS, exchangeRate: 1, showFundamentalValue: true, cashName: 'dollars',
+    }, settings);
+}
+
+// Fischbacher, Hens and Zeisberger (2013): bonds, and an interest rate that leans against bubbles.
+const FHZ_POLICY = { levels: [0.05, 0.11, 0.15, 0.21], periods: [4, 8, 12], threshold: 1.35 };
+function fischbacherHensZeisberger(title, notes, bonds) {
+    return {
+        title: 'Fischbacher, Hens and Zeisberger (2013): ' + title,
+        reference: 'Fischbacher, U., Hens, T. and Zeisberger, S. (2013). The impact of monetary policy on stock market bubbles and trading behavior: evidence from the lab. Journal of Economic Dynamics and Control 37(10), 2104–2122.',
+        notes: '8 traders, each with 10 shares and 3600 Gulden; 15 periods with the dividends of Smith, Suchanek and Williams. Before each period, each trader puts some of their money into a one-period bond, which earns interest but cannot be used to buy shares; then 150 seconds of trading. ' + notes + ' The exchange rate (to Swiss francs) is not given here; a unit at a time is assumed.',
+        traders: 8, periods: 15, tradingTime: 150, multiUnit: false,
+        assets: [{ name: 'Shares', dividends: SSW_DIVIDENDS }],
+        endowments: [{ cash: 3600, assets: 10 }], bonds,
+        showFundamentalValue: true, cashName: 'Gulden',
+    };
+}
 
 const PRESETS = {
     ssw: {
@@ -323,6 +529,127 @@ const PRESETS = {
         assets: [{ name: 'X', dividends: SSW_DIVIDENDS }],
         endowments: [{ cash: 10000, assets: 0, role: 'buyer' }, { cash: 0, assets: 10, role: 'seller' }],
         dividendAccount: 'separate', showFundamentalValue: true, cashName: 'francs',
+    },
+
+    // From the studies of the asset market experiments list (sites.google.com/site/opowell/assetmarketexperiments).
+    'haruvy-noussair-2006-nss': haruvyNoussair('no short selling (NSS)', 'No short sales.', { shortAssets: 0 }),
+    'haruvy-noussair-2006-ql3': haruvyNoussair('short up to 3 units (QL3)', 'A trader may be short at most 3 units.', { shortAssets: 3 }),
+    'haruvy-noussair-2006-ql6': haruvyNoussair('short up to 6 units (QL6)', 'A trader may be short at most 6 units.', { shortAssets: 6 }),
+    'haruvy-noussair-2006-cr100': haruvyNoussair('cash reserve of 100% (CR100)', 'Short positions of any size, as long as the trader keeps cash of the value of the units they are short, 24 × (16 − t) a unit.', { shortAssets: 1e9, shortReserve: 1 }),
+    'haruvy-noussair-2006-cr150': haruvyNoussair('cash reserve of 150% (CR150)', 'Short positions of any size, as long as the trader keeps cash of 150% of the value of the units they are short.', { shortAssets: 1e9, shortReserve: 1.5 }),
+    'haruvy-noussair-2006-flx': haruvyNoussair('flexible cash reserve (FLX)', 'As CR100, but the reserve is 200% of the value when the last trade price was below the value.', { shortAssets: 1e9, shortReserve: 1, shortReserveBelow: 2 }),
+    'noussair-powell-2010-peak': noussairPowell('peak', 'Peak: taxes after periods 1 to 7, so the value rises from 24 to 192 in period 8 and then falls; endowments of 1281, 1257 and 1233 francs with 1, 2 and 3 units. (The paper\'s instructions say eight tax periods; the text, the formula and the endowments say seven.)', {
+        assets: [{ name: 'Shares', dividends: SSW_DIVIDENDS, tax: [48, 48, 48, 48, 48, 48, 48, 0, 0, 0, 0, 0, 0, 0, 0] }],
+        endowments: [{ cash: 1281, assets: 1 }, { cash: 1257, assets: 2 }, { cash: 1233, assets: 3 }],
+    }),
+    'noussair-powell-2010-valley': noussairPowell('valley', 'Valley (sessions V3 to V5): taxes after periods 8 to 15, and 216 francs a unit after the last period, so the value falls from 192 to 24 in period 8 and then rises to 240; endowments of 1113, 921 and 729 francs with 1, 2 and 3 units.', {
+        assets: [{ name: 'Shares', dividends: SSW_DIVIDENDS, tax: [0, 0, 0, 0, 0, 0, 0, 48, 48, 48, 48, 48, 48, 48, 48], buyback: 216 }],
+        endowments: [{ cash: 1113, assets: 1 }, { cash: 921, assets: 2 }, { cash: 729, assets: 3 }],
+    }),
+    'corgnet-kujal-porter-2010-base': corgnetKujalPorter('no messages (N)', 'No other messages (the baseline).', null),
+    'corgnet-kujal-porter-2010-random': corgnetKujalPorter('random message (RH, RL)', 'In periods 3, 7 and 12, the message "The price is too high" or "The price is too low", one of them drawn (by a die in the paper) for the session.', { draw: [TOO_HIGH, TOO_LOW] }),
+    'corgnet-kujal-porter-2010-high': corgnetKujalPorter('preset message, too high (H)', 'In periods 3, 7 and 12, the message "The price is too high".', TOO_HIGH),
+    'corgnet-kujal-porter-2010-low': corgnetKujalPorter('preset message, too low (L)', 'In periods 3, 7 and 12, the message "The price is too low".', TOO_LOW),
+    'corgnet-kujal-porter-2010-market': corgnetKujalPorter('market-based message (A)', 'In periods 3, 7 and 12, "The price is too high" if the mean price of the period before was above the value, "The price is too low" if below.', { above: TOO_HIGH, below: TOO_LOW }),
+    'fiedler-2011': {
+        title: 'Fiedler (2011): an internet-based market',
+        reference: 'Fiedler, M. (2011). Experience and confidence in an internet-based asset market experiment. Southern Economic Journal 78(1), 30–52.',
+        notes: 'Run in Second Life, with Haruvy and Noussair\'s design and twice the endowments of Smith, Suchanek and Williams (6, 4 or 2 units and 450, 1170 or 1890 Linden dollars): 9 traders (8 or 9), 15 periods of 2 minutes, dividends of 0, 8, 28 or 60. 267 Linden dollars to the US dollar. A unit at a time is assumed here.',
+        traders: 9, periods: 15, tradingTime: 120, multiUnit: false,
+        assets: [{ name: 'Shares', dividends: SSW_DIVIDENDS }],
+        endowments: SSW_DOUBLED, exchangeRate: 1 / 267, showFundamentalValue: true, cashName: 'Linden dollars',
+    },
+    'lahav-2011': {
+        title: 'Lahav (2011): a 200-period call market',
+        reference: 'Lahav, Y. (2011). Price patterns in experimental asset markets with long horizon. Journal of Behavioral Finance 12(1), 20–28.',
+        notes: '9 traders, each with 6 units and 150 francs; 200 periods of a call market in which each trader submits one buy and one sell order (a price and a quantity); a dividend of 0 or 0.30, equally likely, so that the value falls from 30 by 0.15 a period. The price is the middle of the prices at which the most units trade (the median of the crossing of demand and supply in the paper); ties for the last units are broken at random; all orders are shown afterwards. 10 francs to the dollar. The time to submit orders and to see the results (30 and 8 seconds) is assumed here.',
+        traders: 9, periods: 200, mechanism: 'call', callMaxOrders: 1, marketOrders: false, callPrice: 'midpoint', rationing: 'random',
+        callTime: 30, resultsTime: 8, tickSize: 0.01, showCallOrders: true,
+        assets: [{ name: 'Asset', dividends: [0, 0.3] }],
+        endowments: [{ cash: 150, assets: 6 }], exchangeRate: 0.1, showFundamentalValue: true, cashName: 'francs',
+    },
+    'schoenberg-haruvy-2012-up': schoenbergHaruvy('upward reference (AllUp)', 'highest', 'the largest account total in the market (upward reference).'),
+    'schoenberg-haruvy-2012-down': schoenbergHaruvy('downward reference (AllDown)', 'lowest', 'the smallest account total in the market (downward reference).'),
+    'ackert-kluger-qi-2012': {
+        title: 'Ackert, Kluger and Qi (2012): the traded lottery asset',
+        reference: 'Ackert, L. F., Kluger, B. D. and Qi, L. (2012). Irrationality and beliefs in a laboratory asset market: advancing the case for probability judgment error. Journal of Economic Behavior & Organization 84(1), 278–291.',
+        notes: 'The double auction of each period only: 12 traders, each with 3 units of a lottery asset and a $40 loan; 12 periods of 3 minutes. A unit pays $20 after a period with probability 2% (a chip numbered 99 or 100 of 100), and nothing otherwise; all dividends are drawn at the end of the session, for the units held in each period. The second-price auctions for two assets that are not traded, and the price predictions, which came before trading in each period, are not included. A unit at a time is assumed here.',
+        traders: 12, periods: 12, tradingTime: 180, multiUnit: false, tickSize: 0.01,
+        assets: [{ name: 'Asset', dividends: { values: [0, 20], probabilities: [0.98, 0.02] } }],
+        endowments: [{ cash: 40, assets: 3 }], loan: true, dividendTiming: 'end',
+        exchangeRate: 1, showFundamentalValue: true, cashName: 'dollars',
+    },
+    'haruvy-noussair-powell-2014-benchmark': haruvyNoussairPowell('benchmark', 'No intervention.', null),
+    'haruvy-noussair-powell-2014-repurchase': haruvyNoussairPowell('repurchase', 'From period 6, a computerized firm buys back half the shares (18 units): every 5 seconds, if the spread is more than 10 francs, it bids 10 above the best bid; if not, it buys at the best ask. Its new bid replaces its old one.', { period: 6, side: 'buy', share: 0.5, interval: 5, threshold: 10 }),
+    'haruvy-noussair-powell-2014-issue': haruvyNoussairPowell('share issue', 'From period 6, a computerized firm sells new shares, half as many as there are (18 units): every 5 seconds, if the spread is more than 10 francs, it asks 10 below the best ask; if not, it sells at the best bid. Its new ask replaces its old one.', { period: 6, side: 'sell', share: 0.5, interval: 5, threshold: 10 }),
+    'corgnet-hernan-kujal-porter-2014': {
+        title: 'Corgnet, Hernán-González, Kujal and Porter (2014): house money',
+        reference: 'Corgnet, B., Hernán-González, R., Kujal, P. and Porter, D. (2014). The effect of earned versus house money on price bubble formation in experimental asset markets. Review of Finance (2014), doi:10.1093/rof/rfu031.',
+        notes: 'The house money treatment: 9 traders with 4, 5 or 6 units and 1710, 1350 or 990 cents ($31.50 each at the value); 15 periods of 4 minutes; a certain dividend of 24 cents a period; the CRT afterwards (unpaid). In the earned money treatment, the same market was played with $31.50 earned in a two-hour task three days before. A unit at a time is assumed here.',
+        traders: 9, periods: 15, tradingTime: 240, multiUnit: false,
+        assets: [{ name: 'Shares', dividends: [24] }],
+        endowments: [{ cash: 1710, assets: 4 }, { cash: 1350, assets: 5 }, { cash: 990, assets: 6 }],
+        crt: 'after', exchangeRate: 0.01, showFundamentalValue: true, cashName: 'cents',
+    },
+    'fellner-theissen-2014-pa0': fellnerTheissen('PA', 0),
+    'fellner-theissen-2014-pa60': fellnerTheissen('PA', 0.6),
+    'fellner-theissen-2014-pa80': fellnerTheissen('PA', 0.8),
+    'fellner-theissen-2014-ap0': fellnerTheissen('AP', 0),
+    'fellner-theissen-2014-ap60': fellnerTheissen('AP', 0.6),
+    'fellner-theissen-2014-ap80': fellnerTheissen('AP', 0.8),
+    'stockl-huber-kirchler-2014-falling': stocklHuberKirchler('falling value (R1)', 'R1: a dividend of 0, 3 or 6 Taler after each period, so that the value falls from 45 by 3 a period.', { dividends: [0, 3, 6] }),
+    'stockl-huber-kirchler-2014-constant': stocklHuberKirchler('constant value (R2)', 'R2: a dividend of −3, 0 or 3 Taler after each period (a negative one is a holding cost), and 45 a unit after the last period, so the value is 45 throughout.', { dividends: [-3, 0, 3], buyback: 45 }),
+    'stockl-huber-kirchler-2014-rising': stocklHuberKirchler('rising value (R3)', 'R3: holding costs of 0, 3 or 6 Taler after each period, and 90 a unit after the last period, so the value rises from 45 by 3 a period.', { dividends: [-6, -3, 0], buyback: 90 }),
+    'stockl-huber-kirchler-2014-trimodal': stocklHuberKirchler('random value, three steps (R4)', 'R4: no dividends; the value starts at 45 and changes by −3, 0 or +3 (equally likely) after each period, shown then; a unit pays the value after the last period. (The paper uses one drawn path and its mirror image; here a path is drawn for each market.)', { dividends: [0], walk: { start: 45, steps: [-3, 0, 3] } }),
+    'stockl-huber-kirchler-2014-normal': stocklHuberKirchler('random value, normal steps (R5)', 'R5: as R4, with normal steps of mean 0 and standard deviation 2.5. (The paper uses one drawn path and its mirror image; here a path is drawn for each market.)', { dividends: [0], walk: { start: 45, sd: 2.5 } }),
+    'palfrey-wang-2012': {
+        title: 'Palfrey and Wang (2012): news and speculation',
+        reference: 'Palfrey, T. R. and Wang, S. W. (2012). Speculative overpricing in asset markets with information flows. Econometrica 80(5), 1937–1976.',
+        notes: 'The baseline: 11 traders (68 in six sessions); a practice market of 3 periods, then six markets of 11 periods of 50 seconds. Before each market a coin decides whether a unit pays 100 or 20 experimental dollars at its end; after each period but the last, public news, good or bad, right two times in three. Each market starts with 3 units; cash (800 at first, a loan) carries over from market to market. Integer prices up to 100, a unit at a time; only the latest improving bid and offer stand, and a trader has one bid or offer at a time. A cent (or two) an experimental dollar.',
+        traders: 11, practicePeriods: 3, rounds: 6, periods: 11, tradingTime: 50, resultsTime: 10, multiUnit: false,
+        tickSize: 1, maxPrice: 100, singleBest: true, maxOpenOrdersTotal: 1,
+        assets: [{ name: 'Asset', description: 'Pays 100 a unit at the end of the market if the coin came up heads, 20 if tails.', dividends: [0], buyback: { values: [100, 20] } }],
+        endowments: [{ cash: 800, assets: 3 }], loan: true, carryCash: true,
+        stateSignals: { accuracy: 2 / 3, when: 'end', labels: ['good news', 'bad news'] },
+        showHistory: true, exchangeRate: 0.01, cashName: 'experimental dollars',
+    },
+    'cheung-palan-2012-teams': {
+        title: 'Cheung and Palan (2012): teams of two',
+        reference: 'Cheung, S. L. and Palan, S. (2012). Two heads are less bubbly than one: team decision-making in an experimental asset market. Experimental Economics 15(3), 373–397.',
+        notes: 'Haruvy, Noussair and Powell\'s market, with each trader a team of two at one computer: 9 traders with 6, 4 or 2 units and 450, 1170 or 1890 francs; a practice period (10 minutes, alone), then 15 periods of 5 minutes (4 for individuals); dividends of 0, 8, 28 or 60 francs. Both team members are paid the team\'s earnings, 100 francs to the euro. A unit at a time is assumed here.',
+        traders: 9, practicePeriods: 1, periods: 15, tradingTime: 300, multiUnit: false,
+        assets: [{ name: 'Shares', dividends: SSW_DIVIDENDS }],
+        endowments: SSW_DOUBLED, exchangeRate: 0.01, showFundamentalValue: true, cashName: 'francs',
+    },
+    'oechssler-schmidt-schnedler-2011-noinf': oechsslerSchmidtSchnedler('no information (NOINF)', 'No trader learns anything about the supplements.', { supplements: { amounts: [80, 40], insider: 0 } }),
+    'oechssler-schmidt-schnedler-2011-inf': oechsslerSchmidtSchnedler('inside information (INF)', 'With probability ½, one trader, drawn at random, is told which asset has one of the supplements, and how much.', { supplements: { amounts: [80, 40], insider: 0.5 } }),
+    'oechssler-schmidt-schnedler-2011-infchat': oechsslerSchmidtSchnedler('inside information and chat (INFCHAT)', 'As INF, with a chat of 60 seconds before each day but the first, open to all; each message shows the sender\'s wealth at the last prices.', { supplements: { amounts: [80, 40], insider: 0.5 }, chatTime: 60, chatFrom: 2 }),
+    'cheung-hedegaard-palan-2014-base': cheungHedegaardPalan('no training (BASE)', 'BASE: no training.', {}),
+    'cheung-hedegaard-palan-2014-pk': cheungHedegaardPalan('training, public knowledge (PK)', 'PK: before the market, every trader answers 30 questions on the value (what a share bought, or sold, in each period pays on average), and all know that all of them have.', {
+        controlQuestions: CHP_QUESTIONS, controlQuestionsIntro: 'Every trader in your market answers these questions correctly before the market begins.',
+    }),
+    'cheung-hedegaard-palan-2014-npk': cheungHedegaardPalan('training, not public knowledge (NPK)', 'NPK: every trader answers the questions, but is told only that some traders in the session do (in the paper, ten of twenty).', {
+        controlQuestions: CHP_QUESTIONS, controlQuestionsIntro: 'Some of the participants in this session are asked to answer these questions. The experiment begins when they have answered them all correctly.',
+    }),
+    'cheung-hedegaard-palan-2014-wait': cheungHedegaardPalan('no training, waiting (WAIT)', 'WAIT: no training, and a message that no one in the market answered questions (in the paper, these traders waited while others in the session were trained).', {
+        announcements: [{ periods: [1], text: 'None of the traders in your market answered any questions about the instructions.' }],
+    }),
+    'ackert-charupat-church-deaves-2006-nssb': ackertCharupatChurchDeaves('borrowing, no short selling (NSS/B)', 'NSS/B: $100 of cash, a loan paid back at the end; earnings are the cash left over it, and at least 0.', { endowments: [{ cash: 100, assets: 2 }], loan: true }),
+    'ackert-charupat-church-deaves-2006-nssnb': ackertCharupatChurchDeaves('no borrowing, no short selling (NSS/NB)', 'NSS/NB: $40 of cash, not a loan.', { endowments: [{ cash: 40, assets: 2 }] }),
+    'ackert-charupat-church-deaves-2006-ssnb': ackertCharupatChurchDeaves('short selling, no borrowing (SS/NB)', 'SS/NB: $40 of cash, and short sales of up to 5 units of each asset (in the paper, a limit at the end of each period; here, at all times). Traders who are short pay the dividends.', { endowments: [{ cash: 40, assets: 2 }], shortAssets: 5 }),
+    'fischbacher-hens-zeisberger-2013-nopolicy': fischbacherHensZeisberger('no policy', 'The control markets: the bond rate is 5% throughout.', { rate: 0.05 }),
+    'fischbacher-hens-zeisberger-2013-policy': fischbacherHensZeisberger('interest rate policy', 'Experiment 1\'s policy markets: the rate starts at 5% and is raised, in periods 4, 8 and 12, to 11, 15 and 21% when the price forecast (4/3 of the last mean price, plus 1/3 of the one before, less 2/3 of the one before that) is above 135% of the value; it is lowered a level as soon as the mean price falls to the value at the current rate. Interest is paid into cash after each period.', { rate: 0.05, policy: FHZ_POLICY }),
+    'fischbacher-hens-zeisberger-2013-exogenous': fischbacherHensZeisberger('exogenous rates, interest at the end', 'Experiment 2\'s policy markets: the rate rises to 11, 15 and 21% in periods 4, 8 and 12 whatever the prices, and interest is paid at the end, not into cash.', { rate: 0.05, payAtEnd: true, policy: Object.assign({ exogenous: true }, FHZ_POLICY) }),
+    'ackert-charupat-deaves-kluger-2009': {
+        title: 'Ackert, Charupat, Deaves and Kluger (2009): truncated and untruncated lotteries',
+        reference: 'Ackert, L. F., Charupat, N., Deaves, R. and Kluger, B. D. (2009). Probability judgment error and speculation in laboratory asset market bubbles. Journal of Financial and Quantitative Analysis 44(3), 719–744.',
+        notes: 'The multi-period market (MP-10) of each session: each trader has a $40 loan and 2 units of two assets, which pay $20 after a period with probability 2% and nothing otherwise, drawn apart; asset B pays only until it has paid three times ($60 at most). 10 periods of 5 minutes, a unit at a time, a book of depth one. In Canadian dollars. The number of traders (9) is assumed here; the two single-period markets of each session (5 and 8 draws) are not included. The value shown for B is A\'s, as the paper finds them within a cent of each other.',
+        traders: 9, periods: 10, tradingTime: 300, multiUnit: false, tickSize: 0.01, orderBookDepth: 1, singleBest: true,
+        assets: [
+            { name: 'Stock A', description: 'Pays $20 after a period with probability 2%.', dividends: { values: [0, 20], probabilities: [0.98, 0.02] } },
+            { name: 'Stock B', description: 'Pays $20 after a period with probability 2%, until it has paid three times.', dividends: { values: [0, 20], probabilities: [0.98, 0.02] }, maxPayouts: 3 },
+        ],
+        endowments: [{ cash: 40, assets: 2 }], loan: true, exchangeRate: 1, showFundamentalValue: true, cashName: 'dollars',
     },
 };
 
