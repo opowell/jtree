@@ -82,6 +82,8 @@ function quietly(fn) {
  * to start jtree again on what an earlier one saved.
  */
 async function startServer({ settings = {}, withApps = false, data: givenData, port = 0 } = {}) {
+    // A demo (DEMO_PORT) is looked at in a browser on this machine: its pages close without asking.
+    if (port === DEMO_PORT) settings = { askBeforeLeaving: false, ...settings };
     const data = givenData || makeDataDir({ settings, withApps });
     const dataDir = data.path;
     if (givenData) {
@@ -323,6 +325,7 @@ function stringify(values) {
 }
 
 // The one address demos are served at for a browser, so that it needs allowing only once.
+// Pages served on it do not ask before they close (askBeforeLeaving false), unless a test sets it.
 const DEMO_PORT = 4310;
 
 module.exports = { DEMO_PORT, startServer, makeDataDir, quietly, app, until, REPO, CLIENT };
