@@ -24,6 +24,8 @@ A toolbox for running economics experiments.
 
 #### <a href='tutorial-4b-otree.html'>oTree apps</a>
 
+#### <a href='tutorial-4d-gims.html'>GIMS asset markets</a>
+
 #### <a href='tutorial-7-release-notes.html'>Release notes</a>
 
 #### <a href='https://github.com/opowell/jtree/issues' target='_blank'>Help (GitHub issues)</a>

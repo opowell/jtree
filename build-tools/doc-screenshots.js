@@ -7,7 +7,7 @@
 //
 // takes them all, or only those named (admin, participant, editor (and editor-forms), ztree-admin, ztree-participant,
 // otree-sessions, otree-session, otree-participant, otree-studio, samples-jtree, samples-otree,
-// samples-ztree). Then rebuild the docs.
+// samples-ztree, gims). Then rebuild the docs.
 const fs = require('node:fs');
 const path = require('node:path');
 const REPO = path.join(__dirname, '..');
@@ -57,6 +57,7 @@ async function shot(page, name, clip) {
     const apps = path.join(data.path, 'apps');
     fs.mkdirSync(apps);
     fs.cpSync(path.join(REPO, 'client/apps/samples'), path.join(apps, 'samples'), { recursive: true });
+    fs.cpSync(path.join(REPO, 'client/apps/gims'), path.join(apps, 'gims'), { recursive: true });
     fs.mkdirSync(path.join(apps, 'ztree'));
     fs.copyFileSync(path.join(T, 'fixtures/ztree-examples/pg.ztt'), path.join(apps, 'ztree/pg.ztt'));
     for (const name of ['public_goods_simple', 'prisoner', 'trust_simple', '_templates', '_static', 'settings.py']) {
@@ -241,6 +242,35 @@ SECRET_KEY = 'x'
                 await shot(page, 'otree-studio');
                 await page.close();
             }
+        }
+
+        // The GIMS app: a trader's screen in KHS's constant-value market, with orders and trades.
+        if (want('gims')) {
+            const changes = { traders: 4, practicePeriods: 0, tradingTime: 300, assignment: 'order' };
+            const s = server.createSession(path.join(apps, 'gims/app.jtt'), { numParticipants: 4, options: { preset: 'kirchler-huber-stockl-2012-t4', changes: JSON.stringify(changes) } });
+            s.start();
+            const parts = [];
+            for (const id of Object.keys(s.participants)) parts.push(await browser.open(url + '/session/' + s.id + '/' + id));
+            for (const p of parts) await p.waitFor(() => /Buy orders/.test(document.body.innerText) && jt.data.player != null, { what: 'the trading screen' });
+            const send = (i, name, data) => parts[i].eval((n, d) => jt.sendMessage(n, d), name, data);
+            for (const [i, name, data] of [
+                [1, 'gimsOrder', { asset: 0, type: 'sell', price: 54, volume: 5 }],
+                [2, 'gimsOrder', { asset: 0, type: 'buy', price: 46, volume: 4 }],
+                [3, 'gimsAccept', { asset: 0, side: 'buy', volume: 2 }],
+                [1, 'gimsOrder', { asset: 0, type: 'sell', price: 52, volume: 3 }],
+                [2, 'gimsOrder', { asset: 0, type: 'buy', price: 48, volume: 2 }],
+                [0, 'gimsAccept', { asset: 0, side: 'sell', volume: 1 }],
+                [0, 'gimsOrder', { asset: 0, type: 'sell', price: 51, volume: 2 }],
+                [3, 'gimsOrder', { asset: 0, type: 'buy', price: 49, volume: 1 }],
+            ]) {
+                // Each action adds an order or a trade: wait for the server to have made it.
+                const group = Object.values(s.participants)[0].player.group;
+                const before = group.orders.rows.length + group.trades.rows.length;
+                await send(i, name, data);
+                for (let t = 0; t < 100 && group.orders.rows.length + group.trades.rows.length === before; t++) await sleep(50);
+            }
+            await shot(parts[0], 'gims', { x: 0, y: 0, width: 1200, height: 560 });
+            for (const p of parts) await p.close();
         }
 
         // The samples library: the trust game's first screen, in its jtree, oTree and z-Tree versions.

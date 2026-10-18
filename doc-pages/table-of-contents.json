@@ -20,6 +20,9 @@
     "4c-samples": {
         "title": "Samples library"
     },
+    "4d-gims": {
+        "title": "GIMS asset markets"
+    },
     "5-clients": {
         "title": "Writing the client",
         "children": [

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Tutorial: GIMS asset markets</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Tutorial: GIMS asset markets</h1>
+
+    <section>
+
+<header>
+    
+
+    <h2>GIMS asset markets</h2>
+</header>
+
+<article>
+    <p>GIMS, the Graz-Innsbruck Market System (Palan, 2015), is a z-Tree program for asset market experiments: one generic market whose settings make it the market of many studies. jtree has a version of it, <code>client/apps/gims</code>, with GIMS's market rules and settings, and <strong>presets</strong>: configurations of published experiments, each with its source.</p>
+<img src="images/gims.png" alt="A trader's screen in the GIMS app: their account and the value of a unit, the order book with buy and sell orders, and a chart and list of trade prices" style="max-width: 100%; border: 1px solid #ddd">
+<p>In each period traders buy and sell one or more assets for cash, in a continuous double auction, a call auction, or both, one after the other. After each period every unit pays a dividend, drawn for the market from a known distribution. A round (a market) lasts a number of periods; after its last, a unit is worth its buyback value. Around this, as settings:</p>
+<ul>
+<li>endowment types, assigned in equal numbers, and trader roles (buyers who can only buy, sellers who can only sell);</li>
+<li>dividends into cash or into an account apart from it; interest (or charges) on cash; cash given to traders after each period;</li>
+<li>short selling of assets and cash, holding caps (for some periods or all), purchase limits per period, fees for making and taking orders;</li>
+<li>GIMS's order book rules: single or multi-unit orders, the improvement rule, no crossing of the book, a limit on open orders, invalidation of orders no longer feasible (in full or in part), emptying the book after a trade, how many orders and prices are shown;</li>
+<li>the call auction's rules: orders per trader, market orders and their priority, indicative prices, rationing by time or at random;</li>
+<li>price forecasts, paid by accuracy; a vote to end a period early; practice periods with things to try; repeated markets, all paid or one at random; a minimum payment;</li>
+<li>control questions, the cognitive reflection test and Holt and Laury's lottery choices, before or after the market.</li>
+</ul>
+<h4>Running it</h4>
+<p>In the admin, start a session with <code>gims/app.jtt</code> (Browse panel), and choose its options:</p>
+<ul>
+<li><strong>preset</strong>: the experiment, from the list below (<code>ssw</code> by default);</li>
+<li><strong>changes</strong>: settings to change, as JSON, over the preset's: <code>{&quot;traders&quot;: 8, &quot;tradingTime&quot;: 120}</code>. This is GIMS's Settings stage.</li>
+</ul>
+<p>Each preset has its number of traders: participants are put in markets of that many, in order (a session of 18 with <code>ssw</code> has two markets of 9). With <code>&quot;traders&quot;: 0</code> all participants trade in one market. Money is in points; the preset's exchange rate turns them into money, or the session's if the preset has none (several papers do not report theirs).</p>
+<p><code>client/apps/gims/presets.js</code> lists every setting, with its default and GIMS's name for it; a new preset is an entry there. The market engine is <code>market.js</code>, plain functions without jtree, and the app is <code>app.jtt</code>.</p>
+<h4>The presets</h4>
+<p>From the list of asset market experiments at <a href="https://sites.google.com/site/opowell/assetmarketexperiments">sites.google.com/site/opowell/assetmarketexperiments</a>: those whose design GIMS's market can run, and whose parameters could be read in the paper, a working paper, or a replication (cited in each). What is assumed, or left out, is said.</p>
+<p><strong>Smith, Suchanek and Williams (1988)</strong> (<code>ssw</code>). The standard design: 9 traders of three endowment types (225, 585 or 945 cents and 3, 2 or 1 units; each worth 1305 at the start), 15 periods, a dividend of 0, 8, 28 or 60 cents each period and no value after the last, so that the fundamental value falls from 360 to 24. A unit at a time, and a period ends early if all vote to end it. The endowments and dividends are those GIMS takes as its defaults; the period length here (240 seconds) is that of later studies of this design (e.g. Eckel and Füllbrunn 2015). <em>9 traders, 15 periods, double auction.</em><br>
+Source: Smith, V. L., Suchanek, G. L. and Williams, A. W. (1988). Bubbles, crashes, and endogenous expectations in experimental spot asset markets. Econometrica 56(5), 1119–1151.</p>
+<p><strong>GIMS's defaults</strong> (<code>gims</code>). GIMS v8.4.2 as it comes: four assets traded at once, each with the dividends of Smith, Suchanek and Williams; three endowment types (225, 585 or 945 cash per asset, and 3, 2 or 1 units of each); multi-unit orders in steps of 0.01; 180 seconds of trading; the 3 best orders on each side and the last 4 prices shown. GIMS's treatment file has 1 period. <em>all participants in one market, 1 period, double auction.</em><br>
+Source: Palan, S. (2015). GIMS — Software for asset market experiments. Journal of Behavioral and Experimental Finance 5, 1–14.</p>
+<p><strong>Noussair, Robin and Ruffieux (2001): constant fundamental value</strong> (<code>noussair-robin-ruffieux-2001</code>). The Purdue sessions: 10 traders (8 to 10), each with 10 units and 10,000; a practice period, then 15 periods of 3 to 5 minutes (240 seconds here). After each period a unit pays 36 or 4, or costs 24 or 16, equally likely, into an account apart from cash; after the last, a unit is worth 360, so the value is 360 throughout. Earnings: cash, 360 a unit, the dividend account, and 5400; 800 to the dollar. Trading was MUDA's, a unit at a time. <em>10 traders, 15 periods, double auction, 1 practice period.</em><br>
+Source: Noussair, C., Robin, S. and Ruffieux, B. (2001). Price bubbles in laboratory asset markets with constant fundamental values. Experimental Economics 4, 87–105.</p>
+<p><strong>Lei, Noussair and Plott (2001): no speculation</strong> (<code>lei-noussair-plott-2001-nospec</code>). The NoSpec sessions (as Tucker and Xu 2024 list them): 8 traders, half buyers with 7,200 francs and no units, who can only buy, and half sellers with 20 units and no cash, who can only sell; a practice period, then 12 periods of 4 minutes; dividends of 20 or 40, equally likely; 300 francs to the dollar. Dividends go to an account apart from cash, as in Tucker and Xu's replication; the paper's own bookkeeping of them is not reproduced from it. <em>8 traders, 12 periods, double auction, 1 practice period.</em><br>
+Source: Lei, V., Noussair, C. N. and Plott, C. R. (2001). Nonspeculative bubbles in experimental asset markets: lack of common knowledge of rationality vs. actual irrationality. Econometrica 69(4), 831–859.</p>
+<p><strong>Dufwenberg, Lindqvist and Moore (2005)</strong> (<code>dufwenberg-lindqvist-moore-2005</code>). Working paper 588 (IUI, 2003): 6 traders, half with 6 units and 200 cents, half with 2 units and 600 cents; a two-minute practice period, then four rounds (markets) of 10 two-minute periods, each paying a dividend of 0 or 20 cents, equally likely. Every round is paid. (In the paper, two or four traders of the fourth round are newcomers; here the same traders play all four.) <em>6 traders, 4 markets of 10 periods, double auction, 1 practice period.</em><br>
+Source: Dufwenberg, M., Lindqvist, T. and Moore, E. (2005). Bubbles and experience: an experiment. American Economic Review 95(5), 1731–1737.</p>
+<p><strong>Haruvy, Lahav and Noussair (2007): call market and forecasts</strong> (<code>haruvy-lahav-noussair-2007</code>). As Carlé, Lahav, Neugebauer and Noussair (2019) describe it: 9 traders, with 1, 2 or 3 units (three of each) and the rest of 652 francs in cash; four rounds of 15 periods, each a call market where each trader submits one bid and one ask (price and quantity), bids below asks; dividends of 0, 4, 14 or 30, equally likely (a value of 180 at the start). Before each period, traders forecast the price of every period left, paid for each forecast within 10, 25 or 50% of the price (50, 20 or 10, as Baghestanian et al. give HLN's rewards). The exchange rate is not given here. <em>9 traders, 4 markets of 15 periods, call market.</em><br>
+Source: Haruvy, E., Lahav, Y. and Noussair, C. N. (2007). Traders' expectations in asset markets: experimental evidence. American Economic Review 97(5), 1901–1920.</p>
+<p><strong>Kirchler, Huber and Stöckl (2012): declining value</strong> (<code>kirchler-huber-stockl-2012-declining</code>). The SSW markets of their working paper (Innsbruck 2009-26), the declining value of the study: 10 traders, half with 60 units and 1000 Taler, half with 20 units and 3000; two practice periods, then 10 periods of 120 seconds; a dividend of 0 or 10, equally likely, into cash, so that the value falls from 50 by 5 a period; orders of any size; 400 Taler to the euro. (The paper draws one dividend sequence in advance for all sessions; here they are drawn.) <em>10 traders, 10 periods, double auction, 2 practice periods.</em><br>
+Source: Kirchler, M., Huber, J. and Stöckl, T. (2012). Thar she bursts: reducing confusion reduces bubbles. American Economic Review 102(2), 865–883.</p>
+<p><strong>Kirchler, Huber and Stöckl (2012): declining value, gold mine</strong> (<code>kirchler-huber-stockl-2012-goldmine</code>). The declining-value market, with the asset called stocks of a depletable gold mine, the framing that reduced confusion and mispricing in the paper. <em>10 traders, 10 periods, double auction, 2 practice periods.</em><br>
+Source: Kirchler, M., Huber, J. and Stöckl, T. (2012). Thar she bursts: reducing confusion reduces bubbles. American Economic Review 102(2), 865–883.</p>
+<p><strong>Kirchler, Huber and Stöckl (2012): constant value and cash (T4)</strong> (<code>kirchler-huber-stockl-2012-t4</code>). Treatment T4, as Noussair and Tucker (2014) replicate it with KHS's program: 10 traders, half with 20 units and 3,000 Taler, half with 60 and 1,000; two practice periods, then 10 periods of 120 seconds; a dividend of −5 or +5, equally likely, into an account apart from cash, and 50 a unit after the last period, so the value is 50 throughout and the cash-to-asset ratio stays 1. No shorting or borrowing; 400 Taler to the euro. <em>10 traders, 10 periods, double auction, 2 practice periods.</em><br>
+Source: Kirchler, M., Huber, J. and Stöckl, T. (2012). Thar she bursts: reducing confusion reduces bubbles. American Economic Review 102(2), 865–883.</p>
+<p><strong>Kirchler, Huber and Stöckl (2012): constant value, rising cash (T2)</strong> (<code>kirchler-huber-stockl-2012-t2</code>). Treatment T2: as T4, with cash given to each trader after each period (444, 556, 714, 953, 1333, 2000, 3333, 6667, 20000 and 0), so that the cash-to-asset ratio rises from 1 to 19 (Noussair and Tucker 2014, table 2). <em>10 traders, 10 periods, double auction, 2 practice periods.</em><br>
+Source: Kirchler, M., Huber, J. and Stöckl, T. (2012). Thar she bursts: reducing confusion reduces bubbles. American Economic Review 102(2), 865–883.</p>
+<p><strong>Noussair and Tucker (2014): constant value, 20 times the cash</strong> (<code>noussair-tucker-2014-20x</code>). Treatment T4_20x: KHS's T4 with 20 times the cash, a cash-to-asset ratio of 20 throughout: half the traders with 20 units and 41,000 Taler, half with 60 units and 39,000. Paid in New Zealand dollars; the rate is not given here. <em>10 traders, 10 periods, double auction, 2 practice periods.</em><br>
+Source: Noussair, C. N. and Tucker, S. (2014). Cash inflows and bubbles in asset markets with constant fundamental values. University of Waikato working paper 03/14 (2014).</p>
+<p><strong>Lugovskyy, Puzzello, Tucker and Williams (2014): no cap</strong> (<code>lugovskyy-puzzello-tucker-williams-2014</code>). The Unconstrained treatment: 9 traders (7 to 12), each with 10 units and 10,000 francs; 15 periods (120 or 180 seconds; 180 here) with the dividends of Smith, Suchanek and Williams; a cognitive reflection test first, $2 a right answer; before each period, a forecast of the period's mean price, paid into an account apart from cash (at HLN's rewards, assumed here); 600 francs to the dollar (the US sessions). <em>9 traders, 15 periods, double auction.</em><br>
+Source: Lugovskyy, V., Puzzello, D., Tucker, S. and Williams, A. (2014). Asset-holdings caps and bubbles in experimental asset markets. Journal of Economic Behavior &amp; Organization (Waikato working paper 13/12, 2012).</p>
+<p><strong>Lugovskyy, Puzzello, Tucker and Williams (2014): permanent cap</strong> (<code>lugovskyy-puzzello-tucker-williams-2014-cap</code>). The Permanent Cap treatment: no trader may hold more than 18 units (1.8 times the endowment), in every period. Otherwise as the Unconstrained treatment. <em>9 traders, 15 periods, double auction.</em><br>
+Source: Lugovskyy, V., Puzzello, D., Tucker, S. and Williams, A. (2014). Asset-holdings caps and bubbles in experimental asset markets. Journal of Economic Behavior &amp; Organization.</p>
+<p><strong>Lugovskyy, Puzzello, Tucker and Williams (2014): short-term cap</strong> (<code>lugovskyy-puzzello-tucker-williams-2014-short-cap</code>). The Short-Term Cap treatment: the cap of 18 units is lifted at the start of period 9. <em>9 traders, 15 periods, double auction.</em><br>
+Source: Lugovskyy, V., Puzzello, D., Tucker, S. and Williams, A. (2014). Asset-holdings caps and bubbles in experimental asset markets. Journal of Economic Behavior &amp; Organization.</p>
+<p><strong>Eckel and Füllbrunn (2015)</strong> (<code>eckel-fullbrunn-2015</code>). From the instructions in the online appendix: 9 traders, 18 units in all; a practice period, then 15 periods of 240 seconds; dividends of 0, 8, 28 or 60 tokens into cash; a unit at a time; before each period, forecasts of the price of every period left, 5 tokens for each within 10% of the price, 2 within 25%, 1 within 50%; 100 tokens to the dollar. The endowments are those of Smith, Suchanek and Williams (3, 2 or 1 units), assumed here; the appendix does not give the cash. <em>9 traders, 15 periods, double auction, 1 practice period.</em><br>
+Source: Eckel, C. C. and Füllbrunn, S. C. (2015). Thar SHE blows? Gender, competition, and bubbles in experimental asset markets. American Economic Review 105(2), 906–920.</p>
+<p><strong>Giusti, Jiang and Xu (2014): interest on cash, falling value</strong> (<code>giusti-jiang-xu-2014-falling</code>). Treatment F (sessions F1, F2): 10 traders, each with 4 units and 2000; 15 periods of 150 seconds; dividends of Smith, Suchanek and Williams; 10% interest on cash each period, and 72 a unit after the last period, so the value falls from 200 to 87. A unit at a time; a practice period. The exchange rate is not given here. <em>10 traders, 15 periods, double auction, 1 practice period.</em><br>
+Source: Giusti, G., Jiang, J. H. and Xu, Y. (2014). Interest on cash, fundamental value process and bubble formation: an experimental study. Bank of Canada staff working paper 2014-18.</p>
+<p><strong>Giusti, Jiang and Xu (2014): interest on cash, rising value</strong> (<code>giusti-jiang-xu-2014-rising</code>). Treatment R (sessions R1 to R3): as F, with 720 a unit after the last period, so the value rises from 355 to 676. <em>10 traders, 15 periods, double auction, 1 practice period.</em><br>
+Source: Giusti, G., Jiang, J. H. and Xu, Y. (2014). Interest on cash, fundamental value process and bubble formation: an experimental study. Bank of Canada staff working paper 2014-18.</p>
+<p><strong>Giusti, Jiang and Xu (2014): negative dividends and interest</strong> (<code>giusti-jiang-xu-2014-negative</code>). Treatment N (sessions N1 to N3): a holding cost of 0, 8, 28 or 60 a unit each period, a charge of 10% on cash, 500 a unit after the last period, and 50,000 in cash each: the value falls from 1503 to 529. <em>10 traders, 15 periods, double auction, 1 practice period.</em><br>
+Source: Giusti, G., Jiang, J. H. and Xu, Y. (2014). Interest on cash, fundamental value process and bubble formation: an experimental study. Bank of Canada staff working paper 2014-18.</p>
+<p><strong>Huber, Bindra and Kleinlercher (2019): constant value, rising cash</strong> (<code>huber-bindra-kleinlercher-2019</code>). The BASE treatment, run with GIMS: 8 traders, each with 20 units and 560 Taler; two practice periods, then 20 periods of 120 seconds; dividends of 1.20 or 1.60, equally likely, 5% interest on cash after trading, 100 Taler to each trader after each period, and 28 a unit after the last period, so the value is 28 throughout. Before each period, forecasts of the mean price this period and the next two, 50 Taler for each within 5%. 400 Taler to the euro. The chart's scale (their treatment variable) is not reproduced. <em>8 traders, 20 periods, double auction, 2 practice periods.</em><br>
+Source: Huber, J., Bindra, P. C. and Kleinlercher, D. (2019). Design-features of bubble-prone experimental asset markets with a constant FV. Journal of the Economic Science Association.</p>
+<p><strong>Baghestanian, Lugovskyy, Puzzello and Tucker: double auction</strong> (<code>baghestanian-lugovskyy-puzzello-tucker-da</code>). The Double Auction treatment: 9 traders, each with 10 units and 10,000 francs; 15 periods of 3 minutes with the dividends of Smith, Suchanek and Williams; a unit at a time, at most 10 units bought a period; a cognitive reflection test first ($2 a right answer); before each period, a forecast of its mean price (50, 20 or 10 francs within 10, 25 or 50%), paid apart from cash. The exchange rate (not given) is that of related US sessions, 600 francs to the dollar. <em>9 traders, 15 periods, double auction.</em><br>
+Source: Baghestanian, S., Lugovskyy, V., Puzzello, D. and Tucker, S. Trading institutions in experimental asset markets: theory and evidence (working paper).</p>
+<p><strong>Baghestanian, Lugovskyy, Puzzello and Tucker: call market</strong> (<code>baghestanian-lugovskyy-puzzello-tucker-call</code>). The Call Market treatment: as the double auction, with a closed-book call market each period: one buy and one sell order each (a quantity and a price), buy prices below sell prices; ties for the last units broken at random. Forecasts are of the market price. (Their price is the lowest that clears the market; GIMS's rule, used here, picks among the clearing prices by its own steps.) <em>9 traders, 15 periods, call market.</em><br>
+Source: Baghestanian, S., Lugovskyy, V., Puzzello, D. and Tucker, S. Trading institutions in experimental asset markets: theory and evidence (working paper).</p>
+<p><strong>Tucker and Xu (2024): one market</strong> (<code>tucker-xu-2024-onemkt</code>). The OneMkt baseline of their replication of Lei, Noussair and Plott: 8 traders, each with 10 units and 10,000 francs; 15 periods of 3 minutes; the dividends of Smith, Suchanek and Williams, into an account apart from cash. Paid in New Zealand dollars; the rate is not given here. <em>8 traders, 15 periods, double auction.</em><br>
+Source: Tucker, S. and Xu, Y. (2024). Nonspeculative bubbles revisited. Journal of Behavioral and Experimental Finance (Waikato working paper 1/24).</p>
+<p><strong>Tucker and Xu (2024): no speculation</strong> (<code>tucker-xu-2024-nospec</code>). Their NoSpec treatment: half the traders are buyers with 10,000 francs and no units, who can only buy; half are sellers with 10 units and no cash, who can only sell. Otherwise as OneMkt. <em>8 traders, 15 periods, double auction.</em><br>
+Source: Tucker, S. and Xu, Y. (2024). Nonspeculative bubbles revisited. Journal of Behavioral and Experimental Finance (Waikato working paper 1/24).</p>
+<h4>GIMS's settings in jtree</h4>
+<table>
+<thead>
+<tr>
+<th>GIMS (globals)</th>
+<th>jtree setting</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>NumPeriods</code>, <code>PracticePeriod</code></td>
+<td><code>periods</code>, <code>practicePeriods</code> (and <code>rounds</code> for repeated markets)</td>
+</tr>
+<tr>
+<td><code>ContinuousDoubleAuction</code>, <code>CallAuction</code></td>
+<td><code>mechanism</code>: <code>'cda'</code>, <code>'call'</code> or <code>'call+cda'</code></td>
+</tr>
+<tr>
+<td><code>TimeContinuousDoubleAuction</code>, <code>TimeCallAuction</code>, <code>TimeContinuousDoubleAuctionResults</code></td>
+<td><code>tradingTime</code>, <code>callTime</code>, <code>resultsTime</code></td>
+</tr>
+<tr>
+<td><code>NumMarkets</code>, <code>BBV[]</code>, <code>dividends</code> table, <code>PresetDividends</code></td>
+<td><code>assets: [{ name, dividends, buyback, dividendSequence }]</code></td>
+</tr>
+<tr>
+<td><code>endowments</code> table, <code>EndowmentFillerType</code></td>
+<td><code>endowments: [{ cash, assets, role }]</code>, <code>fillerType</code></td>
+</tr>
+<tr>
+<td><code>MultiUnitTrading</code>, <code>TickSize</code></td>
+<td><code>multiUnit</code>, <code>tickSize</code></td>
+</tr>
+<tr>
+<td><code>OfferImprovementRule</code>, <code>EmptyBookAfterTrade</code>, <code>PartialInvalidation</code>, <code>SpamControl</code></td>
+<td><code>offerImprovement</code>, <code>emptyBookAfterTrade</code>, <code>partialInvalidation</code>, <code>maxOpenOrders</code></td>
+</tr>
+<tr>
+<td><code>MakeFee</code>, <code>TakeFee</code></td>
+<td><code>makeFee</code>, <code>takeFee</code></td>
+</tr>
+<tr>
+<td><code>ShortingCapacityCash</code>, <code>ShortingCapacityAssets</code></td>
+<td><code>shortCash</code>, <code>shortAssets</code></td>
+</tr>
+<tr>
+<td><code>OrderBookDepth</code>, <code>PriceListDepth</code>, <code>ShowPricelist</code>, <code>ShowChart</code></td>
+<td><code>orderBookDepth</code>, <code>priceListDepth</code>, <code>showPriceList</code>, <code>showChart</code></td>
+</tr>
+<tr>
+<td><code>EarlyEndingVote</code>, <code>PracticeTasks</code></td>
+<td><code>earlyEndingVote</code>, <code>practiceTasks</code></td>
+</tr>
+<tr>
+<td><code>NumTypedOffersCallAuction</code>, <code>AllowMarketOrders</code>, <code>MarketOrderPriority</code>, <code>IndicativePriceInterval</code></td>
+<td><code>callMaxOrders</code>, <code>marketOrders</code>, <code>marketOrderPriority</code>, <code>indicativePriceInterval</code></td>
+</tr>
+<tr>
+<td><code>signals</code> table</td>
+<td><code>assets: [{ signals }]</code></td>
+</tr>
+<tr>
+<td><code>IndependentPeriods</code>, <code>CarryOverWealth</code>, <code>RandomPeriodPayoff</code></td>
+<td><code>rounds</code> (a round of 1 period is an independent period), <code>payment: 'random'</code></td>
+</tr>
+<tr>
+<td><code>ExchangeRate</code>, <code>MinPayoffECU</code></td>
+<td><code>exchangeRate</code>, <code>minPayoff</code></td>
+</tr>
+<tr>
+<td><code>ControlQuestions</code>, <code>CRTBefore</code>/<code>CRTAfter</code>, <code>HLBefore</code>/<code>HLAfter</code></td>
+<td><code>controlQuestions</code>, <code>crt</code>, <code>holtLaury</code> (and <code>crtPay</code>, <code>holtLauryPayoffs</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>Beyond GIMS, for the presets: <code>rounds</code>, <code>dividendAccount</code>, <code>interest</code>, <code>cashInflow</code>, <code>holdingCap</code> and <code>holdingCapUntil</code>, <code>purchaseLimit</code>, trader <code>role</code>s, <code>forecasts</code>, <code>bonus</code>, <code>loan</code>, <code>rationing</code> and <code>showFundamentalValue</code>.</p>
+<h4>How it differs from GIMS</h4>
+<ul>
+<li><strong>The same</strong>: order validation (each order feasible on its own; trades cannot be with oneself), automatic invalidation after each trade, the improvement and no-crossing rules, accepting only the best order, fees, shorting, GIMS's five-step call auction price (volume, then the smallest surplus, then the side with the surplus, then the average rounded down) and its settlement by price, then market orders and orders at the price by time; dividends drawn once per period and market, also paid on short positions; earnings of cash plus the buyback value of units.</li>
+<li><strong>Different</strong>: &quot;Buy&quot; and &quot;Sell&quot; take the best order of other traders (GIMS's best order may be one's own, which cannot be taken). A call auction's market order trades only what its trader's cash can pay for at the auction price (GIMS warns that market orders can bankrupt a trader). Fees apply to the double auction only. When the volume-maximizing prices with the smallest surplus all have a surplus on the same side, the highest (or lowest) is taken however many they are, as GIMS's manual describes the rule; GIMS's code does so only when they are two.</li>
+<li><strong>Not here</strong>: GIMS's financial literacy questions and exit questionnaire, its German screens, its experimenter z-Leaf (jtree's admin shows each participant's screen and data) and its timelog (jtree records the order book and trades, as tables of each group, and every player's account, in the session's data).</li>
+</ul>
+<h4>Checks</h4>
+<p><code>server/test/gims.test.js</code> tests the engine on its own (the order rules, invalidation, the five price rules, settlement, the value of a unit against Giusti, Jiang and Xu's table), loads every preset, and plays sessions of several with bots, checking each trader's earnings: SSW's market, KHS's constant-value market with its practice period, cash inflows and buyback, HLN's call market with forecasts, Tucker and Xu's buyers and sellers with a holding cap and the vote to end a period, a market with control questions, the CRT, lotteries, short selling, interest and a random market paid, and signals and indicative prices in a call auction.</p>
+<h4>Citing</h4>
+<p>Results of experiments run with it should cite GIMS: Palan, S. (2015), &quot;GIMS — Software for asset market experiments&quot;, <em>Journal of Behavioral and Experimental Finance</em> 5, 1–14 (GIMS's licence asks for this), and the paper whose design a preset follows.</p>
+</article>
+
+</section>
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AdminAuth.html">AdminAuth</a></li><li><a href="App.html">App</a></li><li><a href="Client.html">Client</a></li><li><a href="Data.html">Data</a></li><li><a href="Exit.html">Exit</a></li><li><a href="Group.html">Group</a></li><li><a href="Logger.html">Logger</a></li><li><a href="Msgs.html">Msgs</a></li><li><a href="Participant.html">Participant</a></li><li><a href="Period.html">Period</a></li><li><a href="Player.html">Player</a></li><li><a href="Queue.html">Queue</a></li><li><a href="QueueRecorder.html">QueueRecorder</a></li><li><a href="Reader.html">Reader</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomClient.html">RoomClient</a></li><li><a href="RoomParticipant.html">RoomParticipant</a></li><li><a href="Run.html">Run</a></li><li><a href="Screens.html">Screens</a></li><li><a href="Session.html">Session</a></li><li><a href="Settings.html">Settings</a></li><li><a href="SocketServer.html">SocketServer</a></li><li><a href="Stage.html">Stage</a></li><li><a href="StaticServer.html">StaticServer</a></li><li><a href="Table.html">Table</a></li><li><a href="Timer.html">Timer</a></li><li><a href="Translator.html">Translator</a></li><li><a href="User.html">User</a></li><li><a href="Utils.html">Utils</a></li><li><a href="clParticipant.html">clParticipant</a></li><li><a href="clPlayer.html">clPlayer</a></li><li><a href="clStage.html">clStage</a></li><li><a href="global.html#start">start</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-1-quick-start.html">Quick Start</a></li><li><a href="tutorial-2-setup.html">Setup</a></li><li><a href="tutorial-3-running-a-session.html">Running a Session</a></li><li><a href="tutorial-4-designing-an-app.html">Designing an App</a></li><li><a href="tutorial-4a-ztree.html">z-Tree treatments</a></li><li><a href="tutorial-4b-otree.html">oTree apps</a></li><li><a href="tutorial-4c-samples.html">Samples library</a></li><li><a href="tutorial-4d-gims.html">GIMS asset markets</a></li><li><a href="tutorial-5-clients.html">Writing the client</a></li><li><a href="tutorial-6-server.html">Writing the server</a></li><li><a href="tutorial-7-release-notes.html">Release Notes</a></li><li><a href="tutorial-8-advanced.html">Developers</a></li><li><a href="tutorial-README.html">README</a></li><li><a href="tutorial-other.html">Other</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ADMIN_LOGIN_REQUIRED">ADMIN_LOGIN_REQUIRED</a></li><li><a href="global.html#APP_HOOKS">APP_HOOKS</a></li><li><a href="global.html#CLOSES">CLOSES</a></li><li><a href="global.html#STAGE_HOOKS">STAGE_HOOKS</a></li><li><a href="global.html#addToClass">addToClass</a></li><li><a href="global.html#allBoxes">allBoxes</a></li><li><a href="global.html#appCSV">appCSV</a></li><li><a href="global.html#appFile">appFile</a></li><li><a href="global.html#appInsertAt">appInsertAt</a></li><li><a href="global.html#appRoots">appRoots</a></li><li><a href="global.html#appTemplate">appTemplate</a></li><li><a href="global.html#appToIR">appToIR</a></li><li><a href="global.html#apply">apply</a></li><li><a href="global.html#applyIR">applyIR</a></li><li><a href="global.html#applySettings">applySettings</a></li><li><a href="global.html#applyStages">applyStages</a></li><li><a href="global.html#arrayDeclarations">arrayDeclarations</a></li><li><a href="global.html#arrayIndex">arrayIndex</a></li><li><a href="global.html#assignedVariables">assignedVariables</a></li><li><a href="global.html#attrSource">attrSource</a></li><li><a href="global.html#boolValue">boolValue</a></li><li><a href="global.html#botCases">botCases</a></li><li><a href="global.html#boxOptions">boxOptions</a></li><li><a href="global.html#callLive">callLive</a></li><li><a href="global.html#chat">chat</a></li><li><a href="global.html#chatFor">chatFor</a></li><li><a href="global.html#check">check</a></li><li><a href="global.html#checkField">checkField</a></li><li><a href="global.html#checkForm">checkForm</a></li><li><a href="global.html#compileProgram">compileProgram</a></li><li><a href="global.html#compiled">compiled</a></li><li><a href="global.html#context">context</a></li><li><a href="global.html#contractList">contractList</a></li><li><a href="global.html#convertApp">convertApp</a></li><li><a href="global.html#convertTreatment">convertTreatment</a></li><li><a href="global.html#convertTreatmentFile">convertTreatmentFile</a></li><li><a href="global.html#copyDir">copyDir</a></li><li><a href="global.html#copyToPlayer">copyToPlayer</a></li><li><a href="global.html#creatingSessionBeforeArrival">creatingSessionBeforeArrival</a></li><li><a href="global.html#cut">cut</a></li><li><a href="global.html#decimals">decimals</a></li><li><a href="global.html#declared">declared</a></li><li><a href="global.html#dedent">dedent</a></li><li><a href="global.html#describe">describe</a></li><li><a href="global.html#describeValue">describeValue</a></li><li><a href="global.html#dialectFor">dialectFor</a></li><li><a href="global.html#drawn">drawn</a></li><li><a href="global.html#edit">edit</a></li><li><a href="global.html#encode">encode</a></li><li><a href="global.html#endSoon">endSoon</a></li><li><a href="global.html#errorPosition">errorPosition</a></li><li><a href="global.html#exportTables">exportTables</a></li><li><a href="global.html#exporter">exporter</a></li><li><a href="global.html#exportersFor">exportersFor</a></li><li><a href="global.html#expression">expression</a></li><li><a href="global.html#fail">fail</a></li><li><a href="global.html#file">file</a></li><li><a href="global.html#fillValues">fillValues</a></li><li><a href="global.html#findBox">findBox</a></li><li><a href="global.html#finite">finite</a></li><li><a href="global.html#formatText">formatText</a></li><li><a href="global.html#formatValue">formatValue</a></li><li><a href="global.html#fromDescription">fromDescription</a></li><li><a href="global.html#getBridge">getBridge</a></li><li><a href="global.html#grid">grid</a></li><li><a href="global.html#history">history</a></li><li><a href="global.html#identifiers">identifiers</a></li><li><a href="global.html#inAppFolders">inAppFolders</a></li><li><a href="global.html#indent">indent</a></li><li><a href="global.html#indentBy">indentBy</a></li><li><a href="global.html#indentLines">indentLines</a></li><li><a href="global.html#insertAfter">insertAfter</a></li><li><a href="global.html#isInteractive">isInteractive</a></li><li><a href="global.html#isProject">isProject</a></li><li><a href="global.html#isSessionsLastPage">isSessionsLastPage</a></li><li><a href="global.html#isText">isText</a></li><li><a href="global.html#isTextFile">isTextFile</a></li><li><a href="global.html#itemCell">itemCell</a></li><li><a href="global.html#itemsTable">itemsTable</a></li><li><a href="global.html#jsonErrorPosition">jsonErrorPosition</a></li><li><a href="global.html#keepingLineEnds">keepingLineEnds</a></li><li><a href="global.html#lanAddress">lanAddress</a></li><li><a href="global.html#lastFirst">lastFirst</a></li><li><a href="global.html#layoutEnd">layoutEnd</a></li><li><a href="global.html#layoutParts">layoutParts</a></li><li><a href="global.html#leaveIfAsked">leaveIfAsked</a></li><li><a href="global.html#leavesStage">leavesStage</a></li><li><a href="global.html#legacyValue">legacyValue</a></li><li><a href="global.html#lineIndent">lineIndent</a></li><li><a href="global.html#lines">lines</a></li><li><a href="global.html#loadPackagesFor">loadPackagesFor</a></li><li><a href="global.html#measure">measure</a></li><li><a href="global.html#memberAssignment">memberAssignment</a></li><li><a href="global.html#model">model</a></li><li><a href="global.html#mountProject">mountProject</a></li><li><a href="global.html#newTreatment">newTreatment</a></li><li><a href="global.html#nodeAt">nodeAt</a></li><li><a href="global.html#normalizeCode">normalizeCode</a></li><li><a href="global.html#openUrl">openUrl</a></li><li><a href="global.html#ownLine">ownLine</a></li><li><a href="global.html#owner">owner</a></li><li><a href="global.html#packageFor">packageFor</a></li><li><a href="global.html#pageTimesCSV">pageTimesCSV</a></li><li><a href="global.html#paramCell">paramCell</a></li><li><a href="global.html#parse">parse</a></li><li><a href="global.html#parseExpr">parseExpr</a></li><li><a href="global.html#parseLayout">parseLayout</a></li><li><a href="global.html#parseQueueId">parseQueueId</a></li><li><a href="global.html#pathAfterRemoving">pathAfterRemoving</a></li><li><a href="global.html#place">place</a></li><li><a href="global.html#plot">plot</a></li><li><a href="global.html#plotInput">plotInput</a></li><li><a href="global.html#plotItemAt">plotItemAt</a></li><li><a href="global.html#prefixHtmlUrls">prefixHtmlUrls</a></li><li><a href="global.html#pressButton">pressButton</a></li><li><a href="global.html#program">program</a></li><li><a href="global.html#programItems">programItems</a></li><li><a href="global.html#putApp">putApp</a></li><li><a href="global.html#putSettings">putSettings</a></li><li><a href="global.html#py">py</a></li><li><a href="global.html#queueId">queueId</a></li><li><a href="global.html#queueScript">queueScript</a></li><li><a href="global.html#quote">quote</a></li><li><a href="global.html#quotedEnd">quotedEnd</a></li><li><a href="global.html#readGameHeader">readGameHeader</a></li><li><a href="global.html#readQuestionnaires">readQuestionnaires</a></li><li><a href="global.html#readScreen">readScreen</a></li><li><a href="global.html#readTextQuestionnaires">readTextQuestionnaires</a></li><li><a href="global.html#readTextTreatment">readTextTreatment</a></li><li><a href="global.html#readTreatment">readTreatment</a></li><li><a href="global.html#ready">ready</a></li><li><a href="global.html#refresh">refresh</a></li><li><a href="global.html#register">register</a></li><li><a href="global.html#reload">reload</a></li><li><a href="global.html#renderScreen">renderScreen</a></li><li><a href="global.html#reportMarkdown">reportMarkdown</a></li><li><a href="global.html#rooms">rooms</a></li><li><a href="global.html#router">router</a></li><li><a href="global.html#rtfToText">rtfToText</a></li><li><a href="global.html#run">run</a></li><li><a href="global.html#runAppCode">runAppCode</a></li><li><a href="global.html#runBots">runBots</a></li><li><a href="global.html#runOf">runOf</a></li><li><a href="global.html#runZtreeBots">runZtreeBots</a></li><li><a href="global.html#scan">scan</a></li><li><a href="global.html#screen">screen</a></li><li><a href="global.html#screenProp">screenProp</a></li><li><a href="global.html#sessionConfigs">sessionConfigs</a></li><li><a href="global.html#settleBoxes">settleBoxes</a></li><li><a href="global.html#stageDeclaration">stageDeclaration</a></li><li><a href="global.html#stageMeaning">stageMeaning</a></li><li><a href="global.html#stageVariable">stageVariable</a></li><li><a href="global.html#statementRange">statementRange</a></li><li><a href="global.html#str">str</a></li><li><a href="global.html#subjectIndex">subjectIndex</a></li><li><a href="global.html#submitGeneric">submitGeneric</a></li><li><a href="global.html#substitutionAt">substitutionAt</a></li><li><a href="global.html#syntaxErrors">syntaxErrors</a></li><li><a href="global.html#tableRecords">tableRecords</a></li><li><a href="global.html#tablesChangedTimers">tablesChangedTimers</a></li><li><a href="global.html#template">template</a></li><li><a href="global.html#templateLiteral">templateLiteral</a></li><li><a href="global.html#templates">templates</a></li><li><a href="global.html#text">text</a></li><li><a href="global.html#textParts">textParts</a></li><li><a href="global.html#toTreatment">toTreatment</a></li><li><a href="global.html#tokenize">tokenize</a></li><li><a href="global.html#topInsert">topInsert</a></li><li><a href="global.html#treatmentFile">treatmentFile</a></li><li><a href="global.html#unindent">unindent</a></li><li><a href="global.html#urlFor">urlFor</a></li><li><a href="global.html#useSettings">useSettings</a></li><li><a href="global.html#validate">validate</a></li><li><a href="global.html#value">value</a></li><li><a href="global.html#valueFor">valueFor</a></li><li><a href="global.html#valueKind">valueKind</a></li><li><a href="global.html#valueSource">valueSource</a></li><li><a href="global.html#variables">variables</a></li><li><a href="global.html#whenReady">whenReady</a></li><li><a href="global.html#wideCSV">wideCSV</a></li><li><a href="global.html#withBlocks">withBlocks</a></li><li><a href="global.html#withStatics">withStatics</a></li><li><a href="global.html#write">write</a></li><li><a href="global.html#written">written</a></li><li><a href="global.html#zTreeRules">zTreeRules</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Oct 18 2026 14:00:30 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
