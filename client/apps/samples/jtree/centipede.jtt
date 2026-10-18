@@ -7,9 +7,9 @@ app.potMultiplier = 2;
 app.takerShare  = 0.8;
 app.numMoves    = 6;
 
-// One stage per move: player 1 moves on moves 1, 3 and 5, player 2 on moves 2, 4 and 6.
+// One stage per move: player 1 moves on moves 1, 3 and 5, player 2 on moves 2, 4 and 6. A stage's
+// functions find their move from its id (this is the stage), so that they need nothing but app.
 for (let move = 1; move <= app.numMoves; move++) {
-    let moverId = move % 2 === 1 ? 1 : 2;
     let moveStage = app.newStage('move' + move);
     if (move === 1) {
         moveStage.groupStart = function(group) {
@@ -18,6 +18,8 @@ for (let move = 1; move <= app.numMoves; move++) {
         }
     }
     moveStage.canPlayerParticipate = function(player) {
+        let move = Number(this.id.slice('move'.length));
+        let moverId = move % 2 === 1 ? 1 : 2;
         return player.idInGroup === moverId && player.group.takenAt === 0;
     }
     moveStage.activeScreen = `
@@ -30,7 +32,7 @@ for (let move = 1; move <= app.numMoves; move++) {
     `;
     moveStage.playerEnd = function(player) {
         if (player.take) {
-            player.group.takenAt = move;
+            player.group.takenAt = Number(this.id.slice('move'.length));
         } else {
             player.group.pot = player.group.pot * app.potMultiplier;
         }

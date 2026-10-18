@@ -15,13 +15,10 @@ before(async () => { server = await startServer(); });
 after(async () => { await server.close(); });
 
 // What a description of a jtree app cannot carry: functions that use names from their app
-// file other than app and Utils (see appToIR).
-// Nor values the app file computes from options when it runs: those are described as they
-// came out with the options' defaults.
-const CANNOT = {
-    'centipede.jtt': 'its stages are made in a loop, and their functions use its variables (move, moverId)',
-    'real-effort.jtt': "its work stage's duration is computed from the workTime option",
-};
+// file other than app and Utils (see appToIR); nor values the app file computes from options
+// when it runs (they are described as they came out with the options' defaults). The samples
+// avoid both, so that every one of them can be described.
+const CANNOT = {};
 
 /** The description of the game in file, as a .app.json in the test's data folder. */
 function describe(file) {

@@ -204,6 +204,20 @@ test('live pages, in oTree: liveSend reaches live_method, what it returns reache
     assert.deepEqual(times.slice(1).map(r => [r[2], r[3], r[4], r[5]]), [['P1', '1', 'live_bids', 'Bid'], ['P2', '1', 'live_bids', 'Bid']]);
 });
 
+test("js_vars are computed again when a page connects, as oTree computes them for each request", async () => {
+    // The samples' Dutch auction: its js_vars give the time since the auction started.
+    const session = server.createSession(path.join(__dirname, '../../client/apps/samples/otree/dutch_auction/__init__.py'), { numParticipants: 3 });
+    session.start();
+    const player = () => session.participants.P1.player;
+    const end = Date.now() + 10000;
+    while (!(player() && player().stage && player().stage.id === 'Auction') && Date.now() < end) await new Promise((r) => setTimeout(r, 20));
+    assert.equal(player().stage.id, 'Auction');
+    assert.ok(player().otreeJsVars.elapsed < 0.5);
+    await new Promise((r) => setTimeout(r, 1200));
+    await server.connect(session, 'P1');
+    assert.ok(player().otreeJsVars.elapsed >= 1.2, 'elapsed ' + player().otreeJsVars.elapsed);
+});
+
 // The apps' own bots (tests.py), run by jtree (dialects/otree/bots.js).
 const { runBots } = require('../source/dialects/otree/bots.js');
 

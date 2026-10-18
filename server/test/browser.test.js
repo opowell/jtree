@@ -94,11 +94,18 @@ test("an oTree live page ending itself: the samples' Dutch auction, bought on on
     session.start();
     const pages = await openParticipants(session);
     for (const page of pages) await page.waitFor(() => /The item is worth/.test(document.body.innerText), { what: 'the auction' });
+    // The price falls by 5 every 2 seconds from the auction's start, on the server; the page's
+    // countdown, from its js_vars, can lag it by the time the page took to start its script.
+    const shown = Number(await pages[0].eval(() => document.getElementById('price').innerText));
     await pages[0].click('button', 'Buy');
     for (const page of pages) {
         await page.waitFor(() => /bought the item|Another bidder bought/.test(document.body.innerText), { what: 'the results', timeout: 10000 });
     }
-    assert.match(await visibleText(pages[0]), /You bought the item, worth \d+ to you, for 100\./);
+    const bought = (await visibleText(pages[0])).match(/You bought the item, worth (\d+) to you, for (\d+)\.\s+Your payoff: (-?\d+)\./);
+    assert.ok(bought, 'the buyer is told they bought the item, and their payoff');
+    const [value, paid, payoff] = bought.slice(1).map(Number);
+    assert.ok(paid % 5 === 0 && paid <= shown, 'paid ' + paid + ', shown ' + shown);
+    assert.equal(payoff, value - paid);
     for (const page of pages) {
         assert.deepEqual(page.errors, []);
         await page.close();

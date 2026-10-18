@@ -15,7 +15,11 @@ app.newSum = function(player) {
 }
 
 let workStage = app.newStage('work');
-workStage.duration = app.workTime;
+// The workTime option, read when a group starts the stage (a program, not a number fixed when the
+// file runs), so that a description of the app keeps it.
+workStage.getGroupDuration = function(group) {
+    return app.workTime;
+}
 workStage.playerStart = function(player) {
     player.attempted = 0;
     player.solved = 0;

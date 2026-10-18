@@ -187,6 +187,12 @@ function definePage(app, page, pkg) {
             console.log('Error showing page ' + page.name + ' to ' + player.roomId() + ': ' + err.message);
         }
     };
+    // js_vars again when a page connects (see the app's addClient): oTree computes them for each
+    // request of the page, so a page that loads later (or is reloaded) gets them as they are then,
+    // e.g. the time since something started.
+    if (has('js_vars')) {
+        stage.otreeJsVars = (player) => runtime.getBridge().js_vars(pkg, page.name, player);
+    }
     if (has('live_method')) {
         stage.otreeLive = true;
     }
@@ -254,6 +260,16 @@ module.exports = {
         }
         app.otree = { pkg, constants: info.constants, roles: info.roles, fields: info.fields };
         app.playerFieldsNotInOutput = ['otreeHtml', 'otreeJsVars', 'otreeError', 'otreeChats'];
+        // A page connecting gets its js_vars as they are now, as oTree renders them per request.
+        app.addClient = (client) => {
+            const player = client.participant && client.participant.player;
+            if (player == null || player.stage == null || player.stage.otreeJsVars == null || player.otreeError != null) return;
+            try {
+                player.otreeJsVars = player.stage.otreeJsVars(player);
+            } catch (err) {
+                console.log('Error computing js_vars for ' + player.roomId() + ': ' + err.message);
+            }
+        };
         app.shortId = info.name || path.basename(dir);
         app.title = info.name || path.basename(dir);
         if (info.doc) app.description = info.doc;
