@@ -87,31 +87,39 @@ export const workspace = reactive({
 })
 
 /**
- * A split drawn without a bar is here only to hold the panels in it, not a place of its own,
- * so once the last of them has gone it goes too, its share going to those beside it. appfr
- * keeps an empty headless space, which here would be a blank box nobody asked for. Returns
- * the node itself when nothing in it was empty, so the watch below stops at once.
+ * A split is here to divide a space between the things in it, so once it holds only one thing
+ * it is that thing: otherwise each split around it draws a border of its own, a border around a
+ * border around the one panel left. One given a name is kept, since the name is said about it,
+ * as is one that remembers the desktop it was tiled from (`places`), its only way back. A split
+ * drawn without a bar is, besides, here only to hold the panels in it, so once the last of them
+ * has gone it goes too, its share going to those beside it: appfr keeps an empty headless space,
+ * which here would be a blank box nobody asked for.
+ *
+ * appfr's `normalizeLayout` would collapse the first kind too, but not the second, and it
+ * builds a new tree every time, which the watch below could not stop on. This returns the node
+ * itself when nothing in it changed, so the watch stops at once.
  */
-function dropEmptySplits(node: WindowNode): WindowNode {
+function tidySplits(node: WindowNode): WindowNode {
   if (node.kind !== 'split') return node
   const shares = normalizeSizes(node.children.length, node.sizes)
   const children: WindowNode[] = []
   const sizes: number[] = []
   node.children.forEach((child, i) => {
-    const next = dropEmptySplits(child)
+    const next = tidySplits(child)
     if (next.kind === 'split' && next.headless && next.children.length === 0) return
     children.push(next)
     sizes.push(shares[i])
   })
+  if (children.length === 1 && !node.title && !node.places) return children[0]
   const changed = children.length !== node.children.length || children.some((child, i) => child !== node.children[i])
   return changed ? { ...node, children, sizes: normalizeSizes(children.length, sizes) } : node
 }
 
-// Layouts saved before this, in an address or this browser, may hold one already.
+// Layouts made before this, in an address or this browser, may hold such splits already.
 watch(
   () => workspace.layout,
   (layout) => {
-    const next = layout && dropEmptySplits(layout)
+    const next = layout && tidySplits(layout)
     if (next !== layout) workspace.layout = next
   },
   { immediate: true },
