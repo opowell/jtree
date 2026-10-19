@@ -27,7 +27,9 @@ and their arrangement are in the address bar (`?w=…`, appfr's `useLayoutRoute`
 sharing Browse's address-bar adapter in `workspace.ts`), so a reload keeps them
 and a link opens them as they were. They are also saved in the browser, with the
 theme, for an address without `w`; **Window → Reset layout** restores the
-default. The default's splits draw no bar (`headless`), and appfr keeps such a
+default. The outermost space draws no bar or border (appfr's `rootBar` off), so
+the panels sit straight in the window; how it is shown (row, column, tabs or
+desktop) is **Window → Arrange**, appfr's `rootMenu`. The default's splits draw no bar (`headless`), and appfr keeps such a
 space when its last panel goes, so `workspace.ts` drops an empty one from the
 layout rather than leave a blank box where it was; and a split left holding one
 thing is that thing, rather than a border drawn around a border around it. A panel's ⋯ menu pops it out to a browser window holding it alone
@@ -49,9 +51,9 @@ localStorage, keyed by their source, so unchanged files are not compiled again.
 | `src/` | The interface |
 
 The libraries are in `client/internal/clients/shared/`, served at `/shared/`:
-Vue 3.5.43 (`vue-3.5.43/`), vue3-sfc-loader 0.9.5, appfr 0.57.0
-(`header-content-layout-0.57.0/`, the `dist/` of appfr commit
-`a05d2eed13df9e0c7da5d27dfacd2f3a0adccb79`), CodeMirror 6 (`codemirror-6.43.14/`,
+Vue 3.5.43 (`vue-3.5.43/`), vue3-sfc-loader 0.9.5, appfr 0.58.0
+(`header-content-layout-0.58.0/`, the `dist/` of appfr commit
+`706e889eac653f047db96874b3a4e0e5a818a989`), CodeMirror 6 (`codemirror-6.43.14/`,
 built by `build-tools/codemirror/`), circular-json 0.5.9, and the
 socket.io client that the server provides. To update one, add the new version's
 files next to the old ones and change the paths in `index.html`.

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, toRef } from 'vue'
+import { computed, ref, toRef } from 'vue'
 import { MenuBar, SHELL_THEMES, useLayoutRoute, WindowFrame } from 'header-content-layout'
 import type { MenuItemDef, WindowNode, WindowPanelDef } from 'header-content-layout'
 import ShellPanel from './panels/ShellPanel.vue'
@@ -39,6 +39,11 @@ function setLayout(next: WindowNode | null) {
 }
 
 const popOut = (panel: WindowPanelDef) => layoutRoute.popOutHref(panel.id)
+
+// The window's outermost space draws no bar of its own; how it is shown (row, column, tabs,
+// desktop) is chosen from Window → Arrange, which is the menu that bar would have had.
+const frame = ref<InstanceType<typeof WindowFrame> | null>(null)
+const arrange = computed<MenuItemDef[]>(() => frame.value?.rootMenu ?? [])
 
 const menus = computed<MenuItemDef[]>(() => {
   const s = session.value
@@ -89,6 +94,7 @@ const menus = computed<MenuItemDef[]>(() => {
           action: () => togglePanel(id),
         })),
         { separator: true },
+        { label: 'Arrange', disabled: !arrange.value.length, items: arrange.value },
         {
           label: 'Theme',
           items: SHELL_THEMES.map((theme) => ({
@@ -120,6 +126,7 @@ const menus = computed<MenuItemDef[]>(() => {
     </header>
 
     <WindowFrame
+      ref="frame"
       class="admin__frame"
       :panels="panels"
       :layout="workspace.layout"
@@ -128,6 +135,7 @@ const menus = computed<MenuItemDef[]>(() => {
       closable
       :pop-out="solo ? undefined : popOut"
       :solo="solo"
+      :root-bar="false"
       @update:layout="setLayout"
       @panel-close="closePanel"
       @panel-pop-out="closePanel($event.panel)"
