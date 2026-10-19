@@ -35,8 +35,13 @@ function query({ query, schema, entity, limit, offset }: QueryRequest): QueryRes
   let population = 0
   const matched: ShellRow[] = []
 
+  // Apps that opted out of being listed show only when asked for.
+  const unlistedFacet = query.facets.unlisted
+  const showUnlisted = entity?.key === 'apps' && unlistedFacet?.kind === 'toggle' && unlistedFacet.on
+
   for (const candidate of scope) {
     for (const row of rowsFor(candidate.key)) {
+      if (row.fields.unlisted && !showUnlisted) continue
       population++
       // Facets belong to an entity, so they only narrow when one is chosen.
       const passesFacets = entity ? matchesFacets(row, query.facets) : true

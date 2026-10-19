@@ -11,7 +11,7 @@ import type { AppMeta, Participant, SessionFull, SessionShell } from './server/t
  */
 
 const SESSION_STATES = ['not started', 'running', 'paused']
-const APP_KINDS = ['app', 'queue']
+const APP_KINDS = ['jtree app', 'oTree app', 'z-Tree treatment', 'z-Tree questionnaire', 'queue', 'oTree session config']
 const PLAYER_STATES = ['not started', 'ready', 'playing', 'done', 'finished']
 
 export function sessionState(session: SessionShell): string {
@@ -110,9 +110,37 @@ function sessionRow(session: SessionShell): ShellRow {
   }
 }
 
-/** A queue is an app made of other apps. */
+/** An oTree project's session config: `…/settings.py#name` (a queue to the server). */
+const OTREE_CONFIG = /[\\/]settings\.py#(.+)$/
+/** An oTree app is its folder's `__init__.py` (`models.py` in oTree's older format). */
+const OTREE_APP = /[\\/](__init__|models)\.py$/
+
+/**
+ * What an app is, in the words of the program it is written for. A queue is
+ * an app made of other apps; an oTree session config is one too, whose apps
+ * are its app_sequence.
+ */
 export function appKind(app: AppMeta): string {
-  return app.isQueue ? 'queue' : 'app'
+  if (OTREE_CONFIG.test(app.appPath)) return 'oTree session config'
+  if (app.isQueue) return 'queue'
+  if (OTREE_APP.test(app.appPath)) return 'oTree app'
+  if (/\.ztq$/i.test(app.appPath)) return 'z-Tree questionnaire'
+  if (/\.(ztt|txt)$/i.test(app.appPath)) return 'z-Tree treatment'
+  return 'jtree app'
+}
+
+/** The file people know an app by: an oTree app's folder, a session config's settings.py and name. */
+export function appFile(app: AppMeta): string {
+  const path = relativePath(app.appPath)
+  const config = OTREE_CONFIG.exec(path)
+  if (config) return `${path.slice(0, config.index)}/settings.py › ${config[1]}`
+  if (OTREE_APP.test(path)) return path.replace(OTREE_APP, '/')
+  return path
+}
+
+/** Apps that set `listed` to false are left out of the lists of apps (see App#listed on the server). */
+export function isListed(app: AppMeta): boolean {
+  return app.listed !== false
 }
 
 function appRow(app: AppMeta): ShellRow {
@@ -122,7 +150,7 @@ function appRow(app: AppMeta): ShellRow {
     entityLabel: 'Apps',
     fields: {
       name: app.title || app.shortId,
-      ref: relativePath(app.appPath),
+      ref: appFile(app),
       state: app.hasError ? 'error' : 'ok',
       updated: '',
       kind: appKind(app),
@@ -131,6 +159,7 @@ function appRow(app: AppMeta): ShellRow {
       // A queue's parts are its apps; an app's, its stages.
       stages: app.isQueue ? (app.apps?.length ?? 0) : (app.stages?.length ?? 0),
       errors: Boolean(app.hasError),
+      unlisted: !isListed(app),
     },
   }
 }
@@ -201,12 +230,12 @@ const ordinal: ColumnDef = { key: 'ordinal', kind: 'ordinal', label: '#', width:
 // The pill colours appfr's five states; jtree's own words for a state read
 // better than the nearest of those five, and are coloured in styles.css.
 const stateColumn = (label = 'State'): ColumnDef =>
-  ({ key: 'state', role: 'state', kind: 'status', label, width: '112px' })
+  ({ key: 'state', role: 'state', kind: 'status', label, sort: 'state', width: '112px' })
 
 const sessionColumns: ColumnDef[] = [
   ordinal,
   { key: 'name', role: 'identity', label: 'Session', sort: 'name', activate: true, mono: true, width: '190px' },
-  { key: 'ref', role: 'reference', label: 'Apps', muted: true },
+  { key: 'ref', role: 'reference', label: 'Apps', sort: 'ref', muted: true },
   { key: 'participants', role: 'metric', kind: 'number', label: 'Participants', sort: 'participants', align: 'right', width: '104px', hideBelow: 620 },
   { key: 'apps', role: 'metric', kind: 'number', label: 'Apps', sort: 'apps', align: 'right', width: '64px', hideBelow: 760 },
   { key: 'updated', role: 'updated', kind: 'date', label: 'Created', sort: 'updated', width: '120px', hideBelow: 480 },
@@ -216,9 +245,9 @@ const sessionColumns: ColumnDef[] = [
 const appColumns: ColumnDef[] = [
   ordinal,
   { key: 'name', role: 'identity', label: 'App', sort: 'name', activate: true },
-  { key: 'ref', role: 'reference', label: 'File', muted: true, mono: true },
-  { key: 'kind', label: 'Kind', width: '72px', hideBelow: 480 },
-  { key: 'folder', label: 'Folder', width: '130px', hideBelow: 900 },
+  { key: 'ref', role: 'reference', label: 'File', sort: 'ref', muted: true, mono: true },
+  { key: 'kind', label: 'Kind', sort: 'kind', width: '160px', hideBelow: 480 },
+  { key: 'folder', label: 'Folder', sort: 'folder', width: '130px', hideBelow: 900 },
   // An app that failed to load reports its periods as "unknown".
   { key: 'periods', role: 'metric', kind: 'number', label: 'Periods', sort: 'periods', align: 'right', width: '84px', hideBelow: 620,
     format: (v) => (typeof v === 'number' ? String(v) : '—') },
@@ -229,10 +258,10 @@ const appColumns: ColumnDef[] = [
 const participantColumns: ColumnDef[] = [
   ordinal,
   { key: 'name', role: 'identity', label: 'Participant', sort: 'name', activate: true, mono: true, width: '120px' },
-  { key: 'app', label: 'App', hideBelow: 620 },
-  { key: 'period', kind: 'number', label: 'Period', align: 'right', width: '76px', format: String },
-  { key: 'group', label: 'Group', align: 'right', width: '72px', hideBelow: 480, format: String },
-  { key: 'stage', role: 'reference', label: 'Stage', width: '120px' },
+  { key: 'app', label: 'App', sort: 'app', hideBelow: 620 },
+  { key: 'period', kind: 'number', label: 'Period', sort: 'period', align: 'right', width: '76px', format: String },
+  { key: 'group', label: 'Group', sort: 'group', align: 'right', width: '72px', hideBelow: 480, format: String },
+  { key: 'stage', role: 'reference', label: 'Stage', sort: 'stage', width: '120px' },
   { key: 'clients', role: 'metric', kind: 'number', label: 'Clients', sort: 'clients', align: 'right', width: '84px' },
   { key: 'points', role: 'metric', kind: 'number', label: 'Points', sort: 'points', align: 'right', width: '80px', hideBelow: 620, format: (v) => String(v ?? '') },
   stateColumn(),
@@ -242,8 +271,8 @@ const logColumns: ColumnDef[] = [
   ordinal,
   { key: 'updated', role: 'updated', kind: 'date', label: 'Time', sort: 'updated', width: '96px',
     format: (v) => (v ? new Date(String(v)).toLocaleTimeString() : '') },
-  { key: 'event', role: 'reference', label: 'Event', mono: true, muted: true, width: '150px' },
-  { key: 'name', role: 'identity', label: 'Message' },
+  { key: 'event', role: 'reference', label: 'Event', sort: 'event', mono: true, muted: true, width: '150px' },
+  { key: 'name', role: 'identity', label: 'Message', sort: 'name' },
 ]
 
 /* ---------------------------------------------------------------- schema */
@@ -262,7 +291,8 @@ function entity(def: Omit<EntitySchema, 'count' | 'tabs' | 'samples'>, count: nu
  */
 export const schema = computed<DomainSchema>(() => {
   void state.version
-  const apps = Object.values(state.apps)
+  const apps = Object.values(state.apps).filter(isListed)
+  const unlisted = Object.keys(state.apps).length - apps.length
   const participants = state.session ? Object.keys(state.session.participants).length : 0
   return {
     key: 'jtree',
@@ -271,11 +301,11 @@ export const schema = computed<DomainSchema>(() => {
     placeholder: 'beauty OR entity:sessions state:running',
     columns: [
       ordinal,
-      { key: 'entityLabel', label: 'Kind', width: '110px', when: 'everything' },
+      { key: 'entityLabel', label: 'Kind', sort: 'entityLabel', width: '110px', when: 'everything' },
       { key: 'name', role: 'identity', label: 'Name', sort: 'name', activate: true },
-      { key: 'ref', role: 'reference', label: 'Detail', muted: true, hideBelow: 620 },
+      { key: 'ref', role: 'reference', label: 'Detail', sort: 'ref', muted: true, hideBelow: 620 },
       { key: 'updated', role: 'updated', kind: 'date', label: 'When', sort: 'updated', width: '120px', hideBelow: 760 },
-      { key: 'state', role: 'state', kind: 'status', label: 'State', width: '112px' },
+      { key: 'state', role: 'state', kind: 'status', label: 'State', sort: 'state', width: '112px' },
     ],
     entities: [
       entity({
@@ -297,8 +327,9 @@ export const schema = computed<DomainSchema>(() => {
         columns: appColumns,
         facets: [
           { kind: 'chips', key: 'kind', label: 'Kind', options: APP_KINDS },
-          { kind: 'chips', key: 'folder', label: 'Folder', options: distinct(apps.map((a) => folderOf(a.appPath))) },
+          { kind: 'chips', key: 'folder', label: 'Folder', options: distinct(Object.values(state.apps).map((a) => folderOf(a.appPath))) },
           { kind: 'toggle', key: 'errors', label: 'Errors', text: 'Only apps that failed to load' },
+          ...(unlisted ? [{ kind: 'toggle' as const, key: 'unlisted', label: 'Unlisted', text: `Only apps that are not listed (${unlisted})` }] : []),
         ],
       }, apps.length),
       entity({

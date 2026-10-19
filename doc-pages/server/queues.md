@@ -2,7 +2,7 @@ A queue is an app whose stages are other apps, each with preset options (see [ap
 
 ## Using a Queue
 
-Queues are listed with the apps, marked as queues. Open one to see its apps, then press "New session with this queue", or "Add to open session" to add its apps to the session that is open. Then run the session as usual (see Quick Start).
+Queues are listed with the apps, their Kind "queue". Open one to see its apps, then press "New session with this queue", or "Add to open session" to add its apps to the session that is open. Then run the session as usual (see Quick Start).
 
 ## Creating a Queue
 
@@ -17,6 +17,8 @@ session.addApp('other-queue.jtq');
 Paths are relative to the `.jtq` file. A queue can add other queues, whose apps are added in their place. An app adds apps the same way, as its stages: `app.addApp('app1.jtt', {treatment: 'A'})`.
 
 From an app's panel, "Add to queue…" adds that app to the end of a queue's file.
+
+A queue that should not be listed with the apps says so in its script, which calls it `queue`: `queue.listed = false;` (`"listed": false` in a JSON queue). Browse's "Unlisted" filter shows it.
 
 ## Session options and hooks
 

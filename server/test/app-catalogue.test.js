@@ -110,3 +110,38 @@ test("stage files a folder app's app.jtt adds itself are not added again", () =>
     assert.ok(!folderApp.hasError);
     assert.deepEqual(folderApp.stages.map(s => [s.id, s.x]), [['first', 2], ['a', true]]);
 });
+
+test('apps and queues can opt out of being listed', () => {
+    const dir = fs.mkdtempSync(path.join(server.dataDir, 'unlisted-'));
+    fs.writeFileSync(path.join(dir, 'shown.jtt'), 'app.numPeriods = 1;\n');
+    fs.writeFileSync(path.join(dir, 'hidden.jtt'), 'app.numPeriods = 1;\napp.listed = false;\n');
+    fs.writeFileSync(path.join(dir, 'hidden-script.jtq'), "session.addApp('shown.jtt');\nqueue.listed = false;\n");
+    fs.writeFileSync(path.join(dir, 'hidden-json.jtq'), JSON.stringify({ apps: ['shown'], listed: false }));
+    const project = path.join(dir, 'project');
+    for (const [name, listed] of [['shown_otree', ''], ['hidden_otree', '    JTREE_LISTED = False\n']]) {
+        fs.mkdirSync(path.join(project, name), { recursive: true });
+        fs.writeFileSync(path.join(project, name, '__init__.py'), 'from otree.api import *\n\n\n' +
+            "class C(BaseConstants):\n    NAME_IN_URL = '" + name + "'\n    PLAYERS_PER_GROUP = None\n    NUM_ROUNDS = 1\n" + listed +
+            '\n\nclass Subsession(BaseSubsession):\n    pass\n\n\nclass Group(BaseGroup):\n    pass\n\n\nclass Player(BasePlayer):\n    pass\n\n\n' +
+            'class Hello(Page):\n    pass\n\n\npage_sequence = [Hello]\n');
+    }
+    fs.writeFileSync(path.join(project, 'settings.py'), 'SESSION_CONFIGS = [\n' +
+        "    dict(name='shown', app_sequence=['shown_otree'], num_demo_participants=1),\n" +
+        "    dict(name='hidden', app_sequence=['hidden_otree'], num_demo_participants=1, jtree_listed=False),\n]\n");
+    server.jt.data.loadAppDir(dir);
+
+    const listed = (file) => {
+        const meta = Object.values(server.jt.data.appsMetaData).find(m => m.appPath.startsWith(dir) && m.appPath.endsWith(file));
+        assert.ok(meta, 'no app ' + file);
+        assert.ok(!meta.hasError, file + ': ' + meta.errorMessage);
+        return meta.listed;
+    };
+    assert.equal(listed('shown.jtt'), true);
+    assert.equal(listed('hidden.jtt'), false);
+    assert.equal(listed('hidden-script.jtq'), false);
+    assert.equal(listed('hidden-json.jtq'), false);
+    assert.equal(listed(path.join('shown_otree', '__init__.py')), true);
+    assert.equal(listed(path.join('hidden_otree', '__init__.py')), false);
+    assert.equal(listed('settings.py#shown'), true);
+    assert.equal(listed('settings.py#hidden'), false);
+});

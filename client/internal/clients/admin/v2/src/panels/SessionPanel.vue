@@ -5,7 +5,7 @@ import type { RecordStatus } from 'header-content-layout'
 import ConfirmButton from '../components/ConfirmButton.vue'
 import { participantBase, state } from '../server/connection'
 import { downloadOutputUrl, participantUrl, server } from '../server/commands'
-import { sessionState, uniqueAppLabel } from '../schema'
+import { appKind, isListed, sessionState, uniqueAppLabel } from '../schema'
 import { openSession, showNewSession, showPanel } from '../workspace'
 
 const session = computed(() => state.session)
@@ -23,7 +23,7 @@ const sessionToOpen = ref('')
 
 const apps = computed(() =>
   Object.values(state.apps)
-    .filter((app) => !app.hasError)
+    .filter((app) => !app.hasError && isListed(app))
     .sort((a, b) => uniqueAppLabel(a.id).localeCompare(uniqueAppLabel(b.id))),
 )
 
@@ -146,7 +146,7 @@ function checked(event: Event): boolean {
         <div class="toolbar">
           <select v-model="appToAdd" class="field" aria-label="App to add">
             <option value="">Choose an app…</option>
-            <option v-for="app in apps" :key="app.id" :value="app.id">{{ uniqueAppLabel(app.id) }}{{ app.isQueue ? ' (queue)' : '' }}</option>
+            <option v-for="app in apps" :key="app.id" :value="app.id">{{ uniqueAppLabel(app.id) }}{{ app.isQueue ? ` (${appKind(app)})` : '' }}</option>
           </select>
           <button type="button" class="btn" :disabled="!appToAdd" @click="addApp">Add app</button>
         </div>

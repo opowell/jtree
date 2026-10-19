@@ -6,7 +6,8 @@ The <a href='tutorial-4c-samples.html'>samples library</a> has an oTree project 
 
 Put an oTree project (a folder with its `settings.py`) or an oTree app in `client/apps`, then use File → Reload apps in the admin. jtree runs apps in oTree's current format (`__init__.py`) and in its older one (`models.py`, `pages.py` and Django templates).
 
-- A project's **session configs** (`SESSION_CONFIGS`) are queues, listed as `<project>/settings.py#<name>`: a session made from one has its apps, its config (with `SESSION_CONFIG_DEFAULTS`), participation fee and exchange rate.
+- A project's **session configs** (`SESSION_CONFIGS`) are queues, listed with the Kind "oTree session config" and the file `<project>/settings.py › <name>`: a session made from one has its apps, its config (with `SESSION_CONFIG_DEFAULTS`), participation fee and exchange rate. Its apps are listed too, each by its folder, as "oTree app"s that can be added to a session alone.
+- A session config with `jtree_listed=False`, or an app whose `C` has `JTREE_LISTED = False`, is left out of the admin's lists of apps (oTree ignores both).
 - A project's **rooms** (`ROOMS`) are jtree rooms, with the labels from their `participant_label_file`.
 - Rounds are periods, and `PLAYERS_PER_GROUP` is the group size. Pages are shown from their templates, with their forms checked by the server as oTree checks them; wait pages wait for the group or all groups. Live pages, chat, timeouts and their countdown, `ExtraModel`, admin reports, static files and `app_after_this_page` work as in oTree.
 - Packages an app imports, such as `pandas`, `scipy` or `openpyxl`, are loaded before its session starts (those jtree does not have yet are fetched, which needs an internet connection).

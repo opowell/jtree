@@ -61,6 +61,8 @@ app.newStage('results');
 
 Adding a session's app copies the apps it adds as stages to the session too, when they are in its folder or next to it, so that a saved session loads them.
 
+An app meant only as a stage of others can stay out of the admin's lists of apps with `app.listed = false;`. It still loads, and is added by its file as before; Browse's "Unlisted" filter shows the apps that are not listed.
+
 #### Queues
 
 A queue is an app whose stages are other apps (see [queues](tutorial-queues.html)). Added to an app with `app.addApp`, it is a stage like any app. Added to a session, its apps are added to the session in its place, one after another, as the session's apps, and its script can set the session's options and hooks.

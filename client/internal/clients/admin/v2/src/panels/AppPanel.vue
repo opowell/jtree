@@ -5,7 +5,7 @@ import type { RecordStatus } from 'header-content-layout'
 import ConfirmButton from '../components/ConfirmButton.vue'
 import { serverUrl, state } from '../server/connection'
 import { server } from '../server/commands'
-import { folderOf, relativePath, uniqueAppLabel } from '../schema'
+import { appFile, appKind, folderOf, isListed, uniqueAppLabel } from '../schema'
 import { closePanel, editApp, showNewSession, showPanel } from '../workspace'
 
 const props = defineProps<{ appId: string, panelId: string }>()
@@ -13,7 +13,7 @@ const props = defineProps<{ appId: string, panelId: string }>()
 const app = computed(() => state.apps[props.appId])
 // Here rather than in the template: vue3-sfc-loader does not compile TypeScript in templates.
 const status = computed<RecordStatus>(() => (app.value?.hasError ? 'failed' : 'ok'))
-const kind = computed(() => (app.value?.isQueue ? 'queue' : 'app'))
+const kind = computed(() => (app.value ? appKind(app.value) : 'app'))
 const queueTarget = ref('')
 // jtree's editor edits jtree apps (.jtt); z-Tree's and oTree's have editors in their admins.
 const editable = computed(() => !app.value?.isQueue && /\.(jtt|js)$/i.test(app.value?.appPath ?? ''))
@@ -57,7 +57,7 @@ async function removeQueue() {
     <template v-else>
       <header class="pane__head">
         <h2 class="pane__title">{{ app.title || app.shortId }}</h2>
-        <span v-if="app.isQueue" class="muted">queue</span>
+        <span class="muted">{{ kind }}{{ isListed(app) ? '' : ', not listed' }}</span>
         <StatusPill :status="status" />
       </header>
       <p v-if="app.description" style="margin: 0">{{ app.description }}</p>
@@ -82,7 +82,7 @@ async function removeQueue() {
 
       <section class="pane__section">
         <dl class="kv">
-          <dt>File</dt><dd class="dc-mono">{{ relativePath(app.appPath) }}</dd>
+          <dt>File</dt><dd class="dc-mono">{{ appFile(app) }}</dd>
           <dt>Folder</dt><dd>{{ folderOf(app.appPath) }}</dd>
           <template v-if="!app.isQueue">
             <dt>Periods</dt><dd>{{ app.numPeriods ?? '—' }}</dd>

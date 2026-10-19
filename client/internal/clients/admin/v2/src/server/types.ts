@@ -14,6 +14,8 @@ export interface AppMeta {
   errorLine?: number
   errorPosition?: number
   isStandaloneApp?: boolean
+  /** False for an app that opted out of the lists of apps (App#listed on the server). */
+  listed?: boolean
   stages?: string[]
   options?: AppOption[]
   appjs?: string

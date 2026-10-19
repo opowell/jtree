@@ -17,6 +17,9 @@ const otreeProject = require('./dialects/otree/project.js');
  *
  * An older format is JSON, `{displayName, apps: [appId | {appId, options}]}`, where an appId
  * without an extension is a .jtt file next to the queue.
+ *
+ * A queue the admin should not list among the apps says so: `queue.listed = false;` in a script,
+ * `"listed": false` in JSON, `jtree_listed=False` in an oTree session config.
 */
 class Queue {
 
@@ -37,6 +40,8 @@ class Queue {
         this.options        = [];
         this.optionValues   = {};
         this.hasError       = false;
+        /** Whether the admin lists this queue among the apps (see App#listed). */
+        this.listed         = true;
     }
 
     /** Reads the .jtq file at filePath, and lists the apps and options it declares. */
@@ -53,6 +58,7 @@ class Queue {
                 queue.description = config.doc;
                 queue.dirPath = path.dirname(otreeConfig.settingsPath);
                 queue.otreeConfig = config;
+                if (config.jtree_listed === false) queue.listed = false;
             } else {
                 queue.appjs = Utils.readJS(filePath);
             }
@@ -65,6 +71,9 @@ class Queue {
                 queue.json = JSON.parse(queue.appjs);
                 if (queue.json.displayName != null) {
                     queue.displayName = queue.json.displayName;
+                }
+                if (queue.json.listed === false) {
+                    queue.listed = false;
                 }
             } catch (err) {
                 // Not JSON after all: run it as a script.
@@ -116,8 +125,9 @@ class Queue {
                 target.addApp(appId, options);
             }
         } else {
-            // The script refers to its target as `session`.
+            // The script refers to its target as `session`, and to this queue as `queue`.
             let session = target; // jshint ignore:line
+            let queue = this; // jshint ignore:line
             eval(this.appjs); // jshint ignore:line
         }
     }
@@ -187,6 +197,7 @@ class Queue {
             description:    this.description,
             appPath:        this.appPath,
             isQueue:        true,
+            listed:         this.listed !== false,
             apps:           this.apps,
             options:        this.options,
             hasError:       this.hasError,

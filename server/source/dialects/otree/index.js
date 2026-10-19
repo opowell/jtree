@@ -273,6 +273,8 @@ module.exports = {
         app.shortId = info.name || path.basename(dir);
         app.title = info.name || path.basename(dir);
         if (info.doc) app.description = info.doc;
+        // C.JTREE_LISTED = False keeps an app out of the admin's list of apps (see App#listed).
+        if (info.constants && info.constants.JTREE_LISTED === false) app.listed = false;
         app.numPeriods = info.num_rounds;
         if (info.players_per_group != null) app.groupSize = info.players_per_group;
         app.groupMatchingType = 'PARTNER_1122';

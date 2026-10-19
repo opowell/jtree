@@ -248,6 +248,14 @@ class App {
         this.description = 'No description provided.';
 
         /**
+        * Whether the admin lists this App among the apps. An app that is only a part of others (a
+        * stage another app adds, a test) sets this to false; it can still be added by its path.
+        * @type boolean
+        * @default true
+        */
+        this.listed = true;
+
+        /**
          * Array of comparisons to show by default on Session -> Data tab.
          * Each entry consists of:
          * - field name (i.e. 'player.points')
@@ -1616,6 +1624,7 @@ class App {
         metaData.shortId = this.shortId;
         metaData.title = this.title;
         metaData.description = this.description;
+        metaData.listed = this.listed !== false;
         metaData.appPath = this.appPath;
         metaData.hasError = this.hasError;
         metaData.errorPosition = this.errorPosition;
