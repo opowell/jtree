@@ -1,0 +1,71 @@
+// A rating: a question answered on a scale of labels; player.rating is the label's number, from 1.
+//
+// An app of its own, or a stage of each period of the market (../market), after the period's
+// results (Schoenberg and Haruvy 2012).
+
+const here = path.dirname(path.resolve(app.appPath));
+function load(file) {
+    const fn = path.join(here, file);
+    delete require.cache[require.resolve(fn)];
+    return require(fn);
+}
+const presets = load('presets.js');
+
+app.addSelectOption('preset', Object.keys(presets.PRESETS), 'The rating: an example, or a study\'s (presets.js).');
+app.addTextOption('changes', '', 'Settings to change, as JSON: {"rating": {"question": "...", "labels": ["Low", "High"]}}.');
+const C = presets.settingsFor(app.preset, app.changes);
+const R = C.rating || { question: '', labels: [] };
+app.config = C;
+app.description = 'A rating: ' + R.question;
+app.stageWrapPlayingScreenInFormTag = 'yes';
+
+// As a stage of another app, its groups are that app's, in its order.
+const ownGroups = app.getGroupIdsForPeriod;
+app.getGroupIdsForPeriod = function(period) {
+    if (this.parentPeriod == null) return ownGroups.call(this, period);
+    const place = (id) => this.parentPeriod.playerByParticipantId(id).idInGroup;
+    return this.playingGroupIds().map((ids) => ids.slice().sort((a, b) => place(a) - place(b)));
+};
+
+/** The player whose stage this app is (the market's), or, when this app is played alone, the player. */
+function hostOf(player) {
+    const run = player.app();
+    const host = run.parentPeriod == null ? null : run.parentPeriod.playerByParticipantId(player.participant.id);
+    return host == null ? player : host;
+}
+
+/** In a market: where its period is ({ practice, round, t, T }); null for an app that is not one. */
+function placeOf(player) {
+    const market = player.app();
+    return typeof market.periodInfo === 'function' ? Object.assign(market.periodInfo(player.group.period.id), { rounds: market.config.rounds }) : null;
+}
+
+app.fields = { 'player.rating': { type: 'int', min: 1, max: Math.max(1, R.labels.length) } };
+const rating = app.newStage('rating');
+rating.formFields = ['player.rating'];
+rating.groupStart = function(group) {
+    group.place = placeOf(hostOf(group.players[0]));
+};
+rating.playerEnd = function(player) {
+    const host = hostOf(player);
+    if (host !== player) {
+        host.rating = player.rating;
+        host.save();
+    }
+};
+rating.activeScreen = `
+<style>
+.task { font-family: system-ui, -apple-system, Segoe UI, sans-serif; font-size: 15px; color: #1d2433; max-width: 760px; margin: 0 auto; padding: 12px; }
+.task h2 { font-size: 20px; margin: 0 0 8px; }
+.task .bar { background: #233; color: #fff; padding: 8px 12px; border-radius: 6px; }
+.task .scale { display: flex; gap: 12px; flex-wrap: wrap; margin: 8px 0 12px; }
+.task button { padding: 5px 14px; border-radius: 4px; border: 1px solid #233; background: #233; color: #fff; cursor: pointer; font: inherit; }
+</style>
+<div class="task">
+    <p class="bar" v-if="group.place"><span v-if="group.place.practice">Practice period {{group.place.t}} of {{group.place.T}}</span><span v-else>Period {{group.place.t}} of {{group.place.T}}<span v-if="group.place.rounds > 1"> · Market {{group.place.round}} of {{group.place.rounds}}</span></span></p>
+    <h2>{{app.config.rating.question}}</h2>
+    <div class="scale">
+        <label v-for="(l, i) in app.config.rating.labels" :key="i"><input type="radio" name="player.rating" :value="i + 1" required> {{l}}</label>
+    </div>
+    <button>OK</button>
+</div>`;

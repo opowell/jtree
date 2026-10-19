@@ -7,8 +7,10 @@ const path = require('node:path');
 const { startServer, until, CLIENT } = require('./harness.js');
 
 const GIMS = path.join(CLIENT, 'apps/gims');
-const market = require(path.join(GIMS, 'market.js'));
-const { PRESETS, DEFAULTS } = require(path.join(GIMS, 'presets.js'));
+const market = require(path.join(GIMS, 'market/market.js'));
+const { PRESETS, DEFAULTS } = require(path.join(GIMS, 'market/presets.js'));
+/** The presets of an app of GIMS's folder. */
+const presetsOf = (name) => require(path.join(GIMS, name, 'presets.js'));
 
 // The engine
 
@@ -215,21 +217,30 @@ function gimsSession(preset, changes, n) {
     return server.createSession(APP, { numParticipants: n, options: { preset, changes: JSON.stringify(changes) } });
 }
 
-test('every preset loads, with its periods and stages', () => {
+test('every preset loads, with its periods and stages, and the apps of its study', () => {
     assert.ok(Object.keys(PRESETS).length >= 20);
     for (const [id, preset] of Object.entries(PRESETS)) {
         const session = gimsSession(id, {}, preset.traders || 3);
         const app = session.apps[0];
         const s = Object.assign({}, DEFAULTS, preset);
-        assert.equal(app.config.preset, id);
-        assert.equal(app.numPeriods, s.practicePeriods + s.rounds * s.periods, id);
-        const stages = app.stages.map((st) => st.id);
+        const of = (name) => presetsOf(name).settingsFor(id, {});
+        const outer = app.stages.map((st) => st.id);
+        const marketApp = app.stages.find((st) => st.id === 'market').subApp;
+        assert.equal(marketApp.config.preset, id);
+        assert.equal(marketApp.numPeriods, s.practicePeriods + s.rounds * s.periods, id);
+        const stages = marketApp.stages.map((st) => st.id);
         assert.equal(stages.includes('trading'), s.mechanism !== 'call', id);
         assert.equal(stages.includes('callAuction'), s.mechanism !== 'cda', id);
-        assert.equal(stages.includes('forecast'), s.forecasts != null, id);
-        assert.equal(stages.includes('controlQuestions'), s.controlQuestions.length > 0, id);
-        assert.equal(stages.includes('crtBefore') || stages.includes('crtAfter'), s.crt != null, id);
-        assert.equal(stages.includes('riskBefore') || stages.includes('riskAfter'), s.holtLaury != null, id);
+        assert.equal(stages.includes('forecast'), of('forecasts').forecasts != null, id);
+        assert.equal(stages.includes('bonds'), of('bonds').bonds != null, id);
+        assert.equal(stages.includes('chat'), of('chat').chatTime > 0, id);
+        assert.equal(stages.includes('lottery'), of('lottery-ticket').lottery != null, id);
+        assert.equal(stages.includes('accountStatus'), of('account-status').accountStatus != null, id);
+        assert.equal(stages.includes('rating'), of('rating').rating != null, id);
+        assert.equal(outer.includes('controlQuestions'), of('control-questions').controlQuestions.length > 0, id);
+        assert.equal(outer.includes('crtBefore') || outer.includes('crtAfter'), of('crt').crt != null, id);
+        assert.equal(outer.includes('riskBefore') || outer.includes('riskAfter'), of('holt-laury').holtLaury != null, id);
+        assert.equal(outer[outer.length - 1], 'payment');
         assert.ok(preset.reference && preset.notes, id + ' cites its source');
     }
 });
@@ -239,9 +250,34 @@ function taskPlayer(bot, stageId) {
     return Object.values(bot.participant.players).find((p) => p.app().parentStage != null && p.app().parentStage.id === stageId);
 }
 
+/** The market of a GIMS session: the app that is the stage "market" of its one period. */
+function marketOf(session) {
+    const app = session.apps[0];
+    return app.stages.find((s) => s.id === 'market').runIn(app.periods[0]);
+}
+
+/** A bot's players in the market's periods, first period first. */
+const marketPlayers = (bot) => bot.players(marketOf(bot.session));
+
+/** The period of the market a bot is in: in a stage of the market, or of an app in its period. */
+function marketPeriod(bot) {
+    const run = marketOf(bot.session);
+    const player = run == null ? null : bot.participant.currentPlayerIn(run);
+    return player == null ? null : player.group.period.id;
+}
+
+/**
+ * Waits until a bot plays stage in the market's period (any, if not given), and submits values.
+ * The payment is an app of its own after the market: its period is not the market's.
+ */
+async function playAt(bot, stage, values = {}, period) {
+    await bot.waitFor(() => bot.stageId === stage && (period == null || stage === 'payment' || marketPeriod(bot) === period), { what: 'to play ' + stage + ' in period ' + period });
+    bot.submit(values);
+}
+
 /** Plays every period's stages that need nothing but OK, until test() says to act; returns. */
 async function playThrough(bots, stage, period) {
-    await Promise.all(bots.map((b) => b.play(stage, {}, { period })));
+    await Promise.all(bots.map((b) => playAt(b, stage, {}, period)));
 }
 
 test('the SSW design: a trade, dividends and payoffs', async () => {
@@ -301,7 +337,7 @@ test('KHS T2: practice periods, a separate dividend account, cash inflows and a 
     await Promise.all(bots.map((b) => b.waitForEnd()));
     // Dividends 5 then −5 into the account (0 in all); inflows 444 and 556; 50 a unit at the end.
     assert.deepEqual(session.payments().map((p) => p.points), [3000 + 444 + 556 + 20 * 50, 1000 + 444 + 556 + 60 * 50]);
-    const last = bots[0].players().pop();
+    const last = marketPlayers(bots[0]).pop();
     assert.deepEqual([last.cash, last.account, last.buybackValue], [4000, 0, 1000]);
 });
 
@@ -312,7 +348,7 @@ test("HLN's call market: one bid and one ask each, forecasts paid on the market 
     }, 3);
     const bots = await server.connectAll(session);
     session.start();
-    for (const [i, b] of bots.entries()) await b.play('forecast', { 'player.forecast1': [50, 100, 45][i] }, { period: 1 });
+    for (const [i, b] of bots.entries()) await playAt(b, 'forecast', { 'player.forecast1': [50, 100, 45][i] }, 1);
     await Promise.all(bots.map((b) => b.waitForStage('callAuction', { period: 1 })));
     // P1 (472, 1 unit) bids 60 for 1; P3 (112, 3 units) asks 40 for 1, and cannot also bid 45.
     bots[0].send('gimsCallOrder', { asset: 0, type: 'buy', price: 60, volume: 1 });
@@ -327,10 +363,10 @@ test("HLN's call market: one bid and one ask each, forecasts paid on the market 
     await Promise.all(bots.map((b) => b.waitForStage('callResults', { period: 1 })));
     const group = bots[0].player.group;
     assert.deepEqual(group.auction[0], { price: 50, volume: 1, rule: 5 });
-    for (const stage of ['callResults', 'results', 'payment']) await playThrough(bots, stage, 1);
+    for (const stage of ['callResults', 'forecastResults', 'results', 'payment']) await playThrough(bots, stage, 1);
     await Promise.all(bots.map((b) => b.waitForEnd()));
     // Forecasts of 50, 100 and 45 for a price of 50: within 10% (50), outside 50% (0), within 10%.
-    assert.deepEqual(bots.map((b) => b.players()[0].forecastEarnings), [50, 0, 50]);
+    assert.deepEqual(bots.map((b) => marketPlayers(b)[0].forecastEarnings), [50, 0, 50]);
     // P1: 472 − 50 + 2 units × 14 + 50; P2: 292 + 2 × 14; P3: 112 + 50 + 2 × 14 + 50.
     assert.deepEqual(session.payments().map((p) => p.points), [472 - 50 + 28 + 50, 292 + 28, 112 + 50 + 28 + 50]);
 });
@@ -372,7 +408,8 @@ test('control questions, a paid CRT, lottery choices, short selling, interest, a
         assets: [{ name: 'Shares', dividends: [0, -8, -28, -60], buyback: 500, dividendSequence: [-8] }],
     }, 2);
     const app = session.apps[0];
-    assert.deepEqual(app.stages.map((s) => s.id), ['controlQuestions', 'crtBefore', 'callAuction', 'callResults', 'trading', 'results', 'riskAfter', 'payment']);
+    assert.deepEqual(app.stages.map((s) => s.id), ['controlQuestions', 'crtBefore', 'market', 'riskAfter', 'payment']);
+    assert.deepEqual(app.stages[2].subApp.stages.map((s) => s.id), ['callAuction', 'callResults', 'trading', 'results']);
     const bots = await server.connectAll(session);
     session.start();
     const [p1, p2] = bots;
@@ -401,20 +438,20 @@ test('control questions, a paid CRT, lottery choices, short selling, interest, a
     await playThrough(bots, 'lotteryResult');
     await playThrough(bots, 'payment', 2);
     await Promise.all(bots.map((b) => b.waitForEnd()));
-    const players = bots.map((b) => b.players());
     const crt = bots.map((b) => taskPlayer(b, 'crtBefore'));
     const lottery = bots.map((b) => taskPlayer(b, 'riskAfter'));
+    const pay = bots.map((b) => taskPlayer(b, 'payment'));
     assert.deepEqual(crt.map((p) => p.crtEarnings), [30, 0]);
     // Round 1: P1 has 52,000, less 10%, plus 8 for the unit they are short, less 500 for it:
     // 46,308. P2: 48,000 less 10%, 9 units × −8, plus 9 × 500: 47,628. Round 2: no trades,
     // 50,000 less 10%, 4 × −8, plus 4 × 500: 46,968.
-    assert.deepEqual(players.map((ps) => ps[1].roundPayoffs), [[46308, 46968], [47628, 46968]]);
-    const paid = players[0][1].group.paidRound;
+    assert.deepEqual(pay.map((p) => p.roundPayoffs), [[46308, 46968], [47628, 46968]]);
+    const paid = pay[0].group.paidRound;
     assert.ok(paid === 1 || paid === 2);
     session.payments().forEach((p, i) => {
-        const last = players[i][1];
+        const last = pay[i];
         assert.ok([1.6, 2].includes(lottery[i].hlEarnings));
-        assert.deepEqual(last.taskEarnings, [{ label: 'The three questions', points: crt[i].crtEarnings }, { label: 'The lottery choices', points: lottery[i].hlEarnings }].filter((t) => t.points !== 0));
+        assert.deepEqual(last.otherEarnings, [{ label: 'The three questions', points: crt[i].crtEarnings }, { label: 'The lottery choices', points: lottery[i].hlEarnings }].filter((t) => t.points !== 0));
         const earned = crt[i].crtEarnings + lottery[i].hlEarnings + last.roundPayoffs[paid - 1];
         assert.ok(Math.abs(p.points - Math.max(47000, earned)) < 1e-6, p.id + ': ' + p.points);
         assert.ok(Math.abs(last.totalPoints - p.points) < 1e-6);
@@ -442,7 +479,7 @@ test('signals by trader, and indicative prices in the call auction', async () =>
 
 /** Plays stages in order through a period, each with the same values for every bot. */
 async function playStages(bots, stages, period, values = {}) {
-    for (const stage of stages) await Promise.all(bots.map((b) => b.play(stage, values, { period })));
+    for (const stage of stages) await Promise.all(bots.map((b) => playAt(b, stage, values, period)));
 }
 
 test('holding taxes, announcements (drawn, by the market), and a period length by round', async () => {
@@ -459,7 +496,7 @@ test('holding taxes, announcements (drawn, by the market), and a period length b
     const g1 = bots[0].player.group;
     // The value: 24 − 48 + 24 in period 1, 24 in period 2.
     assert.deepEqual([g1.value[0], g1.valueTable[0].map((r) => r.value)], [0, [0, 24]]);
-    assert.equal(app.stages.find((s) => s.id === 'trading').getGroupDuration(g1), 30);
+    assert.equal(marketOf(session).stages.find((s) => s.id === 'trading').getGroupDuration(g1), 30);
     const drawn = g1.announcements[0];
     assert.ok(['A', 'B'].includes(drawn));
     // A trade at 30, above the value of 0.
@@ -475,13 +512,13 @@ test('holding taxes, announcements (drawn, by the market), and a period length b
     await playStages(bots, ['trading', 'results'], 2);
     await Promise.all(bots.map((b) => b.waitForStage('trading', { period: 3 })));
     const g3 = bots[0].player.group;
-    assert.equal(app.stages.find((s) => s.id === 'trading').getGroupDuration(g3), 20);
+    assert.equal(marketOf(session).stages.find((s) => s.id === 'trading').getGroupDuration(g3), 20);
     // The drawn announcement is the same in every market of the session.
     assert.deepEqual(g3.announcements, [drawn]);
     await playStages(bots, ['trading', 'results'], 3);
     await playStages(bots, ['trading', 'results', 'payment'], 4);
     await Promise.all(bots.map((b) => b.waitForEnd()));
-    assert.deepEqual(bots.map((b) => b.players().pop().roundPayoffs[0]), [998, 906]);
+    assert.deepEqual(bots.map((b) => taskPlayer(b, 'payment').roundPayoffs[0]), [998, 906]);
 });
 
 test("Fellner and Theissen: drawn values, private signals, profits, short selling by block, a market from each block paid", async () => {
@@ -524,18 +561,18 @@ test("Fellner and Theissen: drawn values, private signals, profits, short sellin
     for (let r = 3; r <= 4; r++) await playStages(bots, ['trading', 'results'], r);
     await playStages(bots, ['payment'], 4);
     await Promise.all(bots.map((b) => b.waitForEnd()));
-    const last = bots.map((b) => b.players().pop());
+    const last = bots.map((b) => taskPlayer(b, 'payment'));
     // A trade at 150: the seller's profit is 150 less the value, the buyer's the value less 150.
     for (const [r, x] of [[1, r1], [3, r3]]) {
-        const v = x.g.final ? x.g.final[0] : bots[0].players()[r - 1].group.final[0];
-        const profit = (b) => b.players().pop().roundPayoffs[r - 1];
+        const v = x.g.final ? x.g.final[0] : marketPlayers(bots[0])[r - 1].group.final[0];
+        const profit = (b) => taskPlayer(b, 'payment').roundPayoffs[r - 1];
         assert.equal(profit(x.seller), 150 - v);
         assert.equal(profit(x.buyer), v - 150);
     }
     assert.equal(last.reduce((s, p) => s + p.roundPayoffs[1], 0), 0);
     const paid = last[0].group.paidRounds;
     assert.ok(paid.length === 2 && paid[0] <= 2 && paid[1] >= 3, String(paid));
-    const values = bots[0].players().map((p) => p.group.final && p.group.final[0]).filter((x) => x != null);
+    const values = marketPlayers(bots[0]).map((p) => p.group.final && p.group.final[0]).filter((x) => x != null);
     assert.ok(values.length === 4 && values.every((v) => v === 100 || v === 200), String(values));
 });
 
@@ -554,7 +591,7 @@ test('Palfrey and Wang: a drawn value, public news, cash carried from market to 
     await playStages(bots, ['trading', 'results'], 1);
     // News after periods 1 and 2, not after the last.
     for (const t of [2, 3]) await playStages(bots, ['trading', 'results'], t);
-    const round1 = bots[0].players()[2];
+    const round1 = marketPlayers(bots[0])[2];
     assert.deepEqual(round1.carried.past.map((r) => r.news != null), [true, true, false]);
     assert.ok(round1.carried.past.slice(0, 2).every((r) => ['good news', 'bad news'].includes(r.news)));
     const v = round1.group.final[0];
@@ -565,10 +602,10 @@ test('Palfrey and Wang: a drawn value, public news, cash carried from market to 
     for (const t of [4, 5, 6]) await playStages(bots, ['trading', 'results'], t);
     await playStages(bots, ['payment'], 6);
     await Promise.all(bots.map((b) => b.waitForEnd()));
-    const v2 = bots[0].players()[5].group.final[0];
+    const v2 = marketPlayers(bots[0])[5].group.final[0];
     // Earnings: final cash less the 800 loan.
     // P1 sold a unit at 60 and held 2; P2 bought it and held 4; both held 3 in market 2.
-    assert.deepEqual(bots.map((b) => b.players().pop().totalPoints), [60 + 2 * v + 3 * v2, -60 + 4 * v + 3 * v2]);
+    assert.deepEqual(bots.map((b) => taskPlayer(b, 'payment').totalPoints), [60 + 2 * v + 3 * v2, -60 + 4 * v + 3 * v2]);
 });
 
 test('Schoenberg and Haruvy: lottery tickets, the account status with the largest account, and a rating', async () => {
@@ -576,7 +613,7 @@ test('Schoenberg and Haruvy: lottery tickets, the account status with the larges
         traders: 2, practicePeriods: 0, periods: 1, tradingTime: 30, assignment: 'order', lottery: { price: 6, prize: 120, chance: 1 },
     }, 2);
     const app = session.apps[0];
-    assert.deepEqual(app.stages.map((s) => s.id), ['trading', 'lottery', 'results', 'payment']);
+    assert.deepEqual(app.stages[0].subApp.stages.map((s) => s.id), ['trading', 'lottery', 'results', 'accountStatus', 'rating']);
     const bots = await server.connectAll(session);
     session.start();
     await Promise.all(bots.map((b) => b.waitForStage('trading', { period: 1 })));
@@ -584,20 +621,23 @@ test('Schoenberg and Haruvy: lottery tickets, the account status with the larges
     bots[1].send('gimsOrder', { asset: 0, type: 'buy', price: 100, volume: 1 });
     await until(() => g.orders.rows.length === 1, { what: 'the bid' });
     await playStages(bots, ['trading'], 1);
-    await bots[0].play('lottery', { 'player.lotteryTicket': 'yes' });
-    await bots[1].play('lottery', { 'player.lotteryTicket': 'no' });
-    await Promise.all(bots.map((b) => b.waitForStage('results', { period: 1 })));
+    await playAt(bots[0], 'ticket', { 'player.lotteryTicket': 'yes' });
+    await playAt(bots[1], 'ticket', { 'player.lotteryTicket': 'no' });
+    await playStages(bots, ['ticketResult', 'results'], 1);
+    await Promise.all(bots.map((b) => b.waitForStage('accountStatus')));
     // Two traders are both of the filler type, 585 and 2 units. P1 won 120 for a ticket of 6.
     // Units at the best bid, 100.
     const d = g.dividend[0];
     assert.deepEqual(bots.map((b) => b.player.accountTotal), [585 + 2 * d + 114 + 200, 585 + 2 * d + 200]);
-    assert.equal(g.reference, Math.max(...bots.map((b) => b.player.accountTotal)));
-    await bots[0].play('results', {});
+    assert.equal(bots[0].player.group.reference, Math.max(...bots.map((b) => b.player.accountTotal)));
+    await playStages(bots, ['accountStatus'], 1);
+    await playAt(bots[0], 'rating', {});
     assert.ok((await bots[0].waitForFormErrors())['player.rating']);
     for (const b of bots) b.submit({ 'player.rating': 5 });
     await playStages(bots, ['payment'], 1);
     await Promise.all(bots.map((b) => b.waitForEnd()));
-    assert.deepEqual(bots.map((b) => b.players()[0].rating), [5, 5]);
+    assert.deepEqual(bots.map((b) => marketPlayers(b)[0].rating), [5, 5]);
+    assert.deepEqual(bots.map((b) => marketPlayers(b)[0].accountTotal), [585 + 2 * d + 114 + 200, 585 + 2 * d + 200]);
     assert.deepEqual(session.payments().map((p) => p.points), [585 + 2 * d + 114, 585 + 2 * d]);
 });
 
@@ -625,7 +665,7 @@ test('Haruvy, Noussair and Powell: a computerized firm buys back its target of s
     assert.ok(!g.orders.rows.some((o) => o.maker === 0 && o.status === 'open'));
     await playStages(bots, ['trading', 'results', 'payment'], 2);
     await Promise.all(bots.map((b) => b.waitForEnd()));
-    assert.deepEqual(bots.map((b) => b.players().pop().assets[0]), [1, 1]);
+    assert.deepEqual(bots.map((b) => marketPlayers(b).pop().assets[0]), [1, 1]);
 });
 
 test('Stöckl, Huber and Kirchler: a value that follows a random path, shown after each period and paid at the end', async () => {
@@ -644,7 +684,7 @@ test('Stöckl, Huber and Kirchler: a value that follows a random path, shown aft
     }
     await playStages(bots, ['payment'], 3);
     await Promise.all(bots.map((b) => b.waitForEnd()));
-    const last = bots[0].players().pop();
+    const last = marketPlayers(bots[0]).pop();
     const final = last.group.final[0];
     assert.equal(values[0], 45);
     for (const [a, b] of [[values[0], values[1]], [values[1], values[2]], [values[2], final]]) assert.ok([-3, 0, 3].includes(b - a));
@@ -657,7 +697,8 @@ test('Oechssler, Schmidt and Schnedler: final values with supplements, an inside
         supplements: { amounts: [80, 40], insider: 1 },
     }, 2);
     const app = session.apps[0];
-    assert.deepEqual(app.stages.map((s) => s.id), ['chat', 'trading', 'results', 'payment']);
+    assert.deepEqual(app.stages.map((s) => s.id), ['market', 'payment']);
+    assert.deepEqual(app.stages[0].subApp.stages.map((s) => s.id), ['chat', 'trading', 'results']);
     const bots = await server.connectAll(session);
     session.start();
     await Promise.all(bots.map((b) => b.waitForStage('trading', { period: 1 })));
@@ -668,16 +709,16 @@ test('Oechssler, Schmidt and Schnedler: final values with supplements, an inside
     assert.equal(g1.final, null);
     await playStages(bots, ['trading', 'results'], 1);
     // The chat, from day 2.
-    await Promise.all(bots.map((b) => b.waitForStage('chat', { period: 2 })));
-    bots[0].send('gimsChat', { text: 'Hello' });
+    await Promise.all(bots.map((b) => b.waitFor(() => b.stageId === 'chat' && marketPeriod(b) === 2, { what: 'the chat' })));
+    bots[0].send('chatMessage', { text: 'Hello' });
     const g2 = bots[0].player.group;
     await until(() => g2.chat.rows.length === 1, { what: 'the message' });
     // Wealth: cash, and 50 units not yet traded at their value, 94.
     assert.deepEqual([g2.chat.rows[0].text, g2.chat.rows[0].from, g2.chat.rows[0].wealth], ['Hello', 1, 10000 + 50 * 94]);
     await playStages(bots, ['chat', 'trading', 'results', 'payment'], 2);
     await Promise.all(bots.map((b) => b.waitForEnd()));
-    const final = bots[0].players().pop().group.final;
-    const { amount, asset } = insiders[0].players()[0].insider;
+    const final = marketPlayers(bots[0]).pop().group.final;
+    const { amount, asset } = marketPlayers(insiders[0])[0].insider;
     assert.ok(final[asset] - amount >= 50 && final[asset] - amount <= 90);
     assert.equal(final.filter((v) => v > 90).length >= 1, true);
     // Cash less the 5000 loan, and 10 units of each asset at its final value.
@@ -691,28 +732,28 @@ test('Fischbacher, Hens and Zeisberger: bonds, and a rate that rises in its peri
         assets: [{ name: 'Shares', dividends: [0, 8, 28, 60], dividendSequence: [0, 0, 0, 0, 0] }],
     }, 2);
     const app = session.apps[0];
-    assert.deepEqual(app.stages.map((s) => s.id), ['bonds', 'trading', 'results', 'payment']);
+    assert.deepEqual(app.stages[0].subApp.stages.map((s) => s.id), ['bonds', 'trading', 'bondsBack', 'results']);
     const bots = await server.connectAll(session);
     session.start();
     const rates = [];
     for (let t = 1; t <= 5; t++) {
-        await Promise.all(bots.map((b) => b.waitForStage('bonds', { period: t })));
-        rates.push(bots[0].player.group.bondRate);
-        await bots[0].play('bonds', { 'player.bondInput': t === 1 ? 5000 : 1000 }, { period: t });
+        await bots[0].waitFor(() => bots[0].stageId === 'bonds' && marketPeriod(bots[0]) === t, { what: 'the bonds' });
+        rates.push(bots[0].player.group.rate);
+        await playAt(bots[0], 'bonds', { 'player.bondInput': t === 1 ? 5000 : 1000 }, t);
         if (t === 1) {
             assert.match((await bots[0].waitForFormErrors())['player.bondInput'], /from 0 to your cash/);
             bots[0].submit({ 'player.bondInput': 1000 });
         }
-        await bots[1].play('bonds', { 'player.bondInput': 0 }, { period: t });
+        await playAt(bots[1], 'bonds', { 'player.bondInput': 0 }, t);
         await Promise.all(bots.map((b) => b.waitForStage('trading', { period: t })));
         assert.equal(bots[0].player.cash, 2600);
-        await playStages(bots, ['trading', 'results'], t);
+        await playStages(bots, ['trading', 'bondsBack', 'results'], t);
     }
     await playStages(bots, ['payment'], 5);
     await Promise.all(bots.map((b) => b.waitForEnd()));
     assert.deepEqual(rates, [0.05, 0.05, 0.05, 0.11, 0.11]);
     // Interest paid at the end, into the account: 1000 × (0.05 × 3 + 0.11 × 2) = 370.
-    const last = bots[0].players().pop();
+    const last = marketPlayers(bots[0]).pop();
     assert.deepEqual([last.cash, last.account], [3600, 370]);
 });
 
@@ -739,13 +780,13 @@ test('dividends drawn at the end for the units held each period, a truncated ass
     bots[1].send('gimsAccept', { asset: 0, side: 'buy', volume: 1, orderId: ask.id });
     await until(() => g.trades.rows.length === 1, { what: 'the trade' });
     await playStages(bots, ['trading', 'results'], 2);
-    assert.equal(bots[0].players()[1].dividends, 0);
+    assert.equal(marketPlayers(bots[0])[1].dividends, 0);
     for (const t of [3, 4]) await playStages(bots, ['trading', 'results'], t);
     await playStages(bots, ['payment'], 4);
     await Promise.all(bots.map((b) => b.waitForEnd()));
     // A pays 20 a period for the units held then: P1 held 2, 1, 1 and 1 units, P2 2, 3, 3 and 3.
     // B pays 20 for its first three periods only, on 2 units each.
-    const last = bots.map((b) => b.players().pop());
+    const last = bots.map((b) => marketPlayers(b).pop());
     assert.deepEqual(last[0].group.endDividends, [[20, 20, 20, 20], [20, 20, 20, 0]]);
     assert.deepEqual(last.map((p) => p.dividends), [5 * 20 + 2 * 3 * 20, 11 * 20 + 2 * 3 * 20]);
 });
@@ -763,7 +804,8 @@ test('subsidies (negative taxes) and a maximum payment', async () => {
     await playStages(bots, ['trading', 'results'], 1);
     await playStages(bots, ['trading', 'results', 'payment'], 2);
     await Promise.all(bots.map((b) => b.waitForEnd()));
-    const last = bots[0].players().pop();
+    const last = marketPlayers(bots[0]).pop();
+    const pay = taskPlayer(bots[0], 'payment');
     // 3600 + 10 × 10, then 10 × (−10) and a subsidy of 10 × 10, then 40 a unit: 4100, cut to 4000.
-    assert.deepEqual([last.tax, last.roundPayoffs[0], last.topUp, last.totalPoints], [-100, 4100, -100, 4000]);
+    assert.deepEqual([last.tax, pay.roundPayoffs[0], pay.topUp, pay.totalPoints], [-100, 4100, -100, 4000]);
 });

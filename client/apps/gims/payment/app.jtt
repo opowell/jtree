@@ -1,0 +1,134 @@
+// The payment: what each participant has earned, and is paid.
+//
+// As a stage of another app (as in GIMS, ../app.jtt), it pays the rounds of the market played
+// before it (../market, whose roundPayoffs it finds in the player whose stage it is): every round,
+// or one at random (payment 'random'), or one from each block of rounds (paymentBlocks). It lists
+// the points of the app's other stages too (the CRT, the lottery choices, ...), and tops the total
+// up to minPayoff, or cuts it to maxPayoff. Played alone, it lists the session's apps before it,
+// with their points, and does the same with their total.
+
+const here = path.dirname(path.resolve(app.appPath));
+function load(file) {
+    const fn = path.join(here, file);
+    delete require.cache[require.resolve(fn)];
+    return require(fn);
+}
+const presets = load('presets.js');
+
+app.addSelectOption('preset', Object.keys(presets.PRESETS), 'The payment rules: the defaults, or a study\'s (presets.js).');
+app.addTextOption('changes', '', 'Settings to change, as JSON: {"payment": "random", "minPayoff": 1000}.');
+app.addTextOption('pointsName', 'points', 'What points are called on the screens.');
+const C = presets.settingsFor(app.preset, app.changes);
+app.config = C;
+app.description = 'The payment: ' + (C.payment === 'random' ? 'one market at random' : 'every market') + (C.minPayoff ? ', at least ' + C.minPayoff : '') + (C.maxPayoff != null ? ', at most ' + C.maxPayoff : '') + '.';
+app.stageWrapPlayingScreenInFormTag = 'yes';
+
+// As a stage of another app, its groups are that app's, in its order.
+const ownGroups = app.getGroupIdsForPeriod;
+app.getGroupIdsForPeriod = function(period) {
+    if (this.parentPeriod == null) return ownGroups.call(this, period);
+    const place = (id) => this.parentPeriod.playerByParticipantId(id).idInGroup;
+    return this.playingGroupIds().map((ids) => ids.slice().sort((a, b) => place(a) - place(b)));
+};
+
+/** The player whose stage this app is, or, when this app is played alone, the player. */
+function hostOf(player) {
+    const run = player.app();
+    const host = run.parentPeriod == null ? null : run.parentPeriod.playerByParticipantId(player.participant.id);
+    return host == null ? player : host;
+}
+
+const round2 = (x) => Math.round(x * 100) / 100;
+/** A whole number from 1 to n, each equally likely. */
+const draw = (n) => Math.floor(Math.random() * n) + 1;
+
+/**
+ * The points a participant has earned besides the market's rounds, as [{ label, points }]: in the
+ * other stages of the app this one is a stage of (host's), by stage; or, played alone, in the
+ * session's other apps.
+ */
+function otherEarnings(player, host) {
+    const participant = player.participant;
+    const out = [];
+    const add = (key, label, points) => {
+        let row = out.find((r) => r.key === key);
+        if (row == null) out.push(row = { key, label, points: 0 });
+        row.points = round2(row.points + points);
+    };
+    for (const k in participant.players) {
+        const p = participant.players[k];
+        const points = Number(p.points) || 0;
+        if (p === player || points === 0) continue;
+        const a = p.app();
+        if (host !== player) {
+            // In the host's app: in a run of one of its stages (e.g. the CRT), or the host's own.
+            if (a.parentStage != null && a.parentPeriod.app === host.app()) add(a.parentStage.id, a.title || a.parentStage.id, points);
+            else if (a === host.app()) add('', 'Other', points);
+        } else if (a.rootApp() !== player.app().rootApp()) {
+            const root = a.rootApp();
+            add(root.getIdInSession(), root.title || root.shortId, points);
+        }
+    }
+    return out.map(({ label, points }) => ({ label, points }));
+}
+
+const payment = app.newStage('payment');
+payment.groupStart = function(group) {
+    const hosts = group.players.map((p) => hostOf(p));
+    const rounds = Math.max(0, ...hosts.map((h) => (h.roundPayoffs || []).length));
+    // With payment 'random', one round is paid, or one from each block of rounds (paymentBlocks).
+    group.paidRounds = null;
+    if (C.payment === 'random' && rounds > 0) {
+        const blocks = C.paymentBlocks || [rounds];
+        let first = 1;
+        group.paidRounds = blocks.map((n) => {
+            const r = first + draw(n) - 1;
+            first += n;
+            return r;
+        });
+    }
+    group.paidRound = group.paidRounds && group.paidRounds.length === 1 ? group.paidRounds[0] : null;
+    group.players.forEach((player, i) => {
+        const host = hosts[i];
+        const payoffs = [];
+        for (let r = 1; r <= rounds; r++) payoffs.push(host.roundPayoffs && host.roundPayoffs[r - 1] != null ? host.roundPayoffs[r - 1] : 0);
+        player.roundPayoffs = payoffs;
+        player.marketEarnings = round2(group.paidRounds != null ? group.paidRounds.reduce((s, r) => s + payoffs[r - 1], 0) : payoffs.reduce((s, x) => s + x, 0));
+        player.otherEarnings = otherEarnings(player, host);
+        const before = round2(player.otherEarnings.reduce((s, r) => s + r.points, 0));
+        player.topUp = Math.max(0, round2(C.minPayoff - (before + player.marketEarnings)));
+        // With maxPayoff, earnings above it are cut (a negative top-up).
+        if (C.maxPayoff != null) player.topUp = Math.min(player.topUp, round2(C.maxPayoff - (before + player.marketEarnings)));
+        player.points = round2(player.marketEarnings + player.topUp);
+        player.totalPoints = round2(before + player.marketEarnings + player.topUp);
+        // In money: at the exchange rate of the session's app this is in, or the session's.
+        const root = player.app().rootApp();
+        const rate = root.exchangeRate != null ? root.exchangeRate : player.session().exchangeRate;
+        if (host === player) player.money = round2(player.participant.payment() - (Number(player.session().showUpFee) || 0));
+        else player.money = rate == null ? null : round2(player.totalPoints * rate);
+        if (!isFinite(player.money)) player.money = null;
+        player.currency = player.session().currency || '';
+        player.save();
+    });
+};
+payment.activeScreen = `
+<style>
+.task { font-family: system-ui, -apple-system, Segoe UI, sans-serif; font-size: 15px; color: #1d2433; max-width: 760px; margin: 0 auto; padding: 12px; }
+.task h2 { font-size: 20px; margin: 0 0 8px; }
+.task table { border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.task td { padding: 3px 10px; }
+.task td + td { text-align: right; }
+.task button { padding: 5px 14px; border-radius: 4px; border: 1px solid #233; background: #233; color: #fff; cursor: pointer; font: inherit; }
+</style>
+<div class="task">
+    <h2>Your earnings</h2>
+    <table>
+        <tr v-for="(x, i) in player.roundPayoffs" :key="'r' + i"><td>Market {{i + 1}}<span v-if="group.paidRounds && group.paidRounds.includes(i + 1)"> (drawn for payment)</span></td><td>{{x}}</td></tr>
+        <tr v-for="(t, i) in player.otherEarnings" :key="'o' + i"><td>{{t.label}}</td><td>{{t.points}}</td></tr>
+        <tr v-if="player.topUp > 0"><td>Up to the minimum payment</td><td>{{player.topUp}}</td></tr>
+        <tr v-if="player.topUp < 0"><td>Down to the maximum payment</td><td>{{player.topUp}}</td></tr>
+        <tr><td><b>In all</b></td><td><b>{{player.totalPoints}}</b> {{app.pointsName}}</td></tr>
+        <tr v-if="player.money != null"><td>In money</td><td><b>{{player.money.toFixed(2)}}</b> {{player.currency}}</td></tr>
+    </table>
+    <p><button>OK</button></p>
+</div>`;

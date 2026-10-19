@@ -1,13 +1,26 @@
 // The cognitive reflection test (Frederick 2005): three questions, each with an answer that comes
-// to mind at once and is wrong. Each right answer pays `pay` points; when it pays, a screen after
+// to mind at once and is wrong. Each right answer pays crtPay points; when it pays, a screen after
 // the questions shows the score.
 //
-// An app of its own, or a stage of another: the GIMS app (../gims) adds it before or after its
-// market, as a preset's "crt" setting says, with its "crtPay" and "cashName".
+// An app of its own, or a stage of another: the GIMS app (../app.jtt) adds it before or after the
+// market, as a preset's "crt" setting says (presets.js).
 
-app.description = 'The cognitive reflection test (Frederick 2005): three questions, paid by right answer if "pay" is more than 0.';
-app.addNumberOption('pay', 0, 0, null, 'any', 'Points for each right answer.');
+const here = path.dirname(path.resolve(app.appPath));
+function load(file) {
+    const fn = path.join(here, file);
+    delete require.cache[require.resolve(fn)];
+    return require(fn);
+}
+const presets = load('presets.js');
+
+app.addSelectOption('preset', Object.keys(presets.PRESETS), 'The CRT: an example, or a study\'s (presets.js).');
+app.addTextOption('changes', '', 'Settings to change, as JSON: {"crtPay": 100}.');
 app.addTextOption('pointsName', 'points', 'What points are called on the screens.');
+const C = presets.settingsFor(app.preset, app.changes);
+app.config = C;
+app.pay = C.crtPay;
+app.title = 'The three questions';
+app.description = 'The cognitive reflection test (Frederick 2005): three questions' + (C.crtPay > 0 ? ', ' + C.crtPay + ' points a right answer.' : ', unpaid.');
 app.groupSize = 1;
 app.stageWrapPlayingScreenInFormTag = 'yes';
 

@@ -1,0 +1,1265 @@
+// The market of GIMS, the Graz-Innsbruck Market System (Palan 2015), for jtree: a generic market
+// for asset market experiments, in which the markets of published designs are configurations
+// ("presets", presets.js).
+//
+// One or more assets are traded for cash in a continuous double auction, a call auction, or
+// both, for a number of periods; after each period, assets pay a dividend. Endowment types,
+// dividends, buyback values, interest on cash, cash inflows, short selling, holding caps,
+// fees, trader roles, repeated markets and practice periods are settings, as are GIMS's order
+// book rules, and the features of the published designs in presets.js: holding taxes, random
+// final values with signals or news, value paths, announcements, a computerized firm and more.
+// The market engine is in market.js.
+//
+// When a session starts, choose a preset; the "changes" option changes any of its settings,
+// as JSON (see presets.js for every setting). Each period can have other apps as stages: before
+// trading, after it, and after the period's results (the "periodApps" option). They work on the
+// traders' accounts here: the GIMS app (../app.jtt) adds its chat, bonds, forecasts, lottery
+// tickets, account status and rating this way. Played alone, the market pays every round's
+// earnings; in GIMS ("payRounds" no), the payment app (../payment) pays them.
+
+const here = path.dirname(path.resolve(app.appPath));
+function load(file) {
+    const fn = path.join(here, file);
+    delete require.cache[require.resolve(fn)];
+    return require(fn);
+}
+const market = load('market.js');
+const presets = load('presets.js');
+
+app.addSelectOption('preset', Object.keys(presets.PRESETS), 'The experiment: a published design, or GIMS\'s defaults (presets.js describes each).');
+app.addTextOption('changes', '', 'Settings to change, as JSON: {"tradingTime": 120, "traders": 8}.');
+app.addTextOption('periodApps', '', 'Other apps as stages of each period, as JSON: {"beforeTrading": [{"app": "chat", "id": "chat", "options": {...}}], "afterTrading": [...], "afterResults": [...]}; app is a folder next to this app\'s.');
+app.addSelectOption('payRounds', ['yes', 'no'], 'Whether each round\'s earnings are paid as its points (no: another app pays them, see roundPayoffs).');
+
+// The settings, made whole.
+const C = presets.settingsFor(app.preset, app.changes);
+C.assets = C.assets.map((a) => Object.assign({ name: 'Asset', description: '', dividends: [0], dividendSequence: null, buyback: 0, signals: null, tax: 0, walk: null, maxPayouts: null }, a));
+const numAssets = C.assets.length;
+C.announcements = C.announcements || [];
+C.byRound = C.byRound || [];
+const unitsOf = (assets) => (Array.isArray(assets) ? C.assets.map((a, i) => assets[i] || 0) : C.assets.map(() => assets || 0));
+C.endowments = C.endowments.map((e) => ({ cash: e.cash || 0, assets: unitsOf(e.assets), role: e.role || 'trader' }));
+if (C.practiceEndowment) C.practiceEndowment = { cash: C.practiceEndowment.cash || 0, assets: unitsOf(C.practiceEndowment.assets) };
+C.cda = C.mechanism === 'cda' || C.mechanism === 'call+cda';
+C.call = C.mechanism === 'call' || C.mechanism === 'call+cda';
+if (!C.cda && !C.call) throw new Error('GIMS: mechanism must be "cda", "call" or "call+cda", not "' + C.mechanism + '".');
+const tradingTimes = Array.isArray(C.tradingTime) ? C.tradingTime : [C.tradingTime];
+if (C.cda && !tradingTimes.every((x) => x > 0)) throw new Error('GIMS: tradingTime must be more than 0 seconds.');
+C.maxTradingTime = Math.max(...tradingTimes);
+if (C.accountName == null && C.dividendAccount === 'separate') C.accountName = 'Dividend account';
+C.separateAccount = C.accountName != null;
+C.meanDividends = C.assets.map((a) => market.meanDividend(a.dividends));
+// A unit's final value: its buyback (a number, or drawn for each round), with any supplement.
+const supplementMean = C.supplements ? C.supplements.amounts.reduce((s, x) => s + x, 0) / numAssets : 0;
+C.meanFinal = C.assets.map((a) => market.meanDividend(a.buyback) + supplementMean);
+C.drawnFinal = C.assets.map((a) => typeof a.buyback !== 'number' || C.supplements != null);
+C.assets.forEach((a, i) => { a.valueText = valueText(a, i); });
+app.config = C;
+
+app.description = 'The asset market of GIMS (Graz-Innsbruck Market System). ' + C.title + '. ' + C.notes;
+app.numPeriods = C.practicePeriods + C.rounds * C.periods;
+if (C.traders > 0) {
+    app.groupSize = C.traders;
+    app.suggestedNumParticipants = C.traders;
+}
+app.groupMatchingType = 'PARTNER_1122';
+// As a stage of another app, the markets are its groups, in its order.
+const ownGroups = app.getGroupIdsForPeriod;
+app.getGroupIdsForPeriod = function(period) {
+    if (this.parentPeriod == null) return ownGroups.call(this, period);
+    const place = (id) => this.parentPeriod.playerByParticipantId(id).idInGroup;
+    return this.playingGroupIds().map((ids) => ids.slice().sort((a, b) => place(a) - place(b)));
+};
+// Where a period is, for the apps that are its stages (see periodInfo).
+app.periodInfo = (n) => periodInfo(n);
+if (C.exchangeRate != null) app.exchangeRate = C.exchangeRate;
+app.stageWrapPlayingScreenInFormTag = 'no';
+// The page: jtree's, without its period and time lines (the screens show them).
+app.html = `
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body class='hidden'>
+        <div id='jtree'>
+            <span v-show='player.status=="playing"'>
+                {{stages}}
+            </span>
+            <span v-show='["ready", "waiting", "finished", "done"].includes(player.status)'>
+                {{waiting-screens}}
+            </span>
+        </div>
+        {{scripts}}
+    </body>
+</html>
+`;
+
+/** How a unit's value is made up, for the screens. */
+function valueText(a, i) {
+    if (a.walk) return 'A unit\'s value changes by a random amount after each period, shown when the period ends, and after the last period a unit pays its value then';
+    const parts = [];
+    if (paysDividends(a)) parts.push('the expected dividends of the periods left');
+    if (Array.isArray(a.tax) ? a.tax.some((x) => x) : a.tax) parts.push('less the holding taxes still to pay');
+    if (C.drawnFinal[i]) parts.push((parts.length ? 'and ' : '') + 'its expected value after the last period (' + round2(C.meanFinal[i]) + ')');
+    else if (a.buyback) parts.push((parts.length ? 'and ' : '') + a.buyback + ' a unit after the last period');
+    let text = parts.length ? parts.join(', ') : 'nothing';
+    text = text[0].toUpperCase() + text.slice(1);
+    if (C.interest) text += ', discounted at ' + (C.interest * 100) + '% interest';
+    return text;
+}
+
+/** Whether an asset pays dividends (not only zeros, and not a value path). */
+function paysDividends(a) {
+    if (a.walk) return false;
+    const d = a.dividends;
+    if (typeof d === 'number') return d !== 0;
+    if (d && d.uniform) return true;
+    return market.dividendProcess(d).values.some((x) => x !== 0);
+}
+C.assets.forEach((a) => { a.paysDividends = paysDividends(a); });
+
+/** The seconds of trading in a round's periods (tradingTime, or its entry for the round). */
+function tradingTimeIn(round) {
+    return tradingTimes[Math.min(tradingTimes.length, Math.max(1, round)) - 1];
+}
+
+/** Where period n (from 1) is: a practice period, or period t of round `round`, of T. */
+function periodInfo(n) {
+    const P = C.practicePeriods;
+    if (n <= P) return { practice: true, round: 0, t: n, T: P };
+    const k = n - P - 1;
+    return { practice: false, round: Math.floor(k / C.periods) + 1, t: (k % C.periods) + 1, T: C.periods };
+}
+
+/**
+ * The market rules for asset a in group's period: the asset's own, or the app's, or those of
+ * the block of rounds the period is in (byRound). The short reserve, a multiple of a unit's
+ * value in the settings, is cash a unit here.
+ */
+function rulesFor(group, a) {
+    const asset = C.assets[a];
+    const rules = {};
+    for (const k of Object.keys(market.RULES)) rules[k] = asset[k] !== undefined ? asset[k] : C[k];
+    const block = group.round > 0 ? C.byRound.find((b) => group.round >= (b.from || 1) && group.round <= (b.to || Infinity)) : null;
+    if (block) for (const k of Object.keys(market.RULES)) if (block[k] !== undefined) rules[k] = block[k];
+    const until = asset.holdingCapUntil !== undefined ? asset.holdingCapUntil : C.holdingCapUntil;
+    if (rules.holdingCap != null && until != null && group.t > until) rules.holdingCap = null;
+    if (rules.shortReserve > 0) {
+        const last = lastPriceOf(group, a);
+        const multiple = C.shortReserveBelow != null && last != null && last < group.value[a] ? C.shortReserveBelow : rules.shortReserve;
+        rules.shortReserve = multiple * Math.max(0, group.value[a]);
+    }
+    return rules;
+}
+
+/** The last trade price of asset a in a group's round so far, or null. */
+function lastPriceOf(group, a) {
+    const trades = group.trades ? group.trades.rows.filter((t) => t.asset === a) : [];
+    if (trades.length > 0) return trades[trades.length - 1].price;
+    const past = group.carried ? group.carried.past : [];
+    for (let i = past.length - 1; i >= 0; i--) if (past[i].last[a] != null) return past[i].last[a];
+    return null;
+}
+
+/** A holding tax a unit of asset a pays after period t. */
+function taxIn(a, t) {
+    const tax = C.assets[a].tax;
+    return Array.isArray(tax) ? (tax[t - 1] || 0) : (tax || 0);
+}
+
+/**
+ * The value of a unit of asset a at the start of period t of T: its expected dividends less
+ * holding taxes, and its expected final value, discounted at the interest rate on cash; or, for
+ * an asset whose value follows a random path, its value now (walk).
+ */
+function valueOf(a, t, T, walk) {
+    if (C.assets[a].walk) return walk;
+    const flows = [];
+    for (let s = t; s <= T; s++) flows.push(C.meanDividends[a] - taxIn(a, s));
+    return market.presentValue(flows, C.meanFinal[a], C.interest);
+}
+
+function inflowIn(t) {
+    return Array.isArray(C.cashInflow) ? (C.cashInflow[t - 1] || 0) : (C.cashInflow || 0);
+}
+
+function round2(x) {
+    return Math.round(x * 100) / 100;
+}
+/** A whole number from 1 to n, each equally likely. */
+const draw = (n) => Math.floor(Math.random() * n) + 1;
+
+/** A step of a random value path: one of steps (equally likely), or normal with sd. */
+function walkStep(walk) {
+    if (walk.steps) return walk.steps[draw(walk.steps.length) - 1];
+    const u = 1 - Math.random();
+    const v = Math.random();
+    return round2(walk.sd * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v));
+}
+
+// Draws the traders must not see until they are announced (a round's final values, its
+// supplements), kept in memory by market and round: they are not in the group's record, which
+// the pages get. If jtree restarts during a market, they are drawn again.
+const secrets = new Map();
+function secretOf(group) {
+    const key = [group.session().id, group.period.id - group.t + 1, group.players.map((p) => p.participant.id).sort().join(',')].join('|');
+    if (!secrets.has(key)) {
+        const final = C.assets.map((a) => market.drawDividend(a.buyback));
+        const supplement = C.assets.map(() => 0);
+        let insider = null;
+        if (C.supplements) {
+            const assets = Utils.shuffle(C.assets.map((a, i) => i));
+            C.supplements.amounts.forEach((amount, j) => { supplement[assets[j]] = amount; });
+            if (!group.practice && Math.random() < (C.supplements.insider || 0)) {
+                const j = draw(C.supplements.amounts.length) - 1;
+                insider = { trader: group.players[draw(group.players.length) - 1].idInGroup, asset: assets[j], amount: C.supplements.amounts[j] };
+            }
+        }
+        secrets.set(key, { final: final.map((x, i) => x + supplement[i]), supplement, insider });
+    }
+    return secrets.get(key);
+}
+
+/** A unit's value after the last period of a round: its path's last value, or its final value. */
+function finalValueOf(group, a) {
+    if (C.assets[a].walk) return group.carried.walk[a];
+    return C.drawnFinal[a] ? secretOf(group).final[a] : C.assets[a].buyback;
+}
+
+// The computerized firm (Haruvy, Noussair and Powell 2014) trades as trader 0, with all the
+// cash and units it needs. Its accounts are kept by group, apart from the group's record.
+const FIRM = 0;
+const firms = new Map();
+function firmAccount(group) {
+    if (!firms.has(group)) {
+        firms.set(group, { cash: Infinity, assets: C.assets.map(() => Infinity), role: C.firm.side === 'buy' ? 'buyer' : 'seller', bought: C.assets.map(() => 0) });
+    }
+    return firms.get(group);
+}
+
+/** The market, as market.js sees it, of a group. */
+function bookOf(group) {
+    return {
+        orders: group.orders.rows,
+        trades: group.trades.rows,
+        addOrder(row) { group.orders.new(row); return row; },
+        addTrade(row) { group.trades.new(row); return row; },
+        trader: (id) => (id === FIRM && C.firm ? firmAccount(group) : group.playerWithId(id)),
+        rules: (a) => rulesFor(group, a),
+        now: () => round2((Date.now() - (group.marketStart || Date.now())) / 1000),
+    };
+}
+
+/** Endowment types for players who have none yet, in equal numbers (GIMS's assignment). */
+function assignTypes(group) {
+    const players = group.players.filter((p) => p.participant.gimsType == null);
+    if (players.length === 0) return;
+    const n = group.players.length;
+    const k = C.endowments.length;
+    const per = Math.floor(n / k);
+    const types = [];
+    for (let type = 1; type <= k; type++) for (let i = 0; i < per; i++) types.push(type);
+    while (types.length < n) types.push(Math.min(C.fillerType, k));
+    if (C.assignment === 'random') Utils.shuffle(types);
+    const sorted = group.players.slice().sort((a, b) => a.idInGroup - b.idInGroup);
+    sorted.forEach((p, i) => {
+        if (p.participant.gimsType == null) p.participant.gimsType = types[i];
+    });
+}
+
+/**
+ * What a market carries from period to period, all of it known to its traders: its history
+ * (past: a row a period), the values of assets whose values follow a path, how many dividends
+ * each asset has paid, the firm's trades, and draws made once a session (draws). It is kept
+ * with each trader's record, so that it is saved. The apps that are stages of its periods can
+ * keep what they carry in it too (the bond rate).
+ */
+function carriedFor(group) {
+    const before = group.players.map((p) => p.old()).find((x) => x != null && x.carried != null);
+    if (before != null && !group.firstPeriod) return JSON.parse(JSON.stringify(before.carried));
+    return {
+        past: [],
+        walk: C.assets.map((a) => (a.walk ? a.walk.start : null)),
+        payouts: C.assets.map(() => 0),
+        perUnit: C.assets.map(() => 0),
+        firmTraded: 0,
+        draws: before != null && before.carried.draws ? before.carried.draws : {},
+    };
+}
+
+/**
+ * Sets up a group's period, once: its order book, its place in the rounds, and each trader's
+ * account, carried over from the period before or, at a round's start, the endowment.
+ */
+function setUp(group) {
+    if (group.gimsReady) return;
+    group.gimsReady = true;
+    Object.assign(group, periodInfo(group.period.id));
+    group.firstPeriod = group.t === 1;
+    group.lastPeriod = group.t === group.T;
+    group.tradingTime = tradingTimeIn(group.round);
+    group.addTable('orders');
+    group.addTable('trades');
+    group.carried = carriedFor(group);
+    group.value = C.assets.map((a, i) => round2(valueOf(i, group.t, group.T, group.carried.walk[i])));
+    group.valueTable = C.assets.map((a, i) => valueRows(group, i));
+    group.dividend = C.assets.map(() => null);
+    group.auction = C.assets.map(() => null);
+    group.indicative = C.assets.map(() => null);
+    group.stats = C.assets.map(() => null);
+    group.final = null;
+    group.news = null;
+    group.announcements = announcementsFor(group);
+    if (group.firstPeriod && C.reassignTypes && !group.practice) {
+        for (const p of group.players) p.participant.gimsType = null;
+    }
+    assignTypes(group);
+    for (const player of group.players) {
+        const type = C.endowments[player.participant.gimsType - 1];
+        const before = player.old();
+        player.type = player.participant.gimsType;
+        player.role = type.role;
+        player.carried = group.carried;
+        if (group.firstPeriod || before == null) {
+            const e = group.practice && C.practiceEndowment ? C.practiceEndowment : type;
+            // With carryCash, cash carries over from one round to the next (Palfrey and Wang 2012).
+            const carry = C.carryCash && before != null && !group.practice && group.round > 1 && before.finalCash != null;
+            player.cash = carry ? before.finalCash : e.cash;
+            player.assets = e.assets.slice();
+            player.account = 0;
+            player.initialCash = player.cash;
+            player.initialAssets = e.assets.slice();
+            player.held = [];
+            player.insider = null;
+            player.signal = null;
+        } else {
+            player.cash = before.cash;
+            player.assets = before.assets.slice();
+            player.account = before.account;
+            player.initialCash = before.initialCash;
+            player.initialAssets = before.initialAssets.slice();
+            player.held = (before.held || []).slice();
+            player.insider = before.insider || null;
+            player.signal = before.signal || null;
+        }
+        player.startCash = player.cash;
+        player.startAssets = player.assets.slice();
+        player.bought = C.assets.map(() => 0);
+        player.callOrders = [];
+        player.voted = false;
+        player.notice = null;
+        player.signals = C.assets.map((a) => signalsFor(a, group, player));
+        player.tasks = before != null && group.practice && !group.firstPeriod
+            ? Object.assign({}, before.tasks)
+            : { buyOrder: false, sellOrder: false, cancel: false, acceptBuy: false, acceptSell: false };
+        player.dividends = 0;
+        player.interestEarned = 0;
+        player.inflow = 0;
+        player.roundPayoff = null;
+        player.points = 0;
+        player.tax = 0;
+        player.finalCash = null;
+    }
+    if (group.firstPeriod) {
+        if (C.supplements) {
+            const insider = secretOf(group).insider;
+            for (const p of group.players) {
+                p.insider = insider && insider.trader === p.idInGroup ? { asset: insider.asset, amount: insider.amount } : null;
+            }
+        }
+        if (C.stateSignals && C.stateSignals.when === 'start') privateSignals(group);
+    }
+}
+
+/** The value table of asset a for a group's round: { t, left, value } by period, as far as it is known. */
+function valueRows(group, a) {
+    const rows = [];
+    for (let t = 1; t <= group.T; t++) {
+        let value;
+        if (C.assets[a].walk) {
+            if (t > group.t) break;
+            value = t === group.t ? group.carried.walk[a] : group.carried.past[t - 1].value[a];
+        } else {
+            value = valueOf(a, t, group.T);
+        }
+        rows.push({ t, left: group.T - t + 1, value: round2(value) });
+    }
+    return rows;
+}
+
+/** The texts announced to a group this period (announcements). */
+function announcementsFor(group) {
+    const out = [];
+    if (group.practice) return out;
+    C.announcements.forEach((an, i) => {
+        if (!an.periods.includes(group.t)) return;
+        let text = an.text;
+        if (text && Array.isArray(text.draw)) {
+            // One of the texts, drawn once for the session.
+            const k = 'announcement' + i;
+            if (group.carried.draws[k] == null) group.carried.draws[k] = text.draw[draw(text.draw.length) - 1];
+            text = group.carried.draws[k];
+        } else if (text && typeof text === 'object') {
+            // By the mean price of the period before, against the value then.
+            const before = group.carried.past[group.t - 2];
+            const a = an.asset || 0;
+            text = null;
+            if (before && before.mean[a] != null) {
+                if (before.mean[a] > before.value[a]) text = an.text.above;
+                else if (before.mean[a] < before.value[a]) text = an.text.below;
+            }
+        }
+        if (text) out.push(text);
+    });
+    return out;
+}
+
+/**
+ * Private signals of a round's final value (stateSignals with when 'start'): high or low, right
+ * with probability accuracy; with exact, the number right in each endowment type is accuracy
+ * times its number of traders (Fellner and Theissen 2014).
+ */
+function privateSignals(group) {
+    const S = C.stateSignals;
+    const a = S.asset || 0;
+    const values = market.dividendProcess(C.assets[a].buyback).values;
+    const high = secretOf(group).final[a] >= Math.max(...values);
+    const labels = S.labels || ['high', 'low'];
+    const byType = new Map();
+    for (const p of group.players) {
+        if (!byType.has(p.type)) byType.set(p.type, []);
+        byType.get(p.type).push(p);
+    }
+    for (const players of byType.values()) {
+        const right = S.exact ? Math.round(S.accuracy * players.length) : null;
+        Utils.shuffle(players.slice()).forEach((p, i) => {
+            const correct = S.exact ? i < right : Math.random() < S.accuracy;
+            p.signal = labels[high === correct ? 0 : 1];
+        });
+    }
+}
+
+/** The signals a player sees for an asset this period: the set for their place in the market. */
+function signalsFor(asset, group, player) {
+    const byPeriod = asset.signals;
+    if (byPeriod == null) return null;
+    const sets = typeof byPeriod === 'function' ? byPeriod({ period: group.t, round: group.round, trader: player.idInGroup }) : byPeriod[group.t - 1];
+    if (sets == null) return null;
+    if (!Array.isArray(sets[0])) return sets;
+    return sets[(player.idInGroup - 1) % sets.length];
+}
+
+/** Sends a trader their page's data again: saves only, while they have not yet entered a stage. */
+function refresh(player) {
+    if (player.stage == null) player.save();
+    else player.saveAndUpdate();
+}
+
+/** Sends every trader of a group their page's data again. */
+function update(group) {
+    for (const p of group.players) refresh(p);
+}
+
+let noticeCount = 0;
+function notify(player, text) {
+    player.notice = { text, n: ++noticeCount };
+    player.saveAndUpdate();
+}
+
+/** The player sending a message, if they are playing stageId now. */
+function playerIn(participant, stageId) {
+    const player = participant.player;
+    if (player == null || player.status !== 'playing' || player.stage.id !== stageId) return null;
+    return player;
+}
+
+const assetIndex = (a) => (Number.isInteger(a) && a >= 0 && a < numAssets ? a : null);
+
+// Timers that are not saved with the group (indicative prices).
+const timers = new Map();
+
+// Shared look of the screens.
+const STYLE = `
+<style>
+body { display: block; max-width: none; margin: 0; }
+#jtree { min-width: 0; min-height: 0; border: 0; background: none; margin: 0; padding: 0; }
+.gims button, .gims input, .gims select { font: inherit; font-size: 14px; line-height: 1.3; }
+.gims { font-family: system-ui, -apple-system, Segoe UI, sans-serif; font-size: 15px; color: #1d2433; max-width: 1180px; margin: 0 auto; padding: 12px; }
+.gims h2 { font-size: 20px; margin: 0 0 8px; }
+.gims h3 { font-size: 15px; margin: 0 0 6px; color: #3b4660; text-transform: uppercase; letter-spacing: .04em; }
+.gims .bar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; background: #233; color: #fff; padding: 8px 12px; border-radius: 6px; margin-bottom: 10px; }
+.gims .bar b { font-variant-numeric: tabular-nums; }
+.gims .grid { display: grid; grid-template-columns: minmax(200px, 1fr) minmax(320px, 1.6fr) minmax(240px, 1.3fr); gap: 10px; }
+@media (max-width: 900px) { .gims .grid { grid-template-columns: 1fr; } }
+.gims .box { background: #f4f6fa; border: 1px solid #d5dae5; border-radius: 6px; padding: 10px; }
+.gims table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+.gims td, .gims th { padding: 3px 6px; text-align: right; }
+.gims th { color: #3b4660; font-weight: 600; border-bottom: 1px solid #c7cedc; }
+.gims td:first-child, .gims th:first-child { text-align: left; }
+.gims td + td { white-space: nowrap; }
+.gims .book { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.gims .orders { min-height: 140px; max-height: 230px; overflow-y: auto; background: #fff; border: 1px solid #d5dae5; border-radius: 4px; }
+.gims .orders div { display: flex; justify-content: space-between; padding: 2px 6px; font-variant-numeric: tabular-nums; }
+.gims .orders .mine { color: #1747c9; font-weight: 600; }
+.gims .orders .best { background: #fff4cc; }
+.gims .orders button { padding: 0 6px; font-size: 12px; }
+.gims .entry { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 8px; }
+.gims input[type=number] { width: 90px; padding: 4px; }
+.gims button { padding: 5px 10px; border-radius: 4px; border: 1px solid #8893aa; background: #fff; color: #1d2433; cursor: pointer; white-space: nowrap; }
+.gims button:hover { color: #1d2433; background: #e8ecf4; border-color: #5d6884; }
+.gims button.buy { background: #e2f5e6; border-color: #3d9a52; }
+.gims button.sell { background: #fbe4e4; border-color: #c24848; }
+.gims button.primary { background: #233; color: #fff; border-color: #233; }
+.gims button:disabled { opacity: .45; cursor: default; }
+.gims .tabs { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+.gims .tabs button.on { background: #233; color: #fff; }
+/* Messages take a slot of their own, so that the screen does not move under the mouse. */
+.gims .notice-slot { min-height: 34px; margin-bottom: 8px; }
+.gims .notice { background: #fff3cd; border: 1px solid #e0c065; padding: 6px 10px; border-radius: 4px; }
+.gims .muted { color: #667189; font-size: 13px; }
+.gims .up { color: #18803a; } .gims .down { color: #b3261e; }
+.gims .done { color: #18803a; }
+.gims .scroll { max-height: 200px; overflow-y: auto; }
+</style>`;
+
+const BAR = `
+<div class="bar">
+    <span v-if="group.practice">Practice period {{group.t}} of {{group.T}}</span>
+    <span v-else>Period {{group.t}} of {{group.T}}<span v-if="app.config.rounds > 1"> · Market {{group.round}} of {{app.config.rounds}}</span></span>
+    <span v-if="hasTimeout">Time left: <b>{{mmss(clock.totalSeconds)}}</b></span>
+</div>`;
+
+// Templates' helpers, run in the participant's page.
+app.vueModels = { sel: 0, price: '', volume: 1, history: 'all', callType: 'buy', callMarket: false };
+app.vueComputed = {
+    me: function() { return this.player.idInGroup; },
+    asset: function() { return this.app.config.assets[this.sel]; },
+    book: function() {
+        let me = this.player.idInGroup;
+        let depth = this.app.config.orderBookDepth;
+        let sel = this.sel;
+        let side = function(orders, type) {
+            let list = orders.filter(function(o) { return o.status === 'open' && o.asset === sel && o.type === type && o.phase === 'cda'; });
+            list.sort(function(a, b) { return (type === 'buy' ? b.price - a.price : a.price - b.price) || a.time - b.time || a.id - b.id; });
+            let others = 0;
+            return list.filter(function(o) { return o.maker === me || depth < 0 || others++ < depth; });
+        };
+        let orders = this.group.orders || [];
+        let bids = side(orders, 'buy');
+        let asks = side(orders, 'sell');
+        let bestBid = bids.find(function(o) { return o.maker !== me; }) || null;
+        let bestAsk = asks.find(function(o) { return o.maker !== me; }) || null;
+        return { bids: bids, asks: asks, bestBid: bestBid, bestAsk: bestAsk };
+    },
+    left: function() {
+        return function(o) { return o.volume - o.transacted - o.invalidated; };
+    },
+    priceList: function() {
+        let sel = this.sel;
+        let list = (this.group.trades || []).filter(function(t) { return t.asset === sel; }).slice().reverse();
+        let depth = this.app.config.priceListDepth;
+        return depth > 0 ? list.slice(0, depth) : list;
+    },
+    myHistory: function() {
+        let me = this.player.idInGroup;
+        let filter = this.history;
+        let sel = this.sel;
+        let status = { traded: 'traded', cancelled: 'cancelled', invalidated: 'invalidated' }[filter];
+        return (this.group.orders || []).filter(function(o) {
+            return o.maker === me && o.asset === sel && o.status !== 'open' && (filter === 'all' || o.status === status || (filter === 'traded' && o.transacted > 0));
+        }).slice().reverse();
+    },
+    chart: function() {
+        let sel = this.sel;
+        let trades = (this.group.trades || []).filter(function(t) { return t.asset === sel && t.phase === 'cda'; });
+        let value = this.app.config.showFundamentalValue ? this.group.value[sel] : null;
+        let top = Math.max(1, value || 0);
+        trades.forEach(function(t) { top = Math.max(top, t.price); });
+        top = top * 1.3;
+        let W = 300, H = 160;
+        let T = Math.max(1, this.group.tradingTime || this.app.config.maxTradingTime);
+        let pts = trades.map(function(t) { return { x: Math.min(W, t.time / T * W), y: H - t.price / top * H }; });
+        return {
+            W: W, H: H, top: Math.round(top),
+            points: pts,
+            line: pts.map(function(p) { return p.x.toFixed(1) + ',' + p.y.toFixed(1); }).join(' '),
+            value: value == null ? null : H - value / top * H,
+        };
+    },
+    myCallOrders: function() {
+        let sel = this.sel;
+        return (this.player.callOrders || []).filter(function(o) { return o.asset === sel; });
+    },
+    tasksList: function() {
+        let t = this.player.tasks || {};
+        return [
+            { done: t.buyOrder, text: 'Submit a buy order.' },
+            { done: t.sellOrder, text: 'Submit a sell order.' },
+            { done: t.cancel, text: 'Cancel one of your orders.' },
+            { done: t.acceptSell, text: 'Accept a sell order (Buy).' },
+            { done: t.acceptBuy, text: 'Accept a buy order (Sell).' },
+        ];
+    },
+    valueTable: function() {
+        return (this.group.valueTable || [])[this.sel] || [];
+    },
+    /** The market's history this round: a row a period, newest first. */
+    pastRows: function() {
+        return ((this.group.carried && this.group.carried.past) || []).slice().reverse();
+    },
+    /** The news so far this round (stateSignals with when 'end'). */
+    hasTax: function() {
+        return this.app.config.assets.some(function(a) { return Array.isArray(a.tax) ? a.tax.some(function(x) { return x; }) : !!a.tax; });
+    },
+    paysAny: function() {
+        return this.app.config.assets.some(function(a) { return a.paysDividends; });
+    },
+    hasWalk: function() {
+        return this.app.config.assets.some(function(a) { return !!a.walk; });
+    },
+    newsSoFar: function() {
+        return ((this.group.carried && this.group.carried.past) || []).filter(function(r) { return r.news != null; }).map(function(r) { return r.news; });
+    },
+};
+app.vueMethods = {
+    mmss: function(seconds) {
+        seconds = Math.max(0, Math.round(seconds || 0));
+        return Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0');
+    },
+    fmt: function(x) {
+        if (x == null) return '–';
+        return Math.round(x * 100) / 100;
+    },
+    send: function(name, data) {
+        jt.sendMessage(name, data);
+    },
+    /** The holding tax a unit of asset i pays after this period. */
+    taxNow: function(i) {
+        let tax = this.app.config.assets[i].tax;
+        return Array.isArray(tax) ? (tax[this.group.t - 1] || 0) : (tax || 0);
+    },
+    /** How a market's earnings are made up. */
+    earningsText: function() {
+        let C = this.app.config;
+        let text = 'Cash' + (C.separateAccount ? ' and account' : '');
+        if (this.player.buybackValue) text += ', ' + this.fmt(this.player.buybackValue) + ' for your units';
+        if (C.bonus) text += ', and ' + C.bonus;
+        if (C.payoff === 'profit') text += ', less what your starting cash and units would have paid had you kept them';
+        else if (C.carryCash && this.group.round > 1) text += ', less the cash you began this market with';
+        else if (C.loan) text += ', less your starting cash (a loan)';
+        return text + '.';
+    },
+    /** Money per point: the app's exchange rate, or the session's. */
+    moneyRate: function() {
+        if (this.app.exchangeRate != null) return this.app.exchangeRate;
+        let s = this.participant.session;
+        return s && s.exchangeRate != null ? s.exchangeRate : null;
+    },
+    /** The last trade price of asset a this period, or null. */
+    lastPrice: function(a) {
+        let trades = (this.group.trades || []).filter(function(t) { return t.asset === a; });
+        return trades.length > 0 ? trades[trades.length - 1].price : null;
+    },
+    /** Units of asset a the player bought (side 'buyer') or sold ('seller') in the call auction. */
+    callUnits: function(a, side) {
+        let me = this.player.idInGroup;
+        return (this.group.trades || []).filter(function(t) { return t.asset === a && t.phase === 'call' && t[side] === me; })
+            .reduce(function(s, t) { return s + t.volume; }, 0);
+    },
+};
+
+const ASSET_TABS = `
+<div class="tabs" v-if="app.config.assets.length > 1">
+    <button v-for="(a, i) in app.config.assets" :key="i" :class="{on: sel === i}" @click="sel = i">
+        {{a.name}} · you hold {{player.assets[i]}}<span v-if="lastPrice(i) != null"> · last {{fmt(lastPrice(i))}}</span>
+    </button>
+</div>`;
+
+const ACCOUNT = `
+<div class="box">
+    <h3>Your account</h3>
+    <table>
+        <tr><td>Cash</td><td><b>{{fmt(player.cash)}}</b> {{app.config.cashName}}</td></tr>
+        <tr v-for="(a, i) in app.config.assets" :key="i"><td>{{a.name}}</td><td><b>{{player.assets[i]}}</b> {{player.assets[i] === 1 ? 'unit' : 'units'}}</td></tr>
+        <tr v-if="app.config.separateAccount"><td>{{app.config.accountName}}</td><td>{{fmt(player.account)}}</td></tr>
+        <tr v-if="player.role !== 'trader'"><td>Your role</td><td><b>{{player.role}}</b></td></tr>
+    </table>
+    <p v-if="asset.description" class="muted">{{asset.description}}</p>
+    <div v-if="app.config.showFundamentalValue" style="margin-top: 8px">
+        <h3>Value of a unit</h3>
+        <p class="muted">{{asset.valueText}}: now <b>{{fmt(group.value[sel])}}</b>.</p>
+        <div class="scroll"><table>
+            <tr><th>Period</th><th>Periods left</th><th>Value</th></tr>
+            <tr v-for="r in valueTable" :key="r.t" :style="r.t === group.t ? 'font-weight: 700' : ''"><td>{{r.t}}</td><td>{{r.left}}</td><td>{{r.value}}</td></tr>
+        </table></div>
+    </div>
+    <div v-if="player.signals && player.signals[sel]" style="margin-top: 8px">
+        <h3>Signals</h3>
+        <div v-for="(s, i) in player.signals[sel]" :key="i">{{s}}</div>
+    </div>
+    <div v-if="player.signal" style="margin-top: 8px">
+        <h3>Your signal</h3>
+        <div>The value of {{app.config.assets[app.config.stateSignals.asset || 0].name}} is <b>{{player.signal}}</b>, says your signal (right with probability {{app.config.stateSignals.accuracy}}).</div>
+    </div>
+    <div v-if="app.config.stateSignals && app.config.stateSignals.when === 'end'" style="margin-top: 8px">
+        <h3>News</h3>
+        <div v-if="newsSoFar.length === 0" class="muted">No news yet. News comes after each period.</div>
+        <div v-else>{{newsSoFar.join(', ')}}</div>
+    </div>
+    <div v-if="player.insider" style="margin-top: 8px">
+        <h3>Private information</h3>
+        <div>{{app.config.assets[player.insider.asset].name}} has a supplement of <b>{{player.insider.amount}}</b>. No one else knows this.</div>
+    </div>
+</div>`;
+
+const ANNOUNCEMENTS = `
+<div class="notice" style="margin-bottom: 8px; font-weight: 600" v-for="(text, i) in group.announcements" :key="'an' + i">{{text}}</div>`;
+
+const HISTORY = `
+<div class="box" v-if="app.config.showHistory && pastRows.length > 0" style="margin-top: 10px">
+    <h3>Earlier periods</h3>
+    <div class="scroll"><table>
+        <tr><th>Period</th><th v-for="(a, i) in app.config.assets" :key="i">{{a.name}}: last price</th><th>Value</th><th v-if="paysAny">Dividend</th><th v-if="newsSoFar.length > 0">News</th></tr>
+        <tr v-for="r in pastRows" :key="r.t"><td>{{r.t}}</td><td v-for="(a, i) in app.config.assets" :key="i">{{fmt(r.last[i])}}</td>
+            <td>{{fmt(r.value[sel])}}</td><td v-if="paysAny">{{fmt(r.dividend[sel])}}</td><td v-if="newsSoFar.length > 0">{{r.news || ''}}</td></tr>
+    </table></div>
+</div>`;
+
+// Stages, in the order they come in a period; each only when the settings use it.
+
+/**
+ * The apps given as stages of each period (the "periodApps" option) at a place in it: before
+ * trading, after trading, or after the period's results. Their players are the market's, in its
+ * groups; the period is set up before they start.
+ */
+const PERIOD_APPS = typeof app.periodApps === 'string' ? JSON.parse(app.periodApps || '{}') : (app.periodApps || {});
+function addStagesAt(place) {
+    for (const entry of PERIOD_APPS[place] || []) {
+        const stage = app.addApp(path.join('..', entry.app), entry.options || {}, entry.id);
+        stage.groupStart = setUp;
+    }
+}
+
+addStagesAt('beforeTrading');
+
+if (C.call) {
+    const call = app.newStage('callAuction');
+    call.groupStart = function(group) {
+        setUp(group);
+        group.marketStart = Date.now();
+        if (C.indicativePriceInterval > 0) {
+            timers.set(group, setInterval(() => {
+                group.indicative = C.assets.map((a, i) => market.auctionPrice(callOrdersOf(group, i), rulesFor(group, i).tickSize).price);
+                update(group);
+            }, C.indicativePriceInterval * 1000));
+        }
+    };
+    call.groupEnd = function(group) {
+        clearInterval(timers.get(group));
+        timers.delete(group);
+    };
+    if (C.callTime > 0) call.duration = C.callTime;
+    call.wrapPlayingScreenInFormTag = 'yes';
+    call.activeScreen = STYLE + `
+<div class="gims">
+    ${BAR}
+    ${ASSET_TABS}
+    <div class="notice-slot"><div class="notice" v-if="player.notice" :key="player.notice.n">{{player.notice.text}}</div></div>
+    <div class="grid" style="grid-template-columns: minmax(200px, 1fr) minmax(320px, 2fr)">
+        ${ACCOUNT}
+        <div class="box">
+            <h3>Call auction: {{asset.name}}</h3>
+            <p class="muted">Submit your buy and sell orders. When everyone is done, one price is found at which as many units as possible trade, and all trades are at that price.
+                <span v-if="app.config.callMaxOrders > 0">You may submit {{app.config.callMaxOrders}} buy and {{app.config.callMaxOrders}} sell order(s).</span></p>
+            <p v-if="group.indicative[sel] != null">Indicative price now: <b>{{fmt(group.indicative[sel])}}</b></p>
+            <div class="entry">
+                <select v-model="callType"><option value="buy">Buy</option><option value="sell">Sell</option></select>
+                <label v-if="app.config.multiUnit">Units <input type="number" min="1" step="1" v-model="volume" @keydown.enter.prevent></label>
+                <label v-if="!callMarket">Price per unit <input type="number" min="0" step="any" v-model="price" @keydown.enter.prevent></label>
+                <label v-if="app.config.marketOrders"><input type="checkbox" v-model="callMarket"> at any price (market order)</label>
+                <button type="button" :class="callType" @click="send('gimsCallOrder', {asset: sel, type: callType, price: callMarket ? null : price - 0, volume: volume - 0})">Submit order</button>
+            </div>
+            <h3 style="margin-top: 10px">Your orders</h3>
+            <table>
+                <tr><th>Order</th><th>Units</th><th>Price</th><th></th></tr>
+                <tr v-for="o in myCallOrders" :key="o.id"><td>{{o.type === 'buy' ? 'Buy' : 'Sell'}}</td><td>{{o.volume}}</td><td>{{o.price == null ? 'any' : o.price}}</td>
+                    <td><button type="button" @click="send('gimsCallCancel', {id: o.id})">Cancel</button></td></tr>
+                <tr v-if="myCallOrders.length === 0"><td colspan="4" class="muted">None yet.</td></tr>
+            </table>
+            <p style="margin-top: 10px"><button class="primary">I am done</button></p>
+        </div>
+    </div>
+</div>`;
+
+    const callResults = app.newStage('callResults');
+    callResults.groupStart = function(group) {
+        setUp(group);
+        const book = bookOf(group);
+        for (let a = 0; a < numAssets; a++) {
+            const auction = market.runCallAuction(book, a, callOrdersOf(group, a));
+            group.auction[a] = { price: auction.price, volume: auction.volume, rule: auction.rule };
+        }
+        // All orders, without who made them, for showCallOrders.
+        group.callBook = C.showCallOrders ? C.assets.map((x, a) => callOrdersOf(group, a).map((o) => ({ type: o.type, price: o.price, volume: o.volume }))
+            .sort((p, q) => (p.type === q.type ? (p.type === 'buy' ? q.price - p.price : p.price - q.price) : p.type === 'buy' ? -1 : 1))) : null;
+        for (const p of group.players) p.callOrders = [];
+        group.stats = C.assets.map((x, a) => market.priceStats(group.trades.rows.filter((t) => t.asset === a)));
+        group.orders.save();
+        group.trades.save();
+    };
+    if (C.resultsTime > 0) callResults.duration = C.resultsTime;
+    callResults.wrapPlayingScreenInFormTag = 'yes';
+    callResults.activeScreen = STYLE + `
+<div class="gims">
+    ${BAR}
+    <h2>Call auction results</h2>
+    <table style="max-width: 640px">
+        <tr><th>Asset</th><th>Price</th><th>Units traded</th><th>You bought</th><th>You sold</th><th>You hold</th></tr>
+        <tr v-for="(a, i) in app.config.assets" :key="i">
+            <td>{{a.name}}</td><td>{{group.auction[i] && group.auction[i].price != null ? fmt(group.auction[i].price) : 'no trade'}}</td>
+            <td>{{group.auction[i] ? group.auction[i].volume : 0}}</td>
+            <td>{{callUnits(i, 'buyer')}}</td>
+            <td>{{callUnits(i, 'seller')}}</td>
+            <td>{{player.assets[i]}}</td>
+        </tr>
+    </table>
+    <p>Your cash: <b>{{fmt(player.cash)}}</b> {{app.config.cashName}}.</p>
+    <div v-if="group.callBook" style="max-width: 640px">
+        <h3>All orders: {{asset.name}}</h3>
+        <table>
+            <tr><th>Order</th><th>Price</th><th>Units</th></tr>
+            <tr v-for="(o, i) in group.callBook[sel]" :key="i"><td>{{o.type === 'buy' ? 'Buy' : 'Sell'}}</td><td>{{o.price == null ? 'any' : fmt(o.price)}}</td><td>{{o.volume}}</td></tr>
+        </table>
+    </div>
+    <button class="primary">OK</button>
+</div>`;
+}
+
+/** A group's call auction orders for asset a, from its traders. */
+function callOrdersOf(group, a) {
+    const out = [];
+    for (const p of group.players) {
+        for (const o of p.callOrders || []) if (o.asset === a) out.push(Object.assign({}, o, { maker: p.idInGroup }));
+    }
+    return out;
+}
+
+if (C.cda) {
+    const trading = app.newStage('trading');
+    trading.duration = C.maxTradingTime;
+    // The period's length: tradingTime, or its entry for the round.
+    trading.getGroupDuration = (group) => tradingTimeIn(periodInfo(group.period.id).round);
+    trading.waitOnTimerEnd = false;
+    trading.groupStart = function(group) {
+        setUp(group);
+        group.marketStart = Date.now();
+        if (firmActive(group)) timers.set(group, setInterval(() => firmAct(group), C.firm.interval * 1000));
+        update(group);
+    };
+    trading.groupEnd = function(group) {
+        clearInterval(timers.get(group));
+        timers.delete(group);
+        market.expireOrders(bookOf(group));
+        group.orders.save();
+    };
+    trading.activeScreen = STYLE + `
+<div class="gims">
+    ${BAR}
+    ${ANNOUNCEMENTS}
+    ${ASSET_TABS}
+    <div class="notice-slot"><div class="notice" v-if="player.notice" :key="player.notice.n">{{player.notice.text}}</div></div>
+    <div class="grid">
+        ${ACCOUNT}
+        <div class="box">
+            <h3>{{asset.name}}: orders</h3>
+            <div class="book">
+                <div>
+                    <div class="muted">Buy orders (bids)</div>
+                    <div class="orders">
+                        <div v-for="o in book.bids" :key="o.id" :class="{mine: o.maker === me, best: book.bestBid && o.id === book.bestBid.id}">
+                            <span>{{fmt(o.price)}}<span v-if="app.config.multiUnit"> × {{left(o)}}</span></span>
+                            <button type="button" v-if="o.maker === me" @click="send('gimsCancel', {id: o.id})" title="Cancel">✕</button>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="muted">Sell orders (asks)</div>
+                    <div class="orders">
+                        <div v-for="o in book.asks" :key="o.id" :class="{mine: o.maker === me, best: book.bestAsk && o.id === book.bestAsk.id}">
+                            <span>{{fmt(o.price)}}<span v-if="app.config.multiUnit"> × {{left(o)}}</span></span>
+                            <button type="button" v-if="o.maker === me" @click="send('gimsCancel', {id: o.id})" title="Cancel">✕</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="entry">
+                <label v-if="app.config.multiUnit">Units <input type="number" min="1" step="1" v-model="volume"></label>
+                <button type="button" class="buy" :disabled="!book.bestAsk || player.role === 'seller'" @click="send('gimsAccept', {asset: sel, side: 'buy', volume: volume - 0, orderId: book.bestAsk && book.bestAsk.id})">Buy<span v-if="book.bestAsk"> at {{fmt(book.bestAsk.price)}}</span></button>
+                <button type="button" class="sell" :disabled="!book.bestBid || player.role === 'buyer'" @click="send('gimsAccept', {asset: sel, side: 'sell', volume: volume - 0, orderId: book.bestBid && book.bestBid.id})">Sell<span v-if="book.bestBid"> at {{fmt(book.bestBid.price)}}</span></button>
+            </div>
+            <div class="entry">
+                <label>Price per unit <input type="number" min="0" step="any" v-model="price"></label>
+                <button type="button" class="buy" :disabled="player.role === 'seller'" @click="send('gimsOrder', {asset: sel, type: 'buy', price: price - 0, volume: volume - 0})">Submit buy order</button>
+                <button type="button" class="sell" :disabled="player.role === 'buyer'" @click="send('gimsOrder', {asset: sel, type: 'sell', price: price - 0, volume: volume - 0})">Submit sell order</button>
+            </div>
+            <div style="margin-top: 10px">
+                <h3>Your other orders</h3>
+                <div class="tabs">
+                    <button type="button" v-for="f in ['all', 'traded', 'cancelled', 'invalidated']" :key="f" :class="{on: history === f}" @click="history = f; send('gimsHistory', {filter: f})">{{f}}</button>
+                </div>
+                <div class="scroll"><table>
+                    <tr><th>Order</th><th>Price</th><th>Units</th><th>Traded</th><th>Status</th></tr>
+                    <tr v-for="o in myHistory" :key="o.id"><td>{{o.type}}</td><td>{{fmt(o.price)}}</td><td>{{o.volume}}</td><td>{{o.transacted}}</td><td>{{o.status}}</td></tr>
+                </table></div>
+            </div>
+        </div>
+        <div class="box">
+            <div v-if="app.config.showChart">
+                <h3>Trade prices this period</h3>
+                <svg :viewBox="'0 0 ' + chart.W + ' ' + (chart.H + 14)" style="width: 100%; background: #fff; border: 1px solid #d5dae5; border-radius: 4px">
+                    <line v-if="chart.value != null" x1="0" :x2="chart.W" :y1="chart.value" :y2="chart.value" stroke="#999" stroke-dasharray="4 3"></line>
+                    <polyline :points="chart.line" fill="none" stroke="#1747c9" stroke-width="1.5"></polyline>
+                    <circle v-for="(p, i) in chart.points" :key="i" :cx="p.x" :cy="p.y" r="2.5" fill="#1747c9"></circle>
+                    <text x="4" y="12" font-size="10" fill="#667189">{{chart.top}}</text>
+                    <text x="4" :y="chart.H + 11" font-size="10" fill="#667189">0 s</text>
+                    <text :x="chart.W - 4" :y="chart.H + 11" font-size="10" fill="#667189" text-anchor="end">{{group.tradingTime}} s</text>
+                </svg>
+                <p class="muted" v-if="chart.value != null">Dashed: the value of a unit.</p>
+            </div>
+            <div v-if="app.config.showPriceList" style="margin-top: 8px">
+                <h3>Trades</h3>
+                <div class="scroll"><table>
+                    <tr><th>Price</th><th v-if="app.config.multiUnit">Units</th><th>Time</th></tr>
+                    <tr v-for="t in priceList" :key="t.id" :class="{mine: t.buyer === me || t.seller === me}"><td>{{fmt(t.price)}}</td><td v-if="app.config.multiUnit">{{t.volume}}</td><td>{{Math.round(t.time)}} s</td></tr>
+                </table></div>
+            </div>
+            <div v-if="group.practice && app.config.practiceTasks" style="margin-top: 8px">
+                <h3>Things to try</h3>
+                <div v-for="(t, i) in tasksList" :key="i" :class="{done: t.done}">{{t.done ? '✓' : '○'}} {{t.text}}</div>
+            </div>
+            <div v-if="app.config.earlyEndingVote" style="margin-top: 10px">
+                <button type="button" @click="send('gimsVote', {vote: !player.voted})">{{player.voted ? 'Withdraw my vote to end the period' : 'Vote to end the period'}}</button>
+                <p class="muted">The period ends early when everyone has voted to end it. You can trade on after voting.</p>
+            </div>
+        </div>
+    </div>
+    ${HISTORY}
+</div>`;
+}
+
+/**
+ * Whether the computerized firm trades in a group's period (Haruvy, Noussair and Powell 2014):
+ * from its period on in each round, until it has bought (side 'buy', a repurchase) or sold
+ * ('sell', an issue) share times the units the traders were given, or units if given.
+ */
+function firmActive(group) {
+    return C.firm != null && !group.practice && group.t >= C.firm.period && group.carried.firmTraded < firmTarget(group);
+}
+function firmTarget(group) {
+    if (C.firm.units != null) return C.firm.units;
+    const total = group.players.reduce((s, p) => s + p.initialAssets[C.firm.asset || 0], 0);
+    return Math.round(total * C.firm.share);
+}
+/** Units the firm has traded this round, with this period's. */
+function firmTraded(group) {
+    const a = C.firm.asset || 0;
+    const now = group.trades.rows.filter((t) => t.asset === a && (t.buyer === FIRM || t.seller === FIRM)).reduce((s, t) => s + t.volume, 0);
+    return group.carried.firmTraded + now;
+}
+/**
+ * The firm's move, every interval seconds: if the spread is at most threshold, it takes the
+ * best order on the other side; otherwise it improves on the best order on its own side by
+ * threshold (with none there, it posts threshold away from the other side's). Its new order
+ * replaces its old one, and it stops at its target.
+ */
+function firmAct(group) {
+    const F = C.firm;
+    const a = F.asset || 0;
+    const book = bookOf(group);
+    const buy = F.side === 'buy';
+    const mine = () => group.orders.rows.filter((o) => o.status === 'open' && o.maker === FIRM);
+    if (firmTraded(group) >= firmTarget(group)) {
+        for (const o of mine()) market.cancelOrder(book, FIRM, o.id);
+        clearInterval(timers.get(group));
+        timers.delete(group);
+        update(group);
+        return;
+    }
+    // The market's best orders, the firm's own among them (it is on one side only).
+    const bid = market.bestOrder(book, a, 'buy');
+    const ask = market.bestOrder(book, a, 'sell');
+    const other = buy ? ask : bid;
+    const spread = bid && ask ? ask.price - bid.price : Infinity;
+    const tick = rulesFor(group, a).tickSize || 1;
+    if (other && spread <= F.threshold) {
+        market.acceptOrder(book, FIRM, { asset: a, side: F.side, volume: 1 });
+    } else {
+        const own = buy ? bid : ask;
+        let price = own ? own.price + (buy ? F.threshold : -F.threshold) : other ? other.price + (buy ? -F.threshold : F.threshold) : null;
+        if (price != null) {
+            price = Math.max(tick, market.roundToTick(price, tick));
+            for (const o of mine()) market.cancelOrder(book, FIRM, o.id);
+            market.submitOrder(book, FIRM, { asset: a, type: F.side, price, volume: 1 });
+        }
+    }
+    group.orders.save();
+    group.trades.save();
+    update(group);
+}
+
+addStagesAt('afterTrading');
+
+const results = app.newStage('results');
+results.groupStart = function(group) {
+    setUp(group);
+    const book = bookOf(group);
+    market.expireOrders(book);
+    const carried = group.carried;
+    const endDividends = C.dividendTiming === 'end';
+    for (let a = 0; a < numAssets; a++) {
+        const asset = C.assets[a];
+        if (asset.walk) {
+            group.dividend[a] = 0;
+        } else {
+            const preset = asset.dividendSequence && !group.practice ? asset.dividendSequence[group.t - 1] : undefined;
+            group.dividend[a] = endDividends ? null : preset != null ? preset : market.drawDividend(asset.dividends);
+            // A truncated asset pays nothing after maxPayouts dividends that are not zero.
+            if (asset.maxPayouts != null && group.dividend[a]) {
+                if (carried.payouts[a] >= asset.maxPayouts) group.dividend[a] = 0;
+                else carried.payouts[a]++;
+            }
+        }
+        carried.perUnit[a] = round2(carried.perUnit[a] + (group.dividend[a] || 0) - taxIn(a, group.t));
+        const trades = group.trades.rows.filter((t) => t.asset === a);
+        group.stats[a] = Object.assign(market.priceStats(trades), { value: group.value[a] });
+    }
+    // News of the final value after the period (stateSignals with when 'end'), not after the last.
+    if (C.stateSignals && C.stateSignals.when === 'end' && !group.lastPeriod) {
+        const S = C.stateSignals;
+        const values = market.dividendProcess(C.assets[S.asset || 0].buyback).values;
+        const high = secretOf(group).final[S.asset || 0] >= Math.max(...values);
+        const right = Math.random() < S.accuracy;
+        group.news = (S.labels || ['good news', 'bad news'])[high === right ? 0 : 1];
+    }
+    // Dividends drawn at the end (Ackert, Kluger and Qi 2012): one for each period, for the units held then.
+    if (endDividends && group.lastPeriod) {
+        group.endDividends = C.assets.map((asset) => {
+            const out = [];
+            let paid = 0;
+            for (let t = 1; t <= group.T; t++) {
+                let d = market.drawDividend(asset.dividends);
+                if (asset.maxPayouts != null && d) d = paid++ < asset.maxPayouts ? d : 0;
+                out.push(d);
+            }
+            return out;
+        });
+    }
+    // A value path's step after the period: the value of the next period, or after the last, the final value.
+    for (let a = 0; a < numAssets; a++) {
+        if (C.assets[a].walk) carried.walk[a] = round2(carried.walk[a] + walkStep(C.assets[a].walk));
+    }
+    if (group.lastPeriod) group.final = C.assets.map((x, a) => round2(finalValueOf(group, a)));
+    for (const player of group.players) {
+        // Interest on cash held after trading, then dividends, taxes and the cash inflow.
+        player.interestEarned = C.interest && player.cash > 0 ? round2(player.cash * C.interest) : 0;
+        player.cash = round2(player.cash + player.interestEarned);
+        player.held.push(player.assets.slice());
+        if (endDividends) {
+            player.dividends = 0;
+            if (group.lastPeriod) {
+                player.dividends = round2(player.held.reduce((s, units, t) => s + units.reduce((s2, u, a) => s2 + u * group.endDividends[a][t], 0), 0));
+            }
+        } else {
+            player.dividends = round2(C.assets.reduce((s, x, a) => s + player.assets[a] * group.dividend[a], 0));
+        }
+        player.tax = round2(C.assets.reduce((s, x, a) => s + player.assets[a] * taxIn(a, group.t), 0));
+        if (C.dividendAccount === 'separate') player.account = round2(player.account + player.dividends - player.tax);
+        else player.cash = round2(player.cash + player.dividends - player.tax);
+        player.inflow = group.practice ? 0 : inflowIn(group.t);
+        player.cash = round2(player.cash + player.inflow);
+        if (group.lastPeriod) {
+            const holdings = C.assets.reduce((s, a, i) => s + player.assets[i] * group.final[i], 0);
+            player.buybackValue = round2(holdings);
+            player.finalCash = round2(player.cash + player.account + holdings);
+            let base = C.loan ? player.initialCash : 0;
+            // With carryCash, a round's earnings are what it added to the cash it began with.
+            if (C.carryCash && group.round > 1) base = player.initialCash;
+            // With payoff 'profit', earnings are what the endowment would not have paid had it been held.
+            if (C.payoff === 'profit') base = player.initialCash + C.assets.reduce((s, x, a) => s + player.initialAssets[a] * (carried.perUnit[a] + group.final[a]), 0);
+            player.roundPayoff = round2(player.finalCash + C.bonus - base);
+            payRound(player);
+        }
+    }
+    // The market's history: a row a period.
+    carried.past.push({
+        t: group.t,
+        mean: group.stats.map((x) => (x.mean == null ? null : round2(x.mean))),
+        last: C.assets.map((x, a) => lastPriceOf(group, a)),
+        value: group.value.slice(),
+        dividend: group.dividend.slice(),
+        news: group.news,
+    });
+    if (C.firm) carried.firmTraded = firmTraded(group);
+    for (const player of group.players) {
+        player.carried = carried;
+        refresh(player);
+    }
+    group.orders.save();
+    group.trades.save();
+};
+
+/**
+ * A round's earnings, at its end: its points, if the market pays them ("payRounds"); and, when the
+ * market is a stage of another app, in the roundPayoffs of the player whose stage it is (by round,
+ * from 1), for the app that pays them (../payment).
+ */
+function payRound(player) {
+    if (player.group.practice) return;
+    if (app.payRounds !== 'no') player.points = player.roundPayoff;
+    const host = hostOf(player);
+    if (host !== player) {
+        host.roundPayoffs = host.roundPayoffs || [];
+        host.roundPayoffs[player.group.round - 1] = player.roundPayoff;
+        host.save();
+    }
+}
+
+/** The player whose stage this app is, or, when this app is played alone, the player. */
+function hostOf(player) {
+    const run = player.app();
+    const host = run.parentPeriod == null ? null : run.parentPeriod.playerByParticipantId(player.participant.id);
+    return host == null ? player : host;
+}
+
+if (C.resultsTime > 0) results.duration = C.resultsTime;
+results.wrapPlayingScreenInFormTag = 'yes';
+results.activeScreen = STYLE + `
+<div class="gims">
+    ${BAR}
+    <h2>Results of the period</h2>
+    <table style="max-width: 720px">
+        <tr><th>Asset</th><th>Dividend a unit</th><th v-if="hasTax">Tax a unit</th><th v-if="hasWalk">Value now</th><th>Mean price</th><th>Units traded</th><th>You hold</th></tr>
+        <tr v-for="(a, i) in app.config.assets" :key="i"><td>{{a.name}}</td><td>{{!a.paysDividends || !group.dividend ? '–' : fmt(group.dividend[i])}}</td><td v-if="hasTax">{{fmt(taxNow(i))}}</td>
+            <td v-if="hasWalk">{{a.walk && group.carried ? fmt(group.carried.walk[i]) : '–'}}</td>
+            <td>{{group.stats[i] ? fmt(group.stats[i].mean) : '–'}}</td><td>{{group.stats[i] ? group.stats[i].volume : 0}}</td><td>{{player.assets[i]}}</td></tr>
+    </table>
+    <p v-if="group.news" class="notice" style="max-width: 720px; margin-top: 10px">News: <b>{{group.news}}</b></p>
+    <p v-if="app.config.dividendTiming === 'end' && !group.lastPeriod" class="muted">Dividends are drawn after the last period, one for each period, for the units held then.</p>
+    <table style="max-width: 420px; margin-top: 10px">
+        <tr v-if="paysAny"><td>Dividends you received</td><td>{{fmt(player.dividends)}}</td></tr>
+        <tr v-if="player.tax > 0"><td>Holding taxes you paid</td><td>{{fmt(player.tax)}}</td></tr>
+        <tr v-if="player.tax < 0"><td>Subsidies you received</td><td>{{fmt(-player.tax)}}</td></tr>
+        <tr v-if="app.config.interest"><td>Interest on your cash</td><td>{{fmt(player.interestEarned)}}</td></tr>
+        <tr v-if="player.inflow"><td>Cash you received</td><td>{{fmt(player.inflow)}}</td></tr>
+        <tr><td><b>Your cash</b></td><td><b>{{fmt(player.cash)}}</b> {{app.config.cashName}}</td></tr>
+        <tr v-if="app.config.separateAccount"><td>Your {{app.config.accountName.toLowerCase()}}</td><td>{{fmt(player.account)}}</td></tr>
+    </table>
+    <div v-if="group.final && (hasWalk || app.config.drawnFinal.includes(true) || group.endDividends)" class="box" style="max-width: 420px; margin-top: 10px">
+        <div v-for="(a, i) in app.config.assets" :key="i" v-if="a.walk || app.config.drawnFinal[i]">After the last period, a unit of {{a.name}} pays <b>{{fmt(group.final[i])}}</b>.</div>
+        <div v-if="group.endDividends">The dividends drawn: <span v-for="(a, i) in app.config.assets" :key="i">{{a.name}}: {{group.endDividends[i].join(', ')}}. </span></div>
+    </div>
+    <div v-if="player.roundPayoff != null" class="box" style="max-width: 420px; margin-top: 10px">
+        <b v-if="group.practice">This was the end of the practice. Your earnings in it would have been {{fmt(player.roundPayoff)}}; they do not count.</b>
+        <b v-else>This market is over. Your earnings in it: {{fmt(player.roundPayoff)}} {{app.config.cashName}}</b>
+        <div class="muted">{{earningsText()}}</div>
+    </div>
+    <p><button class="primary">Continue</button></p>
+</div>`;
+
+addStagesAt('afterResults');
+
+// Messages from the trading screens.
+
+function marketMessage(participant, data, act) {
+    const player = playerIn(participant, 'trading');
+    if (player == null || data == null) return;
+    const result = act(player, bookOf(player.group));
+    if (result && result.error) {
+        notify(player, result.error);
+        return;
+    }
+    player.notice = null;
+    const group = player.group;
+    // The firm stops as soon as it has reached its target.
+    if (C.firm && timers.has(group) && firmTraded(group) >= firmTarget(group)) firmAct(group);
+    group.orders.save();
+    group.trades.save();
+    update(group);
+}
+
+app.messages.gimsOrder = function(data) {
+    marketMessage(this.participant, data, (player, book) => {
+        const asset = assetIndex(data.asset);
+        if (asset == null) return { error: 'Unknown asset.' };
+        const result = market.submitOrder(book, player.idInGroup, { asset, type: data.type, price: data.price, volume: data.volume });
+        if (!result.error) player.tasks[data.type === 'buy' ? 'buyOrder' : 'sellOrder'] = true;
+        return result;
+    });
+};
+
+app.messages.gimsCancel = function(data) {
+    marketMessage(this.participant, data, (player, book) => {
+        const result = market.cancelOrder(book, player.idInGroup, data.id);
+        if (!result.error) player.tasks.cancel = true;
+        return result;
+    });
+};
+
+app.messages.gimsAccept = function(data) {
+    marketMessage(this.participant, data, (player, book) => {
+        const asset = assetIndex(data.asset);
+        if (asset == null) return { error: 'Unknown asset.' };
+        const result = market.acceptOrder(book, player.idInGroup, { asset, side: data.side, volume: data.volume, orderId: data.orderId });
+        if (!result.error) player.tasks[data.side === 'buy' ? 'acceptSell' : 'acceptBuy'] = true;
+        return result;
+    });
+};
+
+// The history filter a trader looks at, logged as GIMS's timelog does.
+app.messages.gimsHistory = function(data) {
+    const player = playerIn(this.participant, 'trading');
+    if (player == null || data == null) return;
+    player.historyFilter = String(data.filter);
+};
+
+app.messages.gimsVote = function(data) {
+    const player = playerIn(this.participant, 'trading');
+    if (player == null || data == null || !C.earlyEndingVote) return;
+    player.voted = data.vote === true;
+    const group = player.group;
+    if (group.players.every((p) => p.voted || p.status !== 'playing')) {
+        group.forceEndStage(player.stage);
+        return;
+    }
+    update(group);
+};
+
+app.messages.gimsCallOrder = function(data) {
+    const player = playerIn(this.participant, 'callAuction');
+    if (player == null || data == null) return;
+    const asset = assetIndex(data.asset);
+    if (asset == null) return notify(player, 'Unknown asset.');
+    const rules = rulesFor(player.group, asset);
+    const isMarket = data.price == null;
+    if (isMarket && !rules.marketOrders) return notify(player, 'Market orders are not allowed: enter a price.');
+    if (data.type !== 'buy' && data.type !== 'sell') return notify(player, 'Unknown order type.');
+    const read = market.readOrder(rules, data.price, data.volume, { market: isMarket });
+    if (read.error) return notify(player, read.error);
+    const order = { id: (player.callOrders.reduce((m, o) => Math.max(m, o.id), 0) + 1), asset, type: data.type, price: read.price, volume: read.volume, time: round2((Date.now() - player.group.marketStart) / 1000) };
+    const mine = player.callOrders.filter((o) => o.asset === asset);
+    const check = market.checkCallOrders(player, rules, asset, mine.concat([order]));
+    if (check.error) return notify(player, check.error);
+    player.callOrders.push(order);
+    player.notice = null;
+    player.saveAndUpdate();
+};
+
+app.messages.gimsCallCancel = function(data) {
+    const player = playerIn(this.participant, 'callAuction');
+    if (player == null || data == null) return;
+    player.callOrders = player.callOrders.filter((o) => o.id !== data.id);
+    player.notice = null;
+    player.saveAndUpdate();
+};

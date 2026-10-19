@@ -4,17 +4,28 @@
 //
 //     [{ "question": "...", "options": ["No", "Yes"], "answer": 1 }, { "question": "...", "answer": 80 }]
 //
-// An app of its own, or a stage of another: the GIMS app (../gims) adds it before its market, with
-// a preset's "controlQuestions" and "controlQuestionsIntro".
+// An app of its own, or a stage of another: the GIMS app (../app.jtt) adds it before the market,
+// when a preset has control questions (presets.js).
 
-app.description = 'Control questions: questions on the instructions, each to be answered right before going on.';
-app.addTextOption('questions', '[{"question": "How many periods are there?", "answer": 10}]', 'The questions, as JSON: [{"question": "...", "options": ["No", "Yes"], "answer": 1}, {"question": "...", "answer": 80}].');
-app.addTextOption('intro', '', 'A text shown above the questions.');
+const here = path.dirname(path.resolve(app.appPath));
+function load(file) {
+    const fn = path.join(here, file);
+    delete require.cache[require.resolve(fn)];
+    return require(fn);
+}
+const presets = load('presets.js');
+
+app.addSelectOption('preset', Object.keys(presets.PRESETS), 'The questions: an example, or a study\'s (presets.js).');
+app.addTextOption('changes', '', 'Settings to change, as JSON: {"controlQuestions": [{"question": "...", "options": ["No", "Yes"], "answer": 1}], "controlQuestionsIntro": "..."}.');
+const C = presets.settingsFor(app.preset, app.changes);
+app.config = C;
+app.intro = C.controlQuestionsIntro;
+app.title = 'The questions about the instructions';
+app.description = 'Control questions: ' + C.controlQuestions.length + ' questions on the instructions, each to be answered right before going on.';
 app.groupSize = 1;
 app.stageWrapPlayingScreenInFormTag = 'yes';
 
-// Given as JSON (from the admin), or as a list (from another app's addApp).
-const QUESTIONS = typeof app.questions === 'string' ? JSON.parse(app.questions || '[]') : app.questions;
+const QUESTIONS = C.controlQuestions;
 app.questionList = QUESTIONS;
 
 const STYLE = `

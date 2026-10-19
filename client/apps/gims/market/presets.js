@@ -1,9 +1,13 @@
-// Settings of the GIMS app (app.jtt), and presets: configurations of published experiments.
+// Settings of the market app (app.jtt), and presets: the markets of published experiments.
 //
 // DEFAULTS are every setting, with GIMS's defaults where GIMS has the setting (GIMS v8.4.2's
 // parameter programs P1 to P10, in brackets the GIMS variable). A preset sets what differs from
-// them. When a session starts, the app's "settings" option can change any setting of the preset
+// them. When a session starts, the app's "changes" option can change any setting of the preset
 // chosen, as JSON: {"tradingTime": 120, "traders": 8}.
+//
+// The rest of a study's design is in the presets of the other apps in ../ (chat, bonds,
+// forecasts, lottery tickets, the account status, ratings, payment, control questions, the CRT
+// and the lottery choices), under the same names; the GIMS app (../app.jtt) puts them together.
 //
 // Money is in points, which the app's exchange rate (or the session's, if exchangeRate is null)
 // turns into money. Periods are counted within a round (a market from its first period to its
@@ -22,11 +26,8 @@ const DEFAULTS = {
     practiceEndowment: null,     // { cash, assets } for the practice periods (GIMS's: 5000 and 100); null for the usual endowments
     practiceTasks: true,         // in practice, a list of things to try [PracticeTasks]
 
-    // Payment
-    payment: 'all',              // 'all' rounds, or one 'random' round [RandomPeriodPayoff]
+    // Payment (how rounds are paid is the payment app's, ../payment)
     exchangeRate: null,          // money per point; null for the session's [ExchangeRate]
-    minPayoff: 0,                // the fewest points paid in all [MinPayoffECU]
-    maxPayoff: null,             // the most points paid in all
     bonus: 0,                    // points added to each round's earnings
     loan: false,                 // whether the initial cash is a loan, paid back from a round's earnings
     cashName: 'points',          // what cash is called on the screens
@@ -67,6 +68,8 @@ const DEFAULTS = {
     assignment: 'random',        // types assigned to traders at 'random' (GIMS) or in 'order' of their place in the market
     reassignTypes: false,        // endowment types drawn again at the start of each round
     dividendAccount: 'cash',     // dividends paid into 'cash', or a 'separate' account not used for trading
+    accountName: null,           // an account apart from cash, which other apps pay into (forecasts, bond interest), by its
+                                 // name on the screens; null for none, or the dividend account if dividends are 'separate'
     dividendTiming: 'period',    // dividends paid after each 'period', or all drawn and paid at the 'end' of a round
     interest: 0,                 // interest per period on cash held after trading (negative: a charge)
     cashInflow: 0,               // cash given to each trader after each period: a number, or an array by period
@@ -74,10 +77,6 @@ const DEFAULTS = {
                                  // earnings are then what it added to the cash it began with
     payoff: 'wealth',            // a round's earnings: its final 'wealth' (cash, account and units at their final value),
                                  // or the 'profit' over what the endowment would have paid had it been kept
-    paymentBlocks: null,         // with payment 'random', one round paid from each block of rounds: e.g. [10, 10]
-    bonds: null,                 // one-period bonds before each period: { rate (a number, or an array by period), payAtEnd
-                                 // (interest paid at the end, not into cash), policy: { levels: [rates], periods: [when it may
-                                 // rise], threshold, exogenous } }
 
     // Market rules (see market.js)
     multiUnit: true,             // [MultiUnitTrading]
@@ -118,36 +117,13 @@ const DEFAULTS = {
                                  // showFundamentalValue), dividends, news
     announcements: [],           // messages on the trading screen: [{ periods: [3, 7], text }]; text is a string, { draw: [texts] }
                                  // (one drawn for the session), or { above, below } (by last period's mean price against the value)
-    accountStatus: null,         // after each period, cash and units at the period's best bid, and the market's
-                                 // { reference: 'highest' } or 'lowest' such total
-    rating: null,                // after each period, a rating: { question, labels: [...] }
-    lottery: null,               // after each period, a lottery ticket: { price, prize, chance }, one draw for all
-    chatTime: 0,                 // seconds of chat before trading, from period chatFrom of each round
-    chatFrom: 2,
     firm: null,                  // a computerized firm that buys ('buy') or sells ('sell') units from period on: { period, side,
                                  // share (of the units given out) or units, interval (seconds), threshold }
 
-    // Price forecasts: null, or { horizon: periods ahead (1 for this period's, or 'all' for every
-    // period left), rewards: [[relative error at most, points], ...], target: 'mean' (trade
-    // price), 'median', 'last' or 'call' (the call auction price) }. They are paid into the
-    // separate account.
-    forecasts: null,
-
-    // Before and after the market [ControlQuestions, CRTBefore, CRTAfter, HLBefore, HLAfter]:
-    // apps of their own (../control-questions, ../crt, ../holt-laury), added as stages, with
-    // these settings as their options; their points are the market's.
-    controlQuestions: [],        // [{ question, options: [...], answer: index of the right option }], or { question, answer: a number }
-    controlQuestionsIntro: '',   // text shown above them
-    crt: null,                   // the cognitive reflection test (Frederick 2005): 'before', 'after' or null
-    crtPay: 0,                   // points per right answer
-    holtLaury: null,             // the Holt and Laury (2002) lottery choices: 'before', 'after' or null
-    holtLauryPayoffs: { aHigh: 2, aLow: 1.6, bHigh: 3.85, bLow: 0.1 },   // in points [PayoffAHigh, ...]
 };
 
 // The dividends of Smith, Suchanek and Williams (1988), used by many of the studies below.
 const SSW_DIVIDENDS = [0, 8, 28, 60];
-// The forecast rewards of Haruvy, Lahav and Noussair (2007), as later studies describe them.
-const HLN_REWARDS = [[0.10, 50], [0.25, 20], [0.50, 10]];
 // The endowments of Smith, Suchanek and Williams's design 4, and those doubled (Haruvy, Noussair and Powell 2014).
 const SSW_ENDOWMENTS = [{ cash: 225, assets: 3 }, { cash: 585, assets: 2 }, { cash: 945, assets: 1 }];
 const SSW_DOUBLED = [{ cash: 450, assets: 6 }, { cash: 1170, assets: 4 }, { cash: 1890, assets: 2 }];
@@ -201,9 +177,6 @@ function schoenbergHaruvy(title, reference, notes) {
         traders: 10, practicePeriods: 2, periods: 15, tradingTime: 180, multiUnit: false,
         assets: [{ name: 'Shares', dividends: SSW_DIVIDENDS }],
         endowments: SSW_ENDOWMENTS,
-        lottery: { price: 6, prize: 120, chance: 0.05 },
-        accountStatus: { reference },
-        rating: { question: 'How do you feel about your current account total?', labels: ['Very negatively', 'Negatively', 'Somewhat negatively', 'Neutral', 'Somewhat positively', 'Positively', 'Very positively'] },
         resultsTime: 0, exchangeRate: 0.01, showFundamentalValue: true, cashName: 'cents',
     };
 }
@@ -236,7 +209,7 @@ function fellnerTheissen(order, precision) {
         endowments: [{ cash: 150, assets: 4 }, { cash: 600, assets: 1 }], reassignTypes: true,
         shortCash: 1e9, byRound: [Object.assign({ from: 1, to: 10 }, allowedFirst ? free : none), Object.assign({ from: 11, to: 20 }, allowedFirst ? none : free)],
         stateSignals: precision ? { accuracy: precision, when: 'start', exact: true, labels: ['high', 'low'] } : null,
-        payoff: 'profit', payment: 'random', paymentBlocks: [10, 10], resultsTime: 15,
+        payoff: 'profit', resultsTime: 15,
         exchangeRate: 1 / 20, cashName: 'ECU',
     };
 }
@@ -278,7 +251,6 @@ function breabanNoussair(title, notes, tax, buyback) {
         traders: 8, rounds: 2, periods: 15, tradingTime: 120, multiUnit: false,
         assets: [{ name: 'Asset', dividends: [10, -10], tax, buyback }],
         endowments: [{ cash: 3600, assets: 10 }],
-        crt: 'before', crtPay: 500, holtLaury: 'before', holtLauryPayoffs: { aHigh: 1000, aLow: 800, bHigh: 1925, bLow: 50 },
         exchangeRate: 1 / 500, showFundamentalValue: true, cashName: 'ECU',
     };
 }
@@ -309,10 +281,7 @@ function huberKirchlerStockl(title, notes, settings) {
     }, settings);
 }
 
-// Cheung, Hedegaard and Palan (2014): training in the value, and whether it is public knowledge.
-const CHP_QUESTIONS = [];
-for (let t = 15; t >= 1; t--) CHP_QUESTIONS.push({ question: 'Suppose that you buy one share in period ' + t + ' and that you keep it until the end of the market (until period 15). What is the average total dividend that you will receive from this share?', answer: 24 * (16 - t) });
-for (let t = 15; t >= 1; t--) CHP_QUESTIONS.push({ question: 'Suppose that you sell one share in period ' + t + ' and that you do not buy it back. What is the average total dividend that you give up on this share?', answer: 24 * (16 - t) });
+// Cheung, Hedegaard and Palan (2014): training in the value (../control-questions), and whether it is public knowledge.
 function cheungHedegaardPalan(title, notes, settings) {
     return Object.assign({
         title: 'Cheung, Hedegaard and Palan (2014): ' + title,
@@ -321,7 +290,7 @@ function cheungHedegaardPalan(title, notes, settings) {
         traders: 10, practicePeriods: 1, periods: 15, tradingTime: 240, multiUnit: false,
         assets: [{ name: 'Shares', dividends: SSW_DIVIDENDS }],
         endowments: [{ cash: 1890, assets: 2 }, { cash: 1170, assets: 4 }, { cash: 450, assets: 6 }], fillerType: 2,
-        crt: 'after', exchangeRate: 1 / 11, showFundamentalValue: true, cashName: 'ECU',
+        exchangeRate: 1 / 11, showFundamentalValue: true, cashName: 'ECU',
     }, settings);
 }
 
@@ -340,16 +309,16 @@ function ackertCharupatChurchDeaves(title, notes, settings) {
     }, settings);
 }
 
-// Fischbacher, Hens and Zeisberger (2013): bonds, and an interest rate that leans against bubbles.
-const FHZ_POLICY = { levels: [0.05, 0.11, 0.15, 0.21], periods: [4, 8, 12], threshold: 1.35 };
-function fischbacherHensZeisberger(title, notes, bonds) {
+// Fischbacher, Hens and Zeisberger (2013): bonds (../bonds), and an interest rate that leans against
+// bubbles; with interestAtEnd, the bonds' interest goes into an account apart from cash.
+function fischbacherHensZeisberger(title, notes, interestAtEnd) {
     return {
         title: 'Fischbacher, Hens and Zeisberger (2013): ' + title,
         reference: 'Fischbacher, U., Hens, T. and Zeisberger, S. (2013). The impact of monetary policy on stock market bubbles and trading behavior: evidence from the lab. Journal of Economic Dynamics and Control 37(10), 2104–2122.',
         notes: '8 traders, each with 10 shares and 3600 Gulden; 15 periods with the dividends of Smith, Suchanek and Williams. Before each period, each trader puts some of their money into a one-period bond, which earns interest but cannot be used to buy shares; then 150 seconds of trading. ' + notes + ' The exchange rate (to Swiss francs) is not given here; a unit at a time is assumed.',
         traders: 8, periods: 15, tradingTime: 150, multiUnit: false,
         assets: [{ name: 'Shares', dividends: SSW_DIVIDENDS }],
-        endowments: [{ cash: 3600, assets: 10 }], bonds,
+        endowments: [{ cash: 3600, assets: 10 }], accountName: interestAtEnd ? 'Bond interest account' : null,
         showFundamentalValue: true, cashName: 'Gulden',
     };
 }
@@ -410,7 +379,7 @@ const PRESETS = {
         traders: 9, rounds: 4, periods: 15, mechanism: 'call', callMaxOrders: 1, marketOrders: false,
         assets: [{ name: 'Asset', dividends: [0, 4, 14, 30] }],
         endowments: [{ cash: 472, assets: 1 }, { cash: 292, assets: 2 }, { cash: 112, assets: 3 }],
-        forecasts: { horizon: 'all', rewards: HLN_REWARDS, target: 'call' },
+        accountName: 'Forecast account',
         showFundamentalValue: true, cashName: 'francs',
     },
     'kirchler-huber-stockl-2012-declining': {
@@ -466,8 +435,7 @@ const PRESETS = {
         traders: 9, periods: 15, tradingTime: 180,
         assets: [{ name: 'Asset', dividends: SSW_DIVIDENDS }],
         endowments: [{ cash: 10000, assets: 10 }],
-        forecasts: { horizon: 1, rewards: HLN_REWARDS, target: 'mean' },
-        crt: 'before', crtPay: 1200, exchangeRate: 1 / 600, showFundamentalValue: true, cashName: 'francs',
+        accountName: 'Forecast account', exchangeRate: 1 / 600, showFundamentalValue: true, cashName: 'francs',
     },
     'lugovskyy-puzzello-tucker-williams-2014-cap': {
         title: 'Lugovskyy, Puzzello, Tucker and Williams (2014): permanent cap',
@@ -476,8 +444,7 @@ const PRESETS = {
         traders: 9, periods: 15, tradingTime: 180, holdingCap: 18,
         assets: [{ name: 'Asset', dividends: SSW_DIVIDENDS }],
         endowments: [{ cash: 10000, assets: 10 }],
-        forecasts: { horizon: 1, rewards: HLN_REWARDS, target: 'mean' },
-        crt: 'before', crtPay: 1200, exchangeRate: 1 / 600, showFundamentalValue: true, cashName: 'francs',
+        accountName: 'Forecast account', exchangeRate: 1 / 600, showFundamentalValue: true, cashName: 'francs',
     },
     'lugovskyy-puzzello-tucker-williams-2014-short-cap': {
         title: 'Lugovskyy, Puzzello, Tucker and Williams (2014): short-term cap',
@@ -486,8 +453,7 @@ const PRESETS = {
         traders: 9, periods: 15, tradingTime: 180, holdingCap: 18, holdingCapUntil: 8,
         assets: [{ name: 'Asset', dividends: SSW_DIVIDENDS }],
         endowments: [{ cash: 10000, assets: 10 }],
-        forecasts: { horizon: 1, rewards: HLN_REWARDS, target: 'mean' },
-        crt: 'before', crtPay: 1200, exchangeRate: 1 / 600, showFundamentalValue: true, cashName: 'francs',
+        accountName: 'Forecast account', exchangeRate: 1 / 600, showFundamentalValue: true, cashName: 'francs',
     },
     'eckel-fullbrunn-2015': {
         title: 'Eckel and Füllbrunn (2015)',
@@ -495,7 +461,7 @@ const PRESETS = {
         notes: 'From the instructions in the online appendix: 9 traders, 18 units in all; a practice period, then 15 periods of 240 seconds; dividends of 0, 8, 28 or 60 tokens into cash; a unit at a time; before each period, forecasts of the price of every period left, 5 tokens for each within 10% of the price, 2 within 25%, 1 within 50%; 100 tokens to the dollar. The endowments are those of Smith, Suchanek and Williams (3, 2 or 1 units), assumed here; the appendix does not give the cash.',
         traders: 9, practicePeriods: 1, periods: 15, tradingTime: 240, multiUnit: false,
         assets: [{ name: 'Shares', dividends: SSW_DIVIDENDS }],
-        forecasts: { horizon: 'all', rewards: [[0.10, 5], [0.25, 2], [0.50, 1]], target: 'mean' },
+        accountName: 'Forecast account',
         exchangeRate: 0.01, showFundamentalValue: true, cashName: 'tokens',
     },
     'giusti-jiang-xu-2014-falling': {
@@ -533,7 +499,7 @@ const PRESETS = {
         assets: [{ name: 'Asset', dividends: [1.2, 1.6], buyback: 28 }],
         endowments: [{ cash: 560, assets: 20 }],
         interest: 0.05, cashInflow: 100,
-        forecasts: { horizon: 3, rewards: [[0.05, 50]], target: 'mean' },
+        accountName: 'Forecast account',
         exchangeRate: 1 / 400, showFundamentalValue: true, cashName: 'Taler',
     },
     'baghestanian-lugovskyy-puzzello-tucker-da': {
@@ -543,8 +509,7 @@ const PRESETS = {
         traders: 9, periods: 15, tradingTime: 180, multiUnit: false, purchaseLimit: 10,
         assets: [{ name: 'Asset', dividends: SSW_DIVIDENDS }],
         endowments: [{ cash: 10000, assets: 10 }],
-        forecasts: { horizon: 1, rewards: HLN_REWARDS, target: 'mean' },
-        crt: 'before', crtPay: 1200, exchangeRate: 1 / 600, showFundamentalValue: true, cashName: 'francs',
+        accountName: 'Forecast account', exchangeRate: 1 / 600, showFundamentalValue: true, cashName: 'francs',
     },
     'baghestanian-lugovskyy-puzzello-tucker-call': {
         title: 'Baghestanian, Lugovskyy, Puzzello and Tucker: call market',
@@ -553,8 +518,7 @@ const PRESETS = {
         traders: 9, periods: 15, mechanism: 'call', callMaxOrders: 1, marketOrders: false, rationing: 'random', purchaseLimit: 10,
         assets: [{ name: 'Asset', dividends: SSW_DIVIDENDS }],
         endowments: [{ cash: 10000, assets: 10 }],
-        forecasts: { horizon: 1, rewards: HLN_REWARDS, target: 'call' },
-        crt: 'before', crtPay: 1200, exchangeRate: 1 / 600, showFundamentalValue: true, cashName: 'francs',
+        accountName: 'Forecast account', exchangeRate: 1 / 600, showFundamentalValue: true, cashName: 'francs',
     },
     'tucker-xu-2024-onemkt': {
         title: 'Tucker and Xu (2024): one market',
@@ -633,7 +597,7 @@ const PRESETS = {
         traders: 9, periods: 15, tradingTime: 240, multiUnit: false,
         assets: [{ name: 'Shares', dividends: [24] }],
         endowments: [{ cash: 1710, assets: 4 }, { cash: 1350, assets: 5 }, { cash: 990, assets: 6 }],
-        crt: 'after', exchangeRate: 0.01, showFundamentalValue: true, cashName: 'cents',
+        exchangeRate: 0.01, showFundamentalValue: true, cashName: 'cents',
     },
     'fellner-theissen-2014-pa0': fellnerTheissen('PA', 0),
     'fellner-theissen-2014-pa60': fellnerTheissen('PA', 0.6),
@@ -667,23 +631,19 @@ const PRESETS = {
     },
     'oechssler-schmidt-schnedler-2011-noinf': oechsslerSchmidtSchnedler('no information (NOINF)', 'No trader learns anything about the supplements.', { supplements: { amounts: [80, 40], insider: 0 } }),
     'oechssler-schmidt-schnedler-2011-inf': oechsslerSchmidtSchnedler('inside information (INF)', 'With probability ½, one trader, drawn at random, is told which asset has one of the supplements, and how much.', { supplements: { amounts: [80, 40], insider: 0.5 } }),
-    'oechssler-schmidt-schnedler-2011-infchat': oechsslerSchmidtSchnedler('inside information and chat (INFCHAT)', 'As INF, with a chat of 60 seconds before each day but the first, open to all; each message shows the sender\'s wealth at the last prices.', { supplements: { amounts: [80, 40], insider: 0.5 }, chatTime: 60, chatFrom: 2 }),
+    'oechssler-schmidt-schnedler-2011-infchat': oechsslerSchmidtSchnedler('inside information and chat (INFCHAT)', 'As INF, with a chat of 60 seconds before each day but the first, open to all; each message shows the sender\'s wealth at the last prices.', { supplements: { amounts: [80, 40], insider: 0.5 } }),
     'cheung-hedegaard-palan-2014-base': cheungHedegaardPalan('no training (BASE)', 'BASE: no training.', {}),
-    'cheung-hedegaard-palan-2014-pk': cheungHedegaardPalan('training, public knowledge (PK)', 'PK: before the market, every trader answers 30 questions on the value (what a share bought, or sold, in each period pays on average), and all know that all of them have.', {
-        controlQuestions: CHP_QUESTIONS, controlQuestionsIntro: 'Every trader in your market answers these questions correctly before the market begins.',
-    }),
-    'cheung-hedegaard-palan-2014-npk': cheungHedegaardPalan('training, not public knowledge (NPK)', 'NPK: every trader answers the questions, but is told only that some traders in the session do (in the paper, ten of twenty).', {
-        controlQuestions: CHP_QUESTIONS, controlQuestionsIntro: 'Some of the participants in this session are asked to answer these questions. The experiment begins when they have answered them all correctly.',
-    }),
+    'cheung-hedegaard-palan-2014-pk': cheungHedegaardPalan('training, public knowledge (PK)', 'PK: before the market, every trader answers 30 questions on the value (what a share bought, or sold, in each period pays on average), and all know that all of them have.', {}),
+    'cheung-hedegaard-palan-2014-npk': cheungHedegaardPalan('training, not public knowledge (NPK)', 'NPK: every trader answers the questions, but is told only that some traders in the session do (in the paper, ten of twenty).', {}),
     'cheung-hedegaard-palan-2014-wait': cheungHedegaardPalan('no training, waiting (WAIT)', 'WAIT: no training, and a message that no one in the market answered questions (in the paper, these traders waited while others in the session were trained).', {
         announcements: [{ periods: [1], text: 'None of the traders in your market answered any questions about the instructions.' }],
     }),
     'ackert-charupat-church-deaves-2006-nssb': ackertCharupatChurchDeaves('borrowing, no short selling (NSS/B)', 'NSS/B: $100 of cash, a loan paid back at the end; earnings are the cash left over it, and at least 0.', { endowments: [{ cash: 100, assets: 2 }], loan: true }),
     'ackert-charupat-church-deaves-2006-nssnb': ackertCharupatChurchDeaves('no borrowing, no short selling (NSS/NB)', 'NSS/NB: $40 of cash, not a loan.', { endowments: [{ cash: 40, assets: 2 }] }),
     'ackert-charupat-church-deaves-2006-ssnb': ackertCharupatChurchDeaves('short selling, no borrowing (SS/NB)', 'SS/NB: $40 of cash, and short sales of up to 5 units of each asset (in the paper, a limit at the end of each period; here, at all times). Traders who are short pay the dividends.', { endowments: [{ cash: 40, assets: 2 }], shortAssets: 5 }),
-    'fischbacher-hens-zeisberger-2013-nopolicy': fischbacherHensZeisberger('no policy', 'The control markets: the bond rate is 5% throughout.', { rate: 0.05 }),
-    'fischbacher-hens-zeisberger-2013-policy': fischbacherHensZeisberger('interest rate policy', 'Experiment 1\'s policy markets: the rate starts at 5% and is raised, in periods 4, 8 and 12, to 11, 15 and 21% when the price forecast (4/3 of the last mean price, plus 1/3 of the one before, less 2/3 of the one before that) is above 135% of the value; it is lowered a level as soon as the mean price falls to the value at the current rate. Interest is paid into cash after each period.', { rate: 0.05, policy: FHZ_POLICY }),
-    'fischbacher-hens-zeisberger-2013-exogenous': fischbacherHensZeisberger('exogenous rates, interest at the end', 'Experiment 2\'s policy markets: the rate rises to 11, 15 and 21% in periods 4, 8 and 12 whatever the prices, and interest is paid at the end, not into cash.', { rate: 0.05, payAtEnd: true, policy: Object.assign({ exogenous: true }, FHZ_POLICY) }),
+    'fischbacher-hens-zeisberger-2013-nopolicy': fischbacherHensZeisberger('no policy', 'The control markets: the bond rate is 5% throughout.', false),
+    'fischbacher-hens-zeisberger-2013-policy': fischbacherHensZeisberger('interest rate policy', 'Experiment 1\'s policy markets: the rate starts at 5% and is raised, in periods 4, 8 and 12, to 11, 15 and 21% when the price forecast (4/3 of the last mean price, plus 1/3 of the one before, less 2/3 of the one before that) is above 135% of the value; it is lowered a level as soon as the mean price falls to the value at the current rate. Interest is paid into cash after each period.', false),
+    'fischbacher-hens-zeisberger-2013-exogenous': fischbacherHensZeisberger('exogenous rates, interest at the end', 'Experiment 2\'s policy markets: the rate rises to 11, 15 and 21% in periods 4, 8 and 12 whatever the prices, and interest is paid at the end, not into cash.', true),
     'ackert-charupat-deaves-kluger-2009': {
         title: 'Ackert, Charupat, Deaves and Kluger (2009): truncated and untruncated lotteries',
         reference: 'Ackert, L. F., Charupat, N., Deaves, R. and Kluger, B. D. (2009). Probability judgment error and speculation in laboratory asset market bubbles. Journal of Financial and Quantitative Analysis 44(3), 719–744.',
@@ -719,7 +679,7 @@ const PRESETS = {
         notes: 'Dufwenberg, Lindqvist and Moore\'s market with equal endowments: 6 traders, each with 3 units and 400 cents; 10 periods of 2 minutes, with a dividend of 0 or 20 cents (equally likely) after each; a continuous double auction whose book is emptied after each period; no borrowing or short selling. Six traders play three such markets to gain experience (here); then they are ranked by their luck-adjusted earnings, and each pair (top, middle, bottom) trades a fourth market with four new traders, in sessions of their own. The CRT comes afterwards (unpaid); their control questions and the training against a computer trader are not included. Every market is paid. A unit at a time is assumed here.',
         traders: 6, rounds: 3, periods: 10, tradingTime: 120, multiUnit: false,
         assets: [{ name: 'Asset', dividends: [0, 20] }],
-        endowments: [{ cash: 400, assets: 3 }], crt: 'after',
+        endowments: [{ cash: 400, assets: 3 }],
         exchangeRate: 0.01, showFundamentalValue: true, cashName: 'cents',
     },
     'breaban-noussair-2015-bull': breabanNoussair('BullMarket', 'BullMarket: a tax of 10 ECU a unit after periods 8 to 15, and 200 a unit after the last period, so that the value is 120 in periods 1 to 7 and then rises by 10 a period to 200.', [0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 10, 10, 10, 10, 10], 200),
@@ -731,8 +691,7 @@ const PRESETS = {
         traders: 10, practicePeriods: 1, periods: 15, tradingTime: 120,
         assets: [{ name: 'Asset', dividends: [-24, -16, 4, 36], buyback: 360 }],
         endowments: [{ cash: 10000, assets: 10 }], loan: true, dividendAccount: 'separate',
-        forecasts: { horizon: 1, rewards: [[0.10, 36]], target: 'mean' },
-        minPayoff: 3600, maxPayoff: 10800, exchangeRate: 1 / 360, showFundamentalValue: true, cashName: 'francs',
+        accountName: 'Dividend and forecast account', exchangeRate: 1 / 360, showFundamentalValue: true, cashName: 'francs',
     },
     'cason-samek-2015-text': casonSamek('text display', 'Text: trade prices are listed as text.', { showChart: false }),
     'cason-samek-2015-visualized': casonSamek('visualized display', 'Visualized: trade prices are also charted against time (here, the period\'s; in the paper, the whole market\'s).', { showChart: true }),
@@ -743,7 +702,7 @@ const PRESETS = {
 /** The settings of a preset, over the defaults, and then overrides (an object, or JSON). */
 function settingsFor(presetId, overrides) {
     const preset = PRESETS[presetId];
-    if (preset == null) throw new Error('No GIMS preset "' + presetId + '". Presets: ' + Object.keys(PRESETS).join(', '));
+    if (preset == null) throw new Error('No market preset "' + presetId + '". Presets: ' + Object.keys(PRESETS).join(', '));
     if (typeof overrides === 'string') overrides = overrides.trim() === '' ? {} : JSON.parse(overrides);
     const settings = Object.assign({}, DEFAULTS, preset, overrides || {});
     settings.preset = presetId;

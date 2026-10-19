@@ -1,0 +1,110 @@
+// A lottery ticket (Schoenberg and Haruvy 2012): each participant can buy a ticket for its price,
+// which wins the prize with a chance; one number is drawn for the group, and if it wins, every
+// ticket wins. Then a screen with the draw.
+//
+// An app of its own, or a stage of each period of the market (../market), after trading, with
+// the traders' cash. Played alone, each participant has `cash` to buy a ticket with, and earns the
+// ticket's result as points.
+
+const here = path.dirname(path.resolve(app.appPath));
+function load(file) {
+    const fn = path.join(here, file);
+    delete require.cache[require.resolve(fn)];
+    return require(fn);
+}
+const presets = load('presets.js');
+
+app.addSelectOption('preset', Object.keys(presets.PRESETS), 'The lottery: an example, or a study\'s (presets.js).');
+app.addTextOption('changes', '', 'Settings to change, as JSON: {"lottery": {"price": 6, "prize": 120, "chance": 0.05}}.');
+const C = presets.settingsFor(app.preset, app.changes);
+app.config = C;
+const L = C.lottery || { price: 0, prize: 0, chance: 0 };
+app.description = 'A lottery ticket: ' + L.price + ' for a ' + (L.chance * 100) + '% chance of ' + L.prize + ', one draw for all.';
+app.stageWrapPlayingScreenInFormTag = 'yes';
+
+// As a stage of another app, its groups are that app's, in its order.
+const ownGroups = app.getGroupIdsForPeriod;
+app.getGroupIdsForPeriod = function(period) {
+    if (this.parentPeriod == null) return ownGroups.call(this, period);
+    const place = (id) => this.parentPeriod.playerByParticipantId(id).idInGroup;
+    return this.playingGroupIds().map((ids) => ids.slice().sort((a, b) => place(a) - place(b)));
+};
+
+/** The player whose stage this app is (the market's), or, when this app is played alone, the player. */
+function hostOf(player) {
+    const run = player.app();
+    const host = run.parentPeriod == null ? null : run.parentPeriod.playerByParticipantId(player.participant.id);
+    return host == null ? player : host;
+}
+
+/** In a market: where its period is ({ practice, round, t, T }); null for an app that is not one. */
+function placeOf(player) {
+    const market = player.app();
+    return typeof market.periodInfo === 'function' ? Object.assign(market.periodInfo(player.group.period.id), { rounds: market.config.rounds }) : null;
+}
+
+const round2 = (x) => Math.round(x * 100) / 100;
+
+const STYLE = `
+<style>
+.task { font-family: system-ui, -apple-system, Segoe UI, sans-serif; font-size: 15px; color: #1d2433; max-width: 760px; margin: 0 auto; padding: 12px; }
+.task h2 { font-size: 20px; margin: 0 0 8px; }
+.task .bar { background: #233; color: #fff; padding: 8px 12px; border-radius: 6px; }
+.task label { display: block; margin: 3px 0; }
+.task button { padding: 5px 14px; border-radius: 4px; border: 1px solid #233; background: #233; color: #fff; cursor: pointer; font: inherit; }
+</style>`;
+const BAR = `<p class="bar" v-if="group.place"><span v-if="group.place.practice">Practice period {{group.place.t}} of {{group.place.T}}</span><span v-else>Period {{group.place.t}} of {{group.place.T}}<span v-if="group.place.rounds > 1"> · Market {{group.place.round}} of {{group.place.rounds}}</span></span></p>`;
+
+const ticket = app.newStage('ticket');
+ticket.groupStart = function(group) {
+    group.place = placeOf(hostOf(group.players[0]));
+    for (const p of group.players) {
+        const host = hostOf(p);
+        if (host === p) p.cash = C.cash;
+        p.cash = host.cash;
+    }
+};
+app.fields = { 'player.lotteryTicket': { type: 'choice', choices: ['yes', 'no'] } };
+ticket.formFields = ['player.lotteryTicket'];
+ticket.validate = function(player, values) {
+    if (values['player.lotteryTicket'] === 'yes' && hostOf(player).cash < L.price) return { 'player.lotteryTicket': 'You do not have the cash for a ticket.' };
+    return undefined;
+};
+ticket.activeScreen = STYLE + `
+<div class="task">
+    ${BAR}
+    <h2>Lottery ticket</h2>
+    <p>You can buy a ticket for {{app.config.lottery.price}}. It wins {{app.config.lottery.prize}} with a chance of {{app.config.lottery.chance * 100}}%: one number is drawn, and if it wins, every ticket wins.</p>
+    <p><label><input type="radio" name="player.lotteryTicket" value="yes" required> Buy a ticket</label>
+       <label><input type="radio" name="player.lotteryTicket" value="no" required> No ticket</label></p>
+    <p><button>OK</button></p>
+</div>`;
+
+const result = app.newStage('ticketResult');
+result.groupStart = function(group) {
+    group.place = placeOf(hostOf(group.players[0]));
+    group.lotteryWin = Math.random() < L.chance;
+    for (const p of group.players) {
+        const host = hostOf(p);
+        p.lotteryResult = p.lotteryTicket === 'yes' ? round2((group.lotteryWin ? L.prize : 0) - L.price) : 0;
+        host.cash = round2(host.cash + p.lotteryResult);
+        p.cash = host.cash;
+        if (host === p) {
+            p.points = p.lotteryResult;
+        } else {
+            host.lotteryTicket = p.lotteryTicket;
+            host.lotteryResult = p.lotteryResult;
+            host.save();
+        }
+    }
+};
+result.activeScreen = STYLE + `
+<div class="task">
+    ${BAR}
+    <h2>Lottery ticket</h2>
+    <p>The lottery <b>{{group.lotteryWin ? 'won' : 'did not win'}}</b>.</p>
+    <p v-if="player.lotteryTicket === 'yes'">You bought a ticket: {{player.lotteryResult >= 0 ? 'you win' : 'you lose'}} {{Math.abs(player.lotteryResult)}}.</p>
+    <p v-else>You did not buy a ticket.</p>
+    <p>Your cash: <b>{{player.cash}}</b>.</p>
+    <p><button>OK</button></p>
+</div>`;

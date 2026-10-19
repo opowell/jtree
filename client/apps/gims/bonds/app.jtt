@@ -1,0 +1,171 @@
+// One-period bonds (Fischbacher, Hens and Zeisberger 2013): each participant puts some of their
+// cash into a bond at the period's rate. It cannot be used to trade, and comes back with interest
+// after the period; with payAtEnd, the interest goes into the account apart from cash instead.
+//
+// An app of its own, or a stage of each period of the market (../market): its part "invest"
+// before trading, and its part "return" after it, with the traders' cash. There the rate can
+// follow a policy: raised a level in its periods when the price forecast from the last three
+// mean prices is above threshold times the value (or always, if exogenous), and lowered a level
+// as soon as the last mean price is at most the value at the current rate. Played alone (part
+// "both"), each participant has `cash` to invest, and earns the interest as points.
+
+const here = path.dirname(path.resolve(app.appPath));
+function load(file) {
+    const fn = path.join(here, file);
+    delete require.cache[require.resolve(fn)];
+    return require(fn);
+}
+const presets = load('presets.js');
+
+app.addSelectOption('preset', Object.keys(presets.PRESETS), 'The bonds: an example, or a study\'s (presets.js).');
+app.addTextOption('changes', '', 'Settings to change, as JSON: {"bonds": {"rate": 0.1}}.');
+app.addSelectOption('part', ['both', 'invest', 'return'], 'Which part: putting cash into bonds ("invest"), the bonds back with interest ("return"), or both.');
+const C = presets.settingsFor(app.preset, app.changes);
+app.config = C;
+const B = C.bonds || { rate: 0 };
+app.description = 'One-period bonds, at ' + (Array.isArray(B.rate) ? B.rate.join(', ') : B.rate * 100 + '%') + (B.policy ? ', with a rate policy' : '') + '.';
+app.stageWrapPlayingScreenInFormTag = 'yes';
+
+// As a stage of another app, its groups are that app's, in its order.
+const ownGroups = app.getGroupIdsForPeriod;
+app.getGroupIdsForPeriod = function(period) {
+    if (this.parentPeriod == null) return ownGroups.call(this, period);
+    const place = (id) => this.parentPeriod.playerByParticipantId(id).idInGroup;
+    return this.playingGroupIds().map((ids) => ids.slice().sort((a, b) => place(a) - place(b)));
+};
+
+/** The player whose stage this app is (the market's), or, when this app is played alone, the player. */
+function hostOf(player) {
+    const run = player.app();
+    const host = run.parentPeriod == null ? null : run.parentPeriod.playerByParticipantId(player.participant.id);
+    return host == null ? player : host;
+}
+
+/** In a market: where its period is ({ practice, round, t, T }); null for an app that is not one. */
+function placeOf(player) {
+    const market = player.app();
+    return typeof market.periodInfo === 'function' ? Object.assign(market.periodInfo(player.group.period.id), { rounds: market.config.rounds }) : null;
+}
+
+const round2 = (x) => Math.round(x * 100) / 100;
+
+/** The present value of flows (one a period, from now) and final, at interest per period. */
+function presentValue(flows, final, interest) {
+    let v = final;
+    for (let i = flows.length - 1; i >= 0; i--) v = (flows[i] + v) / (1 + interest);
+    return v;
+}
+
+/**
+ * The bond rate in a market's period (market: the market's group): the rate, or its entry for the
+ * period; or, with a policy, as above. The rate is carried from period to period with the market.
+ */
+function rateIn(market) {
+    if (Array.isArray(B.rate)) return B.rate[Math.min(B.rate.length, market.t) - 1];
+    if (B.policy == null || market.practice) return B.rate;
+    const P = B.policy;
+    const M = market.app().config;
+    let rate = market.t === 1 || market.carried.bondRate == null ? B.rate : market.carried.bondRate;
+    const level = P.levels.indexOf(rate);
+    const past = market.carried.past;
+    const mean = (t) => (past[t - 1] && past[t - 1].mean[0] != null ? past[t - 1].mean[0] : null);
+    const last = mean(market.t - 1);
+    const flows = [];
+    for (let s = market.t - 1; s <= market.T; s++) flows.push(M.meanDividends[0]);
+    if (last != null && level > P.levels.indexOf(B.rate) && last <= presentValue(flows, 0, rate)) return P.levels[level - 1];
+    if (P.periods.includes(market.t) && level < P.levels.length - 1) {
+        if (P.exogenous) return P.levels[level + 1];
+        const [p1, p2, p3] = [mean(market.t - 1), mean(market.t - 2), mean(market.t - 3)];
+        if (p1 != null && p2 != null && p3 != null) {
+            const forecast = (4 / 3) * p1 + (1 / 3) * p2 - (2 / 3) * p3;
+            if (forecast > P.threshold * market.value[0]) return P.levels[level + 1];
+        }
+    }
+    return rate;
+}
+
+const STYLE = `
+<style>
+.task { font-family: system-ui, -apple-system, Segoe UI, sans-serif; font-size: 15px; color: #1d2433; max-width: 760px; margin: 0 auto; padding: 12px; }
+.task h2 { font-size: 20px; margin: 0 0 8px; }
+.task .bar { background: #233; color: #fff; padding: 8px 12px; border-radius: 6px; }
+.task input[type=number] { width: 110px; padding: 4px; }
+.task button { padding: 5px 14px; border-radius: 4px; border: 1px solid #233; background: #233; color: #fff; cursor: pointer; font: inherit; }
+</style>`;
+const BAR = `<p class="bar" v-if="group.place"><span v-if="group.place.practice">Practice period {{group.place.t}} of {{group.place.T}}</span><span v-else>Period {{group.place.t}} of {{group.place.T}}<span v-if="group.place.rounds > 1"> · Market {{group.place.round}} of {{group.place.rounds}}</span></span></p>`;
+
+if (app.part !== 'return') {
+    const invest = app.newStage('bonds');
+    invest.groupStart = function(group) {
+        const host = hostOf(group.players[0]);
+        group.place = placeOf(host);
+        if (host === group.players[0]) {
+            // Played alone: each participant's cash is theirs.
+            group.rate = Array.isArray(B.rate) ? B.rate[0] : B.rate;
+            for (const p of group.players) p.cash = C.cash;
+        } else {
+            const market = host.group;
+            group.rate = rateIn(market);
+            market.carried.bondRate = group.rate;
+        }
+        group.payAtEnd = B.payAtEnd === true;
+        for (const p of group.players) {
+            const h = hostOf(p);
+            p.cash = h.cash;
+            h.bondRate = group.rate;
+        }
+    };
+    app.fields = { 'player.bondInput': { type: 'number', min: 0 } };
+    invest.formFields = ['player.bondInput'];
+    invest.validate = function(player, values) {
+        const x = Number(values['player.bondInput']);
+        const cash = hostOf(player).cash;
+        if (!(x >= 0) || x > cash + 1e-9) return { 'player.bondInput': 'Enter an amount from 0 to your cash, ' + round2(cash) + '.' };
+        return undefined;
+    };
+    invest.playerEnd = function(player) {
+        const host = hostOf(player);
+        player.bond = round2(Math.min(host.cash, Math.max(0, Number(player.bondInput) || 0)));
+        host.bond = player.bond;
+        host.cash = round2(host.cash - player.bond);
+        if (host !== player) host.save();
+    };
+    invest.activeScreen = STYLE + `
+<div class="task">
+    ${BAR}
+    <h2>Bonds</h2>
+    <p>The interest rate on bonds this period is <b>{{Math.round(group.rate * 10000) / 100}}%</b>. Money you put into bonds earns interest but cannot be used to buy units this period; it comes back <span v-if="group.payAtEnd">after the period, and its interest at the end of the experiment</span><span v-else>with its interest after the period</span>.</p>
+    <p>Your cash: <b>{{player.cash}}</b>.</p>
+    <p><label>Put into bonds: <input type="number" min="0" step="any" name="player.bondInput" :max="player.cash" required></label></p>
+    <p><button>OK</button></p>
+</div>`;
+}
+
+if (app.part !== 'invest') {
+    const back = app.newStage('bondsBack');
+    back.groupStart = function(group) {
+        group.place = placeOf(hostOf(group.players[0]));
+        for (const p of group.players) {
+            const host = hostOf(p);
+            p.bond = host.bond || 0;
+            p.rate = host.bondRate || 0;
+            p.bondInterest = round2(p.bond * p.rate);
+            host.bondInterest = p.bondInterest;
+            host.cash = round2(host.cash + p.bond + (B.payAtEnd ? 0 : p.bondInterest));
+            if (B.payAtEnd) host.account = round2((host.account || 0) + p.bondInterest);
+            if (host === p) p.points = p.bondInterest;
+            else host.save();
+            p.cash = host.cash;
+        }
+        group.payAtEnd = B.payAtEnd === true;
+    };
+    back.activeScreen = STYLE + `
+<div class="task">
+    ${BAR}
+    <h2>Bonds</h2>
+    <p v-if="player.bond > 0">Your bonds of {{player.bond}} are back, with interest at {{Math.round(player.rate * 10000) / 100}}%: <b>{{player.bondInterest}}</b><span v-if="group.payAtEnd">, paid at the end of the experiment</span>.</p>
+    <p v-else>You had no bonds this period.</p>
+    <p>Your cash: <b>{{player.cash}}</b>.</p>
+    <p><button>OK</button></p>
+</div>`;
+}

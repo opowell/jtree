@@ -1,0 +1,107 @@
+// A chat: for chatTime seconds, the members of a group write to each other, and everyone sees
+// every message.
+//
+// An app of its own, or a stage of each period of the market (../market), before trading
+// (Oechssler, Schmidt and Schnedler 2011): there, from period chatFrom of each round, not in
+// practice periods, and each message shows its sender's trader number and wealth: cash, and
+// units at the last prices (at their value, for an asset not yet traded).
+
+const here = path.dirname(path.resolve(app.appPath));
+function load(file) {
+    const fn = path.join(here, file);
+    delete require.cache[require.resolve(fn)];
+    return require(fn);
+}
+const presets = load('presets.js');
+
+app.addSelectOption('preset', Object.keys(presets.PRESETS), 'The chat: an example, or a study\'s (presets.js).');
+app.addTextOption('changes', '', 'Settings to change, as JSON: {"chatTime": 90}.');
+const C = presets.settingsFor(app.preset, app.changes);
+app.config = C;
+app.description = 'A chat of ' + C.chatTime + ' seconds.';
+
+// As a stage of another app, its groups are that app's, in its order.
+const ownGroups = app.getGroupIdsForPeriod;
+app.getGroupIdsForPeriod = function(period) {
+    if (this.parentPeriod == null) return ownGroups.call(this, period);
+    const place = (id) => this.parentPeriod.playerByParticipantId(id).idInGroup;
+    return this.playingGroupIds().map((ids) => ids.slice().sort((a, b) => place(a) - place(b)));
+};
+
+/** The player whose stage this app is (the market's), or, when this app is played alone, the player. */
+function hostOf(player) {
+    const run = player.app();
+    const host = run.parentPeriod == null ? null : run.parentPeriod.playerByParticipantId(player.participant.id);
+    return host == null ? player : host;
+}
+
+/** In a market: where its period is ({ practice, round, t, T }); null for an app that is not one. */
+function placeOf(player) {
+    const market = player.app();
+    return typeof market.periodInfo === 'function' ? Object.assign(market.periodInfo(player.group.period.id), { rounds: market.config.rounds }) : null;
+}
+
+// As a stage of the market's periods: from period chatFrom of each round, not in practice.
+app.canPlayerParticipate = function(player) {
+    const place = placeOf(player);
+    return place == null || (!place.practice && place.t >= C.chatFrom);
+};
+
+const round2 = (x) => Math.round(x * 100) / 100;
+
+/** A trader's wealth in their market: cash, and units at the last prices, or at their value. */
+function wealthOf(host) {
+    const M = host.app().config;
+    if (M == null || host.assets == null) return null;
+    const past = host.group.carried ? host.group.carried.past : [];
+    return round2(host.cash + M.assets.reduce((s, x, a) => {
+        let price = null;
+        for (let i = past.length - 1; i >= 0 && price == null; i--) price = past[i].last[a];
+        return s + host.assets[a] * (price == null ? host.group.value[a] : price);
+    }, 0));
+}
+
+const chat = app.newStage('chat');
+chat.duration = C.chatTime;
+chat.wrapPlayingScreenInFormTag = 'no';
+chat.groupStart = function(group) {
+    group.addTable('chat');
+    group.place = placeOf(hostOf(group.players[0]));
+};
+chat.activeScreen = `
+<style>
+.task { font-family: system-ui, -apple-system, Segoe UI, sans-serif; font-size: 15px; color: #1d2433; max-width: 760px; margin: 0 auto; padding: 12px; }
+.task h2 { font-size: 20px; margin: 0 0 8px; }
+.task .bar { background: #233; color: #fff; padding: 8px 12px; border-radius: 6px; }
+.task .muted { color: #667189; font-size: 13px; }
+.task .box { background: #f4f6fa; border: 1px solid #d5dae5; border-radius: 6px; padding: 10px; }
+.task .messages { max-height: 320px; min-height: 160px; overflow-y: auto; }
+.task .entry { display: flex; gap: 6px; margin-top: 8px; }
+.task button { padding: 5px 14px; border-radius: 4px; border: 1px solid #233; background: #233; color: #fff; cursor: pointer; font: inherit; }
+</style>
+<div class="task">
+    <p class="bar" v-if="group.place"><span v-if="group.place.practice">Practice period {{group.place.t}} of {{group.place.T}}</span><span v-else>Period {{group.place.t}} of {{group.place.T}}<span v-if="group.place.rounds > 1"> · Market {{group.place.round}} of {{group.place.rounds}}</span></span></p>
+    <h2>Chat</h2>
+    <p class="muted"><span v-if="group.place">Before trading opens, you can write to the other traders.</span><span v-else>You can write to the others.</span> Everyone sees every message.</p>
+    <div class="box">
+        <div class="messages">
+            <div v-for="m in (group.chat || [])" :key="m.id"><b>{{group.place ? 'Trader' : 'Participant'}} {{m.from}}</b> <span class="muted" v-if="m.wealth != null">(wealth {{m.wealth}})</span>: {{m.text}}</div>
+            <div v-if="(group.chat || []).length === 0" class="muted">No messages yet.</div>
+        </div>
+        <div class="entry"><input type="text" maxlength="300" style="flex: 1; padding: 4px" v-model="chatText" @keydown.enter.prevent="jt.sendMessage('chatMessage', {text: chatText}); chatText = ''">
+            <button type="button" @click="jt.sendMessage('chatMessage', {text: chatText}); chatText = ''">Send</button></div>
+    </div>
+</div>`;
+app.vueModels = { chatText: '' };
+
+app.messages.chatMessage = function(data) {
+    const player = this.participant.player;
+    if (player == null || player.status !== 'playing' || player.stage.id !== 'chat' || data == null) return;
+    const text = String(data.text || '').trim().slice(0, 300);
+    if (text === '') return;
+    const host = hostOf(player);
+    const group = player.group;
+    group.chat.new({ from: host.idInGroup, text, wealth: host === player ? null : wealthOf(host), time: Date.now() });
+    group.chat.save();
+    for (const p of group.players) p.saveAndUpdate();
+};

@@ -1,17 +1,28 @@
 // Holt and Laury's (2002) lottery choices: ten rows, each a choice between a safe lottery A and a
 // risky lottery B, whose chance of the high amount rises from 1/10 to 10/10. One row is drawn,
 // and its chosen lottery is played: a number from 1 to 10 is drawn, and the high amount is paid if
-// it is at most the row's number. A screen after the choices shows the draw and the earnings.
+// it is at most the row's number. With holtLauryResult, a screen after the choices shows the draw
+// and the earnings.
 //
-// An app of its own, or a stage of another: the GIMS app (../gims) adds it before or after its
-// market, as a preset's "holtLaury" setting says, with its "holtLauryPayoffs" and "cashName".
+// An app of its own, or a stage of another: the GIMS app (../app.jtt) adds it before or after the
+// market, as a preset's "holtLaury" setting says (presets.js).
 
-app.description = 'Holt and Laury\'s (2002) lottery choices: ten choices between a safe and a risky lottery, one drawn and played for points.';
-app.addNumberOption('aHigh', 2, null, null, 'any', 'Lottery A\'s high amount, in points.');
-app.addNumberOption('aLow', 1.6, null, null, 'any', 'Lottery A\'s low amount, in points.');
-app.addNumberOption('bHigh', 3.85, null, null, 'any', 'Lottery B\'s high amount, in points.');
-app.addNumberOption('bLow', 0.1, null, null, 'any', 'Lottery B\'s low amount, in points.');
+const here = path.dirname(path.resolve(app.appPath));
+function load(file) {
+    const fn = path.join(here, file);
+    delete require.cache[require.resolve(fn)];
+    return require(fn);
+}
+const presets = load('presets.js');
+
+app.addSelectOption('preset', Object.keys(presets.PRESETS), 'The lottery choices: an example, or a study\'s (presets.js).');
+app.addTextOption('changes', '', 'Settings to change, as JSON: {"holtLauryPayoffs": {"aHigh": 200, "aLow": 160, "bHigh": 385, "bLow": 10}, "holtLauryResult": false}.');
 app.addTextOption('pointsName', 'points', 'What points are called on the screens.');
+const C = presets.settingsFor(app.preset, app.changes);
+app.config = C;
+Object.assign(app, C.holtLauryPayoffs);
+app.title = 'The lottery choices';
+app.description = 'Holt and Laury\'s (2002) lottery choices: ten choices between a safe and a risky lottery, one drawn and played for points.';
 app.groupSize = 1;
 app.stageWrapPlayingScreenInFormTag = 'yes';
 
@@ -61,10 +72,12 @@ choices.activeScreen = STYLE + `
     <p><button>OK</button></p>
 </div>`;
 
-const result = app.newStage('lotteryResult');
-result.activeScreen = STYLE + `
+if (C.holtLauryResult) {
+    const result = app.newStage('lotteryResult');
+    result.activeScreen = STYLE + `
 <div class="task">
     <h2>Lottery choices</h2>
     <p>Row {{player.hlRow}} was drawn, in which you chose option {{player.hlChoice}}. The number drawn is {{player.hlDie}}, so you earn <b>{{player.hlEarnings}}</b> {{app.pointsName}}.</p>
     <button>OK</button>
 </div>`;
+}
