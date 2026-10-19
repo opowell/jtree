@@ -12,6 +12,7 @@ import { serverUrl, state } from './server/connection'
 import { downloadOutputUrl, server } from './server/commands'
 import {
   addressBar,
+  arrangeWindows,
   closePanel,
   defaultLayout,
   editApp,
@@ -21,9 +22,11 @@ import {
   resetLayout,
   savedLayout,
   showNewSession,
+  showWindow,
   solo,
   togglePanel,
   TOOLS,
+  topWindows,
   workspace,
 } from './workspace'
 
@@ -43,7 +46,7 @@ const popOut = (panel: WindowPanelDef) => layoutRoute.popOutHref(panel.id)
 // The window's outermost space draws no bar of its own; how it is shown (row, column, tabs,
 // desktop) is chosen from Window → Arrange, which is the menu that bar would have had.
 const frame = ref<InstanceType<typeof WindowFrame> | null>(null)
-const arrange = computed<MenuItemDef[]>(() => frame.value?.rootMenu ?? [])
+const arrange = computed<MenuItemDef[]>(() => (frame.value?.rootMenu.length ? frame.value.rootMenu : arrangeWindows()))
 
 const menus = computed<MenuItemDef[]>(() => {
   const s = session.value
@@ -86,13 +89,23 @@ const menus = computed<MenuItemDef[]>(() => {
       ],
     },
     {
+      label: 'Panels',
+      items: Object.entries(TOOLS).map(([id, label]) => ({
+        label,
+        checked: openIds.value.includes(id),
+        action: () => togglePanel(id),
+      })),
+    },
+    {
       label: 'Window',
       items: [
-        ...Object.entries(TOOLS).map(([id, label]) => ({
-          label,
-          checked: openIds.value.includes(id),
-          action: () => togglePanel(id),
-        })),
+        ...(topWindows.value.length
+          ? topWindows.value.map((item) => ({
+              label: item.label,
+              checked: item.shown,
+              action: () => showWindow(item.index),
+            }))
+          : [{ label: 'No windows open', disabled: true }]),
         { separator: true },
         { label: 'Arrange', disabled: !arrange.value.length, items: arrange.value },
         {

@@ -7,7 +7,7 @@ A group of players is given an endowment from which they may contribute a certai
 
 #### The admin
 
-The admin at `/admin/` is a menu bar over panels. Panels can be dragged into tabs, splits and floating windows; Window → Arrange shows them all as a row, a column, tabs or a desktop, and Window → Reset layout puts them back. The open panels and their arrangement are in the address (`?w=…`), so reloading the page keeps them and a link opens them as they were; a panel's ⋯ menu can pop it out to a browser window of its own, and a pane of tabs' ⋯ menu has Close all, which closes its tabs.
+The admin at `/admin/` is a menu bar over panels. The Panels menu opens and closes Browse, Session, Participants, Participant views, Log and Settings. Panels can be dragged into tabs, splits and floating windows. The Window menu lists the windows open, what the page itself holds side by side, as tabs or as a desktop, and brings the one chosen to the front; Window → Arrange shows them as a row, a column, tabs or a desktop, and Window → Reset layout puts everything back. The open panels and their arrangement are in the address (`?w=…`), so reloading the page keeps them and a link opens them as they were; a panel's ⋯ menu can pop it out to a browser window of its own, and a pane of tabs' ⋯ menu has Close all, which closes its tabs.
 
 - **Browse**: every session, participant, app (queues included) and log entry, searchable, and sorted by any column whose heading is pressed. An app's Kind says what it is (jtree app, oTree app, z-Tree treatment or questionnaire, queue, oTree session config); apps that opted out of being listed show under the "Unlisted" filter. Opening a row opens it in its own panel.
 - **Session**: the open session.
@@ -20,7 +20,7 @@ The admin at `/admin/` is a menu bar over panels. Panels can be dragged into tab
 #### Start a session
 
 1. In Browse, open the `public-goods` app.
-2. In its panel, press "New session with this app". jtree makes a new session with this app, and shows it in the Session panel, alone in the window. The Window menu brings back the other panels (Participants, say).
+2. In its panel, press "New session with this app". jtree makes a new session with this app, and shows it in the Session panel, in a window of its own that fills the page. What was open before is the other window in the Window menu ("Browse + public-goods"), as it was; the Panels menu opens the others (Participants, say).
 3. Under Participants, set the number of participants (4, one group) and press "Set".
 4. Press "Start".
 

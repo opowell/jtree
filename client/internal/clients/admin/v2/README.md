@@ -14,7 +14,7 @@ server's editor API (`/api/editor/jtree/…`, `server/source/editors/`).
 | Panel | What it is |
 | --- | --- |
 | Browse | Every session, participant, app (queues included) and log entry, searchable, filterable and sorted by any column's heading. Its query is in the address bar, so a view is a link. Opening a row opens it in its own panel. An app's Kind and File (`appKind`, `appFile` in `schema.ts`) say what it is in its own program's words; apps whose `listed` is false are left out unless the Unlisted filter is on (`source.ts`). |
-| Session | The open session (a new one opens in this panel alone, filling the window): start, pause/resume, advance slowest, reset, download output, delete; its apps; participant count, autoplay, login options. |
+| Session | The open session (a new one opens in this panel, in a window of its own beside what was open): start, pause/resume, advance slowest, reset, download output, delete; its apps; participant count, autoplay, login options. |
 | Participants | The open session's participants, live: app, period, group, stage, clients, points, state. Opening one shows its page in Participant views. |
 | Participant views | Each chosen participant's own page, side by side, with autoplay and reload per view. |
 | App | One per app opened: details, and starting a session from it or adding it to the open one. A queue is an app made of other apps, and its panel lists them. Edit opens a jtree app in the app editor; z-Tree treatments and oTree apps link to the editors in their admins. |
@@ -29,7 +29,16 @@ and a link opens them as they were. They are also saved in the browser, with the
 theme, for an address without `w`; **Window → Reset layout** restores the
 default. The outermost space draws no bar or border (appfr's `rootBar` off), so
 the panels sit straight in the window; how it is shown (row, column, tabs or
-desktop) is **Window → Arrange**, appfr's `rootMenu`. The default's splits draw no bar (`headless`), and appfr keeps such a
+desktop) is **Window → Arrange**, appfr's `rootMenu`. The panels in the table above
+are opened and closed from the **Panels** menu. The **Window** menu lists the windows: what
+that outermost space holds (`topWindows` in `workspace.ts`), each named for the panels in it,
+and brings the one chosen to the front. A new session opens in a window of its own beside
+what was open (`showNewSession`): the outermost space becomes a strip of windows, drawn
+without a bar, which the Window menu switches between. A pane of tabs is made a window in a
+headless row of its own, since appfr would otherwise merge its tabs into the strip, where
+they are not drawn; appfr's `rootMenu` has nothing for a strip whose tabs are all windows, so
+Arrange's four choices for it are jtree's (`arrangeWindows`); and a strip left holding one
+window is that window again. The default's splits draw no bar (`headless`), and appfr keeps such a
 space when its last panel goes, so `workspace.ts` drops an empty one from the
 layout rather than leave a blank box where it was; and a split left holding one
 thing is that thing, rather than a border drawn around a border around it. A panel's ⋯ menu pops it out to a browser window holding it alone

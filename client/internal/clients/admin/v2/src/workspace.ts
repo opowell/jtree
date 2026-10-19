@@ -1,19 +1,35 @@
 import { computed, reactive, watch } from 'vue'
 import {
+  activeTab,
+  cascade,
   column,
   createHistoryAdapter,
+  frontPanel,
   group,
   hasPanel,
   headless,
   insertPanel,
+  minimizeFrameAt,
   normalizeSizes,
   panelIds,
   panelNode,
+  raiseFrameAt,
   removePanel,
   row,
   setActivePanel,
+  tabNode,
+  tabPanels,
 } from 'header-content-layout'
-import type { RouteAdapter, ShellRow, ShellTheme, WindowNode, WindowPanelDef } from 'header-content-layout'
+import type {
+  MenuItemDef,
+  RouteAdapter,
+  ShellRow,
+  ShellTheme,
+  WindowFloat,
+  WindowNode,
+  WindowPanelDef,
+  WindowTab,
+} from 'header-content-layout'
 import { state } from './server/connection'
 import { server } from './server/commands'
 import { appLabel } from './schema'
@@ -99,7 +115,19 @@ export const workspace = reactive({
  * builds a new tree every time, which the watch below could not stop on. This returns the node
  * itself when nothing in it changed, so the watch stops at once.
  */
-function tidySplits(node: WindowNode): WindowNode {
+function tidySplits(node: WindowNode, window = false): WindowNode {
+  // The windows a new session leaves (see showNewSession) are tabs, and may be splits too; one
+  // holding a single pane is kept, since it is what keeps that pane a window of its own.
+  if (node.kind === 'group') {
+    const panels: WindowTab[] = []
+    node.panels.forEach((tab) => {
+      const next = typeof tab === 'string' ? tab : tidySplits(tab, node.headless)
+      if (typeof next !== 'string' && next.kind === 'split' && next.headless && next.children.length === 0) return
+      panels.push(next)
+    })
+    const changed = panels.length !== node.panels.length || panels.some((tab, i) => tab !== node.panels[i])
+    return changed ? { ...node, panels } : node
+  }
   if (node.kind !== 'split') return node
   const shares = normalizeSizes(node.children.length, node.sizes)
   const children: WindowNode[] = []
@@ -110,16 +138,25 @@ function tidySplits(node: WindowNode): WindowNode {
     children.push(next)
     sizes.push(shares[i])
   })
-  if (children.length === 1 && !node.title && !node.places) return children[0]
+  if (children.length === 1 && !node.title && !node.places && !window) return children[0]
   const changed = children.length !== node.children.length || children.some((child, i) => child !== node.children[i])
   return changed ? { ...node, children, sizes: normalizeSizes(children.length, sizes) } : node
+}
+
+/**
+ * The windows' strip (see showNewSession) left holding one window is that window: a strip of
+ * one has nothing to switch between, and nothing for Window → Arrange to arrange.
+ */
+function tidyLayout(layout: WindowNode): WindowNode {
+  const only = layout.kind === 'group' && layout.headless && !layout.title && layout.panels.length === 1 ? layout.panels[0] : null
+  return only && typeof only !== 'string' ? tidySplits(only) : tidySplits(layout)
 }
 
 // Layouts made before this, in an address or this browser, may hold such splits already.
 watch(
   () => workspace.layout,
   (layout) => {
-    const next = layout && tidySplits(layout)
+    const next = layout && tidyLayout(layout)
     if (next !== layout) workspace.layout = next
   },
   { immediate: true },
@@ -208,11 +245,99 @@ export function showPanel(id: string) {
 }
 
 /**
- * A new session opens in a panel of its own that fills the window, rather than as a tab
- * among the others: what was open before is closed, and comes back from the Window menu.
+ * A new session opens in a window of its own that fills the page, rather than as a tab among
+ * the others: what was open before stays as it was, as another window beside it, and the
+ * Window menu goes back to it. The windows are tabs of the outermost space, which draws no
+ * strip of its own (`rootBar` off, see App.vue), so they are told apart and chosen from that
+ * menu. A layout that is such a strip already gets one more tab; any other is the first tab
+ * of a new one. The Session panel shows the open session wherever it is, so it leaves the
+ * window it was in for the new one.
  */
 export function showNewSession() {
-  workspace.layout = panelNode('session')
+  const rest = workspace.layout && removePanel(workspace.layout, 'session')
+  if (!rest) {
+    workspace.layout = panelNode('session')
+    return
+  }
+  const windows = rest.kind === 'group' && rest.headless && !rest.title ? rest : headless(group([asWindow(rest)]))
+  workspace.layout = { ...windows, panels: [...windows.panels, asWindow(panelNode('session'))], active: 'session' }
+}
+
+/**
+ * A pane of tabs made a tab of the windows' strip would be merged into that strip by appfr,
+ * its tabs becoming the strip's, and the strip draws none: Browse, beside an app, would be on
+ * no strip at all, and the session's pane would lose its title and its close. In a row of its
+ * own, drawn without a bar, it is a space that stays one, and draws its own strip.
+ */
+function asWindow(node: WindowNode): WindowNode {
+  return node.kind === 'group' ? headless(row([node])) : node
+}
+
+/**
+ * The windows of the page: what its outermost space holds, which Window → Arrange shows as a
+ * row, a column, tabs or a desktop. Each is named for the panels in it.
+ */
+export const topWindows = computed(() => {
+  const layout = workspace.layout
+  if (!layout) return []
+  // A pane of tabs shows its own strip, and is one window, however many tabs it has.
+  const root = layout.kind === 'group' && !layout.headless ? headless(group([layout])) : layout
+  const nodes: WindowTab[] =
+    root.kind === 'group' ? root.panels : root.kind === 'split' ? root.children : root.frames.map((held) => held.node)
+  const front = root.kind === 'group' ? activeTab(root) : root.kind === 'float' ? frontFrame(root) : -1
+  return nodes.map((tab, index) => ({
+    label: windowLabel(tab),
+    // A row's or a column's are all on screen; a strip shows the tab on top, a desktop the
+    // window in front.
+    shown: root.kind === 'split' || index === front,
+    index,
+  }))
+})
+
+function windowLabel(tab: WindowTab): string {
+  if (typeof tab !== 'string' && tab.title) return tab.title
+  const titles = tabPanels(tab).filter(isPanel).map(titleFor)
+  const MAX = 4
+  return titles.length > MAX ? `${titles.slice(0, MAX - 1).join(' + ')} + ${titles.length - MAX + 1} more` : titles.join(' + ')
+}
+
+/** The window in front of a desktop: the last one not rolled up. */
+function frontFrame(root: WindowFloat): number {
+  for (let i = root.frames.length - 1; i >= 0; i--) if (!root.frames[i].minimized) return i
+  return -1
+}
+
+/**
+ * Window → Arrange for the windows a new session leaves: a strip whose tabs are all spaces.
+ * appfr's choices for a strip are made from a panel that is a tab of it, which this one has
+ * none of, so its root menu is empty for it; these are the same four, made from the windows.
+ * Shown as a row, a column or a desktop, the windows are appfr's again, Tabs included.
+ */
+export function arrangeWindows(): MenuItemDef[] {
+  const root = workspace.layout
+  if (!root || root.kind !== 'group' || !root.headless || root.panels.length < 2) return []
+  const nodes = root.panels.map(tabNode)
+  const show = (layout: WindowNode) => () => (workspace.layout = layout)
+  return [
+    { label: 'Row', action: show(headless(row(nodes))) },
+    { label: 'Column', action: show(headless(column(nodes))) },
+    { label: 'Tabs', checked: true },
+    { label: 'Desktop', action: show(headless(cascade(nodes))) },
+  ]
+}
+
+/** Brings one of the page's windows to the front: its tab to the top, or its frame forward. */
+export function showWindow(index: number) {
+  const root = workspace.layout
+  if (!root) return
+  if (root.kind === 'group' && root.headless) {
+    const tab = root.panels[index]
+    if (tab !== undefined) workspace.layout = setActivePanel(root, frontPanel(tab))
+  } else if (root.kind === 'float') {
+    if (!root.frames[index]) return
+    const unrolled = root.frames[index].minimized ? minimizeFrameAt(root, [index], false) : root
+    workspace.layout = raiseFrameAt(unrolled, [index])
+  }
 }
 
 /** Opens jtree's app editor on an app's file ('new' for a new app). */
