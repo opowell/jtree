@@ -38,7 +38,7 @@
 <li>GIMS's order book rules: single or multi-unit orders, the improvement rule, no crossing of the book, a limit on open orders, invalidation of orders no longer feasible (in full or in part), emptying the book after a trade, how many orders and prices are shown;</li>
 <li>the call auction's rules: orders per trader, market orders and their priority, indicative prices, rationing by time or at random;</li>
 <li>price forecasts, paid by accuracy; a vote to end a period early; practice periods with things to try; repeated markets, all paid or one at random; a minimum payment;</li>
-<li>control questions (with options, or numbers for answers), the cognitive reflection test and Holt and Laury's lottery choices, before or after the market;</li>
+<li>control questions (with options, or numbers for answers), the cognitive reflection test and Holt and Laury's lottery choices, before or after the market: these are apps of their own (see below), which the GIMS app adds as stages;</li>
 <li>for the designs of the studies below: holding taxes; final values drawn for each market (with supplements, and an insider told one), with private signals or public news of them; values that follow a random path; a cash reserve for short positions; a book of depth one; announcements (fixed, drawn, or by the market); a chat before trading; bonds and an interest rate policy; a computerized firm that buys back or issues shares; a lottery ticket, an account status with the market's largest or smallest account, and a rating after each period; period lengths by round; endowment types drawn anew; cash carried from market to market; earnings as profits; one market paid from each block.</li>
 </ul>
 <h4>Running it</h4>
@@ -49,6 +49,35 @@
 </ul>
 <p>Each preset has its number of traders: participants are put in markets of that many, in order (a session of 18 with <code>ssw</code> has two markets of 9). With <code>&quot;traders&quot;: 0</code> all participants trade in one market. Money is in points; the preset's exchange rate turns them into money, or the session's if the preset has none (several papers do not report theirs).</p>
 <p><code>client/apps/gims/presets.js</code> lists every setting, with its default and GIMS's name for it; a new preset is an entry there. The market engine is <code>market.js</code>, plain functions without jtree, and the app is <code>app.jtt</code>.</p>
+<h4>Before and after the market</h4>
+<p>The tasks that are not the market are apps of their own, next to <code>gims</code> in the apps folder, which can be played on their own or before or after any app:</p>
+<table>
+<thead>
+<tr>
+<th>App</th>
+<th>What</th>
+<th>Options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>control-questions</code></td>
+<td>questions on the instructions, each to be answered right before going on: with options (the answer is the right one's index, from 0) or a number for an answer</td>
+<td><code>questions</code> (as JSON: <code>[{&quot;question&quot;: &quot;...&quot;, &quot;options&quot;: [&quot;No&quot;, &quot;Yes&quot;], &quot;answer&quot;: 1}, {&quot;question&quot;: &quot;...&quot;, &quot;answer&quot;: 80}]</code>), <code>intro</code></td>
+</tr>
+<tr>
+<td><code>crt</code></td>
+<td>the cognitive reflection test (Frederick 2005); when paid, a screen with the score after it</td>
+<td><code>pay</code> (points per right answer), <code>pointsName</code></td>
+</tr>
+<tr>
+<td><code>holt-laury</code></td>
+<td>Holt and Laury's (2002) ten lottery choices, one row drawn and played, and a screen with the draw</td>
+<td><code>aHigh</code>, <code>aLow</code>, <code>bHigh</code>, <code>bLow</code> (in points), <code>pointsName</code></td>
+</tr>
+</tbody>
+</table>
+<p>The GIMS app adds them as stages (<code>app.addApp</code>, see <a href='tutorial-apps-and-stages.html'>apps and stages</a>), as a preset's settings say: <code>controlQuestions</code> and <code>controlQuestionsIntro</code> in the first period, and <code>crt</code> and <code>holtLaury</code> (<code>'before'</code> or <code>'after'</code>) in the first period or the last, with <code>crtPay</code>, <code>holtLauryPayoffs</code> and the market's <code>cashName</code>. Their stages are <code>controlQuestions</code>, <code>crtBefore</code>, <code>riskBefore</code>, <code>crtAfter</code> and <code>riskAfter</code>. Their points are the market's, at its exchange rate, and the payment screen lists them; the minimum and maximum payments count them.</p>
 <h4>The presets</h4>
 <p>From the list of asset market experiments at <a href="https://sites.google.com/site/opowell/assetmarketexperiments">sites.google.com/site/opowell/assetmarketexperiments</a>: those whose design GIMS's market can run, and whose parameters could be read in the paper, a working paper, or a replication (cited in each). What is assumed, or left out, is said.</p>
 <p>Not here: Noussair and Tucker (2006), whose design is a set of futures markets, and Palan (2010), whose is a market for digital options; Füllbrunn and Haruvy (2013) and Weitzel et al. (2020), whose parameters could not be read.</p>
@@ -300,7 +329,7 @@ Source: Huber, J., Kirchler, M. and Stöckl, T. (2015). The influence of investm
 <li><strong>Not here</strong>: GIMS's financial literacy questions and exit questionnaire, its German screens, its experimenter z-Leaf (jtree's admin shows each participant's screen and data) and its timelog (jtree records the order book and trades, as tables of each group, and every player's account, in the session's data).</li>
 </ul>
 <h4>Checks</h4>
-<p><code>server/test/gims.test.js</code> tests the engine on its own (the order rules, invalidation, the five price rules, settlement, the value of a unit against Giusti, Jiang and Xu's table), loads every preset, and plays sessions of several with bots, checking each trader's earnings: SSW's market, KHS's constant-value market with its practice period, cash inflows and buyback, HLN's call market with forecasts, Tucker and Xu's buyers and sellers with a holding cap and the vote to end a period, a market with control questions, the CRT, lotteries, short selling, interest and a random market paid, signals and indicative prices in a call auction, and the features added for the studies above: holding taxes, announcements and period lengths by round; Fellner and Theissen's drawn values, private signals, profits and short selling by block; Palfrey and Wang's news and carried cash; Schoenberg and Haruvy's lottery tickets, account status and rating; the computerized firm; a value path; supplements with an insider, and the chat; bonds and a rising rate; dividends drawn at the end, a truncated asset and numeric control questions; subsidies and a maximum payment.</p>
+<p><code>server/test/gims.test.js</code> tests the engine on its own (the order rules, invalidation, the five price rules, settlement, the value of a unit against Giusti, Jiang and Xu's table), loads every preset, and plays sessions of several with bots, checking each trader's earnings: SSW's market, KHS's constant-value market with its practice period, cash inflows and buyback, HLN's call market with forecasts, Tucker and Xu's buyers and sellers with a holding cap and the vote to end a period, a market with control questions, the CRT, lotteries (the apps above, as stages), short selling, interest and a random market paid, signals and indicative prices in a call auction, and the features added for the studies above: holding taxes, announcements and period lengths by round; Fellner and Theissen's drawn values, private signals, profits and short selling by block; Palfrey and Wang's news and carried cash; Schoenberg and Haruvy's lottery tickets, account status and rating; the computerized firm; a value path; supplements with an insider, and the chat; bonds and a rising rate; dividends drawn at the end, a truncated asset and numeric control questions; subsidies and a maximum payment. <code>server/test/tasks.test.js</code> plays the control questions, the CRT and the lottery choices on their own.</p>
 <h4>Citing</h4>
 <p>Results of experiments run with it should cite GIMS: Palan, S. (2015), &quot;GIMS — Software for asset market experiments&quot;, <em>Journal of Behavioral and Experimental Finance</em> 5, 1–14 (GIMS's licence asks for this), and the paper whose design a preset follows.</p>
 </article>
@@ -316,7 +345,7 @@ Source: Huber, J., Kirchler, M. and Stöckl, T. (2015). The influence of investm
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Oct 18 2026 20:51:09 GMT+0200 (Central European Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Mon Oct 19 2026 06:37:55 GMT+0200 (Central European Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -13,6 +13,11 @@ Start a session with `app.jtt` and choose a **preset**; the **changes** option c
 settings, as JSON (`{"traders": 8, "tradingTime": 120}`). A new preset is an entry in `presets.js`,
 with its source and anything it assumes.
 
+The control questions, the cognitive reflection test and Holt and Laury's lottery choices are apps
+of their own, next to this one (`../control-questions`, `../crt`, `../holt-laury`); the app adds
+them as stages before or after the market, as a preset's `controlQuestions`, `crt` and `holtLaury`
+say. Their points are the market's.
+
 `server/test/gims.test.js` tests the engine and plays sessions of several presets with bots.
 
 The app is written anew for jtree, after GIMS v8.4.2's settings and rules and its manual (v7.7.1);

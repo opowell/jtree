@@ -1,0 +1,70 @@
+// Holt and Laury's (2002) lottery choices: ten rows, each a choice between a safe lottery A and a
+// risky lottery B, whose chance of the high amount rises from 1/10 to 10/10. One row is drawn,
+// and its chosen lottery is played: a number from 1 to 10 is drawn, and the high amount is paid if
+// it is at most the row's number. A screen after the choices shows the draw and the earnings.
+//
+// An app of its own, or a stage of another: the GIMS app (../gims) adds it before or after its
+// market, as a preset's "holtLaury" setting says, with its "holtLauryPayoffs" and "cashName".
+
+app.description = 'Holt and Laury\'s (2002) lottery choices: ten choices between a safe and a risky lottery, one drawn and played for points.';
+app.addNumberOption('aHigh', 2, null, null, 'any', 'Lottery A\'s high amount, in points.');
+app.addNumberOption('aLow', 1.6, null, null, 'any', 'Lottery A\'s low amount, in points.');
+app.addNumberOption('bHigh', 3.85, null, null, 'any', 'Lottery B\'s high amount, in points.');
+app.addNumberOption('bLow', 0.1, null, null, 'any', 'Lottery B\'s low amount, in points.');
+app.addTextOption('pointsName', 'points', 'What points are called on the screens.');
+app.groupSize = 1;
+app.stageWrapPlayingScreenInFormTag = 'yes';
+
+/** A whole number from 1 to n, each equally likely. */
+const draw = (n) => Math.floor(Math.random() * n) + 1;
+
+const STYLE = `
+<style>
+.task { font-family: system-ui, -apple-system, Segoe UI, sans-serif; font-size: 15px; color: #1d2433; max-width: 900px; margin: 0 auto; padding: 12px; }
+.task h2 { font-size: 20px; margin: 0 0 8px; }
+.task table { border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.task td, .task th { padding: 4px 10px; text-align: left; }
+.task th { color: #3b4660; font-weight: 600; border-bottom: 1px solid #c7cedc; }
+.task tr + tr td { border-top: 1px solid #e3e7ef; }
+.task button { padding: 5px 14px; border-radius: 4px; border: 1px solid #233; background: #233; color: #fff; cursor: pointer; font: inherit; }
+</style>`;
+
+app.fields = {};
+const choices = app.newStage('lotteries');
+choices.formFields = [];
+let rows = '';
+for (let i = 1; i <= 10; i++) {
+    app.fields['player.hl' + i] = { type: 'choice', choices: ['A', 'B'] };
+    choices.formFields.push('player.hl' + i);
+    rows += `
+        <tr><td>${i}</td>
+            <td><label><input type="radio" name="player.hl${i}" value="A" required> ${i}/10 of {{app.aHigh}}, ${10 - i}/10 of {{app.aLow}}</label></td>
+            <td><label><input type="radio" name="player.hl${i}" value="B" required> ${i}/10 of {{app.bHigh}}, ${10 - i}/10 of {{app.bLow}}</label></td></tr>`;
+}
+choices.playerEnd = function(player) {
+    const chosen = [];
+    for (let i = 1; i <= 10; i++) chosen.push(player['hl' + i]);
+    player.hlSafeChoices = chosen.filter((c) => c === 'A').length;
+    player.hlRow = draw(10);
+    player.hlDie = draw(10);
+    player.hlChoice = chosen[player.hlRow - 1];
+    const high = player.hlDie <= player.hlRow;
+    player.hlEarnings = player.hlChoice === 'A' ? (high ? app.aHigh : app.aLow) : (high ? app.bHigh : app.bLow);
+    player.points = player.hlEarnings;
+};
+choices.activeScreen = STYLE + `
+<div class="task">
+    <h2>Lottery choices</h2>
+    <p>In each row, choose option A or B. One row will be drawn at random, and you are paid by the option you chose in it: a number from 1 to 10 is drawn, and the first amount is paid if it is at most the row's number, the second if not.</p>
+    <table><tr><th>Row</th><th>Option A</th><th>Option B</th></tr>${rows}
+    </table>
+    <p><button>OK</button></p>
+</div>`;
+
+const result = app.newStage('lotteryResult');
+result.activeScreen = STYLE + `
+<div class="task">
+    <h2>Lottery choices</h2>
+    <p>Row {{player.hlRow}} was drawn, in which you chose option {{player.hlChoice}}. The number drawn is {{player.hlDie}}, so you earn <b>{{player.hlEarnings}}</b> {{app.pointsName}}.</p>
+    <button>OK</button>
+</div>`;

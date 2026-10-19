@@ -227,9 +227,17 @@ test('every preset loads, with its periods and stages', () => {
         assert.equal(stages.includes('trading'), s.mechanism !== 'call', id);
         assert.equal(stages.includes('callAuction'), s.mechanism !== 'cda', id);
         assert.equal(stages.includes('forecast'), s.forecasts != null, id);
+        assert.equal(stages.includes('controlQuestions'), s.controlQuestions.length > 0, id);
+        assert.equal(stages.includes('crtBefore') || stages.includes('crtAfter'), s.crt != null, id);
+        assert.equal(stages.includes('riskBefore') || stages.includes('riskAfter'), s.holtLaury != null, id);
         assert.ok(preset.reference && preset.notes, id + ' cites its source');
     }
 });
+
+/** A bot's player in the app that is stage stageId of the session's first app (its one run). */
+function taskPlayer(bot, stageId) {
+    return Object.values(bot.participant.players).find((p) => p.app().parentStage != null && p.app().parentStage.id === stageId);
+}
 
 /** Plays every period's stages that need nothing but OK, until test() says to act; returns. */
 async function playThrough(bots, stage, period) {
@@ -368,11 +376,14 @@ test('control questions, a paid CRT, lottery choices, short selling, interest, a
     const bots = await server.connectAll(session);
     session.start();
     const [p1, p2] = bots;
-    await p1.play('controlQuestions', { 'player.cq1': 0 });
+    // The control questions, the CRT and the lottery choices are apps of their own, as stages.
+    assert.deepEqual(['controlQuestions', 'crtBefore', 'riskAfter'].map((id) => path.basename(path.dirname(app.stages.find((s) => s.id === id).appFile))), ['control-questions', 'crt', 'holt-laury']);
+    await p1.play('questions', { 'player.cq1': 0 });
     assert.match((await p1.waitForFormErrors())['player.cq1'], /not right/);
     for (const b of bots) b.submit({ 'player.cq1': 1 });
-    await p1.play('crtBefore', { 'player.crt1': 5, 'player.crt2': 5, 'player.crt3': 47 });
-    await p2.play('crtBefore', { 'player.crt1': 10, 'player.crt2': 100, 'player.crt3': 24 });
+    await p1.play('crt', { 'player.crt1': 5, 'player.crt2': 5, 'player.crt3': 47 });
+    await p2.play('crt', { 'player.crt1': 10, 'player.crt2': 100, 'player.crt3': 24 });
+    await playThrough(bots, 'crtResult');
     await playThrough(bots, 'callAuction', 1);
     await playThrough(bots, 'callResults', 1);
     // P1 sells 5 units, one more than they have.
@@ -386,11 +397,14 @@ test('control questions, a paid CRT, lottery choices, short selling, interest, a
     for (const stage of ['callAuction', 'callResults', 'trading', 'results']) await playThrough(bots, stage, 2);
     const lotteries = {};
     for (let i = 1; i <= 10; i++) lotteries['player.hl' + i] = 'A';
-    await Promise.all(bots.map((b) => b.play('riskAfter', lotteries, { period: 2 })));
+    await Promise.all(bots.map((b) => b.play('lotteries', lotteries)));
+    await playThrough(bots, 'lotteryResult');
     await playThrough(bots, 'payment', 2);
     await Promise.all(bots.map((b) => b.waitForEnd()));
     const players = bots.map((b) => b.players());
-    assert.deepEqual(players.map((ps) => ps[0].crtEarnings), [30, 0]);
+    const crt = bots.map((b) => taskPlayer(b, 'crtBefore'));
+    const lottery = bots.map((b) => taskPlayer(b, 'riskAfter'));
+    assert.deepEqual(crt.map((p) => p.crtEarnings), [30, 0]);
     // Round 1: P1 has 52,000, less 10%, plus 8 for the unit they are short, less 500 for it:
     // 46,308. P2: 48,000 less 10%, 9 units × −8, plus 9 × 500: 47,628. Round 2: no trades,
     // 50,000 less 10%, 4 × −8, plus 4 × 500: 46,968.
@@ -399,9 +413,11 @@ test('control questions, a paid CRT, lottery choices, short selling, interest, a
     assert.ok(paid === 1 || paid === 2);
     session.payments().forEach((p, i) => {
         const last = players[i][1];
-        assert.ok([1.6, 2].includes(last.hlEarnings));
-        const earned = players[i][0].crtEarnings + last.hlEarnings + last.roundPayoffs[paid - 1];
+        assert.ok([1.6, 2].includes(lottery[i].hlEarnings));
+        assert.deepEqual(last.taskEarnings, [{ label: 'The three questions', points: crt[i].crtEarnings }, { label: 'The lottery choices', points: lottery[i].hlEarnings }].filter((t) => t.points !== 0));
+        const earned = crt[i].crtEarnings + lottery[i].hlEarnings + last.roundPayoffs[paid - 1];
         assert.ok(Math.abs(p.points - Math.max(47000, earned)) < 1e-6, p.id + ': ' + p.points);
+        assert.ok(Math.abs(last.totalPoints - p.points) < 1e-6);
     });
 });
 
@@ -711,7 +727,7 @@ test('dividends drawn at the end for the units held each period, a truncated ass
     }, 2);
     const bots = await server.connectAll(session);
     session.start();
-    await bots[0].play('controlQuestions', { 'player.cq1': 60 });
+    await bots[0].play('questions', { 'player.cq1': 60 });
     assert.match((await bots[0].waitForFormErrors())['player.cq1'], /not right/);
     for (const b of bots) b.submit({ 'player.cq1': 80 });
     // In period 2, P1 sells P2 a unit of A at 10.

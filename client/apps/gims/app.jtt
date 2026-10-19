@@ -778,111 +778,23 @@ function inLastPeriod(player) {
     return player.group.period.id === app.numPeriods;
 }
 
-if (C.controlQuestions.length > 0) {
-    const cq = app.newStage('controlQuestions');
-    cq.canPlayerParticipate = inPeriodOne;
-    cq.groupStart = setUp;
-    app.fields = app.fields || {};
-    // A question has options (the answer is the index of the right one), or a number for an answer.
-    cq.formFields = C.controlQuestions.map((q, i) => {
-        app.fields['player.cq' + (i + 1)] = q.options ? { type: 'int', min: 0, max: q.options.length - 1 } : { type: 'number' };
-        return 'player.cq' + (i + 1);
-    });
-    cq.validate = function(player, values) {
-        const errors = {};
-        C.controlQuestions.forEach((q, i) => {
-            const v = values['player.cq' + (i + 1)];
-            const right = q.options ? v === q.answer : Math.abs(Number(v) - q.answer) < 1e-6;
-            if (!right) errors['player.cq' + (i + 1)] = 'That is not right. Please look at the instructions again.';
-        });
-        return Object.keys(errors).length > 0 ? errors : undefined;
-    };
-    cq.wrapPlayingScreenInFormTag = 'yes';
-    cq.activeScreen = STYLE + `
-<div class="gims">
-    <h2>Questions about the instructions</h2>
-    <p v-if="app.config.controlQuestionsIntro" class="notice">{{app.config.controlQuestionsIntro}}</p>
-    <p>Please answer these questions. You can go on when all are right.</p>
-    <div class="question" v-for="(q, i) in app.config.controlQuestions" :key="i">
-        <b>{{i + 1}}. {{q.question}}</b>
-        <label v-for="(o, j) in q.options" :key="j"><input type="radio" :name="'player.cq' + (i + 1)" :value="j" required> {{o}}</label>
-        <div v-if="!q.options"><input type="number" step="any" :name="'player.cq' + (i + 1)" required></div>
-    </div>
-    <button class="primary">OK</button>
-</div>`;
+// Before the market, in its first period, and after it, in its last: control questions, the
+// cognitive reflection test and Holt and Laury's lottery choices, as the settings say. Each is an
+// app of its own (../control-questions, ../crt, ../holt-laury), added here as a stage; their
+// points are the market's, at its exchange rate. TASKS: their stages, with what the payment
+// screen calls their earnings.
+const TASKS = [];
+function addTask(file, options, id, when, label) {
+    const stage = app.addApp(file, options, id);
+    stage.canPlayerParticipate = when;
+    TASKS.push({ id, label });
 }
+const crtOptions = { pay: C.crtPay, pointsName: C.cashName };
+const holtLauryOptions = Object.assign({ pointsName: C.cashName }, C.holtLauryPayoffs);
 
-const CRT = [
-    { q: 'A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost (in cents)?', a: 5 },
-    { q: 'If it takes 5 machines 5 minutes to make 5 widgets, how long would it take 100 machines to make 100 widgets (in minutes)?', a: 5 },
-    { q: 'In a lake, there is a patch of lily pads. Every day, the patch doubles in size. If it takes 48 days for the patch to cover the entire lake, how long would it take for the patch to cover half of the lake (in days)?', a: 47 },
-];
-function crtStage(id, when) {
-    const s = app.newStage(id);
-    s.canPlayerParticipate = when;
-    s.groupStart = setUp;
-    s.wrapPlayingScreenInFormTag = 'yes';
-    app.fields = app.fields || {};
-    s.formFields = CRT.map((q, i) => {
-        app.fields['player.crt' + (i + 1)] = { type: 'number', blank: true };
-        return 'player.crt' + (i + 1);
-    });
-    s.playerEnd = function(player) {
-        player.crtScore = CRT.filter((q, i) => Number(player['crt' + (i + 1)]) === q.a).length;
-        player.crtEarnings = player.crtScore * C.crtPay;
-        player.points = (player.points || 0) + player.crtEarnings;
-    };
-    s.activeScreen = STYLE + `
-<div class="gims">
-    <h2>Three questions</h2>
-    <p v-if="app.config.crtPay > 0">You earn {{app.config.crtPay}} {{app.config.cashName}} for each right answer.</p>
-    <div class="question"><b>1. ${CRT[0].q}</b><br><input type="number" step="any" name="player.crt1"></div>
-    <div class="question"><b>2. ${CRT[1].q}</b><br><input type="number" step="any" name="player.crt2"></div>
-    <div class="question"><b>3. ${CRT[2].q}</b><br><input type="number" step="any" name="player.crt3"></div>
-    <button class="primary">OK</button>
-</div>`;
-}
-
-function holtLauryStage(id, when) {
-    const s = app.newStage(id);
-    s.canPlayerParticipate = when;
-    s.groupStart = setUp;
-    s.wrapPlayingScreenInFormTag = 'yes';
-    app.fields = app.fields || {};
-    s.formFields = [];
-    for (let i = 1; i <= 10; i++) {
-        app.fields['player.hl' + i] = { type: 'choice', choices: ['A', 'B'] };
-        s.formFields.push('player.hl' + i);
-    }
-    s.playerEnd = function(player) {
-        const P = C.holtLauryPayoffs;
-        const choices = [];
-        for (let i = 1; i <= 10; i++) choices.push(player['hl' + i]);
-        player.hlSafeChoices = choices.filter((c) => c === 'A').length;
-        player.hlRow = draw(10);
-        player.hlDie = draw(10);
-        const high = player.hlDie <= player.hlRow;
-        const a = choices[player.hlRow - 1] === 'A';
-        player.hlEarnings = a ? (high ? P.aHigh : P.aLow) : (high ? P.bHigh : P.bLow);
-        player.points = (player.points || 0) + player.hlEarnings;
-    };
-    let rows = '';
-    for (let i = 1; i <= 10; i++) {
-        rows += `<tr><td>${i}</td>
-            <td><label><input type="radio" name="player.hl${i}" value="A" required> ${i}/10 of {{app.config.holtLauryPayoffs.aHigh}}, ${10 - i}/10 of {{app.config.holtLauryPayoffs.aLow}}</label></td>
-            <td><label><input type="radio" name="player.hl${i}" value="B" required> ${i}/10 of {{app.config.holtLauryPayoffs.bHigh}}, ${10 - i}/10 of {{app.config.holtLauryPayoffs.bLow}}</label></td></tr>`;
-    }
-    s.activeScreen = STYLE + `
-<div class="gims">
-    <h2>Lottery choices</h2>
-    <p>In each row, choose option A or B. One row will be drawn at random, and you are paid by the option you chose in it: a number from 1 to 10 is drawn, and the first amount is paid if it is at most the row's number, the second if not.</p>
-    <table><tr><th>Row</th><th>Option A</th><th>Option B</th></tr>${rows}</table>
-    <p><button class="primary">OK</button></p>
-</div>`;
-}
-
-if (C.crt === 'before') crtStage('crtBefore', inPeriodOne);
-if (C.holtLaury === 'before') holtLauryStage('riskBefore', inPeriodOne);
+if (C.controlQuestions.length > 0) addTask('../control-questions', { questions: C.controlQuestions, intro: C.controlQuestionsIntro }, 'controlQuestions', inPeriodOne, 'The questions about the instructions');
+if (C.crt === 'before') addTask('../crt', crtOptions, 'crtBefore', inPeriodOne, 'The three questions');
+if (C.holtLaury === 'before') addTask('../holt-laury', holtLauryOptions, 'riskBefore', inPeriodOne, 'The lottery choices');
 
 // A chat before trading (Oechssler, Schmidt and Schnedler 2011): from period chatFrom of each
 // round, for chatTime seconds. Each message shows its sender's trader number and wealth (cash
@@ -1480,8 +1392,24 @@ function scoreForecasts(player, group, price) {
     player.account = round2(player.account + player.forecastEarnings);
 }
 
-if (C.crt === 'after') crtStage('crtAfter', inLastPeriod);
-if (C.holtLaury === 'after') holtLauryStage('riskAfter', inLastPeriod);
+if (C.crt === 'after') addTask('../crt', crtOptions, 'crtAfter', inLastPeriod, 'The three questions');
+if (C.holtLaury === 'after') addTask('../holt-laury', holtLauryOptions, 'riskAfter', inLastPeriod, 'The lottery choices');
+
+/**
+ * A participant's points in this app so far, in its periods and in the apps it has as stages; or,
+ * with stageId, in the app that is that stage alone.
+ */
+function pointsSoFar(participant, stageId) {
+    let sum = 0;
+    for (const k in participant.players) {
+        const p = participant.players[k];
+        const a = p.app();
+        if (a.rootApp() !== app) continue;
+        if (stageId != null && (a.parentStage == null || a.parentStage.id !== stageId)) continue;
+        sum += Number(p.points) || 0;
+    }
+    return round2(sum);
+}
 
 const payment = app.newStage('payment');
 payment.canPlayerParticipate = inLastPeriod;
@@ -1509,7 +1437,8 @@ payment.groupStart = function(group) {
         }
         player.roundPayoffs = payoffs;
         player.marketEarnings = round2(group.paidRounds != null ? group.paidRounds.reduce((s, r) => s + payoffs[r - 1], 0) : payoffs.reduce((s, x) => s + x, 0));
-        const before = player.inPreviousPeriods().reduce((s, p) => s + (p.points || 0), 0) + (player.points || 0);
+        player.taskEarnings = TASKS.map((t) => ({ label: t.label, points: pointsSoFar(player.participant, t.id) })).filter((t) => t.points !== 0);
+        const before = pointsSoFar(player.participant);
         player.topUp = Math.max(0, round2(C.minPayoff - (before + player.marketEarnings)));
         // With maxPayoff, earnings above it are cut (a negative top-up).
         if (C.maxPayoff != null) player.topUp = Math.min(player.topUp, round2(C.maxPayoff - (before + player.marketEarnings)));
@@ -1524,8 +1453,7 @@ payment.activeScreen = STYLE + `
     <h2>Your earnings</h2>
     <table style="max-width: 460px">
         <tr v-for="(x, i) in player.roundPayoffs" :key="i"><td>Market {{i + 1}}<span v-if="group.paidRounds && group.paidRounds.includes(i + 1)"> (drawn for payment)</span></td><td>{{fmt(x)}}</td></tr>
-        <tr v-if="player.crtEarnings"><td>The three questions</td><td>{{fmt(player.crtEarnings)}}</td></tr>
-        <tr v-if="player.hlEarnings"><td>The lottery choices</td><td>{{fmt(player.hlEarnings)}}</td></tr>
+        <tr v-for="(t, i) in player.taskEarnings" :key="'task' + i"><td>{{t.label}}</td><td>{{fmt(t.points)}}</td></tr>
         <tr v-if="player.topUp > 0"><td>Up to the minimum payment</td><td>{{fmt(player.topUp)}}</td></tr>
         <tr v-if="player.topUp < 0"><td>Down to the maximum payment</td><td>{{fmt(player.topUp)}}</td></tr>
         <tr><td><b>In all</b></td><td><b>{{fmt(player.totalPoints)}}</b> {{app.config.cashName}}</td></tr>

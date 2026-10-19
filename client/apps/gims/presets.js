@@ -133,7 +133,9 @@ const DEFAULTS = {
     // separate account.
     forecasts: null,
 
-    // Before and after the market [ControlQuestions, CRTBefore, CRTAfter, HLBefore, HLAfter]
+    // Before and after the market [ControlQuestions, CRTBefore, CRTAfter, HLBefore, HLAfter]:
+    // apps of their own (../control-questions, ../crt, ../holt-laury), added as stages, with
+    // these settings as their options; their points are the market's.
     controlQuestions: [],        // [{ question, options: [...], answer: index of the right option }], or { question, answer: a number }
     controlQuestionsIntro: '',   // text shown above them
     crt: null,                   // the cognitive reflection test (Frederick 2005): 'before', 'after' or null

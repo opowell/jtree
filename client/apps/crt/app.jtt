@@ -1,0 +1,56 @@
+// The cognitive reflection test (Frederick 2005): three questions, each with an answer that comes
+// to mind at once and is wrong. Each right answer pays `pay` points; when it pays, a screen after
+// the questions shows the score.
+//
+// An app of its own, or a stage of another: the GIMS app (../gims) adds it before or after its
+// market, as a preset's "crt" setting says, with its "crtPay" and "cashName".
+
+app.description = 'The cognitive reflection test (Frederick 2005): three questions, paid by right answer if "pay" is more than 0.';
+app.addNumberOption('pay', 0, 0, null, 'any', 'Points for each right answer.');
+app.addTextOption('pointsName', 'points', 'What points are called on the screens.');
+app.groupSize = 1;
+app.stageWrapPlayingScreenInFormTag = 'yes';
+
+const QUESTIONS = [
+    { q: 'A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost (in cents)?', a: 5 },
+    { q: 'If it takes 5 machines 5 minutes to make 5 widgets, how long would it take 100 machines to make 100 widgets (in minutes)?', a: 5 },
+    { q: 'In a lake, there is a patch of lily pads. Every day, the patch doubles in size. If it takes 48 days for the patch to cover the entire lake, how long would it take for the patch to cover half of the lake (in days)?', a: 47 },
+];
+
+const STYLE = `
+<style>
+.task { font-family: system-ui, -apple-system, Segoe UI, sans-serif; font-size: 15px; color: #1d2433; max-width: 760px; margin: 0 auto; padding: 12px; }
+.task h2 { font-size: 20px; margin: 0 0 8px; }
+.task .question { margin: 12px 0; }
+.task input[type=number] { width: 110px; padding: 4px; margin-top: 4px; }
+.task button { padding: 5px 14px; border-radius: 4px; border: 1px solid #233; background: #233; color: #fff; cursor: pointer; font: inherit; }
+</style>`;
+
+app.fields = {};
+const crt = app.newStage('crt');
+crt.formFields = QUESTIONS.map((q, i) => {
+    app.fields['player.crt' + (i + 1)] = { type: 'number', blank: true };
+    return 'player.crt' + (i + 1);
+});
+crt.playerEnd = function(player) {
+    player.crtScore = QUESTIONS.filter((q, i) => Number(player['crt' + (i + 1)]) === q.a).length;
+    player.crtEarnings = player.crtScore * app.pay;
+    player.points = player.crtEarnings;
+};
+crt.activeScreen = STYLE + `
+<div class="task">
+    <h2>Three questions</h2>
+    <p v-if="app.pay > 0">You earn {{app.pay}} {{app.pointsName}} for each right answer.</p>
+    ${QUESTIONS.map((q, i) => `<div class="question"><b>${i + 1}. ${q.q}</b><br><input type="number" step="any" name="player.crt${i + 1}"></div>`).join('\n    ')}
+    <button>OK</button>
+</div>`;
+
+if (app.pay > 0) {
+    const result = app.newStage('crtResult');
+    result.activeScreen = STYLE + `
+<div class="task">
+    <h2>Three questions</h2>
+    <p>You answered {{player.crtScore}} of the 3 questions right, and earn <b>{{player.crtEarnings}}</b> {{app.pointsName}}.</p>
+    <button>OK</button>
+</div>`;
+}

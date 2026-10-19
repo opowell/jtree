@@ -1,0 +1,57 @@
+// Control questions: questions on the instructions, which a participant must answer right to go
+// on. A question has options, and its answer is the index of the right one (from 0), or it has a
+// number for an answer:
+//
+//     [{ "question": "...", "options": ["No", "Yes"], "answer": 1 }, { "question": "...", "answer": 80 }]
+//
+// An app of its own, or a stage of another: the GIMS app (../gims) adds it before its market, with
+// a preset's "controlQuestions" and "controlQuestionsIntro".
+
+app.description = 'Control questions: questions on the instructions, each to be answered right before going on.';
+app.addTextOption('questions', '[{"question": "How many periods are there?", "answer": 10}]', 'The questions, as JSON: [{"question": "...", "options": ["No", "Yes"], "answer": 1}, {"question": "...", "answer": 80}].');
+app.addTextOption('intro', '', 'A text shown above the questions.');
+app.groupSize = 1;
+app.stageWrapPlayingScreenInFormTag = 'yes';
+
+// Given as JSON (from the admin), or as a list (from another app's addApp).
+const QUESTIONS = typeof app.questions === 'string' ? JSON.parse(app.questions || '[]') : app.questions;
+app.questionList = QUESTIONS;
+
+const STYLE = `
+<style>
+.task { font-family: system-ui, -apple-system, Segoe UI, sans-serif; font-size: 15px; color: #1d2433; max-width: 760px; margin: 0 auto; padding: 12px; }
+.task h2 { font-size: 20px; margin: 0 0 8px; }
+.task .notice { background: #fff3cd; border: 1px solid #e0c065; padding: 6px 10px; border-radius: 4px; }
+.task .question { margin: 12px 0; }
+.task .question label { display: block; margin: 3px 0; }
+.task input[type=number] { width: 110px; padding: 4px; margin-top: 4px; }
+.task button { padding: 5px 14px; border-radius: 4px; border: 1px solid #233; background: #233; color: #fff; cursor: pointer; font: inherit; }
+</style>`;
+
+app.fields = {};
+const questions = app.newStage('questions');
+questions.formFields = QUESTIONS.map((q, i) => {
+    app.fields['player.cq' + (i + 1)] = q.options ? { type: 'int', min: 0, max: q.options.length - 1 } : { type: 'number' };
+    return 'player.cq' + (i + 1);
+});
+questions.validate = function(player, values) {
+    const errors = {};
+    QUESTIONS.forEach((q, i) => {
+        const v = values['player.cq' + (i + 1)];
+        const right = q.options ? v === q.answer : Math.abs(Number(v) - q.answer) < 1e-6;
+        if (!right) errors['player.cq' + (i + 1)] = 'That is not right. Please look at the instructions again.';
+    });
+    return Object.keys(errors).length > 0 ? errors : undefined;
+};
+questions.activeScreen = STYLE + `
+<div class="task">
+    <h2>Questions about the instructions</h2>
+    <p v-if="app.intro" class="notice">{{app.intro}}</p>
+    <p>Please answer these questions. You can go on when all are right.</p>
+    <div class="question" v-for="(q, i) in app.questionList" :key="i">
+        <b>{{i + 1}}. {{q.question}}</b>
+        <label v-for="(o, j) in q.options" :key="j"><input type="radio" :name="'player.cq' + (i + 1)" :value="j" required> {{o}}</label>
+        <div v-if="!q.options"><input type="number" step="any" :name="'player.cq' + (i + 1)" required></div>
+    </div>
+    <button>OK</button>
+</div>`;

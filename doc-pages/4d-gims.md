@@ -10,7 +10,7 @@ In each period traders buy and sell one or more assets for cash, in a continuous
 - GIMS's order book rules: single or multi-unit orders, the improvement rule, no crossing of the book, a limit on open orders, invalidation of orders no longer feasible (in full or in part), emptying the book after a trade, how many orders and prices are shown;
 - the call auction's rules: orders per trader, market orders and their priority, indicative prices, rationing by time or at random;
 - price forecasts, paid by accuracy; a vote to end a period early; practice periods with things to try; repeated markets, all paid or one at random; a minimum payment;
-- control questions (with options, or numbers for answers), the cognitive reflection test and Holt and Laury's lottery choices, before or after the market;
+- control questions (with options, or numbers for answers), the cognitive reflection test and Holt and Laury's lottery choices, before or after the market: these are apps of their own (see below), which the GIMS app adds as stages;
 - for the designs of the studies below: holding taxes; final values drawn for each market (with supplements, and an insider told one), with private signals or public news of them; values that follow a random path; a cash reserve for short positions; a book of depth one; announcements (fixed, drawn, or by the market); a chat before trading; bonds and an interest rate policy; a computerized firm that buys back or issues shares; a lottery ticket, an account status with the market's largest or smallest account, and a rating after each period; period lengths by round; endowment types drawn anew; cash carried from market to market; earnings as profits; one market paid from each block.
 
 #### Running it
@@ -23,6 +23,18 @@ In the admin, start a session with `gims/app.jtt` (Browse panel), and choose its
 Each preset has its number of traders: participants are put in markets of that many, in order (a session of 18 with `ssw` has two markets of 9). With `"traders": 0` all participants trade in one market. Money is in points; the preset's exchange rate turns them into money, or the session's if the preset has none (several papers do not report theirs).
 
 `client/apps/gims/presets.js` lists every setting, with its default and GIMS's name for it; a new preset is an entry there. The market engine is `market.js`, plain functions without jtree, and the app is `app.jtt`.
+
+#### Before and after the market
+
+The tasks that are not the market are apps of their own, next to `gims` in the apps folder, which can be played on their own or before or after any app:
+
+| App | What | Options |
+| --- | --- | --- |
+| `control-questions` | questions on the instructions, each to be answered right before going on: with options (the answer is the right one's index, from 0) or a number for an answer | `questions` (as JSON: `[{"question": "...", "options": ["No", "Yes"], "answer": 1}, {"question": "...", "answer": 80}]`), `intro` |
+| `crt` | the cognitive reflection test (Frederick 2005); when paid, a screen with the score after it | `pay` (points per right answer), `pointsName` |
+| `holt-laury` | Holt and Laury's (2002) ten lottery choices, one row drawn and played, and a screen with the draw | `aHigh`, `aLow`, `bHigh`, `bLow` (in points), `pointsName` |
+
+The GIMS app adds them as stages (`app.addApp`, see <a href='tutorial-apps-and-stages.html'>apps and stages</a>), as a preset's settings say: `controlQuestions` and `controlQuestionsIntro` in the first period, and `crt` and `holtLaury` (`'before'` or `'after'`) in the first period or the last, with `crtPay`, `holtLauryPayoffs` and the market's `cashName`. Their stages are `controlQuestions`, `crtBefore`, `riskBefore`, `crtAfter` and `riskAfter`. Their points are the market's, at its exchange rate, and the payment screen lists them; the minimum and maximum payments count them.
 
 #### The presets
 
@@ -308,7 +320,7 @@ Beyond GIMS, for the presets: `rounds`, `dividendAccount`, `interest`, `cashInfl
 
 #### Checks
 
-`server/test/gims.test.js` tests the engine on its own (the order rules, invalidation, the five price rules, settlement, the value of a unit against Giusti, Jiang and Xu's table), loads every preset, and plays sessions of several with bots, checking each trader's earnings: SSW's market, KHS's constant-value market with its practice period, cash inflows and buyback, HLN's call market with forecasts, Tucker and Xu's buyers and sellers with a holding cap and the vote to end a period, a market with control questions, the CRT, lotteries, short selling, interest and a random market paid, signals and indicative prices in a call auction, and the features added for the studies above: holding taxes, announcements and period lengths by round; Fellner and Theissen's drawn values, private signals, profits and short selling by block; Palfrey and Wang's news and carried cash; Schoenberg and Haruvy's lottery tickets, account status and rating; the computerized firm; a value path; supplements with an insider, and the chat; bonds and a rising rate; dividends drawn at the end, a truncated asset and numeric control questions; subsidies and a maximum payment.
+`server/test/gims.test.js` tests the engine on its own (the order rules, invalidation, the five price rules, settlement, the value of a unit against Giusti, Jiang and Xu's table), loads every preset, and plays sessions of several with bots, checking each trader's earnings: SSW's market, KHS's constant-value market with its practice period, cash inflows and buyback, HLN's call market with forecasts, Tucker and Xu's buyers and sellers with a holding cap and the vote to end a period, a market with control questions, the CRT, lotteries (the apps above, as stages), short selling, interest and a random market paid, signals and indicative prices in a call auction, and the features added for the studies above: holding taxes, announcements and period lengths by round; Fellner and Theissen's drawn values, private signals, profits and short selling by block; Palfrey and Wang's news and carried cash; Schoenberg and Haruvy's lottery tickets, account status and rating; the computerized firm; a value path; supplements with an insider, and the chat; bonds and a rising rate; dividends drawn at the end, a truncated asset and numeric control questions; subsidies and a maximum payment. `server/test/tasks.test.js` plays the control questions, the CRT and the lottery choices on their own.
 
 #### Citing
 
