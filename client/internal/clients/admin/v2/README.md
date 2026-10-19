@@ -31,7 +31,8 @@ default. The default's splits draw no bar (`headless`), and appfr keeps such a
 space when its last panel goes, so `workspace.ts` drops an empty one from the
 layout rather than leave a blank box where it was; and a split left holding one
 thing is that thing, rather than a border drawn around a border around it. A panel's ⋯ menu pops it out to a browser window holding it alone
-(`?solo`), and closes it here.
+(`?solo`), and closes it here. A pane of tabs has **Close all** in that menu too,
+which closes every tab on it that has a close button.
 
 ## Running and editing
 
@@ -48,9 +49,9 @@ localStorage, keyed by their source, so unchanged files are not compiled again.
 | `src/` | The interface |
 
 The libraries are in `client/internal/clients/shared/`, served at `/shared/`:
-Vue 3.5.43 (`vue-3.5.43/`), vue3-sfc-loader 0.9.5, appfr 0.56.0
-(`header-content-layout-0.56.0/`, the `dist/` of appfr commit
-`36b8c0d755c870f0e11ad05c276e84c845ae3eac`), CodeMirror 6 (`codemirror-6.43.14/`,
+Vue 3.5.43 (`vue-3.5.43/`), vue3-sfc-loader 0.9.5, appfr 0.57.0
+(`header-content-layout-0.57.0/`, the `dist/` of appfr commit
+`a05d2eed13df9e0c7da5d27dfacd2f3a0adccb79`), CodeMirror 6 (`codemirror-6.43.14/`,
 built by `build-tools/codemirror/`), circular-json 0.5.9, and the
 socket.io client that the server provides. To update one, add the new version's
 files next to the old ones and change the paths in `index.html`.

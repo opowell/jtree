@@ -7,7 +7,7 @@ A group of players is given an endowment from which they may contribute a certai
 
 #### The admin
 
-The admin at `/admin/` is a menu bar over panels. Panels can be dragged into tabs, splits and floating windows; Window → Reset layout puts them back. The open panels and their arrangement are in the address (`?w=…`), so reloading the page keeps them and a link opens them as they were; a panel's ⋯ menu can pop it out to a browser window of its own.
+The admin at `/admin/` is a menu bar over panels. Panels can be dragged into tabs, splits and floating windows; Window → Reset layout puts them back. The open panels and their arrangement are in the address (`?w=…`), so reloading the page keeps them and a link opens them as they were; a panel's ⋯ menu can pop it out to a browser window of its own, and a pane of tabs' ⋯ menu has Close all, which closes its tabs.
 
 - **Browse**: every session, participant, app (queues included) and log entry, searchable, and sorted by any column whose heading is pressed. An app's Kind says what it is (jtree app, oTree app, z-Tree treatment or questionnaire, queue, oTree session config); apps that opted out of being listed show under the "Unlisted" filter. Opening a row opens it in its own panel.
 - **Session**: the open session.

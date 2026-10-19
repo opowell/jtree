@@ -3,6 +3,7 @@
 - Listen to incremental game changes via observer.
 
 #### Unreleased
+- The admin: a pane of tabs' ⋯ menu has Close all, which closes every tab on it that can be closed. The admins' menus and panels are appfr 0.57.0.
 - The admin's lists sort by any column: press its heading (an app's file, kind, folder or status, a participant's app, period, group or stage, a log entry's event, ...). An app's Kind says what it is: jtree app, oTree app, z-Tree treatment or questionnaire, queue, or oTree session config (they were all "app" or "queue"); an oTree app's file is its folder (it was its `__init__.py`) and a session config's is `settings.py › <name>` (it was `settings.py#<name>`). Apps and queues can stay out of the admin's lists of apps: `app.listed = false` in a jtree app, `queue.listed = false` (or `"listed": false`) in a queue, `JTREE_LISTED = False` in an oTree app's `C`, `jtree_listed=False` in a session config; Browse's "Unlisted" filter shows them.
 - A new session opens in the admin's Session panel alone, filling the window, whether it is started from an app's panel, the App editor, File → New session, the Session panel or Browse. The other panels come back from the Window menu.
 - The admin tells apps of the same name apart: where several share one (`cournot` as a jtree app, an oTree app and a z-Tree treatment, say), its app lists and menus put the folders that make each unique in front (`jtree/cournot`, `otree/cournot`, `ztree/cournot`).
