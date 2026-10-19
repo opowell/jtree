@@ -24,7 +24,7 @@ The admin at `/admin/` is a menu bar over panels. Panels can be dragged into tab
 3. Under Participants, set the number of participants (4, one group) and press "Set".
 4. Press "Start".
 
-The session is now running. To add more apps, choose them under Apps and press "Add app", before the session starts; participants play them in order. An app's "Add to open session" does the same. A queue adds all of its apps.
+The session is now running. To add more apps, choose them under Apps and press "Add app", before the session starts; participants play them in order. An app's "Add to open session" does the same. A queue adds all of its apps. Apps that share a name are listed with the folders that tell them apart in front (`jtree/cournot`, `otree/cournot`).
 
 #### Watch and test
 

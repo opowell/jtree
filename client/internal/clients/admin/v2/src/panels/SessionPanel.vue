@@ -5,7 +5,7 @@ import type { RecordStatus } from 'header-content-layout'
 import ConfirmButton from '../components/ConfirmButton.vue'
 import { participantBase, state } from '../server/connection'
 import { downloadOutputUrl, participantUrl, server } from '../server/commands'
-import { appLabel, sessionState } from '../schema'
+import { sessionState, uniqueAppLabel } from '../schema'
 import { openSession, showPanel } from '../workspace'
 
 const session = computed(() => state.session)
@@ -24,7 +24,7 @@ const sessionToOpen = ref('')
 const apps = computed(() =>
   Object.values(state.apps)
     .filter((app) => !app.hasError)
-    .sort((a, b) => appLabel(a.id).localeCompare(appLabel(b.id))),
+    .sort((a, b) => uniqueAppLabel(a.id).localeCompare(uniqueAppLabel(b.id))),
 )
 
 const otherSessions = computed(() =>
@@ -132,7 +132,7 @@ function checked(event: Event): boolean {
           <li v-for="(app, index) in session.apps" :key="`${index}-${app.id}`">
             <span class="list__index">{{ index + 1 }}</span>
             <button type="button" class="btn btn--small list__main dc-truncate" style="justify-content: flex-start" @click="showPanel(`app:${app.id}`)">
-              {{ app.title || app.shortId }}
+              {{ uniqueAppLabel(app.id) }}
             </button>
             <ConfirmButton class="btn--small" label="Remove" :disabled="session.started" @confirm="server.removeApp(index, app.id)" />
           </li>
@@ -141,7 +141,7 @@ function checked(event: Event): boolean {
         <div class="toolbar">
           <select v-model="appToAdd" class="field" aria-label="App to add">
             <option value="">Choose an app…</option>
-            <option v-for="app in apps" :key="app.id" :value="app.id">{{ appLabel(app.id) }}{{ app.isQueue ? ' (queue)' : '' }}</option>
+            <option v-for="app in apps" :key="app.id" :value="app.id">{{ uniqueAppLabel(app.id) }}{{ app.isQueue ? ' (queue)' : '' }}</option>
           </select>
           <button type="button" class="btn" :disabled="!appToAdd" @click="addApp">Add app</button>
         </div>

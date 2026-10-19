@@ -5,7 +5,7 @@ import type { RecordStatus } from 'header-content-layout'
 import ConfirmButton from '../components/ConfirmButton.vue'
 import { serverUrl, state } from '../server/connection'
 import { server } from '../server/commands'
-import { appLabel, folderOf, relativePath } from '../schema'
+import { folderOf, relativePath, uniqueAppLabel } from '../schema'
 import { closePanel, editApp, showPanel } from '../workspace'
 
 const props = defineProps<{ appId: string, panelId: string }>()
@@ -71,7 +71,7 @@ async function removeQueue() {
         <template v-if="queues.length">
           <select v-model="queueTarget" class="field" aria-label="Queue to add this to">
             <option value="">Add to queue…</option>
-            <option v-for="queue in queues" :key="queue.id" :value="queue.id">{{ appLabel(queue.id) }}</option>
+            <option v-for="queue in queues" :key="queue.id" :value="queue.id">{{ uniqueAppLabel(queue.id) }}</option>
           </select>
           <button type="button" class="btn" :disabled="!queueTarget" @click="addToQueue">Add</button>
         </template>
@@ -99,7 +99,7 @@ async function removeQueue() {
           <li v-for="(entry, index) in app.apps" :key="index">
             <span class="list__index">{{ index + 1 }}</span>
             <button type="button" class="btn btn--small list__main dc-truncate" style="justify-content: flex-start" @click="showPanel(`app:${entry.appId}`)">
-              {{ appLabel(entry.appId) }}
+              {{ uniqueAppLabel(entry.appId) }}
             </button>
             <span v-if="state.apps[entry.appId]?.isQueue" class="muted">queue</span>
             <span v-if="Object.keys(entry.options ?? {}).length" class="muted dc-mono">{{ JSON.stringify(entry.options) }}</span>

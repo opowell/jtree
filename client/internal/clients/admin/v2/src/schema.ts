@@ -46,6 +46,50 @@ export function appLabel(appId: string): string {
   return app?.title || app?.shortId || relativePath(appId)
 }
 
+/** The folders an app sits in under `apps/`, innermost last. An oTree app is its folder. */
+function appFolders(appId: string): string[] {
+  const parts = relativePath(appId).split(/[\\/]/)
+  parts.pop()
+  if (/[\\/]__init__\.py$/.test(appId)) parts.pop()
+  const appsAt = parts.indexOf('apps')
+  return appsAt === -1 ? parts : parts.slice(appsAt + 1)
+}
+
+/**
+ * Labels that tell every app apart: an app that shares its label with others
+ * gets the fewest of its folders in front that make it unique —
+ * `jtree/cournot`, `otree/cournot`, `ztree/cournot`.
+ */
+const uniqueLabels = computed(() => {
+  const byLabel = new Map<string, string[]>()
+  for (const id of Object.keys(state.apps)) {
+    const label = appLabel(id)
+    byLabel.set(label, [...(byLabel.get(label) ?? []), id])
+  }
+  const labels = new Map<string, string>()
+  for (const [label, ids] of byLabel) {
+    if (ids.length === 1) {
+      labels.set(ids[0], label)
+      continue
+    }
+    const folders = ids.map(appFolders)
+    const deepest = Math.max(...folders.map((f) => f.length))
+    for (let depth = 1; depth <= deepest; depth++) {
+      const named = folders.map((f) => [...f.slice(-depth), label].join('/'))
+      if (new Set(named).size === named.length || depth === deepest) {
+        ids.forEach((id, i) => labels.set(id, named[i]))
+        break
+      }
+    }
+  }
+  return labels
+})
+
+/** `appLabel`, with folders in front where several apps share it. */
+export function uniqueAppLabel(appId: string): string {
+  return uniqueLabels.value.get(appId) ?? appLabel(appId)
+}
+
 /* ------------------------------------------------------------------ rows */
 
 function sessionRow(session: SessionShell): ShellRow {
