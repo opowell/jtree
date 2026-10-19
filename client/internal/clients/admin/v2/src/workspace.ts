@@ -199,6 +199,14 @@ export function showPanel(id: string) {
     : panelNode(id)
 }
 
+/**
+ * A new session opens in a panel of its own that fills the window, rather than as a tab
+ * among the others: what was open before is closed, and comes back from the Window menu.
+ */
+export function showNewSession() {
+  workspace.layout = panelNode('session')
+}
+
 /** Opens jtree's app editor on an app's file ('new' for a new app). */
 export function editApp(appPath: string) {
   showPanel(`edit:${appPath}`)

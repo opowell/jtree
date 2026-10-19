@@ -20,7 +20,7 @@ import {
   panels,
   resetLayout,
   savedLayout,
-  showPanel,
+  showNewSession,
   solo,
   togglePanel,
   TOOLS,
@@ -47,7 +47,7 @@ const menus = computed<MenuItemDef[]>(() => {
     {
       label: 'File',
       items: [
-        { id: 'new-session', label: 'New session', disabled: !state.connected, action: () => { void server.createSession(); showPanel('session') } },
+        { id: 'new-session', label: 'New session', disabled: !state.connected, action: () => { void server.createSession(); showNewSession() } },
         {
           label: 'Open session',
           items: state.sessions.length

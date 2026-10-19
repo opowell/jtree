@@ -4,7 +4,7 @@ import { createMemoryAdapter, DataShell } from 'header-content-layout'
 import type { EntitySchema, RouteAdapter, ShellQueryDefaults, ViewKind } from 'header-content-layout'
 import { schema } from '../schema'
 import { source } from '../source'
-import { activate, addressBar, workspace } from '../workspace'
+import { activate, addressBar, showNewSession, workspace } from '../workspace'
 import { server } from '../server/commands'
 
 const props = defineProps<{
@@ -26,7 +26,9 @@ const defaults = computed<ShellQueryDefaults>(() =>
 )
 
 function create(entity: EntitySchema) {
-  if (entity.key === 'sessions') void server.createSession()
+  if (entity.key !== 'sessions') return
+  void server.createSession()
+  showNewSession()
 }
 </script>
 

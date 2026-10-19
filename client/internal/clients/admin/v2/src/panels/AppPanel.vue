@@ -6,7 +6,7 @@ import ConfirmButton from '../components/ConfirmButton.vue'
 import { serverUrl, state } from '../server/connection'
 import { server } from '../server/commands'
 import { folderOf, relativePath, uniqueAppLabel } from '../schema'
-import { closePanel, editApp, showPanel } from '../workspace'
+import { closePanel, editApp, showNewSession, showPanel } from '../workspace'
 
 const props = defineProps<{ appId: string, panelId: string }>()
 
@@ -31,7 +31,7 @@ const queues = computed(() =>
 
 async function newSession() {
   await server.createSessionWithApp(props.appId)
-  showPanel('session')
+  showNewSession()
 }
 
 function addToSession() {

@@ -6,7 +6,7 @@ import ConfirmButton from '../components/ConfirmButton.vue'
 import { participantBase, state } from '../server/connection'
 import { downloadOutputUrl, participantUrl, server } from '../server/commands'
 import { sessionState, uniqueAppLabel } from '../schema'
-import { openSession, showPanel } from '../workspace'
+import { openSession, showNewSession, showPanel } from '../workspace'
 
 const session = computed(() => state.session)
 const status = computed(() => (session.value ? sessionState(session.value) : '') as RecordStatus)
@@ -37,6 +37,11 @@ const exampleLink = computed(() => {
   const first = Object.keys(s.participants)[0] ?? 'P1'
   return participantUrl(participantBase(), s.id, first)
 })
+
+function newSession() {
+  void server.createSession()
+  showNewSession()
+}
 
 function addApp() {
   if (!appToAdd.value) return
@@ -74,7 +79,7 @@ function checked(event: Event): boolean {
     <div v-if="!session" class="pane__empty">
       <p>No session is open.</p>
       <div class="toolbar">
-        <button type="button" class="btn btn--primary" :disabled="!state.connected" @click="server.createSession()">
+        <button type="button" class="btn btn--primary" :disabled="!state.connected" @click="newSession">
           New session
         </button>
         <template v-if="otherSessions.length">

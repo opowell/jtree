@@ -28,7 +28,7 @@ import { APP_SETTINGS, SETTING_HINTS, STAGE_SETTINGS, describeEdit, emptyValue, 
 import type { AppModel, Edit, Prop, Value } from '../server/editor'
 import type { TreeView } from '../appTree'
 import { relativePath } from '../schema'
-import { renameEditor, showPanel } from '../workspace'
+import { renameEditor, showNewSession } from '../workspace'
 
 /*
  * jtree's app editor: an app's settings, its stages (each with its settings, screens and
@@ -249,7 +249,7 @@ async function startSession() {
   if (dirty.value) await save()
   if (app.value) {
     await server.createSessionWithApp(app.value.id)
-    showPanel('session')
+    showNewSession()
   }
 }
 
