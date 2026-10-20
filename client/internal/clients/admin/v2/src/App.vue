@@ -12,7 +12,6 @@ import { serverUrl, state } from './server/connection'
 import { downloadOutputUrl, server } from './server/commands'
 import {
   addressBar,
-  arrangeWindows,
   closePanel,
   defaultLayout,
   editApp,
@@ -46,7 +45,7 @@ const popOut = (panel: WindowPanelDef) => layoutRoute.popOutHref(panel.id)
 // The window's outermost space draws no bar of its own; how it is shown (row, column, tabs,
 // desktop) is chosen from Window → Arrange, which is the menu that bar would have had.
 const frame = ref<InstanceType<typeof WindowFrame> | null>(null)
-const arrange = computed<MenuItemDef[]>(() => (frame.value?.rootMenu.length ? frame.value.rootMenu : arrangeWindows()))
+const arrange = computed<MenuItemDef[]>(() => frame.value?.rootMenu ?? [])
 
 const menus = computed<MenuItemDef[]>(() => {
   const s = session.value

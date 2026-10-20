@@ -1,7 +1,6 @@
 import { computed, reactive, watch } from 'vue'
 import {
   activeTab,
-  cascade,
   column,
   createHistoryAdapter,
   frontPanel,
@@ -17,11 +16,9 @@ import {
   removePanel,
   row,
   setActivePanel,
-  tabNode,
   tabPanels,
 } from 'header-content-layout'
 import type {
-  MenuItemDef,
   RouteAdapter,
   ShellRow,
   ShellTheme,
@@ -115,13 +112,12 @@ export const workspace = reactive({
  * builds a new tree every time, which the watch below could not stop on. This returns the node
  * itself when nothing in it changed, so the watch stops at once.
  */
-function tidySplits(node: WindowNode, window = false): WindowNode {
-  // The windows a new session leaves (see showNewSession) are tabs, and may be splits too; one
-  // holding a single pane is kept, since it is what keeps that pane a window of its own.
+function tidySplits(node: WindowNode): WindowNode {
+  // The windows a new session leaves (see showNewSession) are tabs, and may be splits too.
   if (node.kind === 'group') {
     const panels: WindowTab[] = []
     node.panels.forEach((tab) => {
-      const next = typeof tab === 'string' ? tab : tidySplits(tab, node.headless)
+      const next = typeof tab === 'string' ? tab : tidySplits(tab)
       if (typeof next !== 'string' && next.kind === 'split' && next.headless && next.children.length === 0) return
       panels.push(next)
     })
@@ -138,7 +134,7 @@ function tidySplits(node: WindowNode, window = false): WindowNode {
     children.push(next)
     sizes.push(shares[i])
   })
-  if (children.length === 1 && !node.title && !node.places && !window) return children[0]
+  if (children.length === 1 && !node.title && !node.places) return children[0]
   const changed = children.length !== node.children.length || children.some((child, i) => child !== node.children[i])
   return changed ? { ...node, children, sizes: normalizeSizes(children.length, sizes) } : node
 }
@@ -259,18 +255,10 @@ export function showNewSession() {
     workspace.layout = panelNode('session')
     return
   }
-  const windows = rest.kind === 'group' && rest.headless && !rest.title ? rest : headless(group([asWindow(rest)]))
-  workspace.layout = { ...windows, panels: [...windows.panels, asWindow(panelNode('session'))], active: 'session' }
-}
-
-/**
- * A pane of tabs made a tab of the windows' strip would be merged into that strip by appfr,
- * its tabs becoming the strip's, and the strip draws none: Browse, beside an app, would be on
- * no strip at all, and the session's pane would lose its title and its close. In a row of its
- * own, drawn without a bar, it is a space that stays one, and draws its own strip.
- */
-function asWindow(node: WindowNode): WindowNode {
-  return node.kind === 'group' ? headless(row([node])) : node
+  // Each a pane or a grid of its own: a strip drawn without a bar keeps a pane in it a pane,
+  // with its own bar and tabs (appfr 0.59).
+  const windows = rest.kind === 'group' && rest.headless && !rest.title ? rest : headless(group([rest]))
+  workspace.layout = { ...windows, panels: [...windows.panels, panelNode('session')], active: 'session' }
 }
 
 /**
@@ -305,25 +293,6 @@ function windowLabel(tab: WindowTab): string {
 function frontFrame(root: WindowFloat): number {
   for (let i = root.frames.length - 1; i >= 0; i--) if (!root.frames[i].minimized) return i
   return -1
-}
-
-/**
- * Window → Arrange for the windows a new session leaves: a strip whose tabs are all spaces.
- * appfr's choices for a strip are made from a panel that is a tab of it, which this one has
- * none of, so its root menu is empty for it; these are the same four, made from the windows.
- * Shown as a row, a column or a desktop, the windows are appfr's again, Tabs included.
- */
-export function arrangeWindows(): MenuItemDef[] {
-  const root = workspace.layout
-  if (!root || root.kind !== 'group' || !root.headless || root.panels.length < 2) return []
-  const nodes = root.panels.map(tabNode)
-  const show = (layout: WindowNode) => () => (workspace.layout = layout)
-  return [
-    { label: 'Row', action: show(headless(row(nodes))) },
-    { label: 'Column', action: show(headless(column(nodes))) },
-    { label: 'Tabs', checked: true },
-    { label: 'Desktop', action: show(headless(cascade(nodes))) },
-  ]
 }
 
 /** Brings one of the page's windows to the front: its tab to the top, or its frame forward. */

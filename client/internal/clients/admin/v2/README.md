@@ -34,11 +34,10 @@ are opened and closed from the **Panels** menu. The **Window** menu lists the wi
 that outermost space holds (`topWindows` in `workspace.ts`), each named for the panels in it,
 and brings the one chosen to the front. A new session opens in a window of its own beside
 what was open (`showNewSession`): the outermost space becomes a strip of windows, drawn
-without a bar, which the Window menu switches between. A pane of tabs is made a window in a
-headless row of its own, since appfr would otherwise merge its tabs into the strip, where
-they are not drawn; appfr's `rootMenu` has nothing for a strip whose tabs are all windows, so
-Arrange's four choices for it are jtree's (`arrangeWindows`); and a strip left holding one
-window is that window again. The default's splits draw no bar (`headless`), and appfr keeps such a
+without a bar, which the Window menu switches between. Each window is a pane or a grid of
+its own, which keeps its own bar and tabs in that strip, and Arrange is appfr's `rootMenu`
+for it as for any root (both appfr 0.59.0). A strip left holding one window is that window
+again. The default's splits draw no bar (`headless`), and appfr keeps such a
 space when its last panel goes, so `workspace.ts` drops an empty one from the
 layout rather than leave a blank box where it was; and a split left holding one
 thing is that thing, rather than a border drawn around a border around it. A panel's ⋯ menu pops it out to a browser window holding it alone
@@ -60,9 +59,9 @@ localStorage, keyed by their source, so unchanged files are not compiled again.
 | `src/` | The interface |
 
 The libraries are in `client/internal/clients/shared/`, served at `/shared/`:
-Vue 3.5.43 (`vue-3.5.43/`), vue3-sfc-loader 0.9.5, appfr 0.58.0
-(`header-content-layout-0.58.0/`, the `dist/` of appfr commit
-`706e889eac653f047db96874b3a4e0e5a818a989`), CodeMirror 6 (`codemirror-6.43.14/`,
+Vue 3.5.43 (`vue-3.5.43/`), vue3-sfc-loader 0.9.5, appfr 0.59.0
+(`header-content-layout-0.59.0/`, the `dist/` of appfr commit
+`f5862d984dc5a88eea07d50fa691ca8c497a022c`), CodeMirror 6 (`codemirror-6.43.14/`,
 built by `build-tools/codemirror/`), circular-json 0.5.9, and the
 socket.io client that the server provides. To update one, add the new version's
 files next to the old ones and change the paths in `index.html`.
