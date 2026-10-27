@@ -4,7 +4,7 @@ Served at `/admin/ztree/` under jtree's route.
 
 
 An admin interface for jtree laid out after [z-Tree](https://www.ztree.uzh.ch/en.html),
-built on [appfr](https://github.com/opowell/appfr) (`header-content-layout`): one
+built on [appfr](https://github.com/opowell/appfr): one
 main window with z-Tree's menu bar (File, Edit, Treatment, Run, Tools, View, ?)
 over a grey desktop of child windows. It follows the
 [z-Tree 5.1 manual](https://www.ztree.uzh.ch/static/doc/manual.pdf), chiefly
@@ -111,8 +111,8 @@ file and reload the page. Compiled modules are kept in the browser's
 localStorage, keyed by their source.
 
 The libraries are in `client/internal/clients/shared/`, served at `/shared/`:
-Vue 3.5.43, vue3-sfc-loader 0.9.5, appfr 0.59.0
-(`header-content-layout-0.59.0/`, shared with admin2), acorn 8.18.0 (parses the
+Vue 3.5.43, vue3-sfc-loader 0.9.5, appfr 0.68.0
+(`appfr-0.68.0/`, shared with admin2), acorn 8.18.0 (parses the
 apps' source), CodeMirror 6 (`codemirror-6.43.14/`, the program and screen
 dialogs' code fields, in `src/components/CodeEditor.vue`), circular-json 0.5.9, and the socket.io client that the server
 provides. To update one, add the new version's files next to the old ones and

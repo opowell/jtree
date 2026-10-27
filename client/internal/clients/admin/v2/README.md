@@ -1,7 +1,7 @@
 # admin2
 
 jtree's admin interface, served at `/admin/` (and `/admin/v2/`) under jtree's route, built on
-[appfr](https://github.com/opowell/appfr) (`header-content-layout`): a menu bar
+[appfr](https://github.com/opowell/appfr): a menu bar
 over a window of rearrangeable panels, with the lists in those panels drawn by
 appfr's `DataShell`.
 
@@ -59,9 +59,8 @@ localStorage, keyed by their source, so unchanged files are not compiled again.
 | `src/` | The interface |
 
 The libraries are in `client/internal/clients/shared/`, served at `/shared/`:
-Vue 3.5.43 (`vue-3.5.43/`), vue3-sfc-loader 0.9.5, appfr 0.59.0
-(`header-content-layout-0.59.0/`, the `dist/` of appfr commit
-`f5862d984dc5a88eea07d50fa691ca8c497a022c`), CodeMirror 6 (`codemirror-6.43.14/`,
+Vue 3.5.43 (`vue-3.5.43/`), vue3-sfc-loader 0.9.5, appfr 0.68.0
+(`appfr-0.68.0/`, the `dist/` of appfr's `v0.68.0` tag), CodeMirror 6 (`codemirror-6.43.14/`,
 built by `build-tools/codemirror/`), circular-json 0.5.9, and the
 socket.io client that the server provides. To update one, add the new version's
 files next to the old ones and change the paths in `index.html`.

@@ -17,7 +17,7 @@ import {
   row,
   setActivePanel,
   tabPanels,
-} from 'header-content-layout'
+} from 'appfr'
 import type {
   RouteAdapter,
   ShellRow,
@@ -26,7 +26,7 @@ import type {
   WindowNode,
   WindowPanelDef,
   WindowTab,
-} from 'header-content-layout'
+} from 'appfr'
 import { state } from './server/connection'
 import { server } from './server/commands'
 import { appLabel } from './schema'

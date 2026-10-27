@@ -35,6 +35,7 @@
 </ul>
 <h4>Unreleased</h4>
 <ul>
+<li>The admins' menus and panels are appfr 0.68.0: the search box over the admin's lists has an edge and a field's fill, and the number beside each type in a list is abbreviated past a thousand (1.2k).</li>
 <li>The admin's panels sit straight in the window, without the bar and border the outermost space drew around them (&quot;Row&quot;); how that space is shown (a row, a column, tabs or a desktop) is chosen from Window → Arrange. The admins' menus and panels are appfr 0.58.0.</li>
 <li>The admin: a pane of tabs' ⋯ menu has Close all, which closes every tab on it that can be closed. The admins' menus and panels are appfr 0.57.0.</li>
 <li>The admin's lists sort by any column: press its heading (an app's file, kind, folder or status, a participant's app, period, group or stage, a log entry's event, ...). An app's Kind says what it is: jtree app, oTree app, z-Tree treatment or questionnaire, queue, or oTree session config (they were all &quot;app&quot; or &quot;queue&quot;); an oTree app's file is its folder (it was its <code>__init__.py</code>) and a session config's is <code>settings.py › &lt;name&gt;</code> (it was <code>settings.py#&lt;name&gt;</code>). Apps and queues can stay out of the admin's lists of apps: <code>app.listed = false</code> in a jtree app, <code>queue.listed = false</code> (or <code>&quot;listed&quot;: false</code>) in a queue, <code>JTREE_LISTED = False</code> in an oTree app's <code>C</code>, <code>jtree_listed=False</code> in a session config; Browse's &quot;Unlisted&quot; filter shows them.</li>

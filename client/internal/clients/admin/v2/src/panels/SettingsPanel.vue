@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { SHELL_THEMES } from 'header-content-layout'
+import { SHELL_THEMES } from 'appfr'
 import { participantBase, serverUrl, state } from '../server/connection'
 import { server } from '../server/commands'
 import { resetLayout, workspace } from '../workspace'

@@ -1,5 +1,5 @@
 import { computed } from 'vue'
-import type { ColumnDef, DomainSchema, EntitySchema, ShellRow } from 'header-content-layout'
+import type { ColumnDef, DomainSchema, EntitySchema, ShellRow } from 'appfr'
 import { state } from './server/connection'
 import type { AppMeta, Participant, SessionFull, SessionShell } from './server/types'
 
@@ -282,7 +282,7 @@ function distinct(values: string[]): string[] {
 }
 
 function entity(def: Omit<EntitySchema, 'count' | 'tabs' | 'samples'>, count: number): EntitySchema {
-  return { ...def, count: count.toLocaleString(), tabs: [], samples: [] }
+  return { ...def, count, tabs: [], samples: [] }
 }
 
 /**

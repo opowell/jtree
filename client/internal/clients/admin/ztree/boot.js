@@ -3,7 +3,7 @@
 // remembers the results (see compiledCache) so later loads skip the compiling. Edit a file
 // in src/ and reload the page to see the change.
 import * as Vue from 'vue'
-import * as Layout from 'header-content-layout'
+import * as Layout from 'appfr'
 import * as acorn from 'acorn'
 import { loadModule } from 'vue3-sfc-loader'
 import * as CodeMirror from 'codemirror'
@@ -43,7 +43,7 @@ const options = {
   moduleCache: {
     'vue': Vue,
     'codemirror': CodeMirror,
-    'header-content-layout': Layout,
+    appfr: Layout,
     'acorn': acorn,
     'socket.io-client': { io: window.io },
     'circular-json': window.CircularJSON,

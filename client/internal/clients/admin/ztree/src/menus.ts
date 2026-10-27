@@ -1,5 +1,5 @@
 import { computed } from 'vue'
-import type { MenuItemDef } from 'header-content-layout'
+import type { MenuItemDef } from 'appfr'
 import { state } from './server/connection'
 import { canReorder, monitor, windowCommands } from './clients'
 import * as act from './actions'

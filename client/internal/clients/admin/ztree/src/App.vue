@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch, watchPostEffect } from 'vue'
-import { MenuBar, useLayoutRoute, WindowFrame } from 'header-content-layout'
-import type { WindowNode } from 'header-content-layout'
+import { MenuBar, useLayoutRoute, WindowFrame } from 'appfr'
+import type { WindowNode } from 'appfr'
 import ZIcon from './components/ZIcon.vue'
 import TreatmentWindow from './windows/TreatmentWindow.vue'
 import MonitorWindow from './windows/MonitorWindow.vue'
@@ -197,9 +197,6 @@ function tableParts(id: string): { name: string, treatment: number } {
         :tokens="LIGHT"
         :menu="false"
         :min-panel-size="140"
-        movable
-        resizable
-        closable
         @update:layout="onLayout"
         @panel-close="closeRequested"
       >

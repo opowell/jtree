@@ -6,7 +6,7 @@
     "typecheck": "vue-tsc --noEmit"
   },
   "devDependencies": {
-    "header-content-layout": "github:opowell/appfr#f5862d984dc5a88eea07d50fa691ca8c497a022c",
+    "appfr": "github:opowell/appfr#v0.68.0",
     "typescript": "^5.7",
     "vue": "3.5.43",
     "vue-tsc": "^2.2"

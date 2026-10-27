@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { StatusPill } from 'header-content-layout'
-import type { RecordStatus } from 'header-content-layout'
+import { StatusPill } from 'appfr'
+import type { RecordStatus } from 'appfr'
 import ConfirmButton from '../components/ConfirmButton.vue'
 import { serverUrl, state } from '../server/connection'
 import { server } from '../server/commands'

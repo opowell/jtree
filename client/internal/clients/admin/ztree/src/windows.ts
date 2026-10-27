@@ -11,8 +11,8 @@ import {
   panelNode,
   raiseFrame,
   removePanel,
-} from 'header-content-layout'
-import type { FloatRect, RouteAdapter, WindowFloat, WindowNode, WindowPanelDef } from 'header-content-layout'
+} from 'appfr'
+import type { FloatRect, RouteAdapter, WindowFloat, WindowNode, WindowPanelDef } from 'appfr'
 import { safeStorage } from './server/connection'
 import { docs, isDirty } from './treatment/docs'
 

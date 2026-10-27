@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, toRef } from 'vue'
-import { MenuBar, SHELL_THEMES, useLayoutRoute, WindowFrame } from 'header-content-layout'
-import type { MenuItemDef, WindowNode, WindowPanelDef } from 'header-content-layout'
+import { MenuBar, SHELL_THEMES, useLayoutRoute, WindowFrame } from 'appfr'
+import type { MenuItemDef, WindowNode, WindowPanelDef } from 'appfr'
 import ShellPanel from './panels/ShellPanel.vue'
 import SessionPanel from './panels/SessionPanel.vue'
 import ClientsPanel from './panels/ClientsPanel.vue'
@@ -143,8 +143,6 @@ const menus = computed<MenuItemDef[]>(() => {
       :panels="panels"
       :layout="workspace.layout"
       :theme="workspace.theme"
-      movable
-      closable
       :pop-out="solo ? undefined : popOut"
       :solo="solo"
       :root-bar="false"

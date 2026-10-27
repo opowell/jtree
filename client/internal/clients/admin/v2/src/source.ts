@@ -1,12 +1,12 @@
 import { computed } from 'vue'
 import {
   cellValue,
+  facetValue,
   findSort,
   matchesExpression,
-  matchesFacets,
   parseExpression,
-} from 'header-content-layout'
-import type { ColumnDef, QueryRequest, QueryResult, ShellRow, SyncDataSource } from 'header-content-layout'
+} from 'appfr'
+import type { ColumnDef, QueryRequest, QueryResult, ShellRow, SyncDataSource } from 'appfr'
 import { state } from './server/connection'
 import { rowsFor } from './schema'
 
@@ -35,17 +35,18 @@ function query({ query, schema, entity, limit, offset }: QueryRequest): QueryRes
   let population = 0
   const matched: ShellRow[] = []
 
-  // Apps that opted out of being listed show only when asked for.
-  const unlistedFacet = query.facets.unlisted
-  const showUnlisted = entity?.key === 'apps' && unlistedFacet?.kind === 'toggle' && unlistedFacet.on
+  // Apps that opted out of being listed show only when asked for: the
+  // Unlisted toggle, which is an `unlisted:true` term in the expression.
+  const unlistedFacet = entity?.key === 'apps' ? entity.facets.find((facet) => facet.key === 'unlisted') : undefined
+  const unlistedValue = unlistedFacet ? facetValue(query.expr, unlistedFacet) : null
+  const showUnlisted = unlistedValue?.kind === 'toggle' && unlistedValue.on
 
   for (const candidate of scope) {
     for (const row of rowsFor(candidate.key)) {
       if (row.fields.unlisted && !showUnlisted) continue
       population++
-      // Facets belong to an entity, so they only narrow when one is chosen.
-      const passesFacets = entity ? matchesFacets(row, query.facets) : true
-      if (passesFacets && matchesExpression(expression, row, candidate)) matched.push(row)
+      // A facet is terms in the expression, so the expression is the whole filter.
+      if (matchesExpression(expression, row, candidate)) matched.push(row)
     }
   }
 

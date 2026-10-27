@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { createMemoryAdapter, DataShell } from 'header-content-layout'
-import type { EntitySchema, RouteAdapter, ShellQueryDefaults, ViewKind } from 'header-content-layout'
+import { createMemoryAdapter, DataShell } from 'appfr'
+import type { EntitySchema, RouteAdapter, ShellQueryDefaults, ViewKind } from 'appfr'
 import { schema } from '../schema'
 import { source } from '../source'
 import { activate, addressBar, showNewSession, workspace } from '../workspace'
