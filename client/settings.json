@@ -1,4 +1,5 @@
 {
     "useHTTPS": false,
-    "defaultAdminPwd": ""
+    "defaultAdminPwd": "",
+    "askBeforeLeaving": false
 }
