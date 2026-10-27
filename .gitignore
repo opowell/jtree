@@ -28,3 +28,7 @@ server/internal
 
 # tools/otree: oTree's installs (tools/otree/setup.sh), to check jtree against.
 /tools/otree/*/
+
+# A local oTree test project (`otree startproject`): its settings.py carries a
+# SECRET_KEY, and this repository is public.
+/client/apps/test/
